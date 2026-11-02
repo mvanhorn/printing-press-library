@@ -51,7 +51,8 @@
     "internal/cli/data_source.go",
     "internal/cli/helpers.go",
     "internal/cliutil/query.go",
-    "internal/mcp/tools.go"
+    "internal/mcp/tools.go",
+    "tools-manifest.json"
   ],
   "call_sites": [
     "appendArrayQueryParam(",

@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 )
 
 type seenRequest struct {
@@ -21,6 +22,12 @@ type seenRequest struct {
 }
 
 func callAPITool(t *testing.T, method, path string, positional []string, args map[string]any, queryParams ...string) seenRequest {
+	return callAPIHandler(t, func() server.ToolHandlerFunc {
+		return makeAPIHandler(method, path, positional, queryParams...)
+	}, args)
+}
+
+func callAPIHandler(t *testing.T, buildHandler func() server.ToolHandlerFunc, args map[string]any) seenRequest {
 	t.Helper()
 	var seen seenRequest
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +42,7 @@ func callAPITool(t *testing.T, method, path string, positional []string, args ma
 	t.Setenv("HOME", t.TempDir())
 	t.Setenv("SENTRY_AUTH_TOKEN", "test-token")
 	t.Setenv("SENTRY_BASE_URL", srv.URL)
-	handler := makeAPIHandler(method, path, positional, queryParams...)
+	handler := buildHandler()
 	req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Name: "test", Arguments: args}}
 	result, err := handler(context.Background(), req)
 	if err != nil || result == nil || result.IsError {
@@ -87,5 +94,39 @@ func TestMCPMutationsPreserveExplicitEmptyQuery(t *testing.T) {
 		if !reflect.DeepEqual(seen.query["query"], []string{""}) {
 			t.Errorf("%s query = %v, want query=", method, seen.query)
 		}
+	}
+}
+
+func TestRegisteredMCPToolsExposeAndForwardRepeatedFilters(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		key  string
+		args map[string]any
+	}{
+		{"organizations_events_query-explore-in-table-format", "field", map[string]any{"dataset": "errors", "field": []any{"project", "count_if(a,equals,b)"}}},
+		{"organizations_issues_bulk-remove-an-organization-s", "id", map[string]any{"id": []any{"10", "11"}}},
+		{"projects_issues_bulk-mutate-a-list-of", "id", map[string]any{"project_id_or_slug": "p", "id": []any{"10", "11"}, "isBookmarked": true}},
+		{"projects_issues_bulk-remove-a-list-of", "id", map[string]any{"project_id_or_slug": "p", "id": []any{"10", "11"}}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.args["organization_id_or_slug"] = "o"
+			seen := callAPIHandler(t, func() server.ToolHandlerFunc {
+				s := server.NewMCPServer("query-test", "1")
+				RegisterTools(s)
+				tool := s.GetTool(tc.name)
+				if tool == nil {
+					t.Fatalf("registered tool missing: %s", tc.name)
+				}
+				property, ok := tool.Tool.InputSchema.Properties[tc.key].(map[string]any)
+				if !ok || property["type"] != "array" {
+					t.Fatalf("%s schema must expose an array: %v", tc.key, property)
+				}
+				return tool.Handler
+			}, tc.args)
+			want := mcpQueryValues(tc.args[tc.key].([]any))
+			if !reflect.DeepEqual(seen.query[tc.key], want) {
+				t.Errorf("registered tool query %s = %v, want %v", tc.key, seen.query[tc.key], want)
+			}
+		})
 	}
 }

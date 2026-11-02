@@ -172,6 +172,8 @@ Run `sentry-pp-cli --help` for the full command reference and flag list.
 
 Array query flags such as `--field`, `--project` and `--environment` repeat: pass the flag once per value and each value is sent as its own query key. Values are not split on commas, so Sentry functions like `count_if(a,equals,b)` survive.
 
+MCP tools expose repeatable filters as arrays of strings. Pass issue and project IDs as strings inside those arrays to preserve their exact digits.
+
 ```bash
 sentry-pp-cli organizations events query-explore-in-table-format my-org --dataset errors \
   --field project --field environment --field 'count()' --stats-period 14d --sort='-count()' --agent

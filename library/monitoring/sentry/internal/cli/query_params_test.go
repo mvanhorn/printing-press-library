@@ -107,6 +107,20 @@ func TestArrayFlagAcceptsJSONArrayWithExactNumbers(t *testing.T) {
 	}
 }
 
+func TestProjectBulkCommandsPreserveRepeatedIDs(t *testing.T) {
+	for _, command := range []string{"bulk-remove-a-list-of", "bulk-mutate-a-list-of"} {
+		t.Run(command, func(t *testing.T) {
+			requests := recordRequests(t, `{}`)
+			runCLI(t, "projects", "issues", command, "test-org", "test-project",
+				"--id", "10", "--id", "11", "--yes", "--no-input", "--json")
+			got := requests()
+			if len(got) != 1 || !reflect.DeepEqual(got[0].URL.Query()["id"], []string{"10", "11"}) {
+				t.Fatalf("project bulk request lost IDs: %v", got)
+			}
+		})
+	}
+}
+
 func TestBulkRemovePreservesExplicitEmptyQuery(t *testing.T) {
 	requests := recordRequests(t, `{}`)
 	runCLI(t, "organizations", "issues", "bulk-remove-an-organization-s", "test-org",
