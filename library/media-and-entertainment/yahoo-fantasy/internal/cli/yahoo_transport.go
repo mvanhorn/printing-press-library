@@ -82,8 +82,9 @@ func (rt *yahooRoundTripper) RoundTrip(req *http.Request) (*http.Response, error
 		cloned.ContentLength = int64(len(bodyBytes))
 	}
 
-	// 3. Attach refreshed OAuth2 Bearer token if no static token is set and refresh credentials exist.
-	if cloned.Header.Get("Authorization") == "" {
+	// 3. Attach refreshed OAuth2 Bearer token if no static token is set (or stored token is expired) and refresh credentials exist.
+	tokenExpired := rt.client != nil && rt.client.Config != nil && !rt.client.Config.TokenExpiry.IsZero() && time.Now().After(rt.client.Config.TokenExpiry)
+	if cloned.Header.Get("Authorization") == "" || tokenExpired {
 		if bearer, err := rt.resolveRefreshedBearer(cloned); err == nil && bearer != "" {
 			cloned.Header.Set("Authorization", "Bearer "+bearer)
 		}
@@ -131,7 +132,8 @@ func (rt *yahooRoundTripper) RoundTrip(req *http.Request) (*http.Response, error
 
 func (rt *yahooRoundTripper) hasRefreshCredentials() bool {
 	cid, csec, rtok := rt.refreshCredentials()
-	return cid != "" && csec != "" && rtok != ""
+	acode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
+	return cid != "" && csec != "" && (rtok != "" || acode != "")
 }
 
 func (rt *yahooRoundTripper) refreshCredentials() (clientID, clientSecret, refreshToken string) {
@@ -168,7 +170,8 @@ func (rt *yahooRoundTripper) resolveRefreshedBearer(req *http.Request) (string, 
 
 func (rt *yahooRoundTripper) forceRefreshBearer(req *http.Request) (string, error) {
 	clientID, clientSecret, refreshToken := rt.refreshCredentials()
-	if clientID == "" || clientSecret == "" || refreshToken == "" {
+	authCode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
+	if clientID == "" || clientSecret == "" || (refreshToken == "" && authCode == "") {
 		return "", nil
 	}
 	tokenURL := strings.TrimSpace(cliutil.EnvOverride("YAHOO_OAUTH_TOKEN_URL"))
@@ -177,8 +180,18 @@ func (rt *yahooRoundTripper) forceRefreshBearer(req *http.Request) (string, erro
 	}
 
 	form := url.Values{}
-	form.Set("grant_type", "refresh_token")
-	form.Set("refresh_token", refreshToken)
+	if refreshToken != "" {
+		form.Set("grant_type", "refresh_token")
+		form.Set("refresh_token", refreshToken)
+	} else {
+		redirectURI := strings.TrimSpace(cliutil.EnvOverride("YAHOO_REDIRECT_URI"))
+		if redirectURI == "" {
+			redirectURI = "oob"
+		}
+		form.Set("grant_type", "authorization_code")
+		form.Set("code", authCode)
+		form.Set("redirect_uri", redirectURI)
+	}
 	encodedForm := form.Encode()
 
 	tokenReq, err := http.NewRequestWithContext(req.Context(), http.MethodPost, tokenURL, strings.NewReader(encodedForm))
@@ -203,19 +216,28 @@ func (rt *yahooRoundTripper) forceRefreshBearer(req *http.Request) (string, erro
 		return "", fmt.Errorf("yahoo oauth2 token refresh returned HTTP %d", resp.StatusCode)
 	}
 	var payload struct {
-		AccessToken string `json:"access_token"`
-		ExpiresIn   int    `json:"expires_in"`
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		ExpiresIn    int    `json:"expires_in"`
 	}
 	if err := json.Unmarshal(body, &payload); err != nil || strings.TrimSpace(payload.AccessToken) == "" {
 		return "", fmt.Errorf("invalid yahoo oauth2 token response")
+	}
+	if strings.TrimSpace(payload.RefreshToken) != "" {
+		refreshToken = strings.TrimSpace(payload.RefreshToken)
 	}
 	ttl := 55 * time.Minute
 	if payload.ExpiresIn > 120 {
 		ttl = time.Duration(payload.ExpiresIn-60) * time.Second
 	}
+	expiry := time.Now().Add(ttl)
+	accessTok := strings.TrimSpace(payload.AccessToken)
 	rt.mu.Lock()
-	rt.refreshedBearer = strings.TrimSpace(payload.AccessToken)
-	rt.refreshedExpiry = time.Now().Add(ttl)
+	rt.refreshedBearer = accessTok
+	rt.refreshedExpiry = expiry
 	rt.mu.Unlock()
-	return payload.AccessToken, nil
+	if rt.client != nil && rt.client.Config != nil && !cliutil.IsAnyHarness() && !cliutil.IsVerifyEnv() && !cliutil.IsDogfoodEnv() {
+		_ = rt.client.Config.SaveTokens(clientID, clientSecret, accessTok, refreshToken, expiry)
+	}
+	return accessTok, nil
 }

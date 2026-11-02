@@ -302,4 +302,14 @@ func TestYahooSyncLegacyBatchMigrationDroppedOwnerClearingAndConcurrentUpserts(t
 	if strings.Contains(wwOut, "449.p.33009") {
 		t.Fatalf("expected traded player 449.p.33009 (now owned by t.2) NOT to appear in waiver-wire candidates, got: %s", wwOut)
 	}
+
+	// 3. Verify player-name resolution in lineup (--set "RB=Legacy Drafted") and add-drop (--add "Dropped WR" --drop "Legacy Drafted").
+	luOut := runTestRootCmd(t, "lineup", "--team", "449.l.365083.t.1", "--week", "1", "--set", "RB=Legacy Drafted", "--db", dbPath, "--data-source", "local", "--json")
+	if !strings.Contains(luOut, `"player_key": "449.p.31002"`) {
+		t.Fatalf("expected lineup --set 'RB=Legacy Drafted' to resolve to 449.p.31002, got: %s", luOut)
+	}
+	adOut := runTestRootCmd(t, "add-drop", "--league", "449.l.365083", "--team", "449.l.365083.t.1", "--add", "Dropped WR", "--drop", "Legacy Drafted", "--db", dbPath, "--data-source", "local", "--json")
+	if !strings.Contains(adOut, `"add_player_key": "449.p.32005"`) || !strings.Contains(adOut, `"drop_player_key": "449.p.31002"`) {
+		t.Fatalf("expected add-drop player names to resolve to 449.p.32005 and 449.p.31002, got: %s", adOut)
+	}
 }

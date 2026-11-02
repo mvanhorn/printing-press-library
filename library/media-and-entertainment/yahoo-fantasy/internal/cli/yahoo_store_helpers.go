@@ -22,7 +22,17 @@ func hasLiveAuthConfigured(flags *rootFlags) bool {
 	cid := strings.TrimSpace(os.Getenv("YAHOO_CLIENT_ID"))
 	csec := strings.TrimSpace(os.Getenv("YAHOO_CLIENT_SECRET"))
 	rtok := strings.TrimSpace(os.Getenv("YAHOO_REFRESH_TOKEN"))
-	return cid != "" && csec != "" && rtok != ""
+	acode := strings.TrimSpace(os.Getenv("YAHOO_AUTH_CODE"))
+	if cid == "" {
+		cid = strings.TrimSpace(c.Config.ClientID)
+	}
+	if csec == "" {
+		csec = strings.TrimSpace(c.Config.ClientSecret)
+	}
+	if rtok == "" {
+		rtok = strings.TrimSpace(c.Config.RefreshToken)
+	}
+	return cid != "" && csec != "" && (rtok != "" || acode != "")
 }
 
 // loadLocalResourceBlobs reads raw JSON rows from the local SQLite resources table using the drain-first pattern,

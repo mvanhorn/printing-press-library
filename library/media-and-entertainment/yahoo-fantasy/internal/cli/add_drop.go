@@ -45,43 +45,103 @@ with optional --faab bid, and preview (--dry-run) or submit POST /league/{league
 				return cmd.Help()
 			}
 			hasFaab := cmd.Flags().Changed("faab")
-			previewPlan, err := yahoofantasy.PlanAddDrop(flagLeague, flagTeam, flagAdd, flagDrop, flagFaab, hasFaab, -1)
-			if err != nil {
-				_ = cmd.Usage()
-				return usageErr(err)
-			}
-			if dryRunOK(flags) {
-				fmt.Fprintf(cmd.ErrOrStderr(), "POST /league/%s/transactions\n%s\n", previewPlan.LeagueKey, previewPlan.XMLPayload)
-				return writeDryRun(cmd.OutOrStdout(), flags, "add-drop")
-			}
-
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 
-			if err := validateDataSourceStrategy(flags, "auto"); err != nil {
-				return usageErr(err)
+			resolvedLeague := strings.TrimSpace(flagLeague)
+			if resolvedLeague == "" && strings.Contains(flagTeam, ".t.") {
+				resolvedLeague = yahoofantasy.YahooLeagueKeyFromEntityKey(flagTeam)
 			}
-
+			resolvedAdd := strings.TrimSpace(flagAdd)
+			resolvedDrop := strings.TrimSpace(flagDrop)
 			currentFAAB := -1
 			var addName, dropName string
+
 			if flags.dataSource != "live" {
-				blobs, _, _ := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "teams", "players", "leagues", "users")
-				for _, t := range extractAllTeamsFromBlobs(blobs) {
+				blobs, _, _ := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "teams", "rosters", "players", "leagues", "users")
+				for _, t := range extractLeagueTeamsFromBlobs(blobs, resolvedLeague) {
 					if t.TeamKey == strings.TrimSpace(flagTeam) && (t.HasFaab || t.FaabBalance > 0) {
 						currentFAAB = t.FaabBalance
 					}
 				}
-				for _, p := range extractAllPlayersFromBlobs(blobs) {
-					if p.PlayerKey == strings.TrimSpace(flagAdd) {
+				leaguePlayers := extractLeaguePlayersFromBlobs(blobs, resolvedLeague)
+				var rosterPlayers []yahoofantasy.PlayerRecord
+				for _, p := range leaguePlayers {
+					if strings.EqualFold(p.OwnerTeamKey, strings.TrimSpace(flagTeam)) {
+						rosterPlayers = append(rosterPlayers, p)
+					}
+				}
+				if resolvedAdd != "" && !yahoofantasy.IsYahooPlayerKey(resolvedAdd) && len(leaguePlayers) > 0 {
+					rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedAdd, leaguePlayers)
+					if rErr != nil {
+						return usageErr(rErr)
+					}
+					resolvedAdd = rp.PlayerKey
+					addName = rp.FullName
+				}
+				if resolvedDrop != "" && !yahoofantasy.IsYahooPlayerKey(resolvedDrop) {
+					pool := rosterPlayers
+					if len(pool) == 0 {
+						pool = leaguePlayers
+					}
+					if len(pool) > 0 {
+						rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedDrop, pool)
+						if rErr != nil {
+							return usageErr(rErr)
+						}
+						resolvedDrop = rp.PlayerKey
+						dropName = rp.FullName
+					}
+				}
+				for _, p := range leaguePlayers {
+					if p.PlayerKey == resolvedAdd && addName == "" {
 						addName = p.FullName
 					}
-					if p.PlayerKey == strings.TrimSpace(flagDrop) {
+					if p.PlayerKey == resolvedDrop && dropName == "" {
 						dropName = p.FullName
 					}
 				}
 			}
 
-			plan, err := yahoofantasy.PlanAddDrop(flagLeague, flagTeam, flagAdd, flagDrop, flagFaab, hasFaab, currentFAAB)
+			if dryRunOK(flags) {
+				previewPlan, err := yahoofantasy.PlanAddDrop(flagLeague, flagTeam, resolvedAdd, resolvedDrop, flagFaab, hasFaab, -1)
+				if err != nil {
+					_ = cmd.Usage()
+					return usageErr(err)
+				}
+				fmt.Fprintf(cmd.ErrOrStderr(), "POST /league/%s/transactions\n%s\n", previewPlan.LeagueKey, previewPlan.XMLPayload)
+				return writeDryRun(cmd.OutOrStdout(), flags, "add-drop")
+			}
+
+			if err := validateDataSourceStrategy(flags, "auto"); err != nil {
+				return usageErr(err)
+			}
+
+			if flags.dataSource != "local" && (hasLiveAuthConfigured(flags) || cliutil.IsVerifyEnv()) {
+				c, clientErr := flags.newClient()
+				if clientErr == nil {
+					if resolvedAdd != "" && !yahoofantasy.IsYahooPlayerKey(resolvedAdd) && resolvedLeague != "" {
+						rawSearch, sErr := c.Get(ctx, fmt.Sprintf("/league/%s/players;search=%s", resolvedLeague, resolvedAdd), map[string]string{"format": "json"})
+						if sErr == nil {
+							if rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedAdd, yahoofantasy.ExtractPlayers(rawSearch)); rErr == nil {
+								resolvedAdd = rp.PlayerKey
+								addName = rp.FullName
+							}
+						}
+					}
+					if resolvedDrop != "" && !yahoofantasy.IsYahooPlayerKey(resolvedDrop) && resolvedLeague != "" {
+						rawSearch, sErr := c.Get(ctx, fmt.Sprintf("/league/%s/players;search=%s", resolvedLeague, resolvedDrop), map[string]string{"format": "json"})
+						if sErr == nil {
+							if rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedDrop, yahoofantasy.ExtractPlayers(rawSearch)); rErr == nil {
+								resolvedDrop = rp.PlayerKey
+								dropName = rp.FullName
+							}
+						}
+					}
+				}
+			}
+
+			plan, err := yahoofantasy.PlanAddDrop(flagLeague, flagTeam, resolvedAdd, resolvedDrop, flagFaab, hasFaab, currentFAAB)
 			if err != nil {
 				_ = cmd.Usage()
 				return usageErr(err)

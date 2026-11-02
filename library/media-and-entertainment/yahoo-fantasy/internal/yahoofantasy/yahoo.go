@@ -360,7 +360,85 @@ func xmlEscape(s string) string {
 	return buf.String()
 }
 
-// ParseSlotSwaps parses comma-separated POSITION=PLAYER_KEY pairs (e.g. "QB=449.p.31862,BN=449.p.30123").
+// IsYahooPlayerKey reports whether s looks like a Yahoo player key (e.g. "449.p.31862").
+func IsYahooPlayerKey(s string) bool {
+	s = strings.TrimSpace(s)
+	return strings.Contains(s, ".p.")
+}
+
+// IsKnownRosterSlot reports whether s is a standard Yahoo Fantasy lineup position or bench/injury slot.
+func IsKnownRosterSlot(s string) bool {
+	switch strings.ToUpper(strings.TrimSpace(s)) {
+	case "QB", "WR", "RB", "TE", "W/R/T", "W/R", "W/T", "Q/W/R/T", "FLEX", "SUPERFLEX", "OP",
+		"K", "DEF", "D", "DL", "LB", "DB", "IDP", "BN", "BENCH", "IR", "IL", "IR+", "IL+", "IR-R", "NA",
+		"UTIL", "C", "LW", "RW", "G", "PG", "SG", "SF", "PF", "SP", "RP", "P", "1B", "2B", "3B", "SS", "OF", "MI", "CI", "DH":
+		return true
+	default:
+		return false
+	}
+}
+
+// ResolvePlayerInPool resolves either a Yahoo player key (449.p.31862) or a player name ("Bucky Irving")
+// against a slice of PlayerRecord entries using exact full-name matching followed by unique substring matching.
+func ResolvePlayerInPool(spec string, pool []PlayerRecord) (PlayerRecord, error) {
+	trimmed := strings.TrimSpace(spec)
+	if trimmed == "" {
+		return PlayerRecord{}, fmt.Errorf("empty player identifier")
+	}
+	if IsYahooPlayerKey(trimmed) {
+		for _, p := range pool {
+			if strings.EqualFold(strings.TrimSpace(p.PlayerKey), trimmed) {
+				return p, nil
+			}
+		}
+		return PlayerRecord{PlayerKey: trimmed}, nil
+	}
+	if len(pool) == 0 {
+		return PlayerRecord{}, fmt.Errorf("cannot resolve player name %q without synced player data; run 'yahoo-fantasy-pp-cli sync' or pass a player_key (e.g. 449.p.31862)", trimmed)
+	}
+
+	var exact []PlayerRecord
+	seenExact := map[string]bool{}
+	for _, p := range pool {
+		if p.PlayerKey != "" && strings.EqualFold(strings.TrimSpace(p.FullName), trimmed) && !seenExact[p.PlayerKey] {
+			seenExact[p.PlayerKey] = true
+			exact = append(exact, p)
+		}
+	}
+	if len(exact) == 1 {
+		return exact[0], nil
+	}
+	if len(exact) > 1 {
+		var choices []string
+		for _, p := range exact {
+			choices = append(choices, fmt.Sprintf("%s (%s %s)", p.FullName, p.PlayerKey, p.DisplayPosition))
+		}
+		return PlayerRecord{}, fmt.Errorf("ambiguous player name %q matched multiple players: %s; specify a player_key", trimmed, strings.Join(choices, ", "))
+	}
+
+	needle := strings.ToLower(trimmed)
+	var partial []PlayerRecord
+	seenPartial := map[string]bool{}
+	for _, p := range pool {
+		if p.PlayerKey != "" && strings.Contains(strings.ToLower(p.FullName), needle) && !seenPartial[p.PlayerKey] {
+			seenPartial[p.PlayerKey] = true
+			partial = append(partial, p)
+		}
+	}
+	if len(partial) == 1 {
+		return partial[0], nil
+	}
+	if len(partial) > 1 {
+		var choices []string
+		for _, p := range partial {
+			choices = append(choices, fmt.Sprintf("%s (%s %s)", p.FullName, p.PlayerKey, p.DisplayPosition))
+		}
+		return PlayerRecord{}, fmt.Errorf("ambiguous player name %q matched %d players: %s; specify full name or player_key", trimmed, len(partial), strings.Join(choices, ", "))
+	}
+	return PlayerRecord{}, fmt.Errorf("player %q not found in local pool; run 'yahoo-fantasy-pp-cli sync' or pass a Yahoo player_key (e.g. 449.p.31862)", trimmed)
+}
+
+// ParseSlotSwaps parses comma-separated POSITION=PLAYER_KEY_OR_NAME pairs (e.g. "QB=449.p.31862,BN=449.p.30123" or "RB=Bucky Irving").
 func ParseSlotSwaps(setSpec string) ([]RosterSlotUpdate, error) {
 	trimmed := strings.TrimSpace(setSpec)
 	if trimmed == "" {
@@ -375,12 +453,12 @@ func ParseSlotSwaps(setSpec string) ([]RosterSlotUpdate, error) {
 		}
 		eq := strings.IndexByte(part, '=')
 		if eq <= 0 || eq >= len(part)-1 {
-			return nil, fmt.Errorf("invalid --set assignment %q: expected POSITION=PLAYER_KEY (e.g. QB=449.p.31862)", part)
+			return nil, fmt.Errorf("invalid --set assignment %q: expected POSITION=PLAYER_KEY_OR_NAME (e.g. QB=449.p.31862 or RB=Bucky Irving)", part)
 		}
 		left := strings.TrimSpace(part[:eq])
 		right := strings.TrimSpace(part[eq+1:])
-		// Support both POS=PLAYER_KEY and PLAYER_KEY=POS gracefully.
-		if strings.Contains(left, ".p.") && !strings.Contains(right, ".p.") {
+		// Support both POS=PLAYER and PLAYER=POS gracefully.
+		if (IsYahooPlayerKey(left) && !IsYahooPlayerKey(right)) || (!IsKnownRosterSlot(left) && IsKnownRosterSlot(right)) {
 			updates = append(updates, RosterSlotUpdate{
 				PlayerKey: left,
 				Position:  strings.ToUpper(right),
@@ -585,8 +663,15 @@ func AnalyzeLineup(teamKey string, week int, date string, roster []PlayerRecord,
 		plan.Alerts = append(plan.Alerts, alert)
 	}
 
-	// Validate explicit swaps if provided; otherwise if none provided and there are alerts with recommendations, keep PlannedSwaps as requestedSwaps (or suggested if caller wants).
+	// Validate explicit swaps if provided (resolving player names against roster when needed).
 	for _, sw := range requestedSwaps {
+		if !IsYahooPlayerKey(sw.PlayerKey) && len(roster) > 0 {
+			resolved, rErr := ResolvePlayerInPool(sw.PlayerKey, roster)
+			if rErr != nil {
+				return plan, rErr
+			}
+			sw.PlayerKey = resolved.PlayerKey
+		}
 		if p, ok := byKey[sw.PlayerKey]; ok {
 			if !isEligibleForSlot(p, sw.Position) {
 				return plan, fmt.Errorf("player %s (%s, eligible: %s) is not eligible for slot %s",

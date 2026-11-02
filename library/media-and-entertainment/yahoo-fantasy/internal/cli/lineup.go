@@ -72,6 +72,30 @@ required <fantasy_content><roster> XML format.`,
 				covType = "date"
 			}
 
+			ctx, cancel := boundCtx(cmd.Context(), flags)
+			defer cancel()
+
+			leagueKey := yahoofantasy.YahooLeagueKeyFromEntityKey(teamKey)
+			var roster []yahoofantasy.PlayerRecord
+			if flags.dataSource != "live" {
+				blobs, _, _ := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "teams", "rosters", "players", "users")
+				for _, p := range extractLeaguePlayersFromBlobs(blobs, leagueKey) {
+					if p.OwnerTeamKey == "" || p.OwnerTeamKey == teamKey {
+						roster = append(roster, p)
+					}
+				}
+			}
+
+			for i := range swaps {
+				if !yahoofantasy.IsYahooPlayerKey(swaps[i].PlayerKey) && len(roster) > 0 {
+					resolved, rErr := yahoofantasy.ResolvePlayerInPool(swaps[i].PlayerKey, roster)
+					if rErr != nil {
+						return usageErr(rErr)
+					}
+					swaps[i].PlayerKey = resolved.PlayerKey
+				}
+			}
+
 			var previewXML []byte
 			if len(swaps) > 0 {
 				xmlBytes, xmlErr := yahoofantasy.BuildRosterUpdateXML(yahoofantasy.RosterUpdateRequest{
@@ -94,22 +118,8 @@ required <fantasy_content><roster> XML format.`,
 				return writeDryRun(cmd.OutOrStdout(), flags, "lineup")
 			}
 
-			ctx, cancel := boundCtx(cmd.Context(), flags)
-			defer cancel()
-
 			if err := validateDataSourceStrategy(flags, "auto"); err != nil {
 				return usageErr(err)
-			}
-
-			leagueKey := yahoofantasy.YahooLeagueKeyFromEntityKey(teamKey)
-			var roster []yahoofantasy.PlayerRecord
-			if flags.dataSource != "live" {
-				blobs, _, _ := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "teams", "rosters", "players", "users")
-				for _, p := range extractLeaguePlayersFromBlobs(blobs, leagueKey) {
-					if p.OwnerTeamKey == "" || p.OwnerTeamKey == teamKey {
-						roster = append(roster, p)
-					}
-				}
 			}
 
 			c, err := flags.newClient()
