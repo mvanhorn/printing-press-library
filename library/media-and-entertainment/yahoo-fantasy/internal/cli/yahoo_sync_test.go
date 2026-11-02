@@ -401,6 +401,31 @@ func TestYahooOAuthRefreshStoreScopeAndConcurrency(t *testing.T) {
 	if dbSecondAccount == dbAfter {
 		t.Fatalf("expected second Yahoo account on same ClientID to use a distinct DB path, got same %q", dbSecondAccount)
 	}
+
+	// Verify switching YAHOO_ACCESS_TOKEN to Account C while Account B's YAHOO_REFRESH_TOKEN remains exported uses Account C's DB scope.
+	t.Setenv("YAHOO_ACCESS_TOKEN", "account-c-direct-bearer")
+	configureDefaultDBScope("")
+	dbThirdAccount := defaultDBPath("yahoo-fantasy-pp-cli")
+	if dbThirdAccount == dbSecondAccount || dbThirdAccount == dbAfter {
+		t.Fatalf("expected env YAHOO_ACCESS_TOKEN override to select Account C DB scope, got %q", dbThirdAccount)
+	}
+	t.Setenv("YAHOO_ACCESS_TOKEN", "")
+	t.Setenv("YAHOO_REFRESH_TOKEN", "")
+
+	// Verify that if YAHOO_AUTH_CODE stays exported after its first exchange, a later invocation uses the saved refresh token instead of re-sending the consumed code.
+	t.Setenv("YAHOO_AUTH_CODE", "one-time-auth-code")
+	if err := persistYahooOAuthTokens("", "cid-stable-123", "csec-stable-456", "code-access-1", "code-refresh-1", "", "one-time-auth-code", "GUID-CODE-USER", time.Now().Add(-time.Minute)); err != nil {
+		t.Fatalf("persistYahooOAuthTokens for auth code: %v", err)
+	}
+	cAfterCode, err := flags.newClient()
+	if err != nil {
+		t.Fatalf("newClient after code exchange: %v", err)
+	}
+	rtAfterCode := cAfterCode.HTTPClient.Transport.(*yahooRoundTripper)
+	_, _, gotRefreshTok := rtAfterCode.refreshCredentialsLocked()
+	if gotRefreshTok != "code-refresh-1" {
+		t.Fatalf("expected saved refresh token 'code-refresh-1' to be used when YAHOO_AUTH_CODE was already exchanged, got %q", gotRefreshTok)
+	}
 }
 
 func TestYahooAddDropAutoFallbackOnLocalMiss(t *testing.T) {

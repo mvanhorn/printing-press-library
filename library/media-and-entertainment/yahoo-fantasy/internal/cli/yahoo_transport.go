@@ -29,9 +29,7 @@ func yahooStoreScopeIdentity(c *config.Config) string {
 	if c == nil || c.CredentialRouteBlocked() || c.HasCredentialRefusals() {
 		return ""
 	}
-	envRefresh := strings.TrimSpace(cliutil.EnvOverride("YAHOO_REFRESH_TOKEN"))
-	envCode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
-	if strings.HasPrefix(c.AuthSource, "env:") && envRefresh == "" && envCode == "" {
+	if strings.HasPrefix(c.AuthSource, "env:") {
 		activeTok := strings.TrimSpace(c.AccessToken)
 		if activeTok == "" {
 			activeTok = strings.TrimSpace(c.YahooFantasyToken)
@@ -43,13 +41,15 @@ func yahooStoreScopeIdentity(c *config.Config) string {
 		}
 		return ""
 	}
+	envRefresh := strings.TrimSpace(cliutil.EnvOverride("YAHOO_REFRESH_TOKEN"))
+	envCode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
 	if envRefresh != "" {
 		if scope := lookupYahooAccountScope("refresh:" + envRefresh); scope != "" {
 			return scope
 		}
 		return "yahoo-account:" + hashDefaultDBScope("refresh:"+envRefresh)
 	}
-	if envCode != "" {
+	if envCode != "" && !isYahooAuthCodeAlreadyExchanged(envCode, strings.TrimSpace(c.RefreshToken)) {
 		if scope := lookupYahooAccountScope("code:" + envCode); scope != "" {
 			return scope
 		}
@@ -68,6 +68,16 @@ func yahooStoreScopeIdentity(c *config.Config) string {
 		}
 	}
 	return ""
+}
+
+func isYahooAuthCodeAlreadyExchanged(authCode, savedRefreshToken string) bool {
+	authCode = strings.TrimSpace(authCode)
+	savedRefreshToken = strings.TrimSpace(savedRefreshToken)
+	if authCode == "" || savedRefreshToken == "" {
+		return false
+	}
+	codeScope := lookupYahooAccountScope("code:" + authCode)
+	return codeScope != "" && codeScope == lookupYahooAccountScope("refresh:"+savedRefreshToken)
 }
 
 func installYahooTransport(c *client.Client) error {
@@ -93,8 +103,9 @@ func installYahooTransport(c *client.Client) error {
 		rt.cfgPath = strings.TrimSpace(c.Config.Path)
 		envRefresh := strings.TrimSpace(cliutil.EnvOverride("YAHOO_REFRESH_TOKEN"))
 		envCode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
+		unexchangedCode := envCode != "" && !isYahooAuthCodeAlreadyExchanged(envCode, rt.cfgRefreshToken)
 		if !strings.HasPrefix(c.Config.AuthSource, "env:") &&
-			((envRefresh != "" && envRefresh != rt.cfgRefreshToken) || envCode != "") {
+			((envRefresh != "" && envRefresh != rt.cfgRefreshToken) || unexchangedCode) {
 			rt.cfgTokenExpiry = time.Unix(1, 0)
 		}
 	}
@@ -226,7 +237,8 @@ func (rt *yahooRoundTripper) refreshCredentialsLocked() (clientID, clientSecret,
 	if clientSecret == "" {
 		clientSecret = rt.cfgClientSecret
 	}
-	if refreshToken == "" && (authCode == "" || rt.refreshedBearer != "") {
+	unexchangedCode := authCode != "" && !isYahooAuthCodeAlreadyExchanged(authCode, rt.cfgRefreshToken)
+	if refreshToken == "" && (!unexchangedCode || rt.refreshedBearer != "") {
 		refreshToken = rt.cfgRefreshToken
 	}
 	return clientID, clientSecret, refreshToken
