@@ -5,12 +5,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/store"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/yahoofantasy"
 )
@@ -311,5 +314,122 @@ func TestYahooSyncLegacyBatchMigrationDroppedOwnerClearingAndConcurrentUpserts(t
 	adOut := runTestRootCmd(t, "add-drop", "--league", "449.l.365083", "--team", "449.l.365083.t.1", "--add", "Dropped WR", "--drop", "Legacy Drafted", "--db", dbPath, "--data-source", "local", "--json")
 	if !strings.Contains(adOut, `"add_player_key": "449.p.32005"`) || !strings.Contains(adOut, `"drop_player_key": "449.p.31002"`) {
 		t.Fatalf("expected add-drop player names to resolve to 449.p.32005 and 449.p.31002, got: %s", adOut)
+	}
+}
+
+func TestYahooOAuthRefreshStoreScopeAndConcurrency(t *testing.T) {
+	tmpHome := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(tmpHome)
+	if err != nil {
+		t.Fatalf("SetHomeOverride: %v", err)
+	}
+	defer restore()
+
+	var refreshCount int32
+	var mu sync.Mutex
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/oauth2/get_token" {
+			mu.Lock()
+			refreshCount++
+			n := refreshCount
+			mu.Unlock()
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = fmt.Fprintf(w, `{"access_token":"rotated-access-%d","refresh_token":"stable-refresh","expires_in":3600}`, n)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"fantasy_content":{"game":[{"game_key":"449","name":"Football"}]}}`))
+	}))
+	defer srv.Close()
+
+	t.Setenv("YAHOO_OAUTH_TOKEN_URL", srv.URL+"/oauth2/get_token")
+	t.Setenv("YAHOO_FANTASY_BASE_URL", srv.URL)
+	t.Setenv("YAHOO_CLIENT_ID", "cid-stable-123")
+	t.Setenv("YAHOO_CLIENT_SECRET", "csec-stable-456")
+	t.Setenv("YAHOO_REFRESH_TOKEN", "stable-refresh")
+
+	configureDefaultDBScope("")
+	dbBefore := defaultDBPath("yahoo-fantasy-pp-cli")
+
+	flags := &rootFlags{timeout: 5_000_000_000, rateLimit: -1}
+	c, err := flags.newClient()
+	if err != nil {
+		t.Fatalf("newClient: %v", err)
+	}
+
+	// Simulate 4 parallel sync workers refreshing simultaneously on an expired token.
+	var wg sync.WaitGroup
+	for i := 0; i < 4; i++ {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			_, getErr := c.Get(context.Background(), fmt.Sprintf("/game/44%d", idx), map[string]string{"format": "json"})
+			if getErr != nil {
+				t.Errorf("parallel Get %d failed: %v", idx, getErr)
+			}
+		}(i)
+	}
+	wg.Wait()
+
+	mu.Lock()
+	gotRefreshes := refreshCount
+	mu.Unlock()
+	if gotRefreshes != 1 {
+		t.Fatalf("expected exactly 1 OAuth refresh across 4 parallel workers, got %d", gotRefreshes)
+	}
+
+	// Simulate rotating the access token in credentials.toml and verify StoreScopeCredential keeps the same DB path.
+	if err := persistYahooOAuthTokens("", "cid-stable-123", "csec-stable-456", "rotated-access-99", "stable-refresh", c.Config.TokenExpiry); err != nil {
+		t.Fatalf("persistYahooOAuthTokens: %v", err)
+	}
+	t.Setenv("YAHOO_CLIENT_ID", "")
+	t.Setenv("YAHOO_CLIENT_SECRET", "")
+	t.Setenv("YAHOO_REFRESH_TOKEN", "")
+
+	configureDefaultDBScope("")
+	dbAfter := defaultDBPath("yahoo-fantasy-pp-cli")
+	if dbBefore != dbAfter {
+		t.Fatalf("expected defaultDBPath to remain stable across token rotation: before=%q after=%q", dbBefore, dbAfter)
+	}
+}
+
+func TestYahooAddDropAutoFallbackOnLocalMiss(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case strings.Contains(r.URL.Path, "/league/449.l.365083/players;search="):
+			_, _ = w.Write([]byte(`{"fantasy_content":{"league":[{"league_key":"449.l.365083"},{"players":{"0":{"player":[[{"player_key":"449.p.39999"},{"name":{"full":"Deep Sleeper"}},{"display_position":"WR"}]]},"count":1}}]}}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/league/449.l.365083/transactions":
+			_, _ = w.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><fantasy_content><transaction><transaction_key>449.l.365083.tr.99</transaction_key><status>successful</status></transaction></fantasy_content>`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer srv.Close()
+
+	t.Setenv("YAHOO_FANTASY_BASE_URL", srv.URL)
+	t.Setenv("YAHOO_ACCESS_TOKEN", "test-live-token")
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+
+	dbPath := filepath.Join(t.TempDir(), "local.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	// Seed a nonempty local player pool that has the drop player (449.p.31002) but NOT "Deep Sleeper".
+	_ = upsertYahooPlayerRecords(context.Background(), db, "449.l.365083", []yahoofantasy.PlayerRecord{{
+		LeagueKey:        "449.l.365083",
+		PlayerKey:        "449.p.31002",
+		FullName:         "Bench Veteran",
+		DisplayPosition:  "WR",
+		OwnerTeamKey:     "449.l.365083.t.1",
+		SelectedPosition: "BN",
+	}}, nil)
+	_ = db.Close()
+
+	out := runTestRootCmd(t, "add-drop", "--league", "449.l.365083", "--team", "449.l.365083.t.1", "--add", "Deep Sleeper", "--drop", "Bench Veteran", "--db", dbPath, "--data-source", "auto", "--json")
+	if !strings.Contains(out, `"add_player_key": "449.p.39999"`) || !strings.Contains(out, `"drop_player_key": "449.p.31002"`) {
+		t.Fatalf("expected auto mode add-drop to resolve local miss 'Deep Sleeper' via Yahoo live search to 449.p.39999, got: %s", out)
 	}
 }

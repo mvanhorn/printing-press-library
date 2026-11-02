@@ -8,17 +8,42 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/yahoofantasy"
 )
 
 func init() {
+	config.StoreScopeIdentity = yahooStoreScopeIdentity
 	registerClientHook(installYahooTransport)
+}
+
+func yahooStoreScopeIdentity(c *config.Config) string {
+	if c == nil || c.CredentialRouteBlocked() || c.HasCredentialRefusals() {
+		return ""
+	}
+	clientID := strings.TrimSpace(c.ClientID)
+	if clientID == "" {
+		clientID = strings.TrimSpace(cliutil.EnvOverride("YAHOO_CLIENT_ID"))
+	}
+	if clientID != "" {
+		return "client_id=" + clientID
+	}
+	refreshToken := strings.TrimSpace(c.RefreshToken)
+	if refreshToken == "" {
+		refreshToken = strings.TrimSpace(cliutil.EnvOverride("YAHOO_REFRESH_TOKEN"))
+	}
+	if refreshToken != "" {
+		return "refresh_token=" + refreshToken
+	}
+	return ""
 }
 
 func installYahooTransport(c *client.Client) error {
@@ -32,10 +57,18 @@ func installYahooTransport(c *client.Client) error {
 	if _, already := base.(*yahooRoundTripper); already {
 		return nil
 	}
-	c.HTTPClient.Transport = &yahooRoundTripper{
+	rt := &yahooRoundTripper{
 		base:   base,
 		client: c,
 	}
+	if c.Config != nil {
+		rt.cfgClientID = strings.TrimSpace(c.Config.ClientID)
+		rt.cfgClientSecret = strings.TrimSpace(c.Config.ClientSecret)
+		rt.cfgRefreshToken = strings.TrimSpace(c.Config.RefreshToken)
+		rt.cfgTokenExpiry = c.Config.TokenExpiry
+		rt.cfgPath = strings.TrimSpace(c.Config.Path)
+	}
+	c.HTTPClient.Transport = rt
 	return nil
 }
 
@@ -43,6 +76,11 @@ type yahooRoundTripper struct {
 	base            http.RoundTripper
 	client          *client.Client
 	mu              sync.Mutex
+	cfgClientID     string
+	cfgClientSecret string
+	cfgRefreshToken string
+	cfgTokenExpiry  time.Time
+	cfgPath         string
 	refreshedBearer string
 	refreshedExpiry time.Time
 }
@@ -83,13 +121,13 @@ func (rt *yahooRoundTripper) RoundTrip(req *http.Request) (*http.Response, error
 	}
 
 	// 3. Attach refreshed OAuth2 Bearer token if no static token is set (or stored token is expired) and refresh credentials exist.
-	tokenExpired := rt.client != nil && rt.client.Config != nil && !rt.client.Config.TokenExpiry.IsZero() && time.Now().After(rt.client.Config.TokenExpiry)
-	if cloned.Header.Get("Authorization") == "" || tokenExpired {
+	if cloned.Header.Get("Authorization") == "" || rt.shouldUseRefreshedBearer() {
 		if bearer, err := rt.resolveRefreshedBearer(cloned); err == nil && bearer != "" {
 			cloned.Header.Set("Authorization", "Bearer "+bearer)
 		}
 	}
 
+	sentAuth := cloned.Header.Get("Authorization")
 	resp, err := rt.base.RoundTrip(cloned)
 	if err != nil {
 		return nil, err
@@ -97,7 +135,7 @@ func (rt *yahooRoundTripper) RoundTrip(req *http.Request) (*http.Response, error
 
 	// 4. Retry once on 401 if refresh credentials are configured.
 	if resp.StatusCode == http.StatusUnauthorized && rt.hasRefreshCredentials() {
-		if bearer, refErr := rt.forceRefreshBearer(cloned); refErr == nil && bearer != "" {
+		if bearer, refErr := rt.forceRefreshBearer(cloned, sentAuth); refErr == nil && bearer != "" {
 			_ = resp.Body.Close()
 			retryReq := req.Clone(req.Context())
 			if bodyBytes != nil {
@@ -130,46 +168,60 @@ func (rt *yahooRoundTripper) RoundTrip(req *http.Request) (*http.Response, error
 	return resp, nil
 }
 
+func (rt *yahooRoundTripper) shouldUseRefreshedBearer() bool {
+	rt.mu.Lock()
+	defer rt.mu.Unlock()
+	if rt.refreshedBearer != "" {
+		return true
+	}
+	return !rt.cfgTokenExpiry.IsZero() && time.Now().After(rt.cfgTokenExpiry)
+}
+
 func (rt *yahooRoundTripper) hasRefreshCredentials() bool {
-	cid, csec, rtok := rt.refreshCredentials()
+	rt.mu.Lock()
+	defer rt.mu.Unlock()
+	cid, csec, rtok := rt.refreshCredentialsLocked()
 	acode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
 	return cid != "" && csec != "" && (rtok != "" || acode != "")
 }
 
-func (rt *yahooRoundTripper) refreshCredentials() (clientID, clientSecret, refreshToken string) {
+func (rt *yahooRoundTripper) refreshCredentialsLocked() (clientID, clientSecret, refreshToken string) {
 	clientID = strings.TrimSpace(cliutil.EnvOverride("YAHOO_CLIENT_ID"))
 	clientSecret = strings.TrimSpace(cliutil.EnvOverride("YAHOO_CLIENT_SECRET"))
 	refreshToken = strings.TrimSpace(cliutil.EnvOverride("YAHOO_REFRESH_TOKEN"))
-	if rt.client != nil && rt.client.Config != nil {
-		if clientID == "" {
-			clientID = strings.TrimSpace(rt.client.Config.ClientID)
-		}
-		if clientSecret == "" {
-			clientSecret = strings.TrimSpace(rt.client.Config.ClientSecret)
-		}
-		if refreshToken == "" {
-			refreshToken = strings.TrimSpace(rt.client.Config.RefreshToken)
-		}
+	if clientID == "" {
+		clientID = rt.cfgClientID
+	}
+	if clientSecret == "" {
+		clientSecret = rt.cfgClientSecret
+	}
+	if refreshToken == "" {
+		refreshToken = rt.cfgRefreshToken
 	}
 	return clientID, clientSecret, refreshToken
 }
 
 func (rt *yahooRoundTripper) resolveRefreshedBearer(req *http.Request) (string, error) {
 	rt.mu.Lock()
+	defer rt.mu.Unlock()
 	if rt.refreshedBearer != "" && time.Now().Before(rt.refreshedExpiry) {
-		tok := rt.refreshedBearer
-		rt.mu.Unlock()
-		return tok, nil
+		return rt.refreshedBearer, nil
 	}
-	rt.mu.Unlock()
-	if !rt.hasRefreshCredentials() {
-		return "", nil
-	}
-	return rt.forceRefreshBearer(req)
+	return rt.refreshBearerLocked(req)
 }
 
-func (rt *yahooRoundTripper) forceRefreshBearer(req *http.Request) (string, error) {
-	clientID, clientSecret, refreshToken := rt.refreshCredentials()
+func (rt *yahooRoundTripper) forceRefreshBearer(req *http.Request, failedAuthHeader string) (string, error) {
+	rt.mu.Lock()
+	defer rt.mu.Unlock()
+	if rt.refreshedBearer != "" && time.Now().Before(rt.refreshedExpiry) &&
+		failedAuthHeader != "" && failedAuthHeader != "Bearer "+rt.refreshedBearer {
+		return rt.refreshedBearer, nil
+	}
+	return rt.refreshBearerLocked(req)
+}
+
+func (rt *yahooRoundTripper) refreshBearerLocked(req *http.Request) (string, error) {
+	clientID, clientSecret, refreshToken := rt.refreshCredentialsLocked()
 	authCode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
 	if clientID == "" || clientSecret == "" || (refreshToken == "" && authCode == "") {
 		return "", nil
@@ -232,12 +284,35 @@ func (rt *yahooRoundTripper) forceRefreshBearer(req *http.Request) (string, erro
 	}
 	expiry := time.Now().Add(ttl)
 	accessTok := strings.TrimSpace(payload.AccessToken)
-	rt.mu.Lock()
 	rt.refreshedBearer = accessTok
 	rt.refreshedExpiry = expiry
-	rt.mu.Unlock()
-	if rt.client != nil && rt.client.Config != nil && !cliutil.IsAnyHarness() && !cliutil.IsVerifyEnv() && !cliutil.IsDogfoodEnv() {
-		_ = rt.client.Config.SaveTokens(clientID, clientSecret, accessTok, refreshToken, expiry)
+	rt.cfgClientID = clientID
+	rt.cfgClientSecret = clientSecret
+	rt.cfgRefreshToken = refreshToken
+	rt.cfgTokenExpiry = expiry
+	if !cliutil.IsAnyHarness() && !cliutil.IsVerifyEnv() && !cliutil.IsDogfoodEnv() {
+		_ = persistYahooOAuthTokens(rt.cfgPath, clientID, clientSecret, accessTok, refreshToken, expiry)
 	}
 	return accessTok, nil
+}
+
+func persistYahooOAuthTokens(cfgPath, clientID, clientSecret, accessTok, refreshToken string, expiry time.Time) error {
+	loadPath := strings.TrimSpace(cfgPath)
+	if os.Getenv("YAHOO_FANTASY_CONFIG") == "" {
+		if dir, err := cliutil.ConfigDir(); err == nil && loadPath == filepath.Join(dir, "config.toml") {
+			loadPath = ""
+		}
+	}
+	cfg, err := config.Load(loadPath)
+	if err != nil || cfg == nil {
+		return err
+	}
+	legacyCred := cfg.StoreScopeLegacyCredential()
+	cfg.ClientID = clientID
+	cfg.RefreshToken = refreshToken
+	setDefaultDBScopeIdentity(cfg.StoreScopeCredential(), legacyCred, cfg.BaseURL)
+	if !currentDefaultDBClaimSuppressed() {
+		_ = defaultDBPath("yahoo-fantasy-pp-cli")
+	}
+	return cfg.SaveTokens(clientID, clientSecret, accessTok, refreshToken, expiry)
 }

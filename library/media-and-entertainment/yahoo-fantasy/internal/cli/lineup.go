@@ -77,27 +77,43 @@ required <fantasy_content><roster> XML format.`,
 
 			leagueKey := yahoofantasy.YahooLeagueKeyFromEntityKey(teamKey)
 			var roster []yahoofantasy.PlayerRecord
+			var localSwapErr error
 			if flags.dataSource != "live" {
 				blobs, _, _ := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "teams", "rosters", "players", "users")
-				for _, p := range extractLeaguePlayersFromBlobs(blobs, leagueKey) {
-					if p.OwnerTeamKey == "" || p.OwnerTeamKey == teamKey {
+				allLocal := extractLeaguePlayersFromBlobs(blobs, leagueKey)
+				for _, p := range allLocal {
+					if p.OwnerTeamKey == teamKey {
 						roster = append(roster, p)
+					}
+				}
+				if len(roster) == 0 {
+					for _, p := range allLocal {
+						if p.OwnerTeamKey == "" {
+							roster = append(roster, p)
+						}
 					}
 				}
 			}
 
+			hasUnresolvedSwap := false
 			for i := range swaps {
-				if !yahoofantasy.IsYahooPlayerKey(swaps[i].PlayerKey) && len(roster) > 0 {
-					resolved, rErr := yahoofantasy.ResolvePlayerInPool(swaps[i].PlayerKey, roster)
-					if rErr != nil {
-						return usageErr(rErr)
+				if !yahoofantasy.IsYahooPlayerKey(swaps[i].PlayerKey) {
+					if len(roster) > 0 {
+						resolved, rErr := yahoofantasy.ResolvePlayerInPool(swaps[i].PlayerKey, roster)
+						if rErr == nil {
+							swaps[i].PlayerKey = resolved.PlayerKey
+						} else {
+							localSwapErr = rErr
+							hasUnresolvedSwap = true
+						}
+					} else {
+						hasUnresolvedSwap = true
 					}
-					swaps[i].PlayerKey = resolved.PlayerKey
 				}
 			}
 
 			var previewXML []byte
-			if len(swaps) > 0 {
+			if len(swaps) > 0 && !hasUnresolvedSwap {
 				xmlBytes, xmlErr := yahoofantasy.BuildRosterUpdateXML(yahoofantasy.RosterUpdateRequest{
 					CoverageType: covType,
 					Week:         week,
@@ -112,6 +128,12 @@ required <fantasy_content><roster> XML format.`,
 			}
 
 			if dryRunOK(flags) {
+				if hasUnresolvedSwap {
+					if localSwapErr != nil {
+						return usageErr(localSwapErr)
+					}
+					return usageErr(fmt.Errorf("cannot resolve player name in --set without roster data"))
+				}
 				if len(previewXML) > 0 {
 					fmt.Fprintf(cmd.ErrOrStderr(), "PUT /team/%s/roster\n%s\n", teamKey, string(previewXML))
 				}
@@ -127,16 +149,20 @@ required <fantasy_content><roster> XML format.`,
 				return err
 			}
 
-			if len(roster) == 0 && flags.dataSource != "local" && (hasLiveAuthConfigured(flags) || cliutil.IsVerifyEnv()) {
+			if (len(roster) == 0 || hasUnresolvedSwap) && flags.dataSource != "local" && (hasLiveAuthConfigured(flags) || cliutil.IsVerifyEnv()) {
 				rosterPath := fmt.Sprintf("/team/%s/roster;week=%s", teamKey, strconv.Itoa(week))
 				if dateStr != "" {
 					rosterPath = fmt.Sprintf("/team/%s/roster;date=%s", teamKey, dateStr)
 				}
 				rawRoster, getErr := c.Get(ctx, rosterPath, map[string]string{"format": "json"})
-				if getErr != nil {
+				if getErr != nil && len(roster) == 0 {
 					return classifyAPIError(cmd.OutOrStdout(), getErr, flags)
 				}
-				roster = yahoofantasy.ExtractPlayers(rawRoster)
+				if getErr == nil {
+					if liveRoster := yahoofantasy.ExtractPlayers(rawRoster); len(liveRoster) > 0 {
+						roster = liveRoster
+					}
+				}
 			}
 
 			plan, err := yahoofantasy.AnalyzeLineup(teamKey, week, dateStr, roster, swaps)

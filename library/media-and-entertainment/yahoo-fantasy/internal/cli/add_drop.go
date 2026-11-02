@@ -5,6 +5,7 @@ package cli
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"text/tabwriter"
 
@@ -56,6 +57,7 @@ with optional --faab bid, and preview (--dry-run) or submit POST /league/{league
 			resolvedDrop := strings.TrimSpace(flagDrop)
 			currentFAAB := -1
 			var addName, dropName string
+			var localAddErr, localDropErr error
 
 			if flags.dataSource != "live" {
 				blobs, _, _ := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "teams", "rosters", "players", "leagues", "users")
@@ -72,25 +74,35 @@ with optional --faab bid, and preview (--dry-run) or submit POST /league/{league
 					}
 				}
 				if resolvedAdd != "" && !yahoofantasy.IsYahooPlayerKey(resolvedAdd) && len(leaguePlayers) > 0 {
-					rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedAdd, leaguePlayers)
-					if rErr != nil {
-						return usageErr(rErr)
+					if rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedAdd, leaguePlayers); rErr == nil {
+						resolvedAdd = rp.PlayerKey
+						addName = rp.FullName
+					} else {
+						localAddErr = rErr
 					}
-					resolvedAdd = rp.PlayerKey
-					addName = rp.FullName
 				}
 				if resolvedDrop != "" && !yahoofantasy.IsYahooPlayerKey(resolvedDrop) {
-					pool := rosterPlayers
-					if len(pool) == 0 {
-						pool = leaguePlayers
-					}
-					if len(pool) > 0 {
-						rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedDrop, pool)
-						if rErr != nil {
-							return usageErr(rErr)
+					if len(rosterPlayers) > 0 {
+						if rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedDrop, rosterPlayers); rErr == nil {
+							resolvedDrop = rp.PlayerKey
+							dropName = rp.FullName
+						} else if len(leaguePlayers) > 0 {
+							if rp2, rErr2 := yahoofantasy.ResolvePlayerInPool(resolvedDrop, leaguePlayers); rErr2 == nil {
+								resolvedDrop = rp2.PlayerKey
+								dropName = rp2.FullName
+							} else {
+								localDropErr = rErr
+							}
+						} else {
+							localDropErr = rErr
 						}
-						resolvedDrop = rp.PlayerKey
-						dropName = rp.FullName
+					} else if len(leaguePlayers) > 0 {
+						if rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedDrop, leaguePlayers); rErr == nil {
+							resolvedDrop = rp.PlayerKey
+							dropName = rp.FullName
+						} else {
+							localDropErr = rErr
+						}
 					}
 				}
 				for _, p := range leaguePlayers {
@@ -104,6 +116,12 @@ with optional --faab bid, and preview (--dry-run) or submit POST /league/{league
 			}
 
 			if dryRunOK(flags) {
+				if resolvedAdd != "" && !yahoofantasy.IsYahooPlayerKey(resolvedAdd) && localAddErr != nil {
+					return usageErr(localAddErr)
+				}
+				if resolvedDrop != "" && !yahoofantasy.IsYahooPlayerKey(resolvedDrop) && localDropErr != nil {
+					return usageErr(localDropErr)
+				}
 				previewPlan, err := yahoofantasy.PlanAddDrop(flagLeague, flagTeam, resolvedAdd, resolvedDrop, flagFaab, hasFaab, -1)
 				if err != nil {
 					_ = cmd.Usage()
@@ -121,24 +139,37 @@ with optional --faab bid, and preview (--dry-run) or submit POST /league/{league
 				c, clientErr := flags.newClient()
 				if clientErr == nil {
 					if resolvedAdd != "" && !yahoofantasy.IsYahooPlayerKey(resolvedAdd) && resolvedLeague != "" {
-						rawSearch, sErr := c.Get(ctx, fmt.Sprintf("/league/%s/players;search=%s", resolvedLeague, resolvedAdd), map[string]string{"format": "json"})
+						rawSearch, sErr := c.Get(ctx, fmt.Sprintf("/league/%s/players;search=%s", resolvedLeague, url.PathEscape(resolvedAdd)), map[string]string{"format": "json"})
 						if sErr == nil {
 							if rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedAdd, yahoofantasy.ExtractPlayers(rawSearch)); rErr == nil {
 								resolvedAdd = rp.PlayerKey
 								addName = rp.FullName
+								localAddErr = nil
+							} else {
+								localAddErr = rErr
 							}
 						}
 					}
 					if resolvedDrop != "" && !yahoofantasy.IsYahooPlayerKey(resolvedDrop) && resolvedLeague != "" {
-						rawSearch, sErr := c.Get(ctx, fmt.Sprintf("/league/%s/players;search=%s", resolvedLeague, resolvedDrop), map[string]string{"format": "json"})
+						rawSearch, sErr := c.Get(ctx, fmt.Sprintf("/league/%s/players;search=%s", resolvedLeague, url.PathEscape(resolvedDrop)), map[string]string{"format": "json"})
 						if sErr == nil {
 							if rp, rErr := yahoofantasy.ResolvePlayerInPool(resolvedDrop, yahoofantasy.ExtractPlayers(rawSearch)); rErr == nil {
 								resolvedDrop = rp.PlayerKey
 								dropName = rp.FullName
+								localDropErr = nil
+							} else {
+								localDropErr = rErr
 							}
 						}
 					}
 				}
+			}
+
+			if resolvedAdd != "" && !yahoofantasy.IsYahooPlayerKey(resolvedAdd) && localAddErr != nil {
+				return usageErr(localAddErr)
+			}
+			if resolvedDrop != "" && !yahoofantasy.IsYahooPlayerKey(resolvedDrop) && localDropErr != nil {
+				return usageErr(localDropErr)
 			}
 
 			plan, err := yahoofantasy.PlanAddDrop(flagLeague, flagTeam, resolvedAdd, resolvedDrop, flagFaab, hasFaab, currentFAAB)
