@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-01",
+  "base_run_id": "20261031-175451-910ae94f",
+  "base_printing_press_version": "4.35.0",
+  "id": "google-voice-literal-unicode-search",
+  "summary": "Keep local literal substring search Unicode case-folded, including punctuation and partial words.",
+  "reason": "FTS token phrases and SQLite ASCII lower() miss literal text promised by Voice search and history query; preserve read-only compatibility with existing mirrors.",
+  "files": [
+    "internal/cli/voice_core.go",
+    "internal/cli/voice_core_test.go",
+    "internal/voice/mirror.go",
+    "internal/voice/publication_regressions_test.go"
+  ],
+  "markers": [
+    "voice_contains_fold",
+    "TestVoiceLiteralSearch"
+  ],
+  "validated_outcome": "Existing regressions, the full Go test/vet suites, and the refreshed120/120 read-only live matrix passed before this metadata-only split."
+}

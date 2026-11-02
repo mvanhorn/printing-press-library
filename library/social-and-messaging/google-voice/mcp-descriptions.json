@@ -1,0 +1,7 @@
+{
+  "descriptions": {
+    "account_get": "Read the Google Voice account bound to the imported private session. Takes no operation parameters and returns the observed account identity. Use this to verify the selected session before reading conversations; it does not create or change an account.",
+    "threads_list": "Read one conversation inventory page from the selected Voice account without changing read state. Optional: folder (texts or archived; defaults to texts), cursor from the prior inventory page, and unread. Returns observed threads and continuation evidence. Use threads_get with an observed thread ID to retrieve its messages.",
+    "threads_get": "Read one bounded message page from an observed Voice conversation without changing read state. Required: thread-id from threads_list. Optional: count (1 through 100; defaults to 100), cursor for older messages in that same thread, and unread. Returns the message page and older-history continuation evidence; use the returned cursor to continue that thread."
+  }
+}

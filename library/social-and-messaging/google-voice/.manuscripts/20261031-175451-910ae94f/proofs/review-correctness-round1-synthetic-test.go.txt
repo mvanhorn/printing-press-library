@@ -1,0 +1,123 @@
+package voice
+
+import (
+ "context"
+ "google-voice-pp-cli/internal/cliutil"
+ "encoding/json"
+ "io"
+ "net/http"
+ "path/filepath"
+ "strings"
+ "testing"
+)
+
+func reviewMirror(t *testing.T) *Mirror {
+ t.Helper()
+ m, e := OpenMirror(filepath.Join(t.TempDir(), "messages.sqlite3"), "account-id", true)
+ if e != nil { t.Fatal(e) }
+ t.Cleanup(func(){m.Close()})
+ return m
+}
+func reviewRemote(t *testing.T, f func(*http.Request, []any) any) *Remote {
+ t.Helper()
+ r := NewRemote(&Session{AccountID:"account-id",Cookies:map[string]string{"SAPISID":"synthetic"},PublicKey:"public-key"}, 0)
+ r.HTTP.Transport = roundTripFunc(func(q *http.Request)(*http.Response,error){
+  raw,_:=io.ReadAll(q.Body);var args []any;json.Unmarshal(raw,&args)
+  v:=any([]any{[]any{"account-id"}})
+  if q.URL.Path!="/voice/v1/voiceclient/account/get" {v=f(q,args)}
+  b,_:=json.Marshal(v)
+  return &http.Response{StatusCode:200,Header:http.Header{},Body:io.NopCloser(strings.NewReader(string(b)))},nil
+ })
+ return r
+}
+func TestReviewLatestRefreshGap(t *testing.T) {
+ m:=reviewMirror(t);ctx:=context.Background()
+ m.DB.Exec("INSERT INTO voice_runs(id,started_at,status) VALUES(1,'synthetic','bounded')")
+ b,_:=json.Marshal([]any{threadFixture("t-1","")});p,_:=DecodePage(b,true)
+ if _,e:=m.commit(ctx,1,"refresh","t-1","","",p.Threads);e!=nil{t.Fatal(e)}
+ latest:=threadFixture("t-1","gap-cursor")
+ latest[2].([]any)[0].([]any)[0]="newest"
+ calls:=[]string{}
+ r:=reviewRemote(t,func(q *http.Request,args []any)any{
+  if strings.HasSuffix(q.URL.Path,"/list"){return []any{[]any{latest},""}}
+  calls=append(calls,str(args[2]));return []any{latest}
+ })
+ out,e:=m.Sync(ctx,r,[]string{"texts"},5);if e!=nil{t.Fatal(e)}
+ var cursor string;var complete bool
+ m.DB.QueryRow("SELECT older_cursor,history_complete FROM voice_threads WHERE id='t-1'").Scan(&cursor,&complete)
+ t.Logf("result=%+v get cursors=%q saved cursor=%q complete=%v",out,calls,cursor,complete)
+ if complete||cursor==""||out.Status=="observed_exhausted" {t.Error("new latest-page continuation was discarded and a missing refresh interval is reported exhausted")}
+}
+func TestReviewBoundedFolderDiscovery(t *testing.T){
+ m:=reviewMirror(t);counts:=map[string]int{}
+ r:=reviewRemote(t,func(q *http.Request,args []any)any{if num(args[0])==6{counts["archived"]++}else{counts["texts"]++};return []any{[]any{},""}})
+ for i:=0;i<3;i++{out,e:=m.Sync(context.Background(),r,[]string{"texts","archived"},1);if e!=nil{t.Fatal(e)};t.Logf("run %d result=%+v",i,out);if out.InventoryComplete{t.Error("unattempted requested archived folder is reported exhausted")}}
+ if counts["archived"]==0{t.Errorf("archived inventory starved across repeated bounded syncs: %v",counts)}
+}
+func TestReviewMalformedPage(t *testing.T){
+ for _,tc:=range []struct{raw string;detail bool}{{`[["t-1",0,{},null]]`,true},{`[["t-1",0,[],["wrong-cursor-type"]]]`,true},{`[[],123]`,false}}{
+  p,e:=DecodePage([]byte(tc.raw),tc.detail)
+  if e==nil{t.Errorf("malformed populated field accepted as empty/exhausted: %s -> %+v",tc.raw,p)}
+ }
+}
+func TestReviewRepeatedAttachmentMetadata(t *testing.T){
+ v:=threadFixture("t-1","");m:=v[2].([]any)[0].([]any)
+ m[14]=[]any{"photo",nil,[]any{[]any{"image/jpeg","attachment-id",1,[]any{[]any{1,640,480},[]any{2,128,96}}}}}
+ b,_:=json.Marshal([]any{v});p,e:=DecodePage(b,true);if e!=nil{t.Fatal(e)}
+ a:=p.Threads[0].Messages[0].Attachments[0]
+ if a.Width!=640||a.Height!=480{t.Errorf("valid repeated metadata loses original dimensions: %+v",a)}
+}
+func TestReviewTranscriptAndDuration(t *testing.T){
+ v:=threadFixture("t-1","");m:=v[2].([]any)[0].([]any)
+ m[4]=2;m[6]=[]any{nil,[]any{[]any{"SGVsbG8="},[]any{"dGhlcmU="}}};m[8]=1.5
+ b,_:=json.Marshal([]any{v});p,e:=DecodePage(b,true);if e!=nil{t.Fatal(e)};got:=p.Threads[0].Messages[0]
+ if got.Transcript!="Hello there"{t.Errorf("protobuf bytes tokens are emitted encoded: %q",got.Transcript)}
+ if got.Duration==0{t.Errorf("float duration is lost: source=1.5 decoded=%d",got.Duration)}
+}
+func TestReviewAccountVersion(t *testing.T){
+ v:=make([]any,13);v[0]="account-id";v[12]=[]any{"version-token"}
+ b,_:=json.Marshal([]any{v});a,e:=DecodeAccount(b);if e!=nil{t.Fatal(e)};if a.Version!="version-token"{t.Errorf("nested AccountVersion lost: %+v",a)}
+}
+func TestReviewArrivalsSnapshot(t *testing.T){
+ m:=reviewMirror(t);ctx:=context.Background()
+ m.DB.Exec("INSERT INTO voice_runs(id,started_at,status) VALUES(1,'synthetic','bounded')")
+ b,_:=json.Marshal([]any{threadFixture("t-1","")});p,_:=DecodePage(b,true)
+ one:=p.Threads[0].Messages[0];two:=one;two.ID="m-2";p.Threads[0].Messages=[]Message{one,two}
+ m.commit(ctx,1,"refresh","t-1","","",p.Threads)
+ first,e:=m.Arrivals(ctx,0,"",1);if e!=nil{t.Fatal(e)}
+ m.DB.Exec("INSERT INTO voice_runs(id,started_at,status) VALUES(2,'synthetic','bounded')")
+ third:=one;third.ID="m-3";p.Threads[0].Messages=[]Message{third};m.commit(ctx,2,"refresh","t-1","","",p.Threads)
+ second,e:=m.Arrivals(ctx,0,first["next_cursor"].(string),10);if e!=nil{t.Fatal(e)}
+ got:=second["messages"].([]Record);if len(got)!=1{t.Errorf("arrival cursor includes records created after initial page, lacks fixed upper watermark: %d records, first runs=%d,%d",len(got),got[0].FirstRun,got[1].FirstRun)}
+}
+func TestReviewFractionalMessageBounds(t *testing.T){
+ m:=reviewMirror(t);ctx:=context.Background()
+ m.DB.Exec("INSERT INTO voice_runs(id,started_at,status) VALUES(1,'synthetic','bounded')")
+ b,_:=json.Marshal([]any{threadFixture("t-1","")});p,_:=DecodePage(b,true)
+ m.commit(ctx,1,"refresh","t-1","","",p.Threads)
+ after,e:=m.Messages(ctx,Query{After:"2023-11-14T22:13:20.000500Z",Limit:10});if e!=nil{t.Fatal(e)}
+ before,e:=m.Messages(ctx,Query{Before:"2023-11-14T22:13:20.000500Z",Limit:10});if e!=nil{t.Fatal(e)}
+ if len(after)!=0||len(before)!=1{t.Errorf("half-open sub-millisecond bounds invert inclusion: after=%d before=%d, want 0 and 1",len(after),len(before))}
+}
+func TestReviewContextObservationTimestamp(t *testing.T){
+ m:=reviewMirror(t);ctx:=context.Background()
+ m.DB.Exec("INSERT INTO voice_runs(id,started_at,status) VALUES(1,'synthetic','bounded')")
+ b,_:=json.Marshal([]any{threadFixture("t-1","")});p,_:=DecodePage(b,true)
+ m.commit(ctx,1,"refresh","t-1","","",p.Threads)
+ m.DB.Exec("UPDATE voice_threads SET history_observed_at='2020-01-01T00:00:00Z',last_refresh='2020-01-01T00:00:00Z',observed_at='2026-01-01T00:00:00Z',needs_refresh=1 WHERE id='t-1'")
+ out,e:=m.Context(ctx,"m-1",0,0);if e!=nil{t.Fatal(e)}
+ c:=out["collection"].(map[string]any)
+ if c["observed_at"]!="2020-01-01T00:00:00Z"{t.Errorf("exhaustion paired with newer inventory timestamp instead of history observation: %+v",c)}
+}
+
+func TestReviewUnknownUnreadGuard(t *testing.T){
+ restore,e:=cliutil.SetHomeOverride(t.TempDir());if e!=nil{t.Fatal(e)};defer restore()
+ t.Setenv("GOOGLE_VOICE_PROFILE","synthetic-review")
+ s:=Session{AccountID:"account-id",Cookies:map[string]string{"SAPISID":"synthetic"},PublicKey:"public-key"}
+ if e=SaveSession(s);e!=nil{t.Fatal(e)}
+ v:=threadFixture("t-1","");v[1]=nil;b,_:=json.Marshal([]any{v})
+ g:=Gateway{Transport:roundTripFunc(func(*http.Request)(*http.Response,error){return &http.Response{StatusCode:200,Header:http.Header{},Body:io.NopCloser(strings.NewReader(string(b)))},nil})}
+ req,_:=http.NewRequest("POST",Base+"/api2thread/get",strings.NewReader(`{"thread_id":"t-1","unread":true}`))
+ resp,e:=g.RoundTrip(req);if e!=nil{t.Fatal(e)};defer resp.Body.Close();var p Page;if e=json.NewDecoder(resp.Body).Decode(&p);e!=nil{t.Fatal(e)}
+ if len(p.Threads)>0{t.Error("unread=true emitted a thread with unknown/nil read status")}
+}

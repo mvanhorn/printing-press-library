@@ -1,0 +1,49 @@
+[
+  {
+    "operation": "threads",
+    "with_auth": true,
+    "status": 200,
+    "mime": "application/json+protobuf; charset=UTF-8",
+    "bytes": 74724,
+    "root_type": "list",
+    "root_length": 3,
+    "thread_rows": 20
+  },
+  {
+    "operation": "threads",
+    "with_auth": false,
+    "status": 401,
+    "mime": "application/json; charset=UTF-8",
+    "bytes": 806,
+    "root_type": "dict",
+    "root_length": 1
+  },
+  {
+    "operation": "account",
+    "with_auth": true,
+    "status": 200,
+    "mime": "application/json+protobuf; charset=UTF-8",
+    "bytes": 21943,
+    "root_type": "list",
+    "root_length": 1
+  },
+  {
+    "operation": "account",
+    "with_auth": false,
+    "status": 401,
+    "mime": "application/json; charset=UTF-8",
+    "bytes": 801,
+    "root_type": "dict",
+    "root_length": 1
+  },
+  {
+    "operation": "thread-detail",
+    "with_auth": true,
+    "status": 200,
+    "mime": "application/json+protobuf; charset=UTF-8",
+    "bytes": 50361,
+    "thread_matches": true,
+    "messages": 100,
+    "has_older_cursor": true
+  }
+]

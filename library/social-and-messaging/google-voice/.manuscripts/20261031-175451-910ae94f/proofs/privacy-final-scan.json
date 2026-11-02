@@ -1,0 +1,7 @@
+{
+  "text_files_scanned": 282,
+  "private_values_compared": 370,
+  "exact_private_value_matches": 0,
+  "matched_files": [],
+  "scope": "Captured credential values, observed message bodies, source fixture IDs, full participant names and phone identifiers. Public upstream checkout and binaries excluded."
+}

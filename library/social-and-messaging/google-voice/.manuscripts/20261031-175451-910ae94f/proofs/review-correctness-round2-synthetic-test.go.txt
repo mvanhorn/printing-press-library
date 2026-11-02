@@ -1,0 +1,66 @@
+package voice
+import (
+ "context"
+ "google-voice-pp-cli/internal/cliutil"
+ "encoding/json"
+ "fmt"
+ "net/http"
+ "path/filepath"
+ "strconv"
+ "strings"
+ "testing"
+ "time"
+)
+func r2Message(id string,ts int64)Message{return Message{ID:id,ThreadID:"t",TimestampMS:ts,Timestamp:time.UnixMilli(ts).UTC().Format(time.RFC3339Nano),Direction:"inbound",Kind:"text",Text:id,Attachments:[]Attachment{}}}
+func r2WireThread(id string,messages []Message,cursor string)[]any{
+ v:=make([]any,9);v[0]=id;v[1]=0;v[3]=cursor;v[4]=[]any{[]any{"Example","+15555550100"}};v[7]=1
+ raw:=[]any{};for _,m:=range messages{a:=make([]any,15);a[0]=m.ID;a[1]=m.TimestampMS;a[4]=10;a[9]=m.Text;raw=append(raw,a)};v[2]=raw;return v
+}
+func TestRound2RepeatedOnePageCollectionAndRefreshGaps(t *testing.T){
+ m,e:=OpenMirror(filepath.Join(t.TempDir(),"mirror.sqlite3"),"account-id",true);if e!=nil{t.Fatal(e)};defer m.Close()
+ all:=[]Message{};for i:=0;i<250;i++{all=append(all,r2Message(fmt.Sprintf("old-%03d",i),1700000000000+int64(i)))}
+ s:=fakeSession();r:=NewRemote(&s,0)
+ r.HTTP.Transport=roundTripFunc(func(q *http.Request)(*http.Response,error){
+  args:=[]any{};json.NewDecoder(q.Body).Decode(&args)
+  if strings.HasSuffix(q.URL.Path,"account/get"){return makeReply(200,[]any{[]any{"account-id"}}),nil}
+  if strings.HasSuffix(q.URL.Path,"/list"){return makeReply(200,[]any{[]any{r2WireThread("t",all[len(all)-1:],"ignored")},""}),nil}
+  end:=len(all);if c:=str(args[2]);c!=""{end,_=strconv.Atoi(c)};start:=end-100;if start<0{start=0};cursor:="";if start>0{cursor=strconv.Itoa(start)}
+  return makeReply(200,[]any{r2WireThread("t",all[start:end],cursor)}),nil
+ })
+ for i:=0;i<15;i++{if _,e=m.Sync(context.Background(),r,[]string{"texts"},1);e!=nil{t.Fatal(e)}}
+ rows,e:=m.Messages(context.Background(),Query{Limit:10000});if e!=nil||len(rows)!=250{t.Fatalf("initial history got %d %v",len(rows),e)}
+ // More than one page arrives after prior exhaustion.
+ for i:=0;i<225;i++{all=append(all,r2Message(fmt.Sprintf("new-%03d",i),1700001000000+int64(i)))}
+ for i:=0;i<15;i++{if _,e=m.Sync(context.Background(),r,[]string{"texts"},1);e!=nil{t.Fatal(e)}}
+ rows,e=m.Messages(context.Background(),Query{Limit:10000});if e!=nil||len(rows)!=475{t.Fatalf("latest bridge got %d %v",len(rows),e)}
+ var gap,older string;var complete bool;m.DB.QueryRow("SELECT refresh_cursor,older_cursor,history_complete FROM voice_threads WHERE id='t'").Scan(&gap,&older,&complete)
+ if gap!=""||older!=""||!complete{t.Fatalf("pending work did not converge: gap=%q older=%q complete=%v",gap,older,complete)}
+}
+func TestRound2GapWhileDeepHistoryPending(t *testing.T){
+ m,e:=OpenMirror(filepath.Join(t.TempDir(),"mirror.sqlite3"),"account-id",true);if e!=nil{t.Fatal(e)};defer m.Close()
+ ctx:=context.Background();m.DB.Exec("INSERT INTO voice_runs(id,started_at,status) VALUES(1,'synthetic','bounded')")
+ old:=Thread{ID:"t",Messages:[]Message{r2Message("old-anchor",1700000000000)},Contacts:[]Contact{{Phone:"+15555550100"}},OlderCursor:"deep"}
+ if _,e=m.commit(ctx,1,"refresh","t","","deep",[]Thread{old});e!=nil{t.Fatal(e)}
+ fresh:=old;fresh.Messages=[]Message{r2Message("new",1700001000000)};fresh.OlderCursor="gap"
+ if _,e=m.commit(ctx,1,"refresh","t","","gap",[]Thread{fresh});e!=nil{t.Fatal(e)}
+ // An inventory refresh arrives while the refresh gap is pending.
+ if _,e=m.commit(ctx,1,"inventory","texts","","",[]Thread{fresh});e!=nil{t.Fatal(e)}
+ bridge:=old;bridge.OlderCursor="still-has-old";bridge.Messages=[]Message{r2Message("middle",1700000500000),old.Messages[0]}
+ if _,e=m.commit(ctx,1,"refresh_gap","t","gap",bridge.OlderCursor,[]Thread{bridge});e!=nil{t.Fatal(e)}
+ var gap,older string;var dirty bool;m.DB.QueryRow("SELECT refresh_cursor,older_cursor,needs_refresh FROM voice_threads WHERE id='t'").Scan(&gap,&older,&dirty)
+ if gap!=""||older!="deep"||!dirty{t.Fatalf("gap/deep/refresh axes conflated: %q %q %v",gap,older,dirty)}
+}
+func TestRound2GatewayInvalidExplicitCount(t *testing.T){
+ restore,e:=cliutil.SetHomeOverride(t.TempDir());if e!=nil{t.Fatal(e)};defer restore();t.Setenv("GOOGLE_VOICE_PROFILE","synthetic-r2")
+ if e=SaveSession(fakeSession());e!=nil{t.Fatal(e)}
+ for _,count:=range []string{"0","1.5"}{t.Run(count,func(t *testing.T){
+  requested:=int64(0)
+  g:=Gateway{Transport:roundTripFunc(func(q *http.Request)(*http.Response,error){
+   if strings.HasSuffix(q.URL.Path,"account/get"){return makeReply(200,[]any{[]any{"account-id"}}),nil}
+   var args []any;json.NewDecoder(q.Body).Decode(&args);requested=num(args[1]);return makeReply(200,[]any{threadFixture("t","")}),nil
+  })}
+  req,_:=http.NewRequest("POST",Base+"/api2thread/get",strings.NewReader(`{"thread_id":"t","count":`+count+`}`))
+  resp,e:=g.RoundTrip(req);if resp!=nil{resp.Body.Close()}
+  if e==nil{t.Errorf("explicit invalid count %s accepted, source count=%d",count,requested)}
+ })}
+}

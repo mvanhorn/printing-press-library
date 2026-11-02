@@ -1,0 +1,79 @@
+name: google-voice
+description: Discovered API spec for voice-google
+version: 0.1.0
+base_url: https://clients6.google.com
+spec_source: sniffed
+http_transport: browser-chrome
+auth:
+    type: api_key
+    header: key
+    format: ""
+    env_vars:
+        - VOICE_GOOGLE_API_KEY
+    env_var_specs:
+        - name: VOICE_GOOGLE_API_KEY
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: query
+    browser_session_reason: browser clearance is required to replay captured website traffic
+config:
+    format: toml
+    path: ~/.config/google-voice-pp-cli/config.toml
+resources:
+    voice:
+        description: Operations on list
+        endpoints:
+            create_get:
+                method: POST
+                path: /voice/v1/voiceclient/account/get
+                description: POST /voice/v1/voiceclient/account/get
+                params:
+                    - name: alt
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: get
+                pagination: null
+            create_get_2:
+                method: POST
+                path: /voice/v1/voiceclient/api2thread/get
+                description: POST /voice/v1/voiceclient/api2thread/get
+                params:
+                    - name: alt
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: get
+                pagination: null
+            create_list:
+                method: POST
+                path: /voice/v1/voiceclient/api2thread/list
+                description: POST /voice/v1/voiceclient/api2thread/list
+                params:
+                    - name: alt
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: list
+                pagination: null
+types: {}

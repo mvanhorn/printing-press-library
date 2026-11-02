@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-01",
+  "base_run_id": "20261031-175451-910ae94f",
+  "base_printing_press_version": "4.35.0",
+  "id": "google-voice-preserve-existing-parent-permissions",
+  "summary": "Reject unsafe existing mirror directories before file creation without changing their permissions.",
+  "reason": "An operator-selected DB path may live in a shared project directory; opening a private mirror must not silently chmod that directory. Test fixtures create their own private directories explicitly.",
+  "files": [
+    "internal/voice/mirror.go",
+    "internal/voice/publication_regressions_test.go",
+    "internal/voice/history_test.go",
+    "internal/voice/voice_test.go",
+    "internal/voice/review_regressions_test.go",
+    "internal/voice/privacy_darwin_test.go"
+  ],
+  "markers": [
+    "Never chmod an operator",
+    "TestMirrorRejectsSharedParentWithoutChangingIt"
+  ],
+  "validated_outcome": "Existing regressions, the full Go test/vet suites, and the refreshed120/120 read-only live matrix passed before this metadata-only split."
+}
