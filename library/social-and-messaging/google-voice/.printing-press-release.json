@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "google-voice",
+  "cli_name": "google-voice-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-02T09:57:02Z",
+  "source_commit": "bcaba66771a1d8a4a537f7ee773b6298aebb5ac7",
+  "printing_press_version": "4.35.0",
+  "run_id": "20261031-175451-910ae94f",
+  "changes": [
+    {
+      "title": "feat(google-voice): add google-voice",
+      "pr": 2417,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2417",
+      "commit": "bcaba66771a1d8a4a537f7ee773b6298aebb5ac7"
+    }
+  ]
+}
