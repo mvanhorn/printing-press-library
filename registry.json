@@ -13068,6 +13068,49 @@
       }
     },
     {
+      "name": "gusto",
+      "category": "payments",
+      "api": "Gusto",
+      "description": "Prep a Gusto payroll from the terminal, including mileage reimbursements that Gusto's hosted connector cannot enter, and stop at review so a human submits.",
+      "search_terms": [
+        "gusto",
+        "gusto-pp-cli",
+        "Prep a Gusto payroll from the terminal, including mileage reimbursements that Gusto's hosted connector cannot enter, and stop at review so a human submits.",
+        "Mileage reimbursement",
+        "payrolls mileage",
+        "Add or correct the mileage reimbursement on the open draft payroll from miles and a per-mile rate; one mileage line per employee.",
+        "One-shot weekly prep",
+        "payrolls prep",
+        "Load a week's hours and mileage from a CSV onto the open draft, calculate it, and print the review totals, stopping before submit.",
+        "Draft read-back verify",
+        "payrolls verify",
+        "Check the draft payroll against your timesheet CSV (hours, each reimbursement line, unexplained lines, duplicates) and exit 1 on any mismatch.",
+        "Period-over-period compare",
+        "payrolls compare",
+        "Calculate the draft and show how its total debit and payable tax changed against the last processed payroll, alongside the draft's gross, reimbursements, taxes and net."
+      ],
+      "path": "library/payments/gusto",
+      "printer": "beetz12",
+      "printer_name": "david",
+      "creator": {
+        "handle": "beetz12",
+        "name": "david"
+      },
+      "mcp": {
+        "binary": "gusto-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "hackernews",
       "category": "media-and-entertainment",
       "api": "Hacker News",
