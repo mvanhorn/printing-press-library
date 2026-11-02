@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 )
 
 type transportFunc func(*http.Request) (*http.Response, error)
@@ -109,5 +110,23 @@ func TestDownloadRejectsUserinfo(t *testing.T) {
 	_, err := c.Download(context.Background(), "https://user:password@agency.gov/file", io.Discard, 10)
 	if err == nil {
 		t.Fatal("accepted credential-bearing URL")
+	}
+}
+
+func TestConfiguredCatalogRateAndRedirectIsolation(t *testing.T) {
+	c := New("federal-secret")
+	selected := &http.Client{Timeout: 75 * time.Second}
+	c.ConfigureHTTP(selected, 0.25)
+	if c.HTTP.Timeout != selected.Timeout || c.limiter.Rate() != 0.25 {
+		t.Fatal("selected timeout/rate not applied")
+	}
+	req, _ := http.NewRequest("GET", "https://other.example.org/file", nil)
+	first, _ := http.NewRequest("GET", "https://agency.example.org/file", nil)
+	if err := c.HTTP.CheckRedirect(req, []*http.Request{first}); err == nil {
+		t.Fatal("cross-origin redirect allowed")
+	}
+	c.ConfigureHTTP(selected, 0)
+	if c.limiter != nil {
+		t.Fatal("explicit zero did not disable pacing")
 	}
 }

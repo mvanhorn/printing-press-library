@@ -15,7 +15,8 @@
       "command": "${__dirname}/bin/government-data-pp-mcp",
       "args": [],
       "env": {
-        "DATA_GOV_API_KEY": "${user_config.data_gov_api_key}"
+        "DATA_GOV_API_KEY": "${user_config.data_gov_api_key}",
+        "SEC_USER_AGENT": "${user_config.sec_user_agent}"
       }
     }
   },
@@ -26,6 +27,13 @@
       "description": "Sets DATA_GOV_API_KEY for the Government Data MCP server.",
       "sensitive": true,
       "required": true
+    },
+    "sec_user_agent": {
+      "type": "string",
+      "title": "SEC application and contact",
+      "description": "Application name and real contact email required only for SEC EDGAR requests. Example: MyResearchApp/1.0 contact@example.com",
+      "sensitive": true,
+      "required": false
     }
   },
   "compatibility": {
