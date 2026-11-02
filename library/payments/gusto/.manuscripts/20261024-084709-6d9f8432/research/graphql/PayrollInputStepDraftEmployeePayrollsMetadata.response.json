@@ -1,0 +1,31 @@
+{
+ "data": {
+  "company": {
+   "id": "f290a54b-9dd2-1285-9772-7b50837a84af",
+   "draftPayroll": {
+    "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+    "draftEmployeePayrollsMetadata": [
+     {
+      "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8",
+      "departmentTitle": null,
+      "flsaStatuses": [
+       "NONEXEMPT"
+      ],
+      "isDismissedInPayPeriod": false,
+      "isIncludedInPayroll": true,
+      "__typename": "DraftEmployeePayrollMetadata",
+      "employeeUuid": "556e0a31-11ae-beae-f79f-eaef81dac0c8",
+      "companyMemberUuid": "cf311952-bf09-6286-99e6-72abf096dbdb",
+      "lastName": "Example",
+      "legalFirstName": "Ava",
+      "preferredFirstName": "Ava",
+      "terminatedAt": null,
+      "activeJobCompensationsCount": 1
+     }
+    ],
+    "__typename": "DraftPayroll"
+   },
+   "__typename": "Company"
+  }
+ }
+}

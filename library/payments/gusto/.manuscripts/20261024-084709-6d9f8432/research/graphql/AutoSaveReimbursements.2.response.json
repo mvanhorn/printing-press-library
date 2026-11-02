@@ -1,0 +1,34 @@
+{
+ "data": {
+  "updateDraftPayroll": {
+   "draftPayroll": {
+    "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+    "draftEmployeePayroll": {
+     "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8",
+     "allReimbursements": [
+      {
+       "__typename": "DraftEmployeePayrollUnnamedItemizedReimbursement",
+       "amount": "0.00"
+      }
+     ],
+     "__typename": "DraftEmployeePayroll"
+    },
+    "__typename": "DraftPayroll"
+   },
+   "draftPayrollValidationErrors": {
+    "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+    "payrollItemValidationErrors": [],
+    "paymentPeriodEndAtRequiredErrors": [],
+    "payrollAlreadySuccessfullyRunErrors": [],
+    "payrollBuildErrors": [],
+    "payrollCurrentlyProcessingErrors": [],
+    "payrollInputsErrors": [],
+    "regularPaymentPeriodIsUniqueErrors": [],
+    "__typename": "DraftPayrollValidationError"
+   },
+   "errors": null,
+   "success": true,
+   "__typename": "UpdateDraftPayrollPayload"
+  }
+ }
+}

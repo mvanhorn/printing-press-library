@@ -1,0 +1,17 @@
+{
+ "between": {
+  "endDate": "2026-11-01",
+  "startDate": "2026-10-26"
+ },
+ "draftPayrollId": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+ "featureFlagInputs": [
+  {
+   "entityId": "0429180324317886",
+   "entityType": "COMPANY",
+   "featureFlagKey": "payroll_prep_unapproved_timesheets_only",
+   "projectEntity": "ALL"
+  }
+ ],
+ "hasPaySchedule": true,
+ "shouldQueryTimeTrackingFields": false
+}

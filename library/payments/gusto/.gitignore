@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/gusto-pp-cli
+/gusto-pp-cli.exe
+/gusto-pp-mcp
+/gusto-pp-mcp.exe
+/bin/
+/build/
+/dist/

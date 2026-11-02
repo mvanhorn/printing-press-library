@@ -1,0 +1,250 @@
+{
+ "data": {
+  "company": {
+   "id": "f290a54b-9dd2-1285-9772-7b50837a84af",
+   "processedPayrolls": {
+    "edges": [
+     {
+      "node": {
+       "id": "9bac7e38-bac2-d898-b80a-b7dc7f8e9615",
+       "autoPilot": false,
+       "cancelValid": true,
+       "canClawBackEmployeeFunds": true,
+       "checkDate": "2026-10-30",
+       "convertToCheckValid": false,
+       "debitDate": "2026-10-29",
+       "description": "Oct 19 - Oct 25, 2026",
+       "employeePayrollsCount": 1,
+       "hasReversals": false,
+       "inAppReversalValid": false,
+       "isBlockedByPlaidRtb": false,
+       "isPeoClient": false,
+       "lastFundingAttemptFundingMethod": {
+        "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+        "bankName": "EXAMPLE BANK, NA",
+        "fundingType": "ach",
+        "hiddenAccountNumber": "XXXX_PII_CARD_LAST4_EXAMPLE",
+        "__typename": "FundingMethodV2"
+       },
+       "name": null,
+       "offCycle": false,
+       "offCycleReason": null,
+       "paymentPeriodEndAt": "2026-10-25",
+       "paymentPeriodStartAt": "2026-10-19",
+       "payrollDetails": "",
+       "payrollRisk": {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-10-25",
+        "paymentStatusInformation": {
+         "status": "IN_PROGRESS",
+         "__typename": "PaymentStatusInformation"
+        },
+        "creditBlockers": [],
+        "isBlockedByPlaidRtb": false,
+        "__typename": "PaymentRisk"
+       },
+       "payrollType": "REGULAR",
+       "totalDebitAmount": "352.91",
+       "totalPayableTax": "58.97",
+       "wireInRequest": null,
+       "__typename": "Payroll"
+      },
+      "__typename": "CompanyPayrollEdge"
+     },
+     {
+      "node": {
+       "id": "a7552acf-4a17-81c2-a0a9-0e04bb6be9b2",
+       "autoPilot": false,
+       "cancelValid": false,
+       "canClawBackEmployeeFunds": true,
+       "checkDate": "2026-10-23",
+       "convertToCheckValid": true,
+       "debitDate": "2026-10-22",
+       "description": "Oct 12 - Oct 18, 2026",
+       "employeePayrollsCount": 1,
+       "hasReversals": false,
+       "inAppReversalValid": true,
+       "isBlockedByPlaidRtb": false,
+       "isPeoClient": false,
+       "lastFundingAttemptFundingMethod": {
+        "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+        "bankName": "EXAMPLE BANK, NA",
+        "fundingType": "ach",
+        "hiddenAccountNumber": "XXXX_PII_CARD_LAST4_EXAMPLE",
+        "__typename": "FundingMethodV2"
+       },
+       "name": null,
+       "offCycle": false,
+       "offCycleReason": null,
+       "paymentPeriodEndAt": "2026-10-18",
+       "paymentPeriodStartAt": "2026-10-12",
+       "payrollDetails": "",
+       "payrollRisk": {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-10-18",
+        "paymentStatusInformation": {
+         "status": "COMPLETED",
+         "__typename": "PaymentStatusInformation"
+        },
+        "creditBlockers": [],
+        "isBlockedByPlaidRtb": false,
+        "__typename": "PaymentRisk"
+       },
+       "payrollType": "REGULAR",
+       "totalDebitAmount": "463.78",
+       "totalPayableTax": "88.63",
+       "wireInRequest": null,
+       "__typename": "Payroll"
+      },
+      "__typename": "CompanyPayrollEdge"
+     },
+     {
+      "node": {
+       "id": "4e97e74d-a099-8a0f-8c7c-1e208f0e1a1f",
+       "autoPilot": false,
+       "cancelValid": false,
+       "canClawBackEmployeeFunds": false,
+       "checkDate": "2026-10-16",
+       "convertToCheckValid": true,
+       "debitDate": "2026-10-14",
+       "description": "Oct 5 - Oct 11, 2026",
+       "employeePayrollsCount": 1,
+       "hasReversals": false,
+       "inAppReversalValid": true,
+       "isBlockedByPlaidRtb": false,
+       "isPeoClient": false,
+       "lastFundingAttemptFundingMethod": {
+        "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+        "bankName": "EXAMPLE BANK, NA",
+        "fundingType": "ach",
+        "hiddenAccountNumber": "XXXX_PII_CARD_LAST4_EXAMPLE",
+        "__typename": "FundingMethodV2"
+       },
+       "name": null,
+       "offCycle": false,
+       "offCycleReason": null,
+       "paymentPeriodEndAt": "2026-10-11",
+       "paymentPeriodStartAt": "2026-10-05",
+       "payrollDetails": "",
+       "payrollRisk": {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-10-11",
+        "paymentStatusInformation": {
+         "status": "COMPLETED",
+         "__typename": "PaymentStatusInformation"
+        },
+        "creditBlockers": [],
+        "isBlockedByPlaidRtb": false,
+        "__typename": "PaymentRisk"
+       },
+       "payrollType": "REGULAR",
+       "totalDebitAmount": "352.91",
+       "totalPayableTax": "58.97",
+       "wireInRequest": null,
+       "__typename": "Payroll"
+      },
+      "__typename": "CompanyPayrollEdge"
+     },
+     {
+      "node": {
+       "id": "e3803655-b5ad-83c9-895e-168bb681006a",
+       "autoPilot": false,
+       "cancelValid": false,
+       "canClawBackEmployeeFunds": false,
+       "checkDate": "2026-10-09",
+       "convertToCheckValid": true,
+       "debitDate": "2026-10-07",
+       "description": "Sep 28 - Oct 4, 2026",
+       "employeePayrollsCount": 1,
+       "hasReversals": false,
+       "inAppReversalValid": true,
+       "isBlockedByPlaidRtb": false,
+       "isPeoClient": false,
+       "lastFundingAttemptFundingMethod": {
+        "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+        "bankName": "EXAMPLE BANK, NA",
+        "fundingType": "ach",
+        "hiddenAccountNumber": "XXXX_PII_CARD_LAST4_EXAMPLE",
+        "__typename": "FundingMethodV2"
+       },
+       "name": null,
+       "offCycle": false,
+       "offCycleReason": null,
+       "paymentPeriodEndAt": "2026-10-04",
+       "paymentPeriodStartAt": "2026-09-28",
+       "payrollDetails": "",
+       "payrollRisk": {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-10-04",
+        "paymentStatusInformation": {
+         "status": "COMPLETED",
+         "__typename": "PaymentStatusInformation"
+        },
+        "creditBlockers": [],
+        "isBlockedByPlaidRtb": false,
+        "__typename": "PaymentRisk"
+       },
+       "payrollType": "REGULAR",
+       "totalDebitAmount": "356.03",
+       "totalPayableTax": "58.97",
+       "wireInRequest": null,
+       "__typename": "Payroll"
+      },
+      "__typename": "CompanyPayrollEdge"
+     },
+     {
+      "node": {
+       "id": "107f6f42-990a-478a-f489-20fc40a9a183",
+       "autoPilot": false,
+       "cancelValid": false,
+       "canClawBackEmployeeFunds": false,
+       "checkDate": "2026-10-05",
+       "convertToCheckValid": true,
+       "debitDate": "2026-10-01",
+       "description": "Sep 21 - Sep 27, 2026",
+       "employeePayrollsCount": 1,
+       "hasReversals": false,
+       "inAppReversalValid": true,
+       "isBlockedByPlaidRtb": false,
+       "isPeoClient": false,
+       "lastFundingAttemptFundingMethod": {
+        "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+        "bankName": "EXAMPLE BANK, NA",
+        "fundingType": "ach",
+        "hiddenAccountNumber": "XXXX_PII_CARD_LAST4_EXAMPLE",
+        "__typename": "FundingMethodV2"
+       },
+       "name": null,
+       "offCycle": false,
+       "offCycleReason": null,
+       "paymentPeriodEndAt": "2026-09-27",
+       "paymentPeriodStartAt": "2026-09-21",
+       "payrollDetails": "",
+       "payrollRisk": {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-09-27",
+        "paymentStatusInformation": {
+         "status": "COMPLETED",
+         "__typename": "PaymentStatusInformation"
+        },
+        "creditBlockers": [],
+        "isBlockedByPlaidRtb": false,
+        "__typename": "PaymentRisk"
+       },
+       "payrollType": "REGULAR",
+       "totalDebitAmount": "279.83",
+       "totalPayableTax": "45.34",
+       "wireInRequest": null,
+       "__typename": "Payroll"
+      },
+      "__typename": "CompanyPayrollEdge"
+     }
+    ],
+    "pageInfo": {
+     "endCursor": "NQ",
+     "hasNextPage": false,
+     "hasPreviousPage": false,
+     "startCursor": "MQ",
+     "__typename": "PageInfo"
+    },
+    "__typename": "CompanyPayrollConnection"
+   },
+   "__typename": "Company"
+  }
+ }
+}

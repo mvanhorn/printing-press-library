@@ -1,0 +1,139 @@
+{
+ "data": {
+  "company": {
+   "id": "f290a54b-9dd2-1285-9772-7b50837a84af",
+   "draftPayroll": {
+    "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+    "analyticsId": "2526335797234851",
+    "payPeriod": {
+     "id": "3299295136144041-2026-10-26",
+     "endDate": "2026-11-01",
+     "runPayrollBy": "2026-11-05",
+     "checkDate": "2026-11-06",
+     "projectedCheckDate": "2026-11-06",
+     "startDate": "2026-10-26",
+     "__typename": "PayPeriod",
+     "runPayrollByBankCutoffTime": "2026-11-05T16:00:00-08:00",
+     "originalCheckDate": "2026-11-06",
+     "nextAvailableFourDayCheckDate": "2026-11-06"
+    },
+    "paySchedule": {
+     "id": "3299295136144041",
+     "frequency": "Every week",
+     "name": "every Friday",
+     "payGroup": null,
+     "uuid": "295d3235-6944-d6eb-7353-db20a504aecb",
+     "__typename": "PaySchedule"
+    },
+    "payType": null,
+    "saveDetails": {
+     "lastSavedOn": "2026-10-24T13:46:20-07:00",
+     "__typename": "DraftPayrollSaveDetails"
+    },
+    "submissionStatus": {
+     "id": "19fc728d-bd9c-bc4a-4064-137d08fb4b78",
+     "state": "UNSUBMITTED",
+     "__typename": "DraftPayrollSubmissionStatus"
+    },
+    "payrollType": "regular",
+    "customName": null,
+    "totalAmountToBeDebited": "18.72",
+    "offCycleReason": null,
+    "paidHolidays": [],
+    "payroll": {
+     "id": "19fc728d-bd9c-bc4a-4064-137d08fb4b78",
+     "autoPilot": false,
+     "__typename": "Payroll"
+    },
+    "canNextDayAchOnTime": true,
+    "isLateRegularPayroll": false,
+    "fundingMethod": {
+     "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+     "fundingType": "ach",
+     "__typename": "FundingMethodV2"
+    },
+    "draftEmployeePayrollsCount": 1,
+    "allDraftEmployeePayrolls": {
+     "nodes": [
+      {
+       "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8",
+       "employee": {
+        "id": "556e0a31-11ae-beae-f79f-eaef81dac0c8",
+        "preferredFirstName": "Ava",
+        "preferredFullName": "Ava Example",
+        "__typename": "Employee"
+       },
+       "__typename": "DraftEmployeePayroll"
+      }
+     ],
+     "__typename": "DraftPayrollDraftEmployeePayrollConnection"
+    },
+    "canWireInOnTime": true,
+    "payrollRisk": {
+     "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+     "wireCutoffTime": "12:15pm",
+     "__typename": "PaymentRisk"
+    },
+    "draftPayrollAdvancedSettings": {
+     "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.advanced_settings",
+     "shouldMakeInternalDeductions": null,
+     "shouldMakeRegularDeductions": null,
+     "__typename": "DraftPayrollAdvancedSettings"
+    },
+    "overlappingWorkweeks": [
+     {
+      "endDate": "2026-11-01",
+      "startDate": "2026-10-26",
+      "__typename": "WorkweekRange"
+     }
+    ],
+    "isRegularRateOfPayEnabled": true,
+    "__typename": "DraftPayroll"
+   },
+   "payScheduleSchemeName": null,
+   "supportedTimeTrackingDataSources": [],
+   "isPayrollApprovalsEnabled": false,
+   "achFundingMethods": [
+    {
+     "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+     "accountType": "Checking",
+     "bankName": "EXAMPLE BANK, NA",
+     "hiddenAccountNumber": "XXXX_PII_CARD_LAST4_EXAMPLE",
+     "isVerified": true,
+     "__typename": "FundingMethod"
+    }
+   ],
+   "hasRunPayroll": true,
+   "shouldAutoupgradeToPlus": false,
+   "activeEmployeeMembers": {
+    "totalCount": 1,
+    "__typename": "CompanyCompanyMemberConnection"
+   },
+   "processedPayrolls": {
+    "nodes": [
+     {
+      "id": "9bac7e38-bac2-d898-b80a-b7dc7f8e9615",
+      "paymentPeriodStartAt": "2026-10-19",
+      "__typename": "Payroll"
+     }
+    ],
+    "__typename": "CompanyPayrollConnection"
+   },
+   "missingStatesForPayroll": {
+    "id": "f290a54b-9dd2-1285-9772-7b50837a84af-2026-10-24",
+    "employees": {
+     "nodes": [],
+     "__typename": "EmployeeConnection"
+    },
+    "missingStates": [],
+    "__typename": "MissingStatesForPayroll"
+   },
+   "isEligibleForSafeExpedite": false,
+   "defaultFundingMethod": {
+    "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+    "__typename": "FundingMethod"
+   },
+   "__typename": "Company"
+  }
+ }
+}

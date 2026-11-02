@@ -1,0 +1,192 @@
+mutation AutoSaveWorkedHours($employeeUuid: ID!, $input: UpdateDraftPayrollInput!) {
+  updateDraftPayroll(input: $input) {
+    draftPayroll {
+      id
+      draftEmployeePayroll(employeeUuid: $employeeUuid) {
+        id
+        allWorkedHours {
+          id
+          doubleOvertimeHours
+          missedBreakHours
+          overtimeHours
+          regularHours
+          workweekEndDate
+          workweekStartDate
+          __typename
+        }
+        draftGrossPayBreakdownSummary {
+          amount
+          breakdowns {
+            doubleOvertimePremiumPay
+            doubleOvertimeStraightTimePay
+            employeeJobCompensation {
+              id
+              uuid
+              __typename
+            }
+            minimumWageAdjustment
+            missedBreakPremiumPay
+            overtimePremiumPay
+            overtimeStraightTimePay
+            regularStraightTimePay
+            __typename
+          }
+          ...ComputeTotalsFromConsolidatedDraftGrossPayBreakdownSummary
+          __typename
+        }
+        timeOffEnrolledPoliciesForPayPeriod {
+          id
+          accruingHours
+          payoutHours
+          remainingBalanceHours
+          totalTimeOffHoursUsed
+          __typename
+        }
+        ...PayrollInputAndActionsDraftEmployeePayrollSharedFieldsForAutoSaveWithoutIDs
+        __typename
+      }
+      __typename
+    }
+    ...AutoSaveFieldUpdateDraftPayrollPayload
+    __typename
+  }
+}
+
+fragment ComputeTotalsFromConsolidatedDraftGrossPayBreakdownSummary on DraftGrossPayBreakdownSummary {
+  amount
+  breakdowns {
+    ...ComputeTotalsFromConsolidatedDraftGrossPayBreakdown
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollInputAndActionsDraftEmployeePayrollSharedFieldsForAutoSaveWithoutIDs on DraftEmployeePayroll {
+  id
+  draftEmployeePayrollCalculatedAmounts {
+    paidTimeOffHours
+    __typename
+  }
+  draftGrossPayBreakdownSummary {
+    amount
+    breakdowns {
+      doubleOvertimePremiumPay
+      doubleOvertimeStraightTimePay
+      employeeJobCompensation {
+        id
+        uuid
+        __typename
+      }
+      jobId
+      minimumWageAdjustment
+      missedBreakPremiumPay
+      overtimePremiumPay
+      overtimeStraightTimePay
+      regularStraightTimePay
+      rropAdjustmentSummary {
+        doubleOvertime
+        missedBreakPremium
+        overtime
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment AutoSaveFieldUpdateDraftPayrollPayload on UpdateDraftPayrollPayload {
+  draftPayrollValidationErrors {
+    id
+    ...PayrollValidationErrorHelper
+    __typename
+  }
+  errors {
+    argument
+    message
+    __typename
+  }
+  success
+  __typename
+}
+
+fragment ComputeTotalsFromConsolidatedDraftGrossPayBreakdown on DraftGrossPayBreakdown {
+  doubleOvertimePremiumPay
+  doubleOvertimeStraightTimePay
+  jobId
+  minimumWageAdjustment
+  missedBreakPremiumPay
+  overtimePremiumPay
+  overtimeStraightTimePay
+  regularStraightTimePay
+  __typename
+}
+
+fragment PayrollValidationErrorHelper on DraftPayrollValidationError {
+  id
+  payrollItemValidationErrors {
+    id
+    ...PayrollItemValidationErrorHelper
+    __typename
+  }
+  ...TopLevelPayrollValidationErrorHelper
+  __typename
+}
+
+fragment PayrollItemValidationErrorHelper on DraftEmployeePayrollValidationError {
+  id
+  __typename
+  benefitIdsAreNotUniqueErrors
+  bonusEarningsErrors
+  cashTipsEarningsErrors
+  commissionEarningsErrors
+  correctionPaymentEarningsErrors
+  customEarningsErrors
+  customWithholdingErrors
+  doubleOvertimeHoursErrors
+  employeeId
+  employeeJobCompensationMissingErrors
+  employeeJobMissingErrors
+  employeePayScheduleMismatchErrors
+  missedBreakHoursErrors
+  missingAddressErrors
+  multipleJobsBonusEarningsErrors
+  multipleJobsCashTipsEarningsErrors
+  multipleJobsCommissionEarningsErrors
+  multipleJobsCorrectionPaymentEarningsErrors
+  multipleJobsCustomEarningsErrors
+  multipleJobsDoubleOvertimeHoursErrors
+  multipleJobsMissedBreakHoursErrors
+  multipleJobsOvertimeHoursErrors
+  multipleJobsOwnersDrawEarningsErrors
+  multipleJobsPaycheckTipsEarningsErrors
+  multipleJobsRegularHoursErrors
+  multipleJobsSeveranceEarningsErrors
+  netPayErrors
+  overtimeHoursErrors
+  ownersDrawDisallowedInputsErrors
+  ownersDrawEarningsErrors
+  paidHolidayHoursErrors
+  paidTimeOffHoursErrors
+  paycheckTipsEarningsErrors
+  paymentMethodMustBeCheckErrors
+  regularHoursErrors
+  reimbursementsErrors
+  severanceEarningsErrors
+  sickHoursErrors
+  taxErrors
+  totalHoursDoNotFitInPaymentPeriodErrors
+  workAddressNotFoundErrors
+}
+
+fragment TopLevelPayrollValidationErrorHelper on DraftPayrollValidationError {
+  id
+  paymentPeriodEndAtRequiredErrors
+  payrollAlreadySuccessfullyRunErrors
+  payrollBuildErrors
+  payrollCurrentlyProcessingErrors
+  payrollInputsErrors
+  regularPaymentPeriodIsUniqueErrors
+  __typename
+}

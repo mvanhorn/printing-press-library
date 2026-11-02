@@ -1,0 +1,21 @@
+{
+ "employeeUuid": "556e0a31-11ae-beae-f79f-eaef81dac0c8",
+ "input": {
+  "payrollActivitySessionId": "REDACTED",
+  "uniqueIdentifier": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+  "workedHours": [
+   {
+    "employeeUuid": "556e0a31-11ae-beae-f79f-eaef81dac0c8",
+    "workedHours": [
+     {
+      "doubleOvertimeHours": 0,
+      "employeeJobUuid": "b0223cb9-b69a-0e12-9db4-77cccc252966",
+      "missedBreakHours": null,
+      "overtimeHours": 0,
+      "regularHours": 0
+     }
+    ]
+   }
+  ]
+ }
+}

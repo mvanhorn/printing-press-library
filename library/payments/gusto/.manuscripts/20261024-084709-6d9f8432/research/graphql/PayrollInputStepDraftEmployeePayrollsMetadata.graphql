@@ -1,0 +1,29 @@
+query PayrollInputStepDraftEmployeePayrollsMetadata($draftPayrollId: ID!) {
+  company {
+    id
+    draftPayroll(uuid: $draftPayrollId) {
+      id
+      draftEmployeePayrollsMetadata(order: {type: FIRST_NAME, sortDirection: ASC}) {
+        id
+        ... on DraftEmployeePayrollMetadata {
+          id
+          departmentTitle
+          flsaStatuses
+          isDismissedInPayPeriod
+          isIncludedInPayroll
+          __typename
+          employeeUuid
+          companyMemberUuid
+          lastName
+          legalFirstName
+          preferredFirstName
+          terminatedAt
+          activeJobCompensationsCount
+        }
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}

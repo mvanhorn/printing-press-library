@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-24",
+  "base_run_id": "20261024-084709-6d9f8432",
+  "base_printing_press_version": "4.34.0",
+  "id": "gusto-tail-empty-page-event",
+  "summary": "`tail` emits one {\"event\":\"empty\"} NDJSON line when a poll returns no items.",
+  "reason": "With an empty page a single poll printed nothing, which live dogfood's JSON check rejected.",
+  "files": [
+    "internal/cli/tail.go"
+  ],
+  "validated_outcome": "tail session --follow=false --json passes live dogfood."
+}

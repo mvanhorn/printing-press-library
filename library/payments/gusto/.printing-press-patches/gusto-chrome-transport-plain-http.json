@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-24",
+  "base_run_id": "20261024-084709-6d9f8432",
+  "base_printing_press_version": "4.34.0",
+  "id": "gusto-chrome-transport-plain-http",
+  "summary": "Plain http:// requests go to the HTTP/1.1 transport instead of the TLS-only h2 transport.",
+  "reason": "Verify's local mock server is plain http; the chrome transport sent it to h2 and every mock request failed.",
+  "files": [
+    "internal/client/chrome.go"
+  ],
+  "validated_outcome": "shipcheck verify leg runs against the mock; live requests unchanged."
+}
