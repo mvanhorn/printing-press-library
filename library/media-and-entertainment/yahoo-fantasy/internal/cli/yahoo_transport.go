@@ -29,19 +29,43 @@ func yahooStoreScopeIdentity(c *config.Config) string {
 	if c == nil || c.CredentialRouteBlocked() || c.HasCredentialRefusals() {
 		return ""
 	}
-	clientID := strings.TrimSpace(c.ClientID)
-	if clientID == "" {
-		clientID = strings.TrimSpace(cliutil.EnvOverride("YAHOO_CLIENT_ID"))
+	envRefresh := strings.TrimSpace(cliutil.EnvOverride("YAHOO_REFRESH_TOKEN"))
+	envCode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
+	if strings.HasPrefix(c.AuthSource, "env:") && envRefresh == "" && envCode == "" {
+		activeTok := strings.TrimSpace(c.AccessToken)
+		if activeTok == "" {
+			activeTok = strings.TrimSpace(c.YahooFantasyToken)
+		}
+		if activeTok != "" {
+			if scope := lookupYahooAccountScope("access:" + activeTok); scope != "" {
+				return scope
+			}
+		}
+		return ""
 	}
-	if clientID != "" {
-		return "client_id=" + clientID
+	if envRefresh != "" {
+		if scope := lookupYahooAccountScope("refresh:" + envRefresh); scope != "" {
+			return scope
+		}
+		return "yahoo-account:" + hashDefaultDBScope("refresh:"+envRefresh)
+	}
+	if envCode != "" {
+		if scope := lookupYahooAccountScope("code:" + envCode); scope != "" {
+			return scope
+		}
+		return "yahoo-account:" + hashDefaultDBScope("code:"+envCode)
 	}
 	refreshToken := strings.TrimSpace(c.RefreshToken)
-	if refreshToken == "" {
-		refreshToken = strings.TrimSpace(cliutil.EnvOverride("YAHOO_REFRESH_TOKEN"))
-	}
 	if refreshToken != "" {
-		return "refresh_token=" + refreshToken
+		if scope := lookupYahooAccountScope("refresh:" + refreshToken); scope != "" {
+			return scope
+		}
+		return "yahoo-account:" + hashDefaultDBScope("refresh:"+refreshToken)
+	}
+	if accessTok := strings.TrimSpace(c.AccessToken); accessTok != "" {
+		if scope := lookupYahooAccountScope("access:" + accessTok); scope != "" {
+			return scope
+		}
 	}
 	return ""
 }
@@ -67,6 +91,12 @@ func installYahooTransport(c *client.Client) error {
 		rt.cfgRefreshToken = strings.TrimSpace(c.Config.RefreshToken)
 		rt.cfgTokenExpiry = c.Config.TokenExpiry
 		rt.cfgPath = strings.TrimSpace(c.Config.Path)
+		envRefresh := strings.TrimSpace(cliutil.EnvOverride("YAHOO_REFRESH_TOKEN"))
+		envCode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
+		if !strings.HasPrefix(c.Config.AuthSource, "env:") &&
+			((envRefresh != "" && envRefresh != rt.cfgRefreshToken) || envCode != "") {
+			rt.cfgTokenExpiry = time.Unix(1, 0)
+		}
 	}
 	c.HTTPClient.Transport = rt
 	return nil
@@ -189,13 +219,14 @@ func (rt *yahooRoundTripper) refreshCredentialsLocked() (clientID, clientSecret,
 	clientID = strings.TrimSpace(cliutil.EnvOverride("YAHOO_CLIENT_ID"))
 	clientSecret = strings.TrimSpace(cliutil.EnvOverride("YAHOO_CLIENT_SECRET"))
 	refreshToken = strings.TrimSpace(cliutil.EnvOverride("YAHOO_REFRESH_TOKEN"))
+	authCode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
 	if clientID == "" {
 		clientID = rt.cfgClientID
 	}
 	if clientSecret == "" {
 		clientSecret = rt.cfgClientSecret
 	}
-	if refreshToken == "" {
+	if refreshToken == "" && (authCode == "" || rt.refreshedBearer != "") {
 		refreshToken = rt.cfgRefreshToken
 	}
 	return clientID, clientSecret, refreshToken
@@ -222,6 +253,7 @@ func (rt *yahooRoundTripper) forceRefreshBearer(req *http.Request, failedAuthHea
 
 func (rt *yahooRoundTripper) refreshBearerLocked(req *http.Request) (string, error) {
 	clientID, clientSecret, refreshToken := rt.refreshCredentialsLocked()
+	prevRefreshToken := refreshToken
 	authCode := strings.TrimSpace(cliutil.EnvOverride("YAHOO_AUTH_CODE"))
 	if clientID == "" || clientSecret == "" || (refreshToken == "" && authCode == "") {
 		return "", nil
@@ -268,9 +300,10 @@ func (rt *yahooRoundTripper) refreshBearerLocked(req *http.Request) (string, err
 		return "", fmt.Errorf("yahoo oauth2 token refresh returned HTTP %d", resp.StatusCode)
 	}
 	var payload struct {
-		AccessToken  string `json:"access_token"`
-		RefreshToken string `json:"refresh_token"`
-		ExpiresIn    int    `json:"expires_in"`
+		AccessToken     string `json:"access_token"`
+		RefreshToken    string `json:"refresh_token"`
+		ExpiresIn       int    `json:"expires_in"`
+		XOAuthYahooGUID string `json:"xoauth_yahoo_guid"`
 	}
 	if err := json.Unmarshal(body, &payload); err != nil || strings.TrimSpace(payload.AccessToken) == "" {
 		return "", fmt.Errorf("invalid yahoo oauth2 token response")
@@ -291,12 +324,12 @@ func (rt *yahooRoundTripper) refreshBearerLocked(req *http.Request) (string, err
 	rt.cfgRefreshToken = refreshToken
 	rt.cfgTokenExpiry = expiry
 	if !cliutil.IsAnyHarness() && !cliutil.IsVerifyEnv() && !cliutil.IsDogfoodEnv() {
-		_ = persistYahooOAuthTokens(rt.cfgPath, clientID, clientSecret, accessTok, refreshToken, expiry)
+		_ = persistYahooOAuthTokens(rt.cfgPath, clientID, clientSecret, accessTok, refreshToken, prevRefreshToken, authCode, strings.TrimSpace(payload.XOAuthYahooGUID), expiry)
 	}
 	return accessTok, nil
 }
 
-func persistYahooOAuthTokens(cfgPath, clientID, clientSecret, accessTok, refreshToken string, expiry time.Time) error {
+func persistYahooOAuthTokens(cfgPath, clientID, clientSecret, accessTok, refreshToken, prevRefreshToken, authCode, yahooGUID string, expiry time.Time) error {
 	loadPath := strings.TrimSpace(cfgPath)
 	if os.Getenv("YAHOO_FANTASY_CONFIG") == "" {
 		if dir, err := cliutil.ConfigDir(); err == nil && loadPath == filepath.Join(dir, "config.toml") {
@@ -308,11 +341,121 @@ func persistYahooOAuthTokens(cfgPath, clientID, clientSecret, accessTok, refresh
 		return err
 	}
 	legacyCred := cfg.StoreScopeLegacyCredential()
+	diskRefresh := strings.TrimSpace(cfg.RefreshToken)
+	diskAccess := strings.TrimSpace(cfg.AccessToken)
+	prevAccess := ""
+	if prevRefreshToken == "" && authCode == "" {
+		prevRefreshToken = diskRefresh
+		prevAccess = diskAccess
+	} else if prevRefreshToken != "" && prevRefreshToken == diskRefresh {
+		prevAccess = diskAccess
+	}
+	pinYahooAccountScope(yahooGUID, prevRefreshToken, prevAccess, authCode, refreshToken, accessTok)
 	cfg.ClientID = clientID
 	cfg.RefreshToken = refreshToken
+	cfg.AccessToken = accessTok
 	setDefaultDBScopeIdentity(cfg.StoreScopeCredential(), legacyCred, cfg.BaseURL)
 	if !currentDefaultDBClaimSuppressed() {
 		_ = defaultDBPath("yahoo-fantasy-pp-cli")
 	}
 	return cfg.SaveTokens(clientID, clientSecret, accessTok, refreshToken, expiry)
+}
+
+func yahooAccountScopesPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, ".oauth-account-scopes.json"), nil
+}
+
+func lookupYahooAccountScope(tokenKey string) string {
+	keyHash := hashDefaultDBScope(tokenKey)
+	if keyHash == "" {
+		return ""
+	}
+	path, err := yahooAccountScopesPath()
+	if err != nil {
+		return ""
+	}
+	data, err := os.ReadFile(filepath.Clean(path)) // #nosec G304 -- app-owned data directory path from cliutil.DataDir.
+	if err != nil {
+		return ""
+	}
+	var ledger map[string]string
+	if err := json.Unmarshal(data, &ledger); err != nil {
+		return ""
+	}
+	return strings.TrimSpace(ledger[keyHash])
+}
+
+func pinYahooAccountScope(yahooGUID, prevRefresh, prevAccess, authCode, newRefresh, newAccess string) {
+	path, err := yahooAccountScopesPath()
+	if err != nil {
+		return
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+		return
+	}
+	_ = cliutil.WithFileLock(path, func() error {
+		ledger := map[string]string{}
+		if data, readErr := os.ReadFile(filepath.Clean(path)); readErr == nil { // #nosec G304 -- app-owned data directory path from cliutil.DataDir.
+			_ = json.Unmarshal(data, &ledger)
+		}
+		var candidates []string
+		if yahooGUID != "" {
+			candidates = append(candidates, "guid:"+yahooGUID)
+		}
+		if prevRefresh != "" {
+			candidates = append(candidates, "refresh:"+prevRefresh)
+		}
+		if prevAccess != "" {
+			candidates = append(candidates, "access:"+prevAccess)
+		}
+		if authCode != "" {
+			candidates = append(candidates, "code:"+authCode)
+		}
+		if newRefresh != "" {
+			candidates = append(candidates, "refresh:"+newRefresh)
+		}
+		if newAccess != "" {
+			candidates = append(candidates, "access:"+newAccess)
+		}
+		scopeID := ""
+		for _, c := range candidates {
+			if h := hashDefaultDBScope(c); h != "" {
+				if existing := strings.TrimSpace(ledger[h]); existing != "" {
+					scopeID = existing
+					break
+				}
+			}
+		}
+		if scopeID == "" {
+			switch {
+			case prevRefresh != "":
+				scopeID = "yahoo-account:" + hashDefaultDBScope("refresh:"+prevRefresh)
+			case authCode != "":
+				scopeID = "yahoo-account:" + hashDefaultDBScope("code:"+authCode)
+			case newRefresh != "":
+				scopeID = "yahoo-account:" + hashDefaultDBScope("refresh:"+newRefresh)
+			case yahooGUID != "":
+				scopeID = "yahoo-account:" + hashDefaultDBScope("guid:"+yahooGUID)
+			case newAccess != "":
+				scopeID = "yahoo-account:" + hashDefaultDBScope("access:"+newAccess)
+			}
+		}
+		if scopeID == "" {
+			return nil
+		}
+		for _, c := range candidates {
+			if h := hashDefaultDBScope(c); h != "" {
+				ledger[h] = scopeID
+			}
+		}
+		encoded, mErr := json.Marshal(ledger)
+		if mErr != nil {
+			return mErr
+		}
+		return cliutil.AtomicWritePrivateFile(path, encoded, 0o600, 0o700)
+	})
 }

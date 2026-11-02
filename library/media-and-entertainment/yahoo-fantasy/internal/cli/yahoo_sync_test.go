@@ -378,8 +378,8 @@ func TestYahooOAuthRefreshStoreScopeAndConcurrency(t *testing.T) {
 		t.Fatalf("expected exactly 1 OAuth refresh across 4 parallel workers, got %d", gotRefreshes)
 	}
 
-	// Simulate rotating the access token in credentials.toml and verify StoreScopeCredential keeps the same DB path.
-	if err := persistYahooOAuthTokens("", "cid-stable-123", "csec-stable-456", "rotated-access-99", "stable-refresh", c.Config.TokenExpiry); err != nil {
+	// Simulate rotating both the access token and refresh token in credentials.toml and verify StoreScopeCredential keeps the same DB path.
+	if err := persistYahooOAuthTokens("", "cid-stable-123", "csec-stable-456", "rotated-access-99", "rotated-refresh-99", "stable-refresh", "", "GUID-ACCOUNT-1", c.Config.TokenExpiry); err != nil {
 		t.Fatalf("persistYahooOAuthTokens: %v", err)
 	}
 	t.Setenv("YAHOO_CLIENT_ID", "")
@@ -390,6 +390,16 @@ func TestYahooOAuthRefreshStoreScopeAndConcurrency(t *testing.T) {
 	dbAfter := defaultDBPath("yahoo-fantasy-pp-cli")
 	if dbBefore != dbAfter {
 		t.Fatalf("expected defaultDBPath to remain stable across token rotation: before=%q after=%q", dbBefore, dbAfter)
+	}
+
+	// Verify a second Yahoo account sharing the same OAuth ClientID gets a distinct defaultDBPath.
+	t.Setenv("YAHOO_CLIENT_ID", "cid-stable-123")
+	t.Setenv("YAHOO_CLIENT_SECRET", "csec-stable-456")
+	t.Setenv("YAHOO_REFRESH_TOKEN", "second-account-refresh")
+	configureDefaultDBScope("")
+	dbSecondAccount := defaultDBPath("yahoo-fantasy-pp-cli")
+	if dbSecondAccount == dbAfter {
+		t.Fatalf("expected second Yahoo account on same ClientID to use a distinct DB path, got same %q", dbSecondAccount)
 	}
 }
 
