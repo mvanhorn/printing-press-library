@@ -224,9 +224,13 @@ func resolveLocal(ctx context.Context, resourceType string, isList bool, path st
 	defer db.Close()
 
 	prov := localProvenance(db, resourceType, reason)
+	endpoint, err := url.Parse(path)
+	if err != nil {
+		return nil, DataProvenance{}, fmt.Errorf("parsing local resource path: %w", err)
+	}
 
 	// Warn if endpoint had filters that local reads can't reproduce
-	if len(params) > 0 {
+	if len(params) > 0 || endpoint.RawQuery != "" {
 		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — endpoint filters are not applied to cached data\n")
 	}
 
@@ -257,7 +261,7 @@ func resolveLocal(ctx context.Context, resourceType string, isList bool, path st
 	}
 
 	// Get by ID — extract the last path segment as the ID
-	parts := strings.Split(strings.TrimRight(path, "/"), "/")
+	parts := strings.Split(strings.TrimRight(endpoint.Path, "/"), "/")
 	id := parts[len(parts)-1]
 
 	item, err := db.Get(resourceType, id)

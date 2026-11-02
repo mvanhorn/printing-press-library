@@ -310,7 +310,8 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 // call — the caller is responsible for passing cached auth material only.
 func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, authHeader string) (json.RawMessage, int, error) {
 	fmt.Fprintf(os.Stderr, "%s %s\n", method, targetURL)
-	queryPrinted := false
+	// Array params already ride on the path, so continue that query with "&".
+	queryPrinted := strings.Contains(targetURL, "?")
 	if params != nil {
 		keys := make([]string, 0, len(params))
 		for k := range params {

@@ -15,9 +15,9 @@ func newOrganizationsReplaysRetrieveAInstanceCmd(flags *rootFlags) *cobra.Comman
 	var flagStatsPeriod string
 	var flagStart string
 	var flagEnd string
-	var flagField string
-	var flagProject string
-	var flagProjectSlug string
+	var flagField []string
+	var flagProject []string
+	var flagProjectSlug []string
 	var flagEnvironment string
 	var flagSort string
 	var flagSortBy string
@@ -47,13 +47,13 @@ func newOrganizationsReplaysRetrieveAInstanceCmd(flags *rootFlags) *cobra.Comman
 				return usageErr(fmt.Errorf("replay_id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "replay_id"))
 			}
 			path = replacePathParam(path, "replay_id", args[1])
+			path = appendArrayQueryParam(path, "field", flagField)
+			path = appendArrayQueryParam(path, "project", flagProject)
+			path = appendArrayQueryParam(path, "projectSlug", flagProjectSlug)
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "replays", path, map[string]string{
 				"statsPeriod": fmt.Sprintf("%v", flagStatsPeriod),
 				"start":       fmt.Sprintf("%v", flagStart),
 				"end":         fmt.Sprintf("%v", flagEnd),
-				"field":       fmt.Sprintf("%v", flagField),
-				"project":     fmt.Sprintf("%v", flagProject),
-				"projectSlug": fmt.Sprintf("%v", flagProjectSlug),
 				"environment": fmt.Sprintf("%v", flagEnvironment),
 				"sort":        fmt.Sprintf("%v", flagSort),
 				"sortBy":      fmt.Sprintf("%v", flagSortBy),
@@ -106,9 +106,9 @@ func newOrganizationsReplaysRetrieveAInstanceCmd(flags *rootFlags) *cobra.Comman
 	cmd.Flags().StringVar(&flagStatsPeriod, "stats-period", "", "This defines the range of the time series, relative to now. The range is given in a `<number><unit>` format. For...")
 	cmd.Flags().StringVar(&flagStart, "start", "", "This defines the start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use...")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "This defines the inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch...")
-	cmd.Flags().StringVar(&flagField, "field", "", "Specifies a field that should be marshaled in the output. Invalid fields will be rejected.")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The ID of the projects to filter by.")
-	cmd.Flags().StringVar(&flagProjectSlug, "project-slug", "", "A list of project slugs to filter your results by.")
+	cmd.Flags().StringArrayVar(&flagField, "field", nil, "Specifies a field that should be marshaled in the output. Invalid fields will be rejected.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The ID of the projects to filter by.")
+	cmd.Flags().StringArrayVar(&flagProjectSlug, "project-slug", nil, "A list of project slugs to filter your results by.")
 	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The environment to filter by.")
 	cmd.Flags().StringVar(&flagSort, "sort", "", "The field to sort the output by.")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "The field to sort the output by.")

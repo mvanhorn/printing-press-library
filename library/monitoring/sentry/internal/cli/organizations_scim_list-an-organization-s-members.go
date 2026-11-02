@@ -15,7 +15,7 @@ func newOrganizationsScimListAnOrganizationSMembersCmd(flags *rootFlags) *cobra.
 	var flagStartIndex int
 	var flagCount int
 	var flagFilter string
-	var flagExcludedAttributes string
+	var flagExcludedAttributes []string
 
 	cmd := &cobra.Command{
 		Use:         "list-an-organization-s-members <organization_id_or_slug>",
@@ -34,6 +34,7 @@ func newOrganizationsScimListAnOrganizationSMembersCmd(flags *rootFlags) *cobra.
 
 			path := "/api/0/organizations/{organization_id_or_slug}/scim/v2/Users"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "excludedAttributes", flagExcludedAttributes)
 			params := map[string]string{}
 			if flagStartIndex != 0 {
 				params["startIndex"] = fmt.Sprintf("%v", flagStartIndex)
@@ -43,9 +44,6 @@ func newOrganizationsScimListAnOrganizationSMembersCmd(flags *rootFlags) *cobra.
 			}
 			if flagFilter != "" {
 				params["filter"] = fmt.Sprintf("%v", flagFilter)
-			}
-			if flagExcludedAttributes != "" {
-				params["excludedAttributes"] = fmt.Sprintf("%v", flagExcludedAttributes)
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "scim", false, path, params, nil)
 			if err != nil {
@@ -92,7 +90,7 @@ func newOrganizationsScimListAnOrganizationSMembersCmd(flags *rootFlags) *cobra.
 	cmd.Flags().IntVar(&flagStartIndex, "start-index", 1, "SCIM 1-offset based index for pagination.")
 	cmd.Flags().IntVar(&flagCount, "count", 100, "The maximum number of results the query should return, maximum of 100.")
 	cmd.Flags().StringVar(&flagFilter, "filter", "", "A SCIM filter expression. The only operator currently supported is `eq`.")
-	cmd.Flags().StringVar(&flagExcludedAttributes, "excluded-attributes", "", "Fields that should be left off of return values. Right now the only supported field for this query is members.")
+	cmd.Flags().StringArrayVar(&flagExcludedAttributes, "excluded-attributes", nil, "Fields that should be left off of return values. Right now the only supported field for this query is members.")
 
 	return cmd
 }

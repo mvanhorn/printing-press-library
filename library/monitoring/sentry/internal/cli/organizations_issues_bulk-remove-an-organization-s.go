@@ -12,9 +12,9 @@ import (
 )
 
 func newOrganizationsIssuesBulkRemoveAnOrganizationSCmd(flags *rootFlags) *cobra.Command {
-	var flagEnvironment string
-	var flagProject string
-	var flagId string
+	var flagEnvironment []string
+	var flagProject []string
+	var flagId []string
 	var flagQuery string
 	var flagViewId string
 	var flagSort string
@@ -50,6 +50,21 @@ func newOrganizationsIssuesBulkRemoveAnOrganizationSCmd(flags *rootFlags) *cobra
 
 			path := "/api/0/organizations/{organization_id_or_slug}/issues/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
+			path = appendArrayQueryParam(path, "project", flagProject)
+			path = appendArrayQueryParam(path, "id", flagId)
+			if cmd.Flags().Changed("query") {
+				path = appendQueryParam(path, "query", fmt.Sprintf("%v", flagQuery))
+			}
+			if cmd.Flags().Changed("view-id") {
+				path = appendQueryParam(path, "viewId", fmt.Sprintf("%v", flagViewId))
+			}
+			if cmd.Flags().Changed("sort") {
+				path = appendQueryParam(path, "sort", fmt.Sprintf("%v", flagSort))
+			}
+			if cmd.Flags().Changed("limit") {
+				path = appendQueryParam(path, "limit", fmt.Sprintf("%v", flagLimit))
+			}
 			data, statusCode, err := c.Delete(path)
 			if err != nil {
 				return classifyDeleteError(err)
@@ -117,9 +132,9 @@ func newOrganizationsIssuesBulkRemoveAnOrganizationSCmd(flags *rootFlags) *cobra
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
-	cmd.Flags().StringVar(&flagId, "id", "", "The list of issue IDs to be removed. If not provided, it will attempt to remove the first 1000 issues.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagId, "id", nil, "The list of issue IDs to be removed. If not provided, it will attempt to remove the first 1000 issues.")
 	cmd.Flags().StringVar(&flagQuery, "query", "is:unresolved", "An optional search query for filtering issues. A default query will apply if no view/query is set. For all results...")
 	cmd.Flags().StringVar(&flagViewId, "view-id", "", "The ID of the view to use. If no query is present, the view's query and filters will be applied.")
 	cmd.Flags().StringVar(&flagSort, "sort", "date", "The sort order of the view. Options include 'Last Seen' (`date`), 'First Seen' (`new`), 'Trends' (`trends`),... (one of: date, freq, inbox, new, recommended, trends, user)")

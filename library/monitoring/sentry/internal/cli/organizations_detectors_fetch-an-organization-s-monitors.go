@@ -12,10 +12,10 @@ import (
 )
 
 func newOrganizationsDetectorsFetchAnOrganizationSMonitorsCmd(flags *rootFlags) *cobra.Command {
-	var flagProject string
+	var flagProject []string
 	var flagQuery string
 	var flagSortBy string
-	var flagId string
+	var flagId []string
 
 	cmd := &cobra.Command{
 		Use:         "fetch-an-organization-s-monitors <organization_id_or_slug>",
@@ -33,18 +33,14 @@ func newOrganizationsDetectorsFetchAnOrganizationSMonitorsCmd(flags *rootFlags) 
 
 			path := "/api/0/organizations/{organization_id_or_slug}/detectors/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "project", flagProject)
+			path = appendArrayQueryParam(path, "id", flagId)
 			params := map[string]string{}
-			if flagProject != "" {
-				params["project"] = fmt.Sprintf("%v", flagProject)
-			}
 			if flagQuery != "" {
 				params["query"] = fmt.Sprintf("%v", flagQuery)
 			}
 			if flagSortBy != "" {
 				params["sortBy"] = fmt.Sprintf("%v", flagSortBy)
-			}
-			if flagId != "" {
-				params["id"] = fmt.Sprintf("%v", flagId)
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "detectors", false, path, params, nil)
 			if err != nil {
@@ -88,10 +84,10 @@ func newOrganizationsDetectorsFetchAnOrganizationSMonitorsCmd(flags *rootFlags) 
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
 	cmd.Flags().StringVar(&flagQuery, "query", "", "An optional search query for filtering monitors. Available fields are: - `name` - `type`: e.g. `error`,...")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "The property to sort results by. If not specified, the results are sorted by id. Available fields are: - `name` -...")
-	cmd.Flags().StringVar(&flagId, "id", "", "The ID of the monitor you'd like to query.")
+	cmd.Flags().StringArrayVar(&flagId, "id", nil, "The ID of the monitor you'd like to query.")
 
 	return cmd
 }

@@ -12,7 +12,7 @@ import (
 )
 
 func newProjectsMonitorsDeleteAOrEnvironmentsForAProjectCmd(flags *rootFlags) *cobra.Command {
-	var flagEnvironment string
+	var flagEnvironment []string
 
 	cmd := &cobra.Command{
 		Use:         "delete-a-or-environments-for-a-project <organization_id_or_slug> <project_id_or_slug> <monitor_id_or_slug>",
@@ -39,6 +39,7 @@ func newProjectsMonitorsDeleteAOrEnvironmentsForAProjectCmd(flags *rootFlags) *c
 				return usageErr(fmt.Errorf("monitor_id_or_slug is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "monitor_id_or_slug"))
 			}
 			path = replacePathParam(path, "monitor_id_or_slug", args[2])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
 			data, statusCode, err := c.Delete(path)
 			if err != nil {
 				return classifyDeleteError(err)
@@ -106,7 +107,7 @@ func newProjectsMonitorsDeleteAOrEnvironmentsForAProjectCmd(flags *rootFlags) *c
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
 
 	return cmd
 }

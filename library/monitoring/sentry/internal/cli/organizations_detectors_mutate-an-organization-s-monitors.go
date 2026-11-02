@@ -13,9 +13,9 @@ import (
 )
 
 func newOrganizationsDetectorsMutateAnOrganizationSMonitorsCmd(flags *rootFlags) *cobra.Command {
-	var flagProject string
+	var flagProject []string
 	var flagQuery string
-	var flagId string
+	var flagId []string
 	var bodyEnabled bool
 	var stdinBody bool
 
@@ -41,6 +41,11 @@ func newOrganizationsDetectorsMutateAnOrganizationSMonitorsCmd(flags *rootFlags)
 
 			path := "/api/0/organizations/{organization_id_or_slug}/detectors/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "project", flagProject)
+			if cmd.Flags().Changed("query") {
+				path = appendQueryParam(path, "query", fmt.Sprintf("%v", flagQuery))
+			}
+			path = appendArrayQueryParam(path, "id", flagId)
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -125,9 +130,9 @@ func newOrganizationsDetectorsMutateAnOrganizationSMonitorsCmd(flags *rootFlags)
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
 	cmd.Flags().StringVar(&flagQuery, "query", "", "An optional search query for filtering monitors. Available fields are: - `name` - `type`: e.g. `error`,...")
-	cmd.Flags().StringVar(&flagId, "id", "", "The ID of the monitor you'd like to query.")
+	cmd.Flags().StringArrayVar(&flagId, "id", nil, "The ID of the monitor you'd like to query.")
 	cmd.Flags().BoolVar(&bodyEnabled, "enabled", false, "Whether to enable or disable the monitors")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

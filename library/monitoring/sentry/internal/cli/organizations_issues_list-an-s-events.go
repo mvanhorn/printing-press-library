@@ -15,7 +15,7 @@ func newOrganizationsIssuesListAnSEventsCmd(flags *rootFlags) *cobra.Command {
 	var flagStart string
 	var flagEnd string
 	var flagStatsPeriod string
-	var flagEnvironment string
+	var flagEnvironment []string
 	var flagFull bool
 	var flagSample bool
 	var flagQuery string
@@ -42,11 +42,11 @@ func newOrganizationsIssuesListAnSEventsCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("issue_id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "issue_id"))
 			}
 			path = replacePathParam(path, "issue_id", args[1])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "issues", path, map[string]string{
 				"start":       fmt.Sprintf("%v", flagStart),
 				"end":         fmt.Sprintf("%v", flagEnd),
 				"statsPeriod": fmt.Sprintf("%v", flagStatsPeriod),
-				"environment": fmt.Sprintf("%v", flagEnvironment),
 				"full":        fmt.Sprintf("%v", flagFull),
 				"sample":      fmt.Sprintf("%v", flagSample),
 				"query":       fmt.Sprintf("%v", flagQuery),
@@ -96,7 +96,7 @@ func newOrganizationsIssuesListAnSEventsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagStart, "start", "", "The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
 	cmd.Flags().StringVar(&flagStatsPeriod, "stats-period", "", "The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
 	cmd.Flags().BoolVar(&flagFull, "full", false, "Specify true to include the full event body, including the stacktrace, in the event payload.")
 	cmd.Flags().BoolVar(&flagSample, "sample", false, "Return events in pseudo-random order. This is deterministic so an identical query will always return the same events...")
 	cmd.Flags().StringVar(&flagQuery, "query", "", "An optional search query for filtering events. See [search syntax](https://docs.sentry.io/concepts/search/) and...")

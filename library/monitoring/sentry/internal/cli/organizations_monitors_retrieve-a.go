@@ -12,7 +12,7 @@ import (
 )
 
 func newOrganizationsMonitorsRetrieveACmd(flags *rootFlags) *cobra.Command {
-	var flagEnvironment string
+	var flagEnvironment []string
 
 	cmd := &cobra.Command{
 		Use:         "retrieve-a <organization_id_or_slug> <monitor_id_or_slug>",
@@ -35,10 +35,8 @@ func newOrganizationsMonitorsRetrieveACmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("monitor_id_or_slug is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "monitor_id_or_slug"))
 			}
 			path = replacePathParam(path, "monitor_id_or_slug", args[1])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
 			params := map[string]string{}
-			if flagEnvironment != "" {
-				params["environment"] = fmt.Sprintf("%v", flagEnvironment)
-			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "monitors", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
@@ -81,7 +79,7 @@ func newOrganizationsMonitorsRetrieveACmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
 
 	return cmd
 }

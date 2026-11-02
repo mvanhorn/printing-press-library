@@ -7,8 +7,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
+	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -171,14 +175,14 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_detectors_bulk-delete-monitors",
 			mcplib.WithDescription("⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and Alerts](/product/new-monitors-and-alerts/) and may not be viewable in the UI today. Bulk delete Monitors for a given organization. Required: organization_id_or_slug. Optional: project, query, sortBy (plus 1 more). Destructive."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithString("query", mcplib.Description("An optional search query for filtering monitors. Available fields are: - `name` - `type`: e.g. `error`,...")),
 			mcplib.WithString("sortBy", mcplib.Description("The property to sort results by. If not specified, the results are sorted by id. Available fields are: - `name` -...")),
-			mcplib.WithString("id", mcplib.Description("The ID of the monitor you'd like to query.")),
+			mcplib.WithArray("id", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the monitor you'd like to query.")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/detectors/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/detectors/", []string{"organization_id_or_slug"}, "project", "query", "sortBy", "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_detectors_delete-a-monitor",
@@ -205,10 +209,10 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_detectors_fetch-an-organization-s-monitors",
 			mcplib.WithDescription("⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and Alerts](/product/new-monitors-and-alerts/) and may not be viewable in the UI today. List an Organization's Monitors. Required: organization_id_or_slug. Optional: project, query, sortBy (plus 1 more). Returns array of FetchAnOrganizationSMonitorsItem."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithString("query", mcplib.Description("An optional search query for filtering monitors. Available fields are: - `name` - `type`: e.g. `error`,...")),
 			mcplib.WithString("sortBy", mcplib.Description("The property to sort results by. If not specified, the results are sorted by id. Available fields are: - `name` -...")),
-			mcplib.WithString("id", mcplib.Description("The ID of the monitor you'd like to query.")),
+			mcplib.WithArray("id", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the monitor you'd like to query.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -219,12 +223,12 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_detectors_mutate-an-organization-s-monitors",
 			mcplib.WithDescription("⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and Alerts](/product/new-monitors-and-alerts/) and may not be viewable in the UI today. Bulk enable or disable an Organization's Monitors. Required: organization_id_or_slug, enabled. Optional: project, query, id. Returns array of MutateAnOrganizationSMonitorsItem."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithString("query", mcplib.Description("An optional search query for filtering monitors. Available fields are: - `name` - `type`: e.g. `error`,...")),
-			mcplib.WithString("id", mcplib.Description("The ID of the monitor you'd like to query.")),
+			mcplib.WithArray("id", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the monitor you'd like to query.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/detectors/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/detectors/", []string{"organization_id_or_slug"}, "project", "query", "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_detectors_update-a-monitor-by-id",
@@ -314,11 +318,11 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_events_query-explore-in-table-format",
 			mcplib.WithDescription("Retrieves explore data for a given organization. **Note**: This endpoint is intended to get a table of results, and is not for doing a full export of data sent to Sentry. The `field` query parameter determines what fields will be selected in the `data` and `meta` keys of the endpoint response. - The `data` key contains a list of results row by row that match the `query` made - The `meta` key contains information about the response, including the unit or type of the fields requested. Required: organization_id_or_slug, field, dataset. Optional: end, environment, project (plus 5 more). Returns array of QueryExploreInTableFormatItem."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("field", mcplib.Required(), mcplib.Description("The fields, functions, or equations to request for the query. At most 20 fields can be selected per request. Each...")),
+			mcplib.WithArray("field", mcplib.Items(map[string]any{"type": "string"}), mcplib.Required(), mcplib.Description("The fields, functions, or equations to request for the query. At most 20 fields can be selected per request. Each...")),
 			mcplib.WithString("dataset", mcplib.Required(), mcplib.Description("Which dataset to query, changing datasets changes the available fields that can be queried")),
 			mcplib.WithString("end", mcplib.Description("The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithString("start", mcplib.Description("The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
 			mcplib.WithString("statsPeriod", mcplib.Description("The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")),
 			mcplib.WithString("per_page", mcplib.Description("Limit the number of rows to return in the result. Default and maximum allowed is 100.")),
@@ -336,15 +340,15 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("dataset", mcplib.Required(), mcplib.Description("Which dataset to query, changing datasets changes the available fields that can be queried")),
 			mcplib.WithString("end", mcplib.Description("The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithString("start", mcplib.Description("The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
 			mcplib.WithString("statsPeriod", mcplib.Description("The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")),
 			mcplib.WithString("topEvents", mcplib.Description("The number of top event results to return, must be between 1 and 10. When TopEvents is passed, both sort and groupBy...")),
 			mcplib.WithString("comparisonDelta", mcplib.Description("The delta in seconds to return additional offset timeseries by")),
 			mcplib.WithString("interval", mcplib.Description("The size of the bucket for the timeseries to have, must be a value smaller than the window being queried. If the...")),
 			mcplib.WithString("sort", mcplib.Description("What to order the results of the query by. Must be something in the `field` list, excluding equations.")),
-			mcplib.WithString("groupBy", mcplib.Description("List of fields to group by, *Required* for topEvents queries as this and sort determine what the top events are")),
+			mcplib.WithArray("groupBy", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("List of fields to group by, *Required* for topEvents queries as this and sort determine what the top events are")),
 			mcplib.WithString("yAxis", mcplib.Description("The aggregate field to create the timeseries for, defaults to `count()` when not included")),
 			mcplib.WithString("query", mcplib.Description("Filters results by using [query syntax](/product/sentry-basics/search/). Example: `query=(transaction:foo AND...")),
 			mcplib.WithString("disableAggregateExtrapolation", mcplib.Description("Whether to disable the use of extrapolation and return the sampled values, due to sampling the number returned may...")),
@@ -437,7 +441,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Lists all the available Integrations for an Organization. Required: organization_id_or_slug. Optional: providerKey, features, includeConfig (plus 1 more). Returns array of ListAnOrganizationSAvailableItem."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("providerKey", mcplib.Description("Specific integration provider to filter by such as `slack`. See our [Integrations...")),
-			mcplib.WithString("features", mcplib.Description("Integration features to filter by. See our [Integrations Documentation](/product/integrations/) for an updated list...")),
+			mcplib.WithArray("features", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("Integration features to filter by. See our [Integrations Documentation](/product/integrations/) for an updated list...")),
 			mcplib.WithString("includeConfig", mcplib.Description("Specify `True` to fetch third-party integration configurations. Note that this can add several seconds to the...")),
 			mcplib.WithString("cursor", mcplib.Description("A pointer to the last object fetched and its sort order; used to retrieve the next or previous results.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -461,24 +465,24 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_issues_bulk-mutate-an-organization-s",
 			mcplib.WithDescription("Bulk mutate various attributes on a maxmimum of 1000 issues. - For non-status updates, the `id` query parameter is required. - For status updates, the `id` query parameter may be omitted to update issues that match the filtering. If any IDs are out of scope, the data won't be mutated but the endpoint will still produce a successful response. For example, if no issues were found matching the criteria, a HTTP 204 is returned. Required: organization_id_or_slug, assignedTo, discard, hasSeen, inbox, isBookmarked, isPublic, isSubscribed, merge, priority, status, substatus. Optional: environment, project, id (plus 4 more). Returns the updated BulkMutateAnOrganizationSResponse."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
-			mcplib.WithString("id", mcplib.Description("The list of issue IDs to mutate. It is optional for status updates, in which an implicit `update all` is assumed.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("id", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The list of issue IDs to mutate. It is optional for status updates, in which an implicit `update all` is assumed.")),
 			mcplib.WithString("query", mcplib.Description("An optional search query for filtering issues. A default query will apply if no view/query is set. For all results...")),
 			mcplib.WithString("viewId", mcplib.Description("The ID of the view to use. If no query is present, the view's query and filters will be applied.")),
 			mcplib.WithString("sort", mcplib.Description("The sort order of the view. Options include 'Last Seen' (`date`), 'First Seen' (`new`), 'Trends' (`trends`),...")),
 			mcplib.WithString("limit", mcplib.Description("The maximum number of issues to affect. The maximum is 100.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/issues/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/issues/", []string{"organization_id_or_slug"}, "environment", "project", "id", "query", "viewId", "sort", "limit"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_issues_bulk-remove-an-organization-s",
 			mcplib.WithDescription("Permanently remove the given issues. If IDs are provided, queries and filtering will be ignored. If any IDs are out of scope, the data won't be mutated but the endpoint will still produce a successful response. For example, if no issues were found matching the criteria, a HTTP 204 is returned. Required: organization_id_or_slug. Optional: environment, project, id (plus 4 more). Destructive."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
-			mcplib.WithString("id", mcplib.Description("The list of issue IDs to be removed. If not provided, it will attempt to remove the first 1000 issues.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("id", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The list of issue IDs to be removed. If not provided, it will attempt to remove the first 1000 issues.")),
 			mcplib.WithString("query", mcplib.Description("An optional search query for filtering issues. A default query will apply if no view/query is set. For all results...")),
 			mcplib.WithString("viewId", mcplib.Description("The ID of the view to use. If no query is present, the view's query and filters will be applied.")),
 			mcplib.WithString("sort", mcplib.Description("The sort order of the view. Options include 'Last Seen' (`date`), 'First Seen' (`new`), 'Trends' (`trends`),...")),
@@ -486,7 +490,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/issues/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/issues/", []string{"organization_id_or_slug"}, "environment", "project", "id", "query", "viewId", "sort", "limit"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_issues_list-a-tag-s-values-for-an",
@@ -495,7 +499,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("key", mcplib.Required(), mcplib.Description("The tag key to look the values up for.")),
 			mcplib.WithString("sort", mcplib.Description("Sort order of the resulting tag values. Prefix with '-' for descending order. Default is '-id'.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -506,8 +510,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_issues_list-an-organization-s",
 			mcplib.WithDescription("Return a list of issues for an organization. All parameters are supplied as query string parameters. A default query of `is:unresolved` is applied. To return all results, use an empty query value (i.e. ``?query=`). Required: organization_id_or_slug. Optional: environment, project, statsPeriod (plus 11 more). Returns array of ListAnOrganizationSItem."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithString("statsPeriod", mcplib.Description("The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")),
 			mcplib.WithString("start", mcplib.Description("The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
 			mcplib.WithString("end", mcplib.Description("The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
@@ -517,8 +521,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("viewId", mcplib.Description("The ID of the view to use. If no query is present, the view's query and filters will be applied.")),
 			mcplib.WithString("sort", mcplib.Description("The sort order of the view. Options include 'Last Seen' (`date`), 'First Seen' (`new`), 'Trends' (`trends`),...")),
 			mcplib.WithString("limit", mcplib.Description("The maximum number of issues to affect. The maximum is 100.")),
-			mcplib.WithString("expand", mcplib.Description("Additional data to include in the response.")),
-			mcplib.WithString("collapse", mcplib.Description("Fields to remove from the response to improve query performance.")),
+			mcplib.WithArray("expand", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("Additional data to include in the response.")),
+			mcplib.WithArray("collapse", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("Fields to remove from the response to improve query performance.")),
 			mcplib.WithString("cursor", mcplib.Description("A pointer to the last object fetched and its sort order; used to retrieve the next or previous results.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -534,7 +538,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("start", mcplib.Description("The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
 			mcplib.WithString("end", mcplib.Description("The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
 			mcplib.WithString("statsPeriod", mcplib.Description("The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithString("full", mcplib.Description("Specify true to include the full event body, including the stacktrace, in the event payload.")),
 			mcplib.WithString("sample", mcplib.Description("Return events in pseudo-random order. This is deterministic so an identical query will always return the same events...")),
 			mcplib.WithString("query", mcplib.Description("An optional search query for filtering events. See [search syntax](https://docs.sentry.io/concepts/search/) and...")),
@@ -573,7 +577,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Return details on an individual issue. This returns the basic stats for the issue (title, last seen, first seen), some overall numbers (number of comments, user reports) as well as the summarized event data. Required: organization_id_or_slug, issue_id. Optional: collapse."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the issue belongs to.")),
 			mcplib.WithString("issue_id", mcplib.Required(), mcplib.Description("The ID of the issue to retrieve.")),
-			mcplib.WithString("collapse", mcplib.Description("Fields to remove from the response to improve query performance.")),
+			mcplib.WithArray("collapse", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("Fields to remove from the response to improve query performance.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -586,7 +590,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("issue_id", mcplib.Required(), mcplib.Description("The ID of the issue you'd like to query.")),
 			mcplib.WithString("event_id", mcplib.Description("The ID of the event to retrieve, or 'latest', 'oldest', or 'recommended'.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -621,7 +625,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("issue_id", mcplib.Required(), mcplib.Description("The ID of the issue you'd like to query.")),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("key", mcplib.Required(), mcplib.Description("The tag key to look the values up for.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -743,18 +747,18 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Delete a monitor or monitor environments. Required: organization_id_or_slug, monitor_id_or_slug. Optional: environment. Destructive."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("monitor_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the monitor.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/monitors/{monitor_id_or_slug}/", []string{"organization_id_or_slug", "monitor_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/monitors/{monitor_id_or_slug}/", []string{"organization_id_or_slug", "monitor_id_or_slug"}, "environment"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_monitors_retrieve-a",
 			mcplib.WithDescription("Retrieves details for a monitor. Required: organization_id_or_slug, monitor_id_or_slug. Optional: environment. Returns the RetrieveAResponse."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("monitor_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the monitor.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -777,8 +781,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_monitors_retrieve-for-an-organization",
 			mcplib.WithDescription("Lists monitors, including nested monitor environments. May be filtered to a project or environment. Required: organization_id_or_slug. Optional: project, environment, owner (plus 1 more). Returns array of RetrieveForAnOrganizationItem."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithString("owner", mcplib.Description("The owner of the monitor, in the format `user:id` or `team:id`. May be specified multiple times.")),
 			mcplib.WithString("cursor", mcplib.Description("A pointer to the last object fetched and its sort order; used to retrieve the next or previous results.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -819,8 +823,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_notifications_list-spike-protection",
 			mcplib.WithDescription("Returns all Spike Protection Notification Actions for an organization. Notification Actions notify a set of members when an action has been triggered through a notification service such as Slack or Sentry. For example, organization owners and managers can receive an email when a spike occurs. You can use either the `project` or `projectSlug` query parameter to filter for certain projects. Note that if both are present, `projectSlug` takes priority. Required: organization_id_or_slug. Optional: project, project_id_or_slug, triggerType."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
-			mcplib.WithString("project_id_or_slug", mcplib.Description("The project slugs to filter by. Use `$all` to include all available projects. For example, the following are valid...")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("project_id_or_slug", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The project slugs to filter by. Use `$all` to include all available projects. For example, the following are valid...")),
 			mcplib.WithString("triggerType", mcplib.Description("Type of the trigger that causes the notification. The only supported value right now is: `spike-protection`")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -1058,9 +1062,9 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("start", mcplib.Required(), mcplib.Description("The start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use along with...")),
 			mcplib.WithString("end", mcplib.Required(), mcplib.Description("The inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use...")),
-			mcplib.WithString("environment", mcplib.Description("A list of environment names to filter your results by.")),
-			mcplib.WithString("projectSlug", mcplib.Description("A list of project slugs to filter your results by.")),
-			mcplib.WithString("release", mcplib.Description("A list of release versions to filter your results by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("A list of environment names to filter your results by.")),
+			mcplib.WithArray("projectSlug", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("A list of project slugs to filter your results by.")),
+			mcplib.WithArray("release", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("A list of release versions to filter your results by.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -1231,11 +1235,11 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_replay-count_retrieve-a-count-of-replays-for-a-given-issue-or-transaction",
 			mcplib.WithDescription("Return a count of replays for a list of issue or transaction IDs. The `query` parameter is required. It is a search query that includes exactly one of `issue.id`, `transaction`, or `replay_id` (string or list of strings). Required: organization_id_or_slug. Optional: environment, start, end (plus 3 more). Returns the RetrieveACountOfReplaysForAGivenIssueOrTransactionResponse."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithString("start", mcplib.Description("The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
 			mcplib.WithString("end", mcplib.Description("The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
 			mcplib.WithString("statsPeriod", mcplib.Description("The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")),
-			mcplib.WithString("project_id_or_slug", mcplib.Description("The project slugs to filter by. Use `$all` to include all available projects. For example, the following are valid...")),
+			mcplib.WithArray("project_id_or_slug", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The project slugs to filter by. Use `$all` to include all available projects. For example, the following are valid...")),
 			mcplib.WithString("query", mcplib.Description("Filters results by using [query syntax](/product/sentry-basics/search/). Example: `query=(transaction:foo AND...")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -1247,12 +1251,12 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_replay-selectors_list-an-organization-s-selectors",
 			mcplib.WithDescription("Return a list of selectors for a given organization. Required: organization_id_or_slug. Optional: environment, statsPeriod, start (plus 9 more). Returns array of ListAnOrganizationSSelectorsItem."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("environment", mcplib.Description("The environment to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The environment to filter by.")),
 			mcplib.WithString("statsPeriod", mcplib.Description("This defines the range of the time series, relative to now. The range is given in a `<number><unit>` format. For...")),
 			mcplib.WithString("start", mcplib.Description("This defines the start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds.Use...")),
 			mcplib.WithString("end", mcplib.Description("This defines the inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch...")),
-			mcplib.WithString("project", mcplib.Description("The ID of the projects to filter by.")),
-			mcplib.WithString("projectSlug", mcplib.Description("A list of project slugs to filter your results by.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the projects to filter by.")),
+			mcplib.WithArray("projectSlug", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("A list of project slugs to filter your results by.")),
 			mcplib.WithString("sort", mcplib.Description("The field to sort the output by.")),
 			mcplib.WithString("sortBy", mcplib.Description("The field to sort the output by.")),
 			mcplib.WithString("orderBy", mcplib.Description("The field to sort the output by.")),
@@ -1272,9 +1276,9 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("statsPeriod", mcplib.Description("This defines the range of the time series, relative to now. The range is given in a `<number><unit>` format. For...")),
 			mcplib.WithString("start", mcplib.Description("This defines the start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use...")),
 			mcplib.WithString("end", mcplib.Description("This defines the inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch...")),
-			mcplib.WithString("field", mcplib.Description("Specifies a field that should be marshaled in the output. Invalid fields will be rejected.")),
-			mcplib.WithString("project", mcplib.Description("The ID of the projects to filter by.")),
-			mcplib.WithString("projectSlug", mcplib.Description("A list of project slugs to filter your results by.")),
+			mcplib.WithArray("field", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("Specifies a field that should be marshaled in the output. Invalid fields will be rejected.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the projects to filter by.")),
+			mcplib.WithArray("projectSlug", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("A list of project slugs to filter your results by.")),
 			mcplib.WithString("environment", mcplib.Description("The environment to filter by.")),
 			mcplib.WithString("sort", mcplib.Description("The field to sort the output by.")),
 			mcplib.WithString("sortBy", mcplib.Description("The field to sort the output by.")),
@@ -1296,9 +1300,9 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("statsPeriod", mcplib.Description("This defines the range of the time series, relative to now. The range is given in a `<number><unit>` format. For...")),
 			mcplib.WithString("start", mcplib.Description("This defines the start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use...")),
 			mcplib.WithString("end", mcplib.Description("This defines the inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch...")),
-			mcplib.WithString("field", mcplib.Description("Specifies a field that should be marshaled in the output. Invalid fields will be rejected.")),
-			mcplib.WithString("project", mcplib.Description("The ID of the projects to filter by.")),
-			mcplib.WithString("projectSlug", mcplib.Description("A list of project slugs to filter your results by.")),
+			mcplib.WithArray("field", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("Specifies a field that should be marshaled in the output. Invalid fields will be rejected.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the projects to filter by.")),
+			mcplib.WithArray("projectSlug", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("A list of project slugs to filter your results by.")),
 			mcplib.WithString("environment", mcplib.Description("The environment to filter by.")),
 			mcplib.WithString("sort", mcplib.Description("The field to sort the output by.")),
 			mcplib.WithString("sortBy", mcplib.Description("The field to sort the output by.")),
@@ -1362,7 +1366,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("startIndex", mcplib.Description("SCIM 1-offset based index for pagination.")),
 			mcplib.WithString("count", mcplib.Description("The maximum number of results the query should return, maximum of 100.")),
 			mcplib.WithString("filter", mcplib.Description("A SCIM filter expression. The only operator currently supported is `eq`.")),
-			mcplib.WithString("excludedAttributes", mcplib.Description("Fields that should be left off of return values. Right now the only supported field for this query is members.")),
+			mcplib.WithArray("excludedAttributes", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("Fields that should be left off of return values. Right now the only supported field for this query is members.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -1376,7 +1380,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("startIndex", mcplib.Description("SCIM 1-offset based index for pagination.")),
 			mcplib.WithString("count", mcplib.Description("The maximum number of results the query should return, maximum of 100.")),
 			mcplib.WithString("filter", mcplib.Description("A SCIM filter expression. The only operator currently supported is `eq`.")),
-			mcplib.WithString("excludedAttributes", mcplib.Description("Fields that should be left off of return values. Right now the only supported field for this query is members.")),
+			mcplib.WithArray("excludedAttributes", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("Fields that should be left off of return values. Right now the only supported field for this query is members.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -1466,15 +1470,15 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_sessions_retrieve-release-health-statistics",
 			mcplib.WithDescription("Returns a time series of release health session statistics for projects bound to an organization. The interval and date range are subject to certain restrictions and rounding rules. The date range is rounded to align with the interval, and is rounded to at least one hour. The interval can at most be one day and at least one hour currently. It has to cleanly divide one day, for rounding reasons. Because of technical limitations, this endpoint returns at most 10000 data points. For example, if you select a 90 day window grouped by releases, you will see at most `floor(10k / (90 + 1)) = 109` releases. To get more results, reduce the `statsPeriod`. Required: organization_id_or_slug, field. Optional: start, end, environment (plus 9 more)."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("field", mcplib.Required(), mcplib.Description("The list of fields to query. The available fields are - `sum(session)` - `count_unique(user)` - `avg`, `p50`, `p75`,...")),
+			mcplib.WithArray("field", mcplib.Items(map[string]any{"type": "string"}), mcplib.Required(), mcplib.Description("The list of fields to query. The available fields are - `sum(session)` - `count_unique(user)` - `avg`, `p50`, `p75`,...")),
 			mcplib.WithString("start", mcplib.Description("The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
 			mcplib.WithString("end", mcplib.Description("The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithString("statsPeriod", mcplib.Description("The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithString("per_page", mcplib.Description("The number of groups to return per request.")),
 			mcplib.WithString("interval", mcplib.Description("Resolution of the time series, given in the same format as `statsPeriod`. The default and the minimum interval is `1h`.")),
-			mcplib.WithString("groupBy", mcplib.Description("The list of properties to group by. The available groupBy conditions are `project`, `release`, `environment` and...")),
+			mcplib.WithArray("groupBy", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The list of properties to group by. The available groupBy conditions are `project`, `release`, `environment` and...")),
 			mcplib.WithString("orderBy", mcplib.Description("An optional field to order by, which must be one of the fields provided in `field`. Use `-` for descending order,...")),
 			mcplib.WithString("includeTotals", mcplib.Description("Specify `0` to exclude totals from the response. The default is `1`")),
 			mcplib.WithString("includeSeries", mcplib.Description("Specify `0` to exclude series from the response. The default is `1`")),
@@ -1490,7 +1494,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Resolve a short ID to the project slug and group details. Required: organization_id_or_slug, issue_id. Optional: collapse. Returns the ResolveAShortIdResponse."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("issue_id", mcplib.Required(), mcplib.Description("The short ID of the issue to resolve.")),
-			mcplib.WithString("collapse", mcplib.Description("Fields to remove from the response to improve query performance.")),
+			mcplib.WithArray("collapse", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("Fields to remove from the response to improve query performance.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -1524,7 +1528,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("interval", mcplib.Description("This is the resolution of the time series, given in the same format as `statsPeriod`. The default resolution is `1h`...")),
 			mcplib.WithString("start", mcplib.Description("This defines the start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use...")),
 			mcplib.WithString("end", mcplib.Description("This defines the inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch...")),
-			mcplib.WithString("project", mcplib.Description("The ID of the projects to filter by.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the projects to filter by.")),
 			mcplib.WithString("category", mcplib.Description("If filtering by attachments, you cannot filter by any other category due to quantity values becoming nonsensical...")),
 			mcplib.WithString("outcome", mcplib.Description("See https://docs.sentry.io/product/stats/ for more information on outcome statuses. * `accepted` * `filtered` *...")),
 			mcplib.WithString("reason", mcplib.Description("The reason field will contain why an event was filtered/dropped.")),
@@ -1539,13 +1543,13 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_stats-v2_retrieve-event-counts-for-an-organization-v2",
 			mcplib.WithDescription("Query event counts for your Organization. Select a field, define a date range, and group or filter by columns. Required: organization_id_or_slug, groupBy, field. Optional: statsPeriod, interval, start (plus 5 more). Returns the RetrieveEventCountsForAnOrganizationV2Response."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
-			mcplib.WithString("groupBy", mcplib.Required(), mcplib.Description("can pass multiple groupBy parameters to group by multiple, e.g.\u00a0`groupBy=project&groupBy=outcome`\u00a0to group by...")),
+			mcplib.WithArray("groupBy", mcplib.Items(map[string]any{"type": "string"}), mcplib.Required(), mcplib.Description("can pass multiple groupBy parameters to group by multiple, e.g.\u00a0`groupBy=project&groupBy=outcome`\u00a0to group by...")),
 			mcplib.WithString("field", mcplib.Required(), mcplib.Description("the `sum(quantity)` field is bytes for attachments, and all others the 'event' count for those types of events....")),
 			mcplib.WithString("statsPeriod", mcplib.Description("This defines the range of the time series, relative to now. The range is given in a `<number><unit>` format. For...")),
 			mcplib.WithString("interval", mcplib.Description("This is the resolution of the time series, given in the same format as `statsPeriod`. The default resolution is `1h`...")),
 			mcplib.WithString("start", mcplib.Description("This defines the start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use...")),
 			mcplib.WithString("end", mcplib.Description("This defines the inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch...")),
-			mcplib.WithString("project", mcplib.Description("The ID of the projects to filter by. Use `-1` to include all accessible projects.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the projects to filter by. Use `-1` to include all accessible projects.")),
 			mcplib.WithString("category", mcplib.Description("Filter by data category. Each category represents a different type of data: - `error`: Error events (includes...")),
 			mcplib.WithString("outcome", mcplib.Description("See https://docs.sentry.io/product/stats/ for more information on outcome statuses. * `accepted` * `filtered` *...")),
 			mcplib.WithString("reason", mcplib.Description("The reason field will contain why an event was filtered/dropped.")),
@@ -1591,12 +1595,12 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and Alerts](/product/new-monitors-and-alerts/) and may not be viewable in the UI today. Bulk delete alerts for a given organization. Required: organization_id_or_slug. Optional: query, id, project. Destructive."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("query", mcplib.Description("An optional search query for filtering alerts.")),
-			mcplib.WithString("id", mcplib.Description("The ID of the alert you'd like to query.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("id", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the alert you'd like to query.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/workflows/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/workflows/", []string{"organization_id_or_slug"}, "query", "id", "project"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_workflows_create-an-alert-for-an-organization",
@@ -1623,8 +1627,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("sortBy", mcplib.Description("The field to sort results by. If not specified, the results are sorted by id. Available fields are: - `name` - `id`...")),
 			mcplib.WithString("query", mcplib.Description("An optional search query for filtering alerts.")),
-			mcplib.WithString("id", mcplib.Description("The ID of the alert you'd like to query.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("id", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the alert you'd like to query.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -1647,11 +1651,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and Alerts](/product/new-monitors-and-alerts/) and may not be viewable in the UI today. Bulk enable or disable alerts for a given Organization. Required: organization_id_or_slug, enabled. Optional: query, id, project. Returns array of MutateAnOrganizationSAlertsItem."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("query", mcplib.Description("An optional search query for filtering alerts.")),
-			mcplib.WithString("id", mcplib.Description("The ID of the alert you'd like to query.")),
-			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
+			mcplib.WithArray("id", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The ID of the alert you'd like to query.")),
+			mcplib.WithArray("project", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/workflows/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/workflows/", []string{"organization_id_or_slug"}, "query", "id", "project"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_workflows_update-an-alert-by-id",
@@ -1778,7 +1782,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/files/dsyms/", []string{"organization_id_or_slug", "project_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/files/dsyms/", []string{"organization_id_or_slug", "project_id_or_slug"}, "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_files_list-a-project-s-debug-information",
@@ -1882,22 +1886,22 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Bulk mutate various attributes on issues. The list of issues to modify is given through the `id` query parameter. It is repeated for each issue that should be modified. - For non-status updates, the `id` query parameter is required. - For status updates, the `id` query parameter may be omitted for a batch 'update all' query. - An optional `status` query parameter may be used to restrict mutations to only events with the given status. The following attributes can be modified and are supplied as JSON object in the body: If any IDs are out of scope this operation will succeed without any data mutation. Required: organization_id_or_slug, project_id_or_slug. Optional: id, status, assignedTo (plus 5 more). Returns the updated BulkMutateAListOfResponse."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the issues belong to.")),
 			mcplib.WithString("project_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the project the issues belong to.")),
-			mcplib.WithString("id", mcplib.Description("A list of IDs of the issues to be mutated. This parameter shall be repeated for each issue. It is optional only if a...")),
+			mcplib.WithArray("id", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("A list of IDs of the issues to be mutated. This parameter shall be repeated for each issue. It is optional only if a...")),
 			mcplib.WithString("status", mcplib.Description("Optionally limits the query to issues of the specified status. Valid values are `'resolved'`, `'reprocessing'`,...")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/", []string{"organization_id_or_slug", "project_id_or_slug"}),
+		makeAPIHandler("PUT", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/", []string{"organization_id_or_slug", "project_id_or_slug"}, "id", "status"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_issues_bulk-remove-a-list-of",
 			mcplib.WithDescription("Permanently remove the given issues. The list of issues to modify is given through the `id` query parameter. It is repeated for each issue that should be removed. Only queries by 'id' are accepted. If any IDs are out of scope this operation will succeed without any data mutation. Required: organization_id_or_slug, project_id_or_slug. Optional: id. Destructive."),
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the issues belong to.")),
 			mcplib.WithString("project_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the project the issues belong to.")),
-			mcplib.WithString("id", mcplib.Description("A list of IDs of the issues to be removed. This parameter shall be repeated for each issue, e.g. `?id=1&id=2&id=3`....")),
+			mcplib.WithArray("id", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("A list of IDs of the issues to be removed. This parameter shall be repeated for each issue, e.g. `?id=1&id=2&id=3`....")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/", []string{"organization_id_or_slug", "project_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/", []string{"organization_id_or_slug", "project_id_or_slug"}, "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_issues_list-a-project-s",
@@ -1988,11 +1992,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("organization_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the organization the resource belongs to.")),
 			mcplib.WithString("project_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the project the resource belongs to.")),
 			mcplib.WithString("monitor_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the monitor.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/monitors/{monitor_id_or_slug}/", []string{"organization_id_or_slug", "project_id_or_slug", "monitor_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/monitors/{monitor_id_or_slug}/", []string{"organization_id_or_slug", "project_id_or_slug", "monitor_id_or_slug"}, "environment"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_monitors_retrieve-a-for-a-project",
@@ -2071,7 +2075,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("mainBinaryIdentifier", mcplib.Description("UUID of the main binary (e.g. Mach-O UUID for Apple builds). Either this or buildNumber must be provided when...")),
 			mcplib.WithString("buildConfiguration", mcplib.Description("Filter by build configuration name (exact match).")),
 			mcplib.WithString("codesigningType", mcplib.Description("Filter by code signing type.")),
-			mcplib.WithString("installGroups", mcplib.Description("Filter by install group name (repeatable for multiple groups).")),
+			mcplib.WithArray("installGroups", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("Filter by install group name (repeatable for multiple groups).")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -2191,7 +2195,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("project_id_or_slug", mcplib.Required(), mcplib.Description("The ID or slug of the project the resource belongs to.")),
 			mcplib.WithString("replay_id", mcplib.Required(), mcplib.Description("The ID of the replay you'd like to retrieve.")),
 			mcplib.WithString("cursor", mcplib.Description("A pointer to the last object fetched and its sort order; used to retrieve the next or previous results.")),
-			mcplib.WithString("environment", mcplib.Description("The name of environments to filter by.")),
+			mcplib.WithArray("environment", mcplib.Items(map[string]any{"type": "string"}), mcplib.Description("The name of environments to filter by.")),
 			mcplib.WithString("per_page", mcplib.Description("Limit the number of rows to return in the result. Default and maximum allowed is 100.")),
 			mcplib.WithString("query", mcplib.Description("Filters results by using [query syntax](/product/sentry-basics/search/). Example: `query=(transaction:foo AND...")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -2340,7 +2344,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/", []string{"organization_id_or_slug", "project_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/", []string{"organization_id_or_slug", "project_id_or_slug"}, "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_symbol-sources_retrieve-a-project-s",
@@ -2362,7 +2366,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the source to update.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/", []string{"organization_id_or_slug", "project_id_or_slug"}),
+		makeAPIHandler("PUT", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/", []string{"organization_id_or_slug", "project_id_or_slug"}, "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_tags_list-a-s-values",
@@ -2637,7 +2641,24 @@ func RegisterTools(s *server.MCPServer) {
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
+// mcpQueryValues formats native array elements for repeated query keys. JSON
+// numbers arrive as float64; whole numbers up to 2^53 (Sentry project IDs) keep their exact digits.
+func mcpQueryValues(items []any) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		out = append(out, mcpQueryValue(item))
+	}
+	return out
+}
+
+func mcpQueryValue(v any) string {
+	if f, ok := v.(float64); ok && f == math.Trunc(f) && math.Abs(f) <= 1<<53 {
+		return strconv.FormatInt(int64(f), 10)
+	}
+	return fmt.Sprintf("%v", v)
+}
+
+func makeAPIHandler(method, pathTemplate string, positionalParams []string, queryParams ...string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -2657,9 +2678,22 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			}
 		}
 
-		// Collect non-positional params as query params
+		// GET sends every non-positional arg as a query param. Other methods send the
+		// operation's declared query params on the path (bulk deletes and mutations
+		// filter by them) and the rest in the body. Native arrays become repeated keys.
+		isQuery := make(map[string]bool, len(queryParams))
+		for _, q := range queryParams {
+			isQuery[q] = true
+		}
 		params := make(map[string]string)
-		for k, v := range args {
+		bodyArgs := make(map[string]any, len(args))
+		keys := make([]string, 0, len(args))
+		for k := range args {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			v := args[k]
 			isPositional := false
 			for _, p := range positionalParams {
 				if k == p {
@@ -2667,8 +2701,19 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 					break
 				}
 			}
-			if !isPositional {
-				params[k] = fmt.Sprintf("%v", v)
+			switch {
+			case isPositional:
+				bodyArgs[k] = v
+			case method == "GET" || isQuery[k]:
+				if arr, ok := v.([]any); ok {
+					path = cliutil.AppendArrayQuery(path, k, mcpQueryValues(arr))
+				} else if method == "GET" {
+					params[k] = fmt.Sprintf("%v", v)
+				} else {
+					path = cliutil.AppendQueryValues(path, url.Values{k: {mcpQueryValue(v)}})
+				}
+			default:
+				bodyArgs[k] = v
 			}
 		}
 
@@ -2677,14 +2722,14 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Post(path, body)
+			// The client JSON-encodes the body; passing marshaled bytes sent a base64 string.
+			data, _, err = c.Post(path, bodyArgs)
 		case "PUT":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Put(path, body)
+			// The client JSON-encodes the body; passing marshaled bytes sent a base64 string.
+			data, _, err = c.Put(path, bodyArgs)
 		case "PATCH":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Patch(path, body)
+			// The client JSON-encodes the body; passing marshaled bytes sent a base64 string.
+			data, _, err = c.Patch(path, bodyArgs)
 		case "DELETE":
 			data, _, err = c.Delete(path)
 		default:

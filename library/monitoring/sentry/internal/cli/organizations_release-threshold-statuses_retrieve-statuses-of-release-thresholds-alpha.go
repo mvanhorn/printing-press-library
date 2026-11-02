@@ -14,9 +14,9 @@ import (
 func newOrganizationsReleaseThresholdStatusesRetrieveStatusesOfReleaseThresholdsAlphaCmd(flags *rootFlags) *cobra.Command {
 	var flagStart string
 	var flagEnd string
-	var flagEnvironment string
-	var flagProjectSlug string
-	var flagRelease string
+	var flagEnvironment []string
+	var flagProjectSlug []string
+	var flagRelease []string
 
 	cmd := &cobra.Command{
 		Use:         "retrieve-statuses-of-release-thresholds-alpha <organization_id_or_slug>",
@@ -41,21 +41,15 @@ func newOrganizationsReleaseThresholdStatusesRetrieveStatusesOfReleaseThresholds
 
 			path := "/api/0/organizations/{organization_id_or_slug}/release-threshold-statuses/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
+			path = appendArrayQueryParam(path, "projectSlug", flagProjectSlug)
+			path = appendArrayQueryParam(path, "release", flagRelease)
 			params := map[string]string{}
 			if flagStart != "" {
 				params["start"] = fmt.Sprintf("%v", flagStart)
 			}
 			if flagEnd != "" {
 				params["end"] = fmt.Sprintf("%v", flagEnd)
-			}
-			if flagEnvironment != "" {
-				params["environment"] = fmt.Sprintf("%v", flagEnvironment)
-			}
-			if flagProjectSlug != "" {
-				params["projectSlug"] = fmt.Sprintf("%v", flagProjectSlug)
-			}
-			if flagRelease != "" {
-				params["release"] = fmt.Sprintf("%v", flagRelease)
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "release-threshold-statuses", false, path, params, nil)
 			if err != nil {
@@ -101,9 +95,9 @@ func newOrganizationsReleaseThresholdStatusesRetrieveStatusesOfReleaseThresholds
 	}
 	cmd.Flags().StringVar(&flagStart, "start", "", "The start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use along with...")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "The inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use...")
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "A list of environment names to filter your results by.")
-	cmd.Flags().StringVar(&flagProjectSlug, "project-slug", "", "A list of project slugs to filter your results by.")
-	cmd.Flags().StringVar(&flagRelease, "release", "", "A list of release versions to filter your results by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "A list of environment names to filter your results by.")
+	cmd.Flags().StringArrayVar(&flagProjectSlug, "project-slug", nil, "A list of project slugs to filter your results by.")
+	cmd.Flags().StringArrayVar(&flagRelease, "release", nil, "A list of release versions to filter your results by.")
 
 	return cmd
 }

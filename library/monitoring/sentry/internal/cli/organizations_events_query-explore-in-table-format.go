@@ -12,11 +12,11 @@ import (
 )
 
 func newOrganizationsEventsQueryExploreInTableFormatCmd(flags *rootFlags) *cobra.Command {
-	var flagField string
+	var flagField []string
 	var flagDataset string
 	var flagEnd string
-	var flagEnvironment string
-	var flagProject string
+	var flagEnvironment []string
+	var flagProject []string
 	var flagStart string
 	var flagStatsPeriod string
 	var flagPerPage int
@@ -41,7 +41,7 @@ func newOrganizationsEventsQueryExploreInTableFormatCmd(flags *rootFlags) *cobra
 				return fmt.Errorf("required flag \"%s\" not set", "dataset")
 			}
 			if cmd.Flags().Changed("dataset") {
-				allowedDataset := []string{"logs", "profile_functions", "spans", "uptime_results"}
+				allowedDataset := []string{"errors", "logs", "profile_functions", "spans", "tracemetrics", "uptime_results"}
 				validDataset := false
 				for _, v := range allowedDataset {
 					if flagDataset == v {
@@ -60,12 +60,12 @@ func newOrganizationsEventsQueryExploreInTableFormatCmd(flags *rootFlags) *cobra
 
 			path := "/api/0/organizations/{organization_id_or_slug}/events/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "field", flagField)
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
+			path = appendArrayQueryParam(path, "project", flagProject)
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "events", path, map[string]string{
-				"field":       fmt.Sprintf("%v", flagField),
 				"dataset":     fmt.Sprintf("%v", flagDataset),
 				"end":         fmt.Sprintf("%v", flagEnd),
-				"environment": fmt.Sprintf("%v", flagEnvironment),
-				"project":     fmt.Sprintf("%v", flagProject),
 				"start":       fmt.Sprintf("%v", flagStart),
 				"statsPeriod": fmt.Sprintf("%v", flagStatsPeriod),
 				"per_page":    fmt.Sprintf("%v", flagPerPage),
@@ -113,11 +113,11 @@ func newOrganizationsEventsQueryExploreInTableFormatCmd(flags *rootFlags) *cobra
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagField, "field", "", "The fields, functions, or equations to request for the query. At most 20 fields can be selected per request. Each...")
-	cmd.Flags().StringVar(&flagDataset, "dataset", "", "Which dataset to query, changing datasets changes the available fields that can be queried (one of: logs, profile_functions, spans, uptime_results)")
+	cmd.Flags().StringArrayVar(&flagField, "field", nil, "The fields, functions, or equations to request for the query. At most 20 fields can be selected per request. Each...")
+	cmd.Flags().StringVar(&flagDataset, "dataset", "", "Which dataset to query, changing datasets changes the available fields that can be queried (one of: errors, logs, profile_functions, spans, tracemetrics, uptime_results)")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
 	cmd.Flags().StringVar(&flagStart, "start", "", "The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
 	cmd.Flags().StringVar(&flagStatsPeriod, "stats-period", "", "The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")
 	cmd.Flags().IntVar(&flagPerPage, "per-page", 0, "Limit the number of rows to return in the result. Default and maximum allowed is 100.")

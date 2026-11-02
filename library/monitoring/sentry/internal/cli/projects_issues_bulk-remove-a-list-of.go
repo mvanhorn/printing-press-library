@@ -12,7 +12,7 @@ import (
 )
 
 func newProjectsIssuesBulkRemoveAListOfCmd(flags *rootFlags) *cobra.Command {
-	var flagId string
+	var flagId []string
 
 	cmd := &cobra.Command{
 		Use:         "bulk-remove-a-list-of <organization_id_or_slug> <project_id_or_slug>",
@@ -35,6 +35,9 @@ func newProjectsIssuesBulkRemoveAListOfCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("project_id_or_slug is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "project_id_or_slug"))
 			}
 			path = replacePathParam(path, "project_id_or_slug", args[1])
+			if cmd.Flags().Changed("id") {
+				path = appendArrayQueryParam(path, "id", flagId)
+			}
 			data, statusCode, err := c.Delete(path)
 			if err != nil {
 				return classifyDeleteError(err)
@@ -102,7 +105,7 @@ func newProjectsIssuesBulkRemoveAListOfCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagId, "id", "", "A list of IDs of the issues to be removed. This parameter shall be repeated for each issue, e.g. `?id=1&id=2&id=3`....")
+	cmd.Flags().StringArrayVar(&flagId, "id", nil, "A list of IDs of the issues to be removed. This parameter shall be repeated for each issue, e.g. `?id=1&id=2&id=3`....")
 
 	return cmd
 }

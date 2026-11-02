@@ -12,15 +12,15 @@ import (
 )
 
 func newOrganizationsSessionsRetrieveReleaseHealthStatisticsCmd(flags *rootFlags) *cobra.Command {
-	var flagField string
+	var flagField []string
 	var flagStart string
 	var flagEnd string
-	var flagEnvironment string
+	var flagEnvironment []string
 	var flagStatsPeriod string
-	var flagProject string
+	var flagProject []string
 	var flagPerPage int
 	var flagInterval string
-	var flagGroupBy string
+	var flagGroupBy []string
 	var flagOrderBy string
 	var flagIncludeTotals int
 	var flagIncludeSeries int
@@ -47,16 +47,16 @@ func newOrganizationsSessionsRetrieveReleaseHealthStatisticsCmd(flags *rootFlags
 
 			path := "/api/0/organizations/{organization_id_or_slug}/sessions/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "field", flagField)
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
+			path = appendArrayQueryParam(path, "project", flagProject)
+			path = appendArrayQueryParam(path, "groupBy", flagGroupBy)
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "sessions", path, map[string]string{
-				"field":         fmt.Sprintf("%v", flagField),
 				"start":         fmt.Sprintf("%v", flagStart),
 				"end":           fmt.Sprintf("%v", flagEnd),
-				"environment":   fmt.Sprintf("%v", flagEnvironment),
 				"statsPeriod":   fmt.Sprintf("%v", flagStatsPeriod),
-				"project":       fmt.Sprintf("%v", flagProject),
 				"per_page":      fmt.Sprintf("%v", flagPerPage),
 				"interval":      fmt.Sprintf("%v", flagInterval),
-				"groupBy":       fmt.Sprintf("%v", flagGroupBy),
 				"orderBy":       fmt.Sprintf("%v", flagOrderBy),
 				"includeTotals": fmt.Sprintf("%v", flagIncludeTotals),
 				"includeSeries": fmt.Sprintf("%v", flagIncludeSeries),
@@ -103,15 +103,15 @@ func newOrganizationsSessionsRetrieveReleaseHealthStatisticsCmd(flags *rootFlags
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagField, "field", "", "The list of fields to query. The available fields are - `sum(session)` - `count_unique(user)` - `avg`, `p50`, `p75`,...")
+	cmd.Flags().StringArrayVar(&flagField, "field", nil, "The list of fields to query. The available fields are - `sum(session)` - `count_unique(user)` - `avg`, `p50`, `p75`,...")
 	cmd.Flags().StringVar(&flagStart, "start", "", "The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
 	cmd.Flags().StringVar(&flagStatsPeriod, "stats-period", "", "The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
 	cmd.Flags().IntVar(&flagPerPage, "per-page", 0, "The number of groups to return per request.")
 	cmd.Flags().StringVar(&flagInterval, "interval", "", "Resolution of the time series, given in the same format as `statsPeriod`. The default and the minimum interval is `1h`.")
-	cmd.Flags().StringVar(&flagGroupBy, "group-by", "", "The list of properties to group by. The available groupBy conditions are `project`, `release`, `environment` and...")
+	cmd.Flags().StringArrayVar(&flagGroupBy, "group-by", nil, "The list of properties to group by. The available groupBy conditions are `project`, `release`, `environment` and...")
 	cmd.Flags().StringVar(&flagOrderBy, "order-by", "", "An optional field to order by, which must be one of the fields provided in `field`. Use `-` for descending order,...")
 	cmd.Flags().IntVar(&flagIncludeTotals, "include-totals", 0, "Specify `0` to exclude totals from the response. The default is `1`")
 	cmd.Flags().IntVar(&flagIncludeSeries, "include-series", 0, "Specify `0` to exclude series from the response. The default is `1`")

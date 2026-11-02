@@ -12,7 +12,7 @@ import (
 )
 
 func newOrganizationsIssuesRetrieveTagDetailsCmd(flags *rootFlags) *cobra.Command {
-	var flagEnvironment string
+	var flagEnvironment []string
 
 	cmd := &cobra.Command{
 		Use:         "retrieve-tag-details <issue_id> <organization_id_or_slug> <key>",
@@ -38,10 +38,8 @@ func newOrganizationsIssuesRetrieveTagDetailsCmd(flags *rootFlags) *cobra.Comman
 				return usageErr(fmt.Errorf("key is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "key"))
 			}
 			path = replacePathParam(path, "key", args[2])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
 			params := map[string]string{}
-			if flagEnvironment != "" {
-				params["environment"] = fmt.Sprintf("%v", flagEnvironment)
-			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "issues", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
@@ -84,7 +82,7 @@ func newOrganizationsIssuesRetrieveTagDetailsCmd(flags *rootFlags) *cobra.Comman
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
 
 	return cmd
 }

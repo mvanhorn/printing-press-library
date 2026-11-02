@@ -13,7 +13,7 @@ import (
 )
 
 func newProjectsIssuesBulkMutateAListOfCmd(flags *rootFlags) *cobra.Command {
-	var flagId string
+	var flagId []string
 	var flagStatus string
 	var bodyAssignedTo string
 	var bodyHasSeen bool
@@ -46,6 +46,12 @@ func newProjectsIssuesBulkMutateAListOfCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("project_id_or_slug is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "project_id_or_slug"))
 			}
 			path = replacePathParam(path, "project_id_or_slug", args[1])
+			if cmd.Flags().Changed("id") {
+				path = appendArrayQueryParam(path, "id", flagId)
+			}
+			if cmd.Flags().Changed("status") {
+				path = appendQueryParam(path, "status", fmt.Sprintf("%v", flagStatus))
+			}
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -145,7 +151,7 @@ func newProjectsIssuesBulkMutateAListOfCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagId, "id", "", "A list of IDs of the issues to be mutated. This parameter shall be repeated for each issue. It is optional only if a...")
+	cmd.Flags().StringArrayVar(&flagId, "id", nil, "A list of IDs of the issues to be mutated. This parameter shall be repeated for each issue. It is optional only if a...")
 	cmd.Flags().StringVar(&flagStatus, "status", "", "Optionally limits the query to issues of the specified status. Valid values are `'resolved'`, `'reprocessing'`,...")
 	cmd.Flags().StringVar(&bodyAssignedTo, "assigned-to", "", "The actor ID (or username) of the user or team that should be assigned to this issue.")
 	cmd.Flags().BoolVar(&bodyHasSeen, "has-seen", false, "In case this API call is invoked with a user context this allows changing of the flag that indicates if the user has...")

@@ -12,8 +12,8 @@ import (
 )
 
 func newOrganizationsMonitorsRetrieveForAnOrganizationCmd(flags *rootFlags) *cobra.Command {
-	var flagProject string
-	var flagEnvironment string
+	var flagProject []string
+	var flagEnvironment []string
 	var flagOwner string
 	var flagCursor string
 	var flagAll bool
@@ -34,11 +34,11 @@ func newOrganizationsMonitorsRetrieveForAnOrganizationCmd(flags *rootFlags) *cob
 
 			path := "/api/0/organizations/{organization_id_or_slug}/monitors/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "project", flagProject)
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "monitors", path, map[string]string{
-				"project":     fmt.Sprintf("%v", flagProject),
-				"environment": fmt.Sprintf("%v", flagEnvironment),
-				"owner":       fmt.Sprintf("%v", flagOwner),
-				"cursor":      fmt.Sprintf("%v", flagCursor),
+				"owner":  fmt.Sprintf("%v", flagOwner),
+				"cursor": fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
@@ -81,8 +81,8 @@ func newOrganizationsMonitorsRetrieveForAnOrganizationCmd(flags *rootFlags) *cob
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
 	cmd.Flags().StringVar(&flagOwner, "owner", "", "The owner of the monitor, in the format `user:id` or `team:id`. May be specified multiple times.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "A pointer to the last object fetched and its sort order; used to retrieve the next or previous results.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

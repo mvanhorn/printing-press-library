@@ -12,10 +12,10 @@ import (
 )
 
 func newOrganizationsDetectorsBulkDeleteMonitorsCmd(flags *rootFlags) *cobra.Command {
-	var flagProject string
+	var flagProject []string
 	var flagQuery string
 	var flagSortBy string
-	var flagId string
+	var flagId []string
 
 	cmd := &cobra.Command{
 		Use:         "bulk-delete-monitors <organization_id_or_slug>",
@@ -34,6 +34,14 @@ func newOrganizationsDetectorsBulkDeleteMonitorsCmd(flags *rootFlags) *cobra.Com
 
 			path := "/api/0/organizations/{organization_id_or_slug}/detectors/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "project", flagProject)
+			if cmd.Flags().Changed("query") {
+				path = appendQueryParam(path, "query", fmt.Sprintf("%v", flagQuery))
+			}
+			if cmd.Flags().Changed("sort-by") {
+				path = appendQueryParam(path, "sortBy", fmt.Sprintf("%v", flagSortBy))
+			}
+			path = appendArrayQueryParam(path, "id", flagId)
 			data, statusCode, err := c.Delete(path)
 			if err != nil {
 				return classifyDeleteError(err)
@@ -101,10 +109,10 @@ func newOrganizationsDetectorsBulkDeleteMonitorsCmd(flags *rootFlags) *cobra.Com
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
 	cmd.Flags().StringVar(&flagQuery, "query", "", "An optional search query for filtering monitors. Available fields are: - `name` - `type`: e.g. `error`,...")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "The property to sort results by. If not specified, the results are sorted by id. Available fields are: - `name` -...")
-	cmd.Flags().StringVar(&flagId, "id", "", "The ID of the monitor you'd like to query.")
+	cmd.Flags().StringArrayVar(&flagId, "id", nil, "The ID of the monitor you'd like to query.")
 
 	return cmd
 }

@@ -13,7 +13,7 @@ import (
 
 func newOrganizationsIntegrationsListAnOrganizationSAvailableCmd(flags *rootFlags) *cobra.Command {
 	var flagProviderKey string
-	var flagFeatures string
+	var flagFeatures []string
 	var flagIncludeConfig bool
 	var flagCursor string
 	var flagAll bool
@@ -35,9 +35,9 @@ func newOrganizationsIntegrationsListAnOrganizationSAvailableCmd(flags *rootFlag
 
 			path := "/api/0/organizations/{organization_id_or_slug}/integrations/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "features", flagFeatures)
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "integrations", path, map[string]string{
 				"providerKey":   fmt.Sprintf("%v", flagProviderKey),
-				"features":      fmt.Sprintf("%v", flagFeatures),
 				"includeConfig": fmt.Sprintf("%v", flagIncludeConfig),
 				"cursor":        fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
@@ -83,7 +83,7 @@ func newOrganizationsIntegrationsListAnOrganizationSAvailableCmd(flags *rootFlag
 		},
 	}
 	cmd.Flags().StringVar(&flagProviderKey, "provider-key", "", "Specific integration provider to filter by such as `slack`. See our [Integrations...")
-	cmd.Flags().StringVar(&flagFeatures, "features", "", "Integration features to filter by. See our [Integrations Documentation](/product/integrations/) for an updated list...")
+	cmd.Flags().StringArrayVar(&flagFeatures, "features", nil, "Integration features to filter by. See our [Integrations Documentation](/product/integrations/) for an updated list...")
 	cmd.Flags().BoolVar(&flagIncludeConfig, "include-config", false, "Specify `True` to fetch third-party integration configurations. Note that this can add several seconds to the...")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "A pointer to the last object fetched and its sort order; used to retrieve the next or previous results.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

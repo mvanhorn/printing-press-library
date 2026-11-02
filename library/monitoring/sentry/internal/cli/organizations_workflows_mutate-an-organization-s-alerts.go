@@ -14,8 +14,8 @@ import (
 
 func newOrganizationsWorkflowsMutateAnOrganizationSAlertsCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
-	var flagId string
-	var flagProject string
+	var flagId []string
+	var flagProject []string
 	var bodyEnabled bool
 	var stdinBody bool
 
@@ -41,6 +41,11 @@ func newOrganizationsWorkflowsMutateAnOrganizationSAlertsCmd(flags *rootFlags) *
 
 			path := "/api/0/organizations/{organization_id_or_slug}/workflows/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			if cmd.Flags().Changed("query") {
+				path = appendQueryParam(path, "query", fmt.Sprintf("%v", flagQuery))
+			}
+			path = appendArrayQueryParam(path, "id", flagId)
+			path = appendArrayQueryParam(path, "project", flagProject)
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -126,8 +131,8 @@ func newOrganizationsWorkflowsMutateAnOrganizationSAlertsCmd(flags *rootFlags) *
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "An optional search query for filtering alerts.")
-	cmd.Flags().StringVar(&flagId, "id", "", "The ID of the alert you'd like to query.")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagId, "id", nil, "The ID of the alert you'd like to query.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
 	cmd.Flags().BoolVar(&bodyEnabled, "enabled", false, "Whether to enable or disable the alerts")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
