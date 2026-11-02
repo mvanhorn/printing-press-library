@@ -1,0 +1,55 @@
+version: 2
+project_name: government-data-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: government-data-pp-cli
+    main: ./cmd/government-data-pp-cli
+    binary: government-data-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: government-data-pp-mcp
+    main: ./cmd/government-data-pp-mcp
+    binary: government-data-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: government-data-pp-cli
+    repository:
+      owner: jon-275
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Find California and U.S. open datasets and SEC EDGAR filings with clear provenance."
+    install: |
+      bin.install "government-data-pp-cli"
+      bin.install "government-data-pp-mcp"

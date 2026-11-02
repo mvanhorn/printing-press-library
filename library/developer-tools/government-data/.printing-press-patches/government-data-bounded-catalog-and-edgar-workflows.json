@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "government-data-bounded-catalog-and-edgar-workflows",
+  "applied_at": "2026-11-02",
+  "base_run_id": "20261101-190344-8e78c635",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Preserve bounded equal-source catalog discovery, immutable local evidence, and direct SEC workflows with source-isolated credentials.",
+  "reason": "The catalog APIs expose different metadata and pagination shapes; SEC requires a contact User-Agent, explicit filing bounds, and exact XBRL units and periods. Local snapshot analysis must not imply full-catalog completeness or deletions.",
+  "files": [
+    "internal/cli/gov_catalog.go",
+    "internal/cli/gov_edgar.go",
+    "internal/cli/gov_edgar_test.go",
+    "internal/cli/gov_errors_test.go",
+    "internal/cli/gov_local.go",
+    "internal/cli/gov_local_test.go",
+    "internal/cli/gov_zz_errors.go",
+    "internal/cli/gov_zzz_preview.go",
+    "internal/client/gov_auth_test.go",
+    "internal/client/client.go",
+    "mcp-descriptions.json",
+    "workflow_verify.yaml"
+  ],
+  "validated_outcome": "171/171 executed live checks; 49/49 mock checks; all five saved-state feature lifecycles and California/SEC workflow chains passed."
+}

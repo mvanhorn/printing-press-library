@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-11-02T16:33:11.907186Z",
+  "cli_dir": "\u003ccli-dir\u003e/government-data-pp-cli",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "find",
+      "file": "gov_catalog.go",
+      "line": 308,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Conditional local writer: catalog find --save persists an immutable SQLite snapshot, so blanket read-only is unsafe; mcp:read-only-unless-flags=save already expresses the precise runtime classification."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-11-02T16:30:26.455484Z"
+  }
+}
