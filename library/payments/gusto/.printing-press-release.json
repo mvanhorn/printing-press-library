@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "gusto",
+  "cli_name": "gusto-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-02T10:00:08Z",
+  "source_commit": "82ea39a6717d068b30ac857e450a631af55bf8b2",
+  "printing_press_version": "4.34.0",
+  "run_id": "20261024-084709-6d9f8432",
+  "changes": [
+    {
+      "title": "feat(gusto): add gusto",
+      "pr": 2375,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2375",
+      "commit": "82ea39a6717d068b30ac857e450a631af55bf8b2"
+    }
+  ]
+}
