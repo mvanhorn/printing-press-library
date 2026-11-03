@@ -603,6 +603,30 @@ func commandMayWriteStore(cmd *cobra.Command) bool {
 		return false
 	}
 	ann := cmd.Annotations
+	// Conditional writers must be judged after parsing flags. An omitted (or
+	// explicitly empty) save destination must not open or migrate the store.
+	if raw := strings.TrimSpace(ann["mcp:read-only-unless-flags"]); raw != "" {
+		for _, name := range strings.FieldsFunc(raw, func(r rune) bool {
+			return r == ',' || r == ';' || r == ' ' || r == '\t' || r == '\n'
+		}) {
+			name = strings.TrimPrefix(name, "--")
+			f := cmd.Flags().Lookup(name)
+			if f == nil {
+				f = cmd.InheritedFlags().Lookup(name)
+			}
+			if f == nil { // Unknown write conditions fail closed.
+				return true
+			}
+			if f.Value.Type() == "bool" {
+				if f.Value.String() != "false" {
+					return true
+				}
+			} else if f.Value.String() != "" {
+				return true
+			}
+		}
+		return false
+	}
 	if ann["mcp:read-only"] == "true" {
 		return false
 	}
