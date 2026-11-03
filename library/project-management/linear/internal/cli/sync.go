@@ -317,6 +317,15 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// Archived issues: sync deliberately does NOT pass includeArchived. The issues
+// query excludes archived issues by default, so an archived issue stops
+// appearing in the live set and its local row is pruned like a deleted one,
+// which is the behaviour the local store wants. GAP-021 exposes archived rows
+// on the read side instead, where the caller opts in per invocation:
+// `issues list --include-archived` and `relations list --include-archived`,
+// both carrying archivedAt. Threading it into sync would make the reconcile
+// pass keep archived rows alive forever, which is the bug prune exists to fix.
+
 func syncTeams(c *client.Client, db *store.Store, maxPages int) (syncPass, error) {
 	data, err := c.Query(client.TeamsQuery, nil)
 	if err != nil {

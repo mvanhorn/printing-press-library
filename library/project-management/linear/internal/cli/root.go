@@ -168,7 +168,7 @@ Highlights (not in the official API docs):
   • initiatives health   Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.
   • milestones at-risk   List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude.
   • pp-test list   List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.
-  • issues create --trust-mode strict   Require a session tag for issue creation; relation add/remove requires both issues in the local pp_created ledger.
+  • issues create --trust-mode strict   Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface.
   • projects list   List Linear projects live, optionally scoped by team, before attaching or auditing portfolio work.
   • projects search   Search Linear projects live by name with an optional team filter.
   …and 10 more — see README.md for the full list
@@ -327,7 +327,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newExportCmd(flags))
 
 	// v3-ported persistent flags
-	rootCmd.PersistentFlags().StringVar(&flags.trustMode, "trust-mode", "", "Mutation guard: 'strict' refuses to mutate Linear issues absent from the local pp_created ledger. Enforced on 'issues create' (requires a session tag) and 'issues relations add/remove' (refuses with exit 2, including under --dry-run, unless both issues were created by this CLI). 'pp-cleanup' is exempt because it only touches ledger rows.")
+	rootCmd.PersistentFlags().StringVar(&flags.trustMode, "trust-mode", "", "Mutation guard: 'strict' refuses to mutate Linear issues absent from the local pp_created ledger. Enforced on 'issues create' (requires a session tag) and on 'issues edit' (refuses with exit 2 when the target was not created by this CLI). Relation add/remove also requires both issues in the ledger, including under --dry-run. 'pp-cleanup' is exempt because it only touches ledger rows.")
 	rootCmd.PersistentFlags().StringVar(&flags.ppSession, "pp-session", "", "Session tag for issues this CLI creates (defaults to PP_SESSION env or run timestamp)")
 
 	return rootCmd

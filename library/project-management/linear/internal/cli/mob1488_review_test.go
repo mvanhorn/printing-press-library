@@ -69,6 +69,10 @@ func TestIssueRelationsUppercaseUUIDCommands(t *testing.T) {
 				rs := newRelationServer(t, func(req client.GraphQLRequest) string {
 					switch {
 					case strings.Contains(req.Query, "issueRelationCreate"):
+						input := req.Variables["input"].(map[string]any)
+						if input["issueId"] != source || input["relatedIssueId"] != target {
+							t.Errorf("noncanonical UUID mutation input: %v", input)
+						}
 						return `{"data":{"issueRelationCreate":{"success":true,"issueRelation":` + node + `}}}`
 					case strings.Contains(req.Query, "issueRelationDelete"):
 						return `{"data":{"issueRelationDelete":{"success":true,"entityId":"rel-case"}}}`

@@ -298,10 +298,13 @@ func resolveIssuePair(c graphqlQueryer, issue, other string) (string, string, er
 	if err != nil {
 		return "", "", err
 	}
-	return issueID, otherID, nil
+	return strings.ToLower(issueID), strings.ToLower(otherID), nil
 }
 
 func fetchIssueRelations(c graphqlQueryer, ref string) (relationIssue, []issueRelationNode, error) {
+	if store.IsUUID(ref) {
+		ref = strings.ToLower(ref)
+	}
 	var issue relationIssue
 	var nodes []issueRelationNode
 	for _, connection := range []string{"relations", "inverseRelations"} {
