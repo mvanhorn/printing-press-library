@@ -135,8 +135,13 @@ func TestIssueRelationsAddSendsDirectionAndWritesBack(t *testing.T) {
 	} {
 		t.Run(tt.flag, func(t *testing.T) {
 			rs := newRelationServer(t, func(req client.GraphQLRequest) string {
-				input := req.Variables["input"].(map[string]any)
-				node := relNode("rel-1", input["type"].(string), input["issueId"].(string), input["relatedIssueId"].(string))
+				node := relNode("rel-1", tt.wantType, tt.wantSource, tt.wantTarget)
+				if !strings.Contains(req.Query, "issueRelationCreate") {
+					if strings.Contains(req.Query, "connection: relations(") == (tt.wantSource == relIssueB) {
+						return relConnection(relIssueB, []string{node}, "")
+					}
+					return relConnection(relIssueB, nil, "")
+				}
 				return `{"data":{"issueRelationCreate":{"success":true,"issueRelation":` + node + `}}}`
 			})
 			dbPath := relationTestStore(t)

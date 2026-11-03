@@ -19,11 +19,13 @@ type relationIssue struct {
 }
 
 type issueRelationNode struct {
-	ID           string        `json:"id"`
-	Type         string        `json:"type"`
-	CreatedAt    string        `json:"createdAt"`
-	Issue        relationIssue `json:"issue"`
-	RelatedIssue relationIssue `json:"relatedIssue"`
+	ID           string          `json:"id"`
+	Type         string          `json:"type"`
+	CreatedAt    string          `json:"createdAt"`
+	UpdatedAt    json.RawMessage `json:"updatedAt"`
+	ArchivedAt   json.RawMessage `json:"archivedAt"`
+	Issue        relationIssue   `json:"issue"`
+	RelatedIssue relationIssue   `json:"relatedIssue"`
 }
 
 type issueRelationRow struct {
@@ -46,7 +48,7 @@ func relationRow(node issueRelationNode, namedIssueID string) issueRelationRow {
 		labels = [2]string{node.Type, "inverse:" + node.Type}
 	}
 	row := issueRelationRow{ID: node.ID, CreatedAt: node.CreatedAt}
-	if node.Issue.ID == namedIssueID {
+	if strings.EqualFold(node.Issue.ID, namedIssueID) {
 		row.Relation, row.Issue = labels[0], node.RelatedIssue
 	} else {
 		row.Relation, row.Issue = labels[1], node.Issue
@@ -93,7 +95,8 @@ func newIssuesRelationsCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 		Short: "List, add, and remove issue relations",
 		Long: `List, add, and remove relations between Linear issues. Every relation is
 reported from the named issue's side: blocks, blocked-by, related,
-duplicate-of, duplicated-by, or similar.`,
+duplicate-of, duplicated-by, or similar. Adding a different relation type
+replaces the existing relation for the same issue pair.`,
 		Example: `  linear-pp-cli issues relations list ENG-124 --agent
   linear-pp-cli issues relations add ENG-124 --blocked-by ENG-123 --agent
   linear-pp-cli issues relations remove ENG-124 --blocked-by ENG-123 --agent`,
@@ -106,7 +109,6 @@ duplicate-of, duplicated-by, or similar.`,
 	return cmd
 }
 
-// pp:data-source live
 func newIssuesRelationsListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:         "list <issue>",
@@ -180,10 +182,22 @@ func newIssuesRelationsAddCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 				return fmt.Errorf("parsing issueRelationCreate relation: %w", err)
 			}
 			writeRelationsBack(*dbPath, func(db *store.Store) error {
-				return db.UpsertIssueRelation(store.IssueRelationRecord{ID: node.ID, IssueID: node.Issue.ID, RelatedIssueID: node.RelatedIssue.ID, Type: node.Type, Data: raw})
+				issue, nodes, err := fetchIssueRelations(c, issueID)
+				if err != nil {
+					return fmt.Errorf("reading issue relations after add: %w", err)
+				}
+				records := make([]store.IssueRelationRecord, 0, len(nodes))
+				for _, node := range nodes {
+					data, err := json.Marshal(node)
+					if err != nil {
+						return err
+					}
+					records = append(records, store.IssueRelationRecord{ID: node.ID, IssueID: node.Issue.ID, RelatedIssueID: node.RelatedIssue.ID, Type: node.Type, Data: data})
+				}
+				return db.ReplaceIssueRelationsForIssue(issue.ID, records)
 			})
 			issue := node.Issue
-			if issue.ID != issueID {
+			if !strings.EqualFold(issue.ID, issueID) {
 				issue = node.RelatedIssue
 			}
 			return renderRelations(cmd, flags, issue, "relations", []issueRelationRow{relationRow(node, issueID)})
@@ -229,7 +243,7 @@ other issue. The flags read the same way as 'issues relations add'.`,
 			}
 			var matches []issueRelationRow
 			for _, node := range nodes {
-				if row := relationRow(node, issueID); row.Relation == relation && row.Issue.ID == otherID {
+				if row := relationRow(node, issueID); row.Relation == relation && strings.EqualFold(row.Issue.ID, otherID) {
 					matches = append(matches, row)
 				}
 			}
@@ -326,7 +340,11 @@ func fetchIssueRelations(c graphqlQueryer, ref string) (relationIssue, []issueRe
 			if !resp.Issue.Connection.PageInfo.HasNextPage {
 				break
 			}
-			after = resp.Issue.Connection.PageInfo.EndCursor
+			cursor := resp.Issue.Connection.PageInfo.EndCursor
+			if cursor == "" || cursor == after {
+				return relationIssue{}, nil, fmt.Errorf("issue %q %s pagination cursor did not advance", ref, connection)
+			}
+			after = cursor
 		}
 	}
 	return issue, nodes, nil
@@ -352,7 +370,7 @@ func requireRelationLedger(flags *rootFlags, dbPath string, refs ...string) erro
 	for _, ref := range refs {
 		found := false
 		for _, f := range fixtures {
-			if f.IssueID == ref || strings.EqualFold(f.Identifier, ref) {
+			if strings.EqualFold(f.IssueID, ref) || strings.EqualFold(f.Identifier, ref) {
 				found = true
 				break
 			}

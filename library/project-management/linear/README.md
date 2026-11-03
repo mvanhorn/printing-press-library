@@ -250,7 +250,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   linear-pp-cli pp-test list --json
   ```
-- **`issues create --trust-mode strict`** — Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface.
+- **`issues create --trust-mode strict`** — Require a session tag for issue creation; relation add/remove requires both issues in the local pp_created ledger.
 
   _Reach for this when running an agent against a real workspace with real data — strict mode makes accidental mutation impossible._
 
@@ -268,7 +268,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **Issue relations** — Read, add, and remove blocks, blocked-by, and related links between issues, each reported from the named issue's side.
 
-  _Reach for this when an agent must record that one issue waits on another, or check what blocks an issue before scheduling it. `add` and `remove` take exactly one of `--blocked-by`, `--blocks`, or `--related`; under `--trust-mode strict` both issues must be in the `pp_created` ledger, and `--dry-run` refuses the same way._
+  _Reach for this when an agent must record that one issue waits on another, or check what blocks an issue before scheduling it. `add` and `remove` take exactly one of `--blocked-by`, `--blocks`, or `--related`; adding a different relation type replaces the existing relation for the same issue pair. Under `--trust-mode strict` both issues must be in the `pp_created` ledger, and `--dry-run` refuses the same way._
 
   ```bash
   linear-pp-cli issues relations add ENG-124 --blocked-by ENG-123 --agent
