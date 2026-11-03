@@ -98,6 +98,14 @@ Use this instead of --chrome on Windows or when Chrome cookie tools aren't avail
 
 // gravitusDjangoLogin performs the full Django login flow and returns the session cookie value.
 func gravitusDjangoLogin(baseURL, email, password string) (sessionID string, userID string, err error) {
+	loginURL := strings.TrimRight(baseURL, "/") + "/accounts/sign_in/"
+	loginPageURL, err := url.Parse(loginURL)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid login page URL: %w", err)
+	}
+	if loginPageURL.Scheme != "https" || loginPageURL.Host == "" || loginPageURL.User != nil {
+		return "", "", fmt.Errorf("login page must use HTTPS")
+	}
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{
 		Timeout: 30 * time.Second,
@@ -106,11 +114,12 @@ func gravitusDjangoLogin(baseURL, email, password string) (sessionID string, use
 			if len(via) >= 10 {
 				return fmt.Errorf("too many redirects")
 			}
+			if !sameHTTPSOrigin(loginPageURL, req.URL) {
+				return fmt.Errorf("login redirect must use the same HTTPS origin")
+			}
 			return nil
 		},
 	}
-
-	loginURL := strings.TrimRight(baseURL, "/") + "/accounts/sign_in/"
 
 	// Step 1: GET login page to obtain CSRF token
 	resp, err := client.Get(loginURL)
@@ -119,24 +128,39 @@ func gravitusDjangoLogin(baseURL, email, password string) (sessionID string, use
 	}
 	defer resp.Body.Close()
 
-	csrfToken := extractCSRFToken(resp.Body)
+	formAction, csrfToken := extractLoginForm(resp.Body)
 	if csrfToken == "" {
 		return "", "", fmt.Errorf("could not find CSRF token on login page")
+	}
+	formPageURL := loginPageURL
+	if resp.Request != nil && resp.Request.URL != nil {
+		formPageURL = resp.Request.URL
+	}
+	postURL := formPageURL
+	if formAction != "" {
+		actionURL, parseErr := url.Parse(formAction)
+		if parseErr != nil {
+			return "", "", fmt.Errorf("invalid login form action: %w", parseErr)
+		}
+		postURL = formPageURL.ResolveReference(actionURL)
+	}
+	if !sameHTTPSOrigin(loginPageURL, postURL) || postURL.User != nil {
+		return "", "", fmt.Errorf("login form action must use the same HTTPS origin as the login page")
 	}
 
 	// Step 2: POST credentials with CSRF token
 	formData := url.Values{
-		"email":               {email},
+		"username":            {email},
 		"password":            {password},
 		"csrfmiddlewaretoken": {csrfToken},
 	}
 
-	req, err := http.NewRequest("POST", loginURL, strings.NewReader(formData.Encode()))
+	req, err := http.NewRequest("POST", postURL.String(), strings.NewReader(formData.Encode()))
 	if err != nil {
 		return "", "", fmt.Errorf("creating login request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Referer", loginURL)
+	req.Header.Set("Referer", formPageURL.String())
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
 
 	resp2, err := client.Do(req)
@@ -146,8 +170,7 @@ func gravitusDjangoLogin(baseURL, email, password string) (sessionID string, use
 	defer resp2.Body.Close()
 
 	// Step 3: Extract session cookie from jar
-	u, _ := url.Parse(loginURL)
-	for _, cookie := range jar.Cookies(u) {
+	for _, cookie := range jar.Cookies(postURL) {
 		if cookie.Name == "sessionid" {
 			sessionID = cookie.Value
 		}
@@ -172,40 +195,65 @@ func gravitusDjangoLogin(baseURL, email, password string) (sessionID string, use
 	return sessionID, userID, nil
 }
 
-// extractCSRFToken finds the csrfmiddlewaretoken value in a Django login page.
-func extractCSRFToken(r io.Reader) string {
+func sameHTTPSOrigin(a, b *url.URL) bool {
+	port := func(u *url.URL) string {
+		if u.Port() == "" {
+			return "443"
+		}
+		return u.Port()
+	}
+	return a.Scheme == "https" && b.Scheme == "https" && strings.EqualFold(a.Hostname(), b.Hostname()) && port(a) == port(b)
+}
+
+// extractLoginForm keeps the CSRF token paired with the action of its form.
+func extractLoginForm(r io.Reader) (action, token string) {
 	doc, err := html.Parse(r)
 	if err != nil {
-		return ""
+		return "", ""
 	}
-	var token string
-	var walk func(*html.Node)
-	walk = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "input" {
-			name := ""
-			value := ""
+	var findForm func(*html.Node)
+	findForm = func(n *html.Node) {
+		if token != "" {
+			return
+		}
+		if n.Type == html.ElementNode && n.Data == "form" {
+			var formAction string
 			for _, a := range n.Attr {
-				if a.Key == "name" {
-					name = a.Val
-				}
-				if a.Key == "value" {
-					value = a.Val
+				if a.Key == "action" {
+					formAction = a.Val
 				}
 			}
-			if name == "csrfmiddlewaretoken" && value != "" {
-				token = value
+			var findToken func(*html.Node)
+			findToken = func(child *html.Node) {
+				if child.Type == html.ElementNode && child.Data == "input" {
+					name, value := "", ""
+					for _, a := range child.Attr {
+						if a.Key == "name" {
+							name = a.Val
+						} else if a.Key == "value" {
+							value = a.Val
+						}
+					}
+					if name == "csrfmiddlewaretoken" {
+						token = value
+					}
+				}
+				for c := child.FirstChild; c != nil && token == ""; c = c.NextSibling {
+					findToken(c)
+				}
+			}
+			findToken(n)
+			if token != "" {
+				action = formAction
 				return
 			}
 		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			if token != "" {
-				return
-			}
-			walk(c)
+		for c := n.FirstChild; c != nil && token == ""; c = c.NextSibling {
+			findForm(c)
 		}
 	}
-	walk(doc)
-	return token
+	findForm(doc)
+	return action, token
 }
 
 // saveUserID persists the discovered user ID into the config file.
