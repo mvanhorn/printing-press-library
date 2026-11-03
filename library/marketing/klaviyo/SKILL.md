@@ -558,7 +558,7 @@ klaviyo-pp-cli which "<capability in your own words>"
 ### Inspect a profile compactly
 
 ```bash
-klaviyo-pp-cli profiles list --limit 1 --json --select data.id,data.email,data.first_name
+klaviyo-pp-cli profiles get --page-size 1 --json --select data.id,data.email,data.first_name
 ```
 
 Fetch one profile and select only the fields an agent needs.
