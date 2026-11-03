@@ -5,7 +5,7 @@
   "base_run_id": "20260518-232543",
   "base_printing_press_version": "4.9.0",
   "summary": "Formal issue relations must be discoverable, directional, fully paginated, and reflected in local snapshots when Linear replaces a relation.",
-  "reason": "A reprint removed the earlier issue-relation commands; blocked-by reverses the blocks direction, and changing relation type can replace the existing edge for the same issue pair.",
+  "reason": "A reprint removed the earlier issue-relation commands; blocked-by reverses the blocks direction, and changing relation type can replace the existing edge for the same issue pair. Strict writes must validate both resolved UUIDs so reused identifiers after a workspace switch cannot bypass fixture ownership.",
   "files": [
     "internal/cli/issue_relations.go",
     "internal/cli/issues.go",

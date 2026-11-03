@@ -173,3 +173,55 @@ func TestIssueRelationsAddReplacesLocalSnapshot(t *testing.T) {
 		}
 	}
 }
+
+func TestIssueRelationsStrictRejectsReusedIdentifiers(t *testing.T) {
+	for _, command := range []string{"add", "remove"} {
+		for _, unowned := range []string{"issue", "other"} {
+			t.Run(command+"/"+unowned, func(t *testing.T) {
+				issueID, otherID := relIssueB, relIssueA
+				if unowned == "issue" {
+					issueID = relIssueC
+				} else {
+					otherID = relIssueC
+				}
+				node := relNode("rel-reused", "related", issueID, otherID)
+				rs := newRelationServer(t, func(req client.GraphQLRequest) string {
+					switch {
+					case strings.Contains(req.Query, "issues(filter:"):
+						id := otherID
+						if req.Variables["number"] == float64(2) {
+							id = issueID
+						}
+						return fmt.Sprintf(`{"data":{"issues":{"nodes":[{"id":%q}]}}}`, id)
+					case strings.Contains(req.Query, "issueRelationCreate"):
+						return `{"data":{"issueRelationCreate":{"success":true,"issueRelation":` + node + `}}}`
+					case strings.Contains(req.Query, "issueRelationDelete"):
+						return `{"data":{"issueRelationDelete":{"success":true,"entityId":"rel-reused"}}}`
+					case strings.Contains(req.Query, "connection: relations("):
+						return relConnection(issueID, []string{node}, "")
+					default:
+						return relConnection(issueID, nil, "")
+					}
+				})
+				dbPath := relationTestStore(t)
+				db, err := store.Open(dbPath)
+				if err != nil {
+					t.Fatal(err)
+				}
+				for id, identifier := range map[string]string{relIssueA: "MOB-1", relIssueB: "MOB-2"} {
+					if err := db.RecordPPFixture(id, identifier, "fixture", "mob-1488-review"); err != nil {
+						t.Fatal(err)
+					}
+				}
+				_ = db.Close()
+				out, err := executeRootForTest("issues", "relations", command, "MOB-2", "--related", "MOB-1", "--db", dbPath, "--trust-mode", "strict", "--agent")
+				if ExitCode(err) != 2 || !strings.Contains(err.Error(), relIssueC) {
+					t.Errorf("unowned resolved UUID: exit=%d error=%v output=%s, want exit 2 naming %s", ExitCode(err), err, out, relIssueC)
+				}
+				if creates, deletes := len(rs.mutations("issueRelationCreate")), len(rs.mutations("issueRelationDelete")); creates != 0 || deletes != 0 {
+					t.Errorf("sent %d creates and %d deletes, want zero mutations", creates, deletes)
+				}
+			})
+		}
+	}
+}

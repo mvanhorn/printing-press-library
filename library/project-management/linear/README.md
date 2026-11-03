@@ -268,7 +268,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **Issue relations** — Read, add, and remove blocks, blocked-by, and related links between issues, each reported from the named issue's side.
 
-  _Reach for this when an agent must record that one issue waits on another, or check what blocks an issue before scheduling it. `add` and `remove` take exactly one of `--blocked-by`, `--blocks`, or `--related`; adding a different relation type replaces the existing relation for the same issue pair. Under `--trust-mode strict` both issues must be in the `pp_created` ledger, and `--dry-run` refuses the same way._
+  _Reach for this when an agent must record that one issue waits on another, or check what blocks an issue before scheduling it. `add` and `remove` take exactly one of `--blocked-by`, `--blocks`, or `--related`; adding a different relation type replaces the existing relation for the same issue pair. Under `--trust-mode strict` offline `--dry-run` checks both issue references against the `pp_created` ledger; live writes also check both resolved UUIDs._
 
   ```bash
   linear-pp-cli issues relations add ENG-124 --blocked-by ENG-123 --agent

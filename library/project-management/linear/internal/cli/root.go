@@ -327,7 +327,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newExportCmd(flags))
 
 	// v3-ported persistent flags
-	rootCmd.PersistentFlags().StringVar(&flags.trustMode, "trust-mode", "", "Mutation guard: 'strict' refuses to mutate Linear issues absent from the local pp_created ledger. Enforced on 'issues create' (requires a session tag) and on 'issues edit' (refuses with exit 2 when the target was not created by this CLI). Relation add/remove also requires both issues in the ledger, including under --dry-run. 'pp-cleanup' is exempt because it only touches ledger rows.")
+	rootCmd.PersistentFlags().StringVar(&flags.trustMode, "trust-mode", "", "Mutation guard: 'strict' refuses to mutate Linear issues absent from the local pp_created ledger. Enforced on 'issues create' (requires a session tag) and on 'issues edit' (refuses with exit 2 when the target was not created by this CLI). Relation add/remove checks both issue references in the ledger for offline --dry-run; live writes also check both resolved UUIDs. 'pp-cleanup' is exempt because it only touches ledger rows.")
 	rootCmd.PersistentFlags().StringVar(&flags.ppSession, "pp-session", "", "Session tag for issues this CLI creates (defaults to PP_SESSION env or run timestamp)")
 
 	return rootCmd

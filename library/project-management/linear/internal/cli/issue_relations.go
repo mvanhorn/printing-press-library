@@ -162,6 +162,9 @@ func newIssuesRelationsAddCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 			if err != nil {
 				return classifyLiveReadError(err, flags)
 			}
+			if err := requireRelationLedger(flags, *dbPath, issueID, otherID); err != nil {
+				return err
+			}
 			mutation := `mutation($input: IssueRelationCreateInput!) {
 				issueRelationCreate(input: $input) {
 					success
@@ -236,6 +239,9 @@ other issue. The flags read the same way as 'issues relations add'.`,
 			issueID, otherID, err := resolveIssuePair(c, args[0], other)
 			if err != nil {
 				return classifyLiveReadError(err, flags)
+			}
+			if err := requireRelationLedger(flags, *dbPath, issueID, otherID); err != nil {
+				return err
 			}
 			issue, nodes, err := fetchIssueRelations(c, issueID)
 			if err != nil {
