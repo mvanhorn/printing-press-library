@@ -22,12 +22,12 @@ func TestSavedCatalogRecordsPopulateSourceSearches(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer db.Close()
+	snapshot := govdata.Snapshot{ID: "source-search", CapturedAt: "2026-11-03T00:00:00Z"}
 	for _, source := range []string{"california", "federal"} {
-		d := govdata.Dataset{Source: source, ID: "same-id", Title: "Water evidence " + source}
-		data, _ := json.Marshal(d)
-		if err := saveGovDataset(db, d, data); err != nil {
-			t.Fatal(err)
-		}
+		snapshot.Datasets = append(snapshot.Datasets, govdata.Dataset{Source: source, ID: "same-id", Title: "Water evidence " + source})
+	}
+	if err := db.SaveCatalogSnapshot(context.Background(), snapshot); err != nil {
+		t.Fatal(err)
 	}
 	for source, search := range map[string]func(string, int) ([]json.RawMessage, error){"california": db.SearchCalifornia, "federal": db.SearchFederal} {
 		rows, err := search("Water", 10)

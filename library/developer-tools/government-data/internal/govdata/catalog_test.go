@@ -3,6 +3,7 @@ package govdata
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/cliutil"
 	"io"
 	"net/http"
@@ -128,5 +129,67 @@ func TestConfiguredCatalogRateAndRedirectIsolation(t *testing.T) {
 	c.ConfigureHTTP(selected, 0)
 	if c.limiter != nil {
 		t.Fatal("explicit zero did not disable pacing")
+	}
+}
+
+func TestFilteredFederalRequestsRemainingAllowance(t *testing.T) {
+	c := New("fixture")
+	c.ConfigureHTTP(c.HTTP, 0)
+	calls := 0
+	c.HTTP.Transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+		calls++
+		q := r.URL.Query()
+		if calls == 1 {
+			if q.Get("per_page") != "10" || q.Get("after") != "" {
+				t.Fatalf("first page: %s", r.URL)
+			}
+			rows := []string{}
+			for i := 0; i < 10; i++ {
+				format := "CSV"
+				if i == 9 {
+					format = "JSON"
+				}
+				rows = append(rows, fmt.Sprintf(`{"id":"first-%d","dcat":{"distribution":[{"format":"%s"}]}}`, i, format))
+			}
+			return response(`{"results":[`+strings.Join(rows, ",")+`],"after":"first-cursor"}`, 200), nil
+		}
+		if q.Get("per_page") != "1" || q.Get("after") != "first-cursor" {
+			t.Fatalf("remaining allowance not requested: %s", r.URL)
+		}
+		return response(`{"results":[{"id":"second-0","dcat":{"distribution":[{"format":"CSV"}]}}],"after":"second-cursor"}`, 200), nil
+	})
+	r, err := c.Find(context.Background(), "water", "federal", "CSV", "", 10, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if calls != 2 || len(r.Results) != 10 || r.Results[9].ID != "second-0" || r.Complete || r.Next["federal"] != "second-cursor" || len(r.FetchFailures) != 0 {
+		t.Fatalf("bad filtered continuation: %+v (calls=%d)", r, calls)
+	}
+}
+
+func TestOversizedCatalogPageIsFailure(t *testing.T) {
+	for _, source := range []string{"california", "federal"} {
+		t.Run(source, func(t *testing.T) {
+			c := New("fixture")
+			c.ConfigureHTTP(c.HTTP, 0)
+			c.HTTP.Transport = transportFunc(func(r *http.Request) (*http.Response, error) {
+				parameter := "per_page"
+				if source == "california" {
+					parameter = "rows"
+				}
+				if r.URL.Query().Get(parameter) != "1" {
+					t.Fatalf("wrong page size: %s", r.URL)
+				}
+				body := `{"results":[{"id":"one"},{"id":"two"}],"count":2,"after":""}`
+				if source == "california" {
+					body = `{"success":true,"result":` + body + `}`
+				}
+				return response(body, 200), nil
+			})
+			r, err := c.Find(context.Background(), "water", source, "", "", 1, 1)
+			if err == nil || r.Complete || len(r.FetchFailures) != 1 || len(r.Results) != 0 {
+				t.Fatalf("oversized page silently accepted: %+v, %v", r, err)
+			}
+		})
 	}
 }

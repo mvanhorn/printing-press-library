@@ -240,11 +240,12 @@ func (c *Client) Find(ctx context.Context, query, source, format, org string, li
 		cursor := ""
 		offset := 0
 		for page := 0; page < pages; page++ {
+			remaining := limit - kept
 			q := url.Values{}
 			path := "/package_search"
 			if src == "california" {
 				q.Set("q", query)
-				q.Set("rows", fmt.Sprint(limit))
+				q.Set("rows", fmt.Sprint(remaining))
 				q.Set("start", fmt.Sprint(offset))
 				fq := []string{}
 				if format != "" {
@@ -259,7 +260,7 @@ func (c *Client) Find(ctx context.Context, query, source, format, org string, li
 			} else {
 				path = "/search"
 				q.Set("q", query)
-				q.Set("per_page", fmt.Sprint(limit))
+				q.Set("per_page", fmt.Sprint(remaining))
 				if cursor != "" {
 					q.Set("after", cursor)
 				}
@@ -279,6 +280,15 @@ func (c *Client) Find(ctx context.Context, query, source, format, org string, li
 				m = Map(m["result"])
 			}
 			rows := Array(m["results"])
+			// A cursor describes the end of the entire upstream page. Refuse
+			// an oversized page rather than discard rows behind that cursor
+			// and potentially claim that the bounded snapshot is complete.
+			if len(rows) > remaining {
+				e := fmt.Errorf("%s catalog returned %d rows for requested page size %d", src, len(rows), remaining)
+				out.FetchFailures = append(out.FetchFailures, Failure{src, e.Error()})
+				sourceErrors = append(sourceErrors, e)
+				break
+			}
 			for _, v := range rows {
 				d := Normalize(src, Map(v))
 				if format != "" && src == "federal" {

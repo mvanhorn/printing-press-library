@@ -20,11 +20,25 @@ func Init(ctx context.Context, db *sql.DB) error {
 	return err
 }
 func Save(ctx context.Context, db *sql.DB, s govdata.Snapshot) error {
-	if strings.TrimSpace(s.ID) == "" || s.CapturedAt == "" {
-		return fmt.Errorf("snapshot requires a nonempty ID and captured_at timestamp")
-	}
 	if err := Init(ctx, db); err != nil {
 		return err
+	}
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if err := SaveTx(ctx, tx, s); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+// SaveTx adds immutable snapshot evidence to the caller's transaction. Init
+// must run first; the caller owns commit/rollback and related search indexes.
+func SaveTx(ctx context.Context, tx *sql.Tx, s govdata.Snapshot) error {
+	if strings.TrimSpace(s.ID) == "" || s.CapturedAt == "" {
+		return fmt.Errorf("snapshot requires a nonempty ID and captured_at timestamp")
 	}
 	seen := map[string]bool{}
 	for _, d := range s.Datasets {
@@ -46,11 +60,6 @@ func Save(ctx context.Context, db *sql.DB, s govdata.Snapshot) error {
 	if err != nil {
 		return err
 	}
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
 	if _, err = tx.ExecContext(ctx, `INSERT INTO gov_snapshots(id,scope_json,captured_at) VALUES(?,?,?)`, s.ID, string(b), s.CapturedAt); err != nil {
 		return fmt.Errorf("save snapshot %q (IDs are immutable; choose a new --save ID): %w", s.ID, err)
 	}
@@ -63,7 +72,7 @@ func Save(ctx context.Context, db *sql.DB, s govdata.Snapshot) error {
 			return err
 		}
 	}
-	return tx.Commit()
+	return nil
 }
 func Load(ctx context.Context, db *sql.DB, id string) (govdata.Snapshot, error) {
 	s := govdata.Snapshot{}

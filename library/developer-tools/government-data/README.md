@@ -6,6 +6,12 @@ Created by [@Jon-275](https://github.com/Jon-275) (Jon Malone).
 
 Search either public-data catalog or both, inspect metadata and download selected resources. Direct EDGAR commands search filings and retrieve company submissions and financial facts; local snapshot tools support repeatable catalog research.
 
+## Saved research and agent behavior
+
+Catalog saves commit the snapshot and all offline search indexes together. If saving fails, the snapshot ID remains available for retry. Bounds and pagination describe the captured scope rather than the full catalog.
+
+Federal credentials are used only when the selected configuration targets the HTTPS api.gsa.gov origin. Catalog commands that save data advertise local writes to agent clients. `intake lock` emits its manifest to stdout by default; use `--output <path>` to create a file without overwriting an existing one.
+
 ## Install
 
 The recommended path installs both the `government-data-pp-cli` binary and the `pp-government-data` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
