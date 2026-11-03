@@ -163,6 +163,15 @@ These capabilities aren't available in any other tool for this API.
   linear-pp-cli issues edit ENG-124 --parent ENG-123 --agent
   linear-pp-cli issues edit ENG-124 --no-parent --agent
   ```
+- **Issue relations** — Read, add, and remove blocks, blocked-by, and related links between issues, each reported from the named issue's side.
+
+  _Reach for this when an agent must record that one issue waits on another, or check what blocks an issue before scheduling it. `add` and `remove` take exactly one of `--blocked-by`, `--blocks`, or `--related`; under `--trust-mode strict` both issues must be in the `pp_created` ledger, and `--dry-run` refuses the same way._
+
+  ```bash
+  linear-pp-cli issues relations add ENG-124 --blocked-by ENG-123 --agent
+  linear-pp-cli issues relations list ENG-124 --agent
+  linear-pp-cli issues relations remove ENG-124 --blocked-by ENG-123 --agent
+  ```
 - **Team-safe issue labels** — Discover labels that are valid for the target Linear team, including global labels, then attach them by UUID or exact name.
 
   _Reach for this before attaching labels. `--label` is UUID-only; use `--label-name` when the input is a human label name. Linear rejects labels owned by another team, and the CLI preflights ownership before mutating._
@@ -392,6 +401,7 @@ linear-pp-cli which "<capability in your own words>"
 
 For duplicate checks, `linear-pp-cli which "search issues by text" --agent` should point to `issues search`; use that instead of inventing `issues search --help` fallbacks or raw SQL. If the local issue cache is stale, `issues search` refreshes it or fails with a typed freshness error; agents should not jump to raw GraphQL just because the cache was stale.
 For parent/sub-issue linking, `linear-pp-cli which "set issue parent" --agent` should point to `issues edit --parent`.
+For blocked-by links, `linear-pp-cli which "blocked by" --agent` should point to `issues relations add`.
 
 ## Recipes
 
@@ -469,12 +479,12 @@ Commands fall into three categories with different data-source semantics. Use `-
 
 **Category 3: Mutations**
 
-- `issues create`, `issues edit`, `comments add`, `comments edit`, `documents create`, `documents edit`, `pp-cleanup`
+- `issues create`, `issues edit`, `issues relations add`, `issues relations remove`, `comments add`, `comments edit`, `documents create`, `documents edit`, `pp-cleanup`
 - Always hit the API. On success, the HTTP response cache is invalidated AND the new/changed entity is written back to the local store, so a subsequent `issues list --data-source local` sees the mutation without requiring another sync.
 
 **Live-only collaboration reads**
 
-- `comments list`, `documents <id-or-slug>`, `documents list`
+- `comments list`, `documents <id-or-slug>`, `documents list`, `issues relations list`
 - These read the current Linear API because comments and working-session docs are collaboration surfaces where stale local state is more misleading than helpful.
 
 **Label discovery**

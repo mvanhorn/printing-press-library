@@ -266,6 +266,15 @@ These capabilities aren't available in any other tool for this API.
   linear-pp-cli issues edit ENG-124 --parent ENG-123 --agent
   linear-pp-cli issues edit ENG-124 --no-parent --agent
   ```
+- **Issue relations** — Read, add, and remove blocks, blocked-by, and related links between issues, each reported from the named issue's side.
+
+  _Reach for this when an agent must record that one issue waits on another, or check what blocks an issue before scheduling it. `add` and `remove` take exactly one of `--blocked-by`, `--blocks`, or `--related`; under `--trust-mode strict` both issues must be in the `pp_created` ledger, and `--dry-run` refuses the same way._
+
+  ```bash
+  linear-pp-cli issues relations add ENG-124 --blocked-by ENG-123 --agent
+  linear-pp-cli issues relations list ENG-124 --agent
+  linear-pp-cli issues relations remove ENG-124 --blocked-by ENG-123 --agent
+  ```
 - **Team-safe issue labels** — Discover labels that are valid for the target Linear team, including global labels, before creating or editing issues.
 
   _Reach for this before passing label UUIDs to `issues create` or `issues edit`; Linear rejects labels owned by another team, and the CLI now preflights label ownership before mutating._

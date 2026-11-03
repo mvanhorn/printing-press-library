@@ -322,8 +322,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 // appearing in the live set and its local row is pruned like a deleted one,
 // which is the behaviour the local store wants. GAP-021 exposes archived rows
 // on the read side instead, where the caller opts in per invocation:
-// `issues list --include-archived` and `relations list --include-archived`,
-// both carrying archivedAt. Threading it into sync would make the reconcile
+// `issues list --include-archived`, carrying archivedAt. Threading it into sync would make the reconcile
 // pass keep archived rows alive forever, which is the bug prune exists to fix.
 
 func syncTeams(c *client.Client, db *store.Store, maxPages int) (syncPass, error) {

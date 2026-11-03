@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "issue-relations-have-a-directional-cli-surface",
+  "applied_at": "2026-11-03",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Issue relations need list, add and remove commands that name both issues and report each relation from the named issue's side, so blocked-by is the inverse of a Linear blocks relation and never a separate type.",
+  "reason": "The v4.9.0 reprint dropped the earlier issue_relations commands, which left agents without the Linear app no way to record or read blocked-by dependencies; a swapped issueId/relatedIssueId inverts the blocker silently.",
+  "files": [
+    "internal/cli/issue_relations.go",
+    "internal/cli/issues.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "internal/client/extended_sync_queries.go",
+    "internal/cli/mob1488_relations_test.go",
+    "internal/cli/which_test.go"
+  ],
+  "validated_outcome": "Stub GraphQL tests fail when the blocked-by mapping or the inverse labels are swapped; strict trust mode refuses dry-runs and live writes alike with no request sent."
+}
