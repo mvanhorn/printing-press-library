@@ -16,15 +16,16 @@ import (
 )
 
 type Config struct {
-	BaseURL            string                      `toml:"base_url"`
-	CACert             string                      `toml:"ca_cert,omitempty"`
-	TLSServerName      string                      `toml:"tls_server_name,omitempty"`
-	AuthHeaderVal      string                      `toml:"auth_header"`
-	Headers            map[string]string           `toml:"headers,omitempty"`
-	AuthSource         string                      `toml:"-"`
-	CredentialSource   string                      `toml:"-"`
-	AgentcookieManaged bool                        `toml:"-"`
-	CredentialRefusals []cliutil.CredentialRefusal `toml:"-"`
+	DisableGlobalCredentials bool                        `toml:"disable_global_credentials,omitempty"`
+	BaseURL                  string                      `toml:"base_url"`
+	CACert                   string                      `toml:"ca_cert,omitempty"`
+	TLSServerName            string                      `toml:"tls_server_name,omitempty"`
+	AuthHeaderVal            string                      `toml:"auth_header"`
+	Headers                  map[string]string           `toml:"headers,omitempty"`
+	AuthSource               string                      `toml:"-"`
+	CredentialSource         string                      `toml:"-"`
+	AgentcookieManaged       bool                        `toml:"-"`
+	CredentialRefusals       []cliutil.CredentialRefusal `toml:"-"`
 	// untrustedCredentialRoute is set when the config file other users can
 	// change names a different base URL than the CLI default. Credentials must
 	// not follow that URL. Unexported: never persisted.
@@ -353,7 +354,7 @@ func (c *Config) applyStoredCredentials(explicit bool, configPath string) error 
 			credentialsRefused = status.Refusal.CredentialsPresent
 		}
 	}
-	if (!ok || creds == nil || !creds.HasValues()) && !credentialsRefused {
+	if (!ok || creds == nil || !creds.HasValues()) && !credentialsRefused && !(explicit && c.DisableGlobalCredentials) {
 		var status cliutil.CredentialLoadStatus
 		var err error
 		creds, status, err = cliutil.LoadCredentialsWithStatus()
@@ -722,7 +723,8 @@ func (c *Config) applyCredentials(creds *cliutil.Credentials) {
 	}
 }
 
-func (c *Config) credentialsFilePath() (string, error) {
+// CredentialsFilePath reports the credential destination selected by Load.
+func (c *Config) CredentialsFilePath() (string, error) {
 	if c.explicitConfig {
 		return cliutil.CredentialsFilePathForConfig(c.Path)
 	}
@@ -995,6 +997,7 @@ func (c *Config) MarkCredentialsExplicit(clientID, clientSecret bool) {
 }
 
 func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
+	c.DisableGlobalCredentials = false
 	c.ClientID = clientID
 	c.ClientSecret = clientSecret
 	c.AccessToken = accessToken
@@ -1020,6 +1023,7 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 // collides with a builtin tag (e.g. an env var named XXX_ACCESS_TOKEN
 // resolving to the AccessToken field) ends up holding the new token.
 func (c *Config) SaveCredential(token string) error {
+	c.DisableGlobalCredentials = false
 	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	// Pair each builtin-field zeroing with an envOverrides delete, like
@@ -1072,13 +1076,15 @@ func (c *Config) ClearTokens() error {
 		return c.save()
 	}
 	if c.explicitConfig {
-		credsPath, err := c.credentialsFilePath()
-		if err != nil {
-			return err
-		}
-		if err := cliutil.RemoveExplicitCredentials(credsPath); err != nil {
-			return err
-		}
+		// Persist the logout decision before removing the profile file, so
+		// a missing file can never silently re-enable the global fallback.
+		c.DisableGlobalCredentials = true
+		return c.withCredentialFileLock(func(credsPath string) error {
+			if err := c.save(); err != nil {
+				return err
+			}
+			return cliutil.RemoveExplicitCredentials(credsPath)
+		})
 	} else if err := cliutil.RemoveCredentials(); err != nil {
 		return err
 	}
@@ -1246,18 +1252,20 @@ func (c *Config) scrubLegacyCredentials() {
 }
 
 type persistedConfig struct {
-	BaseURL       string            `toml:"base_url"`
-	CACert        string            `toml:"ca_cert,omitempty"`
-	TLSServerName string            `toml:"tls_server_name,omitempty"`
-	Headers       map[string]string `toml:"headers,omitempty"`
+	DisableGlobalCredentials bool              `toml:"disable_global_credentials,omitempty"`
+	BaseURL                  string            `toml:"base_url"`
+	CACert                   string            `toml:"ca_cert,omitempty"`
+	TLSServerName            string            `toml:"tls_server_name,omitempty"`
+	Headers                  map[string]string `toml:"headers,omitempty"`
 }
 
 func (c *Config) persisted() persistedConfig {
 	return persistedConfig{
-		BaseURL:       c.BaseURL,
-		CACert:        c.CACert,
-		TLSServerName: c.TLSServerName,
-		Headers:       c.Headers,
+		DisableGlobalCredentials: c.DisableGlobalCredentials,
+		BaseURL:                  c.BaseURL,
+		CACert:                   c.CACert,
+		TLSServerName:            c.TLSServerName,
+		Headers:                  c.Headers,
 	}
 }
 

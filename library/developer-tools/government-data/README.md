@@ -122,6 +122,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
+Logging out with an explicit `--config` profile prevents that profile from automatically reusing global credentials. Other profiles keep their credentials. Explicitly saving a new credential signs the profile in again; exported credential environment variables remain separate and are reported by logout. Token-save output identifies the actual profile credential file.
+
 California public reads need no key. Federal official v4 gateway uses a free api.data.gov key. Public DEMO_KEY is for initial exploration only: 30 requests per hour and 50 per day. Configure a personal key for automated use. SEC reads use SEC_USER_AGENT with your app name and contact email, and require no API key.
 
 ## Quick Start

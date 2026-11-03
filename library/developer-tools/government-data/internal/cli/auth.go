@@ -189,11 +189,14 @@ func credentialSavePath(cfg *config.Config) string {
 	if cfg != nil && cfg.AgentcookieManagedByExternalStore() {
 		return cfg.Path
 	}
+	if cfg != nil {
+		if path, err := cfg.CredentialsFilePath(); err == nil {
+			return path
+		}
+		return cfg.Path
+	}
 	if path, err := cliutil.CredentialsFilePath(); err == nil {
 		return path
-	}
-	if cfg != nil {
-		return cfg.Path
 	}
 	return ""
 }
