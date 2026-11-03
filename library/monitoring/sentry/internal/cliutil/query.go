@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
 	"strings"
 )
@@ -37,6 +38,10 @@ func ArrayQueryValues(raw string) []string {
 	dec.UseNumber()
 	var decoded []any
 	if dec.Decode(&decoded) != nil {
+		return []string{raw}
+	}
+	var trailing any
+	if dec.Decode(&trailing) != io.EOF {
 		return []string{raw}
 	}
 	out := make([]string, 0, len(decoded))

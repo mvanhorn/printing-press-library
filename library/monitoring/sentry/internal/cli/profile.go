@@ -106,9 +106,11 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 		if reserved[name] {
 			continue
 		}
-		flag := cmd.Flags().Lookup(name)
+		flagSet := cmd.Flags()
+		flag := flagSet.Lookup(name)
 		if flag == nil {
-			flag = cmd.InheritedFlags().Lookup(name)
+			flagSet = cmd.InheritedFlags()
+			flag = flagSet.Lookup(name)
 		}
 		if flag == nil {
 			continue
@@ -116,7 +118,7 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 		if flag.Changed {
 			continue
 		}
-		if err := flag.Value.Set(value); err != nil {
+		if err := flagSet.Set(name, value); err != nil {
 			return fmt.Errorf("applying profile value %s=%q: %w", name, value, err)
 		}
 	}
