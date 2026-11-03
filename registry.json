@@ -26885,9 +26885,9 @@
       "path": "library/monitoring/sentry",
       "release": {
         "cli_name": "sentry-pp-cli",
-        "version": "2026.11.1",
-        "released_at": "2026-11-02T22:25:58Z",
-        "source_commit": "5ae09ee0927f5757935f10f566058de1a556045b"
+        "version": "2026.11.2",
+        "released_at": "2026-11-03T02:35:37Z",
+        "source_commit": "e1a041b3c20328bb40ddde97fb502505cc098c7a"
       },
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",
