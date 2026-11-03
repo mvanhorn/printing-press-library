@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "arcmira-pp-cli"
+display_name = "Arcmira"
+description = "Search indexed YouTube and podcast transcripts for timestamped quotes and clip boundaries."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/arcmira-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ARCMIRA_BEARER_AUTH = true

@@ -1,0 +1,1272 @@
+{
+  "api_name": "arcmira",
+  "base_url": "https://api.arcmira.com",
+  "description": "Search indexed YouTube and podcast transcripts for timestamped quotes and clip boundaries.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "ARCMIRA_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ARCMIRA_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "api_feedback_get-feedback",
+      "description": "Returns the submission (id, type, query, notes, created_at) plus its corrections, each with a review status in the public vocabulary: pending_review, needs_information, accepted, accepted_with_changes, rejected, withdrawn, applied, reverted (accepted means a reviewer agreed; applied means the change is live in the index). Only the submitting user's keys can read a submission; unknown ids and other users' submissions both return 404 (never 403). Required: feedback_id.",
+      "method": "GET",
+      "path": "/v1/feedback/{feedback_id}",
+      "params": [
+        {
+          "name": "feedback_id",
+          "type": "string",
+          "location": "path",
+          "description": "The feedback submission id POST /v1/feedback returned, fbk_ and digits.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api_feedback_submit-feedback",
+      "description": "Help shape Arcmira. Report a wrong result, request sources or capabilities, or tell us what would make your workflow more useful. To correct a result, attach corrections to the exact query you ran: pass the feedback type, the query object you sent, and optional per-item corrections. Public submissions are recorded for human review (status 'logged'); nothing is auto-applied. Read the review status back later via GET /v1/feedback/{feedback_id}. recommendations and channel_sponsors feedback types require a Pro+ plan; every other type needs read. monitor_alert feedback targets fired alerts: query carries monitor_id and/or tracker_id and/or alert_id, corrections target the alert id, and every referenced alert must belong to the caller (otherwise 404 alert_not_found). missed_alert corrections are expectations with nothing to target: omit the correction id and put { source_url, approximate_timestamp_seconds?, entity_id? } in suggested_change. delivery_issue corrections may carry { channel } in suggested_change. experience feedback says how a task went as a whole rather than correcting a result: it requires category and notes, refuses corrections (400 invalid_feedback_request), and needs no query. category and mcp_call_id, when sent, are recorded in the stored query. Optional: type, query, Idempotency-Key (plus 11 more). Returns the new FeedbackResponse.",
+      "method": "POST",
+      "path": "/v1/feedback",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Feedback type when omitted from the JSON body. Provide type in either location; the body takes precedence."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query being reviewed when omitted from the JSON body. Body query fields override matching query-string fields."
+        },
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "header",
+          "description": "1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400 invalid_idempotency_key. Persist a unique key and the exact request before sending a logical mutation. A retry returns its stored response with Idempotency-Replayed: true. A changed intent under a finalized key returns 409 idempotency_conflict. Keys belong to the authenticated owner, credential and mutation domain. Current authorization still applies. Receipts have no general 24-hour expiry; signing-secret recovery alone expires after 24 hours or when the secret is displaced."
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "What kind of problem this is. Values: wrong_entity (a name resolved to the wrong person, company or thing), bad_data (a result or field is wrong), missing (something that should exist was not found), slow (the task took too long), confusing (the answer or an error was hard to act on), other (anything else; say what in notes). Required when type is experience."
+        },
+        {
+          "name": "corrections",
+          "type": "array",
+          "location": "body",
+          "description": "Per-result corrections. Not allowed when type is experience."
+        },
+        {
+          "name": "endpoint",
+          "type": "string",
+          "location": "body",
+          "description": "Endpoint"
+        },
+        {
+          "name": "mcp_call_id",
+          "type": "string",
+          "location": "body",
+          "description": "The MCP tool call this feedback is about, as the Arcmira MCP server names it (mcpc_ and 32 hex digits). Joins the feedback to that call in product analytics."
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "location": "body",
+          "description": "Method"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Free text for the reviewer. Required when type is experience: say what the user asked for and what went wrong, slow, or missing."
+        },
+        {
+          "name": "query-2",
+          "wire_name": "query",
+          "type": "object",
+          "location": "body",
+          "description": "The query object that produced the result you are reviewing, echoed back verbatim so reviewers can replay it. For monitor_alert feedback, carry monitor_id and/or tracker_id and/or alert_id."
+        },
+        {
+          "name": "request_id",
+          "type": "string",
+          "location": "body",
+          "description": "Request id"
+        },
+        {
+          "name": "result_url",
+          "type": "string",
+          "location": "body",
+          "description": "Result url"
+        },
+        {
+          "name": "source_url",
+          "type": "string",
+          "location": "body",
+          "description": "Source url"
+        },
+        {
+          "name": "type-2",
+          "wire_name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The surface being reviewed. Values: recommendations (/v1/recommendations results by com_* id; requires a Pro+ plan), channel_sponsors (sponsor entities on a channel; requires a Pro+ plan), mentions (/v1/mentions results by men_* id), entities_search (/v1/entities/resolve candidates), entities (/v1/entities/{id} payloads), channels (/v1/channels/{channel_id}/videos results), monitor_alert (fired alerts from /v1/monitors/{id}/alerts or /v1/trackers/{id}/alerts; corrections target the alert id), appearances (person appearances from /v1/mentions with is_appearance=true), search (/v1/search passages), experience (how a task went as a whole, not one result: requires category and notes, takes no corrections, and query is optional)."
+        }
+      ]
+    },
+    {
+      "name": "channels_coverage_get-channel",
+      "description": "How many videos of a YouTube channel are searchable, the newest publish date among them, and the split by transcript source class. Call it when a search or mention lookup came back empty, before telling anyone we do not cover a show, and cite indexed_through as the as-of date for mentions and search_indexed_through for transcript search. It cannot request indexing; channel backfill is not available yet. Free; uses no credits. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server. Required: channel_id. Optional: src. Returns the ChannelCoverageResponse.",
+      "method": "GET",
+      "path": "/v1/channels/{channel_id}/coverage",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "YouTube channel id, the UC... form.",
+          "required": true
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "channels_sponsors_list-channel",
+      "description": "Rollup of recurring sponsors for a YouTube channel, ordered by ad read count. On a Pro+ plan the full list is served and min_ad_reads (default 3), status, and limit apply. Every other plan receives the free slice an anonymous visitor sees on arcmira.com, with meta.total naming the true count and access naming the gate; passing min_ad_reads, status, or limit on such a plan is refused with filter_requires_paid. Pass src=mcp-tool only from the Arcmira MCP server. Required: channel_id. Optional: min_ad_reads, status, limit (plus 1 more). Returns the ChannelSponsorsResponse.",
+      "method": "GET",
+      "path": "/v1/channels/{channel_id}/sponsors",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "YouTube channel id, the UC... form.",
+          "required": true
+        },
+        {
+          "name": "min_ad_reads",
+          "type": "int",
+          "location": "query",
+          "description": "Sponsors with fewer ad reads are excluded. Default 3. Pro+ only; on other plans passing it is refused with filter_requires_paid."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter against the curated known-advertisers dataset. Pro+ only; on other plans passing it is refused with filter_requires_paid."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Sponsors to return. Default 100. Pro+ only; on other plans passing it is refused with filter_requires_paid, and omitting it serves the free slice."
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "channels_videos_list-channel",
+      "description": "The indexed videos of a YouTube channel, newest first, each with its video_id, title, publish date, duration, view count, and watch_url on arcmira.com. Pass next_cursor as cursor to continue. The signed token binds the route, filters, caller and visibility; invalid or old tokens return invalid_cursor. A first-page media ID fence excludes later insertions, including old-date backfills; edits and deletions to existing videos remain live. Call it for the latest or most recent episode of a show, or to list what a show published in a window, then pass a video_id to GET /v1/mentions/counts video_ids for what that episode mentions or to GET /v1/transcripts/{video_id} to read it. indexed_through is the newest date we hold for the channel. An empty list means nothing is indexed; channel backfill is not available yet. Uses 4 credits per video returned past the first 5. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server. Required: channel_id. Optional: limit (default: 10), cursor, after (plus 2 more). Returns the ChannelVideosResponse.",
+      "method": "GET",
+      "path": "/v1/channels/{channel_id}/videos",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "YouTube channel id, the UC... form.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Videos to return, 1 to 25, newest first. Default 10. Pass 1 for the latest episode."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque continuation from next_cursor. Bound to the channel, filters, caller, and visibility; limit may change between pages. Invalid or old tokens return invalid_cursor."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Only media published at or after this instant."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01."
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "entities_get-entity",
+      "description": "Returns the canonical entity envelope for an ent_{n} or numeric id, following merge redirects. For organization and product entities, callers with Recommendations API access (a Pro+ plan) also receive a recommendations_summary commercial-intelligence rollup when a brand profile exists. Required: id.",
+      "method": "GET",
+      "path": "/v1/entities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Entity id, ent_{n} or the numeric id. Merged ids follow their redirect.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entities_resolve-entity",
+      "description": "Call this before passing an id to about, by, entity_ids, channel_ids or channel; those filters refuse names with id_required. Pass context with the user's own words about the name ('the startup bank', 'on My First Million'). The answer is one of three: best (the name means one entity: use it and name it), suggested (no entity is certain but one stands out, with reason and evidence: use it and tell the user you assumed it), or ask (several entities fit: show ask.options, or check every option id and answer per entity). For a show pass type=channel and use the youtube_channel_id; for a brand or a person use the id. Free; uses no credits. Required: q. Optional: type, limit (default: 8), context (plus 1 more). Returns the EntityResolveResponse.",
+      "method": "GET",
+      "path": "/v1/entities/resolve",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "A name, @handle, YouTube URL or channel id (UC...). One thing per call.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict candidates to one type. Pass channel for a show and read best.youtube_channel_id."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Candidates to return, 1 to 15. Default 8."
+        },
+        {
+          "name": "context",
+          "type": "string",
+          "location": "query",
+          "description": "What the user said about the name, in their words ('the startup bank', 'Canada's prime minister', 'on My First Million'). Ranks candidates by their description and by the episodes they share with what the context names; a clear winner comes back as suggested with reason context."
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "entities_momentum_get-entity",
+      "description": "Compare an entity's mention volume with the preceding period. Returns the counts, absolute and percentage change, momentum verdict, latest source date, and top shows. Choose a rolling window of 7 to 365 days with `days` (default 30). The preceding period is the same number of days before the window, and the verdict (accelerating, flat, fading, none) reads the absolute change. Pass the window the rest of your answer uses: days=90 for a 90-day answer. The fixed 7, 30 and 90 day counts stay on every card. It counts the shows we index, not the whole internet, and it is a count, not a score. On a Pro+ plan the card also carries paid_vs_organic for the window; otherwise that field is absent and access names the gate. On a plan with a freshness gate, the window ends at the cutoff and the card carries freshness, unlock, and a note that says where results stop. Uses 10 credits from your plan at any window, the default included. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server. Required: id. Optional: days (default: 30), src.",
+      "method": "GET",
+      "path": "/v1/entities/{id}/momentum",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Entity id, ent_{n} or the numeric id. Merged ids follow their redirect.",
+          "required": true
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Lookback window in days, 7 to 365. Default 30. The card counts mentions in that many days, and in as many days before them, as mentions_window and mentions_prior_window. Pass the window the rest of your answer uses."
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "health_get",
+      "description": "Health check. Returns the HealthResponse. (public)",
+      "method": "GET",
+      "path": "/v1/health",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "integrations_list-slack",
+      "description": "The account's active Slack workspaces with the ids a monitor needs for Slack delivery: create or PATCH a monitor with notify_slack: true, slack_integration_id set to an id here, and optionally slack_channel_id (default_channel_id when omitted). Slack is connected in the dashboard, never through the API; an empty list means the user must connect it there first. Reads stored data only. Single page, no pagination. Returns array of IntegrationsListSlackItem.",
+      "method": "GET",
+      "path": "/v1/integrations/slack",
+      "params": []
+    },
+    {
+      "name": "me_get",
+      "description": "Available even when the account has exhausted its usage allowance. Returns the credential making the request (key_id, key_label, credential_kind), the masked email of the person, the account whose credits it spends (account: id, name, kind, plan) and the role the person holds on it, the tier, scopes, rate limit, freshness (where results stop on a plan that reads media after a delay, or null), usage with period_resets_at, and account settings. usage.credits is the primary measure: credits from the plan, then the on-demand budget. The row fields restate it at 4 credits a row. settings.transcripts is what a transcript request that names no parameter of its own receives: every key of the account resolves against it.",
+      "method": "GET",
+      "path": "/v1/me",
+      "params": []
+    },
+    {
+      "name": "me_update-my-settings",
+      "description": "Sets the account defaults every key of the account resolves against. Send only the fields you are changing; an omitted field keeps the value it has. Resolution order for every transcript request is the explicit parameter, then these settings, then the platform default, so a default never overrides a parameter the caller sent. Defaults live on the account, never on a key: two keys of one account answer the same request the same way. The response echoes the resolved settings. Required: transcripts. Returns the updated MeSettingsResponse.",
+      "method": "PATCH",
+      "path": "/v1/me/settings",
+      "params": [
+        {
+          "name": "transcripts-language",
+          "wire_name": "transcripts.language",
+          "type": "string",
+          "location": "body",
+          "description": "Default comma-separated caption language priority list, tried in order (e.g. 'de,en'), at most 5 codes. Use asr for the first automatic track and asr- for a specific one."
+        },
+        {
+          "name": "transcripts-quality",
+          "wire_name": "transcripts.quality",
+          "type": "string",
+          "location": "body",
+          "description": "Default transcript quality for this account: captions or premium. As a default, premium reads only transcripts the account already owns. Owned transcripts remain readable after a plan downgrade; starting new ones requires an eligible plan."
+        },
+        {
+          "name": "transcripts-timestamps",
+          "wire_name": "transcripts.timestamps",
+          "type": "bool",
+          "location": "body",
+          "description": "Default for the timestamps parameter. false makes paragraphs[] the default body shape instead of lines[]."
+        }
+      ]
+    },
+    {
+      "name": "mentions_count",
+      "description": "A small ranked table of entity and channel counts, all-time unless after is set. Pass channel_ids for what shows talk about and entity_types to match the question (topic for subjects, person for guests, organization,product for brands). Pass video_ids with one id from GET /v1/channels/{channel_id}/videos for what a single episode mentions. Two or more channel_ids also return shared, the entities on more than one of them ranked by the smallest per-channel count, which is true overlap. An after later than the plan's freshness gate is refused with freshness_requires_paid rather than widened. A window the gate cut carries freshness (delay_days, served_through), unlock, and a note that says where results on this plan stop. Uses 4 credits per ranked entry returned past the first 5. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server. Optional: channel_ids, entity_ids, video_ids (plus 6 more). Returns the MentionCountsResponse.",
+      "method": "GET",
+      "path": "/v1/mentions/counts",
+      "params": [
+        {
+          "name": "channel_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated YouTube channel ids (UC...), at most 8. Two or more also return shared, the entities on more than one of them."
+        },
+        {
+          "name": "entity_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated entity ids (ent_{n}), at most 20. Counts only these entities."
+        },
+        {
+          "name": "video_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated 11-character YouTube video ids, at most 20. Counts only these episodes; take the ids from GET /v1/channels/{channel_id}/videos."
+        },
+        {
+          "name": "entity_types",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated entity types to count: person, organization, product, topic, channel. Subjects are topic; guests are person; brands are organization,product. Omit and organizations dominate."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "mentions counts talk about an entity; appearances counts a person being present; both counts either. Default mentions."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Only media published at or after this instant. Counts are all-time without it. An after later than your plan's freshness gate is refused with freshness_requires_paid rather than widened. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Rows in the ranked table, 1 to 40. Default 20."
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "mentions_list",
+      "description": "Find where a person, company, product, or topic is mentioned in indexed videos and podcasts. For a person, set `is_appearance` to true to find media appearances, false for mentions by others, or omit it for both. Results include a description, source video, and available timestamps. Cursor-paginated, filtered by entity (`entity_id` is required; resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter), channel (`channel_id`), text query, sentiment, appearance flag, and publication window [after, before). The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing mentions remain live. Positions are start_seconds and end_seconds (integer seconds; 0 means full episode). is_appearance filtering applies to person entities only; passing is_appearance=true for any other type returns a 400 (appearances_person_only). details=full attaches per-mention commercial recommendations and requires a Pro+ plan. Required: entity_id. Optional: limit (default: 20), cursor, channel_id (plus 7 more).",
+      "method": "GET",
+      "path": "/v1/mentions",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Signed continuation from next_cursor. Bound to this route, normalized query, caller and visibility; invalid or old tokens return invalid_cursor."
+        },
+        {
+          "name": "entity_id",
+          "type": "string",
+          "location": "query",
+          "description": "The entity, as an id like ent_14. Required. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.",
+          "required": true
+        },
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "query",
+          "description": "Only media from this YouTube channel id (UC plus 22 characters). Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve."
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q"
+        },
+        {
+          "name": "sentiment",
+          "type": "string",
+          "location": "query",
+          "description": "Sentiment"
+        },
+        {
+          "name": "is_appearance",
+          "type": "bool",
+          "location": "query",
+          "description": "Is appearance"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Only media published at or after this instant."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01. Needs a paid plan: the free plan refuses it with filter_requires_paid. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive."
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "query",
+          "description": "Details"
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "monitors_create",
+      "description": "Creating with notify_webhook: true and a webhook_url enables HMAC-signed webhook delivery and returns the signing secret (monitor.webhook_secret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. All subsequent reads expose only webhook_secret_set and webhook_secret_hint. Creating monitors and trackers is free. Each alert uses 25 credits once, however many channels and recipients deliver it: credits from your plan, then your on-demand budget. When the account is out of credits, alerts wait instead of sending. Required: name. Optional: Idempotency-Key, digest_day, digest_time (plus 8 more).",
+      "method": "POST",
+      "path": "/v1/monitors",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "header",
+          "description": "One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400..."
+        },
+        {
+          "name": "digest_day",
+          "type": "string",
+          "location": "body",
+          "description": "Digest day of week. Default 'monday'. Consulted only by weekly digests, which are dashboard-configured today; inert for API-set frequencies."
+        },
+        {
+          "name": "digest_time",
+          "type": "string",
+          "location": "body",
+          "description": "Digest send hour as HH:MM (account timezone). Default '09:00'. Applies to daily digests."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name (1-100 characters). Required on create.",
+          "required": true
+        },
+        {
+          "name": "notify_emails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Desired email recipients. External recipients must confirm before delivery. Free includes one additional recipient per monitor; paid plans allow up to 20 total. Default []."
+        },
+        {
+          "name": "notify_frequency",
+          "type": "string",
+          "location": "body",
+          "description": "Delivery cadence. Default realtime. Values: realtime (as analysis completes), hourly (hourly digest), daily (daily digest)."
+        },
+        {
+          "name": "notify_slack",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable Slack delivery. Requires a Slack integration connected in the dashboard."
+        },
+        {
+          "name": "notify_webhook",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable HMAC-signed webhook delivery (paid plans). When enabled together with webhook_url, the response returns the signing secret (monitor.webhook_secret), recoverable with the original Idempotency-Key during the valid recovery window. PATCHing true also re-enables an auto-disabled webhook and resets its failure counter."
+        },
+        {
+          "name": "slack_channel_id",
+          "type": "string",
+          "location": "body",
+          "description": "Slack channel id to deliver to."
+        },
+        {
+          "name": "slack_integration_id",
+          "type": "string",
+          "location": "body",
+          "description": "Slack integration id from the dashboard OAuth flow."
+        },
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "body",
+          "description": "Retired. A monitor belongs to the account the key acts in. Absent or null is ignored; any other value answers 400 team_id_retired. Create only."
+        },
+        {
+          "name": "webhook_url",
+          "type": "string",
+          "location": "body",
+          "description": "Destination URL for webhook alert deliveries."
+        }
+      ]
+    },
+    {
+      "name": "monitors_delete",
+      "description": "Deletes the monitor AND every tracker inside it (trackers_deleted reports how many). Anyone in the account can restore it, with its trackers and recipients, from Recently deleted on the dashboard Monitors page for 30 days. Retrying with the original Idempotency-Key returns the original deleted count without deleting again. Required: id. Optional: Idempotency-Key. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/monitors/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id.",
+          "required": true
+        },
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "header",
+          "description": "One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400..."
+        }
+      ]
+    },
+    {
+      "name": "monitors_list",
+      "description": "All monitors for the account with tracker counts, alert counts for the current calendar month, and Slack display metadata. Single page, no pagination. Returns array of MonitorsListItem.",
+      "method": "GET",
+      "path": "/v1/monitors",
+      "params": []
+    },
+    {
+      "name": "monitors_update",
+      "description": "A PATCH that newly enables webhook signing (turns notify_webhook on, or sets a webhook_url where no secret existed before) returns the signing secret (monitor.webhook_secret) in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. Unrelated PATCHes expose only webhook_secret_set and webhook_secret_hint. PATCHing notify_webhook: true also re-enables a webhook that was auto-disabled after repeated failures and resets its failure counter. Required: id. Optional: Idempotency-Key, digest_day, digest_time (plus 9 more).",
+      "method": "PATCH",
+      "path": "/v1/monitors/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id.",
+          "required": true
+        },
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "header",
+          "description": "One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400..."
+        },
+        {
+          "name": "digest_day",
+          "type": "string",
+          "location": "body",
+          "description": "Digest day of week. Default 'monday'. Consulted only by weekly digests, which are dashboard-configured today; inert for API-set frequencies."
+        },
+        {
+          "name": "digest_time",
+          "type": "string",
+          "location": "body",
+          "description": "Digest send hour as HH:MM (account timezone). Default '09:00'. Applies to daily digests."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name (1-100 characters). Required on create."
+        },
+        {
+          "name": "notify_emails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Desired email recipients. External recipients must confirm before delivery. Free includes one additional recipient per monitor; paid plans allow up to 20 total. Default []."
+        },
+        {
+          "name": "notify_frequency",
+          "type": "string",
+          "location": "body",
+          "description": "Delivery cadence. Default realtime. Values: realtime (as analysis completes), hourly (hourly digest), daily (daily digest)."
+        },
+        {
+          "name": "notify_slack",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable Slack delivery. Requires a Slack integration connected in the dashboard."
+        },
+        {
+          "name": "notify_webhook",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable HMAC-signed webhook delivery (paid plans). When enabled together with webhook_url, the response returns the signing secret (monitor.webhook_secret), recoverable with the original Idempotency-Key during the valid recovery window. PATCHing true also re-enables an auto-disabled webhook and resets its failure counter."
+        },
+        {
+          "name": "paused",
+          "type": "bool",
+          "location": "body",
+          "description": "Paused monitors accept config changes but do not deliver; alerts that would have fired are not queued."
+        },
+        {
+          "name": "slack_channel_id",
+          "type": "string",
+          "location": "body",
+          "description": "Slack channel id to deliver to."
+        },
+        {
+          "name": "slack_integration_id",
+          "type": "string",
+          "location": "body",
+          "description": "Slack integration id from the dashboard OAuth flow."
+        },
+        {
+          "name": "webhook_url",
+          "type": "string",
+          "location": "body",
+          "description": "Destination URL for webhook alert deliveries."
+        }
+      ]
+    },
+    {
+      "name": "monitors_alerts_list-monitor",
+      "description": "The newest limit alert deliveries for the monitor (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ('ent_{n}') and mention_id ('men_{n}') are the ids GET /v1/entities/{id} and GET /v1/mentions use, and video_id is the YouTube video id that GET /v1/transcripts/{video_id} reads. Dispute a fired alert via POST /v1/feedback with type monitor_alert. Required: id. Optional: limit. Returns array of Alert.",
+      "method": "GET",
+      "path": "/v1/monitors/{id}/alerts",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Alerts to return, newest first, 1 to 100. Default 25."
+        }
+      ]
+    },
+    {
+      "name": "monitors_entities_add-monitor",
+      "description": "Follows each entity ({ entity_ids: ['ent_...'] }) and each exact name ({ names: [{ name, type }] }) in the monitor: the monitor account's existing tracker for the entity or name (compared case-insensitively) is reused, else a tracker is created in the monitor's account for the canonical entity (a merged id follows its redirect) or the name as given, then the trackers are attached, all in one write. Use names for something not yet indexed; a channel is named by its YouTube channel id, and a channel name answers 400 id_required. Attached trackers use the monitor's delivery settings. Supply 1 to 90 ids and names together; duplicates count once. Each gets one result, ids first then names, in request order; a names result carries name and type in place of entity_id. An id that cannot be followed comes back with attached: false and a reason (entity_not_found, entity_type_not_trackable, tracker_limit_reached, tracked_in_another_monitor) while the rest still attach; a tracker already in another monitor is left there and named in current_monitor_id. Requires the monitors:write and trackers:write scopes. Required: id. Optional: Idempotency-Key, entity_ids, names (plus 1 more). Returns the new MonitorAddEntitiesResponse.",
+      "method": "POST",
+      "path": "/v1/monitors/{id}/entities",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id.",
+          "required": true
+        },
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "header",
+          "description": "One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400..."
+        },
+        {
+          "name": "entity_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Entity ids ('ent_...') to follow in this monitor, from GET /v1/entities/resolve or search. Duplicates count once. A merged id follows its redirect to the canonical entity."
+        },
+        {
+          "name": "names",
+          "type": "array",
+          "location": "body",
+          "description": "Exact names to follow in this monitor, for a name not yet indexed or one you have no id for. The tracker is created in the monitor's account and attached in the same call; the account's tracker for the same name (compared case-insensitively) and type is reused. Duplicates count once."
+        },
+        {
+          "name": "person_match_mode",
+          "type": "string",
+          "location": "body",
+          "description": "For person trackers this request creates: mentions (default) matches others talking about the person; appearances matches the person present as a speaker, host or guest; both accepts either. Other types ignore it, and a tracker that already exists keeps its own setting (change it with PATCH /v1/trackers/{id})."
+        }
+      ]
+    },
+    {
+      "name": "monitors_trackers_add-monitor",
+      "description": "Moves the account's trackers into this monitor by id ({ tracker_ids: ['trk_...'] }), out of the monitors they are in. A tracker always sits in one monitor and alerts through its delivery settings. It does not create trackers: POST /v1/monitors/{id}/entities does. Supply 1 to 90 IDs. Duplicate IDs count once. Every ID must belong to the account; a missing or foreign ID returns tracker_not_found and none move. attached_count reports the unique moved count. Required: id, tracker_ids. Optional: Idempotency-Key.",
+      "method": "POST",
+      "path": "/v1/monitors/{id}/trackers",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id.",
+          "required": true
+        },
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "header",
+          "description": "One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400..."
+        },
+        {
+          "name": "tracker_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Ids of the account's trackers ('trk_...') to move into this monitor from the monitors they are in. At most 90 IDs per request; duplicates count once. All IDs must belong to the account or none move.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_trackers_list-monitor",
+      "description": "List monitor trackers. Required: id. Returns array of TrackersListMonitorItem.",
+      "method": "GET",
+      "path": "/v1/monitors/{id}/trackers",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_webhook-secret_rotate-monitor",
+      "description": "Generates a new signing secret and returns it in this response. Store it securely. A retry with the original Idempotency-Key recovers the same secret for up to 24 hours while it remains the current secret or the valid previous secret. An expired or displaced secret returns 409 idempotency_result_expired without rotating again. Reads do not expose the secret. Zero-downtime overlap: the previous secret remains valid until previous_secret_expires_at (24 hours); during the window every delivery carries an additional X-Arcmira-Signature-Previous header computed with the old secret over the same {timestamp}.{payload} string, so you can verify with either secret while you roll. After the window the old secret is dropped and the extra header disappears. Rotating again during the window replaces the previous secret and resets the window. Requires a configured webhook (webhook_url set); otherwise 409 with code webhook_not_configured. Auto-disable interplay: rotation resets webhook_failures but never re-enables a webhook that was auto-disabled after repeated failures; to resume delivery, also PATCH the monitor with notify_webhook: true. Requires the monitors:write scope. Required: id. Optional: Idempotency-Key.",
+      "method": "POST",
+      "path": "/v1/monitors/{id}/webhook-secret/rotate",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id.",
+          "required": true
+        },
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "header",
+          "description": "One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400..."
+        }
+      ]
+    },
+    {
+      "name": "openapi-json_get-openapi-document",
+      "description": "OpenAPI document. Returns the OpenApiDocument. (public)",
+      "method": "GET",
+      "path": "/v1/openapi.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "recommendations_list",
+      "description": "Cursor-paginated commercial mentions (sponsored, organic and neutral mentions) filtered by entity (entity_id is required; resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter), channel (channel_id), class, confidence, and publication window [after, before). The signed continuation binds the route, filters, caller and visibility; invalid or old cursors return invalid_cursor. A first-page ID fence excludes later insertions, including old-date backfills. Edits and deletions to existing recommendations remain live. Requires a Pro+ plan. Positions are start_seconds and end_seconds (integer seconds). Required: entity_id. Optional: limit (default: 20), cursor, channel_id (plus 6 more). Returns the RecommendationListResponse.",
+      "method": "GET",
+      "path": "/v1/recommendations",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Signed continuation from next_cursor. Bound to this route, normalized query, caller and visibility; invalid or old tokens return invalid_cursor."
+        },
+        {
+          "name": "entity_id",
+          "type": "string",
+          "location": "query",
+          "description": "The entity, as an id like ent_14. Required. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve.",
+          "required": true
+        },
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "query",
+          "description": "Only media from this YouTube channel id (UC plus 22 characters). Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve."
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "location": "query",
+          "description": "The commercial class to return. Omit for all three. Values: sponsored (an ad-style promotion heard at that moment: a paid sponsor read, promo code, affiliate plug, thanks for supplied goods or venue, or a show promoting its own product as an ad), organic (an unpaid personal recommendation), mention (a neutral commercial mention)."
+        },
+        {
+          "name": "min_confidence",
+          "type": "float",
+          "location": "query",
+          "description": "Min confidence"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Only media published at or after this instant."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01."
+        },
+        {
+          "name": "include_disputed",
+          "type": "bool",
+          "location": "query",
+          "description": "Include disputed"
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "signups_create",
+      "description": "Starts the signup that ends in an account key, with no key and no login. Sends a 6 digit code to the address, valid for 10 minutes and 5 attempts, and answers 202 with the verify call. Sends are capped at 3 per address per hour, 10 per IP per hour, and 25 per client fingerprint per day; past a cap the response is 429 signup_send_limited with retry_after_seconds and an unlock whose action is this call. An address that already has an account gets a code too; verifying it mints a key on that account. Send { 'email': 'agent@example.com' }, with an optional 'src' naming the surface that sent you. Required: email. Optional: src. Returns the new SignupSentResponse. (public)",
+      "method": "POST",
+      "path": "/v1/signups",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The address the verification code is sent to. Case is folded; the same address in any casing is one account and one send budget.",
+          "required": true
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "body",
+          "description": "The agent surface that sent you, as a value from the ?src= registry. Also accepted as ?src= on the URL. The unlock in a refusal carries it back."
+        }
+      ]
+    },
+    {
+      "name": "signups_verify",
+      "description": "Consumes the code POST /v1/signups sent, creates the account when the address has none, and mints an arc_sk_ key on it: the read scope, the free plan's 1,000 credits a month, no expiry. A wrong, expired, or spent code is 400 signup_code_invalid on param code, naming the attempts left; its unlock action is a new send. Send { 'email': 'agent@example.com', 'code': '482913' }. Required: code, email. Returns the new SignupVerifiedResponse. (public)",
+      "method": "POST",
+      "path": "/v1/signups/verify",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "The six digit code from the email. Ten minutes, five attempts, then a new send is required.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The address the code was sent to.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trackers_delete",
+      "description": "Deletes the tracker. Cannot be undone. Its monitor stays, with its delivery settings, even when this was its last tracker. Required: id. Optional: Idempotency-Key. Returns the MessageResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/trackers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Tracker id, trk_ form.",
+          "required": true
+        },
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "header",
+          "description": "One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400..."
+        }
+      ]
+    },
+    {
+      "name": "trackers_list",
+      "description": "All trackers for the account, newest first, with per-channel delivery counts for the current billing period. Single page, no pagination. Returns array of Tracker.",
+      "method": "GET",
+      "path": "/v1/trackers",
+      "params": []
+    },
+    {
+      "name": "trackers_update",
+      "description": "Partial update: send only the fields to change. The tracked entity itself (entity_name/entity_type) is immutable; delete and recreate to watch a different entity. Delivery is the monitor's: change it with PATCH /v1/monitors/{id}. Required: id. Optional: Idempotency-Key, display_name, filters (plus 8 more). Returns the updated TrackerMutationResponse.",
+      "method": "PATCH",
+      "path": "/v1/trackers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Tracker id, trk_ form.",
+          "required": true
+        },
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "header",
+          "description": "One key per intent, 1 to 255 printable ASCII characters (0x21 to 0x7E); anything else is 400..."
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Optional label shown in alerts and the dashboard."
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Stored filter object. personMatchMode is also accepted here for person trackers. Other filter keys are retained; do not assume they change matching."
+        },
+        {
+          "name": "notify_email",
+          "type": "bool",
+          "location": "body",
+          "description": "Retired: a tracker alerts through its monitor's delivery (set it with PATCH /v1/monitors/{id}). Omitted or true is accepted and ignored; any other value answers 400 tracker_delivery_retired."
+        },
+        {
+          "name": "notify_slack",
+          "type": "bool",
+          "location": "body",
+          "description": "Retired: a tracker alerts through its monitor's delivery (set it with PATCH /v1/monitors/{id}). Omitted or false is accepted and ignored; any other value answers 400 tracker_delivery_retired."
+        },
+        {
+          "name": "notify_webhook",
+          "type": "bool",
+          "location": "body",
+          "description": "Retired: a tracker alerts through its monitor's delivery (set it with PATCH /v1/monitors/{id}). Omitted or false is accepted and ignored; any other value answers 400 tracker_delivery_retired."
+        },
+        {
+          "name": "paused",
+          "type": "bool",
+          "location": "body",
+          "description": "Pause or resume the tracker. Paused trackers stop producing alerts; there is no backfill for the paused window."
+        },
+        {
+          "name": "person_match_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Person trackers only. Mentions (default) matches others talking about the person; appearances matches the person present as a speaker, host or guest; both accepts either. Non-person trackers reject this field. PATCH changes future and pending delivery eligibility, without backfill."
+        },
+        {
+          "name": "slack_channel_id",
+          "type": "string",
+          "location": "body",
+          "description": "Retired: a tracker alerts through its monitor's delivery (set it with PATCH /v1/monitors/{id}). Omitted or null is accepted and ignored; any other value answers 400 tracker_delivery_retired."
+        },
+        {
+          "name": "slack_integration_id",
+          "type": "string",
+          "location": "body",
+          "description": "Retired: a tracker alerts through its monitor's delivery (set it with PATCH /v1/monitors/{id}). Omitted or null is accepted and ignored; any other value answers 400 tracker_delivery_retired."
+        },
+        {
+          "name": "webhook_url",
+          "type": "string",
+          "location": "body",
+          "description": "Retired: a tracker alerts through its monitor's delivery (set it with PATCH /v1/monitors/{id}). Omitted or null is accepted and ignored; any other value answers 400 tracker_delivery_retired."
+        }
+      ]
+    },
+    {
+      "name": "trackers_alerts_list-tracker",
+      "description": "The newest limit alert deliveries for the tracker (default 25, at most 100), as a single page. has_more is true when older alerts exist past limit; this endpoint does not paginate, so next_cursor is always null and a larger limit reads further. entity_id ('ent_{n}') and mention_id ('men_{n}') are the ids GET /v1/entities/{id} and GET /v1/mentions use, and video_id is the YouTube video id that GET /v1/transcripts/{video_id} reads. Dispute a fired alert via POST /v1/feedback with type monitor_alert. Required: id. Optional: limit. Returns array of Alert.",
+      "method": "GET",
+      "path": "/v1/trackers/{id}/alerts",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Tracker id, trk_ form.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Alerts to return, newest first, 1 to 100. Default 25."
+        }
+      ]
+    },
+    {
+      "name": "transcript_search_search",
+      "description": "Search indexed YouTube and podcast transcripts for passages matching a word or phrase. Returns passage text, source metadata, publication dates, and timestamped watch links. Narrow to passages about an entity with `about`, or passages where a person speaks with `by`. Scope with `channel_ids` (or `channel`) and `entity_ids` (a person id filters to that person's appearances). Filter to sponsored, organic or mention passages with `kind`. Every filter takes ids, never names: resolve a name first with GET /v1/entities/resolve, or the call answers 400 id_required naming the parameter. Results carry names beside ids (filters.about, filters.by, chunk about and speakers_by). Use one topic per call. Search results include text on every plan within the plan's publication-date window. Explicitly requesting source=arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid. An after later than the plan's freshness gate is refused with freshness_requires_paid rather than widened. A window the gate cut carries freshness (delay_days, served_through), unlock, and a note that says where results on this plan stop. Uses 4 credits per chunk returned past the first 5. Every gate is a typed error whose error.unlock.url names the plan that lifts it; pass src=mcp-tool only from the Arcmira MCP server. Required: q. Optional: channel_ids, channel, entity_ids (plus 8 more).",
+      "method": "GET",
+      "path": "/v1/search",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "One topic or phrase. Do not concatenate unrelated names; make one call per topic.",
+          "required": true
+        },
+        {
+          "name": "channel_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated YouTube channel ids (UC...), at most 8. Pass every show in scope unless drilling into one. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve."
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Alias of channel_ids for code-mode clients; the union of both is the scope."
+        },
+        {
+          "name": "entity_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated entity ids (ent_{n}), at most 8. A person id filters to that person's appearances; a channel id widens channel_ids. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve."
+        },
+        {
+          "name": "about",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated entity ids (ent_{n}), at most 8. Only passages about these entities: excerpt pins, exact-name mentions and ad verdicts. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve."
+        },
+        {
+          "name": "by",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated person ids (ent_{n}), at most 8. Only passages where one of these people speaks the query words. A passage can include other speakers' lines; each line with a known speaker starts with that speaker's name. A non-person id is refused with invalid_query naming its type. Speaker labels cover a minority of shows; an empty result carries a note saying whether the person is labeled anywhere. Ids only: a name answers 400 id_required. Resolve names first with GET /v1/entities/resolve."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated passage classes: sponsored, organic, mention. Combine with about to read what was said about a brand in ad reads or in organic talk."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Only media published at or after this instant. An after later than your plan's freshness gate is refused with freshness_requires_paid rather than widened. An ISO 8601 date (2026-09-01) or datetime with offset (2026-09-01T00:00:00Z), read in UTC. The window is half-open: after is inclusive, before is exclusive."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Only media published before this instant, so before=2026-09-02 includes all of 2026-09-01."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to one transcript source class. arcmira_premium on a plan without Premium transcripts is refused with filter_requires_paid."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Chunks to return, 1 to 20. Default 5."
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "transcriptions_list",
+      "description": "Your transcription requests in descending creation time and id order. limit defaults to 20 and accepts 1–100. Follow next_cursor with the same video_id, limit and credential; has_more is false and next_cursor is null on the last page. A traversal excludes requests inserted after its first page. Each entry is a Premium transcript job with its processing and billing state, a `status_url` for the Premium transcript GET, and a `title` field (the video title, null when unknown). The scheduled reconciler advances requests; reading this list never dispatches work or changes billing. In-flight entries carry `eta_seconds` and `next_poll_seconds`. Optional: video_id, limit (default: 20), cursor (plus 1 more). Returns array of TranscriptionsListItem.",
+      "method": "GET",
+      "path": "/v1/transcriptions",
+      "params": [
+        {
+          "name": "video_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to your requests for one video."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Requests per page, from 1 to 100. Default 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Signed continuation from next_cursor. Keep the same filter, limit and credential."
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "transcripts_get",
+      "description": "Caption reads use 4 credits per started 15 minutes. quality=premium is one read. An owned transcript answers 200 ready at no charge. Otherwise this call starts a Premium transcript of the whole video, 300 credits per started 15 minutes, using credits from the account's plan first and then the account's on-demand budget up to its limit, and answers 202 pending with the job and Retry-After until the transcript is ready. Read again after Retry-After; repeated reads join the same job and never charge twice. When the last Premium transcript for the video failed, the read answers 200 state failed with the job and last_attempt and charges nothing; retry=true starts a new one. When the plan or the budget blocks, 403 paid_plan_required (with unlock) or 402 quota_exceeded or spend_limit_exceeded carries the price in quote and the limit it met in limit, and nothing is charged. A default-premium account with nothing owned reads captions with a note. On captions, start and end set the billed window: 4 credits per started 15 minutes of end minus start. On Premium they only trim the returned content, and the charge is the whole video. language selects caption tracks, timestamps=false returns paragraphs. Premium lines carry speaker and index, and the body carries speakers and revision. language picks the language: language= returns the base transcript (base_language), and a language the transcript is not in returns it translated, line for line with the same timestamps and speakers. Captions offer only the languages YouTube makes available for the video (translation_languages), billed as a caption read; any other language is Premium: an owned Premium transcript in another language costs the Premium rate once per account and language. Required: video_id. Optional: quality, language, timestamps (plus 5 more).",
+      "method": "GET",
+      "path": "/v1/transcripts/{video_id}",
+      "params": [
+        {
+          "name": "video_id",
+          "type": "string",
+          "location": "path",
+          "description": "YouTube video id, 11 characters.",
+          "required": true
+        },
+        {
+          "name": "quality",
+          "type": "string",
+          "location": "query",
+          "description": "captions reads creator or automatic captions at 4 credits per started 15 minutes. premium is one read. An owned transcript returns 200 state ready at no charge. Otherwise the read starts a Premium transcript of the whole video, 300 credits per started 15 minutes, using credits from the account's plan first and then the account's on-demand budget up to its limit, and returns 202 state pending with the job until it is ready. When the last Premium transcript for the video failed it answers 200 state failed and starts a new one only with retry=true. 402 quota_exceeded or spend_limit_exceeded and 403 paid_plan_required carry the price in quote. It never substitutes captions. Default captions unless changed in account settings."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to read the transcript in, as a code (e.g. 'es') or a comma-separated priority list of at most 5 (e.g. 'de,en'); asr picks the first automatic caption track and asr- a specific one. Every transcript has a base language, base_language in the response: the language of the original caption track, or the language a Premium transcript was spoken and transcribed in. language= with no value returns the base transcript; so does a code in the base language. Omitted, the account default applies (en unless changed), falling back to the base transcript. When no code in the list matches, the transcript is translated into the first code, line for line with the same timestamps and speakers. Captions translate only into the languages YouTube makes available for the video (translation_languages in the response, or GET /v1/videos/{video_id}/captions), billed as a caption read of the window, 4 credits per started 15 minutes; any other code answers 400 invalid_query naming the Premium read. On a Premium transcript the account owns, each other language costs the Premium rate, 300 credits per started 15 minutes, once per account and language, and is free after that. While a translation runs the read answers 503 transcript_fetching with Retry-After and progress, and charges nothing. languages[] lists every caption track the video offers."
+        },
+        {
+          "name": "timestamps",
+          "type": "bool",
+          "location": "query",
+          "description": "false returns paragraphs[] of { start, text, speaker? } instead of lines[], for reading rather than citing. Default true."
+        },
+        {
+          "name": "start",
+          "type": "float",
+          "location": "query",
+          "description": "Window start in seconds from the beginning of the video. Send start and end together. On captions the window bills only its own started 15-minute blocks; on Premium it trims the returned content. An explicit Premium read is charged for the whole video from the account's plan credits and then its on-demand budget; a window does not reduce that charge."
+        },
+        {
+          "name": "end",
+          "type": "float",
+          "location": "query",
+          "description": "Window end in seconds, greater than start and no greater than the video duration. Send start and end together."
+        },
+        {
+          "name": "retry",
+          "type": "bool",
+          "location": "query",
+          "description": "Premium only; captions with retry=true returns invalid_query. When the last Premium transcript for this video failed, a read answers 200 state failed with the job and last_attempt and charges nothing; retry=true starts a new one under the same quote, budget and one-job-per-video rules as the first read. While that refund is still settling (job.status refund_pending) even retry=true answers state failed. Without a failed job it changes nothing."
+        },
+        {
+          "name": "refresh",
+          "type": "bool",
+          "location": "query",
+          "description": "Captions only; Premium with refresh=true returns invalid_query. Refetch the caption track from YouTube instead of serving the stored copy. Available only for videos outside our index; a pipeline-owned video refuses it with invalid_query."
+        },
+        {
+          "name": "src",
+          "type": "string",
+          "location": "query",
+          "description": "The surface making this call."
+        }
+      ]
+    },
+    {
+      "name": "transcripts_quote_transcription",
+      "description": "Optional free quote: what a Premium read of this video would use right now, as credits (charge; quote.rows restates it in rows, and a row is 4 credits), where the credits would come from, and max_on_demand_cents, the on-demand budget the read would need beyond the plan's credits within the account limit. It does not reserve credits or budget and does not start a transcript. A video with no known duration, or one past the 12 hour cap, answers 400 invalid_query with param video_id. Required: video_id. Returns the PremiumQuote.",
+      "method": "GET",
+      "path": "/v1/transcripts/{video_id}/quote",
+      "params": [
+        {
+          "name": "video_id",
+          "type": "string",
+          "location": "path",
+          "description": "YouTube video id, 11 characters.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

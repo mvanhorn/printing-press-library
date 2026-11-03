@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "live-acceptance",
+  "files": [
+    "internal/cli/mentions_count.go",
+    "internal/cli/tail.go"
+  ],
+  "markers": [
+    "mentions count --entity-ids",
+    "poll resource"
+  ]
+}

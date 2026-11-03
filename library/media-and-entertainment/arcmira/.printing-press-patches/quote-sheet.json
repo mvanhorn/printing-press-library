@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "quote-sheet",
+  "files": [
+    "internal/cli/quote_sheet.go",
+    "README.md",
+    "SKILL.md",
+    "examples/quote-sheet.json"
+  ],
+  "markers": [
+    "registerNovelCommand(",
+    "quote-sheet <search.json>",
+    "## Build a quote sheet"
+  ]
+}

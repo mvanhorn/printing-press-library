@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-03T00:33:17.447436Z",
+  "printing_press_version": "4.35.1",
+  "api_name": "arcmira",
+  "display_name": "Arcmira",
+  "cli_name": "arcmira-pp-cli",
+  "creator": {
+    "name": "Arcmira",
+    "handle": "zealous1"
+  },
+  "owner": "arcmira",
+  "printer": "zealous1",
+  "printer_name": "Arcmira",
+  "spec_url": "https://api.arcmira.com/v1/openapi.json",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:cf78f98fd10cf26a0312b38b759481efb27e9e1601eeb385eda6a8140ffd1bf5",
+  "run_id": "20261103-003317",
+  "category": "media-and-entertainment",
+  "description": "Search indexed YouTube and podcast transcripts for timestamped quotes and clip boundaries.",
+  "mcp_binary": "arcmira-pp-mcp",
+  "mcp_tool_count": 35,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
+  "auth_env_vars": [
+    "ARCMIRA_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Transcript quote sheet",
+      "command": "quote-sheet",
+      "description": "Merge saved transcript searches, deduplicate passages and keep the source link and search terms for each quote."
+    }
+  ]
+}
