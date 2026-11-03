@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -10,8 +9,6 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/govdata"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/store"
 )
 
 // Reuse the generated TLS/configuration seam, but only its HTTP transport.
@@ -62,22 +59,4 @@ func secRequestSettings(ctx context.Context) (*http.Client, *cliutil.AdaptiveLim
 		return settings.http, settings.limiter
 	}
 	return &http.Client{Timeout: time.Minute, CheckRedirect: secRedirect}, secLimiter
-}
-
-// The generic index powers --type datasets. Typed tables power --type
-// california/federal; both must receive each normalized saved record.
-func saveGovDataset(db *store.Store, d govdata.Dataset, data json.RawMessage) error {
-	var err error
-	switch d.Source {
-	case "california":
-		err = db.UpsertCalifornia(data)
-	case "federal":
-		err = db.UpsertFederal(data)
-	default:
-		return fmt.Errorf("unknown saved catalog source %q", d.Source)
-	}
-	if err != nil {
-		return err
-	}
-	return db.Upsert("datasets", d.Source+":"+d.ID, data)
 }

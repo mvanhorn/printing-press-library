@@ -54,7 +54,10 @@ func newGovLocalCmd(flags *rootFlags, kind string) *cobra.Command {
 	if kind != "lock" {
 		annotations["mcp:read-only"] = "true"
 	} else {
-		annotations["mcp:local-write"] = "true"
+		// The mirror blocks explicit filesystem destinations. Default stdout
+		// makes the manifest useful as a read-only tool without file writes.
+		annotations["mcp:read-only"] = "true"
+		annotations["mcp:write-flags"] = "output"
 	}
 	cmd := &cobra.Command{Use: kind, Short: descriptions[kind], Annotations: annotations, Example: "  government-data-pp-cli " + path + " --snapshot water-week1 --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if dryRunOK(flags) {
@@ -183,7 +186,7 @@ func newGovLocalCmd(flags *rootFlags, kind string) *cobra.Command {
 	}
 	if kind == "lock" {
 		cmd.Flags().StringSliceVar(&selected, "resource", nil, "Selected source:dataset-id:resource-id keys (repeatable)")
-		cmd.Flags().StringVar(&output, "output", "", "New manifest destination; use - to print without writing a file")
+		cmd.Flags().StringVar(&output, "output", "-", "New manifest destination; default - prints without writing a file")
 		cmd.Example = "  government-data-pp-cli intake lock --snapshot water-week1 --resource california:a47fde7d-7071-4f89-bd95-d8912ec8c385:resource-id --output intake.json --json"
 	}
 	switch kind {

@@ -1,11 +1,9 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/govcache"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/govdata"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/internal/store"
 	"github.com/spf13/cobra"
@@ -34,10 +32,7 @@ func govClient(f *rootFlags, demo bool) (*govdata.Client, error) {
 	if e != nil {
 		return nil, e
 	}
-	key := cfg.AuthHeader()
-	if demo && key == "" {
-		key = "DEMO_KEY"
-	}
+	key := govFederalKey(cfg, demo)
 	httpClient, e := govHTTPClient(f)
 	if e != nil {
 		return nil, e
@@ -207,6 +202,10 @@ func newGovSync(f *rootFlags) *cobra.Command {
 	}
 	original := cmd.RunE
 	cmd.Use = "sync [query]"
+	delete(cmd.Annotations, "mcp:read-only")
+	delete(cmd.Annotations, "mcp:read-only-unless-flags")
+	cmd.Annotations["mcp:local-write"] = "true"
+	cmd.Annotations["mcp:write-flags"] = "db"
 	cmd.Aliases = nil
 	cmd.Short = "Save a bounded catalog search snapshot and update offline search"
 	cmd.Example = "  government-data-pp-cli sync --resources california,federal --param q=water --max-pages 1 --demo"
@@ -360,19 +359,10 @@ func newGovCatalogFind(f *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 			snap := govdata.Snapshot{ID: save, Query: args[0], Source: source, CapturedAt: time.Now().UTC().Format(time.RFC3339Nano), Datasets: r.Results, Complete: r.Complete, Failures: r.FetchFailures, Scope: map[string]any{"format": format, "organization": org, "limit_per_source": limit, "max_pages_per_source": pages, "scanned_pages": r.ScannedPages, "next": r.Next}}
-			r.SnapshotID = save
-			if e = govcache.Save(ctx, db.DB(), snap); e != nil {
+			if e = db.SaveCatalogSnapshot(ctx, snap); e != nil {
 				return e
 			}
-			for _, d := range r.Results {
-				b, e := json.Marshal(d)
-				if e != nil {
-					return e
-				}
-				if e = saveGovDataset(db, d, b); e != nil {
-					return e
-				}
-			}
+			r.SnapshotID = save
 		}
 		return f.printJSON(cmd, r)
 	}}
@@ -387,6 +377,9 @@ func newGovCatalogFind(f *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&demo, "demo", false, "Use public federal DEMO_KEY for limited exploration")
 	cmd.Flags().StringVar(&save, "save", "", "Persist immutable bounded snapshot with this identifier")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path used when saving a snapshot")
+	delete(cmd.Annotations, "mcp:read-only")
+	cmd.Annotations["mcp:local-write"] = "true"
+	cmd.Annotations["mcp:write-flags"] = "db"
 	cmd.Annotations["mcp:read-only-unless-flags"] = "save"
 	return cmd
 }
