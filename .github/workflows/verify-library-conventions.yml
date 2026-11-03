@@ -40,9 +40,10 @@ name: Verify library conventions
 #    then published from that workflow.
 #
 # 6. Newly added library CLIs must have been printed by cli-printing-press
-#    v4.33.9 or newer. That release is the first whose generator emits
-#    `go 1.26.10` and `toolchain go1.26.10`, matching the repo .go-version
-#    floor (GO-2026-6809). Stale local generator checkouts and skill
+#    v4.35.0 or newer for profile credential isolation, PATCH preservation
+#    during MCP sync, and corrected generation and verification behavior.
+#    This includes the Go floor fix from v4.33.9 (GO-2026-6809).
+#    Stale local generator checkouts and skill
 #    installs should fail with direct upgrade instructions instead of
 #    publishing old artifacts. Existing published CLIs can still receive
 #    narrow bugfixes even when their historical manifest records an older
