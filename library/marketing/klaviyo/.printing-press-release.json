@@ -2,16 +2,16 @@
   "schema_version": 1,
   "slug": "klaviyo",
   "cli_name": "klaviyo-pp-cli",
-  "version": "2026.9.3",
-  "released_at": "2026-09-23T16:02:37Z",
-  "source_commit": "5bb1f7fc0d5df8cd83e88201be56458811c0eb00",
+  "version": "2026.11.1",
+  "released_at": "2026-11-03T22:20:33Z",
+  "source_commit": "9bb6e281aa0cc329d1d72b9bcd7ffa4002c88458",
   "printing_press_version": "3.5.0",
   "changes": [
     {
-      "title": "fix(klaviyo): block broken unsubscribe links",
-      "pr": 2051,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2051",
-      "commit": "5bb1f7fc0d5df8cd83e88201be56458811c0eb00"
+      "title": "fix(verify-skill): sync verifier from cli-printing-press and fix klaviyo recipe",
+      "pr": 2414,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2414",
+      "commit": "9bb6e281aa0cc329d1d72b9bcd7ffa4002c88458"
     }
   ]
 }

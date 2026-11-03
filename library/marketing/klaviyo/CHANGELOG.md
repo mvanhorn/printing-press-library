@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-03
+
+- fix(verify-skill): sync verifier from cli-printing-press and fix klaviyo recipe (#2414).
+
 ## 2026.9.3 - 2026-09-23
 
 - fix(klaviyo): block broken unsubscribe links (#2051).
