@@ -186,6 +186,44 @@ func addCritFlags(c *cobra.Command, crit *criteria) {
         self.assertFalse(verify_skill.flag_declared_via_helper(
             self.cli, [self.source / "root.go"], "postcode"))
 
+    def test_nested_helper_follows_renamed_command_parameter(self):
+        self.write('''package cli
+func Execute() { rootCmd.AddCommand(newSavedCmd()) }
+func newSavedCmd() *cobra.Command {
+ cmd := &cobra.Command{Use: "saved"}
+ addFlags(cmd)
+ return cmd
+}
+''')
+        (self.source / "flags.go").write_text('''package cli
+func addFlags(c *cobra.Command) {
+ addMid(c)
+}
+func addMid(command *cobra.Command) {
+ addSharedFlags(command)
+}
+func addSharedFlags(c *cobra.Command) {
+ c.Flags().StringVar(&x, "deal", "", "Deal")
+}
+func addOtherFlags(c *cobra.Command) {
+ c.Flags().StringVar(&x, "postcode", "", "Postcode")
+}
+''', encoding="utf-8")
+        self.assertTrue(verify_skill.flag_declared_via_helper(
+            self.cli, [self.source / "root.go"], "deal"))
+        self.assertFalse(verify_skill.flag_declared_via_helper(
+            self.cli, [self.source / "root.go"], "postcode"))
+        skill = self.cli / "SKILL.md"
+        skill.write_text(
+            "```bash\ndemo-pp-cli saved --deal x\ndemo-pp-cli saved --postcode x\n```\n",
+            encoding="utf-8",
+        )
+        report = verify_skill.Report(cli_dir=str(self.cli), skill_path=str(skill))
+        verify_skill.check_flag_commands(self.cli, [skill], "demo-pp-cli", report)
+        self.assertEqual([f.command for f in report.findings], ["demo-pp-cli saved"])
+        self.assertIn("--postcode", report.findings[0].detail)
+        self.assertNotIn("--deal", report.findings[0].detail)
+
     def test_help_invocation_skips_required_positional_args(self):
         self.write('''package cli
 func Execute() {
