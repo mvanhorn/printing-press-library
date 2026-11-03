@@ -34,7 +34,7 @@
     "type": "api_key",
     "api_key_available": true
   },
-  "source_fingerprint": "75668be44b9f289b3769c59e45331f707ed32588d2eb4740e0a5ff41ffc7eba9",
+  "source_fingerprint": "b649f8a0ba2a6bc1255aca9827a6d23cb96482c8a23fceb9c3aa1e27f0e22b49",
   "source_files": {
     "cmd/government-data-pp-cli/main.go": "2656d0b0a7521145aa8b2e7c6f997e33f61b1c6fa0dadb88abe8ce9bb7377948",
     "cmd/government-data-pp-mcp/main.go": "ce34642179c8e3a53fa3b5f41135266807309c7a19c5cb456982b01d60450bac",
@@ -84,6 +84,7 @@
     "internal/cli/gov_mcp_policy_test.go": "bf14a391d5adbff79dff9f7acc965c053d1a4cfce1aec83e2ff5b75a0225d511",
     "internal/cli/gov_network.go": "fcc032d848e1c1679c08faec70c5ba6f24f4d27b465a55c31d66cb47383f337f",
     "internal/cli/gov_network_test.go": "405e64d62f0e7f503f6c2fcedd1e5c5fbce6dad2b17e9d4b468569c5780a92b3",
+    "internal/cli/gov_store_write_policy_test.go": "a2e827450e6cc4a24e78277205a0929ce3de61cc048dc4e45fb6a85a5f235ad3",
     "internal/cli/gov_zz_errors.go": "0f380b2376a4128a33dd33f9dd920f13e78e2c50811420754f87a18de699bc2f",
     "internal/cli/gov_zzz_preview.go": "2c40807ffb2e80cae880e088d2e8f7a35b1fbe7e9d3235d9f6117348b30b7ff7",
     "internal/cli/helpers.go": "08509a12e78463823ad0e34c5a354253f4a6beac06fb4d15bd9a205bfa01b1d1",
@@ -110,7 +111,7 @@
     "internal/cli/playbooks/embed.go": "5d375cd52dd37e2d67ff558ab0de84f9e3aa97ba4fd57d7fc56aaec1be8612b9",
     "internal/cli/profile.go": "4e41d2a43dc89dbd02fd6aea25f101a5c19917020eae32d8b0c8d0f46cefac3d",
     "internal/cli/resource_paths.go": "4dde57a377a80626a95dce1f4cdcd7d892a1fb8047607f8250605b483ab0d7e4",
-    "internal/cli/root.go": "16b653dbaa724e7b0a60a07525625d8685fbab0ccd195f4616d6537555a6829c",
+    "internal/cli/root.go": "df809a63878a7c791795b46ce428a0bdda26cffe3107c938ac605091b5deac21",
     "internal/cli/root_test.go": "297f1796ec446e1f1bb72fb358b4d28e2c2eaaa73cb91bf99583f08c2ee03216",
     "internal/cli/search.go": "ca2ca19cd1f975a5f9413d1ba256c053c2a402f7460ffff3d030e5aec53ddcbc",
     "internal/cli/store_adopt_darwin.go": "28fe9f91578d843dd809590a1ce675d39c1bb6259fe8729cd925adb2fc223cd8",

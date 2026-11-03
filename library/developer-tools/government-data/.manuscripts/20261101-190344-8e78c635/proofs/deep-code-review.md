@@ -14,6 +14,10 @@ Reviewed the catalog, SEC, persistence, authentication, download, and MCP paths,
 
 The two earlier reviewer findings are also fixed: explicit-profile logout persists a global-credential fallback tombstone without deleting the global key, and token-save output reports the actual profile credential path.
 
+## Root-hook follow-up
+
+Greptile identified a further P1 integration gap: removing unconditional read-only annotations also made the root learning hook open and migrate the store for catalog reads without a save. The root write decision now honors conditional annotations and actual parsed flag values. Regression tests cover find/export with omitted, empty, and populated saves; false/true booleans; and sync. An independent correctness review found no actionable concerns. Real find/export calls with default learning created no database in a disposable home. Full tests, CLI race tests, publish validation, and all 183 executed live checks passed again.
+
 ## Verification
 
 - Full Go test suite and go vet passed.
