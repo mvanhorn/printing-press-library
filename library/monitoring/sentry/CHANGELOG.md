@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.2 - 2026-11-03
+
+- fix(sentry): retain saved selectors and literal array filters (#2421).
+
 ## 2026.11.1 - 2026-11-02
 
 - fix(sentry): preserve query filters and organization slugs (#2420).
