@@ -184,7 +184,7 @@ func newGovLocalCmd(flags *rootFlags, kind string) *cobra.Command {
 	if kind == "lock" {
 		cmd.Flags().StringSliceVar(&selected, "resource", nil, "Selected source:dataset-id:resource-id keys (repeatable)")
 		cmd.Flags().StringVar(&output, "output", "", "New manifest destination; use - to print without writing a file")
-		cmd.Example = "  government-data-pp-cli intake lock --snapshot water-week1 --resource california:a47fde7d-7071-4f89-bd95-d8912ec8c385:resource-id --output intake.json"
+		cmd.Example = "  government-data-pp-cli intake lock --snapshot water-week1 --resource california:a47fde7d-7071-4f89-bd95-d8912ec8c385:resource-id --output intake.json --json"
 	}
 	switch kind {
 	case "overlap":

@@ -1,4 +1,4 @@
-// Copyright 2026 jon-275 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jon Malone and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package store
 
