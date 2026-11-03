@@ -1,6 +1,6 @@
 {
   "name": "government-data",
-  "category": "other",
+  "category": "developer-tools",
   "description": "Find and access California, U.S. open datasets and SEC EDGAR filings with provenance.",
   "version": "0.1.0",
   "base_url": "https://api.gsa.gov/technology/datagov/v4",

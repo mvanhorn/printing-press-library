@@ -25,5 +25,5 @@
     "internal/govdata/catalog_test.go",
     "manifest.json"
   ],
-  "validated_outcome": "171/171 executed live checks; 49/49 mock checks; all five saved-state feature lifecycles and California/SEC workflow chains passed."
+  "validated_outcome": "Regenerated under Printing Press 4.35.1; 186/186 executed live checks and 49/49 mock checks; full unit suite, vet, and publish validation passed."
 }
