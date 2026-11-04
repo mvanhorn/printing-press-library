@@ -1,0 +1,240 @@
+{
+  "api_name": "government-data",
+  "base_url": "https://api.gsa.gov/technology/datagov/v4",
+  "description": "Find California and U.S. open datasets and SEC EDGAR filings with clear provenance.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Api-Key",
+    "in": "header",
+    "env_vars": [
+      "DATA_GOV_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "DATA_GOV_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "tier_routing": {
+    "tiers": {
+      "california": {
+        "auth": {
+          "type": "none"
+        }
+      }
+    }
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "california_dataset",
+      "description": "Retrieve complete dataset metadata and resource references. Required: id. Returns the Payload.",
+      "method": "GET",
+      "path": "/package_show",
+      "base_url": "https://publish.data.ca.gov/api/3/action",
+      "tier": "california",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "id for this catalog request",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "california_find",
+      "description": "Search catalog datasets using text and filters. Optional: query, rows (default: 10), start (plus 2 more). Returns the Payload.",
+      "method": "GET",
+      "path": "/package_search",
+      "base_url": "https://publish.data.ca.gov/api/3/action",
+      "tier": "california",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "q for this catalog request"
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "query",
+          "description": "rows for this catalog request"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "start for this catalog request"
+        },
+        {
+          "name": "filter",
+          "wire_name": "fq",
+          "type": "string",
+          "location": "query",
+          "description": "fq for this catalog request"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "sort for this catalog request"
+        }
+      ]
+    },
+    {
+      "name": "california_organizations",
+      "description": "List dataset publishing organizations. Returns the Payload.",
+      "method": "GET",
+      "path": "/organization_list",
+      "base_url": "https://publish.data.ca.gov/api/3/action",
+      "tier": "california",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "california_resource",
+      "description": "Retrieve California resource download metadata. Required: id. Returns the Payload.",
+      "method": "GET",
+      "path": "/resource_show",
+      "base_url": "https://publish.data.ca.gov/api/3/action",
+      "tier": "california",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "id for this catalog request",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "california_tags",
+      "description": "List California dataset keyword tags. Returns the Payload.",
+      "method": "GET",
+      "path": "/tag_list",
+      "base_url": "https://publish.data.ca.gov/api/3/action",
+      "tier": "california",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "california_topics",
+      "description": "List source-native dataset topics or keywords. Returns the Payload.",
+      "method": "GET",
+      "path": "/group_list",
+      "base_url": "https://publish.data.ca.gov/api/3/action",
+      "tier": "california",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "federal_dataset",
+      "description": "Retrieve complete dataset metadata and resource references. Required: id. Returns the Payload. (requires API key)",
+      "method": "GET",
+      "path": "/dataset/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id for this catalog request",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "federal_find",
+      "description": "Search catalog datasets using text and filters. Optional: query, per_page (default: 10), after (plus 2 more). Returns the Payload. (requires API key)",
+      "method": "GET",
+      "path": "/search",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "q for this catalog request"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "per page for this catalog request"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "after for this catalog request"
+        },
+        {
+          "name": "org_slug",
+          "type": "string",
+          "location": "query",
+          "description": "org slug for this catalog request"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "keyword for this catalog request"
+        }
+      ]
+    },
+    {
+      "name": "federal_organizations",
+      "description": "List dataset publishing organizations. Returns the Payload. (requires API key)",
+      "method": "GET",
+      "path": "/organizations",
+      "params": []
+    },
+    {
+      "name": "federal_topics",
+      "description": "List source-native dataset topics or keywords. Returns the Payload. (requires API key)",
+      "method": "GET",
+      "path": "/keywords",
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Shared resource evidence",
+      "command": "overlap",
+      "description": "Find exact resource URLs shared across saved catalog records."
+    },
+    {
+      "name": "Saved metadata changes",
+      "command": "changes",
+      "description": "Compare metadata and resource links between two explicit snapshots."
+    },
+    {
+      "name": "Selection provenance lock",
+      "command": "intake lock",
+      "description": "Save selected resource URLs and metadata fingerprints for repeatable intake."
+    },
+    {
+      "name": "Metadata intake audit",
+      "command": "intake audit",
+      "description": "List missing metadata fields before selecting resources."
+    },
+    {
+      "name": "Saved format coverage",
+      "command": "coverage",
+      "description": "Compare declared formats within a saved topic scope."
+    }
+  ]
+}

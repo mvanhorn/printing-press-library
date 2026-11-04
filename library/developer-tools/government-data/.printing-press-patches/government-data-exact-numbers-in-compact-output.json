@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "government-data-exact-numbers-in-compact-output",
+  "applied_at": "2026-11-04",
+  "base_run_id": "20261101-190344-8e78c635",
+  "base_printing_press_version": "4.35.1",
+  "summary": "Keep exact JSON numbers when --agent/--compact compaction and human object output re-encode responses.",
+  "reason": "Compaction decoded responses into float64, so integers above 2^53 (for example large SEC XBRL fact values) could be silently rounded in agent output. Decoding with UseNumber preserves the original number tokens.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/compact_exact_numbers_test.go"
+  ],
+  "validated_outcome": "go test ./... passes; new tests confirm 9007199254740993 survives object and list compaction and human object output unchanged."
+}

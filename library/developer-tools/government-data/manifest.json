@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "government-data-pp-mcp",
+  "display_name": "Government Data",
+  "version": "0.1.0",
+  "description": "Find and access California and U.S. open datasets with clear provenance and repeatable results.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/government-data-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/government-data-pp-mcp",
+      "args": [],
+      "env": {
+        "DATA_GOV_API_KEY": "${user_config.data_gov_api_key}",
+        "SEC_USER_AGENT": "${user_config.sec_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "data_gov_api_key": {
+      "type": "string",
+      "title": "DATA_GOV_API_KEY",
+      "description": "Sets DATA_GOV_API_KEY for the Government Data MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "sec_user_agent": {
+      "type": "string",
+      "title": "SEC application and contact",
+      "description": "Application name and real contact email required only for SEC EDGAR requests. Example: MyResearchApp/1.0 contact@example.com",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

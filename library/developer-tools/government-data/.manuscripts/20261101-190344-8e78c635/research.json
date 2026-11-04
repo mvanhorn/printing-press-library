@@ -1,0 +1,161 @@
+{
+  "api_name": "government-data",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "ckanapi",
+      "url": "https://github.com/ckan/ckanapi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Data.gov MCP Server",
+      "url": "https://github.com/melaodoidao/datagov-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-02T03:21:28.963022Z",
+  "novel_features": [
+    {
+      "name": "Shared resource evidence",
+      "command": "overlap",
+      "description": "Find exact resource URLs shared across saved catalog records.",
+      "rationale": "Cross-source URL join preserves all provenances.",
+      "why_it_matters": "Find exact resource URLs shared across saved catalog records.",
+      "group": "Compare catalogs"
+    },
+    {
+      "name": "Saved metadata changes",
+      "command": "changes",
+      "description": "Compare metadata and resource links between two explicit snapshots.",
+      "rationale": "Local snapshot history supports field-level changes.",
+      "why_it_matters": "Compare metadata and resource links between two explicit snapshots.",
+      "group": "Repeatable research"
+    },
+    {
+      "name": "Selection provenance lock",
+      "command": "intake lock",
+      "description": "Save selected resource URLs and metadata fingerprints for repeatable intake.",
+      "rationale": "Combines explicit resource choices with local provenance.",
+      "why_it_matters": "Save selected resource URLs and metadata fingerprints for repeatable intake.",
+      "group": "Repeatable research"
+    },
+    {
+      "name": "Metadata intake audit",
+      "command": "intake audit",
+      "description": "List missing metadata fields before selecting resources.",
+      "rationale": "Normalizes missing-field findings across local catalog snapshots.",
+      "why_it_matters": "List missing metadata fields before selecting resources.",
+      "group": "Compare catalogs"
+    },
+    {
+      "name": "Saved format coverage",
+      "command": "coverage",
+      "description": "Compare declared formats within a saved topic scope.",
+      "rationale": "Joins scoped result membership to resource format metadata.",
+      "why_it_matters": "Compare declared formats within a saved topic scope.",
+      "group": "Compare catalogs"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Shared resource evidence",
+      "command": "overlap",
+      "description": "Find exact resource URLs shared across saved catalog records.",
+      "rationale": "Cross-source URL join preserves all provenances.",
+      "why_it_matters": "Find exact resource URLs shared across saved catalog records.",
+      "group": "Compare catalogs"
+    },
+    {
+      "name": "Saved metadata changes",
+      "command": "changes",
+      "description": "Compare metadata and resource links between two explicit snapshots.",
+      "rationale": "Local snapshot history supports field-level changes.",
+      "why_it_matters": "Compare metadata and resource links between two explicit snapshots.",
+      "group": "Repeatable research"
+    },
+    {
+      "name": "Selection provenance lock",
+      "command": "intake lock",
+      "description": "Save selected resource URLs and metadata fingerprints for repeatable intake.",
+      "rationale": "Combines explicit resource choices with local provenance.",
+      "why_it_matters": "Save selected resource URLs and metadata fingerprints for repeatable intake.",
+      "group": "Repeatable research"
+    },
+    {
+      "name": "Metadata intake audit",
+      "command": "intake audit",
+      "description": "List missing metadata fields before selecting resources.",
+      "rationale": "Normalizes missing-field findings across local catalog snapshots.",
+      "why_it_matters": "List missing metadata fields before selecting resources.",
+      "group": "Compare catalogs"
+    },
+    {
+      "name": "Saved format coverage",
+      "command": "coverage",
+      "description": "Compare declared formats within a saved topic scope.",
+      "rationale": "Joins scoped result membership to resource format metadata.",
+      "why_it_matters": "Compare declared formats within a saved topic scope.",
+      "group": "Compare catalogs"
+    }
+  ],
+  "narrative": {
+    "display_name": "Government Data",
+    "headline": "Find California and U.S. open datasets and SEC EDGAR filings with clear provenance.",
+    "value_prop": "Search either public-data catalog or both, inspect metadata and download selected resources. Direct EDGAR commands search filings and retrieve company submissions and financial facts; local snapshot tools support repeatable catalog research.",
+    "auth_narrative": "California public reads need no key. Federal official v4 gateway uses a free api.data.gov key. Public DEMO_KEY is for initial exploration only: 30 requests per hour and 50 per day. Configure a personal key for automated use. SEC reads use SEC_USER_AGENT with your app name and contact email, and require no API key.",
+    "quickstart": [
+      {
+        "command": "government-data-pp-cli doctor --dry-run",
+        "comment": "Check the command setup without network access."
+      },
+      {
+        "command": "government-data-pp-cli catalog find water --source both --limit 5 --agent --demo",
+        "comment": "Compare a bounded selection from both catalogs."
+      },
+      {
+        "command": "government-data-pp-cli edgar filings 0000320193 --form 10-K --limit 1 --agent",
+        "comment": "Find a company filing after setting SEC_USER_AGENT."
+      }
+    ],
+    "when_to_use": "Use for repeatable discovery of California and U.S. catalog datasets, metadata inspection and explicitly selected downloads.",
+    "anti_triggers": [
+      "Do not use for publishing, modifying or deleting government catalog records.",
+      "Do not assume catalog metadata is the underlying measurement data or a full copy of either catalog."
+    ],
+    "recipes": [
+      {
+        "title": "Inspect concise search results",
+        "command": "government-data-pp-cli catalog find water --source both --limit 5 --agent --select results.title,results.source,results.id --demo",
+        "explanation": "Keep only the fields needed to select records."
+      },
+      {
+        "title": "Company financial fact",
+        "command": "government-data-pp-cli edgar facts 0000320193 --concept Assets --agent",
+        "explanation": "Retrieve reported asset facts with units, periods and filing references."
+      }
+    ],
+    "trigger_phrases": [
+      "search SEC filings",
+      "find California water datasets",
+      "search federal open data",
+      "download a government dataset",
+      "use government-data",
+      "run government-data"
+    ]
+  }
+}

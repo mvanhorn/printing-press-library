@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/government-data-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261101-190344-8e78c635",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,924 @@
+name: government-data
+description: Discovered API spec for data-ca
+version: 0.1.0
+base_url: https://data.ca.gov
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "facet.limit" from query: search input'
+    - 'rejected auth candidate "q" from query: search input'
+    - 'rejected auth candidate "query" from query: search input'
+    - 'rejected auth candidate "sort" from query: search input'
+config:
+    format: toml
+    path: ~/.config/government-data-pp-cli/config.toml
+resources:
+    _next:
+        description: Operations on search.json
+        endpoints:
+            head_search.json:
+                method: HEAD
+                path: /_next/data/angFhxGvQgnvsfEcRbt_v/search.json
+                description: HEAD /_next/data/angFhxGvQgnvsfEcRbt_v/search.json
+                params:
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: search.json
+                pagination: null
+            head_water_plan_water_balance_data.json:
+                method: HEAD
+                path: /_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json
+                description: HEAD /_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json
+                params:
+                    - name: dataset
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: org
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: water_plan_water_balance_data.json
+                pagination: null
+            list_ground_water_water_quality_results.json:
+                method: GET
+                path: /_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/ground-water-water-quality-results.json
+                description: GET /_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/ground-water-water-quality-results.json
+                params:
+                    - name: dataset
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: org
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: GroundWaterWaterQualityResultsJson
+                pagination: null
+            list_search.json:
+                method: GET
+                path: /_next/data/angFhxGvQgnvsfEcRbt_v/search.json
+                description: GET /_next/data/angFhxGvQgnvsfEcRbt_v/search.json
+                params:
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: tags
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: SearchJson
+                pagination: null
+            list_surface_water_water_quality_regulatory_information.json:
+                method: GET
+                path: /_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/surface-water-water-quality-regulatory-information.json
+                description: GET /_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/surface-water-water-quality-regulatory-information.json
+                params:
+                    - name: dataset
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: org
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: SurfaceWaterWaterQualityRegulatoryInformationJson
+                pagination: null
+            list_water_plan_water_balance_data.json:
+                method: GET
+                path: /_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json
+                description: GET /_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json
+                params:
+                    - name: dataset
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: org
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: WaterPlanWaterBalanceDataJson
+                pagination: null
+    action:
+        description: Operations on package_search
+        endpoints:
+            get_package_search:
+                method: GET
+                path: /api/{id}/action/package_search
+                base_url: https://publish.data.ca.gov
+                description: GET /api/{id}/action/package_search
+                params:
+                    - name: facet.field
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: facet.limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: fq
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: q
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rows
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: PackageSearch
+                pagination: null
+types:
+    Dataset:
+        fields:
+            - name: accessLevel
+              type: string
+            - name: accrualPeriodicity
+              type: string
+            - name: conformsTo
+              type: string
+            - name: contact_email
+              type: string
+              format: email
+            - name: contact_name
+              type: string
+            - name: creator_user_id
+              type: string
+              format: uuid
+            - name: extras
+              type: array
+            - name: groups
+              type: array
+            - name: id
+              type: string
+              format: uuid
+            - name: isopen
+              type: bool
+            - name: language
+              type: string
+            - name: license_id
+              type: string
+            - name: license_title
+              type: string
+            - name: metadata_created
+              type: string
+            - name: metadata_modified
+              type: string
+            - name: name
+              type: string
+            - name: notes
+              type: string
+            - name: num_resources
+              type: integer
+            - name: num_tags
+              type: integer
+            - name: organization
+              type: object
+            - name: owner_org
+              type: string
+              format: uuid
+            - name: private
+              type: bool
+            - name: relationships_as_object
+              type: array
+            - name: relationships_as_subject
+              type: array
+            - name: resources
+              type: array
+            - name: rights
+              type: string
+            - name: state
+              type: string
+            - name: tags
+              type: array
+            - name: temporal
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+            - name: url
+              type: string
+              format: url
+    Dataset2:
+        fields:
+            - name: accessLevel
+              type: string
+            - name: accrualPeriodicity
+              type: string
+            - name: additional_information
+              type: string
+            - name: author
+              type: string
+            - name: citation
+              type: string
+            - name: conformsTo
+              type: string
+            - name: contact_email
+              type: string
+              format: email
+            - name: contact_name
+              type: string
+            - name: creator_user_id
+              type: string
+              format: uuid
+            - name: geo_coverage
+              type: string
+            - name: granularity
+              type: string
+            - name: group
+              type: string
+            - name: groups
+              type: array
+            - name: id
+              type: string
+              format: uuid
+            - name: isopen
+              type: bool
+            - name: landingPage
+              type: string
+              format: url
+            - name: language
+              type: string
+            - name: license_id
+              type: string
+            - name: license_title
+              type: string
+            - name: metadata_created
+              type: string
+            - name: metadata_modified
+              type: string
+            - name: name
+              type: string
+            - name: notes
+              type: string
+            - name: num_resources
+              type: integer
+            - name: num_tags
+              type: integer
+            - name: organization
+              type: object
+            - name: owner_org
+              type: string
+              format: uuid
+            - name: private
+              type: bool
+            - name: related_resources
+              type: string
+            - name: relationships_as_object
+              type: array
+            - name: relationships_as_subject
+              type: array
+            - name: resources
+              type: array
+            - name: rights
+              type: string
+            - name: secondary_sources
+              type: string
+            - name: spatial
+              type: string
+            - name: state
+              type: string
+            - name: tags
+              type: array
+            - name: temporal
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+            - name: url
+              type: string
+              format: url
+    Dataset3:
+        fields:
+            - name: accessLevel
+              type: string
+            - name: accrualPeriodicity
+              type: string
+            - name: additional_information
+              type: string
+            - name: author
+              type: string
+            - name: citation
+              type: string
+            - name: conformsTo
+              type: string
+            - name: contact_email
+              type: string
+              format: email
+            - name: contact_name
+              type: string
+            - name: creator_user_id
+              type: string
+              format: uuid
+            - name: geo_coverage
+              type: string
+            - name: granularity
+              type: string
+            - name: group
+              type: string
+            - name: groups
+              type: array
+            - name: id
+              type: string
+              format: uuid
+            - name: isopen
+              type: bool
+            - name: landingPage
+              type: string
+              format: url
+            - name: language
+              type: string
+            - name: license_id
+              type: string
+            - name: license_title
+              type: string
+            - name: metadata_created
+              type: string
+            - name: metadata_modified
+              type: string
+            - name: name
+              type: string
+            - name: notes
+              type: string
+            - name: num_resources
+              type: integer
+            - name: num_tags
+              type: integer
+            - name: organization
+              type: object
+            - name: owner_org
+              type: string
+              format: uuid
+            - name: private
+              type: bool
+            - name: related_resources
+              type: string
+            - name: relationships_as_object
+              type: array
+            - name: relationships_as_subject
+              type: array
+            - name: resources
+              type: array
+            - name: rights
+              type: string
+            - name: secondary_sources
+              type: string
+            - name: spatial
+              type: string
+            - name: state
+              type: string
+            - name: tags
+              type: array
+            - name: temporal
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+            - name: url
+              type: string
+    Facets:
+        fields:
+            - name: groups
+              type: object
+            - name: organization
+              type: object
+            - name: res_format
+              type: object
+            - name: tags
+              type: object
+    Fallback:
+        fields:
+            - name: '@"package_search",#tags:@,resFormat:@,orgs:@,offset:0,limit:10,groups:@,,'
+              type: object
+    GroundWaterWaterQualityResultsJson:
+        fields:
+            - name: __N_SSG
+              type: bool
+            - name: pageProps
+              type: ref:PageProps3
+    PackageSearch:
+        fields:
+            - name: help
+              type: string
+              format: url
+            - name: result
+              type: ref:Result
+            - name: success
+              type: bool
+    PageProps:
+        fields:
+            - name: fallback
+              type: ref:Fallback
+            - name: searchFacets
+              type: ref:SearchFacets
+            - name: topicCounts
+              type: ref:TopicCounts
+    PageProps2:
+        fields:
+            - name: dataset
+              type: ref:Dataset
+            - name: relatedDatasets
+              type: '[]ref:RelatedDataset'
+    PageProps3:
+        fields:
+            - name: dataset
+              type: ref:Dataset2
+            - name: relatedDatasets
+              type: '[]ref:RelatedDataset2'
+    PageProps4:
+        fields:
+            - name: dataset
+              type: ref:Dataset3
+            - name: relatedDatasets
+              type: '[]ref:RelatedDataset3'
+    RelatedDataset:
+        fields:
+            - name: accessLevel
+              type: string
+            - name: accrualPeriodicity
+              type: string
+            - name: conformsTo
+              type: string
+            - name: contact_email
+              type: string
+              format: email
+            - name: contact_name
+              type: string
+            - name: creator_user_id
+              type: string
+              format: uuid
+            - name: extras
+              type: array
+            - name: groups
+              type: array
+            - name: id
+              type: string
+              format: uuid
+            - name: isopen
+              type: bool
+            - name: language
+              type: string
+            - name: license_id
+              type: string
+            - name: license_title
+              type: string
+            - name: metadata_created
+              type: string
+            - name: metadata_modified
+              type: string
+            - name: name
+              type: string
+            - name: notes
+              type: string
+            - name: num_resources
+              type: integer
+            - name: num_tags
+              type: integer
+            - name: organization
+              type: object
+            - name: owner_org
+              type: string
+              format: uuid
+            - name: private
+              type: bool
+            - name: relationships_as_object
+              type: array
+            - name: relationships_as_subject
+              type: array
+            - name: resources
+              type: array
+            - name: rights
+              type: string
+            - name: state
+              type: string
+            - name: tags
+              type: array
+            - name: temporal
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+            - name: url
+              type: string
+              format: url
+    RelatedDataset2:
+        fields:
+            - name: accessLevel
+              type: string
+            - name: accrualPeriodicity
+              type: string
+            - name: additional_information
+              type: string
+            - name: author
+              type: string
+            - name: citation
+              type: string
+            - name: conformsTo
+              type: string
+            - name: contact_email
+              type: string
+              format: email
+            - name: contact_name
+              type: string
+            - name: creator_user_id
+              type: string
+              format: uuid
+            - name: geo_coverage
+              type: string
+            - name: granularity
+              type: string
+            - name: group
+              type: string
+            - name: groups
+              type: array
+            - name: id
+              type: string
+              format: uuid
+            - name: isopen
+              type: bool
+            - name: landingPage
+              type: string
+              format: url
+            - name: language
+              type: string
+            - name: license_id
+              type: string
+            - name: license_title
+              type: string
+            - name: metadata_created
+              type: string
+            - name: metadata_modified
+              type: string
+            - name: name
+              type: string
+            - name: notes
+              type: string
+            - name: num_resources
+              type: integer
+            - name: num_tags
+              type: integer
+            - name: organization
+              type: object
+            - name: owner_org
+              type: string
+              format: uuid
+            - name: private
+              type: bool
+            - name: related_resources
+              type: string
+            - name: relationships_as_object
+              type: array
+            - name: relationships_as_subject
+              type: array
+            - name: resources
+              type: array
+            - name: rights
+              type: string
+            - name: secondary_sources
+              type: string
+            - name: spatial
+              type: string
+            - name: state
+              type: string
+            - name: tags
+              type: array
+            - name: temporal
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+            - name: url
+              type: string
+    RelatedDataset3:
+        fields:
+            - name: accessLevel
+              type: string
+            - name: accrualPeriodicity
+              type: string
+            - name: additional_information
+              type: string
+            - name: author
+              type: string
+            - name: citation
+              type: string
+            - name: conformsTo
+              type: string
+            - name: contact_email
+              type: string
+              format: email
+            - name: contact_name
+              type: string
+            - name: creator_user_id
+              type: string
+              format: uuid
+            - name: geo_coverage
+              type: string
+            - name: granularity
+              type: string
+            - name: group
+              type: string
+            - name: groups
+              type: array
+            - name: id
+              type: string
+              format: uuid
+            - name: isopen
+              type: bool
+            - name: landingPage
+              type: string
+              format: url
+            - name: language
+              type: string
+            - name: license_id
+              type: string
+            - name: license_title
+              type: string
+            - name: metadata_created
+              type: string
+            - name: metadata_modified
+              type: string
+            - name: name
+              type: string
+            - name: notes
+              type: string
+            - name: num_resources
+              type: integer
+            - name: num_tags
+              type: integer
+            - name: organization
+              type: object
+            - name: owner_org
+              type: string
+              format: uuid
+            - name: private
+              type: bool
+            - name: related_resources
+              type: string
+            - name: relationships_as_object
+              type: array
+            - name: relationships_as_subject
+              type: array
+            - name: resources
+              type: array
+            - name: rights
+              type: string
+            - name: secondary_sources
+              type: string
+            - name: spatial
+              type: string
+            - name: state
+              type: string
+            - name: tags
+              type: array
+            - name: temporal
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+            - name: url
+              type: string
+    Result:
+        fields:
+            - name: count
+              type: integer
+            - name: facets
+              type: ref:Facets
+            - name: results
+              type: '[]ref:Result2'
+            - name: search_facets
+              type: ref:SearchFacets2
+            - name: sort
+              type: string
+    Result2:
+        fields:
+            - name: accessLevel
+              type: string
+            - name: accrualPeriodicity
+              type: string
+            - name: conformsTo
+              type: string
+            - name: contact_email
+              type: string
+              format: email
+            - name: contact_name
+              type: string
+            - name: creator_user_id
+              type: string
+              format: uuid
+            - name: extras
+              type: array
+            - name: groups
+              type: array
+            - name: id
+              type: string
+              format: uuid
+            - name: isopen
+              type: bool
+            - name: language
+              type: string
+            - name: license_id
+              type: string
+            - name: license_title
+              type: string
+            - name: metadata_created
+              type: string
+            - name: metadata_modified
+              type: string
+            - name: name
+              type: string
+            - name: notes
+              type: string
+            - name: num_resources
+              type: integer
+            - name: num_tags
+              type: integer
+            - name: organization
+              type: object
+            - name: owner_org
+              type: string
+              format: uuid
+            - name: private
+              type: bool
+            - name: relationships_as_object
+              type: array
+            - name: relationships_as_subject
+              type: array
+            - name: resources
+              type: array
+            - name: rights
+              type: string
+            - name: state
+              type: string
+            - name: tags
+              type: array
+            - name: temporal
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+            - name: url
+              type: string
+              format: url
+    SearchFacets:
+        fields:
+            - name: groups
+              type: object
+            - name: organization
+              type: object
+            - name: res_format
+              type: object
+            - name: tags
+              type: object
+    SearchFacets2:
+        fields:
+            - name: groups
+              type: object
+            - name: organization
+              type: object
+            - name: res_format
+              type: object
+            - name: tags
+              type: object
+    SearchJson:
+        fields:
+            - name: __N_SSG
+              type: bool
+            - name: pageProps
+              type: ref:PageProps
+    SurfaceWaterWaterQualityRegulatoryInformationJson:
+        fields:
+            - name: __N_SSG
+              type: bool
+            - name: pageProps
+              type: ref:PageProps4
+    TopicCounts:
+        fields:
+            - name: economy-employment
+              type: integer
+            - name: education
+              type: integer
+            - name: energy-utilities
+              type: integer
+            - name: environment-climate
+              type: integer
+            - name: government-fiscal
+              type: integer
+            - name: health-human-services
+              type: integer
+            - name: housing-community-development
+              type: integer
+            - name: justice-public-safety
+              type: integer
+            - name: natural-resources-conservation
+              type: integer
+            - name: transportation
+              type: integer
+            - name: water
+              type: integer
+            - name: wildlife-ecosystems
+              type: integer
+    WaterPlanWaterBalanceDataJson:
+        fields:
+            - name: __N_SSG
+              type: bool
+            - name: pageProps
+              type: ref:PageProps2

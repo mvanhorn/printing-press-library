@@ -1,0 +1,46 @@
+{
+  "workflows": [
+    {
+      "name": "California catalog search and resource inspection",
+      "primary": true,
+      "steps": [
+        {
+          "command": "catalog find water --source california --limit 1 --max-pages 1",
+          "mode": "live",
+          "expect_fields": [
+            "results"
+          ],
+          "extract": {
+            "dataset_id": ".results[0].id"
+          }
+        },
+        {
+          "command": "dataset show ${dataset_id} --source california",
+          "mode": "live"
+        },
+        {
+          "command": "dataset resources ${dataset_id} --source california",
+          "mode": "live"
+        }
+      ]
+    },
+    {
+      "name": "Direct SEC company filings and financial facts",
+      "primary": false,
+      "steps": [
+        {
+          "command": "edgar company 0000320193",
+          "mode": "live"
+        },
+        {
+          "command": "edgar filings 0000320193 --limit 1",
+          "mode": "live"
+        },
+        {
+          "command": "edgar facts 0000320193 --taxonomy us-gaap --concept Assets",
+          "mode": "live"
+        }
+      ]
+    }
+  ]
+}
