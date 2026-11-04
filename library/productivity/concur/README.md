@@ -230,7 +230,7 @@ The fallbacks drive a real Chrome page. If that window is hidden or minimized, C
   ```
 
 ### Local state that compounds
-- **`expenses scan-duplicates`** — Find potential double-entered charges across all of your synced expenses. Run `concur-pp-cli sync --resources expenses --user-id <uid>` first: it fetches each recent report's expenses (newest 100 reports by default; `--max-pages` to widen) into the local store, and the scan refuses to run on a never-synced store and reports how old the synced data is.
+- **`expenses scan-duplicates`** — Find potential double-entered charges across all of your synced expenses. Run `concur-pp-cli sync --resources expenses --user-id <uid>` first: it fetches each recent report's expenses (newest 100 reports by default; `--max-pages` to widen) into the local store, and the scan refuses to run on a never-synced store and reports how old the synced data is. Each sync also drops local rows for expenses that were removed from a report you re-fetched (`--no-prune` keeps them); expenses of a report you deleted outright stay until the local store is cleared.
 
   _Run this before submitting a batch of reports if you suspect a corporate-card charge and a manually-entered cash expense might be the same transaction._
 

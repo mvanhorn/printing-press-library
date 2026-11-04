@@ -1189,3 +1189,169 @@ exit 1
 		})
 	}
 }
+
+// PATCH(amend-2026-11-04: test click error handling on create fallback)
+func TestExpensesCreate_BrowserFallback_FirstClickPlainError(t *testing.T) {
+	tmpDir := t.TempDir()
+	mockBinPath := filepath.Join(tmpDir, "agent-browser")
+	stateFile := filepath.Join(tmpDir, "mock_state")
+
+	mockScript := `#!/bin/bash
+arg1="$1"
+arg2="$2"
+
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+
+if [ "$arg1" = "--cdp" ]; then
+	echo '{"success": false}'
+	exit 0
+fi
+
+if [ "$arg1" = "get" ] && [ "$arg2" = "url" ]; then
+	if [ -f "$MOCK_STATE_FILE" ]; then
+		echo "https://us2.concursolutions.com/nui/expense/reports/mock-report"
+	else
+		echo "https://us2.concursolutions.com/nui/expense/reports/mock-report/expenses/new?expenseTypeId=CELPH"
+	fi
+	exit 0
+fi
+
+if [ "$arg1" = "snapshot" ]; then
+	today_name=$(date +"%A %B %-d, %Y")
+	today_month=$(date +"%B")
+	today_year=$(date +"%Y")
+	echo "{\"success\":true,\"data\":{\"origin\":\"https://us2.concursolutions.com\",\"refs\":{\"e1\":{\"name\":\"Amount\",\"role\":\"textbox\"},\"e2\":{\"name\":\"Vendor Description\",\"role\":\"textbox\"},\"e3\":{\"name\":\"Save Expense\",\"role\":\"button\"},\"e4\":{\"name\":\"Business Purpose\",\"role\":\"textbox\"},\"e5\":{\"name\":\"Transaction Date\",\"role\":\"textbox\"},\"e6\":{\"name\":\"Open calendar, Transaction Date\",\"role\":\"button\"},\"e7\":{\"name\":\"Tuesday September 15, 2026\",\"role\":\"button\"},\"e8\":{\"name\":\"Wednesday January 1, 2020\",\"role\":\"button\"},\"e9\":{\"name\":\"$today_name\",\"role\":\"button\"},\"eA\":{\"name\":\"September\",\"role\":\"button\"},\"eB\":{\"name\":\"2026\",\"role\":\"button\"},\"eC\":{\"name\":\"$today_month\",\"role\":\"button\"},\"eD\":{\"name\":\"$today_year\",\"role\":\"button\"}}}}"
+	exit 0
+fi
+
+if [ "$arg1" = "click" ] && [ "$arg2" = "@e3" ]; then
+	if [ "$MOCK_CREATE_ON_FAIL" = "1" ]; then
+		touch "$MOCK_STATE_FILE"
+	fi
+	echo "mock click error" >&2
+	exit 1
+fi
+
+exit 0
+`
+	if err := os.WriteFile(mockBinPath, []byte(mockScript), 0o755); err != nil {
+		t.Fatalf("writing mock binary: %v", err)
+	}
+
+	oldPath := os.Getenv("PATH")
+	t.Setenv("PATH", tmpDir+string(filepath.ListSeparator)+oldPath)
+	t.Setenv("MOCK_STATE_FILE", stateFile)
+
+	t.Run("first-click plain error + expense actually created => success", func(t *testing.T) {
+		_ = os.Remove(stateFile)
+		t.Setenv("MOCK_CREATE_ON_FAIL", "1")
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			switch {
+			case r.Method == "POST" && strings.Contains(r.URL.Path, "/expenses"):
+				w.WriteHeader(http.StatusNotFound)
+				_, _ = w.Write([]byte(`{"errorMessage":"No static resource /expensereports/v4/users/test-user-id/context/TRAVELER/reports/mock-report/expenses."}`))
+			case r.Method == "GET" && strings.HasSuffix(r.URL.Path, "/expenses"):
+				if _, err := os.Stat(stateFile); err == nil {
+					w.WriteHeader(http.StatusOK)
+					_, _ = w.Write([]byte(`[{"expenseId":"exp-new-1","transactionAmount":{"value":50},"expenseType":{"code":"CELPH"}}]`))
+				} else {
+					w.WriteHeader(http.StatusOK)
+					_, _ = w.Write([]byte(`[]`))
+				}
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer server.Close()
+
+		t.Setenv("CONCUR_BASE_URL", server.URL)
+		t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
+		t.Setenv("PRINTING_PRESS_VERIFY", "1")
+		t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+
+		cmd := RootCmd()
+		cmd.SetArgs([]string{
+			"expenses", "create",
+			"--user-id", "test-user-id",
+			"--report-id", "mock-report",
+			"--type", "CELPH",
+			"--date", "2026-09-15",
+			"--amount", "50",
+			"--payment-type", "CASH",
+			"--vendor", "on-call cell phone",
+			"--json",
+		})
+
+		var out bytes.Buffer
+		cmd.SetOut(&out)
+		cmd.SetErr(io.Discard)
+
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		var envelope map[string]any
+		if err := json.Unmarshal(out.Bytes(), &envelope); err != nil {
+			t.Fatalf("failed to unmarshal output JSON: %v", err)
+		}
+		if success, ok := envelope["success"].(bool); !ok || !success {
+			t.Errorf("expected envelope success: true, got %+v", envelope)
+		}
+	})
+
+	t.Run("first-click plain error + nothing created => partial-success error", func(t *testing.T) {
+		_ = os.Remove(stateFile)
+		t.Setenv("MOCK_CREATE_ON_FAIL", "0")
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			switch {
+			case r.Method == "POST" && strings.Contains(r.URL.Path, "/expenses"):
+				w.WriteHeader(http.StatusNotFound)
+				_, _ = w.Write([]byte(`{"errorMessage":"No static resource /expensereports/v4/users/test-user-id/context/TRAVELER/reports/mock-report/expenses."}`))
+			case r.Method == "GET" && strings.HasSuffix(r.URL.Path, "/expenses"):
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`[]`))
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer server.Close()
+
+		t.Setenv("CONCUR_BASE_URL", server.URL)
+		t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
+		t.Setenv("PRINTING_PRESS_VERIFY", "1")
+		t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+
+		cmd := RootCmd()
+		cmd.SetArgs([]string{
+			"expenses", "create",
+			"--user-id", "test-user-id",
+			"--report-id", "mock-report",
+			"--type", "CELPH",
+			"--date", "2026-09-15",
+			"--amount", "50",
+			"--payment-type", "CASH",
+			"--vendor", "on-call cell phone",
+			"--json",
+		})
+
+		var out bytes.Buffer
+		cmd.SetOut(&out)
+		cmd.SetErr(io.Discard)
+
+		err := cmd.Execute()
+		if err == nil {
+			t.Fatal("expected an error, got nil")
+		}
+
+		if !strings.Contains(err.Error(), "the browser fallback's Save Expense click already fired before this failure") {
+			t.Errorf("expected duplicate warning in error message, got: %v", err)
+		}
+	})
+}

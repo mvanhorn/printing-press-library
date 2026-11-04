@@ -378,3 +378,98 @@ exit 0
 		}
 	})
 }
+
+// PATCH(amend-2026-11-04: test URL verification for receipts fallback)
+func TestReceiptsAttach_BrowserFallback_WrongExpensePage(t *testing.T) {
+	tmpDir := t.TempDir()
+	mockBinPath := filepath.Join(tmpDir, "agent-browser")
+	stateFile := filepath.Join(tmpDir, "mock_state")
+
+	mockScript := `#!/bin/bash
+arg1="$1"
+arg2="$2"
+
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+
+if [ "$arg1" = "--cdp" ]; then
+	echo '{"success": false}'
+	exit 0
+fi
+
+if [ "$arg1" = "get" ] && [ "$arg2" = "url" ]; then
+	# Returns exp-999 (different expense) instead of exp-1!
+	echo "https://us2.concursolutions.com/nui/expense/reports/mock-report/expenses/exp-999"
+	exit 0
+fi
+
+if [ "$arg1" = "snapshot" ]; then
+	echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"upload-file":{"name":"upload","role":"file"}}}}'
+	exit 0
+fi
+
+if [ "$arg1" = "upload" ]; then
+	touch "$MOCK_STATE_FILE"
+	exit 0
+fi
+
+exit 0
+`
+	if err := os.WriteFile(mockBinPath, []byte(mockScript), 0o755); err != nil {
+		t.Fatalf("writing mock binary: %v", err)
+	}
+
+	oldPath := os.Getenv("PATH")
+	t.Setenv("PATH", tmpDir+string(filepath.ListSeparator)+oldPath)
+	t.Setenv("MOCK_STATE_FILE", stateFile)
+
+	receiptFile := filepath.Join(tmpDir, "receipt.pdf")
+	if err := os.WriteFile(receiptFile, []byte("small content"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case r.Method == "POST" && strings.Contains(r.URL.Path, "/receiptimages/v1/exp-1"):
+			w.WriteHeader(http.StatusNotFound)
+			_, _ = w.Write([]byte(`{"errorMessage":"Not Found"}`))
+		case r.Method == "GET" && strings.HasSuffix(r.URL.Path, "/expenses"):
+			_, _ = w.Write([]byte(`[{"expenseId":"exp-1","receiptImageId":null}]`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+
+	t.Setenv("CONCUR_BASE_URL", server.URL)
+	t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{
+		"receipts", "exp-1",
+		"--file", receiptFile,
+		"--user-id", "test-user-id",
+		"--report-id", "mock-report",
+	})
+
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("expected error when browser is on the wrong expense, got nil")
+	}
+
+	if !strings.Contains(err.Error(), "browser is not on the expected expense edit page") {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	if _, err := os.Stat(stateFile); err == nil {
+		t.Error("expected upload NOT to be invoked on wrong expense page, but state file exists")
+	}
+}

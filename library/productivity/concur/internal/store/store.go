@@ -2579,6 +2579,125 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 	return stored, extractFailures, nil
 }
 
+// PATCH(amend-2026-11-04: UpsertAndReconcileExpenses for transaction-bound deletion of deleted expenses)
+func (s *Store) UpsertAndReconcileExpenses(items []json.RawMessage, reportID string, prune bool) (int, int, int, error) {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("starting batch transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	var stored, skippedCount, extractFailures, typedFailures int
+	seenStorageIDs := make(map[string]bool)
+
+	for i, item := range items {
+		obj, err := DecodeJSONObject(item)
+		if err != nil {
+			skippedCount++
+			continue
+		}
+		id := ExtractResourceID("expenses", obj)
+		if id == "" {
+			if unwrappedObj, unwrappedItem, ok := unwrapIDBearingEnvelopeItem("expenses", item, obj); ok {
+				obj = unwrappedObj
+				item = unwrappedItem
+				id = ExtractResourceID("expenses", obj)
+			}
+		}
+		if id == "" {
+			skippedCount++
+			extractFailures++
+			continue
+		}
+		storageID := resourceStorageID("expenses", id, obj)
+		seenStorageIDs[storageID] = true
+
+		if err := s.upsertGenericResourceTx(tx, "expenses", storageID, item); err != nil {
+			return 0, 0, extractFailures, fmt.Errorf("upserting expenses/%s: %w", storageID, err)
+		}
+		stored++
+
+		deriveScopeColumns(obj)
+
+		savepoint := fmt.Sprintf("pp_typed_%d", i)
+		if _, err := tx.Exec("SAVEPOINT " + savepoint); err != nil {
+			return 0, 0, extractFailures, fmt.Errorf("savepoint begin for expenses/%s: %w", storageID, err)
+		}
+
+		typedErr := s.upsertExpensesTx(tx, storageID, obj, item)
+		if typedErr != nil {
+			if _, rbErr := tx.Exec("ROLLBACK TO SAVEPOINT " + savepoint); rbErr != nil {
+				return 0, 0, extractFailures, fmt.Errorf("rollback to savepoint for expenses/%s (typed err: %v): %w", storageID, typedErr, rbErr)
+			}
+			if _, relErr := tx.Exec("RELEASE SAVEPOINT " + savepoint); relErr != nil {
+				return 0, 0, extractFailures, fmt.Errorf("release savepoint after rollback for expenses/%s: %w", storageID, relErr)
+			}
+			typedFailures++
+			continue
+		}
+
+		if _, err := tx.Exec("RELEASE SAVEPOINT " + savepoint); err != nil {
+			return 0, 0, extractFailures, fmt.Errorf("release savepoint for expenses/%s: %w", storageID, err)
+		}
+	}
+
+	var pruned int
+	// PATCH(amend-2026-11-04: never prune on a partially understood listing) -- an
+	// item that could not be decoded or had no id is not in seenStorageIDs, so
+	// pruning would delete a row that still exists in Concur.
+	if prune && reportID != "" && skippedCount == 0 {
+		rows, err := tx.Query(
+			`SELECT id FROM resources 
+			 WHERE resource_type = 'expenses' 
+			   AND (CASE WHEN json_valid(data) THEN (json_extract(data, '$.reportId') = ? OR json_extract(data, '$.report_id') = ?) END)`,
+			reportID, reportID,
+		)
+		if err != nil {
+			return 0, 0, extractFailures, fmt.Errorf("selecting expense victims: %w", err)
+		}
+		var victims []string
+		for rows.Next() {
+			var id string
+			if err := rows.Scan(&id); err != nil {
+				_ = rows.Close()
+				return 0, 0, extractFailures, err
+			}
+			if seenStorageIDs[id] {
+				continue
+			}
+			victims = append(victims, id)
+		}
+		_ = rows.Close()
+
+		for _, victimID := range victims {
+			if _, err := tx.Exec(`DELETE FROM "expenses" WHERE id = ?`, victimID); err != nil {
+				return 0, 0, extractFailures, fmt.Errorf("deleting expense typed row %s: %w", victimID, err)
+			}
+			if _, err := tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowID("expenses", victimID)); err != nil {
+				return 0, 0, extractFailures, fmt.Errorf("deleting expense fts row %s: %w", victimID, err)
+			}
+			if _, err := tx.Exec(`DELETE FROM resources WHERE resource_type = 'expenses' AND id = ?`, victimID); err != nil {
+				return 0, 0, extractFailures, fmt.Errorf("deleting expense generic row %s: %w", victimID, err)
+			}
+			pruned++
+		}
+	}
+
+	if extractFailures > 0 && stored == 0 && len(items) > 0 {
+		fmt.Fprintf(os.Stderr, "warning: %d/%d expenses items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n", skippedCount, len(items))
+	}
+	if typedFailures > 0 {
+		fmt.Fprintf(os.Stderr, "warning: %d/%d expenses items: typed-table upsert failed; generic resources rows preserved\n", typedFailures, len(items))
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, 0, extractFailures, err
+	}
+	return stored, pruned, extractFailures, nil
+}
+
 func unwrapIDBearingEnvelopeItem(resourceType string, item json.RawMessage, obj map[string]any) (map[string]any, json.RawMessage, bool) {
 	var candidate map[string]any
 	candidateKey := ""

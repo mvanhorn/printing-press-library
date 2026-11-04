@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/concur/internal/client"
@@ -89,8 +90,11 @@ func attachReceiptViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on %s (no separate login needed)\n", describeCDPTarget(port))
 	}
 
+	// PATCH(amend-2026-11-04: require the page contains the target expense edit path)
+	expectedPath := "/expenses/" + url.PathEscape(expenseId)
+
 	// 3. Open the page and wait for slow SPA load.
-	if err := openPageTolerant(editURL, reportId); err != nil {
+	if err := openPageTolerant(editURL, expectedPath); err != nil {
 		return nil, err
 	}
 	time.Sleep(1500 * time.Millisecond)
@@ -117,6 +121,15 @@ func attachReceiptViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 				time.Sleep(300 * time.Millisecond)
 			}
 		}
+	}
+
+	// PATCH(amend-2026-11-04: verify page is on the expected expense before upload to prevent cross-expense hazard)
+	currentURL, err := agentBrowserCurrentURL()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read current browser URL before uploading: %w", err)
+	}
+	if !strings.Contains(currentURL, expectedPath) {
+		return nil, fmt.Errorf("browser is not on the expected expense edit page: expected path %q to be in current URL %q", expectedPath, currentURL)
 	}
 
 	// 4. Upload the receipt file using #upload-file selector, falling back to input[type=file].

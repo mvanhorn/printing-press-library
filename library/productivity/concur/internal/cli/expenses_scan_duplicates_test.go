@@ -423,3 +423,368 @@ func TestScanDuplicates_DetectCrossReportDuplicate(t *testing.T) {
 		t.Errorf("unexpected report ids for duplicates: %+v", reports)
 	}
 }
+
+// PATCH(amend-2026-11-04: test expenses dry run does not write sync timestamp and empty-but-real reports list does)
+func TestSync_ExpensesDryRunDoesNotWriteSyncTimestamp(t *testing.T) {
+	tempHome := t.TempDir()
+
+	// 1. Dry run
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"dry_run": true}`))
+	}))
+	defer server.Close()
+
+	t.Setenv("CONCUR_BASE_URL", server.URL)
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{
+		"sync",
+		"--resources", "expenses",
+		"--user-id", "test-user-id",
+		"--home", tempHome,
+		"--dry-run",
+		"--json",
+	})
+
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(os.Stderr)
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("sync execution failed in dry-run: %v", err)
+	}
+
+	db, err := store.Open(filepath.Join(tempHome, "data", "data.db"))
+	if err != nil {
+		t.Fatalf("opening test db: %v", err)
+	}
+
+	// Verify NO sync state row was written for expenses
+	var count int
+	_ = db.DB().QueryRow(`SELECT COUNT(*) FROM sync_state WHERE resource_type = 'expenses'`).Scan(&count)
+	if count != 0 {
+		t.Errorf("expected no sync_state row for expenses in dry-run, got %d", count)
+	}
+	db.Close()
+
+	// 2. Genuinely empty reports list
+	tempHome2 := t.TempDir()
+	server2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"links": [], "content": []}`))
+	}))
+	defer server2.Close()
+
+	t.Setenv("CONCUR_BASE_URL", server2.URL)
+
+	cmd2 := RootCmd()
+	cmd2.SetArgs([]string{
+		"sync",
+		"--resources", "expenses",
+		"--user-id", "test-user-id",
+		"--home", tempHome2,
+		"--json",
+	})
+
+	var out2 bytes.Buffer
+	cmd2.SetOut(&out2)
+	cmd2.SetErr(os.Stderr)
+
+	if err := cmd2.Execute(); err != nil {
+		t.Fatalf("sync execution failed with empty list: %v", err)
+	}
+
+	db2, err := store.Open(filepath.Join(tempHome2, "data", "data.db"))
+	if err != nil {
+		t.Fatalf("opening test db: %v", err)
+	}
+	defer db2.Close()
+
+	// Verify sync state row WAS written for expenses
+	var count2 int
+	_ = db2.DB().QueryRow(`SELECT COUNT(*) FROM sync_state WHERE resource_type = 'expenses' AND last_synced_at IS NOT NULL`).Scan(&count2)
+	if count2 != 1 {
+		t.Errorf("expected 1 sync_state row for expenses with empty list, got %d", count2)
+	}
+}
+
+// PATCH(amend-2026-11-04: test deletion/pruning of deleted expenses between syncs)
+func TestSync_ExpensesReconcilePruning(t *testing.T) {
+	tempHome := t.TempDir()
+
+	// First sync: Report 1 has exp-1 and exp-2. Report 2 has exp-3.
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		if strings.Contains(r.URL.Path, "/reports") && !strings.Contains(r.URL.Path, "/expenses") {
+			_, _ = w.Write([]byte(`{
+				"links": [],
+				"content": [
+					{"reportId": "report-1"},
+					{"reportId": "report-2"}
+				]
+			}`))
+			return
+		}
+
+		if strings.Contains(r.URL.Path, "/report-1/expenses") {
+			_, _ = w.Write([]byte(`[
+				{
+					"expenseId": "exp-1",
+					"transactionAmount": 50.0,
+					"expenseType": {"id": "01000"},
+					"transactionDate": "2026-11-01"
+				},
+				{
+					"expenseId": "exp-2",
+					"transactionAmount": 100.0,
+					"expenseType": {"id": "01000"},
+					"transactionDate": "2026-11-01"
+				}
+			]`))
+			return
+		}
+
+		if strings.Contains(r.URL.Path, "/report-2/expenses") {
+			_, _ = w.Write([]byte(`[
+				{
+					"expenseId": "exp-3",
+					"transactionAmount": 150.0,
+					"expenseType": {"id": "01000"},
+					"transactionDate": "2026-11-01"
+				}
+			]`))
+			return
+		}
+	}))
+
+	t.Setenv("CONCUR_BASE_URL", server.URL)
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{
+		"sync",
+		"--resources", "expenses",
+		"--user-id", "test-user-id",
+		"--home", tempHome,
+		"--json",
+	})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("first sync failed: %v", err)
+	}
+	server.Close()
+
+	// Verify we have 3 expenses
+	db, err := store.Open(filepath.Join(tempHome, "data", "data.db"))
+	if err != nil {
+		t.Fatalf("opening test db: %v", err)
+	}
+	var count int
+	_ = db.DB().QueryRow(`SELECT COUNT(*) FROM "expenses"`).Scan(&count)
+	if count != 3 {
+		t.Errorf("expected 3 stored expenses, got %d", count)
+	}
+	db.Close()
+
+	// Second sync: Report 1 loses exp-2 (pruned). Report 2 fails to fetch (remains as is).
+	server2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		if strings.Contains(r.URL.Path, "/reports") && !strings.Contains(r.URL.Path, "/expenses") {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{
+				"links": [],
+				"content": [
+					{"reportId": "report-1"},
+					{"reportId": "report-2"}
+				]
+			}`))
+			return
+		}
+
+		if strings.Contains(r.URL.Path, "/report-1/expenses") {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`[
+				{
+					"expenseId": "exp-1",
+					"transactionAmount": 50.0,
+					"expenseType": {"id": "01000"},
+					"transactionDate": "2026-11-01"
+				}
+			]`))
+			return
+		}
+
+		if strings.Contains(r.URL.Path, "/report-2/expenses") {
+			// Failed to fetch Report 2
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"errorMessage": "internal error"}`))
+			return
+		}
+	}))
+	defer server2.Close()
+
+	t.Setenv("CONCUR_BASE_URL", server2.URL)
+
+	cmd2 := RootCmd()
+	cmd2.SetArgs([]string{
+		"sync",
+		"--resources", "expenses",
+		"--user-id", "test-user-id",
+		"--home", tempHome,
+		"--full",
+		"--json",
+	})
+	_ = cmd2.Execute() // might return error due to Report 2 failure, but Report 1 should prune!
+
+	// Verify database state: exp-2 is gone (pruned), but exp-3 is still there (since Report 2 failed to fetch)
+	db2, err := store.Open(filepath.Join(tempHome, "data", "data.db"))
+	if err != nil {
+		t.Fatalf("opening test db: %v", err)
+	}
+	defer db2.Close()
+
+	rows, err := db2.DB().Query(`SELECT expense_id FROM "expenses" ORDER BY expense_id`)
+	if err != nil {
+		t.Fatalf("querying expenses: %v", err)
+	}
+	defer rows.Close()
+
+	var remaining []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err == nil {
+			remaining = append(remaining, id)
+		}
+	}
+
+	wantRemaining := []string{"exp-1", "exp-3"}
+	if len(remaining) != len(wantRemaining) || remaining[0] != wantRemaining[0] || remaining[1] != wantRemaining[1] {
+		t.Errorf("expected remaining expenses %v, got %v", wantRemaining, remaining)
+	}
+
+	// Test `--no-prune` keeps exp-2 if it is synced back and lost again
+	// Let's manually insert exp-2 back into db
+	_, _, _ = db2.UpsertBatch("expenses", []json.RawMessage{[]byte(`{
+		"expenseId": "exp-2",
+		"reportId": "report-1",
+		"report_id": "report-1",
+		"transactionAmount": {"value": 100.0},
+		"expenseType": {"id": "01000"},
+		"transactionDate": "2026-11-01"
+	}`)})
+
+	// Third sync: Report 1 still only has exp-1, but we use `--no-prune` flag
+	server3 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		if strings.Contains(r.URL.Path, "/reports") && !strings.Contains(r.URL.Path, "/expenses") {
+			_, _ = w.Write([]byte(`{
+				"links": [],
+				"content": [
+					{"reportId": "report-1"}
+				]
+			}`))
+			return
+		}
+
+		if strings.Contains(r.URL.Path, "/report-1/expenses") {
+			_, _ = w.Write([]byte(`[
+				{
+					"expenseId": "exp-1",
+					"transactionAmount": 50.0,
+					"expenseType": {"id": "01000"},
+					"transactionDate": "2026-11-01"
+				}
+			]`))
+			return
+		}
+	}))
+	defer server3.Close()
+
+	t.Setenv("CONCUR_BASE_URL", server3.URL)
+
+	cmd3 := RootCmd()
+	cmd3.SetArgs([]string{
+		"sync",
+		"--resources", "expenses",
+		"--user-id", "test-user-id",
+		"--home", tempHome,
+		"--no-prune",
+		"--json",
+	})
+	if err := cmd3.Execute(); err != nil {
+		t.Fatalf("third sync with --no-prune failed: %v", err)
+	}
+
+	// Verify database: exp-2 is STILL there because `--no-prune` was specified!
+	db3, err := store.Open(filepath.Join(tempHome, "data", "data.db"))
+	if err != nil {
+		t.Fatalf("opening test db: %v", err)
+	}
+	defer db3.Close()
+
+	var count3 int
+	_ = db3.DB().QueryRow(`SELECT COUNT(*) FROM "expenses" WHERE expense_id = 'exp-2'`).Scan(&count3)
+	if count3 != 1 {
+		t.Errorf("expected exp-2 to be kept under --no-prune, but it was pruned (count = %d)", count3)
+	}
+}
+
+// PATCH(amend-2026-11-04: expenses reconcile on every sync) -- a default
+// (non --full) sync must drop an expense deleted in Concur, because each
+// report is fetched as a complete listing.
+func TestSync_ExpensesReconcileWithoutFull(t *testing.T) {
+	tempHome := t.TempDir()
+	expenseJSON := func(id string) string {
+		return `{"expenseId":"` + id + `","transactionAmount":50.0,"expenseType":{"id":"01000"},"transactionDate":"2026-11-01"}`
+	}
+	runSync := func(t *testing.T, expenses ...string) {
+		t.Helper()
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			if strings.Contains(r.URL.Path, "/report-1/expenses") {
+				_, _ = w.Write([]byte("[" + strings.Join(expenses, ",") + "]"))
+				return
+			}
+			_, _ = w.Write([]byte(`{"links":[],"content":[{"reportId":"report-1"}]}`))
+		}))
+		defer server.Close()
+		t.Setenv("CONCUR_BASE_URL", server.URL)
+		t.Setenv("PRINTING_PRESS_VERIFY", "1")
+		t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+		cmd := RootCmd()
+		cmd.SetArgs([]string{"sync", "--resources", "expenses", "--user-id", "test-user-id", "--home", tempHome, "--json"})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("sync failed: %v", err)
+		}
+	}
+	countExpenses := func(t *testing.T) int {
+		t.Helper()
+		db, err := store.Open(filepath.Join(tempHome, "data", "data.db"))
+		if err != nil {
+			t.Fatalf("opening test db: %v", err)
+		}
+		defer db.Close()
+		var n int
+		_ = db.DB().QueryRow(`SELECT COUNT(*) FROM "expenses"`).Scan(&n)
+		return n
+	}
+
+	runSync(t, expenseJSON("exp-1"), expenseJSON("exp-2"))
+	if got := countExpenses(t); got != 2 {
+		t.Fatalf("after first sync: %d expenses, want 2", got)
+	}
+	runSync(t, expenseJSON("exp-1"))
+	if got := countExpenses(t); got != 1 {
+		t.Errorf("after second sync without --full: %d expenses, want 1 (exp-2 deleted in Concur)", got)
+	}
+}

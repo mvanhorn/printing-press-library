@@ -4,7 +4,7 @@
   "base_run_id": "20260812-144651-60addfc5",
   "base_printing_press_version": "4.30.3",
   "id": "expenses-per-report-sync-and-trustworthy-scan-duplicates",
-  "summary": "feat(concur): sync --resources expenses iterates reports; scan-duplicates refuses a never-synced store and ignores rows without a report",
+  "summary": "feat(concur): sync --resources expenses iterates reports and reconciles deletions; scan-duplicates refuses a never-synced store and ignores rows without a report",
   "reason": "sync --resources expenses was unimplemented, yet expenses scan-duplicates still printed duplicate groups built from stale local rows that had no report_id. A user relying on it to avoid double-filing got a misleading answer.",
   "files": [
     "internal/cli/sync.go",
@@ -16,7 +16,7 @@
   "call_sites": [
     "syncExpensesResource("
   ],
-  "validated_outcome": "Unit tests cover per-report sync, a failing report mid-run, refusal on a never-synced store, ignoring empty report_id rows, and a real cross-report duplicate. Live against a real tenant (read-only API calls): sync fetched 268 expenses from the newest 100 reports and scan-duplicates reported the data age.",
+  "validated_outcome": "Unit tests cover per-report sync, a failing report mid-run, refusal on a never-synced store, ignoring empty report_id rows, and a real cross-report duplicate. Live against a real tenant (read-only API calls): sync fetched 268 expenses from the newest 100 reports and scan-duplicates reported the data age. After review: a dry-run sync no longer writes sync state; each fetched report's missing expenses are dropped in the same transaction as the upsert (skipped under --no-prune or when any item in the listing could not be read). Live: dry-run left the sync timestamp unchanged and a real sync updated it.",
   "findings_addressed": [
     "F7"
   ]

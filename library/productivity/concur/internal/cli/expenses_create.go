@@ -618,9 +618,7 @@ func createExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 	defer c.InvalidateCache()
 	var saveErr error
 	if err := clickWithNavigationRetry(saveRef, "/expenses/new", "Save Expense", "button", stepTimeout); err != nil {
-		if _, ok := err.(*ClickEarlierAttemptMayHaveLandedError); !ok {
-			return nil, 0, err
-		}
+		// PATCH(amend-2026-11-04: after ANY error from clickWithNavigationRetry, proceed to verification)
 		saveErr = err
 	}
 

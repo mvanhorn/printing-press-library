@@ -22,7 +22,7 @@
     "waitForEitherRefExcluding(",
     "ClickEarlierAttemptMayHaveLandedError"
   ],
-  "validated_outcome": "Unit tests cover visibility activation, calendar open retry, verify-before-fail on save, Proceed and legacy submit dialogs, deterministic confirm-button priority, and tolerant page open. Live against a real tenant with the Chrome window hidden: two consecutive expenses create runs succeeded. The reports submit fallback was not run live (it would notify an approver); its Proceed dialog was confirmed by driving the page by hand.",
+  "validated_outcome": "Unit tests cover visibility activation, calendar open retry, verify-before-fail on save, Proceed and legacy submit dialogs, deterministic confirm-button priority, and tolerant page open. Live against a real tenant with the Chrome window hidden: two consecutive expenses create runs succeeded. The reports submit fallback was not run live (it would notify an approver); its Proceed dialog was confirmed by driving the page by hand. After review, the post-save verification runs after any save-click error (not only the 'earlier click may have landed' kind); a failed verification returns the partial-success warning. Re-run live on the revised code: two consecutive expenses create runs succeeded with the Chrome window hidden.",
   "findings_addressed": [
     "F2",
     "F3",

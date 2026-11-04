@@ -51,6 +51,7 @@ type syncCtxKey string
 
 const userIdKey syncCtxKey = "userId"
 const contextTypeKey syncCtxKey = "contextType"
+const noPruneKey syncCtxKey = "noPrune"
 
 func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var resources []string
@@ -227,6 +228,7 @@ Resource scoping:
 			// PATCH(amend-2026-11-03: real per-report expense sync context variables)
 			ctx := context.WithValue(cmd.Context(), userIdKey, flagUserId)
 			ctx = context.WithValue(ctx, contextTypeKey, flagContextType)
+			ctx = context.WithValue(ctx, noPruneKey, noPrune)
 
 			started := time.Now()
 			// prune gates deletion reconciliation: a full sync prunes local rows
@@ -369,7 +371,7 @@ Resource scoping:
 
 	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).")
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
-	cmd.Flags().BoolVar(&noPrune, "no-prune", false, "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)")
+	cmd.Flags().BoolVar(&noPrune, "no-prune", false, "Disable deletion reconciliation (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition, and expenses are reconciled per fetched report on every sync)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
@@ -385,11 +387,11 @@ Resource scoping:
 	return cmd
 }
 
-// PATCH(amend-2026-11-03: real per-report expense sync implementation)
+// PATCH(amend-2026-11-04: real per-report expense sync implementation with prune support)
 func syncExpensesResource(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, sinceTS string, maxPages int, userParams *syncUserParams, syncEvents io.Writer, started time.Time) syncResult {
+}, db *store.Store, sinceTS string, maxPages int, prune bool, userParams *syncUserParams, syncEvents io.Writer, started time.Time) syncResult {
 	userId, _ := ctx.Value(userIdKey).(string)
 	contextType, _ := ctx.Value(contextTypeKey).(string)
 	if contextType == "" {
@@ -437,6 +439,14 @@ func syncExpensesResource(ctx context.Context, c interface {
 				fmt.Fprintln(syncEvents, syncErrorJSON("expenses", "", err))
 			}
 			return syncResult{Resource: "expenses", Err: err, Duration: time.Since(started)}
+		}
+
+		// PATCH(amend-2026-11-04: detect dry run before parsing or saving state)
+		if isDryRunResponseForClient(c, data) {
+			if !humanFriendly {
+				fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"expenses"}`+"\n")
+			}
+			return syncResult{Resource: "expenses", Count: 0, Duration: time.Since(started)}
 		}
 
 		var resp struct {
@@ -497,6 +507,7 @@ func syncExpensesResource(ctx context.Context, c interface {
 	type reportResult struct {
 		reportID string
 		count    int
+		pruned   int
 		err      error
 	}
 
@@ -565,11 +576,12 @@ func syncExpensesResource(ctx context.Context, c interface {
 					}
 				}
 
-				stored, _, upsertErr := upsertResourceBatch(db, "expenses", modifiedItems)
+				// PATCH(amend-2026-11-04: upsert and prune deleted expenses in a single transaction)
+				stored, pruned, _, upsertErr := db.UpsertAndReconcileExpenses(modifiedItems, job.reportID, prune)
 				if upsertErr != nil {
 					resultChan <- reportResult{reportID: job.reportID, err: upsertErr}
 				} else {
-					resultChan <- reportResult{reportID: job.reportID, count: stored}
+					resultChan <- reportResult{reportID: job.reportID, count: stored, pruned: pruned}
 				}
 			}
 		}()
@@ -579,6 +591,8 @@ func syncExpensesResource(ctx context.Context, c interface {
 	close(resultChan)
 
 	var totalStored int
+	// PATCH(amend-2026-11-04: track total pruned expenses)
+	var totalPruned int
 	var reportErrors []error
 	var progressCount int64
 
@@ -592,20 +606,37 @@ func syncExpensesResource(ctx context.Context, c interface {
 			}
 		} else {
 			totalStored += res.count
+			totalPruned += res.pruned
 			atomic.AddInt64(&progressCount, int64(res.count))
 
 			currentRate := c.RateLimit()
 			if humanFriendly {
 				if currentRate > 0 {
-					fmt.Fprintf(os.Stderr, "\r  expenses: %d synced [%.1f req/s]", atomic.LoadInt64(&progressCount), currentRate)
+					if res.pruned > 0 {
+						fmt.Fprintf(os.Stderr, "\r  expenses: %d synced, %d pruned [%.1f req/s]", atomic.LoadInt64(&progressCount), res.pruned, currentRate)
+					} else {
+						fmt.Fprintf(os.Stderr, "\r  expenses: %d synced [%.1f req/s]", atomic.LoadInt64(&progressCount), currentRate)
+					}
 				} else {
-					fmt.Fprintf(os.Stderr, "\r  expenses: %d synced", atomic.LoadInt64(&progressCount))
+					if res.pruned > 0 {
+						fmt.Fprintf(os.Stderr, "\r  expenses: %d synced, %d pruned", atomic.LoadInt64(&progressCount), res.pruned)
+					} else {
+						fmt.Fprintf(os.Stderr, "\r  expenses: %d synced", atomic.LoadInt64(&progressCount))
+					}
 				}
 			} else {
 				if currentRate > 0 {
-					fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"expenses","fetched":%d,"rate_rps":%.1f}`+"\n", atomic.LoadInt64(&progressCount), currentRate)
+					if res.pruned > 0 {
+						fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"expenses","fetched":%d,"rate_rps":%.1f,"pruned":%d}`+"\n", atomic.LoadInt64(&progressCount), currentRate, res.pruned)
+					} else {
+						fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"expenses","fetched":%d,"rate_rps":%.1f}`+"\n", atomic.LoadInt64(&progressCount), currentRate)
+					}
 				} else {
-					fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"expenses","fetched":%d}`+"\n", atomic.LoadInt64(&progressCount))
+					if res.pruned > 0 {
+						fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"expenses","fetched":%d,"pruned":%d}`+"\n", atomic.LoadInt64(&progressCount), res.pruned)
+					} else {
+						fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"expenses","fetched":%d}`+"\n", atomic.LoadInt64(&progressCount))
+					}
 				}
 			}
 		}
@@ -640,7 +671,11 @@ func syncExpensesResource(ctx context.Context, c interface {
 	}
 
 	if !humanFriendly {
-		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"expenses","total":%d,"duration_ms":%d}`+"\n", cachedCount, time.Since(started).Milliseconds())
+		if totalPruned > 0 {
+			fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"expenses","total":%d,"duration_ms":%d,"pruned":%d}`+"\n", cachedCount, time.Since(started).Milliseconds(), totalPruned)
+		} else {
+			fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"expenses","total":%d,"duration_ms":%d}`+"\n", cachedCount, time.Since(started).Milliseconds())
+		}
 	}
 
 	var combinedErr error
@@ -669,8 +704,12 @@ func syncResource(ctx context.Context, c interface {
 	}
 
 	if resource == "expenses" {
-		// PATCH(amend-2026-11-03: real per-report expense sync)
-		return syncExpensesResource(ctx, c, db, sinceTS, maxPages, userParams, syncEvents, started)
+		// PATCH(amend-2026-11-04: expenses reconcile on every sync) -- each report is
+		// fetched as a complete listing, so rows missing from it were deleted in
+		// Concur; waiting for --full would leave them in scan-duplicates results.
+		// --no-prune still disables the deletion.
+		noPrune, _ := ctx.Value(noPruneKey).(bool)
+		return syncExpensesResource(ctx, c, db, sinceTS, maxPages, !noPrune, userParams, syncEvents, started)
 	}
 
 	path, err := syncResourcePath(resource)
