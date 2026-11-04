@@ -17110,9 +17110,9 @@
       "path": "library/project-management/linear",
       "release": {
         "cli_name": "linear-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-01T20:48:29Z",
-        "source_commit": "bf4ae2f6dbc375a4e260b1b257497039f222bf87"
+        "version": "2026.11.1",
+        "released_at": "2026-11-04T10:09:25Z",
+        "source_commit": "76030e09efcbe0c2fcd88d985368e883ee4100ae"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
