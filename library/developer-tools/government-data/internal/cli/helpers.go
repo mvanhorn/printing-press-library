@@ -3429,7 +3429,7 @@ func compactObjectArrayValue(v any, keep []string, documentedFields ...map[strin
 	}
 	compactedRaw := compactListFields(items, keep, documentedFields...)
 	var compacted any
-	if err := json.Unmarshal(compactedRaw, &compacted); err != nil {
+	if err := unmarshalUseNumber(compactedRaw, &compacted); err != nil {
 		return nil, false
 	}
 	return compacted, true

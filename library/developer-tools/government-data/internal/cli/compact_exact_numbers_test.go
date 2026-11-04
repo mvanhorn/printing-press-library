@@ -24,6 +24,17 @@ func TestCompactFieldsKeepsExactNumbers(t *testing.T) {
 	}
 }
 
+func TestCompactFieldsKeepsExactNumbersInEnvelopeArrays(t *testing.T) {
+	env := json.RawMessage(`{"meta":{"total":2},"data":[{"id":"a","amount":9007199254740993},{"id":"b","amount":0.1}]}`)
+	out := string(compactFields(env))
+	if !strings.Contains(out, `9007199254740993`) || !strings.Contains(out, `0.1`) {
+		t.Fatalf("envelope array compaction changed numbers: %s", out)
+	}
+	if strings.Contains(out, `9007199254740992`) {
+		t.Fatalf("envelope array compaction rounded a large integer: %s", out)
+	}
+}
+
 func TestPrintOutputKeepsExactNumbersInObjects(t *testing.T) {
 	var buf bytes.Buffer
 	if err := printOutput(&buf, json.RawMessage(`{"val":9007199254740993}`), false); err != nil {
