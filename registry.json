@@ -12592,6 +12592,12 @@
         "Compare declared formats within a saved topic scope."
       ],
       "path": "library/developer-tools/government-data",
+      "release": {
+        "cli_name": "government-data-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-04T10:32:15Z",
+        "source_commit": "feb4460c14653b09d19d8bc8718d0ff2c6a2d0b9"
+      },
       "printer": "Jon-275",
       "printer_name": "Jon Malone",
       "creator": {
@@ -12818,9 +12824,9 @@
       "path": "library/other/gravitus",
       "release": {
         "cli_name": "gravitus-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "b815f4cc4ec8054b6fec93c9f9a2e7f2220153ff"
+        "version": "2026.11.1",
+        "released_at": "2026-11-04T10:33:27Z",
+        "source_commit": "8311bf6ae341354ee768e731405d7eb4048217f5"
       },
       "printer": "azaaron",
       "printer_name": "mvanhorn",
