@@ -47,6 +47,11 @@ type Config struct {
 	BundleSHA       string    `json:"bundle_sha,omitempty"`
 	UpdatedAt       time.Time `json:"updated_at,omitempty"`
 
+	// PATCH (instacart-regional-host): Instacart site hostname, e.g.
+	// "www.instacart.ca". Empty means www.instacart.com; $INSTACART_HOST
+	// overrides it per invocation.
+	Host string `json:"host,omitempty"`
+
 	// PATCH (instacart-address-profiles): named address profiles + which one
 	// is active. The top-level location fields above still drive every
 	// GraphQL call; switching profiles is implemented by copying the

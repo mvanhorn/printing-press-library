@@ -124,6 +124,20 @@ operations: search, add, remove, show carts across retailers.
 No browser automation. No Playwright. No Composio subscription. Just a binary.`,
 		SilenceUsage:  true,
 		SilenceErrors: false,
+		// PATCH (instacart-regional-host): select the regional site before
+		// any command builds a request or reads cookies.
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			var configured string
+			if cfg, err := config.Load(); err == nil {
+				configured = cfg.Host
+			}
+			host, err := auth.ResolveHost(configured)
+			if err != nil {
+				return coded(ExitUsage, "%v", err)
+			}
+			auth.SetHost(host)
+			return nil
+		},
 	}
 
 	root.PersistentFlags().Bool("json", false, "Output machine-readable JSON instead of pretty text")
