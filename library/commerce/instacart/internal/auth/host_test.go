@@ -16,7 +16,7 @@ func TestNormalizeHost(t *testing.T) {
 			t.Errorf("NormalizeHost(%q) = %q, %v; want %q", in, got, err, want)
 		}
 	}
-	for _, bad := range []string{"evil.com", "www.instacart.ca.evil.com", "instacart.ca/graphql", "user@www.instacart.ca", "www.instacart.ca:8443", "instacart"} {
+	for _, bad := range []string{"evil.com", "www.instacart.ca.evil.com", "instacart.ca/graphql", "user@www.instacart.ca", "www.instacart.ca:8443", "instacart", "www.instacart.co.uk", "shop.instacart.ca", "instacart.evil"} {
 		if got, err := NormalizeHost(bad); err == nil {
 			t.Errorf("NormalizeHost(%q) = %q, want error", bad, got)
 		}

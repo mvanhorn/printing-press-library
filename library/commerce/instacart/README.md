@@ -79,8 +79,8 @@ INSTACART_HOST=www.instacart.ca ./instacart carts   # per-invocation override
 ```
 
 The host drives the GraphQL endpoint, the Origin/Referer headers, and which
-browser cookies `auth login` / `auth import-file` pick up. Only
-`instacart.<tld>` hostnames are accepted.
+browser cookies `auth login` / `auth import-file` pick up. Supported sites are
+`www.instacart.com` and `www.instacart.ca`.
 
 ## First-time history backfill
 

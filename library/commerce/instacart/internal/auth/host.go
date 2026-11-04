@@ -18,9 +18,13 @@ const HostEnv = "INSTACART_HOST"
 
 var activeHost = DefaultHost
 
-// NormalizeHost strips an optional scheme and trailing slash and rejects
-// anything that is not an Instacart domain, so session cookies are never
-// sent to an unrelated host.
+// knownDomains are the Instacart sites this CLI accepts. Only domains
+// Instacart operates are listed, so session cookies never go to a host
+// someone else might own.
+var knownDomains = []string{"instacart.com", "instacart.ca"}
+
+// NormalizeHost strips an optional scheme and trailing slash and accepts only
+// a known Instacart domain, bare or with "www.".
 func NormalizeHost(h string) (string, error) {
 	h = strings.ToLower(strings.TrimSpace(h))
 	h = strings.TrimPrefix(strings.TrimPrefix(h, "https://"), "http://")
@@ -28,14 +32,12 @@ func NormalizeHost(h string) (string, error) {
 	if h == "" {
 		return DefaultHost, nil
 	}
-	if strings.ContainsAny(h, "/:@?# ") {
-		return "", fmt.Errorf("invalid Instacart host %q: want a bare hostname like www.instacart.ca", h)
+	for _, d := range knownDomains {
+		if h == d || h == "www."+d {
+			return h, nil
+		}
 	}
-	labels := strings.Split(h, ".")
-	if len(labels) < 2 || labels[len(labels)-2] != "instacart" || labels[len(labels)-1] == "" {
-		return "", fmt.Errorf("invalid Instacart host %q: must be an instacart.<tld> domain such as www.instacart.ca", h)
-	}
-	return h, nil
+	return "", fmt.Errorf("unsupported Instacart host %q: want one of www.instacart.com, www.instacart.ca", h)
 }
 
 // ResolveHost picks the host: $INSTACART_HOST, then the configured value,

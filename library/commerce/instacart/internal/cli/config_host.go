@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -18,7 +19,7 @@ func newConfigSetHostCmd() *cobra.Command {
 		Short: "Set the Instacart site to use (e.g. www.instacart.ca); default www.instacart.com",
 		Long: `Selects the regional Instacart site. The host drives the GraphQL endpoint,
 the Origin/Referer headers, and which browser cookies ` + "`auth login`" + ` imports.
-Only instacart.<tld> hostnames are accepted.
+Supported sites: www.instacart.com and www.instacart.ca.
 
 The INSTACART_HOST environment variable overrides this setting for a single
 invocation. Pass "default" to go back to www.instacart.com. Run
@@ -49,6 +50,9 @@ invocation. Pass "default" to go back to www.instacart.com. Run
 			}
 			if err := cfg.Save(); err != nil {
 				return err
+			}
+			if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
+				return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"saved": true, "host": host})
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "host set to %s\n", host)
 			return nil
