@@ -12566,6 +12566,54 @@
       }
     },
     {
+      "name": "government-data",
+      "category": "developer-tools",
+      "api": "Government Data",
+      "description": "Find California and U.S. open datasets and SEC EDGAR filings with clear provenance.",
+      "search_terms": [
+        "government-data",
+        "Government Data",
+        "government-data-pp-cli",
+        "Find California and U.S. open datasets and SEC EDGAR filings with clear provenance.",
+        "Shared resource evidence",
+        "overlap",
+        "Find exact resource URLs shared across saved catalog records.",
+        "Saved metadata changes",
+        "changes",
+        "Compare metadata and resource links between two explicit snapshots.",
+        "Selection provenance lock",
+        "intake lock",
+        "Save selected resource URLs and metadata fingerprints for repeatable intake.",
+        "Metadata intake audit",
+        "intake audit",
+        "List missing metadata fields before selecting resources.",
+        "Saved format coverage",
+        "coverage",
+        "Compare declared formats within a saved topic scope."
+      ],
+      "path": "library/developer-tools/government-data",
+      "printer": "Jon-275",
+      "printer_name": "Jon Malone",
+      "creator": {
+        "handle": "Jon-275",
+        "name": "Jon Malone"
+      },
+      "mcp": {
+        "binary": "government-data-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 10,
+        "public_tool_count": 6,
+        "auth_type": "api_key",
+        "env_vars": [
+          "DATA_GOV_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "govspend",
       "category": "other",
       "api": "Govspend",
