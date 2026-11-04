@@ -3020,19 +3020,39 @@ func compactFields(data json.RawMessage, documentedFields ...map[string]bool) js
 // compaction keeps only gravity names and would drop the keys the caller
 // asked --agent/--compact to retain.
 func compactFieldsKeep(data json.RawMessage, keep []string, documentedFields ...map[string]bool) json.RawMessage {
-	// Try array first
+	// Try array first. Decode numbers as json.Number so compaction keeps
+	// exact values (SEC facts and other large integers) instead of
+	// round-tripping them through float64.
 	var items []map[string]any
-	if err := json.Unmarshal(data, &items); err == nil {
+	if err := unmarshalUseNumber(data, &items); err == nil {
 		return compactListFields(items, keep, documentedFields...)
 	}
 
 	// Single object — use blocklist
 	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err == nil {
+	if err := unmarshalUseNumber(data, &obj); err == nil {
 		return compactObjectFields(obj, keep, documentedFields...)
 	}
 
 	return data
+}
+
+// unmarshalUseNumber decodes one JSON value with UseNumber and rejects
+// trailing data, matching json.Unmarshal's contract.
+func unmarshalUseNumber(data []byte, v any) error {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	if err := dec.Decode(v); err != nil {
+		return err
+	}
+	if dec.More() {
+		return fmt.Errorf("unexpected trailing JSON data")
+	}
+	var extra json.RawMessage
+	if err := dec.Decode(&extra); err != io.EOF {
+		return fmt.Errorf("unexpected trailing JSON data")
+	}
+	return nil
 }
 
 // Endpoint-mirror commands pass documented fields into compactListFields;
@@ -3152,7 +3172,7 @@ func isCompactPresenceFlagName(name string) bool {
 
 func isCompactMarkerScalar(value any) bool {
 	switch v := value.(type) {
-	case nil, bool, float64:
+	case nil, bool, float64, json.Number:
 		return true
 	case string:
 		return compactMarkerStringOK(v)
@@ -3324,7 +3344,7 @@ func compactListFields(items []map[string]any, keep []string, documentedFields .
 // display density, not whether a field carries agent-useful payload.
 func isCompactScalar(v any) bool {
 	switch v.(type) {
-	case nil, bool, float64, string:
+	case nil, bool, float64, json.Number, string:
 		return true
 	default:
 		return false
@@ -3846,7 +3866,7 @@ func printOutput(w io.Writer, data json.RawMessage, asJSON bool) error {
 
 	// Single object - pretty print
 	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err == nil {
+	if err := unmarshalUseNumber(data, &obj); err == nil {
 		return writeEncodedJSON(w, obj, "", "  ")
 	}
 
