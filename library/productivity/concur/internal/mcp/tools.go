@@ -229,16 +229,6 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/expenseconfig/v4/paymenttypes", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
-		mcplib.NewTool("receipts_attach",
-			mcplib.WithDescription("Attach a receipt image or PDF to an expense. Required: expense-id, file. Returns the new Receipt."),
-			mcplib.WithString("expense-id", mcplib.Required(), mcplib.Description("Expense ID to attach the receipt to")),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("Local path to the receipt image or PDF")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/receiptimages/v1/{expense_id}", false, true, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "expense-id", WireName: "expense_id", Location: "path"}, {PublicName: "file", WireName: "file_path", Location: "body"}}, []string{"expense_id"}),
-	)
-	s.AddTool(
 		mcplib.NewTool("reports_create",
 			mcplib.WithDescription("Create a new expense report header. Required: user_id, context-type (default: TRAVELER), name. Optional: purpose. Returns the new Report."),
 			mcplib.WithString("user_id", mcplib.Required(), mcplib.Description("Concur user ID (from 'account whoami')")),

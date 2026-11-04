@@ -32,7 +32,7 @@ func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge tim
 	if err != nil || w == nil {
 		return
 	}
-	if !state.hasState {
+	if !state.hasState || state.lastSynced.IsZero() || state.lastSynced.Year() <= 1 {
 		fmt.Fprintf(w, "hint: local store has not been synced yet. Run 'concur-pp-cli sync' before trusting local results.\n")
 		return
 	}
@@ -51,7 +51,7 @@ func hintIfUnsynced(cmd *cobra.Command, db *store.Store, resourceType string) bo
 		return false
 	}
 	state, err := readSyncHintState(db, resourceType)
-	if err != nil || state.hasState {
+	if err != nil || (state.hasState && !state.lastSynced.IsZero() && state.lastSynced.Year() > 1) {
 		return false
 	}
 	fmt.Fprintf(cmd.ErrOrStderr(), "hint: local store has not been synced yet. Run 'concur-pp-cli sync' before trusting local results.\n")
@@ -63,7 +63,7 @@ func hintIfStale(cmd *cobra.Command, db *store.Store, resourceType string, maxAg
 		return false
 	}
 	state, err := readSyncHintState(db, resourceType)
-	if err != nil || !state.hasState {
+	if err != nil || !state.hasState || state.lastSynced.IsZero() || state.lastSynced.Year() <= 1 {
 		return false
 	}
 	age := time.Since(state.lastSynced)

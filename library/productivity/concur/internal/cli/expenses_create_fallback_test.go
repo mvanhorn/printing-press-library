@@ -838,3 +838,354 @@ exit 0
 		t.Error("expected Save Expense to NEVER be clicked when a requested field can't be filled, but it was")
 	}
 }
+
+// TestFillTransactionDate_OpeningStrategies covers the opening strategies for the date-picker calendar
+func TestFillTransactionDate_OpeningStrategies(t *testing.T) {
+	oldPath := os.Getenv("PATH")
+	defer os.Setenv("PATH", oldPath)
+
+	tests := []struct {
+		name         string
+		setupMock    func(tmpDir string) string
+		wantError    bool
+		errorSubstrs []string
+	}{
+		{
+			name: "calendar opens on first click",
+			setupMock: func(tmpDir string) string {
+				return `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "snapshot" ]; then
+	echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Open calendar","role":"button"},"e2":{"name":"September","role":"button"},"e3":{"name":"2026","role":"button"},"e4":{"name":"Tuesday September 15, 2026","role":"button"}}}}'
+	exit 0
+fi
+if [ "$arg1" = "click" ]; then
+	exit 0
+fi
+exit 0
+`
+			},
+			wantError: false,
+		},
+		{
+			name: "calendar opens only on retry",
+			setupMock: func(tmpDir string) string {
+				return `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "snapshot" ]; then
+	if [ -f "$TMP_DIR/attempt2" ]; then
+		echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Open calendar","role":"button"},"e2":{"name":"September","role":"button"},"e3":{"name":"2026","role":"button"},"e4":{"name":"Tuesday September 15, 2026","role":"button"}}}}'
+	else
+		touch "$TMP_DIR/attempt2"
+		echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Open calendar","role":"button"}}}}'
+	fi
+	exit 0
+fi
+if [ "$arg1" = "click" ]; then
+	exit 0
+fi
+exit 0
+`
+			},
+			wantError: false,
+		},
+		{
+			name: "never opens",
+			setupMock: func(tmpDir string) string {
+				return `#!/bin/bash
+arg1="$1"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Open calendar","role":"button"}}}}'
+exit 0
+`
+			},
+			wantError:    true,
+			errorSubstrs: []string{"all calendar opening strategies failed", "tried 3 ref clicks"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			mockBinPath := filepath.Join(tmpDir, "agent-browser")
+			script := tt.setupMock(tmpDir)
+			if err := os.WriteFile(mockBinPath, []byte(script), 0o755); err != nil {
+				t.Fatalf("writing mock binary: %v", err)
+			}
+			t.Setenv("PATH", tmpDir+string(filepath.ListSeparator)+oldPath)
+			t.Setenv("TMP_DIR", tmpDir)
+
+			target := time.Date(2026, 9, 15, 0, 0, 0, 0, time.UTC)
+			err := fillTransactionDate(target)
+			if tt.wantError {
+				if err == nil {
+					t.Fatal("expected an error, got nil")
+				}
+				for _, sub := range tt.errorSubstrs {
+					if !strings.Contains(err.Error(), sub) {
+						t.Errorf("expected error to contain %q, got %q", sub, err.Error())
+					}
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			}
+		})
+	}
+}
+
+// TestEnsurePageVisible covers page visibility checks and activation
+func TestEnsurePageVisible(t *testing.T) {
+	oldPath := os.Getenv("PATH")
+	defer os.Setenv("PATH", oldPath)
+
+	tests := []struct {
+		name      string
+		script    string
+		wantError bool
+	}{
+		{
+			name: "visible immediately - no tab call",
+			script: `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ] && [ "$arg2" = "document.visibilityState" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "tab" ]; then
+	exit 1
+fi
+exit 0
+`,
+			wantError: false,
+		},
+		{
+			name: "hidden then visible after tab call",
+			script: `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+	arg3="$5"
+fi
+if [ "$arg1" = "eval" ] && [ "$arg2" = "document.visibilityState" ]; then
+	if [ -f "$TMP_DIR/tab_called" ]; then
+		echo '"visible"'
+	else
+		echo '"hidden"'
+	fi
+	exit 0
+fi
+if [ "$arg1" = "tab" ] && [ "$arg2" = "list" ]; then
+	echo '{"success":true,"data":{"tabs":[{"active":true,"tabId":"t1"}]}}'
+	exit 0
+fi
+if [ "$arg1" = "tab" ] && [ "$arg2" = "t1" ]; then
+	touch "$TMP_DIR/tab_called"
+	exit 0
+fi
+exit 0
+`,
+			wantError: false,
+		},
+		{
+			name: "hidden and stays hidden - errors",
+			script: `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ] && [ "$arg2" = "document.visibilityState" ]; then
+	echo '"hidden"'
+	exit 0
+fi
+if [ "$arg1" = "tab" ] && [ "$arg2" = "list" ]; then
+	echo '{"success":true,"data":{"tabs":[{"active":true,"tabId":"t1"}]}}'
+	exit 0
+fi
+if [ "$arg1" = "tab" ] && [ "$arg2" = "t1" ]; then
+	exit 0
+fi
+exit 0
+`,
+			wantError: true,
+		},
+		{
+			name: "eval error - continues",
+			script: `#!/bin/bash
+arg1="$1"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo "some error" >&2
+	exit 1
+fi
+exit 0
+`,
+			wantError: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			mockBinPath := filepath.Join(tmpDir, "agent-browser")
+			if err := os.WriteFile(mockBinPath, []byte(tt.script), 0o755); err != nil {
+				t.Fatalf("writing mock binary: %v", err)
+			}
+			t.Setenv("PATH", tmpDir+string(filepath.ListSeparator)+oldPath)
+			t.Setenv("TMP_DIR", tmpDir)
+
+			err := ensurePageVisible()
+			if tt.wantError {
+				if err == nil {
+					t.Fatal("expected error, got nil")
+				}
+				if !strings.Contains(err.Error(), "the Concur browser window is hidden or minimized") {
+					t.Errorf("unexpected error: %v", err)
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			}
+		})
+	}
+}
+
+// TestOpenPageTolerant verifies openPageTolerant timeout, recovery and visibility check
+func TestOpenPageTolerant(t *testing.T) {
+	oldPath := os.Getenv("PATH")
+	defer os.Setenv("PATH", oldPath)
+
+	tests := []struct {
+		name      string
+		script    string
+		wantError bool
+	}{
+		{
+			name: "open succeeds immediately",
+			script: `#!/bin/bash
+arg1="$1"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "open" ]; then
+	exit 0
+fi
+exit 1
+`,
+			wantError: false,
+		},
+		{
+			name: "open times out but page loaded verified by polling current URL",
+			script: `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "open" ]; then
+	echo "✗ Operation timed out. The page may still be loading or the element may not exist." >&2
+	exit 1
+fi
+if [ "$arg1" = "get" ] && [ "$arg2" = "url" ]; then
+	echo "https://us2.concursolutions.com/nui/expense/reports/RPT-123"
+	exit 0
+fi
+exit 1
+`,
+			wantError: false,
+		},
+		{
+			name: "open times out and page not loaded",
+			script: `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "open" ]; then
+	echo "✗ Operation timed out. The page may still be loading or the element may not exist." >&2
+	exit 1
+fi
+if [ "$arg1" = "get" ] && [ "$arg2" = "url" ]; then
+	echo "https://us2.concursolutions.com/login"
+	exit 0
+fi
+exit 1
+`,
+			wantError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			mockBinPath := filepath.Join(tmpDir, "agent-browser")
+			if err := os.WriteFile(mockBinPath, []byte(tt.script), 0o755); err != nil {
+				t.Fatalf("writing mock binary: %v", err)
+			}
+			t.Setenv("PATH", tmpDir+string(filepath.ListSeparator)+oldPath)
+
+			err := openPageTolerant("https://us2.concursolutions.com/nui/expense/reports/RPT-123", "RPT-123")
+			if tt.wantError {
+				if err == nil {
+					t.Fatal("expected error, got nil")
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			}
+		})
+	}
+}

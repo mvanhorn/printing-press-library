@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-03",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "4.30.3",
+  "id": "harden-browser-fallbacks-visibility-save-submit",
+  "summary": "fix(concur): harden browser fallbacks - activate hidden Chrome tab, verify saves that report errors, handle the Proceed submit dialog, tolerate slow page opens",
+  "reason": "Live use of the fallbacks showed four failure modes: Concur's date picker never opens while the attached Chrome page is document.visibilityState hidden (every click method no-ops), a Save Expense click that persisted the expense was reported as a failure after a slow navigation made the retry click miss, the report-submit confirm dialog is now 'Report Summary' with a Proceed button instead of a second Submit Report button, and agent-browser open times out on Concur's slow SPA even when the page loaded.",
+  "files": [
+    "internal/cli/browser_fallback_helpers.go",
+    "internal/cli/browser_fallback_helpers_test.go",
+    "internal/cli/expenses_create.go",
+    "internal/cli/expenses_create_fallback_test.go",
+    "internal/cli/expenses_update.go",
+    "internal/cli/reports_create.go",
+    "internal/cli/reports_submit.go",
+    "internal/cli/reports_submit_fallback_test.go"
+  ],
+  "call_sites": [
+    "ensurePageVisible(",
+    "openPageTolerant(",
+    "waitForEitherRefExcluding(",
+    "ClickEarlierAttemptMayHaveLandedError"
+  ],
+  "validated_outcome": "Unit tests cover visibility activation, calendar open retry, verify-before-fail on save, Proceed and legacy submit dialogs, deterministic confirm-button priority, and tolerant page open. Live against a real tenant with the Chrome window hidden: two consecutive expenses create runs succeeded. The reports submit fallback was not run live (it would notify an approver); its Proceed dialog was confirmed by driving the page by hand.",
+  "findings_addressed": [
+    "F2",
+    "F3",
+    "F5"
+  ]
+}

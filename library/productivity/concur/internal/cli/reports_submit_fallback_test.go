@@ -327,3 +327,116 @@ exit 0
 		}
 	})
 }
+
+// TestReportsSubmit_BrowserFallback_ProceedVariant exercises the Proceed button variant for Bug 3
+func TestReportsSubmit_BrowserFallback_ProceedVariant(t *testing.T) {
+	tmpDir := t.TempDir()
+	mockBinPath := filepath.Join(tmpDir, "agent-browser")
+	stateFile := filepath.Join(tmpDir, "mock_submitted")
+	dialogOpenFile := filepath.Join(tmpDir, "mock_dialog_open")
+
+	mockScript := `#!/bin/bash
+arg1="$1"
+arg2="$2"
+
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+
+if [ "$arg1" = "--cdp" ]; then
+	echo '{"success": false}'
+	exit 0
+fi
+
+if [ "$arg1" = "get" ] && [ "$arg2" = "url" ]; then
+	echo "https://us2.concursolutions.com/nui/expense/reports/mock-report"
+	exit 0
+fi
+
+if [ "$arg1" = "snapshot" ]; then
+	if [ -f "$MOCK_STATE_FILE" ]; then
+		echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{}}}'
+	elif [ -f "$MOCK_DIALOG_OPEN_FILE" ]; then
+		echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Submit Report","role":"button"},"e2":{"name":"Proceed","role":"button"},"e3":{"name":"Cancel","role":"button"}}}}'
+	else
+		echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Submit Report","role":"button"}}}}'
+	fi
+	exit 0
+fi
+
+if [ "$arg1" = "click" ] && [ "$arg2" = "@e1" ]; then
+	touch "$MOCK_DIALOG_OPEN_FILE"
+	exit 0
+fi
+
+if [ "$arg1" = "click" ] && [ "$arg2" = "@e2" ]; then
+	touch "$MOCK_STATE_FILE"
+	exit 0
+fi
+
+exit 0
+`
+	if err := os.WriteFile(mockBinPath, []byte(mockScript), 0o755); err != nil {
+		t.Fatalf("writing mock binary: %v", err)
+	}
+
+	oldPath := os.Getenv("PATH")
+	t.Setenv("PATH", tmpDir+string(filepath.ListSeparator)+oldPath)
+	t.Setenv("MOCK_STATE_FILE", stateFile)
+	t.Setenv("MOCK_DIALOG_OPEN_FILE", dialogOpenFile)
+
+	_ = os.Remove(stateFile)
+	_ = os.Remove(dialogOpenFile)
+	stillCached := seedStaleCache(t)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case r.Method == "POST" && strings.HasSuffix(r.URL.Path, "/submit"):
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			_, _ = w.Write([]byte(`{"errorMessage":"Request method 'POST' is not supported","path":"/expensereports/v4/users/test-user-id/context/TRAVELER/reports/mock-report/submit"}`))
+		case r.Method == "GET" && strings.HasSuffix(r.URL.Path, "/mock-report"):
+			if _, err := os.Stat(stateFile); err == nil {
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"reportId":"mock-report","isSubmitted":true,"approvalStatus":"Pending Concur Audit Service"}`))
+			} else {
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"reportId":"mock-report","isSubmitted":false,"approvalStatus":"Not Submitted"}`))
+			}
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+
+	t.Setenv("CONCUR_BASE_URL", server.URL)
+	t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{
+		"reports", "submit", "mock-report",
+		"--user-id", "test-user-id",
+		"--json",
+	})
+
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(io.Discard)
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if _, err := os.Stat(dialogOpenFile); os.IsNotExist(err) {
+		t.Error("expected the page-level Submit Report button to be clicked, but it wasn't")
+	}
+	if _, err := os.Stat(stateFile); os.IsNotExist(err) {
+		t.Error("expected the Proceed button to be clicked, but it wasn't")
+	}
+	if stillCached() {
+		t.Error("the browser write left a stale cached read behind")
+	}
+}

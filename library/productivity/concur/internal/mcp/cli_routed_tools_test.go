@@ -32,6 +32,7 @@ func TestCLIRoutedToolsAreRegisteredAsChildCLITools(t *testing.T) {
 		"expenses_itemizations": {true, []string{"expense-id", "report-id", "user_id"}, []string{"context-type", "expense-id", "report-id", "user_id"}},
 		"reports_exceptions":    {true, []string{"report-id", "user_id"}, []string{"context-type", "report-id", "user_id"}},
 		"expenses_update_type":  {false, []string{"expense-id", "report-id", "type", "user_id"}, []string{"context-type", "expense-id", "report-id", "type", "user_id"}},
+		"receipts_attach":       {false, []string{"expense-id", "file"}, []string{"context-type", "expense-id", "file", "report-id", "user_id"}},
 	}
 	for name, w := range want {
 		entry, ok := registered[name]
@@ -88,6 +89,12 @@ func TestCLIRoutedToolBuildsCLIInvocation(t *testing.T) {
 			tool: "expenses_update_type",
 			args: map[string]any{"user_id": "u1", "report-id": "r1", "expense-id": "e1", "type": "Hotel Room"},
 			want: "expenses update --user-id=u1 --report-id=r1 --type=Hotel Room --agent -- e1",
+		},
+		{
+			name: "receipt attachment fallback",
+			tool: "receipts_attach",
+			args: map[string]any{"expense-id": "e1", "file": "receipt.pdf", "report-id": "r1", "user_id": "u1"},
+			want: "receipts --user-id=u1 --report-id=r1 --file=receipt.pdf --agent -- e1",
 		},
 		{
 			name: "surrounding whitespace is trimmed and blank optionals dropped",
