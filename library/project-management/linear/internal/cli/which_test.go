@@ -165,6 +165,10 @@ func TestWhichIndex_RoutesConventionalReadAndCommentQueries(t *testing.T) {
 		{query: "create a comment from a markdown file", want: "comments add"},
 		{query: "get issue by identifier", want: "issues <ID>"},
 		{query: "view document by slug", want: "documents <document-ref>"},
+		{query: "blocked by", want: "issues relations add"},
+		{query: "mark issue blocked by another issue", want: "issues relations add"},
+		{query: "show what blocks an issue", want: "issues relations list"},
+		{query: "remove blocked by relation", want: "issues relations remove"},
 	}
 	for _, tt := range tests {
 		got := rankWhich(whichIndex, tt.query, 1)

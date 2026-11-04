@@ -84,10 +84,10 @@ const projectStatusSelection = `
     updatedAt
     archivedAt`
 
-// issueRelationSyncSelection projects IssueRelation. Fields verified in
+// IssueRelationSelection projects IssueRelation. Fields verified in
 // api-inventory.json objects.IssueRelation, whose entire field set is id,
 // createdAt, updatedAt, archivedAt, type, issue and relatedIssue.
-const issueRelationSyncSelection = `
+const IssueRelationSelection = `
     id
     type
     createdAt
@@ -166,7 +166,7 @@ const ProjectStatusesSyncQuery = `query($first: Int!, $after: String) {
 // Query.issueRelations: verified live in api-inventory.json
 const IssueRelationsSyncQuery = `query($first: Int!, $after: String) {
   issueRelations(first: $first, after: $after) {
-    nodes {` + issueRelationSyncSelection + `
+    nodes {` + IssueRelationSelection + `
     }
     pageInfo { hasNextPage endCursor }
   }

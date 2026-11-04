@@ -87,7 +87,9 @@ Single-issue get resolution order (with --data-source auto, the default):
 Pass comma-separated identifiers to fetch several issues in one ordered response.
 Use 'issues list' for filtered listing against the local sqlite store.
 Use 'issues create --parent' or 'issues edit --parent/--no-parent' to manage
-parent and sub-issue links.`,
+parent and sub-issue links.
+Use 'issues relations list|add|remove' to read and change blocks, blocked-by,
+and related links.`,
 		Example: `  linear-pp-cli issues ESP-1155
   linear-pp-cli issues ESP-1155,ESP-1156 --agent
   linear-pp-cli issues list
@@ -95,7 +97,8 @@ parent and sub-issue links.`,
   linear-pp-cli issues list --assignee me --state started
   linear-pp-cli issues list --team ESP --state started --json
   linear-pp-cli issues create --title "child" --team ESP --parent ESP-1155 --agent
-  linear-pp-cli issues edit ESP-1156 --no-parent --agent`,
+  linear-pp-cli issues edit ESP-1156 --no-parent --agent
+  linear-pp-cli issues relations add ESP-1156 --blocked-by ESP-1155 --agent`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -110,6 +113,7 @@ parent and sub-issue links.`,
 	cmd.AddCommand(newIssuesSearchCmd(flags, &dbPath))
 	cmd.AddCommand(newIssuesCreateCmd(flags))
 	cmd.AddCommand(newIssuesEditCmd(flags, &dbPath))
+	cmd.AddCommand(newIssuesRelationsCmd(flags, &dbPath))
 	cmd.AddCommand(newIssuesReadAliasCmd(flags, &dbPath))
 	return cmd
 }
