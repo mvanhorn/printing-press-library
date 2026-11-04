@@ -66,6 +66,22 @@ note pointing you at the manual fallbacks below.
 ./instacart config show
 ```
 
+### Regional site (instacart.ca)
+
+The CLI talks to `www.instacart.com` by default. To use another regional
+site, such as Instacart Canada, set it once (then re-run `auth login`, since
+sessions are per site):
+
+```bash
+./instacart config set-host www.instacart.ca   # saved as "host" in config.json
+./instacart config set-host default            # back to www.instacart.com
+INSTACART_HOST=www.instacart.ca ./instacart carts   # per-invocation override
+```
+
+The host drives the GraphQL endpoint, the Origin/Referer headers, and which
+browser cookies `auth login` / `auth import-file` pick up. Only
+`instacart.<tld>` hostnames are accepted.
+
 ## First-time history backfill
 
 Optional but recommended. Once backfilled, `add` resolves items from your real purchase history ("Alden's Organic Limoncello Sorbet Bars" instead of whatever live search ranks first for "limoncello sorbet") and runs about 5x faster on repeated items.
@@ -131,9 +147,20 @@ notice to stderr.
 
 ```
 instacart carts                               # list every active cart across retailers
-instacart cart show <retailer-slug>           # show a specific cart's item count
+instacart cart show <retailer-slug>           # show a cart: names, qty, size, price, availability
 instacart cart remove <item-id> <retailer>    # remove an item from a cart
 ```
+
+`cart show` checks every line live against Instacart's `Items` query and
+marks lines the store can't fill as `UNAVAILABLE` (the web cart's "not
+available" lines), plus size and price when returned. Lines Instacart doesn't
+return at all are flagged `availability unknown`. With `--json`, each item
+adds `available`, `availability` (`available` / `low_stock` / `unavailable` /
+`unknown`), `stock_level`, `stock_label`, `price`, `price_per_unit` and
+`size`, and the envelope adds `unavailable_count` and `unknown_count`.
+`search` shows the same size, price and stock line per result (`--json`:
+`price_display`, `size`, `price_per_unit`, `available`, `availability`,
+`stock_label`).
 
 ### Account + discovery
 

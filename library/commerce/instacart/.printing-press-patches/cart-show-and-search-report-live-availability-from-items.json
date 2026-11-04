@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "cart-show-and-search-report-live-availability-from-items",
+  "applied_at": "2026-11-04",
+  "base_run_id": "2026-04-11T06:12:25Z",
+  "base_printing_press_version": "1.2.1",
+  "summary": "cart show and search report per-item availability, price and size from the persisted Items payload; cart show always calls Items (never answers from the name cache alone), availability.available is authoritative over stockLevel, lines Items omits are 'unknown', and partial Items errors are tolerated.",
+  "reason": "CartData carries no availability or price, so unavailable lines sat unnoticed in carts until checkout. Live data showed unavailable items usually keep stockLevel \"inStock\", omit items not offered at the shop, and return null price with an \"Internal Error\" field error; treating any of these naively hides unavailable items or fails the whole search. New JSON keys are additive.",
+  "files": [
+    "internal/gql/item_details.go",
+    "internal/gql/item_details_test.go",
+    "internal/gql/testdata/items_availability.json",
+    "internal/gql/testdata/cart_data.json",
+    "internal/gql/cart_items.go",
+    "internal/gql/search.go",
+    "internal/cli/carts.go",
+    "internal/cli/search.go",
+    "internal/cli/item_status.go",
+    "internal/cli/item_status_test.go"
+  ]
+}

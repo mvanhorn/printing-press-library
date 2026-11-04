@@ -104,13 +104,13 @@ Cart operations:
 - `instacart add <retailer> <query...>` - add a product by natural language
 - `instacart add <retailer> <query...> --no-history` - skip the history-first resolver
 - `instacart add --item-id <id> <retailer>` - add by exact Instacart item id
-- `instacart cart show <retailer>` - show current cart contents at a retailer
+- `instacart cart show <retailer>` - show current cart contents at a retailer, with live availability, price and size per line (UNAVAILABLE lines need replacing before checkout)
 - `instacart cart remove <item-id> <retailer>` - remove an item from a cart
 - `instacart carts list` - list every active cart across retailers
 
 Discovery:
 
-- `instacart search <query> --store <retailer>` - search products at a retailer
+- `instacart search <query> --store <retailer>` - search products at a retailer, with size, price and stock per result
 - `instacart retailers list` - list retailers available at your address
 - `instacart retailers show <slug>` - cache one retailer locally
 
@@ -209,6 +209,14 @@ The post-`auth login` step auto-populates `address_id`, `postal_code`, `latitude
 Per-call override: pass `--profile <name>` to any command that needs location (e.g. `instacart --profile work add safeway "cold brew"`). This applies the named profile for that single call without changing the active profile.
 
 When no profiles are defined, the CLI behaves exactly as before — `config set-coords` / `set-address` / `show` continue to drive the top-level location keys directly.
+
+### Regional site
+
+Default site is `www.instacart.com`. For Instacart Canada (or another regional site) run `instacart config set-host www.instacart.ca` (saved as `host` in config.json; `set-host default` reverts), or set `INSTACART_HOST=www.instacart.ca` for one invocation. Re-run `instacart auth login` after switching: sessions and cookies are per site. `instacart config show` prints the active host.
+
+### Availability fields
+
+`cart show --json` items carry `availability` (`available` | `low_stock` | `unavailable` | `unknown`), `available`, `stock_level`, `stock_label`, `price`, `price_per_unit`, `size`; the envelope adds `unavailable_count` and `unknown_count`. Before checkout, an agent should replace or flag every `unavailable` line and ask the user about `unknown` ones. `search --json` results add `price_display`, `size`, `price_per_unit`, `available`, `availability`, `stock_label`.
 
 ## Agent Mode
 

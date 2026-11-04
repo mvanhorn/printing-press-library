@@ -1,0 +1,196 @@
+{
+  "data": {
+    "items": [
+      {
+        "id": "items_1000-9000000",
+        "name": "Poppies Profiteroles",
+        "size": "1.5 kg",
+        "productId": "9000000",
+        "brandName": "poppies",
+        "availability": {
+          "available": true,
+          "stockLevel": "highlyInStock",
+          "isUpcomingProduct": false,
+          "blackoutTimes": null,
+          "__typename": "ItemsAvailability",
+          "viewSection": {
+            "stockLevelLabelString": "Many in stock",
+            "outOfStockCtaString": null,
+            "similarItemsActionVariant": "none",
+            "__typename": "AvailabilityResponseBackedAvailabilitySection"
+          }
+        },
+        "price": {
+          "id": "items_1000-9000000",
+          "itemId": "items_1000-9000000",
+          "viewSection": {
+            "priceString": "$20.99",
+            "priceValueString": "20.99",
+            "currencySymbolString": "$",
+            "itemCard": {
+              "priceString": "$20.99",
+              "pricePerUnitString": null,
+              "pricingUnitString": "1.5 kg",
+              "fullPriceString": null
+            },
+            "itemDetails": {
+              "priceString": "$20.99",
+              "pricePerUnitString": "$1.40/100g",
+              "pricingUnitString": "1.5 kg"
+            },
+            "__typename": "ItemsResponseBackedItemPriceSection"
+          },
+          "__typename": "ItemsItemPrice"
+        },
+        "__typename": "ItemsItem"
+      },
+      {
+        "id": "items_1000-9000001",
+        "name": "SL14 14T4H C12 Smoked Salmon",
+        "size": "400 g",
+        "productId": "9000001",
+        "brandName": null,
+        "availability": {
+          "available": true,
+          "stockLevel": "lowStock",
+          "isUpcomingProduct": false,
+          "blackoutTimes": null,
+          "__typename": "ItemsAvailability",
+          "viewSection": {
+            "stockLevelLabelString": "Likely out of stock",
+            "outOfStockCtaString": null,
+            "similarItemsActionVariant": "none",
+            "__typename": "AvailabilityResponseBackedAvailabilitySection"
+          }
+        },
+        "price": null,
+        "__typename": "ItemsItem"
+      },
+      null,
+      {
+        "id": "items_1000-9000002",
+        "name": "Filotea La Matassine Egg Pasta Variety Pack",
+        "size": "250 g",
+        "productId": "9000002",
+        "brandName": "filotea",
+        "availability": {
+          "available": false,
+          "stockLevel": "inStock",
+          "isUpcomingProduct": false,
+          "blackoutTimes": null,
+          "__typename": "ItemsAvailability",
+          "viewSection": {
+            "stockLevelLabelString": "Out of stock",
+            "outOfStockCtaString": "Show similar",
+            "similarItemsActionVariant": "similarItemsModal",
+            "__typename": "AvailabilityResponseBackedAvailabilitySection"
+          }
+        },
+        "price": {
+          "id": "items_1000-9000002",
+          "itemId": "items_1000-9000002",
+          "viewSection": {
+            "priceString": "$8.99",
+            "priceValueString": "8.99",
+            "currencySymbolString": "$",
+            "itemCard": {
+              "priceString": "$8.99",
+              "pricePerUnitString": null,
+              "pricingUnitString": "4 x 250 g",
+              "fullPriceString": null
+            },
+            "itemDetails": {
+              "priceString": "$8.99",
+              "pricePerUnitString": "$0.90/100g",
+              "pricingUnitString": "4 x 250 g"
+            },
+            "__typename": "ItemsResponseBackedItemPriceSection"
+          },
+          "__typename": "ItemsItemPrice"
+        },
+        "__typename": "ItemsItem"
+      },
+      {
+        "id": "items_1000-9000003",
+        "name": "Strawberries",
+        "size": "908 g",
+        "productId": "9000003",
+        "brandName": null,
+        "availability": {
+          "available": false,
+          "stockLevel": "outOfStock",
+          "isUpcomingProduct": false,
+          "blackoutTimes": null,
+          "__typename": "ItemsAvailability",
+          "viewSection": {
+            "stockLevelLabelString": "Out of stock",
+            "outOfStockCtaString": "Show similar",
+            "similarItemsActionVariant": "similarItemsModal",
+            "__typename": "AvailabilityResponseBackedAvailabilitySection"
+          }
+        },
+        "price": null,
+        "__typename": "ItemsItem"
+      },
+      {
+        "id": "items_1000-9000004",
+        "name": "Fuyu Persimmon Bag",
+        "size": "3 lb",
+        "productId": "9000004",
+        "brandName": null,
+        "availability": {
+          "available": true,
+          "stockLevel": "inStock",
+          "isUpcomingProduct": false,
+          "blackoutTimes": null,
+          "__typename": "ItemsAvailability",
+          "viewSection": {
+            "stockLevelLabelString": null,
+            "outOfStockCtaString": null,
+            "similarItemsActionVariant": "none",
+            "__typename": "AvailabilityResponseBackedAvailabilitySection"
+          }
+        },
+        "price": {
+          "id": "items_1000-9000004",
+          "itemId": "items_1000-9000004",
+          "viewSection": {
+            "priceString": "$15.99",
+            "priceValueString": "15.99",
+            "currencySymbolString": "$",
+            "itemCard": {
+              "priceString": "$15.99",
+              "pricePerUnitString": null,
+              "pricingUnitString": "3 lb",
+              "fullPriceString": null
+            },
+            "itemDetails": {
+              "priceString": "$15.99",
+              "pricePerUnitString": "$0.33/oz",
+              "pricingUnitString": "3 lb"
+            },
+            "__typename": "ItemsResponseBackedItemPriceSection"
+          },
+          "__typename": "ItemsItemPrice"
+        },
+        "__typename": "ItemsItem"
+      }
+    ]
+  },
+  "errors": [
+    {
+      "message": "Internal Error",
+      "locations": [
+        {
+          "line": 332,
+          "column": 3
+        }
+      ],
+      "path": [
+        "items",
+        4,
+        "price"
+      ]
+    }
+  ]
+}

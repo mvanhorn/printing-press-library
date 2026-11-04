@@ -29,7 +29,9 @@ func newSearchCmd() *cobra.Command {
 		Long: `Search for products at a specific retailer. Uses your saved session to
 bootstrap a retailer inventory token (cached 6h), feeds the query through
 Instacart's autosuggest GraphQL API, extracts productIds from suggestion
-tracking URLs, and fetches full product data via the Items API.
+tracking URLs, and fetches full product data via the Items API: name, size,
+price, and live availability (--json adds price_display, size,
+price_per_unit, available, availability, stock_label).
 
 Three direct GraphQL round trips, all under 1 second warm.
 
@@ -64,7 +66,11 @@ Exit codes: 0 success, 3 auth missing, 4 no results, 7 network/api error.`,
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "results for %q at %s:\n", query, storeFlag)
 			for i, r := range results {
-				fmt.Fprintf(cmd.OutOrStdout(), "  %2d. %s\n      item_id=%s\n", i+1, r.Name, r.ItemID)
+				fmt.Fprintf(cmd.OutOrStdout(), "  %2d. %s\n", i+1, r.Name)
+				if status := itemStatusLine(r.Size, r.PriceDisplay, r.PricePerUnit, r.Availability, r.StockLabel); status != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), "      %s\n", status)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "      item_id=%s\n", r.ItemID)
 			}
 			return nil
 		},
