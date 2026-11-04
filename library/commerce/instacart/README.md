@@ -302,6 +302,7 @@ available for offline reads.
   the ranked list, then pass `--item-id` to `add` for precision.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@soffits](https://github.com/soffits) (Sakina).
 
 ## Install
 
