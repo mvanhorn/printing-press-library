@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-04
+
+- feat(linear): add formal issue relation commands (#2426).
+
 ## 2026.10.1 - 2026-10-01
 
 - Stop Linear imports when the cleanup ledger fails (#2125).

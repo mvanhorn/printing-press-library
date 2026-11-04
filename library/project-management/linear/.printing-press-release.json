@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "linear",
   "cli_name": "linear-pp-cli",
-  "version": "2026.10.1",
-  "released_at": "2026-10-01T20:48:29Z",
-  "source_commit": "c70665078f7ddb63ac1aa3c403c20264f3fc157b",
+  "version": "2026.11.1",
+  "released_at": "2026-11-04T10:09:25Z",
+  "source_commit": "3ec4c2bf4c86d9527e33eb6d88564a1d3afe63ec",
   "printing_press_version": "4.9.0",
   "run_id": "20260518-232543",
   "changes": [
     {
-      "title": "Stop Linear imports when the cleanup ledger fails",
-      "pr": 2125,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2125",
-      "commit": "c70665078f7ddb63ac1aa3c403c20264f3fc157b"
+      "title": "feat(linear): add formal issue relation commands",
+      "pr": 2426,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2426",
+      "commit": "3ec4c2bf4c86d9527e33eb6d88564a1d3afe63ec"
     }
   ]
 }
