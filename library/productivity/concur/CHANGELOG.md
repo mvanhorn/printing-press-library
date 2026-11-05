@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-05
+
+- fix(concur): harden browser fallbacks; add receipts attach fallback and per-report expense sync (#2428).
+
 ## 2026.10.4 - 2026-10-19
 
 - fix(concur): evict cached reads after browser-driven writes; read exceptions live (#2338).

@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "concur",
   "cli_name": "concur-pp-cli",
-  "version": "2026.10.4",
-  "released_at": "2026-10-19T08:57:46Z",
-  "source_commit": "25437872c8438ba0c1f63b6d3e48f07733e6a999",
+  "version": "2026.11.1",
+  "released_at": "2026-11-05T09:51:26Z",
+  "source_commit": "8291a6bcc3d82507f53a4456a7fab0697c54eb6d",
   "printing_press_version": "4.30.3",
   "run_id": "20260812-144651-60addfc5",
   "changes": [
     {
-      "title": "fix(concur): evict cached reads after browser-driven writes; read exceptions live",
-      "pr": 2338,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2338",
-      "commit": "25437872c8438ba0c1f63b6d3e48f07733e6a999"
+      "title": "fix(concur): harden browser fallbacks; add receipts attach fallback and per-report expense sync",
+      "pr": 2428,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2428",
+      "commit": "8291a6bcc3d82507f53a4456a7fab0697c54eb6d"
     }
   ]
 }
