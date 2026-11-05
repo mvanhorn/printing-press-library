@@ -107,7 +107,7 @@ func (a *AppContext) RequireSession() error {
 func (a *AppContext) stderr() *os.File { return os.Stderr }
 
 // version is the ledger stamp. Version is the exported alias --version reads.
-var version = "2026.10.1"
+var version = "2026.11.1"
 
 var Version = version
 

@@ -2,16 +2,16 @@
   "schema_version": 1,
   "slug": "instacart",
   "cli_name": "instacart-pp-cli",
-  "version": "2026.10.1",
-  "released_at": "2026-10-27T22:08:44Z",
-  "source_commit": "b25570d3d2c0bd241ee4de0c07ee1854d87cf247",
+  "version": "2026.11.1",
+  "released_at": "2026-11-05T09:52:20Z",
+  "source_commit": "ce4342bc0afd28fe9a015f583dc7f9898f21ecf5",
   "printing_press_version": "1.2.1",
   "changes": [
     {
-      "title": "chore: standardize CLI version literals for ledger stamping",
-      "pr": 2387,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2387",
-      "commit": "b25570d3d2c0bd241ee4de0c07ee1854d87cf247"
+      "title": "feat(instacart): regional host setting, availability and price in cart show and search",
+      "pr": 2432,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2432",
+      "commit": "ce4342bc0afd28fe9a015f583dc7f9898f21ecf5"
     }
   ]
 }

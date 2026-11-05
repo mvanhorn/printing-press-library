@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-05
+
+- feat(instacart): regional host setting, availability and price in cart show and search (#2432).
+
 ## 2026.10.1 - 2026-10-27
 
 - chore: standardize CLI version literals for ledger stamping (#2387).
