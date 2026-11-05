@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "yahoo-fantasy",
+  "cli_name": "yahoo-fantasy-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-05T13:06:50Z",
+  "source_commit": "2a24001923387f11c0c1b57b8dadee48089955b7",
+  "printing_press_version": "4.35.0",
+  "run_id": "20261101-101143-d6ebea8f",
+  "changes": [
+    {
+      "title": "feat(yahoo-fantasy): add yahoo-fantasy",
+      "pr": 2418,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2418",
+      "commit": "2a24001923387f11c0c1b57b8dadee48089955b7"
+    }
+  ]
+}
