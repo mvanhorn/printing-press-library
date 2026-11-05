@@ -322,13 +322,12 @@ func isReportsSubmit405DefectError(err error) bool {
 //
 // The report URL (https://<host>/nui/expense/reports/<report_id>) and the
 // two-step Submit Report flow below -- a page-level "Submit Report" button
-// opens a "Report Totals" confirmation dialog containing a SECOND, separate
-// "Submit Report" button (Dialog Actions toolbar, alongside "Cancel") -- were
-// confirmed live 2026-09-24 by driving the real form and reading its
-// accessible structure. The two buttons sharing an identical name and role
-// while the dialog is open is what waitForRefExcluding
-// (browser_fallback_helpers.go) exists to disambiguate; see that helper's
-// doc comment for the live-reproduced failure mode it prevents.
+// opens either a "Report Totals" confirmation dialog containing a SECOND, separate
+// "Submit Report" button (Dialog Actions toolbar, alongside "Cancel") or a
+// "Report Summary" modal containing a "Proceed" button (alongside "Cancel") -- were
+// confirmed live. The two buttons sharing an identical name and role or changing
+// names is what waitForEitherRefExcluding (browser_fallback_helpers.go) exists
+// to handle and disambiguate; see those helpers' comments.
 func submitReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags *rootFlags, userId, contextType, reportId string) (json.RawMessage, int, error) {
 	const stepTimeout = 10 * time.Second
 
@@ -346,7 +345,8 @@ func submitReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags 
 		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on %s (no separate login needed)\n", describeCDPTarget(port))
 	}
 
-	if _, err := runAgentBrowser("open", reportURL); err != nil {
+	// PATCH(amend-2026-11-03: use openPageTolerant to handle slow SPA page loads)
+	if err := openPageTolerant(reportURL, reportId); err != nil {
 		return nil, 0, err
 	}
 	time.Sleep(1500 * time.Millisecond)
@@ -385,9 +385,11 @@ func submitReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags 
 		return nil, 0, err
 	}
 
-	confirmRef, err := waitForRefExcluding("Submit Report", "button", submitRef, stepTimeout)
+	// PATCH(amend-2026-11-03: wait for EITHER Proceed OR Submit Report confirmation button)
+	confirmNames := []string{"Proceed", "Submit Report"}
+	confirmRef, matchedName, err := waitForEitherRefExcluding(confirmNames, "button", submitRef, stepTimeout)
 	if err != nil {
-		return nil, 0, fmt.Errorf("clicked Submit Report but could not find the confirmation dialog's own Submit Report button: %w", err)
+		return nil, 0, fmt.Errorf("clicked Submit Report but could not find the confirmation dialog's action button (either Proceed or Submit Report): %w", err)
 	}
 
 	// From here on the click is irreversible -- mirror
@@ -402,7 +404,7 @@ func submitReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags 
 	if _, err := runAgentBrowser("click", "@"+confirmRef); err != nil {
 		return nil, 0, &reportsSubmitPartialSuccessError{
 			reportId: reportId,
-			cause:    fmt.Errorf("clicking confirmation dialog's Submit Report button: %w", err),
+			cause:    fmt.Errorf("clicking confirmation dialog's %s button: %w", matchedName, err),
 		}
 	}
 	time.Sleep(1500 * time.Millisecond)
@@ -421,12 +423,12 @@ func submitReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags 
 	// may not change until the SECOND click actually lands.
 	if refs, err := agentBrowserSnapshotRefs(); err == nil {
 		if _, dialogStillOpen := findRef(refs, "Cancel", "button"); dialogStillOpen {
-			retryConfirmRef, err := waitForRefExcluding("Submit Report", "button", submitRef, 3*time.Second)
+			retryConfirmRef, retryMatchedName, err := waitForEitherRefExcluding(confirmNames, "button", submitRef, 3*time.Second)
 			if err == nil {
 				if _, err := runAgentBrowser("click", "@"+retryConfirmRef); err != nil {
 					return nil, 0, &reportsSubmitPartialSuccessError{
 						reportId: reportId,
-						cause:    fmt.Errorf("retrying confirmation dialog's Submit Report button click: %w", err),
+						cause:    fmt.Errorf("retrying confirmation dialog's %s button click: %w", retryMatchedName, err),
 					}
 				}
 				time.Sleep(1500 * time.Millisecond)

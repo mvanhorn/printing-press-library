@@ -461,7 +461,8 @@ func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on %s (no separate login needed)\n", describeCDPTarget(port))
 	}
 
-	if _, err := runAgentBrowser("open", editURL); err != nil {
+	// PATCH(amend-2026-11-03: use openPageTolerant to handle slow SPA page loads)
+	if err := openPageTolerant(editURL, expenseId); err != nil {
 		return nil, 0, err
 	}
 	time.Sleep(1500 * time.Millisecond)
@@ -543,8 +544,10 @@ func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 	// updateExpenseTypeViaBrowserFallback: the click can land even when it
 	// errors, and nothing else evicts the cached reads of the edited report.
 	defer c.InvalidateCache()
+	var saveErr error
 	if err := clickWithNavigationRetry(saveRef, editURLMarker, "Save Expense", "button", stepTimeout); err != nil {
-		return nil, 0, err
+		// PATCH(amend-2026-11-04: after ANY error from clickWithNavigationRetry, proceed to verification)
+		saveErr = err
 	}
 
 	// From this point on the click is irreversible -- mirror
@@ -562,10 +565,14 @@ func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 
 	updated, err := c.GetNoCache(cmd.Context(), expensePath, nil)
 	if err != nil {
+		cause := fmt.Errorf("fetching expense after browser fallback save: %w", err)
+		if saveErr != nil {
+			cause = fmt.Errorf("fetching expense after browser fallback save reported error %v: %w", saveErr, err)
+		}
 		return nil, 0, &expensesUpdatePartialSuccessError{
 			reportId:  reportId,
 			expenseId: expenseId,
-			cause:     fmt.Errorf("fetching expense after browser fallback save: %w", err),
+			cause:     cause,
 		}
 	}
 
@@ -583,14 +590,21 @@ func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 	// exactly ("Do not treat reports submit's own zero exit code as proof
 	// by itself") for the sibling update path.
 	if err := verifyExpenseUpdateApplied(updated, businessPurpose, hasPurpose, amount, hasAmount); err != nil {
+		cause := err
+		if saveErr != nil {
+			cause = fmt.Errorf("verifying expense after browser fallback save reported error %v: %w", saveErr, err)
+		}
 		return nil, 0, &expensesUpdatePartialSuccessError{
 			reportId:  reportId,
 			expenseId: expenseId,
-			cause:     err,
+			cause:     cause,
 		}
 	}
 
 	fmt.Fprintf(cmd.ErrOrStderr(), "Expense updated successfully via browser.\n")
+	if saveErr != nil {
+		fmt.Fprintf(cmd.ErrOrStderr(), "Note: the save click reported an error (%v) but the expense update was verified.\n", saveErr)
+	}
 	return updated, 200, nil
 }
 

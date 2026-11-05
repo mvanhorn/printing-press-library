@@ -408,7 +408,8 @@ func createReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags 
 		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on %s (no separate login needed)\n", describeCDPTarget(port))
 	}
 
-	if _, err := runAgentBrowser("open", reportNewURL); err != nil {
+	// PATCH(amend-2026-11-03: use openPageTolerant to handle slow SPA page loads)
+	if err := openPageTolerant(reportNewURL, "confNum=new"); err != nil {
 		return nil, 0, err
 	}
 	time.Sleep(1500 * time.Millisecond)

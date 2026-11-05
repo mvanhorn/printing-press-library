@@ -72,11 +72,14 @@ func newNovelExpensesScanDuplicatesCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
-			// hintIfUnsynced already writes a non-fatal "run sync first" hint to
-			// stderr when the store is empty; an empty store legitimately means
-			// zero duplicates, not an error, so we fall through and return that.
-			if !hintIfUnsynced(cmd, db, "expenses") {
-				hintIfStale(cmd, db, "expenses", flags.maxAge)
+			state, err := readSyncHintState(db, "expenses")
+			if err != nil || !state.hasState || state.lastSynced.IsZero() || state.lastSynced.Year() <= 1 {
+				return fmt.Errorf("expenses resource has never been successfully synced; please run 'concur-pp-cli sync --resources expenses'")
+			}
+
+			age := time.Since(state.lastSynced)
+			if flags.maxAge > 0 && age > flags.maxAge {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: local store data is %s old, older than --max-age=%s. Run 'concur-pp-cli sync --resources expenses' to refresh.\n", syncHintRoundAge(age), flags.maxAge)
 			}
 
 			rows, err := db.DB().QueryContext(cmd.Context(), `SELECT data FROM "expenses"`)
@@ -97,6 +100,10 @@ func newNovelExpensesScanDuplicatesCmd(flags *rootFlags) *cobra.Command {
 				if err := json.Unmarshal(data, &exp); err != nil {
 					return err
 				}
+				reportId := getReportIdOfExpense(data)
+				if reportId == "" {
+					continue
+				}
 				expenses = append(expenses, exp)
 				rawDatas[exp.ExpenseId] = data
 			}
@@ -105,9 +112,17 @@ func newNovelExpensesScanDuplicatesCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(expenses) == 0 {
-				// Zero synced expenses means zero duplicates -- a valid empty
-				// result. hintIfUnsynced above already told the user to sync.
-				return printJSONFiltered(cmd.OutOrStdout(), scanDuplicatesResult{DuplicateGroups: nil}, flags)
+				result := scanDuplicatesResult{DuplicateGroups: nil}
+				raw, err := json.Marshal(result)
+				if err != nil {
+					return err
+				}
+				agentMeta := map[string]any{
+					"source":         "local",
+					"sync_timestamp": state.lastSynced.Format(time.RFC3339),
+					"age":            age.String(),
+				}
+				return printOutputWithFlagsMeta(cmd.OutOrStdout(), json.RawMessage(raw), flags, agentMeta)
 			}
 
 			// PATCH(amend-2026-09-05: F2 update group key generation for types.Expense nested structures)
@@ -188,7 +203,16 @@ func newNovelExpensesScanDuplicatesCmd(flags *rootFlags) *cobra.Command {
 				DuplicateGroups: dupGroups,
 			}
 
-			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+			raw, err := json.Marshal(result)
+			if err != nil {
+				return err
+			}
+			agentMeta := map[string]any{
+				"source":         "local",
+				"sync_timestamp": state.lastSynced.Format(time.RFC3339),
+				"age":            age.String(),
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), json.RawMessage(raw), flags, agentMeta)
 		},
 	}
 	return cmd

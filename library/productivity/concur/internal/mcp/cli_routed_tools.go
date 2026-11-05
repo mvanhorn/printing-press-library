@@ -81,6 +81,18 @@ var cliRoutedTools = []cliRoutedTool{
 			{name: "type", flag: "type", required: true, desc: "Expense type name as shown in Concur's picker, for example \"Hotel\""},
 		},
 	},
+	{
+		name:    "receipts_attach",
+		desc:    "Attach a receipt image or PDF to an expense. The API returns 404 on some tenants; pass report-id, user-id (and optionally context-type) to trigger browser fallback on 404. Required: expense-id, file. Optional: user-id, context-type (default: TRAVELER), report-id.",
+		command: []string{"receipts"},
+		params: []cliRoutedParam{
+			{name: "user_id", flag: "user-id", desc: "Concur user ID (from 'account whoami')"},
+			{name: "context-type", flag: "context-type", desc: "Access level context for the request: TRAVELER (default), MANAGER, PROCESSOR or PROXY"},
+			{name: "report-id", flag: "report-id", desc: "Parent report ID (required to trigger browser fallback on 404)"},
+			{name: "file", flag: "file", required: true, desc: "Local path to the receipt image or PDF"},
+			{name: "expense-id", required: true, desc: "ID of the expense to attach the receipt to"},
+		},
+	},
 }
 
 // registerCLIRoutedTools replaces any same-named tool already registered.

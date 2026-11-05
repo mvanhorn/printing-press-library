@@ -506,7 +506,8 @@ func createExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on %s (no separate login needed)\n", describeCDPTarget(port))
 	}
 
-	if _, err := runAgentBrowser("open", newExpenseURL); err != nil {
+	// PATCH(amend-2026-11-03: use openPageTolerant to handle slow SPA page loads)
+	if err := openPageTolerant(newExpenseURL, reportId); err != nil {
 		return nil, 0, err
 	}
 	time.Sleep(1500 * time.Millisecond)
@@ -615,8 +616,10 @@ func createExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 	// click can land even when it errors, and nothing else evicts the cached
 	// reads, so `expenses list` would not show the new expense.
 	defer c.InvalidateCache()
+	var saveErr error
 	if err := clickWithNavigationRetry(saveRef, "/expenses/new", "Save Expense", "button", stepTimeout); err != nil {
-		return nil, 0, err
+		// PATCH(amend-2026-11-04: after ANY error from clickWithNavigationRetry, proceed to verification)
+		saveErr = err
 	}
 
 	// PATCH(amend-2026-09-15: surface partial success instead of a plain
@@ -627,22 +630,37 @@ func createExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 	// expensesCreatePartialSuccessError rather than looking like "nothing
 	// happened, safe to retry" -- retrying blindly risks a duplicate line
 	// item.
+	//
+	// PATCH(amend-2026-11-03: verification-before-failing logic if save click reported error but succeeded)
 	time.Sleep(2 * time.Second)
 
 	after, err := fetchReportExpenses(cmd.Context(), c, userId, contextType, reportId)
 	if err != nil {
+		cause := fmt.Errorf("fetching expense list after browser fallback save: %w", err)
+		if saveErr != nil {
+			cause = fmt.Errorf("fetching expense list after browser fallback save reported error %v: %w", saveErr, err)
+		}
 		return nil, 0, &expensesCreatePartialSuccessError{
 			reportId: reportId,
-			cause:    fmt.Errorf("fetching expense list after browser fallback save: %w", err),
+			cause:    cause,
 		}
 	}
 
 	newExpense, err := diffNewExpense(before, after, beforeIDs, amount, expenseTypeCode)
 	if err != nil {
+		if saveErr != nil {
+			return nil, 0, &expensesCreatePartialSuccessError{
+				reportId: reportId,
+				cause:    fmt.Errorf("verifying expense after browser fallback save reported error %v: %w", saveErr, err),
+			}
+		}
 		return nil, 0, &expensesCreatePartialSuccessError{reportId: reportId, cause: err}
 	}
 
 	fmt.Fprintf(cmd.ErrOrStderr(), "Expense created successfully via browser.\n")
+	if saveErr != nil {
+		fmt.Fprintf(cmd.ErrOrStderr(), "Note: the save click reported an error (%v) but the expense was verified.\n", saveErr)
+	}
 	return newExpense, 201, nil
 }
 

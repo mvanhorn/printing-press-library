@@ -227,7 +227,7 @@ func TestSyncExpenses_ReturnsSpecificError(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected sync --resources expenses to fail, got nil")
 	}
-	expectedMsg := "expenses sync requires per-report iteration, not yet implemented"
+	expectedMsg := "must be specified for expenses sync"
 	if !strings.Contains(out.String(), expectedMsg) {
 		t.Fatalf("expected output to contain %q, but got:\n%s", expectedMsg, out.String())
 	}

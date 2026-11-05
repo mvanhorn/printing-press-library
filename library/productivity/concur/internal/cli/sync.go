@@ -47,6 +47,12 @@ type syncResult struct {
 
 const syncWatermarkOverlap = time.Second
 
+type syncCtxKey string
+
+const userIdKey syncCtxKey = "userId"
+const contextTypeKey syncCtxKey = "contextType"
+const noPruneKey syncCtxKey = "noPrune"
+
 func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var resources []string
 	var full bool
@@ -60,6 +66,8 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var paramFlags []string
 	var resourceParamFlags []string
 	var globalParamFlags []string
+	var flagUserId string
+	var flagContextType string
 
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -217,6 +225,11 @@ Resource scoping:
 				concurrency = 1
 			}
 
+			// PATCH(amend-2026-11-03: real per-report expense sync context variables)
+			ctx := context.WithValue(cmd.Context(), userIdKey, flagUserId)
+			ctx = context.WithValue(ctx, contextTypeKey, flagContextType)
+			ctx = context.WithValue(ctx, noPruneKey, noPrune)
+
 			started := time.Now()
 			// prune gates deletion reconciliation: a full sync prunes local rows
 			// the API no longer returns within a fully-enumerated partition, unless
@@ -232,7 +245,7 @@ Resource scoping:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, prune, userParams, syncEventWriter)
+						res := syncResource(ctx, c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, prune, userParams, syncEventWriter)
 						results <- res
 					}
 				}()
@@ -358,7 +371,7 @@ Resource scoping:
 
 	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).")
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
-	cmd.Flags().BoolVar(&noPrune, "no-prune", false, "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)")
+	cmd.Flags().BoolVar(&noPrune, "no-prune", false, "Disable deletion reconciliation (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition, and expenses are reconciled per fetched report on every sync)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
@@ -368,8 +381,309 @@ Resource scoping:
 	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
 	cmd.Flags().StringArrayVar(&resourceParamFlags, "resource-param", nil, "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.")
 	cmd.Flags().StringArrayVar(&globalParamFlags, "global-param", nil, "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.")
+	cmd.Flags().StringVar(&flagUserId, "user-id", "", "Concur user ID (from 'account whoami')")
+	cmd.Flags().StringVar(&flagContextType, "context-type", "TRAVELER", "Access level context for the request (one of: TRAVELER, MANAGER, PROCESSOR, PROXY)")
 
 	return cmd
+}
+
+// PATCH(amend-2026-11-04: real per-report expense sync implementation with prune support)
+func syncExpensesResource(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, sinceTS string, maxPages int, prune bool, userParams *syncUserParams, syncEvents io.Writer, started time.Time) syncResult {
+	userId, _ := ctx.Value(userIdKey).(string)
+	contextType, _ := ctx.Value(contextTypeKey).(string)
+	if contextType == "" {
+		contextType = "TRAVELER"
+	}
+
+	if userId == "" {
+		err := fmt.Errorf("required flag \"user-id\" not set (must be specified for expenses sync)")
+		if !humanFriendly {
+			fmt.Fprintln(syncEvents, syncErrorJSON("expenses", "", err))
+		}
+		return syncResult{Resource: "expenses", Err: err, Duration: time.Since(started)}
+	}
+
+	reportsPath := "/expensereports/v4/users/{user_id}/context/{context_type}/reports"
+	reportsPath = replacePathParam(reportsPath, "user_id", formatCLIParamValue(userId))
+	reportsPath = replacePathParam(reportsPath, "context_type", formatCLIParamValue(contextType))
+
+	page := 1
+	limitPages := 1
+	if maxPages > 0 {
+		limitPages = maxPages
+	} else if sinceTS != "" {
+		limitPages = 1000 // effectively unlimited
+	}
+
+	var reportIDs []string
+
+	for {
+		params := map[string]string{
+			"size": "100",
+			"page": strconv.Itoa(page),
+		}
+		if sinceTS != "" {
+			params["created_after"] = formatSyncSinceValue(sinceTS, "date")
+		}
+		if userParams != nil {
+			userParams.applyTo("reports", params, false)
+		}
+
+		data, err := c.Get(ctx, reportsPath, params)
+		if err != nil {
+			err = fmt.Errorf("fetching reports for expenses sync: %w", err)
+			if !humanFriendly {
+				fmt.Fprintln(syncEvents, syncErrorJSON("expenses", "", err))
+			}
+			return syncResult{Resource: "expenses", Err: err, Duration: time.Since(started)}
+		}
+
+		// PATCH(amend-2026-11-04: detect dry run before parsing or saving state)
+		if isDryRunResponseForClient(c, data) {
+			if !humanFriendly {
+				fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"expenses"}`+"\n")
+			}
+			return syncResult{Resource: "expenses", Count: 0, Duration: time.Since(started)}
+		}
+
+		var resp struct {
+			Content []struct {
+				ReportID string `json:"reportId"`
+			} `json:"content"`
+			Links []struct {
+				Rel  string `json:"rel"`
+				Href string `json:"href"`
+			} `json:"links"`
+		}
+		if err := json.Unmarshal(data, &resp); err != nil {
+			err = fmt.Errorf("parsing reports response: %w", err)
+			if !humanFriendly {
+				fmt.Fprintln(syncEvents, syncErrorJSON("expenses", "", err))
+			}
+			return syncResult{Resource: "expenses", Err: err, Duration: time.Since(started)}
+		}
+
+		for _, r := range resp.Content {
+			if r.ReportID != "" {
+				reportIDs = append(reportIDs, r.ReportID)
+			}
+		}
+
+		hasNext := false
+		for _, link := range resp.Links {
+			if link.Rel == "next" {
+				hasNext = true
+				break
+			}
+		}
+
+		if !hasNext || page >= limitPages {
+			break
+		}
+		page++
+	}
+
+	if len(reportIDs) == 0 {
+		cachedCount, countErr := db.Count("expenses")
+		if countErr != nil {
+			return syncResult{Resource: "expenses", Count: 0, Err: countErr, Duration: time.Since(started)}
+		}
+		watermark := started.UTC().Add(-syncWatermarkOverlap)
+		if err := db.SaveSyncStateAt("expenses", "", cachedCount, watermark); err != nil {
+			return syncResult{Resource: "expenses", Count: cachedCount, Err: err, Duration: time.Since(started)}
+		}
+		if !humanFriendly {
+			fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"expenses","total":%d,"duration_ms":%d}`+"\n", cachedCount, time.Since(started).Milliseconds())
+		}
+		return syncResult{Resource: "expenses", Count: cachedCount, Duration: time.Since(started)}
+	}
+
+	type reportWork struct {
+		reportID string
+	}
+	type reportResult struct {
+		reportID string
+		count    int
+		pruned   int
+		err      error
+	}
+
+	numWorkers := 3
+	if len(reportIDs) < numWorkers {
+		numWorkers = len(reportIDs)
+	}
+	if numWorkers < 1 {
+		numWorkers = 1
+	}
+
+	workChan := make(chan reportWork, len(reportIDs))
+	resultChan := make(chan reportResult, len(reportIDs))
+
+	for _, r := range reportIDs {
+		workChan <- reportWork{reportID: r}
+	}
+	close(workChan)
+
+	var workerWg sync.WaitGroup
+	for w := 0; w < numWorkers; w++ {
+		workerWg.Add(1)
+		go func() {
+			defer workerWg.Done()
+			for job := range workChan {
+				var items []json.RawMessage
+				var fetchErr error
+				if cliClient, ok := c.(*client.Client); ok {
+					items, fetchErr = fetchReportExpenses(ctx, cliClient, userId, contextType, job.reportID)
+				} else {
+					path := "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses"
+					path = replacePathParam(path, "user_id", formatCLIParamValue(userId))
+					path = replacePathParam(path, "context_type", formatCLIParamValue(contextType))
+					path = replacePathParam(path, "report_id", formatCLIParamValue(job.reportID))
+					raw, err := c.Get(ctx, path, nil)
+					if err == nil {
+						fetchErr = json.Unmarshal(raw, &items)
+					} else {
+						fetchErr = err
+					}
+				}
+
+				if fetchErr != nil {
+					resultChan <- reportResult{reportID: job.reportID, err: fetchErr}
+					continue
+				}
+
+				modifiedItems := make([]json.RawMessage, 0, len(items))
+				for _, item := range items {
+					var m map[string]any
+					if err := json.Unmarshal(item, &m); err == nil {
+						if m["reportId"] == nil {
+							m["reportId"] = job.reportID
+						}
+						if m["report_id"] == nil {
+							m["report_id"] = job.reportID
+						}
+						newItem, err := json.Marshal(m)
+						if err == nil {
+							modifiedItems = append(modifiedItems, newItem)
+						} else {
+							modifiedItems = append(modifiedItems, item)
+						}
+					} else {
+						modifiedItems = append(modifiedItems, item)
+					}
+				}
+
+				// PATCH(amend-2026-11-04: upsert and prune deleted expenses in a single transaction)
+				stored, pruned, _, upsertErr := db.UpsertAndReconcileExpenses(modifiedItems, job.reportID, prune)
+				if upsertErr != nil {
+					resultChan <- reportResult{reportID: job.reportID, err: upsertErr}
+				} else {
+					resultChan <- reportResult{reportID: job.reportID, count: stored, pruned: pruned}
+				}
+			}
+		}()
+	}
+
+	workerWg.Wait()
+	close(resultChan)
+
+	var totalStored int
+	// PATCH(amend-2026-11-04: track total pruned expenses)
+	var totalPruned int
+	var reportErrors []error
+	var progressCount int64
+
+	for res := range resultChan {
+		if res.err != nil {
+			reportErrors = append(reportErrors, fmt.Errorf("report %s: %w", res.reportID, res.err))
+			if humanFriendly {
+				fmt.Fprintf(os.Stderr, "  expenses: warning: failed to sync report %s: %v\n", res.reportID, res.err)
+			} else {
+				fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"expenses","reason":"report_sync_failed","message":"failed to sync report %s: %s"}`+"\n", res.reportID, strings.ReplaceAll(res.err.Error(), `"`, `\"`))
+			}
+		} else {
+			totalStored += res.count
+			totalPruned += res.pruned
+			atomic.AddInt64(&progressCount, int64(res.count))
+
+			currentRate := c.RateLimit()
+			if humanFriendly {
+				if currentRate > 0 {
+					if res.pruned > 0 {
+						fmt.Fprintf(os.Stderr, "\r  expenses: %d synced, %d pruned [%.1f req/s]", atomic.LoadInt64(&progressCount), res.pruned, currentRate)
+					} else {
+						fmt.Fprintf(os.Stderr, "\r  expenses: %d synced [%.1f req/s]", atomic.LoadInt64(&progressCount), currentRate)
+					}
+				} else {
+					if res.pruned > 0 {
+						fmt.Fprintf(os.Stderr, "\r  expenses: %d synced, %d pruned", atomic.LoadInt64(&progressCount), res.pruned)
+					} else {
+						fmt.Fprintf(os.Stderr, "\r  expenses: %d synced", atomic.LoadInt64(&progressCount))
+					}
+				}
+			} else {
+				if currentRate > 0 {
+					if res.pruned > 0 {
+						fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"expenses","fetched":%d,"rate_rps":%.1f,"pruned":%d}`+"\n", atomic.LoadInt64(&progressCount), currentRate, res.pruned)
+					} else {
+						fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"expenses","fetched":%d,"rate_rps":%.1f}`+"\n", atomic.LoadInt64(&progressCount), currentRate)
+					}
+				} else {
+					if res.pruned > 0 {
+						fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"expenses","fetched":%d,"pruned":%d}`+"\n", atomic.LoadInt64(&progressCount), res.pruned)
+					} else {
+						fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"expenses","fetched":%d}`+"\n", atomic.LoadInt64(&progressCount))
+					}
+				}
+			}
+		}
+	}
+
+	if len(reportErrors) > 0 {
+		if humanFriendly {
+			fmt.Fprintln(os.Stderr)
+		}
+	} else if humanFriendly {
+		fmt.Fprintf(os.Stderr, "\r  expenses: %d synced (done)\n", atomic.LoadInt64(&progressCount))
+	}
+
+	cachedCount, countErr := db.Count("expenses")
+	if countErr != nil {
+		return syncResult{Resource: "expenses", Count: totalStored, Err: countErr, Duration: time.Since(started)}
+	}
+
+	watermark := time.Time{}
+	if len(reportErrors) == 0 {
+		watermark = started.UTC().Add(-syncWatermarkOverlap)
+	}
+
+	var stateErr error
+	if watermark.IsZero() {
+		stateErr = db.SaveSyncProgress("expenses", "", cachedCount)
+	} else {
+		stateErr = db.SaveSyncStateAt("expenses", "", cachedCount, watermark)
+	}
+	if stateErr != nil {
+		return syncResult{Resource: "expenses", Count: cachedCount, Err: stateErr, Duration: time.Since(started)}
+	}
+
+	if !humanFriendly {
+		if totalPruned > 0 {
+			fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"expenses","total":%d,"duration_ms":%d,"pruned":%d}`+"\n", cachedCount, time.Since(started).Milliseconds(), totalPruned)
+		} else {
+			fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"expenses","total":%d,"duration_ms":%d}`+"\n", cachedCount, time.Since(started).Milliseconds())
+		}
+	}
+
+	var combinedErr error
+	if len(reportErrors) > 0 {
+		combinedErr = fmt.Errorf("sync failed for %d report(s); first error: %w", len(reportErrors), reportErrors[0])
+	}
+
+	return syncResult{Resource: "expenses", Count: cachedCount, Err: combinedErr, Duration: time.Since(started)}
 }
 
 // syncResource handles the full paginated sync of a single resource.
@@ -387,6 +701,15 @@ func syncResource(ctx context.Context, c interface {
 
 	if !humanFriendly {
 		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+	}
+
+	if resource == "expenses" {
+		// PATCH(amend-2026-11-04: expenses reconcile on every sync) -- each report is
+		// fetched as a complete listing, so rows missing from it were deleted in
+		// Concur; waiting for --full would leave them in scan-duplicates results.
+		// --no-prune still disables the deletion.
+		noPrune, _ := ctx.Value(noPruneKey).(bool)
+		return syncExpensesResource(ctx, c, db, sinceTS, maxPages, !noPrune, userParams, syncEvents, started)
 	}
 
 	path, err := syncResourcePath(resource)

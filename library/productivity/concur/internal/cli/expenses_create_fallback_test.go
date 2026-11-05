@@ -838,3 +838,520 @@ exit 0
 		t.Error("expected Save Expense to NEVER be clicked when a requested field can't be filled, but it was")
 	}
 }
+
+// TestFillTransactionDate_OpeningStrategies covers the opening strategies for the date-picker calendar
+func TestFillTransactionDate_OpeningStrategies(t *testing.T) {
+	oldPath := os.Getenv("PATH")
+	defer os.Setenv("PATH", oldPath)
+
+	tests := []struct {
+		name         string
+		setupMock    func(tmpDir string) string
+		wantError    bool
+		errorSubstrs []string
+	}{
+		{
+			name: "calendar opens on first click",
+			setupMock: func(tmpDir string) string {
+				return `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "snapshot" ]; then
+	echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Open calendar","role":"button"},"e2":{"name":"September","role":"button"},"e3":{"name":"2026","role":"button"},"e4":{"name":"Tuesday September 15, 2026","role":"button"}}}}'
+	exit 0
+fi
+if [ "$arg1" = "click" ]; then
+	exit 0
+fi
+exit 0
+`
+			},
+			wantError: false,
+		},
+		{
+			name: "calendar opens only on retry",
+			setupMock: func(tmpDir string) string {
+				return `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "snapshot" ]; then
+	if [ -f "$TMP_DIR/attempt2" ]; then
+		echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Open calendar","role":"button"},"e2":{"name":"September","role":"button"},"e3":{"name":"2026","role":"button"},"e4":{"name":"Tuesday September 15, 2026","role":"button"}}}}'
+	else
+		touch "$TMP_DIR/attempt2"
+		echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Open calendar","role":"button"}}}}'
+	fi
+	exit 0
+fi
+if [ "$arg1" = "click" ]; then
+	exit 0
+fi
+exit 0
+`
+			},
+			wantError: false,
+		},
+		{
+			name: "never opens",
+			setupMock: func(tmpDir string) string {
+				return `#!/bin/bash
+arg1="$1"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Open calendar","role":"button"}}}}'
+exit 0
+`
+			},
+			wantError:    true,
+			errorSubstrs: []string{"all calendar opening strategies failed", "tried 3 ref clicks"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			mockBinPath := filepath.Join(tmpDir, "agent-browser")
+			script := tt.setupMock(tmpDir)
+			if err := os.WriteFile(mockBinPath, []byte(script), 0o755); err != nil {
+				t.Fatalf("writing mock binary: %v", err)
+			}
+			t.Setenv("PATH", tmpDir+string(filepath.ListSeparator)+oldPath)
+			t.Setenv("TMP_DIR", tmpDir)
+
+			target := time.Date(2026, 9, 15, 0, 0, 0, 0, time.UTC)
+			err := fillTransactionDate(target)
+			if tt.wantError {
+				if err == nil {
+					t.Fatal("expected an error, got nil")
+				}
+				for _, sub := range tt.errorSubstrs {
+					if !strings.Contains(err.Error(), sub) {
+						t.Errorf("expected error to contain %q, got %q", sub, err.Error())
+					}
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			}
+		})
+	}
+}
+
+// TestEnsurePageVisible covers page visibility checks and activation
+func TestEnsurePageVisible(t *testing.T) {
+	oldPath := os.Getenv("PATH")
+	defer os.Setenv("PATH", oldPath)
+
+	tests := []struct {
+		name      string
+		script    string
+		wantError bool
+	}{
+		{
+			name: "visible immediately - no tab call",
+			script: `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ] && [ "$arg2" = "document.visibilityState" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "tab" ]; then
+	exit 1
+fi
+exit 0
+`,
+			wantError: false,
+		},
+		{
+			name: "hidden then visible after tab call",
+			script: `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+	arg3="$5"
+fi
+if [ "$arg1" = "eval" ] && [ "$arg2" = "document.visibilityState" ]; then
+	if [ -f "$TMP_DIR/tab_called" ]; then
+		echo '"visible"'
+	else
+		echo '"hidden"'
+	fi
+	exit 0
+fi
+if [ "$arg1" = "tab" ] && [ "$arg2" = "list" ]; then
+	echo '{"success":true,"data":{"tabs":[{"active":true,"tabId":"t1"}]}}'
+	exit 0
+fi
+if [ "$arg1" = "tab" ] && [ "$arg2" = "t1" ]; then
+	touch "$TMP_DIR/tab_called"
+	exit 0
+fi
+exit 0
+`,
+			wantError: false,
+		},
+		{
+			name: "hidden and stays hidden - errors",
+			script: `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ] && [ "$arg2" = "document.visibilityState" ]; then
+	echo '"hidden"'
+	exit 0
+fi
+if [ "$arg1" = "tab" ] && [ "$arg2" = "list" ]; then
+	echo '{"success":true,"data":{"tabs":[{"active":true,"tabId":"t1"}]}}'
+	exit 0
+fi
+if [ "$arg1" = "tab" ] && [ "$arg2" = "t1" ]; then
+	exit 0
+fi
+exit 0
+`,
+			wantError: true,
+		},
+		{
+			name: "eval error - continues",
+			script: `#!/bin/bash
+arg1="$1"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo "some error" >&2
+	exit 1
+fi
+exit 0
+`,
+			wantError: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			mockBinPath := filepath.Join(tmpDir, "agent-browser")
+			if err := os.WriteFile(mockBinPath, []byte(tt.script), 0o755); err != nil {
+				t.Fatalf("writing mock binary: %v", err)
+			}
+			t.Setenv("PATH", tmpDir+string(filepath.ListSeparator)+oldPath)
+			t.Setenv("TMP_DIR", tmpDir)
+
+			err := ensurePageVisible()
+			if tt.wantError {
+				if err == nil {
+					t.Fatal("expected error, got nil")
+				}
+				if !strings.Contains(err.Error(), "the Concur browser window is hidden or minimized") {
+					t.Errorf("unexpected error: %v", err)
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			}
+		})
+	}
+}
+
+// TestOpenPageTolerant verifies openPageTolerant timeout, recovery and visibility check
+func TestOpenPageTolerant(t *testing.T) {
+	oldPath := os.Getenv("PATH")
+	defer os.Setenv("PATH", oldPath)
+
+	tests := []struct {
+		name      string
+		script    string
+		wantError bool
+	}{
+		{
+			name: "open succeeds immediately",
+			script: `#!/bin/bash
+arg1="$1"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "open" ]; then
+	exit 0
+fi
+exit 1
+`,
+			wantError: false,
+		},
+		{
+			name: "open times out but page loaded verified by polling current URL",
+			script: `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "open" ]; then
+	echo "✗ Operation timed out. The page may still be loading or the element may not exist." >&2
+	exit 1
+fi
+if [ "$arg1" = "get" ] && [ "$arg2" = "url" ]; then
+	echo "https://us2.concursolutions.com/nui/expense/reports/RPT-123"
+	exit 0
+fi
+exit 1
+`,
+			wantError: false,
+		},
+		{
+			name: "open times out and page not loaded",
+			script: `#!/bin/bash
+arg1="$1"
+arg2="$2"
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+if [ "$arg1" = "eval" ]; then
+	echo '"visible"'
+	exit 0
+fi
+if [ "$arg1" = "open" ]; then
+	echo "✗ Operation timed out. The page may still be loading or the element may not exist." >&2
+	exit 1
+fi
+if [ "$arg1" = "get" ] && [ "$arg2" = "url" ]; then
+	echo "https://us2.concursolutions.com/login"
+	exit 0
+fi
+exit 1
+`,
+			wantError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			mockBinPath := filepath.Join(tmpDir, "agent-browser")
+			if err := os.WriteFile(mockBinPath, []byte(tt.script), 0o755); err != nil {
+				t.Fatalf("writing mock binary: %v", err)
+			}
+			t.Setenv("PATH", tmpDir+string(filepath.ListSeparator)+oldPath)
+
+			err := openPageTolerant("https://us2.concursolutions.com/nui/expense/reports/RPT-123", "RPT-123")
+			if tt.wantError {
+				if err == nil {
+					t.Fatal("expected error, got nil")
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			}
+		})
+	}
+}
+
+// PATCH(amend-2026-11-04: test click error handling on create fallback)
+func TestExpensesCreate_BrowserFallback_FirstClickPlainError(t *testing.T) {
+	tmpDir := t.TempDir()
+	mockBinPath := filepath.Join(tmpDir, "agent-browser")
+	stateFile := filepath.Join(tmpDir, "mock_state")
+
+	mockScript := `#!/bin/bash
+arg1="$1"
+arg2="$2"
+
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+fi
+
+if [ "$arg1" = "--cdp" ]; then
+	echo '{"success": false}'
+	exit 0
+fi
+
+if [ "$arg1" = "get" ] && [ "$arg2" = "url" ]; then
+	if [ -f "$MOCK_STATE_FILE" ]; then
+		echo "https://us2.concursolutions.com/nui/expense/reports/mock-report"
+	else
+		echo "https://us2.concursolutions.com/nui/expense/reports/mock-report/expenses/new?expenseTypeId=CELPH"
+	fi
+	exit 0
+fi
+
+if [ "$arg1" = "snapshot" ]; then
+	today_name=$(date +"%A %B %-d, %Y")
+	today_month=$(date +"%B")
+	today_year=$(date +"%Y")
+	echo "{\"success\":true,\"data\":{\"origin\":\"https://us2.concursolutions.com\",\"refs\":{\"e1\":{\"name\":\"Amount\",\"role\":\"textbox\"},\"e2\":{\"name\":\"Vendor Description\",\"role\":\"textbox\"},\"e3\":{\"name\":\"Save Expense\",\"role\":\"button\"},\"e4\":{\"name\":\"Business Purpose\",\"role\":\"textbox\"},\"e5\":{\"name\":\"Transaction Date\",\"role\":\"textbox\"},\"e6\":{\"name\":\"Open calendar, Transaction Date\",\"role\":\"button\"},\"e7\":{\"name\":\"Tuesday September 15, 2026\",\"role\":\"button\"},\"e8\":{\"name\":\"Wednesday January 1, 2020\",\"role\":\"button\"},\"e9\":{\"name\":\"$today_name\",\"role\":\"button\"},\"eA\":{\"name\":\"September\",\"role\":\"button\"},\"eB\":{\"name\":\"2026\",\"role\":\"button\"},\"eC\":{\"name\":\"$today_month\",\"role\":\"button\"},\"eD\":{\"name\":\"$today_year\",\"role\":\"button\"}}}}"
+	exit 0
+fi
+
+if [ "$arg1" = "click" ] && [ "$arg2" = "@e3" ]; then
+	if [ "$MOCK_CREATE_ON_FAIL" = "1" ]; then
+		touch "$MOCK_STATE_FILE"
+	fi
+	echo "mock click error" >&2
+	exit 1
+fi
+
+exit 0
+`
+	if err := os.WriteFile(mockBinPath, []byte(mockScript), 0o755); err != nil {
+		t.Fatalf("writing mock binary: %v", err)
+	}
+
+	oldPath := os.Getenv("PATH")
+	t.Setenv("PATH", tmpDir+string(filepath.ListSeparator)+oldPath)
+	t.Setenv("MOCK_STATE_FILE", stateFile)
+
+	t.Run("first-click plain error + expense actually created => success", func(t *testing.T) {
+		_ = os.Remove(stateFile)
+		t.Setenv("MOCK_CREATE_ON_FAIL", "1")
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			switch {
+			case r.Method == "POST" && strings.Contains(r.URL.Path, "/expenses"):
+				w.WriteHeader(http.StatusNotFound)
+				_, _ = w.Write([]byte(`{"errorMessage":"No static resource /expensereports/v4/users/test-user-id/context/TRAVELER/reports/mock-report/expenses."}`))
+			case r.Method == "GET" && strings.HasSuffix(r.URL.Path, "/expenses"):
+				if _, err := os.Stat(stateFile); err == nil {
+					w.WriteHeader(http.StatusOK)
+					_, _ = w.Write([]byte(`[{"expenseId":"exp-new-1","transactionAmount":{"value":50},"expenseType":{"code":"CELPH"}}]`))
+				} else {
+					w.WriteHeader(http.StatusOK)
+					_, _ = w.Write([]byte(`[]`))
+				}
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer server.Close()
+
+		t.Setenv("CONCUR_BASE_URL", server.URL)
+		t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
+		t.Setenv("PRINTING_PRESS_VERIFY", "1")
+		t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+
+		cmd := RootCmd()
+		cmd.SetArgs([]string{
+			"expenses", "create",
+			"--user-id", "test-user-id",
+			"--report-id", "mock-report",
+			"--type", "CELPH",
+			"--date", "2026-09-15",
+			"--amount", "50",
+			"--payment-type", "CASH",
+			"--vendor", "on-call cell phone",
+			"--json",
+		})
+
+		var out bytes.Buffer
+		cmd.SetOut(&out)
+		cmd.SetErr(io.Discard)
+
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		var envelope map[string]any
+		if err := json.Unmarshal(out.Bytes(), &envelope); err != nil {
+			t.Fatalf("failed to unmarshal output JSON: %v", err)
+		}
+		if success, ok := envelope["success"].(bool); !ok || !success {
+			t.Errorf("expected envelope success: true, got %+v", envelope)
+		}
+	})
+
+	t.Run("first-click plain error + nothing created => partial-success error", func(t *testing.T) {
+		_ = os.Remove(stateFile)
+		t.Setenv("MOCK_CREATE_ON_FAIL", "0")
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			switch {
+			case r.Method == "POST" && strings.Contains(r.URL.Path, "/expenses"):
+				w.WriteHeader(http.StatusNotFound)
+				_, _ = w.Write([]byte(`{"errorMessage":"No static resource /expensereports/v4/users/test-user-id/context/TRAVELER/reports/mock-report/expenses."}`))
+			case r.Method == "GET" && strings.HasSuffix(r.URL.Path, "/expenses"):
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`[]`))
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer server.Close()
+
+		t.Setenv("CONCUR_BASE_URL", server.URL)
+		t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
+		t.Setenv("PRINTING_PRESS_VERIFY", "1")
+		t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+
+		cmd := RootCmd()
+		cmd.SetArgs([]string{
+			"expenses", "create",
+			"--user-id", "test-user-id",
+			"--report-id", "mock-report",
+			"--type", "CELPH",
+			"--date", "2026-09-15",
+			"--amount", "50",
+			"--payment-type", "CASH",
+			"--vendor", "on-call cell phone",
+			"--json",
+		})
+
+		var out bytes.Buffer
+		cmd.SetOut(&out)
+		cmd.SetErr(io.Discard)
+
+		err := cmd.Execute()
+		if err == nil {
+			t.Fatal("expected an error, got nil")
+		}
+
+		if !strings.Contains(err.Error(), "the browser fallback's Save Expense click already fired before this failure") {
+			t.Errorf("expected duplicate warning in error message, got: %v", err)
+		}
+	})
+}

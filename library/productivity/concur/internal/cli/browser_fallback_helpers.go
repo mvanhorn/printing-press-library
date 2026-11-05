@@ -14,7 +14,9 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -144,6 +146,22 @@ func readDisplayedCalendarMonth(refs map[string]agentBrowserRefEntry) (time.Mont
 	return monthNameLookup[monthName], year, nil
 }
 
+// PATCH(amend-2026-11-03: define ClickEarlierAttemptMayHaveLandedError and timeouts)
+const navigationPollTimeout = 3 * time.Second
+
+type ClickEarlierAttemptMayHaveLandedError struct {
+	Attempt int
+	Cause   error
+}
+
+func (e *ClickEarlierAttemptMayHaveLandedError) Error() string {
+	return fmt.Sprintf("click error on attempt %d: an earlier click may already have landed: %v", e.Attempt, e.Cause)
+}
+
+func (e *ClickEarlierAttemptMayHaveLandedError) Unwrap() error {
+	return e.Cause
+}
+
 // clickWithNavigationRetry clicks initialRef, then retries once against a
 // freshly re-found ref (by name/role) if the browser is still showing
 // staleURLSubstr afterward.
@@ -163,38 +181,54 @@ func readDisplayedCalendarMonth(refs map[string]agentBrowserRefEntry) (time.Mont
 // bug, though the exact mechanism was not fully isolated. One bounded
 // retry against a fresh ref is cheap insurance against losing an
 // otherwise fully correctly-filled form to this race.
+//
+// PATCH(amend-2026-11-03: replace sleep with polling, check URL on click errors, return ClickEarlierAttemptMayHaveLandedError)
 func clickWithNavigationRetry(initialRef, staleURLSubstr, retryName, retryRole string, timeout time.Duration) error {
 	ref := initialRef
-	// PATCH(amend-2026-09-24: loop, don't retry-once-and-trust) -- a
-	// single unconditional retry does not re-check whether the RETRY
-	// click itself also hit the race; it just clicked once more and
-	// returned nil regardless. CONFIRMED LIVE 2026-09-24 that the race
-	// this function guards against can fire on consecutive attempts, not
-	// just once -- a caller relying on the single-retry version's nil
-	// return as proof of success was, in one observed run, still wrong
-	// (only caught by a separate, later value-verification check at the
-	// call site, not by this function itself). Re-checking the URL after
-	// EVERY attempt, up to a small bounded count, is what actually makes
-	// this function's own success return trustworthy on its own.
 	const maxAttempts = 3
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		if _, err := runAgentBrowser("click", "@"+ref); err != nil {
+			if attempt >= 2 {
+				currentURL, urlErr := agentBrowserCurrentURL()
+				if urlErr == nil && !strings.Contains(currentURL, staleURLSubstr) {
+					return nil // navigated away already, first click was successful
+				}
+				return &ClickEarlierAttemptMayHaveLandedError{Attempt: attempt, Cause: err}
+			}
 			return err
 		}
-		time.Sleep(1500 * time.Millisecond)
-		currentURL, err := agentBrowserCurrentURL()
-		if err == nil && !strings.Contains(currentURL, staleURLSubstr) {
+
+		// Poll for URL change
+		pollDeadline := time.Now().Add(navigationPollTimeout)
+		var navigated bool
+		for time.Now().Before(pollDeadline) {
+			currentURL, err := agentBrowserCurrentURL()
+			if err == nil && !strings.Contains(currentURL, staleURLSubstr) {
+				navigated = true
+				break
+			}
+			time.Sleep(150 * time.Millisecond)
+		}
+		if navigated {
 			return nil
 		}
+
 		if attempt == maxAttempts {
 			break
 		}
+		var err error
 		ref, err = waitForRef(retryName, retryRole, timeout)
 		if err != nil {
-			return fmt.Errorf("click did not navigate away and could not re-find %q to retry (attempt %d/%d): %w", retryName, attempt, maxAttempts, err)
+			return &ClickEarlierAttemptMayHaveLandedError{
+				Attempt: attempt + 1,
+				Cause:   fmt.Errorf("click did not navigate away and could not re-find %q to retry (attempt %d/%d): %w", retryName, attempt, maxAttempts, err),
+			}
 		}
 	}
-	return fmt.Errorf("clicked %q %d times but the page never navigated away from a URL containing %q -- the save/submit may not have registered", retryName, maxAttempts, staleURLSubstr)
+	return &ClickEarlierAttemptMayHaveLandedError{
+		Attempt: maxAttempts,
+		Cause:   fmt.Errorf("clicked %q %d times but the page never navigated away from a URL containing %q -- the save/submit may not have registered", retryName, maxAttempts, staleURLSubstr),
+	}
 }
 
 // fillTransactionDate sets Concur's Transaction Date field via its calendar
@@ -223,14 +257,49 @@ func clickWithNavigationRetry(initialRef, staleURLSubstr, retryName, retryRole s
 // risked navigating the wrong way. Reads the header's actual displayed
 // month/year each iteration and steps toward the target instead.
 func fillTransactionDate(target time.Time) error {
-	calendarButtonRef, err := waitForRef("Open calendar", "button", 5*time.Second)
-	if err != nil {
-		return fmt.Errorf("could not find the Open calendar button: %w", err)
+	if err := ensurePageVisible(); err != nil {
+		return err
 	}
-	if _, err := runAgentBrowser("click", "@"+calendarButtonRef); err != nil {
-		return fmt.Errorf("clicking Open calendar button: %w", err)
+	var calendarOpened bool
+	var lastErr error
+
+	// Try ref-based click with fresh refs, up to 3 attempts
+	for attempt := 1; attempt <= 3; attempt++ {
+		calendarButtonRef, err := waitForRef("Open calendar", "button", 5*time.Second)
+		if err != nil {
+			lastErr = fmt.Errorf("could not find Open calendar button on attempt %d: %w", attempt, err)
+			continue
+		}
+
+		if _, err := runAgentBrowser("click", "@"+calendarButtonRef); err != nil {
+			lastErr = fmt.Errorf("clicking Open calendar button on attempt %d: %w", attempt, err)
+			continue
+		}
+
+		// Poll snapshots (bounded, ~3 s) until readDisplayedCalendarMonth succeeds
+		pollDeadline := time.Now().Add(3 * time.Second)
+		var opened bool
+		for time.Now().Before(pollDeadline) {
+			refs, err := agentBrowserSnapshotRefs()
+			if err == nil {
+				if _, _, err := readDisplayedCalendarMonth(refs); err == nil {
+					opened = true
+					break
+				}
+			}
+			time.Sleep(200 * time.Millisecond)
+		}
+
+		if opened {
+			calendarOpened = true
+			break
+		}
+		lastErr = fmt.Errorf("calendar did not open after clicking button on attempt %d (readDisplayedCalendarMonth failed)", attempt)
 	}
-	time.Sleep(300 * time.Millisecond)
+
+	if !calendarOpened {
+		return fmt.Errorf("all calendar opening strategies failed (tried 3 ref clicks). The Concur page may be hidden or not focused, or Concur's form structure has changed. Prior errors: %v", lastErr)
+	}
 
 	dayName := fmt.Sprintf("%s %s %d, %d", target.Weekday(), target.Month(), target.Day(), target.Year())
 
@@ -296,4 +365,191 @@ func fillTransactionDate(target time.Time) error {
 		time.Sleep(250 * time.Millisecond)
 	}
 	return fmt.Errorf("could not reach %s in the calendar within %d month-navigation steps -- Concur's calendar structure may have changed", target.Format("2006-01-02"), maxMonthClicks)
+}
+
+// PATCH(amend-2026-11-03: wait for either reference excluding the first ref)
+//
+// names is a priority list: every ref is checked against names[0] before any
+// is checked against names[1], so the result does not depend on Go's
+// randomized map iteration. That matters for the submit flow: the confirm
+// dialog's own button ("Proceed" today) must win over the page-level
+// "Submit Report" button, whose ref can change between snapshots and so
+// slip past excludeRef.
+func waitForEitherRefExcluding(names []string, role, excludeRef string, timeout time.Duration) (string, string, error) {
+	deadline := time.Now().Add(timeout)
+	for {
+		refs, err := agentBrowserSnapshotRefs()
+		if err != nil {
+			return "", "", err
+		}
+		for _, nameSubstr := range names {
+			lowerSubstr := strings.ToLower(nameSubstr)
+			// Sorted so equally-ranked matches resolve the same way every run.
+			sortedRefs := make([]string, 0, len(refs))
+			for ref := range refs {
+				sortedRefs = append(sortedRefs, ref)
+			}
+			sort.Strings(sortedRefs)
+			for _, ref := range sortedRefs {
+				entry := refs[ref]
+				if ref == excludeRef {
+					continue
+				}
+				if role != "" && entry.Role != role {
+					continue
+				}
+				if strings.Contains(strings.ToLower(entry.Name), lowerSubstr) {
+					return ref, nameSubstr, nil
+				}
+			}
+		}
+		if time.Now().After(deadline) {
+			return "", "", fmt.Errorf("no element matching either %v (role %q, excluding ref %s) appeared within %s -- the page structure may have changed", names, role, excludeRef, timeout)
+		}
+		time.Sleep(400 * time.Millisecond)
+	}
+}
+
+// PATCH(amend-2026-11-03: ensure page visibility helpers for when the browser is hidden/minimized)
+func getDocumentVisibilityState() (string, error) {
+	out, err := runAgentBrowser("eval", "document.visibilityState", "--json")
+	if err == nil {
+		var env struct {
+			Success bool `json:"success"`
+			Data    struct {
+				Result string `json:"result"`
+			} `json:"data"`
+		}
+		if json.Unmarshal(out, &env) == nil && env.Success {
+			return strings.ToLower(strings.Trim(env.Data.Result, `"`)), nil
+		}
+	}
+
+	out, err = runAgentBrowser("eval", "document.visibilityState")
+	if err != nil {
+		return "", err
+	}
+	res := strings.ToLower(strings.TrimSpace(string(out)))
+	res = strings.Trim(res, `"'`)
+	if res == "visible" || res == "hidden" {
+		return res, nil
+	}
+	return "", fmt.Errorf("unexpected visibility state: %s", res)
+}
+
+func getActiveTabID() (string, error) {
+	out, err := runAgentBrowser("tab", "list", "--json")
+	if err == nil {
+		type tabEntry struct {
+			Active bool   `json:"active"`
+			TabID  string `json:"tabId"`
+			ID     string `json:"id"`
+			Ref    string `json:"ref"`
+			Label  string `json:"label"`
+		}
+		type tabListEnvelope struct {
+			Success bool `json:"success"`
+			Data    struct {
+				Tabs []tabEntry `json:"tabs"`
+			} `json:"data"`
+		}
+		var env tabListEnvelope
+		if json.Unmarshal(out, &env) == nil && env.Success {
+			for _, t := range env.Data.Tabs {
+				if t.Active {
+					if t.TabID != "" {
+						return t.TabID, nil
+					}
+					if t.ID != "" {
+						return t.ID, nil
+					}
+					if t.Ref != "" {
+						return t.Ref, nil
+					}
+					if t.Label != "" {
+						return t.Label, nil
+					}
+				}
+			}
+		}
+	}
+
+	out, err = runAgentBrowser("tab", "list")
+	if err != nil {
+		return "", err
+	}
+	lines := strings.Split(string(out), "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.Contains(trimmed, "→") || strings.Contains(trimmed, "->") || strings.HasPrefix(trimmed, "→") {
+			start := strings.Index(trimmed, "[")
+			end := strings.Index(trimmed, "]")
+			if start != -1 && end != -1 && end > start+1 {
+				return trimmed[start+1 : end], nil
+			}
+		}
+	}
+
+	return "", fmt.Errorf("active tab not found")
+}
+
+func ensurePageVisible() error {
+	const maxPoll = 3 * time.Second
+	pollDeadline := time.Now().Add(maxPoll)
+
+	for {
+		visibility, err := getDocumentVisibilityState()
+		if err != nil {
+			return nil
+		}
+		if visibility == "visible" {
+			return nil
+		}
+		if visibility == "hidden" {
+			activeID, tabErr := getActiveTabID()
+			if tabErr == nil && activeID != "" {
+				_, _ = runAgentBrowser("tab", activeID)
+			}
+		}
+
+		if time.Now().After(pollDeadline) {
+			break
+		}
+		time.Sleep(250 * time.Millisecond)
+	}
+
+	lastVis, err := getDocumentVisibilityState()
+	if err == nil && lastVis == "hidden" {
+		return fmt.Errorf("the Concur browser window is hidden or minimized; bring it to the front and retry")
+	}
+	return nil
+}
+
+// PATCH(amend-2026-11-03: navigate to page, with tolerant retry on timeout and ensuring visibility)
+func openPageTolerant(url, mustContain string) error {
+	_, err := runAgentBrowser("open", url)
+	var opened bool
+	if err == nil {
+		opened = true
+	} else {
+		if strings.Contains(strings.ToLower(err.Error()), "timed out") {
+			deadline := time.Now().Add(5 * time.Second)
+			for time.Now().Before(deadline) {
+				currentURL, urlErr := agentBrowserCurrentURL()
+				if urlErr == nil && strings.Contains(currentURL, mustContain) {
+					opened = true
+					break
+				}
+				time.Sleep(300 * time.Millisecond)
+			}
+		}
+		if !opened {
+			return err
+		}
+	}
+
+	if err := ensurePageVisible(); err != nil {
+		return err
+	}
+	return nil
 }
