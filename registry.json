@@ -34345,6 +34345,12 @@
         "Evaluate snake draft rounds or auction dollar costs against season-to-date fantasy points and current roster retention."
       ],
       "path": "library/media-and-entertainment/yahoo-fantasy",
+      "release": {
+        "cli_name": "yahoo-fantasy-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-05T13:06:50Z",
+        "source_commit": "15b2335c737a241088dd715dc6630f01aa7efbb1"
+      },
       "printer": "BenHof",
       "printer_name": "BenHof",
       "creator": {
