@@ -34313,6 +34313,62 @@
       }
     },
     {
+      "name": "yahoo-fantasy",
+      "category": "media-and-entertainment",
+      "api": "Yahoo Fantasy Sports",
+      "description": "Full Yahoo Fantasy Sports read/write CLI and MCP server — set lineups, execute add/drops and FAAB waiver claims, and run local SQLite league analytics.",
+      "search_terms": [
+        "yahoo-fantasy",
+        "Yahoo Fantasy Sports",
+        "yahoo-fantasy-pp-cli",
+        "Full Yahoo Fantasy Sports read/write CLI and MCP server — set lineups, execute add/drops and FAAB waiver claims, and run local SQLite league analytics.",
+        "Lineup auditor and ergonomic XML slot setter",
+        "lineup",
+        "Audit active starting slots for OUT, IR, or BYE players, preview bench swaps, and submit Yahoo XML roster updates.",
+        "Atomic add/drop and FAAB waiver claim builder",
+        "add-drop",
+        "Execute or dry-run free-agent adds, drops, atomic add/drops, and FAAB waiver claims with automatic XML payload construction.",
+        "Positional waiver and free-agent upgrade recommender",
+        "waiver-wire",
+        "Rank available free agents and waiver players by net points-per-game upgrade over your weakest bench player at each position.",
+        "Head-to-head matchup radar and slot advantage breakdown",
+        "matchup-radar",
+        "Compare both opponents' starting lineups slot-by-slot with projected vs. actual points, remaining starters, and injury flags.",
+        "All-play standings, power rankings, and schedule luck",
+        "power-rankings",
+        "Compute every team's true weekly all-play record, schedule luck delta, scoring consistency, and composite power rank.",
+        "League FAAB burn and waiver bid intelligence",
+        "faab-audit",
+        "Track every manager's remaining FAAB budget, positional spending breakdown, winning bids, and blocking bid thresholds.",
+        "Draft capital ROI and steals/busts analyzer",
+        "draft-roi",
+        "Evaluate snake draft rounds or auction dollar costs against season-to-date fantasy points and current roster retention."
+      ],
+      "path": "library/media-and-entertainment/yahoo-fantasy",
+      "printer": "BenHof",
+      "printer_name": "BenHof",
+      "creator": {
+        "handle": "BenHof",
+        "name": "BenHof"
+      },
+      "mcp": {
+        "binary": "yahoo-fantasy-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 23,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "YAHOO_ACCESS_TOKEN",
+          "YAHOO_FANTASY_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "yahoo-finance",
       "category": "commerce",
       "api": "Yahoo Finance",
