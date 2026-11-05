@@ -63,7 +63,10 @@ These capabilities aren't available in any other tool for this API.
 - **`reports create`** — Retries report creation over HTTP with the policy of your most recent report when the Concur v4 API rejects the request with a `policyId is required` error, and falls back to an automated browser only when no policy can be inferred. Both paths are conditional and only trigger for tenants requiring explicit policy assignment. It never guesses a Concur region: the UI host is derived only from a base URL that's actually `concursolutions.com`, or from an explicit `CONCUR_UI_BASE_URL` override — anything else is a clear error, not a silent default. If the browser click already succeeded before a later step fails, the error says so explicitly (with the report ID when known) instead of looking like a safely-retryable failure; do not blindly retry in that case.
 - **`expenses create`** — Same conditional fallback pattern, triggered by a different confirmed-live defect: once a request body passes every client-side validation check, the API 404s instead of persisting (deliberately-invalid bodies correctly get a 400 instead, ruling out a body-shape bug). Triggers for a `--stdin` body exactly as reliably as the flag-driven path -- the fields it needs are read from the constructed request body, not the command's flag variables. Since the browser never surfaces a usable expense ID, success is confirmed by diffing the report's expense list (`GET .../reports/{id}/expenses`, confirmed unaffected by the defect) before and after the form's Save click, correlated against the submitted amount and expense type so a report modified concurrently through a shared manager/processor/proxy context can't have another actor's new expense misattributed as this call's own. Fills `--vendor`/`--business-purpose` directly in the form when set; if either can't be found or filled, the fallback aborts BEFORE the irreversible Save click rather than saving without a value the caller explicitly asked for. Transaction Date is filled via Concur's calendar picker (day buttons carry a fully descriptive accessible name; direct text entry does not reliably replace an existing value), so any `--date` is honored, not just today. Payment Type's only verified-live value remains Concur's own default (Cash) -- a `--payment-type` this can't honor is still rejected before the browser even opens.
 - **`expenses update`** — Same 404 defect, on the sibling PATCH path (`.../expenses/{id}`). Fills `--purpose`/`--amount` (the latter added specifically to support this fallback) in the expense's direct edit view, then re-fetches the expense and verifies its fields actually match what was requested before reporting success -- a save whose click fired but didn't actually persist is reported as a failure, not trusted just because the follow-up GET itself succeeded. Business Purpose is required on Concur's form, so `--purpose ""` (a clear request) is rejected up front. `--comment`/`--custom-fields` aren't yet verified live through this fallback and are rejected the same way.
-- **`reports submit`** — A different-shaped (405, not 404) but same-root-cause defect: POST/PUT/DELETE all return 405 and PATCH 404s with the same "No static resource" signature against `.../reports/{id}/submit` -- no verb reaches the action server-side. Clicks the report page's "Submit Report" button, then a SECOND, separate "Submit Report" button inside the confirmation dialog that opens (both share an identical accessible name and role while the dialog is open -- disambiguated by excluding the already-clicked ref rather than risking a non-deterministic re-click of the wrong one). Confirms `isSubmitted`/`approvalStatus` on the re-fetched report before reporting success.
+- **`reports submit`** — A different-shaped (405, not 404) but same-root-cause defect: POST/PUT/DELETE all return 405 and PATCH 404s with the same "No static resource" signature against `.../reports/{id}/submit` -- no verb reaches the action server-side. Clicks the report page's "Submit Report" button, then the confirm button of the dialog that opens: "Proceed" in the current "Report Summary" dialog, or a SECOND, separate "Submit Report" button in the older "Report Totals" dialog (both variants are handled; "Proceed" is preferred, and the already-clicked ref is excluded rather than risking a re-click of the wrong button). Confirms `isSubmitted`/`approvalStatus` on the re-fetched report before reporting success.
+- **`receipts`** — `POST /receiptimages/v1/{expense_id}` returns HTTP 404 on this tenant, so the command tries it first and, on a 404, falls back to the expense's edit page when `--report-id` (and `--user-id`) are given: it uploads the file through the page's file input (the receipt attaches immediately; no Save click is needed) and confirms the expense's `receiptImageId` is populated before reporting success. It refuses to attach a second receipt to an expense that already has one. Accepted types: png, jpg, jpeg, pdf, tif, tiff, up to 20 MB.
+
+The fallbacks drive a real Chrome page. If that window is hidden or minimized, Chrome reports the page as not visible and Concur's date picker will not open, so the fallbacks first activate the tab and stop with an actionable error if the page stays hidden. Slow page loads no longer abort a fallback when the target page did load, and an `expenses create`/`expenses update` save click that errors but actually saved is verified against the report before the command reports a result.
 
 ### Itemization lines: inspect and fix
 - **`expenses itemizations`** — Lists an expense's itemization lines (its child expenses, each carrying `parentExpenseId`), which `expenses list` and `expenses get` do not include.
@@ -85,7 +88,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Local state that compounds
-- **`expenses scan-duplicates`** — Find potential double-entered charges across all of your synced expenses.
+- **`expenses scan-duplicates`** — Find potential double-entered charges across all of your synced expenses. Run `concur-pp-cli sync --resources expenses --user-id <uid>` first: it fetches each recent report's expenses (newest 100 reports by default; `--max-pages` to widen) into the local store, and the scan refuses to run on a never-synced store and reports how old the synced data is. Each sync also drops local rows for expenses that were removed from a report you re-fetched (`--no-prune` keeps them); expenses of a report you deleted outright stay until the local store is cleared.
 
   _Run this before submitting a batch of reports if you suspect a corporate-card charge and a manually-entered cash expense might be the same transaction._
 
@@ -208,7 +211,15 @@ concur-pp-cli which "<capability in your own words>"
 ### Check for duplicate charges
 
 ```bash
+concur-pp-cli sync --resources expenses --user-id <uid> --agent
 concur-pp-cli expenses scan-duplicates --agent
+```
+
+### Attach a receipt to an expense
+
+```bash
+concur-pp-cli receipts <expense_id> --file receipt.pdf --report-id <report_id> --user-id <uid> --agent
+concur-pp-cli expenses list --user-id <uid> --report-id <report_id> --no-cache --agent   # receiptImageId should now be set
 ```
 
 ### See what's actually on an existing report
