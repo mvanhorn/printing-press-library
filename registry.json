@@ -5787,9 +5787,9 @@
       "path": "library/productivity/concur",
       "release": {
         "cli_name": "concur-pp-cli",
-        "version": "2026.10.4",
-        "released_at": "2026-10-19T08:57:46Z",
-        "source_commit": "06e46d4690298c64cfd8137947d48fee64bd3a4a"
+        "version": "2026.11.1",
+        "released_at": "2026-11-05T09:51:26Z",
+        "source_commit": "a637af04297e74eedc1610e4ec919de539ee8e28"
       },
       "printer": "enlewof",
       "printer_name": "Allen Lew",
