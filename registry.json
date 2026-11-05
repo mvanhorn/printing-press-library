@@ -14955,9 +14955,9 @@
       "path": "library/commerce/instacart",
       "release": {
         "cli_name": "instacart-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-27T22:08:44Z",
-        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
+        "version": "2026.11.1",
+        "released_at": "2026-11-05T09:52:20Z",
+        "source_commit": "0c867171f72df9d035ff80b7ff7a6c8ab7bc02b7"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
