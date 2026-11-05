@@ -42,6 +42,8 @@ If you don't know your coordinates, the easiest path is:
 		newConfigShowCmd(),
 		newConfigSetCoordsCmd(),
 		newConfigSetAddressCmd(),
+		// PATCH (instacart-regional-host): regional site selection.
+		newConfigSetHostCmd(),
 		// PATCH (instacart-address-profiles): named multi-address store.
 		newConfigProfilesCmd(),
 	)
@@ -64,13 +66,14 @@ func newConfigShowCmd() *cobra.Command {
 				"address_id":  cfg.AddressID,
 				"latitude":    cfg.Latitude,
 				"longitude":   cfg.Longitude,
+				"host":        auth.Host(),
 			}
 			asJSON, _ := cmd.Flags().GetBool("json")
 			if asJSON {
 				return json.NewEncoder(cmd.OutOrStdout()).Encode(out)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "postal_code: %q\naddress_id:  %q\nlatitude:    %v\nlongitude:   %v\n",
-				cfg.PostalCode, cfg.AddressID, cfg.Latitude, cfg.Longitude)
+			fmt.Fprintf(cmd.OutOrStdout(), "postal_code: %q\naddress_id:  %q\nlatitude:    %v\nlongitude:   %v\nhost:        %q\n",
+				cfg.PostalCode, cfg.AddressID, cfg.Latitude, cfg.Longitude, auth.Host())
 			if !locationReady(cfg) {
 				fmt.Fprintln(cmd.OutOrStdout(), "\nWARNING: location is incomplete — see `instacart config --help`.")
 			}
@@ -318,7 +321,7 @@ func tryAutoPopulateLocation(cmd *cobra.Command, sess *auth.Session) {
 		return
 	}
 	if envelope.Data.CurrentUser == nil || len(envelope.Data.CurrentUser.Addresses) == 0 {
-		fmt.Fprintln(cmd.OutOrStdout(), "\nNote: no saved Instacart addresses found on this account. Add one at https://www.instacart.com/store/account/your-account, then re-run auth login (or use `instacart config set-coords`).")
+		fmt.Fprintln(cmd.OutOrStdout(), "\nNote: no saved Instacart addresses found on this account. Add one at "+auth.BaseURL()+"/store/account/your-account, then re-run auth login (or use `instacart config set-coords`).")
 		return
 	}
 

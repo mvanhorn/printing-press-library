@@ -1,0 +1,56 @@
+{
+  "data": {
+    "userCart": {
+      "id": "1",
+      "itemCount": 3,
+      "cartType": "grocery",
+      "retailerId": "1",
+      "updatedAt": "2026-01-01T00:00:00Z",
+      "cartItemCollection": {
+        "cartItems": [
+          {
+            "id": "cart_item_1",
+            "userId": "0",
+            "specialInstructions": null,
+            "quantity": 1.0,
+            "quantityType": "each",
+            "basketProduct": {
+              "id": "items_1000-9000000",
+              "productId": "9000000",
+              "__typename": "BasketProductsBasketProductItem"
+            },
+            "__typename": "CartItem"
+          },
+          {
+            "id": "cart_item_2",
+            "userId": "0",
+            "specialInstructions": null,
+            "quantity": 2.0,
+            "quantityType": "each",
+            "basketProduct": {
+              "id": "items_1000-9000002",
+              "productId": "9000002",
+              "__typename": "BasketProductsBasketProductItem"
+            },
+            "__typename": "CartItem"
+          },
+          {
+            "id": "cart_item_3",
+            "userId": "0",
+            "specialInstructions": null,
+            "quantity": 1.0,
+            "quantityType": "each",
+            "basketProduct": {
+              "id": "items_1000-9999999",
+              "productId": "9999999",
+              "__typename": "BasketProductsBasketProductItem"
+            },
+            "__typename": "CartItem"
+          }
+        ],
+        "__typename": "CartItemCollection"
+      },
+      "__typename": "Cart"
+    }
+  }
+}

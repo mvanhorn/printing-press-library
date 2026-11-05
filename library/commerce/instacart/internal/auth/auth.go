@@ -17,9 +17,11 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/instacart/internal/config"
 )
 
+// InstacartDomain and InstacartHost are the US defaults. Request-building
+// code uses Host()/BaseURL() so a regional site can be selected (host.go).
 const (
-	InstacartDomain = "www.instacart.com"
-	InstacartHost   = "https://www.instacart.com"
+	InstacartDomain = DefaultHost
+	InstacartHost   = "https://" + DefaultHost
 )
 
 var RequiredCookieNames = []string{
@@ -130,7 +132,7 @@ func ImportFromChrome() (*Session, error) {
 		return nil, errors.New("no browser cookie stores found by kooky; make sure Chrome is installed")
 	}
 
-	u, _ := url.Parse(InstacartHost)
+	u, _ := url.Parse(BaseURL())
 	wanted := make(map[string]bool, len(UsefulCookieNames))
 	for _, n := range UsefulCookieNames {
 		wanted[n] = true
@@ -148,7 +150,7 @@ func ImportFromChrome() (*Session, error) {
 		if browser != "chrome" && browser != "chromium" && browser != "brave" && browser != "edge" {
 			continue
 		}
-		cookies, err := st.ReadCookies(kooky.DomainHasSuffix("instacart.com"))
+		cookies, err := st.ReadCookies(kooky.DomainHasSuffix(CookieDomain()))
 		if err != nil {
 			lastErr = err
 			continue
@@ -175,7 +177,7 @@ func ImportFromChrome() (*Session, error) {
 		if lastErr != nil {
 			return nil, fmt.Errorf("kooky could not read Chrome cookies: %w (quit Chrome and retry?)", lastErr)
 		}
-		return nil, errors.New("no Instacart cookies found in Chrome (are you logged in at instacart.com?)")
+		return nil, fmt.Errorf("no Instacart cookies found in Chrome (are you logged in at %s?)", CookieDomain())
 	}
 
 	// Require at least one of the session cookies.
@@ -187,7 +189,7 @@ func ImportFromChrome() (*Session, error) {
 		}
 	}
 	if !hasSession {
-		return nil, fmt.Errorf("found Instacart cookies but no session cookie (%s) -- please log in at https://www.instacart.com in Chrome, then re-run `instacart auth login`", strings.Join(RequiredCookieNames, ", "))
+		return nil, fmt.Errorf("found Instacart cookies but no session cookie (%s) -- please log in at %s in Chrome, then re-run `instacart auth login`", strings.Join(RequiredCookieNames, ", "), BaseURL())
 	}
 
 	s := &Session{Source: "chrome", CreatedAt: time.Now().UTC()}
@@ -235,7 +237,7 @@ func ImportFromFile(path string) (*Session, error) {
 
 	s := &Session{Source: "file", CreatedAt: time.Now().UTC()}
 	for _, c := range cookies {
-		if !strings.Contains(c.Domain, "instacart.com") {
+		if !cookieDomainMatches(c.Domain) {
 			continue
 		}
 		if !wanted[c.Name] {
@@ -305,7 +307,7 @@ func ImportFromHeader(header string) (*Session, error) {
 		s.Cookies = append(s.Cookies, Cookie{
 			Name:     name,
 			Value:    val,
-			Domain:   InstacartDomain,
+			Domain:   Host(),
 			Path:     "/",
 			Secure:   true,
 			HTTPOnly: strings.HasPrefix(name, "__Host-") || strings.HasPrefix(name, "_instacart"),

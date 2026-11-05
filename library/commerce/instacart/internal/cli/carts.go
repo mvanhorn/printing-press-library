@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -87,9 +88,15 @@ func newCartShowCmd() *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:       "Show the contents of your cart at a retailer with real item names",
 		Long: `Lists every item in your active cart at <retailer> with its real product
-name, quantity, and item id. Chains CartData -> ShopCollectionScoped ->
-Items under the hood, caching resolved names to the local products table
-so subsequent calls for the same items skip the Items round trip.`,
+name, quantity, size, price, availability, and item id. Chains CartData ->
+ShopCollectionScoped -> Items under the hood. Availability and price are
+always fetched live; resolved names are cached to the local products table.
+
+Lines Instacart reports as not available are marked UNAVAILABLE; lines the
+Items lookup does not return at all are marked "availability unknown".
+--json adds available, availability (available|low_stock|unavailable|unknown),
+stock_level, stock_label, price, price_per_unit and size per item, plus
+unavailable_count and unknown_count.`,
 		Example: `  instacart cart show pcc-community-markets
   instacart cart show costco --json`,
 		Args: cobra.ExactArgs(1),
@@ -109,30 +116,45 @@ so subsequent calls for the same items skip the Items round trip.`,
 			}
 
 			items, err := gql.FetchCartItems(app.Ctx, app.Session, app.Cfg, app.Store, cartID, retailer)
-			if err != nil {
+			if errors.Is(err, gql.ErrAvailabilityUnknown) {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %v\n", err)
+			} else if err != nil {
 				return coded(ExitTransient, "%v", err)
 			}
+			unavailable, unknown := countAvailability(items)
 
 			if app.JSON {
 				return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
-					"retailer":   retailer,
-					"cart_id":    cartID,
-					"item_count": len(items),
-					"items":      items,
+					"retailer":          retailer,
+					"cart_id":           cartID,
+					"item_count":        len(items),
+					"unavailable_count": unavailable,
+					"unknown_count":     unknown,
+					"items":             items,
 				})
 			}
 			if len(items) == 0 {
 				fmt.Fprintf(cmd.OutOrStdout(), "%s cart (id=%s): empty\n", retailer, cartID)
 				return nil
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "%s cart (id=%s): %d item(s)\n", retailer, cartID, len(items))
+			fmt.Fprintf(cmd.OutOrStdout(), "%s cart (id=%s): %d item(s)", retailer, cartID, len(items))
+			if unavailable > 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), ", %d UNAVAILABLE", unavailable)
+			}
+			fmt.Fprintln(cmd.OutOrStdout())
 			for i, it := range items {
 				name := it.Name
 				if name == "" {
 					name = "(name unresolved)"
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "  %2d. %s  qty=%g\n      item_id=%s\n",
-					i+1, name, it.Quantity, it.ItemID)
+				fmt.Fprintf(cmd.OutOrStdout(), "  %2d. %s  qty=%g\n", i+1, name, it.Quantity)
+				if status := itemStatusLine(it.Size, it.Price, it.PricePerUnit, it.Availability, it.StockLabel); status != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), "      %s\n", status)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "      item_id=%s\n", it.ItemID)
+			}
+			if unknown > 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), "note: %d item(s) were not returned by Instacart for this store; check them in the cart before checkout\n", unknown)
 			}
 			return nil
 		},
@@ -185,4 +207,18 @@ product's item id before removing.`,
 			return nil
 		},
 	}
+}
+
+// countAvailability returns how many lines are unavailable and how many
+// have unknown availability.
+func countAvailability(items []gql.CartLineItem) (unavailable, unknown int) {
+	for _, it := range items {
+		switch it.Availability {
+		case gql.AvailabilityUnavailable:
+			unavailable++
+		case gql.AvailabilityUnknown:
+			unknown++
+		}
+	}
+	return unavailable, unknown
 }

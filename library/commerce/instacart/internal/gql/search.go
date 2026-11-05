@@ -23,6 +23,12 @@ type SearchResult struct {
 	ProductID    string `json:"product_id"`
 	PriceDisplay string `json:"price_display,omitempty"`
 	Retailer     string `json:"retailer,omitempty"`
+	// PATCH (instacart-cart-search-stock-price): live item details from Items.
+	Size         string `json:"size,omitempty"`
+	PricePerUnit string `json:"price_per_unit,omitempty"`
+	Available    *bool  `json:"available,omitempty"`
+	Availability string `json:"availability,omitempty"`
+	StockLabel   string `json:"stock_label,omitempty"`
 }
 
 // InventoryTokenTTL is how long a fetched retailerInventorySessionToken stays
@@ -111,11 +117,15 @@ func ResolveProducts(ctx context.Context, sess *auth.Session, cfg *config.Config
 		"postalCode": cfg.PostalCode,
 	}
 	resp, err = client.Query(ctx, "Items", itemsVars)
-	if err != nil {
+	// Items can return partial data with field errors (e.g. "Internal Error"
+	// on price for out-of-stock items). Keep the items that came back.
+	var results []SearchResult
+	if resp != nil && len(resp.RawBody) > 0 {
+		results = parseItemsResponse(resp.RawBody, retailerSlug, limit)
+	}
+	if err != nil && len(results) == 0 {
 		return nil, fmt.Errorf("items lookup: %w", err)
 	}
-
-	results := parseItemsResponse(resp.RawBody, retailerSlug, limit)
 	if len(results) == 0 {
 		return nil, fmt.Errorf("items response empty for %q at %s", query, retailerSlug)
 	}
@@ -291,32 +301,28 @@ func extractProductIDs(raw []byte, max int) ([]string, error) {
 
 // parseItemsResponse walks an Items GraphQL response and produces
 // SearchResult entries. The Instacart response shape is
-// {data: {items: [{id, name, ...}]}}.
+// {data: {items: [{id, name, size, availability, price, ...}]}}.
 func parseItemsResponse(raw []byte, retailerSlug string, limit int) []SearchResult {
-	var envelope struct {
-		Data struct {
-			Items []map[string]any `json:"items"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(raw, &envelope); err != nil {
-		return nil
-	}
 	var results []SearchResult
-	for _, it := range envelope.Data.Items {
-		id, _ := it["id"].(string)
-		name, _ := it["name"].(string)
-		if id == "" || name == "" {
+	for _, d := range parseItemDetails(raw) {
+		if d.Name == "" {
 			continue
 		}
-		prodID := id
-		if idx := strings.LastIndex(id, "-"); idx > 0 {
-			prodID = id[idx+1:]
+		prodID := d.ItemID
+		if idx := strings.LastIndex(d.ItemID, "-"); idx > 0 {
+			prodID = d.ItemID[idx+1:]
 		}
 		results = append(results, SearchResult{
-			Name:      name,
-			ItemID:    id,
-			ProductID: prodID,
-			Retailer:  retailerSlug,
+			Name:         d.Name,
+			ItemID:       d.ItemID,
+			ProductID:    prodID,
+			PriceDisplay: d.Price,
+			Retailer:     retailerSlug,
+			Size:         d.Size,
+			PricePerUnit: d.PricePerUnit,
+			Available:    d.Available,
+			Availability: d.Availability(),
+			StockLabel:   d.StockLabel,
 		})
 		if limit > 0 && len(results) >= limit {
 			break

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "instacart-regional-host-is-configurable",
+  "applied_at": "2026-11-04",
+  "base_run_id": "2026-04-11T06:12:25Z",
+  "base_printing_press_version": "1.2.1",
+  "summary": "The Instacart site is a setting, not a constant: GraphQL endpoint, Origin/Referer and cookie-domain filtering all follow one active host resolved from $INSTACART_HOST, then config.json \"host\" (instacart config set-host), then www.instacart.com, and only instacart.<tld> hosts are accepted.",
+  "reason": "Regional storefronts such as www.instacart.ca use the same web GraphQL API on their own origin with their own session cookies; a hardcoded www.instacart.com sends .ca cookies to the wrong origin and auth login ignores .ca cookies. The domain allowlist keeps session cookies from being sent to a non-Instacart host.",
+  "files": [
+    "internal/auth/host.go",
+    "internal/auth/host_test.go",
+    "internal/auth/auth.go",
+    "internal/gql/client.go",
+    "internal/config/config.go",
+    "internal/cli/root.go",
+    "internal/cli/config.go",
+    "internal/cli/config_host.go"
+  ]
+}

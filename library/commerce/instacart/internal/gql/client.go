@@ -19,9 +19,14 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/instacart/internal/store"
 )
 
+// GraphQLEndpoint is the US endpoint, kept for reference. Requests use
+// Endpoint(), which follows the configured regional host.
 const (
 	GraphQLEndpoint = "https://www.instacart.com/graphql"
 )
+
+// Endpoint returns the GraphQL URL for the active Instacart host.
+func Endpoint() string { return auth.BaseURL() + "/graphql" }
 
 type Client struct {
 	HTTP      *http.Client
@@ -108,7 +113,7 @@ func (c *Client) call(ctx context.Context, method, opName string, variables any,
 		// GET + persisted query: hash in extensions, no query text.
 		ext := Extensions{PersistedQuery: &PersistedQuery{Version: 1, Sha256Hash: hash}}
 		extJSON, _ := json.Marshal(ext)
-		u, err := url.Parse(GraphQLEndpoint)
+		u, err := url.Parse(Endpoint())
 		if err != nil {
 			return nil, err
 		}
@@ -143,7 +148,7 @@ func (c *Client) call(ctx context.Context, method, opName string, variables any,
 		if err != nil {
 			return nil, err
 		}
-		req, err = http.NewRequestWithContext(ctx, http.MethodPost, GraphQLEndpoint, bytes.NewReader(body))
+		req, err = http.NewRequestWithContext(ctx, http.MethodPost, Endpoint(), bytes.NewReader(body))
 		if err != nil {
 			return nil, err
 		}
@@ -153,8 +158,8 @@ func (c *Client) call(ctx context.Context, method, opName string, variables any,
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
-	req.Header.Set("Origin", "https://www.instacart.com")
-	req.Header.Set("Referer", "https://www.instacart.com/")
+	req.Header.Set("Origin", auth.BaseURL())
+	req.Header.Set("Referer", auth.BaseURL()+"/")
 	req.Header.Set("X-Client-Identifier", "web")
 	req.Header.Set("apollographql-client-name", "@instacart/marketplace-web")
 	req.Header.Set("apollographql-client-version", "unknown")
