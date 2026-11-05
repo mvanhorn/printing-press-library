@@ -1,0 +1,276 @@
+{
+  "api_name": "yahoo-fantasy",
+  "novelty_score": 95,
+  "alternatives": [
+    {
+      "name": "uberfastman/yfpy",
+      "url": "https://github.com/uberfastman/yfpy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 270,
+      "last_updated": "",
+      "command_count": 32,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "spilchen/yahoo_fantasy_api",
+      "url": "https://github.com/spilchen/yahoo_fantasy_api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 109,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "derekrbreese/fantasy-football-mcp-public",
+      "url": "https://github.com/derekrbreese/fantasy-football-mcp-public",
+      "language": "Python",
+      "install_method": "",
+      "stars": 93,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "michaelfromorg/mcp-yahoo-fantasy",
+      "url": "https://github.com/michaelfromorg/mcp-yahoo-fantasy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 26,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "spilchen/yahoo_fantasy_mcp",
+      "url": "https://github.com/spilchen/yahoo_fantasy_mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-01T15:18:55Z",
+  "novel_features": [
+    {
+      "name": "Lineup auditor and ergonomic XML slot setter",
+      "command": "lineup",
+      "description": "Audit active starting slots for OUT, IR, or BYE players, preview bench swaps, and submit Yahoo XML roster updates.",
+      "rationale": "Combines roster + league position rules validation with automatic synthesis of Yahoo's \u003cfantasy_content\u003e\u003croster\u003e XML payload.",
+      "example": "yahoo-fantasy-pp-cli lineup --team 449.l.365083.t.1 --week 9 --set QB=449.p.31862,BN=449.p.30123 --dry-run --agent",
+      "why_it_matters": "Use this instead of raw PUT /roster calls when checking for inactive starters or moving players between starting, bench, and IR slots.",
+      "group": "Roster \u0026 Transaction Operations"
+    },
+    {
+      "name": "Atomic add/drop and FAAB waiver claim builder",
+      "command": "add-drop",
+      "description": "Execute or dry-run free-agent adds, drops, atomic add/drops, and FAAB waiver claims with automatic XML payload construction.",
+      "rationale": "Validates player availability and team FAAB balance before generating Yahoo's mandatory \u003cfantasy_content\u003e\u003ctransaction\u003e XML envelope.",
+      "example": "yahoo-fantasy-pp-cli add-drop --league 449.l.365083 --team 449.l.365083.t.1 --add 449.p.31862 --drop 449.p.30123 --faab 15 --dry-run --agent",
+      "why_it_matters": "Use this to safely preview and submit single adds, drops, or atomic add/drop waiver claims without hand-writing Yahoo XML.",
+      "group": "Roster \u0026 Transaction Operations"
+    },
+    {
+      "name": "Positional waiver and free-agent upgrade recommender",
+      "command": "waiver-wire",
+      "description": "Rank available free agents and waiver players by net points-per-game upgrade over your weakest bench player at each position.",
+      "rationale": "Joins your team roster against league free agents, player stats, and ownership percentages locally or live.",
+      "example": "yahoo-fantasy-pp-cli waiver-wire --league 449.l.365083 --team 449.l.365083.t.1 --pos RB --limit 10 --agent",
+      "why_it_matters": "Reach for this before Tuesday waiver runs to find highest-leverage roster upgrades without scanning raw 25-player pages.",
+      "group": "Weekly Matchup \u0026 Waiver Intelligence"
+    },
+    {
+      "name": "Head-to-head matchup radar and slot advantage breakdown",
+      "command": "matchup-radar",
+      "description": "Compare both opponents' starting lineups slot-by-slot with projected vs. actual points, remaining starters, and injury flags.",
+      "rationale": "Merges league scoreboard totals with both teams' weekly rosters to expose positional mismatches.",
+      "example": "yahoo-fantasy-pp-cli matchup-radar --league 449.l.365083 --team 449.l.365083.t.1 --week 9 --agent",
+      "why_it_matters": "Use this for a complete single-call head-to-head matchup breakdown instead of fetching scoreboard and two team rosters separately.",
+      "group": "Weekly Matchup \u0026 Waiver Intelligence"
+    },
+    {
+      "name": "All-play standings, power rankings, and schedule luck",
+      "command": "power-rankings",
+      "description": "Compute every team's true weekly all-play record, schedule luck delta, scoring consistency, and composite power rank.",
+      "rationale": "Aggregates multi-week scoreboards and standings in local SQLite to separate true team strength from matchup schedule luck.",
+      "example": "yahoo-fantasy-pp-cli power-rankings --league 449.l.365083 --through-week 9 --agent",
+      "why_it_matters": "Use this when evaluating true league contenders and unlucky teams beyond raw win-loss standings.",
+      "group": "League Analytics \u0026 SQLite Intelligence"
+    },
+    {
+      "name": "League FAAB burn and waiver bid intelligence",
+      "command": "faab-audit",
+      "description": "Track every manager's remaining FAAB budget, positional spending breakdown, winning bids, and blocking bid thresholds.",
+      "rationale": "Joins league team FAAB balances with historical transaction bid amounts in local SQLite.",
+      "example": "yahoo-fantasy-pp-cli faab-audit --league 449.l.365083 --agent",
+      "why_it_matters": "Use this before setting a FAAB bid to see exactly how much budget rival managers have left and what they typically bid.",
+      "group": "League Analytics \u0026 SQLite Intelligence"
+    },
+    {
+      "name": "Draft capital ROI and steals/busts analyzer",
+      "command": "draft-roi",
+      "description": "Evaluate snake draft rounds or auction dollar costs against season-to-date fantasy points and current roster retention.",
+      "rationale": "Joins draft_results, player season stats, and rosters in local SQLite without hitting Yahoo API rate limits.",
+      "example": "yahoo-fantasy-pp-cli draft-roi --league 449.l.365083 --agent",
+      "why_it_matters": "Use this to grade draft performance and identify the highest-surplus steals and biggest busts in the league.",
+      "group": "League Analytics \u0026 SQLite Intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Lineup auditor and ergonomic XML slot setter",
+      "command": "lineup",
+      "description": "Audit active starting slots for OUT, IR, or BYE players, preview bench swaps, and submit Yahoo XML roster updates.",
+      "rationale": "Combines roster + league position rules validation with automatic synthesis of Yahoo's \u003cfantasy_content\u003e\u003croster\u003e XML payload.",
+      "example": "yahoo-fantasy-pp-cli lineup --team 449.l.365083.t.1 --week 9 --set QB=449.p.31862,BN=449.p.30123 --dry-run --agent",
+      "why_it_matters": "Use this instead of raw PUT /roster calls when checking for inactive starters or moving players between starting, bench, and IR slots.",
+      "group": "Roster \u0026 Transaction Operations"
+    },
+    {
+      "name": "Atomic add/drop and FAAB waiver claim builder",
+      "command": "add-drop",
+      "description": "Execute or dry-run free-agent adds, drops, atomic add/drops, and FAAB waiver claims with automatic XML payload construction.",
+      "rationale": "Validates player availability and team FAAB balance before generating Yahoo's mandatory \u003cfantasy_content\u003e\u003ctransaction\u003e XML envelope.",
+      "example": "yahoo-fantasy-pp-cli add-drop --league 449.l.365083 --team 449.l.365083.t.1 --add 449.p.31862 --drop 449.p.30123 --faab 15 --dry-run --agent",
+      "why_it_matters": "Use this to safely preview and submit single adds, drops, or atomic add/drop waiver claims without hand-writing Yahoo XML.",
+      "group": "Roster \u0026 Transaction Operations"
+    },
+    {
+      "name": "Positional waiver and free-agent upgrade recommender",
+      "command": "waiver-wire",
+      "description": "Rank available free agents and waiver players by net points-per-game upgrade over your weakest bench player at each position.",
+      "rationale": "Joins your team roster against league free agents, player stats, and ownership percentages locally or live.",
+      "example": "yahoo-fantasy-pp-cli waiver-wire --league 449.l.365083 --team 449.l.365083.t.1 --pos RB --limit 10 --agent",
+      "why_it_matters": "Reach for this before Tuesday waiver runs to find highest-leverage roster upgrades without scanning raw 25-player pages.",
+      "group": "Weekly Matchup \u0026 Waiver Intelligence"
+    },
+    {
+      "name": "Head-to-head matchup radar and slot advantage breakdown",
+      "command": "matchup-radar",
+      "description": "Compare both opponents' starting lineups slot-by-slot with projected vs. actual points, remaining starters, and injury flags.",
+      "rationale": "Merges league scoreboard totals with both teams' weekly rosters to expose positional mismatches.",
+      "example": "yahoo-fantasy-pp-cli matchup-radar --league 449.l.365083 --team 449.l.365083.t.1 --week 9 --agent",
+      "why_it_matters": "Use this for a complete single-call head-to-head matchup breakdown instead of fetching scoreboard and two team rosters separately.",
+      "group": "Weekly Matchup \u0026 Waiver Intelligence"
+    },
+    {
+      "name": "All-play standings, power rankings, and schedule luck",
+      "command": "power-rankings",
+      "description": "Compute every team's true weekly all-play record, schedule luck delta, scoring consistency, and composite power rank.",
+      "rationale": "Aggregates multi-week scoreboards and standings in local SQLite to separate true team strength from matchup schedule luck.",
+      "example": "yahoo-fantasy-pp-cli power-rankings --league 449.l.365083 --through-week 9 --agent",
+      "why_it_matters": "Use this when evaluating true league contenders and unlucky teams beyond raw win-loss standings.",
+      "group": "League Analytics \u0026 SQLite Intelligence"
+    },
+    {
+      "name": "League FAAB burn and waiver bid intelligence",
+      "command": "faab-audit",
+      "description": "Track every manager's remaining FAAB budget, positional spending breakdown, winning bids, and blocking bid thresholds.",
+      "rationale": "Joins league team FAAB balances with historical transaction bid amounts in local SQLite.",
+      "example": "yahoo-fantasy-pp-cli faab-audit --league 449.l.365083 --agent",
+      "why_it_matters": "Use this before setting a FAAB bid to see exactly how much budget rival managers have left and what they typically bid.",
+      "group": "League Analytics \u0026 SQLite Intelligence"
+    },
+    {
+      "name": "Draft capital ROI and steals/busts analyzer",
+      "command": "draft-roi",
+      "description": "Evaluate snake draft rounds or auction dollar costs against season-to-date fantasy points and current roster retention.",
+      "rationale": "Joins draft_results, player season stats, and rosters in local SQLite without hitting Yahoo API rate limits.",
+      "example": "yahoo-fantasy-pp-cli draft-roi --league 449.l.365083 --agent",
+      "why_it_matters": "Use this to grade draft performance and identify the highest-surplus steals and biggest busts in the league.",
+      "group": "League Analytics \u0026 SQLite Intelligence"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "YAHOO_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Yahoo Fantasy Sports",
+    "headline": "Full Yahoo Fantasy Sports read/write CLI and MCP server — set lineups, execute add/drops and FAAB waiver claims, and run local SQLite league analytics.",
+    "value_prop": "Wraps the complete Yahoo Fantasy Sports v2 API for NFL, NBA, MLB, and NHL with automatic XML payload construction for lineup changes (`lineup`) and free-agent/waiver transactions (`add-drop`). Syncs leagues, rosters, matchups, draft results, and transactions into a local SQLite store for instant FTS5 search, all-play power rankings (`power-rankings`), waiver upgrade recommendations (`waiver-wire`), and FAAB bid audits (`faab-audit`).",
+    "auth_narrative": "Set `YAHOO_ACCESS_TOKEN` (or `YAHOO_FANTASY_TOKEN`) with a Yahoo OAuth 2.0 Bearer token, or configure `YAHOO_CLIENT_ID`, `YAHOO_CLIENT_SECRET`, and `YAHOO_REFRESH_TOKEN` so the CLI can automatically refresh expired access tokens against `https://api.login.yahoo.com/oauth2/get_token`.",
+    "quickstart": [
+      {
+        "command": "yahoo-fantasy-pp-cli doctor --dry-run",
+        "comment": "Verify CLI configuration and reachability"
+      },
+      {
+        "command": "yahoo-fantasy-pp-cli users get-leagues nfl --agent",
+        "comment": "List your Yahoo Fantasy NFL leagues and league keys"
+      },
+      {
+        "command": "yahoo-fantasy-pp-cli teams get-roster 449.l.365083.t.1 9 --agent",
+        "comment": "Inspect your team's week 9 starting lineup and bench"
+      },
+      {
+        "command": "yahoo-fantasy-pp-cli lineup --team 449.l.365083.t.1 --week 9 --set QB=449.p.31862,BN=449.p.30123 --dry-run --agent",
+        "comment": "Preview a starting lineup slot swap before sending the XML PUT request"
+      },
+      {
+        "command": "yahoo-fantasy-pp-cli add-drop --league 449.l.365083 --team 449.l.365083.t.1 --add 449.p.31862 --drop 449.p.30123 --faab 15 --dry-run --agent",
+        "comment": "Preview an atomic add/drop waiver claim with a $15 FAAB bid"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized: token_expired or unable_to_determine_oauth_type",
+        "fix": "Refresh your Yahoo OAuth2 Bearer token or set YAHOO_CLIENT_ID, YAHOO_CLIENT_SECRET, and YAHOO_REFRESH_TOKEN for automatic token refresh."
+      },
+      {
+        "symptom": "400 Bad Request when changing lineup or adding/dropping a player",
+        "fix": "Run `lineup --dry-run` or `add-drop --dry-run` first to verify player keys (`{game_id}.p.{player_id}`) and positional eligibility (`QB`, `RB`, `WR`, `TE`, `W/R/T`, `BN`, `IR`)."
+      },
+      {
+        "symptom": "Rate limit (HTTP 429 / 999) during multi-week scoreboard or player queries",
+        "fix": "Run `yahoo-fantasy-pp-cli sync --full` to cache league data in local SQLite, then pass `--data-source local` to analytical commands."
+      }
+    ],
+    "when_to_use": "Use this CLI and MCP server to inspect Yahoo Fantasy Football (and NBA/MLB/NHL) leagues, standings, weekly matchups, rosters, and free agents, as well as to execute starting lineup changes (`lineup`), free-agent pickups, drops, and FAAB waiver claims (`add-drop`). Prefer the compound commands (`lineup`, `add-drop`, `waiver-wire`, `matchup-radar`, `power-rankings`, `faab-audit`, `draft-roi`) over raw endpoint calls.",
+    "anti_triggers": [
+      "Do not use this CLI for Yahoo Finance stock quotes or options chains (use yahoo-finance-pp-cli).",
+      "Do not use this CLI for ESPN or Sleeper fantasy leagues.",
+      "Do not execute live roster or transaction mutations without previewing via --dry-run when user intent is ambiguous."
+    ],
+    "recipes": [
+      {
+        "title": "Preview and apply a Sunday morning lineup swap",
+        "command": "yahoo-fantasy-pp-cli lineup --team 449.l.365083.t.1 --week 9 --set QB=449.p.31862,BN=449.p.30123 --dry-run --agent",
+        "explanation": "Validates positional eligibility and previews the XML roster payload before updating your starting lineup."
+      },
+      {
+        "title": "Submit an atomic add/drop waiver claim with FAAB",
+        "command": "yahoo-fantasy-pp-cli add-drop --league 449.l.365083 --team 449.l.365083.t.1 --add 449.p.31862 --drop 449.p.30123 --faab 15 --dry-run --agent",
+        "explanation": "Constructs Yahoo's \u003cfantasy_content\u003e\u003ctransaction\u003e XML for an atomic add/drop with a $15 FAAB bid."
+      },
+      {
+        "title": "Find top RB waiver upgrades over your bench",
+        "command": "yahoo-fantasy-pp-cli waiver-wire --league 449.l.365083 --team 449.l.365083.t.1 --pos RB --limit 5 --agent --select upgrades.add_player_name,upgrades.percent_owned,upgrades.net_upgrade_ppg",
+        "explanation": "Compares available free agents and waiver RBs against your lowest-scoring bench RB and filters to key decision fields."
+      },
+      {
+        "title": "Audit league FAAB budgets before Tuesday waivers",
+        "command": "yahoo-fantasy-pp-cli faab-audit --league 449.l.365083 --agent",
+        "explanation": "Shows every manager's remaining FAAB balance, total spent by position, and blocking bid thresholds."
+      }
+    ],
+    "trigger_phrases": [
+      "set my Yahoo fantasy football lineup",
+      "add and drop a player on Yahoo fantasy",
+      "check Yahoo fantasy waiver wire upgrades",
+      "show my Yahoo fantasy matchup and standings",
+      "use yahoo-fantasy",
+      "run yahoo-fantasy"
+    ]
+  }
+}

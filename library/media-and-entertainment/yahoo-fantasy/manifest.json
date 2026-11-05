@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "yahoo-fantasy-pp-mcp",
+  "display_name": "Yahoo Fantasy Sports",
+  "version": "0.1.0",
+  "description": "Full Yahoo Fantasy Sports read/write CLI and MCP server — set lineups, execute add/drops and FAAB waiver claims, and run local SQLite league analytics.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/yahoo-fantasy-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/yahoo-fantasy-pp-mcp",
+      "args": [],
+      "env": {
+        "YAHOO_ACCESS_TOKEN": "${user_config.yahoo_access_token}",
+        "YAHOO_FANTASY_TOKEN": "${user_config.yahoo_fantasy_token}"
+      }
+    }
+  },
+  "user_config": {
+    "yahoo_access_token": {
+      "type": "string",
+      "title": "YAHOO_ACCESS_TOKEN",
+      "description": "Sets YAHOO_ACCESS_TOKEN for the Yahoo Fantasy Sports MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "yahoo_fantasy_token": {
+      "type": "string",
+      "title": "YAHOO_FANTASY_TOKEN",
+      "description": "Sets YAHOO_FANTASY_TOKEN for the Yahoo Fantasy Sports MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

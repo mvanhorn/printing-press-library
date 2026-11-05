@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/yahoo-fantasy-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261101-101143-d6ebea8f",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

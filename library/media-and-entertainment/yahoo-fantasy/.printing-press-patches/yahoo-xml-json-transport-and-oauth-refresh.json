@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "yahoo-xml-json-transport-and-oauth-refresh",
+  "applied_at": "2026-11-01",
+  "base_run_id": "20261101-101143-d6ebea8f",
+  "base_printing_press_version": "4.35.0",
+  "summary": "Yahoo Fantasy v2 requires format=json on GET requests, application/xml bodies on PUT/POST roster and transaction writes, and automatic OAuth2 refresh_token exchange.",
+  "reason": "Yahoo Fantasy Sports v2 defaults to XML on reads unless format=json is appended, rejects JSON bodies on PUT/POST writes unless sent as <fantasy_content> XML, and issues 1-hour OAuth2 access tokens that require refresh_token exchange.",
+  "files": [
+    "internal/cli/yahoo_transport.go",
+    "internal/cli/yahoo_sync.go",
+    "internal/cli/sync.go",
+    "internal/cli/root.go"
+  ]
+}
