@@ -92,10 +92,20 @@ func readShowTellLedger(path string) (showTellLedger, error) {
 	if ledger == nil {
 		return nil, fmt.Errorf("schedule ledger must be an object")
 	}
+	canonicalLedger := make(showTellLedger, len(ledger))
+	originalKeys := make(map[string]string, len(ledger))
 	for template, entries := range ledger {
-		if err := circlePositiveID(template); err != nil {
-			return nil, fmt.Errorf("invalid ledger template: %w", err)
+		id, err := canonicalShowTellID(template)
+		if err != nil {
+			return nil, fmt.Errorf("invalid template key %q in ledger %s: %w", template, path, err)
 		}
+		if other, exists := originalKeys[id]; exists {
+			return nil, fmt.Errorf("template keys %q and %q in ledger %s both identify %s; merge them by hand", other, template, path, id)
+		}
+		originalKeys[id] = template
+		canonicalLedger[id] = entries
+	}
+	for _, entries := range canonicalLedger {
 		for i := range entries {
 			entry := &entries[i]
 			if _, err := time.Parse(time.DateOnly, entry.Date); err != nil {
@@ -111,7 +121,7 @@ func readShowTellLedger(path string) (showTellLedger, error) {
 			}
 		}
 	}
-	return ledger, nil
+	return canonicalLedger, nil
 }
 
 func writeShowTellLedger(path string, ledger showTellLedger) error {
@@ -122,7 +132,7 @@ func writeShowTellLedger(path string, ledger showTellLedger) error {
 	return cliutil.AtomicWritePrivateFile(path, data, 0o600, 0o700)
 }
 
-func canonicalShowTellSpaceID(id string) (string, error) {
+func canonicalShowTellID(id string) (string, error) {
 	if err := circlePositiveID(id); err != nil {
 		return "", err
 	}
@@ -131,7 +141,7 @@ func canonicalShowTellSpaceID(id string) (string, error) {
 }
 
 func canonicalizeShowTellLedgerSpace(entry *showTellLedgerEntry, path string) error {
-	space, err := canonicalShowTellSpaceID(entry.SpaceID)
+	space, err := canonicalShowTellID(entry.SpaceID)
 	if err != nil {
 		return fmt.Errorf("event %s in ledger %s has no valid space id; add a positive \"space_id\" to that ledger entry or remove it: %w", entry.EventID, path, err)
 	}
@@ -232,12 +242,13 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("requires --template, --every and --until, and no positional arguments"))
 			}
-			if err := circlePositiveID(template); err != nil {
+			var err error
+			template, err = canonicalShowTellID(template)
+			if err != nil {
 				return usageErr(fmt.Errorf("--template: %w", err))
 			}
 			if space != "" {
-				var err error
-				space, err = canonicalShowTellSpaceID(space)
+				space, err = canonicalShowTellID(space)
 				if err != nil {
 					return usageErr(fmt.Errorf("--space: %w", err))
 				}
@@ -275,7 +286,7 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 			if sourceSpace == "" {
 				sourceSpace = event.SpaceID.String()
 			}
-			sourceSpace, err = canonicalShowTellSpaceID(sourceSpace)
+			sourceSpace, err = canonicalShowTellID(sourceSpace)
 			if err != nil {
 				return fmt.Errorf("template has no valid space: %w", err)
 			}
