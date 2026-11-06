@@ -115,16 +115,19 @@ func writeShowTellLedger(path string, ledger showTellLedger) error {
 	return cliutil.AtomicWritePrivateFile(path, data, 0o600, 0o700)
 }
 
-func validShowTellEntries(entries []showTellLedgerEntry, get func(string) error) ([]showTellLedgerEntry, error) {
+func validShowTellEntries(entries []showTellLedgerEntry, get func(string) (string, error)) ([]showTellLedgerEntry, error) {
 	valid := make([]showTellLedgerEntry, 0, len(entries))
 	for _, entry := range entries {
-		err := get(entry.EventID.String())
+		space, err := get(entry.EventID.String())
 		var apiErr *client.APIError
 		if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound {
 			continue
 		}
 		if err != nil {
 			return nil, fmt.Errorf("verify ledger event %s: %w", entry.EventID, err)
+		}
+		if entry.SpaceID == "" {
+			entry.SpaceID = space
 		}
 		valid = append(valid, entry)
 	}
@@ -133,6 +136,7 @@ func validShowTellEntries(entries []showTellLedgerEntry, get func(string) error)
 
 func showTellPlan(name string, dates []time.Time, events []circleEvent, now time.Time, entries ...showTellLedgerEntry) []showTellOccurrence {
 	existing := make(map[string]json.Number)
+	unscheduled := make(map[string]bool)
 	for _, event := range events {
 		if event.Name == name && !event.StartsAt.IsZero() {
 			existing[event.StartsAt.UTC().Format(time.DateOnly)] = event.ID
@@ -140,12 +144,16 @@ func showTellPlan(name string, dates []time.Time, events []circleEvent, now time
 	}
 	for _, entry := range entries {
 		existing[entry.Date] = entry.EventID
+		unscheduled[entry.Date] = entry.Status == "unscheduled"
 	}
 	plan := make([]showTellOccurrence, 0, len(dates))
 	for _, date := range dates {
 		item := showTellOccurrence{Date: date.UTC().Format(time.DateOnly), StartsAt: date.Format(time.RFC3339), Action: "create"}
 		if id, ok := existing[item.Date]; ok {
 			item.Action, item.EventID = "exists", id
+			if unscheduled[item.Date] {
+				item.Action = "reschedule"
+			}
 		}
 		if date.Before(now) {
 			item.Action = "past"
@@ -250,6 +258,9 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 				stateFile = filepath.Join(dir, "show-tell-schedule.json")
 			}
 			run := func() (returnErr error) {
+				if err := ctx.Err(); err != nil {
+					return fmt.Errorf("ledger %s is locked by another show-tell schedule run: %w", stateFile, err)
+				}
 				events, err := circleList[circleEvent](ctx, c, "/events", map[string]string{"space_id": space})
 				if err != nil {
 					return err
@@ -265,32 +276,45 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				// Legacy entries belong to the template's original destination.
 				destinationEntries := make([]showTellLedgerEntry, 0)
 				otherEntries := make([]showTellLedgerEntry, 0)
-				for i := range ledger[template] {
-					if ledger[template][i].SpaceID == "" {
-						ledger[template][i].SpaceID = sourceSpace
-					}
-					entry := ledger[template][i]
-					if entry.SpaceID == space {
+				backfilled := false
+				for _, entry := range ledger[template] {
+					backfilled = backfilled || entry.SpaceID == ""
+					if entry.SpaceID == space || entry.SpaceID == "" {
 						destinationEntries = append(destinationEntries, entry)
 					} else {
 						otherEntries = append(otherEntries, entry)
 					}
 				}
-				entries, err := validShowTellEntries(destinationEntries, func(id string) error {
+				verified, err := validShowTellEntries(destinationEntries, func(id string) (string, error) {
 					raw, err := c.GetNoCache(ctx, "/events/"+id, nil)
 					if err != nil {
-						return err
+						return "", err
 					}
-					return circleDecode(raw, nil)
+					var event circleEvent
+					if err := circleDecode(raw, &event); err != nil {
+						return "", err
+					}
+					if event.SpaceID != "" {
+						return event.SpaceID.String(), nil
+					}
+					if event.Space.ID != "" {
+						return event.Space.ID.String(), nil
+					}
+					return sourceSpace, nil
 				})
 				if err != nil {
 					return err
 				}
-				if len(entries) != len(destinationEntries) {
-					ledger[template] = append(otherEntries, entries...)
+				entries := make([]showTellLedgerEntry, 0)
+				for _, entry := range verified {
+					if entry.SpaceID == space {
+						entries = append(entries, entry)
+					}
+				}
+				if backfilled || len(verified) != len(destinationEntries) {
+					ledger[template] = append(otherEntries, verified...)
 					if flags.yes {
 						if err := writeShowTellLedger(stateFile, ledger); err != nil {
 							return err
@@ -306,6 +330,25 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 				if flags.yes {
 					for i := range result.Occurrences {
 						item := &result.Occurrences[i]
+						if item.Action == "reschedule" {
+							raw, _, err := c.Put(ctx, "/events/"+item.EventID.String(), showTellEventUpdate(json.Number(space), dates[i], duration))
+							if err == nil {
+								err = circleDecode(raw, nil)
+							}
+							if err != nil {
+								return fmt.Errorf("reschedule event %s for %s: %w", item.EventID, item.Date, err)
+							}
+							for j, entry := range ledger[template] {
+								if entry.SpaceID == space && entry.Date == item.Date && entry.EventID == item.EventID {
+									ledger[template][j].Status = ""
+								}
+							}
+							if err := writeShowTellLedger(stateFile, ledger); err != nil {
+								return fmt.Errorf("event %s was rescheduled but ledger save failed: %w", item.EventID, err)
+							}
+							item.Action = "rescheduled"
+							continue
+						}
 						if item.Action != "create" {
 							continue
 						}
@@ -358,7 +401,21 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 				if err := os.MkdirAll(filepath.Dir(stateFile), 0o700); err != nil {
 					return err
 				}
-				return cliutil.WithFileLock(stateFile, run)
+				retry := time.NewTicker(100 * time.Millisecond)
+				defer retry.Stop()
+				for {
+					if err := ctx.Err(); err != nil {
+						return fmt.Errorf("ledger %s is locked by another show-tell schedule run: %w", stateFile, err)
+					}
+					acquired, err := cliutil.TryWithFileLock(stateFile, run)
+					if acquired || err != nil {
+						return err
+					}
+					select {
+					case <-ctx.Done():
+					case <-retry.C:
+					}
+				}
 			}
 			return run()
 		},

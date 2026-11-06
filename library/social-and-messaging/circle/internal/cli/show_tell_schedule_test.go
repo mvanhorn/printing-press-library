@@ -6,6 +6,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -234,11 +235,11 @@ func TestShowTellLedgerVerification(t *testing.T) {
 		{"unavailable", errors.New("connection failed"), "", true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			entries, err := validShowTellEntries([]showTellLedgerEntry{{Date: "2026-12-03", EventID: "30000897"}}, func(id string) error {
+			entries, err := validShowTellEntries([]showTellLedgerEntry{{Date: "2026-12-03", EventID: "30000897"}}, func(id string) (string, error) {
 				if id != "30000897" {
 					t.Fatalf("unexpected id %s", id)
 				}
-				return tc.err
+				return "2", tc.err
 			})
 			if (err != nil) != tc.bad {
 				t.Fatalf("error=%v", err)
@@ -331,8 +332,217 @@ func TestShowTellScheduleLedgerRerun(t *testing.T) {
 		t.Fatalf("partial run lost first occurrence: %v, %v", ledger, err)
 	}
 	result, err := run(false)
-	if err != nil || result.Occurrences[0].Action != "exists" || result.Occurrences[0].EventID != "30000897" || result.Occurrences[1].Action != "exists" || puts != 2 {
+	if err != nil || result.Occurrences[0].Action != "exists" || result.Occurrences[0].EventID != "30000897" || result.Occurrences[1].Action != "reschedule" || puts != 2 {
 		t.Fatalf("rerun=%+v, puts=%d, error=%v", result, puts, err)
+	}
+}
+
+func TestShowTellScheduleRetriesUnscheduled(t *testing.T) {
+	testenv.Isolate(t)
+	previousHooks := clientHooks
+	t.Cleanup(func() { clientHooks = previousHooks })
+	file := filepath.Join(t.TempDir(), "ledger.json")
+	ledger := showTellLedger{"1": {
+		{Date: "2099-01-02", EventID: "3", Status: "unscheduled", SpaceID: "2"},
+		{Date: "2099-01-02", EventID: "4", Status: "unscheduled", SpaceID: "5"},
+	}}
+	if err := writeShowTellLedger(file, ledger); err != nil {
+		t.Fatal(err)
+	}
+	puts := 0
+	registerClientHook(func(c *client.Client) error {
+		c.Config.CircleApiToken = "schedule-unit-test"
+		c.HTTPClient.Transport = showTellScheduleTransport(func(req *http.Request) (*http.Response, error) {
+			body := `{"success":true}`
+			switch req.Method + " " + req.URL.Path {
+			case "GET /api/admin/v2/events/1":
+				body = `{"id":1,"name":"Show & Tell","space_id":2,"starts_at":"2099-01-01T18:00:00Z","duration_in_seconds":60}`
+			case "GET /api/admin/v2/events":
+				body = `{"records":[],"has_next_page":false}`
+			case "GET /api/admin/v2/events/3":
+				body = `{"id":3,"status":"draft"}`
+			case "PUT /api/admin/v2/events/3":
+				puts++
+				acquired, err := cliutil.TryWithFileLock(file, func() error { return nil })
+				if err != nil || acquired {
+					t.Fatalf("reschedule outside lock: acquired=%v error=%v", acquired, err)
+				}
+				var got map[string]any
+				if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
+					t.Fatal(err)
+				}
+				start := time.Date(2099, 1, 2, 18, 0, 0, 0, time.UTC)
+				want, _ := json.Marshal(showTellEventUpdate("2", start, time.Minute))
+				actual, _ := json.Marshal(got)
+				if !bytes.Equal(actual, want) {
+					t.Fatalf("PUT body=%s, want %s", actual, want)
+				}
+			default:
+				return nil, fmt.Errorf("unexpected request: %s %s", req.Method, req.URL.Path)
+			}
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+		})
+		return nil
+	})
+	for i, wantAction := range []string{"reschedule", "rescheduled", "exists"} {
+		cmd := newNovelShowTellScheduleCmd(&rootFlags{asJSON: true, yes: i > 0, noCache: true})
+		cmd.SetArgs([]string{"--template", "1", "--every", "1d", "--until", "2099-01-02", "--state-file", file})
+		var out bytes.Buffer
+		cmd.SetOut(&out)
+		cmd.SetErr(io.Discard)
+		if err := cmd.Execute(); err != nil {
+			t.Fatal(err)
+		}
+		var result showTellSchedule
+		if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+			t.Fatal(err)
+		}
+		if len(result.Occurrences) != 1 || result.Occurrences[0].Action != wantAction || result.Occurrences[0].EventID != "3" {
+			t.Fatalf("run %d: %+v", i, result)
+		}
+		wantPuts := 1
+		if i == 0 {
+			wantPuts = 0
+		} else {
+			ledger["1"][0].Status = ""
+		}
+		got, err := readShowTellLedger(file)
+		if err != nil || !reflect.DeepEqual(got, ledger) || puts != wantPuts {
+			t.Fatalf("ledger=%+v puts=%d error=%v", got, puts, err)
+		}
+	}
+}
+
+func TestShowTellScheduleLockDeadline(t *testing.T) {
+	testenv.Isolate(t)
+	previousHooks := clientHooks
+	t.Cleanup(func() { clientHooks = previousHooks })
+	file := filepath.Join(t.TempDir(), "ledger.json")
+	original := []byte("invalid ledger must never be read")
+	if err := os.WriteFile(file, original, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	unexpected := make(chan string, 10)
+	registerClientHook(func(c *client.Client) error {
+		c.Config.CircleApiToken = "schedule-unit-test"
+		c.HTTPClient.Transport = showTellScheduleTransport(func(req *http.Request) (*http.Response, error) {
+			if req.Method != "GET" || req.URL.Path != "/api/admin/v2/events/1" {
+				unexpected <- req.Method + " " + req.URL.Path
+				return nil, errors.New("unexpected request after waiting for lock")
+			}
+			body := `{"id":1,"name":"Show & Tell","space_id":2,"starts_at":"2099-01-01T18:00:00Z","duration_in_seconds":60}`
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+		})
+		return nil
+	})
+	ready, release, done := make(chan struct{}), make(chan struct{}), make(chan error, 1)
+	go func() {
+		done <- cliutil.WithFileLock(file, func() error {
+			close(ready)
+			select {
+			case <-release:
+			case <-time.After(2 * time.Second):
+			}
+			return nil
+		})
+	}()
+	select {
+	case <-ready:
+	case err := <-done:
+		t.Fatalf("holding lock: %v", err)
+	}
+	cmd := newNovelShowTellScheduleCmd(&rootFlags{asJSON: true, yes: true, noCache: true, timeout: 50 * time.Millisecond})
+	cmd.SetContext(context.Background())
+	cmd.SetArgs([]string{"--template", "1", "--every", "1d", "--until", "2099-01-02", "--state-file", file})
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+	started := time.Now()
+	err := cmd.Execute()
+	elapsed := time.Since(started)
+	close(release)
+	if lockErr := <-done; lockErr != nil {
+		t.Fatal(lockErr)
+	}
+	if err == nil || !strings.Contains(err.Error(), "ledger "+file+" is locked by another show-tell schedule run") || !errors.Is(err, context.DeadlineExceeded) || elapsed > 500*time.Millisecond {
+		t.Fatalf("lock wait=%s error=%v", elapsed, err)
+	}
+	select {
+	case call := <-unexpected:
+		t.Fatalf("callback ran after deadline: %s", call)
+	case <-time.After(200 * time.Millisecond):
+	}
+	got, err := os.ReadFile(file)
+	if err != nil || !bytes.Equal(got, original) {
+		t.Fatalf("ledger changed after deadline: %s error=%v", got, err)
+	}
+}
+
+func TestShowTellScheduleLegacySpace(t *testing.T) {
+	for _, tc := range []struct {
+		name, space, eventSpace, action string
+		yes                             bool
+	}{
+		{"override preview", "3", `,"space_id":3`, "exists", false},
+		{"template preview", "2", `,"space_id":3`, "create", false},
+		{"override apply", "3", `,"space_id":3`, "exists", true},
+		{"missing space fallback", "2", "", "exists", true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			testenv.Isolate(t)
+			previousHooks := clientHooks
+			t.Cleanup(func() { clientHooks = previousHooks })
+			file := filepath.Join(t.TempDir(), "ledger.json")
+			original := showTellLedger{"1": {{Date: "2099-01-02", EventID: "4"}}}
+			if err := writeShowTellLedger(file, original); err != nil {
+				t.Fatal(err)
+			}
+			registerClientHook(func(c *client.Client) error {
+				c.Config.CircleApiToken = "schedule-unit-test"
+				c.HTTPClient.Transport = showTellScheduleTransport(func(req *http.Request) (*http.Response, error) {
+					body := ""
+					switch req.Method + " " + req.URL.Path {
+					case "GET /api/admin/v2/events/1":
+						body = `{"id":1,"name":"Show & Tell","space_id":2,"starts_at":"2099-01-01T18:00:00Z","duration_in_seconds":60}`
+					case "GET /api/admin/v2/events":
+						body = `{"records":[],"has_next_page":false}`
+					case "GET /api/admin/v2/events/4":
+						body = `{"id":4` + tc.eventSpace + `}`
+						if tc.yes {
+							acquired, err := cliutil.TryWithFileLock(file, func() error { return nil })
+							if err != nil || acquired {
+								t.Fatalf("migration outside lock: acquired=%v error=%v", acquired, err)
+							}
+						}
+					default:
+						return nil, fmt.Errorf("unexpected request: %s %s", req.Method, req.URL.Path)
+					}
+					return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+				})
+				return nil
+			})
+			cmd := newNovelShowTellScheduleCmd(&rootFlags{asJSON: true, yes: tc.yes, noCache: true})
+			cmd.SetArgs([]string{"--template", "1", "--space", tc.space, "--every", "1d", "--until", "2099-01-02", "--state-file", file})
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			cmd.SetErr(io.Discard)
+			if err := cmd.Execute(); err != nil {
+				t.Fatal(err)
+			}
+			var result showTellSchedule
+			if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+				t.Fatal(err)
+			}
+			if len(result.Occurrences) != 1 || result.Occurrences[0].Action != tc.action {
+				t.Fatalf("wrong destination plan: %+v", result)
+			}
+			if tc.yes {
+				original["1"][0].SpaceID = tc.space
+			}
+			got, err := readShowTellLedger(file)
+			if err != nil || !reflect.DeepEqual(got, original) {
+				t.Fatalf("saved ledger=%+v error=%v", got, err)
+			}
+		})
 	}
 }
 

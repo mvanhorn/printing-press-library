@@ -443,6 +443,9 @@ func spacesApplyResponseID(response map[string]any) any {
 	if space, ok := response["space"].(map[string]any); ok && space["id"] != nil {
 		return space["id"]
 	}
+	if group, ok := response["space_group"].(map[string]any); ok && group["id"] != nil {
+		return group["id"]
+	}
 	return response["id"]
 }
 

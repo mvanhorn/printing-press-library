@@ -1149,12 +1149,7 @@ func syncResource(ctx context.Context, c interface {
 		// result windows on the next run.
 		finalCursor = ""
 	}
-	stateErr = nil
-	if watermark.IsZero() {
-		stateErr = db.SaveSyncProgressInScope(resource, scopeKey, finalCursor, cachedCount)
-	} else {
-		stateErr = db.SaveSyncStateAtInScope(resource, scopeKey, finalCursor, cachedCount, watermark)
-	}
+	stateErr = saveSyncResourceCheckpoint(db, resource, scopeKey, finalCursor, cachedCount, watermark, outcome.complete)
 	if stateErr != nil {
 		return syncResult{Resource: resource, Count: cachedCount, Err: fmt.Errorf("saving sync state for %s: %w", resource, stateErr), Duration: time.Since(started)}
 	}
@@ -1176,6 +1171,20 @@ func syncResource(ctx context.Context, c interface {
 	}
 
 	return syncResult{Resource: resource, Count: cachedCount, Duration: time.Since(started)}
+}
+
+func saveSyncResourceCheckpoint(db *store.Store, resource, scopeKey, cursor string, count int, watermark time.Time, complete bool) error {
+	if watermark.IsZero() {
+		return db.SaveSyncProgressInScope(resource, scopeKey, cursor, count)
+	}
+	if err := db.SaveSyncStateAtInScope(resource, scopeKey, cursor, count, watermark); err != nil {
+		return err
+	}
+	// A capped walk can advance its watermark without completing the collection.
+	if !complete {
+		return db.SaveSyncProgressInScope(resource, scopeKey, cursor, count)
+	}
+	return nil
 }
 
 // syncIncompleteReason names an unfinished walk. A break that left the reason

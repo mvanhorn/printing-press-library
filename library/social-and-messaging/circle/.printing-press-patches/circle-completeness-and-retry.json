@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "circle-completeness-and-retry",
+  "applied_at": "2026-11-05",
+  "base_run_id": "20261105-112545-5c241c59",
+  "base_printing_press_version": "4.35.2",
+  "summary": "Capped payment syncs remain incomplete for payer counts, unscheduled ledger events remain retryable, and space-group create envelopes expose their IDs.",
+  "reason": "An incremental watermark does not prove collection completeness. Event duplication can succeed before scheduling fails, and Circle can return created resources inside resource-name envelopes; retries must preserve those identities.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/circle_payers_test.go",
+    "internal/cli/show_tell_schedule.go",
+    "internal/cli/show_tell_schedule_test.go",
+    "internal/cli/spaces_apply.go",
+    "internal/cli/spaces_apply_test.go"
+  ]
+}

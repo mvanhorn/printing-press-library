@@ -296,6 +296,7 @@ func TestSpacesApplyResponseID(t *testing.T) {
 		want           any
 	}{
 		{"space envelope", `{"success":true,"message":"Space created","space":{"id":1000969}}`, json.Number("1000969")},
+		{"group envelope", `{"space_group":{"id":3}}`, json.Number("3")},
 		{"group object", `{"id":1999918,"name":"Spaces"}`, json.Number("1999918")},
 		{"nested takes precedence", `{"id":1999918,"space":{"id":1000969}}`, json.Number("1000969")},
 		{"missing nested id", `{"id":1999918,"space":{}}`, json.Number("1999918")},
