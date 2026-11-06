@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "circle-session-safety",
+  "summary": "Session workflows must validate transcript downloads, serialize space-scoped scheduling ledgers, retain duplicated event IDs before rescheduling, and write recaps safely.",
+  "reason": "Circle event duplication and rescheduling are separate operations, and draft events are absent from the event list. Durable destination-aware ledgers and exclusive locks prevent duplicate drafts and lost IDs, while isolated HTTPS downloads and safe recap writes protect credentials and local files.",
+  "files": [
+    "internal/cli/circle_events.go",
+    "internal/cli/show_tell_schedule.go",
+    "internal/cli/show_tell_recap.go"
+  ],
+  "markers": [
+    "circleTranscriptRedirect",
+    "created-unscheduled",
+    "writeShowTellRecap"
+  ],
+  "applied_at": "2026-11-05",
+  "base_run_id": "20261105-112545-5c241c59",
+  "base_printing_press_version": "4.35.2"
+}

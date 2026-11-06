@@ -1,0 +1,291 @@
+{
+  "api_name": "circle",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "circle-mcp",
+      "url": "https://github.com/iamnortey/circle-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 16,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "circleso",
+      "url": "https://github.com/atomimus/circleso",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-05T17:33:04Z",
+  "novel_features": [
+    {
+      "name": "Morning triage",
+      "command": "inbox",
+      "description": "See new members, unreplied posts, flagged content, form submissions, failed charges and cancellations since a time, read from the local mirror.",
+      "rationale": "Joins six synced resources locally, so one command replaces six quota-metered API calls.",
+      "example": "circle-pp-cli inbox --since 24h --agent",
+      "why_it_matters": "Run sync first: inbox reads only the local mirror, and an empty or missing mirror returns empty sections with exit 0, not an all-clear.",
+      "group": "Live sessions and triage"
+    },
+    {
+      "name": "Declarative structure apply",
+      "command": "spaces apply",
+      "description": "Make Circle's space groups and spaces match a YAML file, with a plan printed before any write.",
+      "rationale": "Diffs the file against live Circle across two resource types and changes only what differs.",
+      "example": "circle-pp-cli spaces apply ./spaces.yaml --agent",
+      "why_it_matters": "Use this to set up or change community structure repeatably; rerunning an applied file is a no-op.",
+      "group": "Community structure as files"
+    },
+    {
+      "name": "Course push",
+      "command": "course push",
+      "description": "Upload a course kept as module folders and markdown lessons to a Circle course space, new lessons as drafts.",
+      "rationale": "Creates or updates sections and lessons, uploads media, and fixes order in one idempotent pass using a local id map.",
+      "example": "circle-pp-cli course push ./course --space 1000969 --agent",
+      "why_it_matters": "Prints the plan by default; add --yes to push. New lessons land as drafts, and lesson order is tracked in course.yaml because Circle's API does not expose it.",
+      "group": "Community structure as files"
+    },
+    {
+      "name": "Course pull",
+      "command": "course pull",
+      "description": "Download a Circle course space into module folders with one file per lesson; lesson bodies stay as Circle's HTML and media is not downloaded.",
+      "rationale": "Rebuilds the section and lesson tree with ids in frontmatter, so course push round-trips without duplicates.",
+      "example": "circle-pp-cli course pull ./course --space 1000969 --agent",
+      "why_it_matters": "Use this to back up a course or hand it to an agent to edit as files; files are numbered in creation order because Circle's API does not expose lesson order.",
+      "group": "Community structure as files"
+    },
+    {
+      "name": "Seat count",
+      "command": "seats",
+      "description": "Count paying members against a seat cap and list who paid.",
+      "rationale": "Deduplicates payers across subscriptions and charges from the local mirror, with no aggregation endpoint upstream.",
+      "example": "circle-pp-cli seats --cap 30 --agent",
+      "why_it_matters": "Use this to see how many founding seats are left; active, trialing and past-due subscriptions plus paid charges count as paid.",
+      "group": "Seats and members"
+    },
+    {
+      "name": "Batch onboarding",
+      "command": "onboard",
+      "description": "Add people to the community, their spaces, space groups and access groups, and tag them, without sending invite emails by default.",
+      "rationale": "Chains member, space group, access group and tag calls per person and skips people who already exist.",
+      "example": "circle-pp-cli onboard ada@example.com --tag founding",
+      "why_it_matters": "Prints the plan by default; --yes applies it. No invite email goes out unless you add --send together with --yes.",
+      "group": "Seats and members"
+    },
+    {
+      "name": "Founding go/no-go",
+      "command": "founding",
+      "description": "Answer whether at least N people paid with GO or NO-GO and the count.",
+      "rationale": "Uses the seat computation and returns a typed exit code an agent can branch on.",
+      "example": "circle-pp-cli founding --go-no-go 10 --agent",
+      "why_it_matters": "Use this for the launch decision. Branch on the verdict field: exit 2 is also used for usage errors. Trialing and past-due subscriptions count as paid.",
+      "group": "Seats and members"
+    },
+    {
+      "name": "Recurring session scheduler",
+      "command": "show-tell schedule",
+      "description": "Create the next Show \u0026 Tell events on a cadence by duplicating a template event.",
+      "rationale": "Circle's API has no recurring series; this duplicates and reschedules per date and skips dates already scheduled.",
+      "example": "circle-pp-cli show-tell schedule --template 123 --every 2w --until 2027-01-17",
+      "why_it_matters": "Prints the series plan by default; --yes creates the occurrences as quiet drafts and records them so reruns skip dates already scheduled.",
+      "group": "Live sessions and triage"
+    },
+    {
+      "name": "Session recap draft",
+      "command": "show-tell recap",
+      "description": "Pull a past session's RSVPed attendees and its live-room transcript into a markdown recap draft.",
+      "rationale": "Joins the event, its attendees and the matching live room transcript, which Circle does not link.",
+      "example": "circle-pp-cli show-tell recap 123 --agent",
+      "why_it_matters": "A transcript needs a live-room recording near the event time; otherwise the recap says none was found (transcript_found false). --post --yes saves it as a draft post.",
+      "group": "Live sessions and triage"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Morning triage",
+      "command": "inbox",
+      "description": "See new members, unreplied posts, flagged content, form submissions, failed charges and cancellations since a time, read from the local mirror.",
+      "rationale": "Joins six synced resources locally, so one command replaces six quota-metered API calls.",
+      "example": "circle-pp-cli inbox --since 24h --agent",
+      "why_it_matters": "Run sync first: inbox reads only the local mirror, and an empty or missing mirror returns empty sections with exit 0, not an all-clear.",
+      "group": "Live sessions and triage"
+    },
+    {
+      "name": "Declarative structure apply",
+      "command": "spaces apply",
+      "description": "Make Circle's space groups and spaces match a YAML file, with a plan printed before any write.",
+      "rationale": "Diffs the file against live Circle across two resource types and changes only what differs.",
+      "example": "circle-pp-cli spaces apply ./spaces.yaml --agent",
+      "why_it_matters": "Use this to set up or change community structure repeatably; rerunning an applied file is a no-op.",
+      "group": "Community structure as files"
+    },
+    {
+      "name": "Course push",
+      "command": "course push",
+      "description": "Upload a course kept as module folders and markdown lessons to a Circle course space, new lessons as drafts.",
+      "rationale": "Creates or updates sections and lessons, uploads media, and fixes order in one idempotent pass using a local id map.",
+      "example": "circle-pp-cli course push ./course --space 1000969 --agent",
+      "why_it_matters": "Prints the plan by default; add --yes to push. New lessons land as drafts, and lesson order is tracked in course.yaml because Circle's API does not expose it.",
+      "group": "Community structure as files"
+    },
+    {
+      "name": "Course pull",
+      "command": "course pull",
+      "description": "Download a Circle course space into module folders with one file per lesson; lesson bodies stay as Circle's HTML and media is not downloaded.",
+      "rationale": "Rebuilds the section and lesson tree with ids in frontmatter, so course push round-trips without duplicates.",
+      "example": "circle-pp-cli course pull ./course --space 1000969 --agent",
+      "why_it_matters": "Use this to back up a course or hand it to an agent to edit as files; files are numbered in creation order because Circle's API does not expose lesson order.",
+      "group": "Community structure as files"
+    },
+    {
+      "name": "Seat count",
+      "command": "seats",
+      "description": "Count paying members against a seat cap and list who paid.",
+      "rationale": "Deduplicates payers across subscriptions and charges from the local mirror, with no aggregation endpoint upstream.",
+      "example": "circle-pp-cli seats --cap 30 --agent",
+      "why_it_matters": "Use this to see how many founding seats are left; active, trialing and past-due subscriptions plus paid charges count as paid.",
+      "group": "Seats and members"
+    },
+    {
+      "name": "Batch onboarding",
+      "command": "onboard",
+      "description": "Add people to the community, their spaces, space groups and access groups, and tag them, without sending invite emails by default.",
+      "rationale": "Chains member, space group, access group and tag calls per person and skips people who already exist.",
+      "example": "circle-pp-cli onboard ada@example.com --tag founding",
+      "why_it_matters": "Prints the plan by default; --yes applies it. No invite email goes out unless you add --send together with --yes.",
+      "group": "Seats and members"
+    },
+    {
+      "name": "Founding go/no-go",
+      "command": "founding",
+      "description": "Answer whether at least N people paid with GO or NO-GO and the count.",
+      "rationale": "Uses the seat computation and returns a typed exit code an agent can branch on.",
+      "example": "circle-pp-cli founding --go-no-go 10 --agent",
+      "why_it_matters": "Use this for the launch decision. Branch on the verdict field: exit 2 is also used for usage errors. Trialing and past-due subscriptions count as paid.",
+      "group": "Seats and members"
+    },
+    {
+      "name": "Recurring session scheduler",
+      "command": "show-tell schedule",
+      "description": "Create the next Show \u0026 Tell events on a cadence by duplicating a template event.",
+      "rationale": "Circle's API has no recurring series; this duplicates and reschedules per date and skips dates already scheduled.",
+      "example": "circle-pp-cli show-tell schedule --template 123 --every 2w --until 2027-01-17",
+      "why_it_matters": "Prints the series plan by default; --yes creates the occurrences as quiet drafts and records them so reruns skip dates already scheduled.",
+      "group": "Live sessions and triage"
+    },
+    {
+      "name": "Session recap draft",
+      "command": "show-tell recap",
+      "description": "Pull a past session's RSVPed attendees and its live-room transcript into a markdown recap draft.",
+      "rationale": "Joins the event, its attendees and the matching live room transcript, which Circle does not link.",
+      "example": "circle-pp-cli show-tell recap 123 --agent",
+      "why_it_matters": "A transcript needs a live-room recording near the event time; otherwise the recap says none was found (transcript_found false). --post --yes saves it as a draft post.",
+      "group": "Live sessions and triage"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "CIRCLE_API_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Circle",
+    "headline": "Run a Circle community from the terminal: spaces as files, courses as files, seat counts, and an offline mirror.",
+    "value_prop": "Every Circle Admin API V2 endpoint, plus commands built for operators who run a paid community and a course on Circle. Declare spaces in a file and apply only the diff, keep a course as markdown folders, count founding seats, onboard members without invite emails, and triage what needs you from a local SQLite mirror.",
+    "auth_narrative": "Circle admin tokens come from Circle admin \u003e Developers \u003e Tokens. Export the token as `CIRCLE_API_TOKEN`; the CLI sends it as `Authorization: Token \u003ctoken\u003e`. Admin API calls count against your plan's monthly request quota (5,000 to 250,000 a month by plan), so read from the local mirror after `sync` where you can.",
+    "quickstart": [
+      {
+        "command": "circle-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary runs without calling Circle"
+      },
+      {
+        "command": "circle-pp-cli doctor",
+        "comment": "Confirm CIRCLE_API_TOKEN reaches your community"
+      },
+      {
+        "command": "circle-pp-cli sync",
+        "comment": "Mirror spaces, members, posts and payments locally"
+      },
+      {
+        "command": "circle-pp-cli inbox --since 7d",
+        "comment": "See what needs you, read from the mirror"
+      },
+      {
+        "command": "circle-pp-cli seats --cap 30",
+        "comment": "Count paid founding seats"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 401 on every command",
+        "fix": "Check `CIRCLE_API_TOKEN` is an Admin API V2 token (V1 tokens do not work), then run `circle-pp-cli doctor`."
+      },
+      {
+        "symptom": "HTTP 429 Too Many Requests",
+        "fix": "Circle allows 2,000 requests per 5 minutes per IP. Wait a few minutes, then rerun with `--rate-limit 2`."
+      },
+      {
+        "symptom": "Monthly quota running low",
+        "fix": "Run `circle-pp-cli sync` once, then use `search`, `analytics`, `seats` and `inbox` (or the MCP `sql` tool), which read the local mirror."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to set up or run a Circle community through the Admin API: create or update spaces from a file, push a course from markdown, onboard members, count paid seats, schedule recurring events, or triage new activity. It suits scripted and agent use where every write should be previewed first.",
+    "anti_triggers": [
+      "Creating a paywall, price, or coupon: the Admin API has no create endpoint, use the Circle admin UI",
+      "Reading lesson completion or progress: the API only writes progress",
+      "Member-facing features in your own app: use Circle's Headless Member API",
+      "Sending DMs or announcement emails without a person approving them"
+    ],
+    "recipes": [
+      {
+        "title": "Preview a structure change",
+        "command": "circle-pp-cli spaces apply ./spaces.yaml",
+        "explanation": "Prints the create and update plan; add --apply to make the changes."
+      },
+      {
+        "title": "Push course edits as drafts",
+        "command": "circle-pp-cli course push ./course --space 1000969",
+        "explanation": "Prints which sections and lessons would be created or updated; re-run with --yes to push them as drafts."
+      },
+      {
+        "title": "Launch decision",
+        "command": "circle-pp-cli founding --go-no-go 10 --agent",
+        "explanation": "Exit 0 means at least 10 people paid; exit 2 means not yet."
+      },
+      {
+        "title": "Narrow a member listing",
+        "command": "circle-pp-cli community-members list --agent --select records.email,records.name,records.created_at",
+        "explanation": "Keeps only the fields an agent needs from a large member payload."
+      },
+      {
+        "title": "Declare spaces in a file",
+        "command": "circle-pp-cli spaces apply ./spaces.yaml --apply",
+        "explanation": "spaces.yaml lists space_groups and spaces (name, slug, group, type, privacy flags); without --apply it only prints the plan."
+      }
+    ],
+    "trigger_phrases": [
+      "did enough people pay for the circle course",
+      "how many founding seats are left on circle",
+      "push the course to circle",
+      "pull the circle course into files",
+      "apply this spaces file to circle",
+      "what needs me in the circle community",
+      "onboard these people to circle",
+      "schedule the next show and tell",
+      "draft the show and tell recap",
+      "use circle",
+      "run circle-pp-cli"
+    ]
+  },
+  "homepage": "https://circle.so"
+}

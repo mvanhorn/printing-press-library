@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "circle-live-coverage",
+  "summary": "Course pull must advertise its live GET behavior and local file writes, and course workflows must supply valid acceptance inputs for live validation.",
+  "reason": "Pull downloads remote content while writing local files, and push previews require an existing course folder and course space. Accurate annotations and usable validation inputs prevent misleading MCP permissions and acceptance probes that never exercise the workflow.",
+  "files": [
+    "internal/cli/course_pull.go",
+    "internal/cli/course_push.go"
+  ],
+  "markers": [
+    "\"pp:method\": \"GET\"",
+    "--space=1001068"
+  ],
+  "applied_at": "2026-11-05",
+  "base_run_id": "20261105-112545-5c241c59",
+  "base_printing_press_version": "4.35.2"
+}

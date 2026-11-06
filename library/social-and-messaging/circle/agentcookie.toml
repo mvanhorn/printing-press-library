@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "circle-pp-cli"
+display_name = "Circle"
+description = "Run a Circle community from the terminal: spaces as files, courses as files, seat counts, and an offline mirror."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/circle-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+CIRCLE_API_TOKEN = true

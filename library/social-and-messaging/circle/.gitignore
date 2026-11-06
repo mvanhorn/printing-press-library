@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/circle-pp-cli
+/circle-pp-cli.exe
+/circle-pp-mcp
+/circle-pp-mcp.exe
+/bin/
+/build/
+/dist/
