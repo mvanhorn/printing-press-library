@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "select-hint-and-truncation-total",
+  "applied_at": "2026-11-06",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "The dropped-list --select hint gives a working dotted selector and only fires when a requested name lives in the rows; search truncation reports the source's declared total, also as `totale` in the envelope.",
+  "reason": "The hint told users to add `numero` and `titolo`, which never open the list, and fired on `get` commands for lists nobody asked for. The truncation hint hid a total the portal already sends in the session page, and its `--limit 50` example could not cover larger result sets.",
+  "files": ["internal/cli/helpers.go", "internal/cli/icaro_helpers.go", "internal/icaroclient/client.go", "SKILL.md", "README.md"],
+  "validated_outcome": "stdout of --select is unchanged. Live: `interrogazioni cerca --firmatario Giambona --data 2024-09-01:2024-09-30` says 10 di 24 and `--limit 24` reaches n. 1251; without --data it says 10 di 1259 and proposes no --limit; no `totale` on /bd/, split ranges and aggregated leggi. Unit test confirms no extra request."
+}

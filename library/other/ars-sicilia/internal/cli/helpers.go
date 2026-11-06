@@ -112,7 +112,7 @@ func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 //	        return cmd.Help()
 //	    }
 //	    if dryRunOK(flags) {
-//	        return nil
+//	        return emitDryRunAzione(cmd)
 //	    }
 //	    // ... real work ...
 //	}
@@ -120,6 +120,24 @@ func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 // See SKILL.md "Phase 3: Build The GOAT" for the full pattern.
 func dryRunOK(flags *rootFlags) bool {
 	return flags != nil && flags.dryRun
+}
+
+// dryRunAction nomina il comando nell'anteprima: il contratto di --dry-run --json
+// vuole `dry_run: true` e un `action` non vuoto, e il collaudo live della press
+// boccia chi non li dà.
+func dryRunAction(cmd *cobra.Command) string {
+	return strings.TrimPrefix(cmd.CommandPath(), cmd.Root().Name()+" ")
+}
+
+// emitDryRunAzione è l'anteprima dei comandi che non hanno una richiesta da
+// mostrare. Uscire muti non si distingue da un guasto: zero byte non sono un
+// documento, e `--json` promette un documento.
+func emitDryRunAzione(cmd *cobra.Command) error {
+	return writeJSON(cmd.OutOrStdout(), map[string]any{
+		"dry_run": true,
+		"action":  dryRunAction(cmd),
+		"note":    "anteprima: il comando non è stato eseguito",
+	})
 }
 
 // parentNoSubcommandRunE returns a RunE that handles parents invoked without a
@@ -624,8 +642,13 @@ func yieldsFields(data json.RawMessage) bool {
 // La semantica non cambia: `--select titolo` su `ddl iter` deve continuare a
 // dare il titolo dell'atto, non quello di trentuno eventi. Cambia solo che ora
 // lo si viene a sapere, e si legge da dove ripartire.
-func warnArrayScartato(originale, filtrato json.RawMessage) {
-	if msg := avvisoArrayScartato(originale, filtrato); msg != "" {
+//
+// Si avvisa solo se almeno un nome chiesto vive anche nelle righe dell'elenco:
+// `resoconti get --select pdf_url,presidenza` non ha perso `allegati`, non li ha
+// mai chiesti. L'avviso dà il selettore già pronto, perché aggiungere uno dei
+// nomi in collisione non apre l'elenco: serve il percorso puntato.
+func warnArrayScartato(originale, filtrato json.RawMessage, fields string) {
+	if msg := avvisoArrayScartato(originale, filtrato, fields); msg != "" {
 		fmt.Fprintln(os.Stderr, msg)
 	}
 }
@@ -633,7 +656,7 @@ func warnArrayScartato(originale, filtrato json.RawMessage) {
 // avvisoArrayScartato torna il testo dell'avviso, o "" quando non c'è nulla da
 // dire. Separato dal warn per poterlo verificare senza catturare stderr, come
 // annoNonPinnatoHint.
-func avvisoArrayScartato(originale, filtrato json.RawMessage) string {
+func avvisoArrayScartato(originale, filtrato json.RawMessage, fields string) string {
 	var orig map[string]json.RawMessage
 	if json.Unmarshal(originale, &orig) != nil {
 		return ""
@@ -642,7 +665,16 @@ func avvisoArrayScartato(originale, filtrato json.RawMessage) string {
 	if json.Unmarshal(filtrato, &filt) != nil {
 		return ""
 	}
-	for _, k := range objectKeys(originale) {
+	chiesti := map[string]bool{}
+	for _, f := range strings.Split(fields, ",") {
+		if f = strings.ToLower(strings.TrimSpace(f)); f != "" && !strings.Contains(f, ".") {
+			chiesti[f] = true
+		}
+	}
+	chiavi := objectKeys(originale)
+	sort.Strings(chiavi)
+	var avvisi []string
+	for _, k := range chiavi {
 		if _, resta := filt[k]; resta {
 			continue
 		}
@@ -651,15 +683,35 @@ func avvisoArrayScartato(originale, filtrato json.RawMessage) string {
 			continue
 		}
 		campi := unionObjectKeys(arr)
-		if len(campi) == 0 {
+		sort.Strings(campi)
+		var collisioni, altri, puntati []string
+		for _, c := range campi {
+			if matchSelectSegment(c, chiesti, nil) != "" {
+				collisioni = append(collisioni, c)
+				puntati = append(puntati, k+"."+c)
+			} else {
+				altri = append(altri, c)
+			}
+		}
+		if len(collisioni) == 0 {
 			continue
 		}
-		sort.Strings(campi)
-		return fmt.Sprintf(
-			"hint: --select: %s (%d righe) non esce, perché tutti i nomi chiesti esistono già nella radice e la radice vince. Per vedere l'elenco aggiungi un nome che vive nelle sue righe: %s.",
-			k, len(arr), strings.Join(campi, ", "))
+		righe, esiste := fmt.Sprintf("%d righe", len(arr)), "esiste"
+		if len(arr) == 1 {
+			righe = "1 riga"
+		}
+		if len(collisioni) > 1 {
+			esiste = "esistono"
+		}
+		msg := fmt.Sprintf(
+			"hint: --select: %s (%s) non esce, perché %s %s anche nella radice e la radice vince. Per avere anche l'elenco usa --select %s,%s.",
+			k, righe, strings.Join(collisioni, ", "), esiste, strings.TrimSpace(fields), strings.Join(puntati, ","))
+		if len(altri) > 0 {
+			msg += fmt.Sprintf(" Nelle sue righe ci sono anche: %s.", strings.Join(altri, ", "))
+		}
+		avvisi = append(avvisi, msg)
 	}
-	return ""
+	return strings.Join(avvisi, "\n")
 }
 
 // warnUnknownSelectFields avverte su stderr quando un nome passato a --select
@@ -903,7 +955,7 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 		originale := data
 		data = filterFields(data, flags.selectFields)
 		data = preservaAvvisi(originale, data)
-		warnArrayScartato(originale, data)
+		warnArrayScartato(originale, data, flags.selectFields)
 	} else if flags.compact {
 		data = compactFields(data)
 	}

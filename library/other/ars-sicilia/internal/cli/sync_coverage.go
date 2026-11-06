@@ -57,7 +57,7 @@ func newNovelSyncCoverageCmd(flags *rootFlags) *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) || cliIsVerify() {
-				return nil
+				return emitDryRunAzione(cmd)
 			}
 			return runSyncCoverage(cmd, flags, flagDB, flagResources)
 		},

@@ -53,6 +53,7 @@ Successivamente, i comandi analytics, ddl drift e sync stale useranno i dati loc
 				}
 				out := map[string]any{
 					"dry_run":    true,
+					"action":     dryRunAction(cmd),
 					"resources":  flagResources,
 					"max_pages":  maxPages,
 					"legisl":     flagLegisle,

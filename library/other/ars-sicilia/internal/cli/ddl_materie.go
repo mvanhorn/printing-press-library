@@ -147,7 +147,7 @@ Nota: i valori non hanno accenti (es. Sanita, Parita).`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return nil
+				return emitDryRunAzione(cmd)
 			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				return printJSONFiltered(cmd.OutOrStdout(), ddlMaterie, flags)

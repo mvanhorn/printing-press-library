@@ -368,6 +368,9 @@ Exit codes:
   ars-sicilia-pp-cli which --limit 1 "send message"
   ars-sicilia-pp-cli which                                # list the full capability index`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return emitDryRunAzione(cmd)
+			}
 			if len(whichIndex) == 0 {
 				return usageErr(fmt.Errorf("this CLI has no curated capability index; run '--help' to see every command"))
 			}

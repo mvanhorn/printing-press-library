@@ -84,7 +84,7 @@ Utile per scoprire i valori corretti da passare a --firmatario in 'ddl cerca'.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return nil
+				return emitDryRunAzione(cmd)
 			}
 			if flagDB == "" {
 				flagDB = defaultDBPath("ars-sicilia-pp-cli")

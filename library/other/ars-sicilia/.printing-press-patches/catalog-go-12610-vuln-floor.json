@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "catalog-go-12610-vuln-floor",
+  "applied_at": "2026-11-06",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Raise the Go toolchain floor to 1.26.10 and golang.org/x/net to v0.62.0 so two reachable vulnerabilities are fixed when the CLI is built.",
+  "reason": "Publish-time govulncheck on go 1.26.9 and x/net v0.55.0 reported GO-2026-6809 (crypto/x509, fixed in go1.26.10) and GO-2026-6860 (x/net, fixed in v0.62.0). The README and SKILL install sections move to 1.26.10 too, which is also the text verify-skill now expects from the generator.",
+  "files": ["go.mod", "go.sum", "README.md", "SKILL.md"],
+  "validated_outcome": "`cli-printing-press publish validate` passes govulncheck and verify-skill; `go build ./...` and `go test ./...` pass on go1.26.10.",
+  "upstream_issue": null
+}

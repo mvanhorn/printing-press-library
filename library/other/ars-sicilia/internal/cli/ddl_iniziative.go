@@ -35,7 +35,7 @@ nello stesso campo dei firmatari, quindi il valore va passato a --firmatario.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return nil
+				return emitDryRunAzione(cmd)
 			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				return printJSONFiltered(cmd.OutOrStdout(), ddlIniziative, flags)

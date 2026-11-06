@@ -75,6 +75,7 @@ func emitGruppiDryRun(cmd *cobra.Command, path string, params map[string]string)
 		"would_fetch": u,
 		"note":        "reads the institutional site's HTML: no API, selectors certified by fixtures in internal/wwwclient/testdata",
 		"dry_run":     true,
+		"action":      dryRunAction(cmd),
 	})
 }
 

@@ -147,6 +147,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
   ars-sicilia-pp-cli doctor --json
   ars-sicilia-pp-cli doctor --fail-on warn`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return emitDryRunAzione(cmd)
+			}
 			report := map[string]any{}
 
 			// Check config

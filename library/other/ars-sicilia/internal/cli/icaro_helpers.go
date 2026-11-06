@@ -88,6 +88,7 @@ func runCerca(cmd *cobra.Command, flags *rootFlags, archiveSlug string, p cercaP
 	}
 	var truncated bool
 	var spezzato bool
+	var totale int
 	// Con l'aggregazione per legge il limite dell'utente è in leggi, non in
 	// righe: la paginazione si ferma quando le leggi chieste ci sono tutte,
 	// invece di consumare una finestra di righe stimata a priori.
@@ -103,6 +104,7 @@ func runCerca(cmd *cobra.Command, flags *rootFlags, archiveSlug string, p cercaP
 		Limit:     p.Limit,
 		MaxPages:  maxPages,
 		Truncated: &truncated,
+		Totale:    &totale,
 		Spezzato:  &spezzato,
 		StopWhen:  stopWhen,
 	})
@@ -121,6 +123,7 @@ func runCerca(cmd *cobra.Command, flags *rootFlags, archiveSlug string, p cercaP
 		}
 		return fmt.Errorf("ricerca %s: %w", arc.Slug, err)
 	}
+	maxPagesEsplicito := p.MaxPages > 0
 	if p.AggregaLeggi {
 		leggi := collapseLeggi(recs)
 		// Il troncamento va detto qui e non dopo: se la finestra scaricata si è
@@ -162,7 +165,8 @@ func runCerca(cmd *cobra.Command, flags *rootFlags, archiveSlug string, p cercaP
 		// consegnerebbe i risultati senza dire che la locuzione è degradata.
 		if envelopeWanted(cmd.OutOrStdout(), flags) {
 			warnPertinenza(frHint)
-			return emitEnvelope(cmd.OutOrStdout(), leggi, truncated, uniscoHint(hint, frHint), flags)
+			// Niente totale: la fonte conta righe-articolo, qui si elencano leggi.
+			return emitEnvelope(cmd.OutOrStdout(), leggi, truncated, 0, uniscoHint(hint, frHint), flags)
 		}
 		if err := printJSONFiltered(cmd.OutOrStdout(), leggi, flags); err != nil {
 			return err
@@ -197,7 +201,7 @@ func runCerca(cmd *cobra.Command, flags *rootFlags, archiveSlug string, p cercaP
 	if envelopeWanted(cmd.OutOrStdout(), flags) {
 		// L'avviso resta anche su stderr: la busta serve a chi legge il JSON,
 		// non a togliere l'informazione a chi usa la CLI a mano.
-		warnTruncated(truncated, len(recs), arc.Slug)
+		warnTruncated(truncated, len(recs), totale, arc.Slug, maxPagesEsplicito)
 		warnPertinenza(frHint)
 		warnPertinenza(puntHint)
 		warnPertinenza(spezzHint)
@@ -206,13 +210,13 @@ func runCerca(cmd *cobra.Command, flags *rootFlags, archiveSlug string, p cercaP
 		warnPertinenza(commHint)
 		warnPertinenza(sommHint)
 		warnPertinenza(latHint)
-		return emitEnvelope(cmd.OutOrStdout(), flatRecords(recs, firm), truncated,
-			uniscoHint(truncatedHint(truncated, len(recs), arc.Slug), frHint, puntHint, spezzHint, pertHint, omonHint, commHint, sommHint, latHint), flags)
+		return emitEnvelope(cmd.OutOrStdout(), flatRecords(recs, firm), truncated, totaleCoerente(totale, len(recs)),
+			uniscoHint(truncatedHint(truncated, len(recs), totale, arc.Slug, maxPagesEsplicito), frHint, puntHint, spezzHint, pertHint, omonHint, commHint, sommHint, latHint), flags)
 	}
 	if err := emitRecords(cmd, flags, *arc, recs, firm); err != nil {
 		return err
 	}
-	warnTruncated(truncated, len(recs), arc.Slug)
+	warnTruncated(truncated, len(recs), totale, arc.Slug, maxPagesEsplicito)
 	warnPertinenza(frHint)
 	warnPertinenza(puntHint)
 	warnPertinenza(spezzHint)
@@ -1090,8 +1094,8 @@ func virgolette(termini []string) []string {
 //
 // Con --envelope l'avviso viaggia anche dentro il JSON (vedi emitEnvelope):
 // su stderr resta comunque, perché è lì che lo legge chi usa la CLI a mano.
-func warnTruncated(truncated bool, shown int, slug string) {
-	if msg := truncatedHint(truncated, shown, slug); msg != "" {
+func warnTruncated(truncated bool, shown, totale int, slug string, maxPagesEsplicito bool) {
+	if msg := truncatedHint(truncated, shown, totale, slug, maxPagesEsplicito); msg != "" {
 		fmt.Fprintln(os.Stderr, msg)
 	}
 }
@@ -1108,7 +1112,10 @@ func warnTruncated(truncated bool, shown int, slug string) {
 // "risultati") e lascerebbe le chiavi di servizio, cioè l'opposto di ciò che
 // chiede chi scrive --select data,titolo. Le chiavi della busta restano
 // sempre, che è il motivo per cui la busta esiste.
-func emitEnvelope(w io.Writer, payload any, troncato bool, hint string, flags *rootFlags) error {
+//
+// `totale` è il numero dichiarato dalla fonte; 0 lo lascia fuori dalla busta,
+// quando non c'è o non conta le stesse cose delle righe.
+func emitEnvelope(w io.Writer, payload any, troncato bool, totale int, hint string, flags *rootFlags) error {
 	raw, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -1131,8 +1138,9 @@ func emitEnvelope(w io.Writer, payload any, troncato bool, hint string, flags *r
 	env := struct {
 		Risultati json.RawMessage `json:"risultati"`
 		Troncato  bool            `json:"troncato"`
+		Totale    int             `json:"totale,omitempty"`
 		Hint      string          `json:"hint,omitempty"`
-	}{Risultati: raw, Troncato: troncato, Hint: hint}
+	}{Risultati: raw, Troncato: troncato, Totale: totale, Hint: hint}
 	if flags.quiet {
 		return nil
 	}
@@ -1205,13 +1213,44 @@ func sommariHint(truncated bool, slug string, params map[string]string, termini 
 		legisl, legisl)
 }
 
-func truncatedHint(truncated bool, shown int, slug string) string {
+func truncatedHint(truncated bool, shown, totale int, slug string, maxPagesEsplicito bool) string {
 	if !truncated {
 		return ""
 	}
-	return fmt.Sprintf(
-		"hint: risultati troncati: mostrati %d, l'archivio %s ne ha altri. L'ordinamento non è per pertinenza, quindi un documento che stai cercando può stare oltre questa finestra: alza --limit (es. --limit 50) o restringi la ricerca prima di concludere che non esiste.",
-		shown, slug)
+	const finestra = "La finestra la decide l'ordine della fonte, non la pertinenza, e il riordino della CLI lavora solo sulle righe scaricate: un documento che stai cercando può stare oltre."
+	totale = totaleCoerente(totale, shown)
+	switch {
+	case totale == 0:
+		alza := "alza --limit (es. --limit 50)"
+		if maxPagesEsplicito {
+			alza = "alza --limit e --max-pages (es. --limit 50 --max-pages 5)"
+		}
+		return fmt.Sprintf("hint: risultati troncati: mostrati %d, l'archivio %s ne ha altri. %s Prima di concludere che non esiste, %s o restringi la ricerca.",
+			shown, slug, finestra, alza)
+	case totale > tettoLimitProposto:
+		return fmt.Sprintf("hint: risultati troncati: mostrati %d di %d nell'archivio %s. %s Sono troppi da scorrere: prima di concludere che non esiste, restringi la ricerca con altri filtri (vedi --help).",
+			shown, totale, slug, finestra)
+	}
+	limite := fmt.Sprintf("--limit %d", totale)
+	if maxPagesEsplicito {
+		limite += fmt.Sprintf(" --max-pages %d", (totale+9)/10)
+	}
+	return fmt.Sprintf("hint: risultati troncati: mostrati %d di %d nell'archivio %s. %s Prima di concludere che non esiste, leggili tutti con %s o restringi la ricerca.",
+		shown, totale, slug, finestra, limite)
+}
+
+// tettoLimitProposto è il totale oltre il quale l'avviso non propone più di
+// scaricare tutto: la fonte dà 10 righe a pagina, quindi sono 20 richieste. Sopra
+// (1259 interrogazioni di un solo firmatario, misurato) serve un filtro in più.
+const tettoLimitProposto = 200
+
+// totaleCoerente scarta un totale che non può essere vero rispetto alle righe
+// in mano: meglio nessun numero di «mostrati 10 di 9».
+func totaleCoerente(totale, righe int) int {
+	if totale < righe {
+		return 0
+	}
+	return totale
 }
 
 // conFirmatariRequested reports whether --con-firmatari was set. Like
@@ -1960,7 +1999,7 @@ func dryRunTargetBySlug(slug string, params map[string]string) (map[string]any, 
 // emitDryRunRequests stampa l'anteprima dei comandi che interrogano più di un
 // archivio: una riga per richiesta, nell'ordine in cui partirebbero.
 func emitDryRunRequests(cmd *cobra.Command, requests []map[string]any, note string) error {
-	out := map[string]any{"dry_run": true, "requests": requests}
+	out := map[string]any{"dry_run": true, "action": dryRunAction(cmd), "requests": requests}
 	if note != "" {
 		out["note"] = note
 	}
@@ -1986,6 +2025,7 @@ func emitDryRun(cmd *cobra.Command, arc icaro.Archive, p cercaParams) error {
 		return err
 	}
 	out["dry_run"] = true
+	out["action"] = dryRunAction(cmd)
 	return writeJSON(cmd.OutOrStdout(), out)
 }
 
