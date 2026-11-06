@@ -1,0 +1,509 @@
+{
+  "api_name": "cloro",
+  "base_url": "https://api.cloro.dev",
+  "description": "ChatGPT, Google AI Mode and Gemini answers with their cited sources, Google results with the AI Overview, and a citation check across engines.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "CLORO_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "CLORO_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://dashboard.cloro.dev/api-keys?utm_source=printing-press-library\u0026utm_medium=byok"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "aimode_aimode",
+      "description": "Extract structured data from AI Mode about your brand, products, or any topic across various regions. Required: prompt. Optional: country, device (default: desktop), gl (plus 4 more). Returns the new AiModeMonitorResponse.",
+      "method": "POST",
+      "path": "/v1/monitor/aimode",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country/region code for localized response, using ISO 3166-1 alpha-2 country codes."
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "Device type for search results"
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "body",
+          "description": "Alternative to `country`, using Google's own parameter name for the result geography."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "body",
+          "description": "Interface language, as Google's own `hl` parameter (e."
+        },
+        {
+          "name": "include-html",
+          "wire_name": "include.html",
+          "type": "bool",
+          "location": "body",
+          "description": "Include a URL to the full HTML of the response"
+        },
+        {
+          "name": "include-markdown",
+          "wire_name": "include.markdown",
+          "type": "bool",
+          "location": "body",
+          "description": "Include markdown-formatted response in the result. result.markdown is returned only when this is true."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Google canonical location name for geo-targeted results, in comma-separated format: 'City,Region,Country' (see https://developers.google.com/google-ads/api/reference/data/geotargets for all ~100,000 supported locations). Use alongside 'country' for city-level precision. Mutually exclusive with 'uule', provide one or the other, not both. When both location and uule are omitted, cloro pins results to the country's canonical location (e.g. Portugal for PT) where it has one; otherwise Google geolocates from the proxy's exit IP."
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt to send to AI Mode",
+          "required": true
+        },
+        {
+          "name": "uule",
+          "type": "string",
+          "location": "body",
+          "description": "Pre-encoded Google UULE string for precise geo-targeting. Use this when you have a pre-built UULE value instead of a location name. Mutually exclusive with 'location', provide one or the other, not both."
+        }
+      ]
+    },
+    {
+      "name": "async_batch",
+      "description": "Submit up to 500 async tasks in one request. Each task is validated independently, so one invalid task does not block the rest. Returns per-task results.",
+      "method": "POST",
+      "path": "/v1/async/task/batch",
+      "params": []
+    },
+    {
+      "name": "async_create",
+      "description": "Submit an asynchronous task for background processing. Returns a task ID that you can use to poll for results or receive via webhook. Required: payload, taskType. Optional: idempotencyKey, priority (default: 1), webhook.",
+      "method": "POST",
+      "path": "/v1/async/task",
+      "params": [
+        {
+          "name": "idempotencyKey",
+          "type": "string",
+          "location": "body",
+          "description": "Unique string to prevent duplicate task creation. Must be unique across your account."
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "body",
+          "description": "The provider's request body, validated against the same schema as its sync endpoint (for example ChatGPTMonitorRequest). That makes country required here too, or gl on the Google endpoints. For GOOGLE_PRODUCT, send only productResultToken.",
+          "required": true
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Task priority level (1-10). Higher numbers are processed first. Defaults to 1."
+        },
+        {
+          "name": "taskType",
+          "type": "string",
+          "location": "body",
+          "description": "The AI provider to use for this task.",
+          "required": true
+        },
+        {
+          "name": "webhook-url",
+          "wire_name": "webhook.url",
+          "type": "string",
+          "location": "body",
+          "description": "URL to receive the webhook POST request when the task completes.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "async_get",
+      "description": "Poll the status and result of an asynchronous task by ID. Returns the task state and, once complete, the full structured result payload. Required: taskId.",
+      "method": "GET",
+      "path": "/v1/async/task/{taskId}",
+      "params": [
+        {
+          "name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the task to fetch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "async_queue",
+      "description": "Get organization-wide async queue metrics including queued and processing task counts, and concurrency usage. Returns the AsyncStatusResponse.",
+      "method": "GET",
+      "path": "/v1/async/status",
+      "params": []
+    },
+    {
+      "name": "chatgpt_chatgpt",
+      "description": "Extract structured data from ChatGPT, answer text, cited sources, shopping cards, brand entities, and ads, for any prompt across supported regions. Required: country, prompt. Optional: disableWebSearch (default: false), include, legacy (default: false) (plus 1 more). Returns the new ChatGptmonitorResponse.",
+      "method": "POST",
+      "path": "/v1/monitor/chatgpt",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country/region code for localized response, using ISO 3166-1 alpha-2 country codes.",
+          "required": true
+        },
+        {
+          "name": "disableWebSearch",
+          "type": "bool",
+          "location": "body",
+          "description": "Do not force ChatGPT's web search. cloro returns the answer ChatGPT gives on its own, which uses web search only when ChatGPT decides to, so result.sources, result.citationPills and result.searchQueries are often empty. Defaults to false: web search is forced on every request."
+        },
+        {
+          "name": "include-ads",
+          "wire_name": "include.ads",
+          "type": "bool",
+          "location": "body",
+          "description": "Include ads displayed in ChatGPT response. ChatGPT currently shows ads only in answers to a follow-up prompt, and far more often on the legacy interface: send prompt as an array with legacy: true. Paid add-on: one flat +2 credits covers any combination of rawResponse, searchQueries, ads and shopping ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#chatgpt-additional-features))."
+        },
+        {
+          "name": "include-html",
+          "wire_name": "include.html",
+          "type": "bool",
+          "location": "body",
+          "description": "Include a URL to the full HTML of the response"
+        },
+        {
+          "name": "include-markdown",
+          "wire_name": "include.markdown",
+          "type": "bool",
+          "location": "body",
+          "description": "Include markdown-formatted response in the result"
+        },
+        {
+          "name": "include-product-details",
+          "wire_name": "include.productDetails",
+          "type": "bool",
+          "location": "body",
+          "description": "Add the rationale and reviews from each product's sheet as productDetails. Needs shopping. +2 credits on top of shopping."
+        },
+        {
+          "name": "include-raw-response",
+          "wire_name": "include.rawResponse",
+          "type": "bool",
+          "location": "body",
+          "description": "Include ChatGPT's raw response payload. Paid add-on: one flat +2 credits covers any combination of rawResponse, searchQueries, ads and shopping ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#chatgpt-additional-features))."
+        },
+        {
+          "name": "include-search-queries",
+          "wire_name": "include.searchQueries",
+          "type": "bool",
+          "location": "body",
+          "description": "Include the query fan-out ChatGPT used to generate the response. Paid add-on: one flat +2 credits covers any combination of rawResponse, searchQueries, ads and shopping ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#chatgpt-additional-features))."
+        },
+        {
+          "name": "include-shopping",
+          "wire_name": "include.shopping",
+          "type": "bool",
+          "location": "body",
+          "description": "Include shopping cards and inline products with pricing and offers. Paid add-on: one flat +2 credits covers any combination of rawResponse, searchQueries, ads and shopping ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#chatgpt-additional-features))."
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "body",
+          "description": "Serve ChatGPT's legacy desktop interface instead of the default mobile-web one. The legacy interface streams the answer as an event stream, so result.model, result.searchQueries and result.mapSearchQueries are populated. ChatGPT shows ads far more often on this interface. Best-effort and temporary: OpenAI controls which interface it serves and can retire the legacy one at any time, so a request can still come back in the mobile-web shape. Handle both. Defaults to false."
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt to send to ChatGPT, or an array of up to 5 prompts for a multi-turn conversation. With an array, ChatGPT answers the prompts in order, in the same conversation, and result is an array with one response for each prompt. Each prompt after the first costs +1 credit ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#chatgpt-additional-features)).",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State code for sub-country geo-targeting (e.g., 'CA'). Only valid with country 'US'. Paid add-on: +2 credits, on top of the base cost and any other add-on ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#state-level-targeting))."
+        }
+      ]
+    },
+    {
+      "name": "countries_get",
+      "description": "Returns a list of all supported ISO 3166-1 alpha-2 country codes. Can be filtered by model to get countries available for specific AI providers. Optional: model.",
+      "method": "GET",
+      "path": "/v1/countries",
+      "params": [
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Filter countries available for a specific model. Omit to return all supported countries."
+        }
+      ]
+    },
+    {
+      "name": "credits_get",
+      "description": "Read your organization's current credit balance and billing cycle. Lets you observe your balance programmatically, including from async-only workloads, without making a sync /v1/monitor/* request just to inspect the X-Credits-Remaining header. The balance is cached and can lag by up to 60 seconds. Queued async tasks are re-checked against your live balance when the scheduler picks them up. Returns the CreditsResponse.",
+      "method": "GET",
+      "path": "/v1/credits",
+      "params": []
+    },
+    {
+      "name": "gemini_gemini",
+      "description": "Extract structured data from Google Gemini, generated answer text and cited sources for any prompt, with Markdown and HTML export formats. Required: country, prompt. Optional: include, state. Returns the new GeminiMonitorResponse.",
+      "method": "POST",
+      "path": "/v1/monitor/gemini",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country/region code for localized response, using ISO 3166-1 alpha-2 country codes.",
+          "required": true
+        },
+        {
+          "name": "include-html",
+          "wire_name": "include.html",
+          "type": "bool",
+          "location": "body",
+          "description": "Include HTML-formatted response in the result"
+        },
+        {
+          "name": "include-markdown",
+          "wire_name": "include.markdown",
+          "type": "bool",
+          "location": "body",
+          "description": "Include markdown-formatted response in the result"
+        },
+        {
+          "name": "include-raw-response",
+          "wire_name": "include.rawResponse",
+          "type": "bool",
+          "location": "body",
+          "description": "Include raw streaming response events"
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt to send to Gemini",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State code for sub-country geo-targeting (e.g., 'CA'). Only valid with country 'US'. Paid add-on: +2 credits, on top of the base cost and any other add-on ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#state-level-targeting))."
+        }
+      ]
+    },
+    {
+      "name": "google_google",
+      "description": "Extract structured data from Google Search including organic results, People Also Ask, related searches, and optional AI Overview. Optional: country, device (default: desktop), gl (plus 7 more). Returns the new GoogleMonitorResponse.",
+      "method": "POST",
+      "path": "/v1/monitor/google",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 3166-1 alpha-2 country code for localized search results. See [List of countries](https://cloro.dev/docs/api-reference/endpoint/countries?utm_source=printing-press-library\u0026utm_medium=byok) for the codes each provider supports. Required in the standard request shape unless you send gl. When you supply 'url' instead, country is derived from the URL's 'gl', pass it explicitly to override that, or when the URL has no 'gl'."
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "Device the search is run from. 'desktop' returns the desktop SERP; 'ios' (Safari on iPhone), 'android' (Chrome on Android) and 'mobile' (alias for 'android') all return the mobile SERP."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "body",
+          "description": "Alternative to `country`, using Google's own parameter name for the result geography."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "body",
+          "description": "Interface language, as Google's own `hl` parameter (e."
+        },
+        {
+          "name": "include-aioverview",
+          "wire_name": "include.aioverview",
+          "type": "bool",
+          "location": "body",
+          "description": "Include the Google AI Overview in result.aioverview. Paid add-on: +2 credits."
+        },
+        {
+          "name": "include-html",
+          "wire_name": "include.html",
+          "type": "bool",
+          "location": "body",
+          "description": "Include raw HTML response from Google search"
+        },
+        {
+          "name": "include-paa-aioverview",
+          "wire_name": "include.paaAioverview",
+          "type": "bool",
+          "location": "body",
+          "description": "Hydrate AI-Overview-type People Also Ask items with markdown content and sources. Paid add-on: one flat +2 credits covers aioverview and paaAioverview, alone or together ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#google-search-multi-page-pricing)). Each hydrated item adds one scraper fetch (typically 1-2 per page), so responses take longer."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Google canonical location name for geo-targeted results, in comma-separated format: 'City,Region,Country' (see https://developers.google.com/google-ads/api/reference/data/geotargets for all ~100,000 supported locations). Use alongside 'country' for city-level precision. Mutually exclusive with 'uule', provide one or the other, not both. Cannot be combined with 'url'. When both location and uule are omitted, cloro pins results to the country's canonical location (e.g. Portugal for PT) where it has one; otherwise Google geolocates from the proxy's exit IP."
+        },
+        {
+          "name": "pages",
+          "type": "int",
+          "location": "body",
+          "description": "Number of search results pages to scrape (1-10). Paid add-on: +2 credits per page after the first ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#google-search-multi-page-pricing)). Cannot be combined with 'url', in that shape, depth comes from the URL's 'num' (rounded up to whole pages of 10, capped at 10 pages)."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The search query to execute on Google. Required unless you supply 'url' instead, the two are mutually exclusive."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "A complete Google web search URL to run instead of building the request from 'query' and the targeting fields. Must be an absolute http(s) URL on a Google web search host (google.com, google.co.uk, www.google.de, ...), with the path '/search' and a non-empty 'q'. Mutually exclusive with 'query', 'location', 'uule' and 'pages', the URL owns those values. cloro applies a fixed set of query parameters, 'q', 'gl', 'hl', 'uule', 'num' (read as result depth), 'start', 'tbs' and 'safe', and drops anything else. URLs carrying 'tbm' are rejected, because they target a Google vertical with its own endpoint and pricing (use POST /v1/monitor/google/news for tbm=nws)."
+        },
+        {
+          "name": "uule",
+          "type": "string",
+          "location": "body",
+          "description": "Pre-encoded Google UULE string for precise geo-targeting. Use this when you have a pre-built UULE value instead of a location name. Mutually exclusive with 'location', provide one or the other, not both. Cannot be combined with 'url'; put 'uule' in the URL's query string instead."
+        }
+      ]
+    },
+    {
+      "name": "goto_goto",
+      "description": "Resolve one Google redirect link to its destination URL. Send the `redirectLink` that ships beside a link on a [Google Search](https://cloro.dev/docs/api-reference/endpoint/monitor-google?utm_source=printing-press-library\u0026utm_medium=byok), [Google News](https://cloro.dev/docs/api-reference/endpoint/monitor-google-news?utm_source=printing-press-library\u0026utm_medium=byok), or [AI Mode](https://cloro.dev/docs/api-reference/endpoint/monitor-aimode?utm_source=printing-press-library\u0026utm_medium=byok) response, and the response gives you the URL it points to. Costs 1 credit per request, with no sync surcharge, and only when the call returns the destination. Each request resolves one link. If the link does not resolve, the call returns `502`, and you can retry it later. Required: url.",
+      "method": "POST",
+      "path": "/v1/monitor/google/goto",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The Google redirect link to resolve, as an absolute URL. Must be a google.com or www.google.com link with a /goto or /url path, the form shipped as redirectLink beside every resolved link on Google Search, Google News, and AI Mode responses.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "news_news",
+      "description": "Extract structured news articles from Google News including titles, links, snippets, sources, dates, and thumbnails. Required: query. Optional: country, device (default: desktop), gl (plus 3 more). Returns the new GoogleNewsMonitorResponse.",
+      "method": "POST",
+      "path": "/v1/monitor/google/news",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 3166-1 alpha-2 country code for localized news results. See [List of countries](https://cloro.dev/docs/api-reference/endpoint/countries?utm_source=printing-press-library\u0026utm_medium=byok) for the codes each provider supports."
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "Device the search is run from. 'desktop' returns the desktop news SERP; 'ios' (Safari on iPhone), 'android' (Chrome on Android) and 'mobile' (alias for 'android') all return the mobile news SERP."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "body",
+          "description": "Alternative to `country`, using Google's own parameter name for the result geography."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "body",
+          "description": "Interface language, as Google's own `hl` parameter (e."
+        },
+        {
+          "name": "include-html",
+          "wire_name": "include.html",
+          "type": "bool",
+          "location": "body",
+          "description": "Include raw HTML response from Google News"
+        },
+        {
+          "name": "pages",
+          "type": "int",
+          "location": "body",
+          "description": "Number of news results pages to scrape (1-10). Paid add-on: +2 credits per page after the first ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#google-search-multi-page-pricing))."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The search query to execute on Google News",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "product_product",
+      "description": "Return the product panel that a Google Search shopping card or a Google AI Mode product opens: merchant offers, description, specifications, reviews, images and related products. Send the `productResultToken` from a Google Search `result.shoppingCards` card, or from a Google AI Mode `result.shoppingCards` or `result.inlineProducts` entry. Costs 1 credit, plus the 2-credit sync surcharge, and only when the request succeeds. A token expires five minutes after the scrape that issued it. If you send the request async, set a high `priority`, so that the token does not expire in the queue. Required: productResultToken. Returns the new GoogleProductResponse.",
+      "method": "POST",
+      "path": "/v1/monitor/google/product",
+      "params": [
+        {
+          "name": "productResultToken",
+          "type": "string",
+          "location": "body",
+          "description": "The productResultToken from a Google Search shopping card, or from a Google AI Mode shopping card or inline product. The token carries the query, locale and location of the request that issued it, so the request takes no other field.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "states_get",
+      "description": "Returns a list of US states supported for state-level geo-targeting. Only US is currently supported, other country values return an empty array. Required: country.",
+      "method": "GET",
+      "path": "/v1/states",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 3166-1 alpha-2 country code. Only 'US' returns results.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-engine citation check",
+      "command": "cited",
+      "description": "See whether ChatGPT, Google AI Mode, Gemini and the Google AI Overview cite a domain for a prompt, with the source positions, in one command."
+    }
+  ]
+}

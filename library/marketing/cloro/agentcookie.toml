@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "cloro-pp-cli"
+display_name = "cloro"
+description = "ChatGPT, Google AI Mode and Gemini answers with their cited sources, Google results with the AI Overview, and a citation check across engines."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/cloro-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+CLORO_API_KEY = true

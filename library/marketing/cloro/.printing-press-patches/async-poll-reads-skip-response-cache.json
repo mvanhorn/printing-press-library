@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "async-poll-reads-skip-response-cache",
+  "applied_at": "2026-11-06",
+  "base_run_id": "20261106-060011-eac342d0",
+  "base_printing_press_version": "4.35.2",
+  "summary": "async get and async queue always read from the API and never from the HTTP response cache.",
+  "reason": "Task status and queue counts change between calls. A cached response made a poll loop show the first status (for example queued) until the cache expired.",
+  "files": ["internal/cli/async_get.go", "internal/cli/async_queue.go", "internal/cli/async_poll_test.go"],
+  "validated_outcome": "TestAsyncPollCommandsSkipResponseCache fails without the change: the second call prints the first response."
+}

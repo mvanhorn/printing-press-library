@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/cloro-pp-cli
+/cloro-pp-cli.exe
+/cloro-pp-mcp
+/cloro-pp-mcp.exe
+/bin/
+/build/
+/dist/
