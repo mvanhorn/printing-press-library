@@ -30,7 +30,7 @@ func TestCleanIndeterminateMutationReportsConflictWithoutOverwrite(t *testing.T)
 
 	plan := cleanClipPlan{VideoID: "vid_one", ClipID: "cl_one", Operations: []cleanOperation{{Op: "remove-fillers"}}}
 	snapshot := cutSnapshot{VideoID: "vid_one", ClipID: "cl_one", Cuts: []any{map[string]any{"startTimeMs": float64(10), "durationMs": float64(20)}}}
-	result, err := applyCleanPlans(fixtureClient(server), []cleanClipPlan{plan}, []cutSnapshot{snapshot})
+	result, err := applyCleanPlans(t.Context(), fixtureClient(server), []cleanClipPlan{plan}, []cutSnapshot{snapshot})
 	if err == nil {
 		t.Fatal("expected truncated response to fail")
 	}
@@ -62,7 +62,7 @@ func TestCleanRollbackSkipsInterveningExternalCuts(t *testing.T) {
 
 	plan := cleanClipPlan{VideoID: "vid_one", ClipID: "cl_one", Operations: []cleanOperation{{Op: "remove-fillers"}, {Op: "remove-silences", Mode: "natural"}}}
 	snapshot := cutSnapshot{VideoID: "vid_one", ClipID: "cl_one", Cuts: []any{map[string]any{"startTimeMs": float64(10), "durationMs": float64(20)}}}
-	result, err := applyCleanPlans(fixtureClient(server), []cleanClipPlan{plan}, []cutSnapshot{snapshot})
+	result, err := applyCleanPlans(t.Context(), fixtureClient(server), []cleanClipPlan{plan}, []cutSnapshot{snapshot})
 	if err == nil || !strings.Contains(err.Error(), "remove-silences") {
 		t.Fatalf("apply error = %v", err)
 	}
@@ -91,7 +91,7 @@ func TestCleanLaterIndeterminateFailurePreservesKnownUndoState(t *testing.T) {
 	plan := cleanClipPlan{VideoID: "vid_one", ClipID: "cl_one", Operations: []cleanOperation{{Op: "remove-fillers"}, {Op: "remove-silences", Mode: "natural"}}}
 	snapshot := cutSnapshot{VideoID: "vid_one", ClipID: "cl_one", Cuts: []any{map[string]any{"startTimeMs": float64(10), "durationMs": float64(20)}}}
 	snapshots := []cutSnapshot{snapshot}
-	result, err := applyCleanPlans(fixtureClient(server), []cleanClipPlan{plan}, snapshots)
+	result, err := applyCleanPlans(t.Context(), fixtureClient(server), []cleanClipPlan{plan}, snapshots)
 	if err == nil || !strings.Contains(err.Error(), "remove-silences") {
 		t.Fatalf("apply error = %v", err)
 	}

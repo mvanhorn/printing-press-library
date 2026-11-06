@@ -1,0 +1,14 @@
+[
+  {
+    "video_id": "source-recording-3",
+    "timeline_file": "<workspace>/<local-evidence>"
+  },
+  {
+    "video_id": "source-recording-2",
+    "timeline_file": "<workspace>/<local-evidence>"
+  },
+  {
+    "video_id": "source-recording-1",
+    "timeline_file": "<workspace>/<local-evidence>"
+  }
+]

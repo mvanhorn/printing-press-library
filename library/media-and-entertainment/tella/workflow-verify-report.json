@@ -1,5 +1,5 @@
 {
-  "dir": "/Users/gdc/printing-press/.runstate/cli-printing-press-89a62eb6/runs/20260509-180956/working/tella-pp-cli",
+  "dir": "\u003ccli-dir\u003e/tella",
   "workflows": null,
   "verdict": "workflow-pass",
   "issues": [

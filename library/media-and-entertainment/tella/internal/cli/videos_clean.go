@@ -1,5 +1,6 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
 package cli
 
 import (
@@ -34,9 +35,9 @@ keeps snapshots for explicit undo without overwriting cuts automatically.`,
 			api.DryRun = false
 			api.NoCache = true // every recovery snapshot must come from live state
 			videoID := args[0]
-			timeline, err := api.Get(fmt.Sprintf("/v1/videos/%s/timeline", videoID), nil)
+			timeline, err := api.Get(cmd.Context(), fmt.Sprintf("/v1/videos/%s/timeline", videoID), nil)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			clipIDs, err := timelineClipIDs(timeline)
 			if err != nil {
@@ -57,9 +58,9 @@ keeps snapshots for explicit undo without overwriting cuts automatically.`,
 				if meta != nil {
 					mistakeMeta[clipID] = meta
 				}
-				plan, snapshot, planErr := planCleanClip(api, videoID, clipID, options)
+				plan, snapshot, planErr := planCleanClip(cmd.Context(), api, videoID, clipID, options)
 				if planErr != nil {
-					return classifyAPIError(planErr, flags)
+					return classifyAPIError(cmd.OutOrStdout(), planErr, flags)
 				}
 				plans = append(plans, plan)
 				snapshots = append(snapshots, snapshot)
@@ -84,7 +85,7 @@ keeps snapshots for explicit undo without overwriting cuts automatically.`,
 				}
 				snapshotPaths[snapshot.ClipID] = path
 			}
-			applyResult, applyErr := applyCleanPlans(api, plans, snapshots)
+			applyResult, applyErr := applyCleanPlans(cmd.Context(), api, plans, snapshots)
 			applyErr = errors.Join(applyErr, updateCutSnapshotFiles(snapshotPaths, snapshots))
 			result["dry_run"] = false
 			result["applied"] = applyErr == nil
@@ -103,8 +104,10 @@ keeps snapshots for explicit undo without overwriting cuts automatically.`,
 	cmd.Flags().BoolVar(&cleanFlags.trimEdges, "trim-edges", false, "Cut leading and trailing silence only")
 	cmd.Flags().StringArrayVar(&cleanFlags.timeRanges, "range", nil, "Playback-time range to cut as fromMs:toMs; repeatable")
 	cmd.Flags().StringArrayVar(&cleanFlags.wordRanges, "word-range", nil, "Transcript word-index range to cut as from:to; repeatable")
-	cmd.Flags().BoolVar(&cleanFlags.findMistakes, "find-mistakes", false, "Analyze unofficial Tella AI mistakes and cut their ranges")
-	cmd.Flags().BoolVar(&cleanFlags.unofficial, "unofficial", false, "Opt in to the undocumented cookie-authenticated Find Mistakes service")
+	cmd.Flags().BoolVar(&cleanFlags.findMistakes, "find-mistakes", false, "Retired; use clips find-retakes or agent-chats start")
+	cmd.Flags().BoolVar(&cleanFlags.unofficial, "unofficial", false, "Retired compatibility flag")
+	_ = cmd.Flags().MarkDeprecated("find-mistakes", mistakesRetired)
+	_ = cmd.Flags().MarkDeprecated("unofficial", mistakesRetired)
 	cmd.Flags().BoolVar(&cleanFlags.apply, "apply", false, "Apply the previewed edits; default is read-only")
 	return cmd
 }

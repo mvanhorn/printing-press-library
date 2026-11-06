@@ -1,13 +1,13 @@
 {
   "schema_version": 2,
   "id": "ambiguous-write-retries-disabled",
-  "applied_at": "2026-09-10",
+  "applied_at": "2026-09-30",
   "base_run_id": "20260509-180956",
   "base_printing_press_version": "4.2.1",
   "summary": "Unprotected writes are not replayed after ambiguous transport or server failures; bounded authentication and rate-limit recovery remain available.",
-  "reason": "A failed write may have committed remotely before the client observed the failure. Authentication rejection and rate limiting are distinct recovery paths and must not lose their retry budget.",
+  "reason": "A failed write may have committed remotely before the client observed the failure, so replaying a POST/PATCH after a 5xx or dropped connection can create duplicates or start paid work more than once. Authentication rejection and rate limiting are distinct recovery paths and keep their retry budget.",
   "files": [
     "internal/client/client.go"
   ],
-  "validated_outcome": "Ambiguous-failure branches are guarded without disabling the shared retry budget."
+  "validated_outcome": "Ambiguous-failure branches are guarded without disabling the shared retry budget. Ported from mvanhorn/printing-press-library#1978."
 }

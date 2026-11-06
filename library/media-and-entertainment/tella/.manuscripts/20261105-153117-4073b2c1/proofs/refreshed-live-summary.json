@@ -1,0 +1,12 @@
+{
+  "lesson_applied": true,
+  "preview_http": 200,
+  "chapters": 2,
+  "tail_cli_single_json": true,
+  "tail_mcp_single_json": true,
+  "tail_background_categories": 5,
+  "paid_chat_attempts": 1,
+  "scope": "one registered owned pp-test copy; tail reads backgrounds only",
+  "binary_sha256": "fd611b6f91c72d34ef9587c44049174ab589f98434d56a306c1367ae012cab10",
+  "test_harness_correction": "Assert the actual categories envelope, rather than assuming a data array."
+}

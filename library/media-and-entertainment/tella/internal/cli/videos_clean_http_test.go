@@ -62,7 +62,7 @@ func TestCleanPlanAndApplyUsesOfficialBatchPayloads(t *testing.T) {
 	defer server.Close()
 
 	api := fixtureClient(server)
-	plan, snapshot, err := planCleanClip(api, "vid_one", "cl_one", cleanOptions{
+	plan, snapshot, err := planCleanClip(t.Context(), api, "vid_one", "cl_one", cleanOptions{
 		RemoveFillers: true, RemoveSilences: "natural",
 		TimeRanges: []cleanRange{{FromMs: 100, ToMs: 200}, {FromMs: 180, ToMs: 300}},
 		WordRanges: []cleanWordRange{{FromWordIndex: 8, ToWordIndex: 10}},
@@ -75,7 +75,7 @@ func TestCleanPlanAndApplyUsesOfficialBatchPayloads(t *testing.T) {
 		t.Fatalf("existing cuts not preserved in snapshot/plan: %#v %#v", snapshot.Cuts, plan.ExistingCuts)
 	}
 	snapshots := []cutSnapshot{snapshot}
-	result, err := applyCleanPlans(api, []cleanClipPlan{plan}, snapshots)
+	result, err := applyCleanPlans(t.Context(), api, []cleanClipPlan{plan}, snapshots)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -204,7 +204,7 @@ func TestCleanPartialFailureRequiresManualRecoveryForTouchedClips(t *testing.T) 
 		{VideoID: "vid_one", ClipID: "cl_one", Cuts: []any{map[string]any{"startTimeMs": float64(10), "durationMs": float64(20)}}},
 		{VideoID: "vid_one", ClipID: "cl_two", Cuts: []any{map[string]any{"startTimeMs": float64(30), "durationMs": float64(40)}}},
 	}
-	result, err := applyCleanPlans(fixtureClient(server), plans, snapshots)
+	result, err := applyCleanPlans(t.Context(), fixtureClient(server), plans, snapshots)
 	if err == nil {
 		t.Fatal("expected partial failure")
 	}
@@ -232,7 +232,7 @@ func TestCleanFirstFailureDoesNotRollbackUnmodifiedClip(t *testing.T) {
 	defer server.Close()
 	plan := cleanClipPlan{VideoID: "vid_one", ClipID: "cl_one", Operations: []cleanOperation{{Op: "remove-fillers"}}}
 	snapshot := cutSnapshot{VideoID: "vid_one", ClipID: "cl_one", Cuts: []any{map[string]any{"startTimeMs": float64(10), "durationMs": float64(20)}}}
-	result, err := applyCleanPlans(fixtureClient(server), []cleanClipPlan{plan}, []cutSnapshot{snapshot})
+	result, err := applyCleanPlans(t.Context(), fixtureClient(server), []cleanClipPlan{plan}, []cutSnapshot{snapshot})
 	if err == nil {
 		t.Fatal("expected first operation to fail")
 	}

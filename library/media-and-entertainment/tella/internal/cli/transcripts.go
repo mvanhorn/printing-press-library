@@ -1,10 +1,12 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source auto
+// Search reads the local transcript index; sync populates it from the live API.
 package cli
 
 import (
+	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -99,14 +101,14 @@ func newTranscriptsSyncCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
-			videoIDs, err := listAllVideoIDs(c, maxVideos)
+			videoIDs, err := listAllVideoIDs(cmd.Context(), c, maxVideos)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			stored := 0
 			skipped := 0
 			for _, vid := range videoIDs {
-				clipIDs, err := listClipIDs(c, vid)
+				clipIDs, err := listClipIDs(cmd.Context(), c, vid)
 				if err != nil {
 					skipped++
 					continue
@@ -115,22 +117,16 @@ func newTranscriptsSyncCmd(flags *rootFlags) *cobra.Command {
 					clipIDs = clipIDs[:maxClipsPerVideo]
 				}
 				for _, cid := range clipIDs {
-					data, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/transcript/cut", vid, cid), nil)
+					data, err := getClipTranscript(cmd.Context(), c, vid, cid, false)
 					if err != nil {
-						var apiE *client.APIError
-						if errors.As(err, &apiE) && apiE.StatusCode == 404 {
-							skipped++
-							continue
-						}
-						skipped++
-						continue
+						return classifyAPIError(cmd.OutOrStdout(), fmt.Errorf("fetching transcript for video %s clip %s after storing %d transcripts: %w", vid, cid, stored, err), flags)
 					}
 					text, wordTimings := extractTranscriptText(data)
 					if text == "" {
 						skipped++
 						continue
 					}
-					if err := db.UpsertTranscript(vid, cid, "cut", text, wordTimings); err != nil {
+					if err := db.UpsertCachedTranscript(vid, cid, "cut", text, wordTimings); err != nil {
 						skipped++
 						continue
 					}
@@ -155,8 +151,8 @@ func newTranscriptsSyncCmd(flags *rootFlags) *cobra.Command {
 // Walks every cursor page (via paginatedListIDs) — previously this issued
 // a single c.Get, so transcripts sync silently missed every video past the
 // first API page on larger workspaces.
-func listAllVideoIDs(c *client.Client, max int) ([]string, error) {
-	ids, err := paginatedListIDs(c, "/v1/videos", nil, "videos")
+func listAllVideoIDs(ctx context.Context, c *client.Client, max int) ([]string, error) {
+	ids, err := paginatedListIDs(ctx, c, "/v1/videos", nil, "videos")
 	if err != nil {
 		return nil, err
 	}
@@ -166,8 +162,8 @@ func listAllVideoIDs(c *client.Client, max int) ([]string, error) {
 	return ids, nil
 }
 
-func listClipIDs(c *client.Client, videoID string) ([]string, error) {
-	return paginatedListIDs(c, fmt.Sprintf("/v1/videos/%s/clips", videoID), nil, "clips")
+func listClipIDs(ctx context.Context, c *client.Client, videoID string) ([]string, error) {
+	return paginatedListIDs(ctx, c, fmt.Sprintf("/v1/videos/%s/clips", videoID), nil, "clips")
 }
 
 // paginatedListIDs walks the cursor-paged Tella response for a list endpoint
@@ -181,10 +177,10 @@ func listClipIDs(c *client.Client, videoID string) ([]string, error) {
 //
 // Caller passes a narrow Get-only interface so unit tests can stub the
 // transport without standing up an httptest server.
-func paginatedListIDs(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+func paginatedListIDs(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 }, path string, params map[string]string, arrayKey string) ([]string, error) {
-	pageDefaults := determinePaginationDefaults()
+	pageDefaults := determinePaginationDefaults(path)
 	cursorParam := pageDefaults.cursorParam
 	limitParam := pageDefaults.limitParam
 
@@ -204,7 +200,7 @@ func paginatedListIDs(c interface {
 			delete(query, cursorParam)
 		}
 
-		data, err := c.Get(path, query)
+		data, err := c.Get(ctx, path, query)
 		if err != nil {
 			return nil, err
 		}

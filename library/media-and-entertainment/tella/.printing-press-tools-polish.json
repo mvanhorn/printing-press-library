@@ -1,5 +1,15 @@
 {
-  "timestamp": "2026-05-09T22:49:23.521642Z",
-  "cli_dir": "/Users/gdc/printing-press/.runstate/cli-printing-press-89a62eb6/runs/20260509-180956/working/tella-pp-cli",
-  "findings": null
+  "timestamp": "2026-11-06T01:47:08.46981Z",
+  "cli_dir": "\u003ccli-dir\u003e/tella",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "find-mistakes",
+      "file": "videos_clips_find-mistakes.go",
+      "line": 12,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Retired compatibility stub, not an operational read: RunE only prints help or returns the documented retirement usage error before client creation or HTTP. Keep it outside read-only MCP discovery; adding read-only metadata would advertise an unusable command. No cookie transport is reachable."
+    }
+  ]
 }

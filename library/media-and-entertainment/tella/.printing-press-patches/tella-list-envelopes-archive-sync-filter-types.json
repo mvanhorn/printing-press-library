@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "tella-list-envelopes-archive-sync-filter-types",
+  "applied_at": "2026-11-05",
+  "base_run_id": "20260509-180956",
+  "base_printing_press_version": "4.2.1",
+  "summary": "Preserve Tella list envelopes paged by cursor: workflow archive and sync unwrap them via the shared page parser and store empty lists as zero records, purging pre-fix <resource> and <resource>-singleton envelope rows and their FTS entries when a list is read, while --filter-types accepts comma lists and JSON arrays; empty synced lists read as [] offline, and sync paging follows hasMore/nextCursor rather than page length.",
+  "reason": "Tella list responses are envelopes paged by cursor, so workflow archive and sync must use the shared page parser to avoid storing envelope objects as -singleton rows or empty lists as records, and purge pre-fix <resource> and <resource>-singleton envelope rows for that resource type when a list is read. Completed empty pages must end sync before the page-cap check to avoid false truncation warnings. Webhook --filter-types must accept documented comma lists while retaining JSON array support. Sync state must distinguish empty synced lists that read as [] offline from never-synced resources; paging must follow hasMore/nextCursor rather than page length to avoid truncating short pages.",
+  "files": [
+    "internal/cli/channel_workflow.go",
+    "internal/cli/data_source.go",
+    "internal/cli/matrix_fixes_test.go",
+    "internal/cli/sync.go",
+    "internal/cli/webhooks_create-endpoint.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "TestWorkflowArchiveEnvelopePagination, TestSyncEmptyEnvelope, TestWebhooksCreateEndpointFilterTypes, TestListReadsPurgeStaleEnvelopes, TestSyncEmptyEnvelopeMaxPages, TestSyncEmptyPlaylistsLocalList, TestSyncShortPagesFollowCursor; build and vet pass; new HTTP regression tests compile but execution is unverified because the sandbox denies httptest socket binding; live (prior validation): workflow archive stored 47 videos and no -singleton rows",
+  "call_sites": [
+    "extractPageItems("
+  ]
+}

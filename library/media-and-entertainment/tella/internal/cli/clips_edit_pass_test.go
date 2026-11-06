@@ -4,6 +4,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"path/filepath"
@@ -37,7 +38,7 @@ func TestClipsEditPassRejectsNegativeBufferMinMs(t *testing.T) {
 	}
 }
 
-func TestClipsEditPassDryRunStillRequiresUnofficialForFindMistakes(t *testing.T) {
+func TestClipsEditPassRefusesRetiredMistakes(t *testing.T) {
 	flags := &rootFlags{dryRun: true}
 	cmd := newClipsEditPassCmd(flags)
 	var out, errOut bytes.Buffer
@@ -52,12 +53,12 @@ func TestClipsEditPassDryRunStillRequiresUnofficialForFindMistakes(t *testing.T)
 	if ExitCode(err) != 2 {
 		t.Fatalf("ExitCode = %d, want 2 (usage error)", ExitCode(err))
 	}
-	if !strings.Contains(err.Error(), "pass --unofficial") {
+	if !strings.Contains(err.Error(), "find-retakes") {
 		t.Fatalf("error = %q, want --unofficial validation message", err.Error())
 	}
 }
 
-func TestClipsEditPassDryRunFindMistakesRequiresSessionCookie(t *testing.T) {
+func TestClipsEditPassRefusesRetiredMistakesEvenWithUnofficial(t *testing.T) {
 	t.Setenv("TELLA_SESSION_COOKIE", "")
 	flags := &rootFlags{
 		dryRun:     true,
@@ -73,10 +74,10 @@ func TestClipsEditPassDryRunFindMistakesRequiresSessionCookie(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for missing TELLA_SESSION_COOKIE in dry-run, got nil")
 	}
-	if ExitCode(err) != 10 {
+	if ExitCode(err) != 2 {
 		t.Fatalf("ExitCode = %d, want 10 (config error)", ExitCode(err))
 	}
-	if !strings.Contains(err.Error(), "TELLA_SESSION_COOKIE") {
+	if !strings.Contains(err.Error(), "find-retakes") {
 		t.Fatalf("error = %q, want TELLA_SESSION_COOKIE validation message", err.Error())
 	}
 }
@@ -258,13 +259,13 @@ type stubGetter struct {
 	err  error
 }
 
-func (s *stubGetter) Get(_ string, _ map[string]string) (json.RawMessage, error) {
+func (s *stubGetter) Get(_ context.Context, _ string, _ map[string]string) (json.RawMessage, error) {
 	return s.data, s.err
 }
 
 func TestFetchClipDurationMs_HappyPath(t *testing.T) {
 	s := &stubGetter{data: json.RawMessage(`{"clip":{"id":"cl_abc","durationSeconds":235.167}}`)}
-	got, err := fetchClipDurationMs(s, "vid", "cl")
+	got, err := fetchClipDurationMs(t.Context(), s, "vid", "cl")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -275,7 +276,7 @@ func TestFetchClipDurationMs_HappyPath(t *testing.T) {
 
 func TestFetchClipDurationMs_RejectsNonPositiveDuration(t *testing.T) {
 	s := &stubGetter{data: json.RawMessage(`{"clip":{"durationSeconds":0}}`)}
-	_, err := fetchClipDurationMs(s, "vid", "cl")
+	_, err := fetchClipDurationMs(t.Context(), s, "vid", "cl")
 	if err == nil {
 		t.Fatal("expected error for zero durationSeconds, got nil")
 	}
@@ -283,7 +284,7 @@ func TestFetchClipDurationMs_RejectsNonPositiveDuration(t *testing.T) {
 
 func TestFetchClipDurationMs_ParseError(t *testing.T) {
 	s := &stubGetter{data: json.RawMessage(`not json at all`)}
-	_, err := fetchClipDurationMs(s, "vid", "cl")
+	_, err := fetchClipDurationMs(t.Context(), s, "vid", "cl")
 	if err == nil {
 		t.Fatal("expected parse error, got nil")
 	}
@@ -299,7 +300,7 @@ type stubPagedGetter struct {
 	lastCursor  string
 }
 
-func (s *stubPagedGetter) Get(_ string, params map[string]string) (json.RawMessage, error) {
+func (s *stubPagedGetter) Get(_ context.Context, _ string, params map[string]string) (json.RawMessage, error) {
 	s.calls++
 	cursor := params[s.cursorParam]
 	s.lastCursor = cursor
@@ -333,7 +334,7 @@ func TestPaginatedListIDs_FollowsCursorAcrossPages(t *testing.T) {
             }`),
 		},
 	}
-	got, err := paginatedListIDs(stub, "/v1/videos", nil, "videos")
+	got, err := paginatedListIDs(t.Context(), stub, "/v1/videos", nil, "videos")
 	if err != nil {
 		t.Fatalf("paginatedListIDs: %v", err)
 	}
@@ -368,7 +369,7 @@ func TestPaginatedListIDs_StickyCursorTerminates(t *testing.T) {
 			"stuck": stickyPage,
 		},
 	}
-	got, err := paginatedListIDs(stub, "/v1/videos", nil, "videos")
+	got, err := paginatedListIDs(t.Context(), stub, "/v1/videos", nil, "videos")
 	if err != nil {
 		t.Fatalf("paginatedListIDs: %v", err)
 	}
@@ -393,7 +394,7 @@ func TestPaginatedListIDs_SinglePageNoCursorBreaksImmediately(t *testing.T) {
             }`),
 		},
 	}
-	got, err := paginatedListIDs(stub, "/v1/videos", nil, "videos")
+	got, err := paginatedListIDs(t.Context(), stub, "/v1/videos", nil, "videos")
 	if err != nil {
 		t.Fatalf("paginatedListIDs: %v", err)
 	}

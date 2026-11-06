@@ -1,0 +1,7 @@
+{
+  "version": "historical-build",
+  "api": "reachable (HTTP 404 at /)",
+  "credentials": "valid",
+  "tls": "system roots",
+  "verify_mode": "normal operation"
+}

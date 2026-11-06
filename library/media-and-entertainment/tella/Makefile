@@ -1,7 +1,9 @@
 .PHONY: build test lint install clean
 
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
+
 build:
-	go build -o bin/tella-pp-cli ./cmd/tella-pp-cli
+	go build -trimpath -o bin/tella-pp-cli$(BIN_EXT) ./cmd/tella-pp-cli
 
 test:
 	go test ./...
@@ -16,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/tella-pp-mcp ./cmd/tella-pp-mcp
+	go build -trimpath -o bin/tella-pp-mcp$(BIN_EXT) ./cmd/tella-pp-mcp
 
 install-mcp:
 	go install ./cmd/tella-pp-mcp

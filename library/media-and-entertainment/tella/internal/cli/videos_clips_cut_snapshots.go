@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,8 +21,8 @@ type cutSnapshot struct {
 	ExpectedCuts any       `json:"expected_cuts,omitempty"`
 }
 
-func captureCutSnapshot(api cleanAPI, videoID, clipID string) (cutSnapshot, error) {
-	data, err := api.Get(fmt.Sprintf("/v1/videos/%s/clips/%s", videoID, clipID), nil)
+func captureCutSnapshot(ctx context.Context, api cleanAPI, videoID, clipID string) (cutSnapshot, error) {
+	data, err := api.Get(ctx, fmt.Sprintf("/v1/videos/%s/clips/%s", videoID, clipID), nil)
 	if err != nil {
 		return cutSnapshot{}, err
 	}
@@ -51,8 +52,8 @@ func clipCutsFromResponse(data json.RawMessage) (any, error) {
 	return cuts, nil
 }
 
-func saveCutSnapshot(api cleanAPI, videoID, clipID string) (string, error) {
-	snapshot, err := captureCutSnapshot(api, videoID, clipID)
+func saveCutSnapshot(ctx context.Context, api cleanAPI, videoID, clipID string) (string, error) {
+	snapshot, err := captureCutSnapshot(ctx, api, videoID, clipID)
 	if err != nil {
 		return "", err
 	}
@@ -110,8 +111,8 @@ func updateCutSnapshotFiles(paths map[string]string, snapshots []cutSnapshot) er
 	return errors.Join(errs...)
 }
 
-func restoreCutSnapshot(api cleanAPI, snapshot cutSnapshot) (int, error) {
-	_, status, err := api.Patch(
+func restoreCutSnapshot(ctx context.Context, api cleanAPI, snapshot cutSnapshot) (int, error) {
+	_, status, err := api.Patch(ctx,
 		fmt.Sprintf("/v1/videos/%s/clips/%s", snapshot.VideoID, snapshot.ClipID),
 		map[string]any{"cuts": snapshot.Cuts},
 	)

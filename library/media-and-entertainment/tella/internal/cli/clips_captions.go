@@ -1,5 +1,6 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
 package cli
 
 import (
@@ -41,9 +42,9 @@ func newClipsCaptionsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/transcript/cut", videoID, clipID), nil)
+			data, err := getClipTranscript(cmd.Context(), c, videoID, clipID, false)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			cues := extractCues(data)
 			if len(cues) == 0 {

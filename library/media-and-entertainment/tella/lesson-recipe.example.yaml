@@ -1,0 +1,30 @@
+# Examples only: these are not Cathryn's house style or real source/preset IDs.
+# Active defaults preserve existing styling; uncomment optional settings deliberately.
+silences: natural
+fillers: true
+zooms: false
+crop: false
+thumbnail:
+  rule: first-spoken
+# For a fixed frame, replace thumbnail above with:
+# thumbnail:
+#   rule: fixed
+#   inpointMs: 4500
+#
+# zoomStyle: subtle  # Also enables zoom generation, preserving existing zooms.
+# subtitlePreset: "replace-with-your-subtitle-preset-id"
+# captions:
+#   fontFamily: Arial
+#   fontSize: 64  # 40–200; do not also pass size.
+#   enabled: true
+#   defaultEnabled: true
+# backgroundMusic:
+#   presetId: "replace-with-your-music-preset-id"
+#   # Or sourceId: "replace-with-your-existing-audio-source-id" instead of presetId.
+#   volume: 0.2
+# intro:
+#   sourceId: "replace-with-your-existing-intro-source-id"
+#   name: Intro
+# outro:
+#   sourceId: "replace-with-your-existing-outro-source-id"
+#   name: Outro

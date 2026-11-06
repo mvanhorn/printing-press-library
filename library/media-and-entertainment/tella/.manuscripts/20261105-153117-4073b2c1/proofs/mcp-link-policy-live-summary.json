@@ -1,0 +1,38 @@
+{
+  "cases": [
+    {
+      "endpoint": "videos.live-preview.get-link",
+      "mode": "normal",
+      "read_refused": true,
+      "unconfirmed_preview": true,
+      "confirmed_api_success": true,
+      "link_http": 200
+    },
+    {
+      "endpoint": "videos.recording-link.get",
+      "mode": "normal",
+      "read_refused": true,
+      "unconfirmed_preview": true,
+      "confirmed_api_success": true,
+      "link_http": 200
+    },
+    {
+      "endpoint": "videos.live-preview.get-link",
+      "mode": "readonly",
+      "tella_read_refused": true,
+      "tella_execute_absent": true
+    },
+    {
+      "endpoint": "videos.recording-link.get",
+      "mode": "readonly",
+      "tella_read_refused": true,
+      "tella_execute_absent": true
+    }
+  ],
+  "canonical_recording_link_exit": 0,
+  "paid_chat_attempts": 1,
+  "read_only_env": "TELLA_MCP_READ_ONLY=1",
+  "read_only_tool_count": 29,
+  "scope": "second registered pp-test video only",
+  "raw_tokens": "excluded private files"
+}

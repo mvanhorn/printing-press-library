@@ -1,11 +1,12 @@
 {
-  "dir": "/Users/gdc/printing-press/.runstate/cli-printing-press-89a62eb6/runs/20260509-180956/working/tella-pp-cli",
-  "spec_path": "/Users/gdc/printing-press/.runstate/cli-printing-press-89a62eb6/runs/20260509-180956/working/tella-pp-cli/spec.json",
+  "dir": "\u003ccli-dir\u003e/tella",
+  "spec_path": "\u003ccli-dir\u003e/spec.json",
+  "spec_source": "bundled",
   "verdict": "PASS",
   "path_check": {
-    "tested": 0,
-    "valid": 0,
-    "valid_pct": 0
+    "tested": 2,
+    "valid": 2,
+    "valid_pct": 100
   },
   "auth_check": {
     "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
@@ -18,30 +19,42 @@
     "pass": true,
     "detail": "browser-session auth not required"
   },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
   "dead_flags": {
-    "total": 19,
+    "total": 29,
     "dead": 0
   },
   "dead_functions": {
-    "total": 53,
+    "total": 176,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
-    "search_calls_domain": false,
-    "domain_tables": 1,
-    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
+    "search_calls_domain": true,
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 4 domain tables found"
   },
   "example_check": {
-    "tested": 10,
-    "with_examples": 10,
-    "valid_examples": 10,
-    "detail": "10/10 commands have examples"
+    "tested": 8,
+    "with_examples": 8,
+    "valid_examples": 8,
+    "omitted_underivable": [
+      "videos clips remove-overlay",
+      "videos clips update-text-overlay"
+    ],
+    "detail": "8/8 commands have examples"
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 97,
-      "registered": 97
+      "defined": 293,
+      "registered": 293
     },
     "config_consistency": {
       "consistent": true
@@ -54,8 +67,8 @@
     }
   },
   "novel_features_check": {
-    "planned": 8,
-    "found": 8
+    "planned": 21,
+    "found": 21
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -63,21 +76,27 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 8,
-    "exempted_via_store": 2
+    "checked": 21,
+    "exempted_via_store": 9
+  },
+  "description_drift_check": {
+    "expected": "Edit recorded lessons, review a live preview, and deliver video with captions."
   },
   "source_client_check": {
-    "checked": 0,
-    "skipped": true
+    "checked": 9
   },
   "print_json_filtered_check": {
-    "checked": 83
+    "checked": 265
   },
   "test_presence": {
-    "checked": 0
+    "checked": 2
   },
   "naming_check": {
-    "checked": 83
+    "checked": 265
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
   },
   "issues": null
 }

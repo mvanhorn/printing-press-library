@@ -46,9 +46,9 @@ func newVideosClipsRemoveBuffersCmd(flags *rootFlags) *cobra.Command {
 			// actual /cut POSTs.
 			c.DryRun = false
 
-			silData, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/silences", videoID, clipID), nil)
+			silData, err := c.Get(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/silences", videoID, clipID), nil)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			ranges := extractSilenceRanges(silData)
 
@@ -86,7 +86,7 @@ func newVideosClipsRemoveBuffersCmd(flags *rootFlags) *cobra.Command {
 			applied := make([]appliedCut, 0, len(planned))
 			succeeded, failed := 0, 0
 			for _, p := range planned {
-				_, status, postErr := c.Post(
+				_, status, postErr := c.Post(cmd.Context(),
 					fmt.Sprintf("/v1/videos/%s/clips/%s/cut", videoID, clipID),
 					map[string]any{"fromMs": p.FromMs, "toMs": p.ToMs},
 				)

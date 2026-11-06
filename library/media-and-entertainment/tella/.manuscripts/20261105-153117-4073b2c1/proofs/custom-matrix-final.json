@@ -1,0 +1,3540 @@
+{
+  "commands": [
+    {
+      "name": "transcripts sync",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "cache-read",
+      "stdout_bytes": 65,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 3,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 5.683,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "account",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1762,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 1.995,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "agent-chats",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "agent-chats list",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.302,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "agent-chats start",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "One explicit --yes paid chat completed; missing explicit consent refused; account balance checked.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "analytics",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "api",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "auth",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "blocked",
+      "reason": "credential/OAuth/cookie surface refused"
+    },
+    {
+      "name": "auth logout",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "blocked",
+      "reason": "credential/OAuth/cookie surface refused"
+    },
+    {
+      "name": "auth set-token",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "blocked",
+      "reason": "credential/OAuth/cookie surface refused"
+    },
+    {
+      "name": "auth setup",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "blocked",
+      "reason": "credential/OAuth/cookie surface refused"
+    },
+    {
+      "name": "auth status",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "blocked",
+      "reason": "credential/OAuth/cookie surface refused"
+    },
+    {
+      "name": "auto-captures",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "auto-captures reports",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "auto-captures reports auto-capture",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "backgrounds",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 51662,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 5,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.319,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "clips",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "clips captions",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1745,
+      "json_valid": false,
+      "format": "non-json",
+      "exit_code": 0,
+      "duration_seconds": 0.373,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "clips edit-pass",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "clips find-retakes",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Live transcript produced valid zero-candidate plan; positive candidate application tested only synthetically.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "clips transcript-diff",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 522,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 6,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.448,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "completion",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "completion bash",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "completion fish",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "completion powershell",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "completion zsh",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "doctor",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1731,
+      "json_valid": false,
+      "format": "non-json",
+      "exit_code": 0,
+      "duration_seconds": 1.496,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "export",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "exports",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "exports wait",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Real owned-video export reached completed status.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "feedback",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "feedback list",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "help",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "import",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "learnings",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "learnings candidates",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "learnings confirm",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "learnings forget",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "learnings list",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "learnings purge",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "learnings reject",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "learnings stats",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "lessons",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "lessons pass",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Recipe applied on real recording copy, including chapters/thumbnail/style/music and source intro; final preview HTTP 200.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "lessons ship",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Real export completed; MP4 ffprobe H264/AAC and SRT header/cues checked.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "library",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "library capture-screenshot",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "library create-generation",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "library create-item",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "library delete-item",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "library get-generation",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.generation_id or commands.library get-generation.args"
+    },
+    {
+      "name": "library get-import",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.import_id or commands.library get-import.args"
+    },
+    {
+      "name": "library list-items",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 15576,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 54,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.232,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "library start-import",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "load",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "local-data",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "local-data purge",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "motion",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "motion apply-commands",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "motion create-clip",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "motion create-document",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "motion download-document",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.document_id or commands.motion download-document.args"
+    },
+    {
+      "name": "motion duplicate-document",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "motion get-composition",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.document_id or commands.motion get-composition.args"
+    },
+    {
+      "name": "motion get-document",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.document_id or commands.motion get-document.args"
+    },
+    {
+      "name": "motion get-document-thumbnail",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.document_id or commands.motion get-document-thumbnail.args"
+    },
+    {
+      "name": "motion get-node",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.document_id or commands.motion get-node.args"
+    },
+    {
+      "name": "motion get-schema",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 477617,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.395,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "motion inspect-node",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.document_id or commands.motion inspect-node.args"
+    },
+    {
+      "name": "motion list-documents",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.427,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "motion list-effects",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 153706,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.452,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "motion list-fonts",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 3116,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.261,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "motion list-media",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.document_id or commands.motion list-media.args"
+    },
+    {
+      "name": "orphans",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "playbook",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "playbook amend",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "playbook list",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "playlist-groups",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "playlist-groups create",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "playlist-groups delete",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "playlist-groups list",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.244,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "playlist-groups update",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "playlists",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "playlists create",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "playlists delete",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "playlists edit-pass",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "playlists get",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.playlist_id or commands.playlists get.args"
+    },
+    {
+      "name": "playlists list",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.275,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "playlists update",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "playlists videos",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "playlists videos add-to-playlist",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "playlists videos remove-from-playlist",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "profile",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "profile delete",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "profile list",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "profile save",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "profile show",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "profile use",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "recall",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "search",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "query",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.401,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "social-accounts",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "predeclared: social-accounts-excluded-by-task"
+    },
+    {
+      "name": "sources",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "sources beats",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "sources beats get-source",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1944,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.29,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "sources create",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "sources get",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 125,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.269,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "sources storyboard",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "sources storyboard get-source",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 93884,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.486,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "sources thumbnail",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "sources thumbnail get-standalone-source",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 250393,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.309,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "sources transcript",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "sources transcript get-source",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 77,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.285,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "sources upload-file",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "endpoint metadata not in canonical spec"
+    },
+    {
+      "name": "sources waveform",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "sources waveform get-standalone-source",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 285384,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 32768,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.635,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "stale",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "subtitle-presets",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "subtitle-presets list",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 16602,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 28,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.212,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "subtitle-presets save",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "sync",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Scoped videos --max-pages 1 --no-prune completed in 98.53s; also read child agent-chat lists; bounded cache result, not a complete aggregation.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "tags",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "tags create",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "tags delete",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "tags list",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.228,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "tags update",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "tail",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Bounded backgrounds --follow=false returned one valid JSON response; CLI and MCP both checked against actual categories envelope.",
+      "evidence": "refreshed-live-summary.json"
+    },
+    {
+      "name": "teach",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "teach-lookup",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "teach-pattern",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "teach-playbook",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "tella-public-analytics",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 11072,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.435,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "text-presets",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "text-presets delete",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "text-presets list",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 27905,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 54,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.407,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "text-presets save",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "transcripts",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "transcripts search",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 52,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 3,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.033,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "version",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 23,
+      "json_valid": false,
+      "format": "non-json",
+      "exit_code": 0,
+      "duration_seconds": 0.015,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos analytics",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos analytics get-video",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 481,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.57,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos apply-edits",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos apply-storyboard",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Owned-copy description changed and re-read exactly.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos audit",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1032,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 3,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 2.256,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos auto",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Explicit apply of fillers/silences and zoom/crop; owned-copy re-read; exact cut undo. Layouts refused before write.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos background-music",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos background-music get-beats",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 2066,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.294,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos background-music remove",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos background-music set",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos captions",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos captions get-video",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 3572,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.308,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos chapters",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos chapters get-video",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 391,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.369,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos chapters set-video",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clean",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "videos clips",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos clips add",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips add-blur",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips add-broll",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "videos clips add-highlight",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips add-layout",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips add-overlay",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips add-shape-overlay",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips add-sound-effect",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips add-text-overlay",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips add-zoom",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips auto-crop",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips clean",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Owned clip time-range and transcript-word cuts applied; re-read and exact cut restoration.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos clips cut",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips cut-by-transcript",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips cut-words",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Live planning returned eight matching ranges; no positive mutation claimed for this command.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos clips delete",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips duplicate",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips find-mistakes",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "blocked",
+      "reason": "retired find-mistakes; cookie transport forbidden"
+    },
+    {
+      "name": "videos clips find-retakes",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Alias returned valid live plan; positive candidate application not claimed.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos clips generate-auto-zooms",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips get",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1923,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.279,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips get-audio-levels",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1263,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.408,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips get-cut-transcript",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 34467,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.3,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips get-filters",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 461,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.347,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips get-silences",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1686,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 25,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.301,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips get-source-thumbnail",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 936,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.353,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips get-source-waveform",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 285384,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 32768,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.672,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips get-storyboard",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 177021,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.44,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips get-thumbnail",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1067,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.285,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips get-transcript",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 34467,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.31,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips get-uncut-transcript",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 32375,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.553,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips insert-file",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "videos clips list",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1915,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 1,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.353,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-blurs",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.444,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-camera-faces",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 8283,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 43,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.415,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-highlights",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.315,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-key-events",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.349,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-layouts",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 830,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.48,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-mouse-events",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 16734,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 124,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.403,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-overlays",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.368,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-shape-overlays",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.28,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-sound-effects",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.33,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-sources",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 1887,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.337,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-text-overlays",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.276,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips list-zooms",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 750,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 3,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.31,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos clips remove-blur",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips remove-buffers",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "videos clips remove-fillers",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips remove-highlight",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips remove-layout",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips remove-overlay",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips remove-shape-overlay",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips remove-silences",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips remove-sound-effect",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips remove-text-overlay",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips remove-zoom",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips reorder",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips replace-word-ranges",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "videos clips restore-cuts",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Explicit snapshot restore restored exact previous cut array.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos clips set-filters",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips silence-map",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "reviewed read path requires runtime mcp:read-only=true"
+    },
+    {
+      "name": "videos clips split",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips trim-edges",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "videos clips undo-last-cuts",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Snapshot undo restored exact previous cut array.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos clips update",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips update-blur",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips update-highlight",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips update-layout",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips update-overlay",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips update-shape-overlay",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips update-sound-effect",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips update-text-overlay",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips update-transcript-words",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos clips update-zoom",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos collaborators",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos collaborators add-to-video",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos create",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos delete",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "write",
+      "baseline_skip_reason": "predeclared: cleanup-managed-by-scoped validation",
+      "verification": "Both registered owned copies deleted; GET 404 and complete final listing confirmed absence.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos duplicate",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos duplicate video",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "write",
+      "baseline_skip_reason": "--reads-only mutation excluded",
+      "verification": "Two owned pp-test video copies created; original timeline unchanged.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos edits",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos edits apply-video",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos exports",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos exports get-video",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 625,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.268,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos exports list-video",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 615,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 1,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.271,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos exports video",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos format",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Owned-copy YouTube format re-read as 1920x1080.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos get",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 23882,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.431,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos list",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 13988,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 20,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.941,
+      "timeout": false,
+      "stderr_bytes": 62,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos live-preview",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos live-preview get-link",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "write",
+      "baseline_skip_reason": "--reads-only mutation excluded",
+      "verification": "Canonical POST produced a preview loaded with HTTP 200.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos preview",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Owned-copy preview URL loaded: HTTP 200.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos publish",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "blocked",
+      "reason": "publish/social/accounts surface refused"
+    },
+    {
+      "name": "videos publish cancel-scheduled-publication",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "blocked",
+      "reason": "publish/social/accounts surface refused"
+    },
+    {
+      "name": "videos publish list-video-publications",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.253,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos publish video",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "blocked",
+      "reason": "publish/social/accounts surface refused"
+    },
+    {
+      "name": "videos recording-link",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos recording-link get",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "write",
+      "baseline_skip_reason": "--reads-only mutation excluded",
+      "verification": "Canonical POST succeeded on second owned copy; MCP-confirmed recording link loaded with HTTP 200.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos search",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.264,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos storyboard",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 28044,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 3,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 10.217,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos storyboard get-video",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 177021,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.479,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos storyboard-image",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "unknown",
+      "baseline_skip_reason": "local/orchestration effects unproved; exact safe recipe required",
+      "verification": "Video, clip and source WebP files validated and visually opened.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos subtitle-preset",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos subtitle-preset apply",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos tags",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos tags add-video",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos tags list-video",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.558,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos tags remove-video",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos thumbnail",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "videos thumbnail get-video",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 976,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.251,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos thumbnail remove-video",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos thumbnail set-video",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "videos timeline",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars._id or commands.videos timeline.args"
+    },
+    {
+      "name": "videos timeline get-video",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 864,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.353,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "videos update",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "safety_class": "write",
+      "baseline_skip_reason": "--reads-only mutation excluded",
+      "verification": "Owned-copy description update re-read exactly.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos viewed",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 79,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 3,
+        "videos_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.493,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "webhooks",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "webhooks create-endpoint",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "webhooks delete-endpoint",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "webhooks get-endpoint-secret",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.endpoint_id or commands.webhooks get-endpoint-secret.args"
+    },
+    {
+      "name": "webhooks get-message",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "read",
+      "reason": "missing vars.message_id or commands.webhooks get-message.args"
+    },
+    {
+      "name": "webhooks list-endpoints",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 58,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 0,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.328,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "webhooks list-messages",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 7762,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "results_count": 10,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.353,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "webhooks replay",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "webhooks tail",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 7740,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 2,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.373,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "webhooks update-endpoint",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "write",
+      "reason": "--reads-only mutation excluded"
+    },
+    {
+      "name": "which",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 6747,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.015,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    },
+    {
+      "name": "workflow",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "group",
+      "reason": "group-help"
+    },
+    {
+      "name": "workflow archive",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "predeclared: unscoped-archive-may-read-social-accounts"
+    },
+    {
+      "name": "workflow status",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "workspace",
+      "status": "skipped",
+      "kind": "live-command",
+      "safety_class": "unknown",
+      "reason": "local/orchestration effects unproved; exact safe recipe required"
+    },
+    {
+      "name": "workspace stats",
+      "status": "pass",
+      "kind": "live-command",
+      "safety_class": "read",
+      "stdout_bytes": 226,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 3,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.02,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "agent_chats_start",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "baseline_skip_reason": "missing runtime MCP readOnlyHint=true",
+      "verification": "Negative consent guard tested: --agent-style mode without explicit yes refused. No paid MCP chat created.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "analytics",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.analytics.arguments object fixture"
+    },
+    {
+      "name": "clips",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "clips_captions",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.293,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "clips_edit_pass",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "clips_find_retakes",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "baseline_skip_reason": "missing runtime MCP readOnlyHint=true",
+      "verification": "Live plan validated; zero candidate fixture; no positive retake apply claimed.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "clips_transcript_diff",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 2.23,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "context",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.004,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "export",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "exports",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "exports_wait",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "import",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "learnings_candidates",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.learnings_candidates.arguments object fixture"
+    },
+    {
+      "name": "learnings_confirm",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "learnings_forget",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "learnings_list",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.learnings_list.arguments object fixture"
+    },
+    {
+      "name": "learnings_reject",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "learnings_stats",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.learnings_stats.arguments object fixture"
+    },
+    {
+      "name": "lessons",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.lessons.arguments object fixture"
+    },
+    {
+      "name": "lessons_pass",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "baseline_skip_reason": "missing runtime MCP readOnlyHint=true",
+      "verification": "Owned-copy recipe applied; preview loaded successfully.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "lessons_ship",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "baseline_skip_reason": "missing runtime MCP readOnlyHint=true",
+      "verification": "Actual MP4 and VTT downloaded; ffprobe and WEBVTT header checked.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "load",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.load.arguments object fixture"
+    },
+    {
+      "name": "orphans",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.orphans.arguments object fixture"
+    },
+    {
+      "name": "plan_a_lesson_pass",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "playbook_amend",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "playbook_list",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.playbook_list.arguments object fixture"
+    },
+    {
+      "name": "playlists_edit_pass",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "recall",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.recall.arguments object fixture"
+    },
+    {
+      "name": "search",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.002,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "sources_upload_file",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "sql",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.002,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "stale",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.stale.arguments object fixture"
+    },
+    {
+      "name": "sync",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "tail",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "baseline_skip_reason": "missing tools.tail.arguments object fixture",
+      "verification": "Bounded backgrounds --follow=false returned one valid JSON response; CLI and MCP both checked against actual categories envelope.",
+      "evidence": "refreshed-live-summary.json"
+    },
+    {
+      "name": "teach",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "teach_lookup",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "teach_pattern",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "teach_playbook",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "tella_execute",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "baseline_skip_reason": "predeclared: mcp-writes-prohibited",
+      "verification": "Agent POST remained blocked; link POSTs previewed without confirmation and succeeded only with explicit confirmation; read-only mode excluded execute.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "tella_get",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.0,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "tella_read",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.383,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "tella_search",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.0,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "transcripts",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.transcripts.arguments object fixture"
+    },
+    {
+      "name": "transcripts_search",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.019,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "transcripts_sync",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_apply_storyboard",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_audit",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 4.303,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "videos_auto",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "baseline_skip_reason": "missing runtime MCP readOnlyHint=true",
+      "verification": "Owned-copy workflow applied and re-read.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos_clean",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_add_broll",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_clean",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_cut_words",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_find_mistakes",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_find_retakes",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_insert_file",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_remove_buffers",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_replace_word_ranges",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_restore_cuts",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_silence_map",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "baseline_skip_reason": "missing runtime MCP readOnlyHint=true",
+      "verification": "Polished read-only MCP tool returned actual silences, uncut transcript and source metadata on the owned copy. Read-only catalog30; execute/retired stub absent and both link POSTs specifically refused.",
+      "evidence": "polish-readonly-live-summary.json"
+    },
+    {
+      "name": "videos_clips_trim_edges",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_clips_undo_last_cuts",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_format",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "videos_preview",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "baseline_skip_reason": "missing runtime MCP readOnlyHint=true",
+      "verification": "Owned-copy preview created and loaded.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos_storyboard",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 12.582,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "videos_storyboard_image",
+      "status": "pass",
+      "kind": "supplemental-live-workflow",
+      "baseline_skip_reason": "missing runtime MCP readOnlyHint=true",
+      "verification": "Actual WebP downloaded and validated.",
+      "evidence": "supplemental-live-workflows.md"
+    },
+    {
+      "name": "videos_timeline",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.389,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "videos_viewed",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.464,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "webhooks_replay",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing runtime MCP readOnlyHint=true"
+    },
+    {
+      "name": "webhooks_tail",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.407,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    },
+    {
+      "name": "workflow_archive",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "predeclared: unscoped-archive-may-read-social-accounts"
+    },
+    {
+      "name": "workflow_status",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.workflow_status.arguments object fixture"
+    },
+    {
+      "name": "workspace",
+      "status": "skipped",
+      "kind": "live-tool",
+      "reason": "missing tools.workspace.arguments object fixture"
+    },
+    {
+      "name": "workspace_stats",
+      "status": "pass",
+      "kind": "live-tool",
+      "duration_seconds": 0.019,
+      "result_shape": {
+        "type": "object",
+        "field_count": 1,
+        "error_present": false
+      }
+    }
+  ],
+  "setup_checks": [
+    {
+      "stdout_bytes": 9628,
+      "json_valid": false,
+      "format": "non-json",
+      "exit_code": 0,
+      "duration_seconds": 0.033,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)",
+      "status": "pass",
+      "kind": "setup-help"
+    },
+    {
+      "stdout_bytes": 231208,
+      "json_valid": true,
+      "shape": {
+        "type": "object",
+        "field_count": 8,
+        "error_present": false
+      },
+      "exit_code": 0,
+      "duration_seconds": 0.021,
+      "timeout": false,
+      "stderr_bytes": 0,
+      "stderr_summary": "withheld (may contain credentials or personal data)",
+      "status": "pass",
+      "kind": "discovery"
+    }
+  ],
+  "inventory": {
+    "cli": {
+      "complete": true,
+      "walk": "recursive command.name/subcommands",
+      "count": 288,
+      "names_sha256": "f9537ae747b2a9c3e809c89e848ce8bdbd9ab58e88b49a4883279a97af527022"
+    },
+    "mcp": {
+      "complete": true,
+      "terminal_cursor_absent": true,
+      "pages": [
+        {
+          "index": 1,
+          "count": 73,
+          "has_next": false
+        }
+      ],
+      "count": 73,
+      "names_sha256": "99adbc51fbd9736c9abc17f7b67b576ad656184d1f1624ec41f98809d0cc74ac",
+      "metadata_sha256": "c9a71e0ff064e1244a81b99bf4596cfba94894fd037bdc5875ef44e7d0b95bf2",
+      "thin_tools": [
+        "tella_execute",
+        "tella_get",
+        "tella_read",
+        "tella_search"
+      ]
+    },
+    "row_uniqueness_verified": true,
+    "complete": true
+  },
+  "safety": {
+    "baseline_reads_only": true,
+    "supplemental_writes": "registered owned pp-test copies only",
+    "paid_chat_attempts": 1,
+    "publishing": "excluded",
+    "social_accounts": "excluded from custom matrix; earlier generic Press fallback may have read listing; absence unverified",
+    "raw_payloads_saved": "Raw payloads are excluded from this public evidence package."
+  },
+  "credits": {
+    "credits_before_chat": 9000,
+    "credits_after_chat_settled": 8958.61185,
+    "credits_after_cleanup": 8958.61185,
+    "observed_credits_spent": "41.38815",
+    "chat_attempts": 1
+  },
+  "totals": {
+    "pass": 120,
+    "skipped": 241,
+    "fail": 0
+  },
+  "provenance": {
+    "baseline": "<local-evidence>",
+    "supplements": "Targeted historical workflows plus refreshed-build lessons pass/ship and bounded tail; T10 only corrects descriptions. Installed verification remains pending.",
+    "publication_status": "Prepared for public review; no publication performed.",
+    "local_review_head": "8a64a9b225 (pre-polish); final-head review pending",
+    "review": "Devin completed with no actionable findings; regeneration requires new final-head review"
+  },
+  "fixture_correction": "Initial refreshed matrix06 failed six rows because explicit fixture bindings still referenced the deleted first copy; all rebound to the fresh owned copy, rerun07 has zero failures. Both reports retained.",
+  "fixture_cleanup": {
+    "owned_created": 3,
+    "owned_deleted": 3,
+    "remaining_owned_ids": [],
+    "get_after_delete_http": [
+      404,
+      404,
+      404
+    ],
+    "final_list_complete": true,
+    "terminal_cursor_absent": true,
+    "pages": [
+      {
+        "http": 200,
+        "rows": 45,
+        "has_next": false,
+        "has_more": false
+      }
+    ],
+    "final_list_count": 45,
+    "original_source_timeline_exact_equality": true,
+    "credits_before_chat": 9000,
+    "credits_after_chat_settled": 8958.61185,
+    "credits_after_cleanup": 8958.61185,
+    "observed_credits_spent": "41.38815",
+    "chat_attempts": 1
+  }
+}

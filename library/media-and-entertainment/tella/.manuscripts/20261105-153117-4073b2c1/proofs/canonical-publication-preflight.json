@@ -1,0 +1,34 @@
+{
+  "phase5": "Generic binary marker absent; scoped matrix and mock evidence retained; upstream #5360 remains open.",
+  "other_publish_validate_checks": "PASS",
+  "publish_package": "exit5 at same phase5 validation; no packaged success claimed",
+  "source_publication": "generated and reconciled canonical catalog tree retained",
+  "scoped_matrix": {
+    "pass": 120,
+    "fail": 0,
+    "skipped": 241,
+    "total": 361
+  },
+  "mock_verify": "210/210 PASS",
+  "scorecard": "97/A",
+  "novels": 21,
+  "patch_records": 14,
+  "runtime_inventory": {
+    "cli": 288,
+    "mcp": 73,
+    "read_only_mcp": 30
+  },
+  "gitleaks": 0,
+  "pii": 0,
+  "known_private_link_matches": 0,
+  "original_timeline_unchanged": true,
+  "cleanup": {
+    "created": 3,
+    "deleted": 3,
+    "complete_list_rows": 45,
+    "next_cursor": null
+  },
+  "paid_chats": 1,
+  "credits_spent": "41.38815",
+  "release_ledger": "Public target release manifest and changelog retained byte-for-byte; CLI runtime version 2026.9.2."
+}

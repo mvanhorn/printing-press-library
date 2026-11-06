@@ -3,10 +3,53 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 )
+
+func TestVideosViewedFiltersViewCounts(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/v1/webhooks/messages" || r.URL.RawQuery != "limit=200" {
+			t.Errorf("unexpected request: %s %s", r.Method, r.URL)
+		}
+		fmt.Fprint(w, `{"messages":[
+			{"eventType":"video.milestone","data":{"videoId":"vid_low","milestone":10}},
+			{"eventType":"video.milestone","data":{"videoId":"vid_one","milestone":25}},
+			{"eventType":"video.milestone","data":{"videoId":"vid_one","milestone":500}}
+		]}`)
+	}))
+	defer server.Close()
+	t.Setenv("TELLA_API_KEY", "fixture")
+	t.Setenv("TELLA_BASE_URL", server.URL)
+	flags := &rootFlags{noCache: true, timeout: 2 * time.Second, configPath: filepath.Join(t.TempDir(), "missing.toml")}
+	cmd := newVideosViewedCmd(flags)
+	cmd.SetArgs([]string{"--since", "", "--milestone", "25"})
+	var output bytes.Buffer
+	cmd.SetOut(&output)
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	var result struct {
+		Milestone int `json:"milestone"`
+		Videos    []struct {
+			VideoID string `json:"video_id"`
+			Hits    int    `json:"milestone_hits"`
+		} `json:"videos"`
+	}
+	if err := json.Unmarshal(output.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if result.Milestone != 25 || len(result.Videos) != 1 || result.Videos[0].VideoID != "vid_one" || result.Videos[0].Hits != 2 {
+		t.Fatalf("unexpected view-count rollup: %s", output.String())
+	}
+}
 
 // TestParseSinceWindow pins the round-8 fix: unrecognized --since values
 // must produce a parse error instead of silently expanding the rollup

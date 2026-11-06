@@ -1,15 +1,16 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/config"
 
 	"github.com/spf13/cobra"
 )
@@ -25,6 +26,7 @@ func newClipsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newClipsEditPassCmd(flags))
 	cmd.AddCommand(newClipsTranscriptDiffCmd(flags))
 	cmd.AddCommand(newClipsCaptionsCmd(flags))
+	cmd.AddCommand(newNovelClipsFindRetakesCmd(flags))
 	return cmd
 }
 
@@ -37,10 +39,7 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 	// PATCH(library): --remove-buffers mirrors the Tella web UI's "Remove
 	// buffers" Cut-panel button. Composes GET /silences + POST /cut per
 	// range filtered by --buffer-min-ms. --trim-edges adds the narrower
-	// head/tail-only primitive. --find-mistakes calls the unofficial AI
-	// service (requires --unofficial + TELLA_SESSION_COOKIE) and applies
-	// detected cuts via the public /cut endpoint. Cataloged in
-	// .printing-press-patches.json#add-cut-panel-parity.
+	// head/tail-only primitive. Mistake detection is retired; compatibility flags refuse.
 	var removeBuffers bool
 	var bufferMinMs int
 	var trimEdges bool
@@ -56,23 +55,8 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 			if removeBuffers && bufferMinMs < 0 {
 				return usageErr(fmt.Errorf("--buffer-min-ms must be >= 0, got %d", bufferMinMs))
 			}
-			// PATCH(library): find-mistakes gate — refuse early with a
-			// clear message rather than letting the loop discover the
-			// missing session cookie per clip.
-			if findMistakes && !unofficial {
-				return usageErr(fmt.Errorf("--find-mistakes calls Tella's unofficial AI service (prod-stream.tella.tv); pass --unofficial to opt in"))
-			}
-			var uc *unofficialClient
 			if findMistakes {
-				cfg, cerr := config.Load(flags.configPath)
-				if cerr != nil {
-					return configErr(cerr)
-				}
-				var uerr error
-				uc, uerr = newUnofficialClient(cfg.SessionCookie, flags.timeout)
-				if uerr != nil {
-					return configErr(uerr)
-				}
+				return usageErr(fmt.Errorf("%s", mistakesRetired))
 			}
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
@@ -111,9 +95,9 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 				minSilenceMS = int(minSilence / time.Millisecond)
 			}
 
-			videoIDs, err := listPlaylistVideoIDs(c, playlistID)
+			videoIDs, err := listPlaylistVideoIDs(cmd.Context(), c, playlistID)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 
 			type op struct {
@@ -144,7 +128,7 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 			unknownMistakeEvents := 0
 
 			for _, vid := range videoIDs {
-				clipIDs, err := listClipIDs(c, vid)
+				clipIDs, err := listClipIDs(cmd.Context(), c, vid)
 				if err != nil {
 					enumFailures = append(enumFailures, enumerationFailure{
 						VideoID: vid,
@@ -188,7 +172,7 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 					var silRanges []silenceRange
 					silencesNeeded := removeBuffers || trimEdges || minSilenceMS > 0
 					if silencesNeeded {
-						silData, silErr := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/silences", vid, cid), nil)
+						silData, silErr := c.Get(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/silences", vid, cid), nil)
 						if silErr != nil {
 							enumFailures = append(enumFailures, enumerationFailure{
 								VideoID: vid,
@@ -218,7 +202,7 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 					// silences (which --remove-buffers would also cut).
 					// Needs clip duration for tail tolerance.
 					if trimEdges && len(silRanges) > 0 {
-						clipDurationMs, durErr := fetchClipDurationMs(c, vid, cid)
+						clipDurationMs, durErr := fetchClipDurationMs(cmd.Context(), c, vid, cid)
 						if durErr != nil {
 							enumFailures = append(enumFailures, enumerationFailure{
 								VideoID: vid,
@@ -244,41 +228,6 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 								// the public spec's CutClipRequest. Apply
 								// switch below reads the same field names.
 								appendCut("cut", sil.Start, sil.End)
-							}
-						}
-					}
-					// PATCH(library): find-mistakes calls the unofficial AI
-					// service (analyze-scene SSE on prod-stream.tella.tv)
-					// during planning. Each detected mistake becomes one
-					// public /cut op so the apply step stays additive and
-					// goes through the documented Bearer-auth surface. If
-					// analyze-scene fails for a clip, the failure is
-					// surfaced via enumeration_failures and the clip's
-					// other ops still plan/apply normally.
-					if findMistakes {
-						mistakes, unknownEvents, analyzeStatus, mErr := analyzeMistakes(uc, vid, cid)
-						unknownMistakeEvents += unknownEvents
-						if mErr != nil || analyzeStatus < 200 || analyzeStatus >= 300 {
-							errMsg := ""
-							if mErr != nil {
-								errMsg = mErr.Error()
-							} else {
-								errMsg = fmt.Sprintf("HTTP %d", analyzeStatus)
-							}
-							enumFailures = append(enumFailures, enumerationFailure{
-								VideoID: vid,
-								ClipID:  cid,
-								Stage:   "analyze_mistakes",
-								Error:   truncate(errMsg, 200),
-							})
-						} else {
-							for _, m := range mistakes {
-								if m.Trim.Duration <= 0 {
-									continue
-								}
-								from := int(m.Trim.StartTime + 0.5)
-								to := int(m.Trim.StartTime + m.Trim.Duration + 0.5)
-								appendCut("find-mistakes", from, to)
 							}
 						}
 					}
@@ -317,18 +266,16 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 						var postErr error
 						switch o.Op {
 						case "remove-fillers":
-							_, _, postErr = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/remove-fillers", p.VideoID, p.ClipID), map[string]any{})
-						case "cut", "remove-buffers", "trim-edges-head", "trim-edges-tail", "find-mistakes":
+							_, _, postErr = c.Post(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/remove-fillers", p.VideoID, p.ClipID), map[string]any{})
+						case "cut", "remove-buffers", "trim-edges-head", "trim-edges-tail":
 							// PATCH(library): every cut-producing op
 							// applies via the same public /cut endpoint.
 							// Distinct op names keep the dry-run plan
 							// envelope auditable; server-side /cut merges
 							// overlapping cuts so any cross-flag overlap
-							// is idempotent. find-mistakes is detected
-							// against the unofficial AI service but
-							// applied via the documented Bearer surface.
+							// is idempotent.
 							cutBody := map[string]any{"fromMs": o.Args["fromMs"], "toMs": o.Args["toMs"]}
-							_, _, postErr = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/cut", p.VideoID, p.ClipID), cutBody)
+							_, _, postErr = c.Post(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/cut", p.VideoID, p.ClipID), cutBody)
 						default:
 							postErr = fmt.Errorf("unrecognized op %q: not applied", o.Op)
 						}
@@ -358,14 +305,16 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&playlistID, "playlist", "", "Playlist ID to iterate")
 	cmd.Flags().BoolVar(&removeFillers, "remove-fillers", false, "Plan a remove-fillers pass for every clip")
 	// PATCH(library): UI-button-matching buffer trim + narrow head/tail
-	// primitive + unofficial AI mistake detection. cataloged in
+	// primitives; retired mistake flags refuse before HTTP. Cataloged in
 	// .printing-press-patches.json#add-cut-panel-parity.
 	cmd.Flags().BoolVar(&removeBuffers, "remove-buffers", false, "Plan a remove-buffers pass for every clip (matches the Tella web UI's Cut-panel button; tune with --buffer-min-ms)")
 	cmd.Flags().IntVar(&bufferMinMs, "buffer-min-ms", defaultBufferMinMs, "Minimum silence duration in milliseconds for --remove-buffers (0 = cut every silence)")
 	cmd.Flags().BoolVar(&trimEdges, "trim-edges", false, "Plan head+tail silence cuts for every clip (narrow primitive; distinct from --remove-buffers which targets every silence)")
-	cmd.Flags().BoolVar(&findMistakes, "find-mistakes", false, "Plan an AI find-mistakes pass for every clip (requires --unofficial + TELLA_SESSION_COOKIE)")
-	cmd.Flags().BoolVar(&unofficial, "unofficial", false, "Required by --find-mistakes: opt in to calling Tella's undocumented AI service")
+	cmd.Flags().BoolVar(&findMistakes, "find-mistakes", false, "Retired; use clips find-retakes or agent-chats start")
+	cmd.Flags().BoolVar(&unofficial, "unofficial", false, "Retired compatibility flag")
 	cmd.Flags().StringVar(&trimSilencesGT, "trim-silences-gt", "", "Plan cuts for silences longer than this duration (e.g. 1s)")
+	_ = cmd.Flags().MarkDeprecated("find-mistakes", mistakesRetired)
+	_ = cmd.Flags().MarkDeprecated("unofficial", mistakesRetired)
 	cmd.Flags().BoolVar(&apply, "apply", false, "Actually fire the planned mutations (default off — print plan only)")
 	return cmd
 }
@@ -375,8 +324,8 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 // only a count under `videos`, not an array, so the membership listing has
 // to come from the videos endpoint. Pages through the cursor so larger
 // workspaces don't silently drop videos past the first page.
-func listPlaylistVideoIDs(c *client.Client, playlistID string) ([]string, error) {
-	return paginatedListIDs(c, "/v1/videos", map[string]string{"playlistId": playlistID}, "videos")
+func listPlaylistVideoIDs(ctx context.Context, c *client.Client, playlistID string) ([]string, error) {
+	return paginatedListIDs(ctx, c, "/v1/videos", map[string]string{"playlistId": playlistID}, "videos")
 }
 
 type silenceRange struct {
