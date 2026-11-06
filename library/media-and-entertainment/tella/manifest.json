@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "tella-pp-mcp",
   "display_name": "Tella Public",
-  "version": "4.2.1",
-  "description": "Tella Public API surface as MCP tools.",
+  "version": "4.35.2",
+  "description": "Edit recorded lessons, review a live preview, and deliver video with captions.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -23,7 +23,7 @@
     "tella_api_key": {
       "type": "string",
       "title": "TELLA_API_KEY",
-      "description": "Sets TELLA_API_KEY for the Tella Public MCP server.",
+      "description": "Sets TELLA_API_KEY for the Tella MCP server.",
       "sensitive": true,
       "required": true
     }

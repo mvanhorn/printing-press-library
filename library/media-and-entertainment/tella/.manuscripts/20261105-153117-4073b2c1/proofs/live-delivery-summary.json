@@ -1,0 +1,25 @@
+{
+  "ffprobe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1440,
+        "height": 1080
+      },
+      {
+        "codec_name": "aac",
+        "codec_type": "audio"
+      }
+    ],
+    "format": {
+      "duration": "62.880000",
+      "size": "8722598"
+    }
+  },
+  "srt_bytes": 2526,
+  "srt_head_checked": true,
+  "files_exist": true
+}

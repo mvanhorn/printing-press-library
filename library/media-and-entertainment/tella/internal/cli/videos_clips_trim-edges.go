@@ -12,6 +12,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -50,14 +51,14 @@ func newVideosClipsTrimEdgesCmd(flags *rootFlags) *cobra.Command {
 			// ourselves below.
 			c.DryRun = false
 
-			clipDurationMs, err := fetchClipDurationMs(c, videoID, clipID)
+			clipDurationMs, err := fetchClipDurationMs(cmd.Context(), c, videoID, clipID)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 
-			silData, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/silences", videoID, clipID), nil)
+			silData, err := c.Get(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/silences", videoID, clipID), nil)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			ranges := extractSilenceRanges(silData)
 			head, tail := pickBufferRanges(ranges, clipDurationMs)
@@ -98,7 +99,7 @@ func newVideosClipsTrimEdgesCmd(flags *rootFlags) *cobra.Command {
 			applied := []appliedCut{}
 			succeeded, failed := 0, 0
 			for _, p := range planned {
-				_, status, postErr := c.Post(
+				_, status, postErr := c.Post(cmd.Context(),
 					fmt.Sprintf("/v1/videos/%s/clips/%s/cut", videoID, clipID),
 					map[string]any{"fromMs": p.FromMs, "toMs": p.ToMs},
 				)
@@ -127,8 +128,8 @@ func newVideosClipsTrimEdgesCmd(flags *rootFlags) *cobra.Command {
 // and rounding is the cleanest conversion. Returns 0 with an error when
 // the response can't be parsed or carries a non-positive duration; callers
 // classify the error before returning to the user.
-func fetchClipDurationMs(c clipDurationGetter, videoID, clipID string) (int, error) {
-	data, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s", videoID, clipID), nil)
+func fetchClipDurationMs(ctx context.Context, c clipDurationGetter, videoID, clipID string) (int, error) {
+	data, err := c.Get(ctx, fmt.Sprintf("/v1/videos/%s/clips/%s", videoID, clipID), nil)
 	if err != nil {
 		return 0, err
 	}
@@ -149,7 +150,7 @@ func fetchClipDurationMs(c clipDurationGetter, videoID, clipID string) (int, err
 // clipDurationGetter is the minimum surface fetchClipDurationMs needs.
 // The real client satisfies it; tests substitute a stub.
 type clipDurationGetter interface {
-	Get(path string, params map[string]string) (json.RawMessage, error)
+	Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error)
 }
 
 // pickBufferRanges classifies silence ranges into head and tail edges.

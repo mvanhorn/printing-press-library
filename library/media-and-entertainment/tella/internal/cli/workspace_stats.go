@@ -1,5 +1,6 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source local
 package cli
 
 import (

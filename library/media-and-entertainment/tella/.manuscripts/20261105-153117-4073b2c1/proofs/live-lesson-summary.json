@@ -1,0 +1,7 @@
+{
+  "pass_applied": true,
+  "retakes_applied": false,
+  "chapters": 2,
+  "preview_http": 200,
+  "preview_expiry": "Expires after 24 hours; this URL is a bearer credential."
+}

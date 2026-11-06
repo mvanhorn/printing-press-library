@@ -1,0 +1,7 @@
+{
+  "initial_version": "4.35.2",
+  "initial_sha256": "91f0c98e18c0d7a709bb6185d9ca830858116bd81a21d3f244bb8b5329b76398",
+  "pinned_path": "<pinned-generator-binary>",
+  "rebuild_or_reinstall_performed": false,
+  "refresh_before_shipcheck_required": true
+}

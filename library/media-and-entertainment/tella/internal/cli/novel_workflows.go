@@ -1,9 +1,11 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
 package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -42,17 +44,13 @@ func newVideosClipsInsertFileCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			created, uploadStatus, bytesUploaded, err := createAndUploadSource(c, filePath, width, height, duration, contentType)
+			created, uploadStatus, bytesUploaded, err := createAndUploadSource(cmd.Context(), c, filePath, width, height, duration, contentType)
 			if err != nil {
 				return err
 			}
-			body := map[string]any{"sourceId": created.SourceID}
-			if name != "" {
-				body["name"] = name
-			}
-			data, status, err := c.Post(fmt.Sprintf("/v1/videos/%s/clips", videoID), body)
+			data, status, err := attachExistingSource(cmd.Context(), c, videoID, created.SourceID, name)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"success": status >= 200 && status < 300, "status": status, "upload_status": uploadStatus, "bytes": bytesUploaded, "sourceId": created.SourceID, "clip": jsonRawToAny(data)}, flags)
 		},
@@ -75,6 +73,10 @@ func newVideosClipsAddBrollCmd(flags *rootFlags) *cobra.Command {
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			videoID, clipID, filePath := args[0], args[1], args[2]
+			if workflowOffline(flags) {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "apply": false, "workflow": "videos clips add-broll", "video_id": videoID, "clip_id": clipID, "file": filePath, "steps": []string{"create source from file metadata", "upload source bytes", "attach source as B-roll layout"}}, flags)
+			}
+
 			if layout == "" {
 				layout = `{"kind":"fullscreen"}`
 			}
@@ -100,14 +102,14 @@ func newVideosClipsAddBrollCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			created, uploadStatus, bytesUploaded, err := createAndUploadSource(c, filePath, width, height, duration, contentType)
+			created, uploadStatus, bytesUploaded, err := createAndUploadSource(cmd.Context(), c, filePath, width, height, duration, contentType)
 			if err != nil {
 				return err
 			}
 			body["media"] = map[string]any{"type": "video", "sourceId": created.SourceID}
-			data, status, err := c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/layouts", videoID, clipID), body)
+			data, status, err := c.Post(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/layouts", videoID, clipID), body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"success": status >= 200 && status < 300, "status": status, "upload_status": uploadStatus, "bytes": bytesUploaded, "sourceId": created.SourceID, "layout": jsonRawToAny(data)}, flags)
 		},
@@ -124,26 +126,26 @@ func newVideosClipsAddBrollCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newVideosClipsSilenceMapCmd(flags *rootFlags) *cobra.Command {
-	cmd := &cobra.Command{Use: "silence-map <videoId> <clipId>", Short: "Combine silences, waveform, and transcript into an edit timeline", Args: cobra.ExactArgs(2), RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "silence-map <videoId> <clipId>", Annotations: map[string]string{"mcp:read-only": "true"}, Short: "Combine clip silences, uncut transcript, and source metadata for edit review", Args: cobra.ExactArgs(2), RunE: func(cmd *cobra.Command, args []string) error {
 		c, err := flags.newClient()
 		if err != nil {
 			return err
 		}
 		vid, cid := args[0], args[1]
 		if dryRunOK(flags) {
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "reads": []string{"silences", "source waveform", "uncut transcript"}}, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "reads": []string{"silences", "source metadata", "uncut transcript"}}, flags)
 		}
-		sil, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/silences", vid, cid), nil)
+		sil, err := c.Get(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/silences", vid, cid), nil)
 		if err != nil {
-			return classifyAPIError(err, flags)
+			return classifyAPIError(cmd.OutOrStdout(), err, flags)
 		}
-		tr, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/transcript/uncut", vid, cid), nil)
+		tr, err := getClipTranscript(cmd.Context(), c, vid, cid, true)
 		if err != nil {
-			return classifyAPIError(err, flags)
+			return classifyAPIError(cmd.OutOrStdout(), err, flags)
 		}
-		sources, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/sources", vid, cid), nil)
+		sources, err := c.Get(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/sources", vid, cid), nil)
 		if err != nil {
-			return classifyAPIError(err, flags)
+			return classifyAPIError(cmd.OutOrStdout(), err, flags)
 		}
 		return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"video_id": vid, "clip_id": cid, "silences": jsonRawToAny(sil), "transcript": jsonRawToAny(tr), "sources": jsonRawToAny(sources)}, flags)
 	}}
@@ -154,17 +156,21 @@ func newVideosClipsCutWordsCmd(flags *rootFlags) *cobra.Command {
 	var term string
 	var apply bool
 	cmd := &cobra.Command{Use: "cut-words <videoId> <clipId>", Short: "Find transcript words matching a term and cut their word ranges", Args: cobra.ExactArgs(2), RunE: func(cmd *cobra.Command, args []string) error {
+		if workflowOffline(flags) {
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "apply": false, "workflow": "videos clips cut-words", "video_id": args[0], "clip_id": args[1], "term": term, "steps": []string{"read uncut transcript", "find matching word ranges", "cut reviewed word ranges"}}, flags)
+		}
+
 		if term == "" {
 			return usageErr(fmt.Errorf("--term is required"))
 		}
 		if dryRunOK(flags) {
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "apply": false, "term": term, "steps": []map[string]any{{"method": "GET", "path": fmt.Sprintf("/v1/videos/%s/clips/%s/transcript/uncut", args[0], args[1])}, {"method": "POST", "path": fmt.Sprintf("/v1/videos/%s/clips/%s/cut-by-transcript", args[0], args[1]), "body": "<wordRanges matching term>"}}}, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "apply": false, "term": term, "steps": []map[string]any{{"method": "GET", "path": clipTranscriptPath(args[0], args[1]), "query": clipTranscriptParams(true)}, {"method": "POST", "path": fmt.Sprintf("/v1/videos/%s/clips/%s/cut-by-transcript", args[0], args[1]), "body": "<wordRanges matching term>"}}}, flags)
 		}
 		c, err := flags.newClient()
 		if err != nil {
 			return err
 		}
-		ranges, err := transcriptTermRanges(c, args[0], args[1], term)
+		ranges, err := transcriptTermRanges(cmd.Context(), c, args[0], args[1], term)
 		if err != nil {
 			return err
 		}
@@ -172,9 +178,9 @@ func newVideosClipsCutWordsCmd(flags *rootFlags) *cobra.Command {
 		if !apply {
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "apply": false, "term": term, "body": body}, flags)
 		}
-		data, status, err := c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/cut-by-transcript", args[0], args[1]), body)
+		data, status, err := c.Post(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/cut-by-transcript", args[0], args[1]), body)
 		if err != nil {
-			return classifyAPIError(err, flags)
+			return classifyAPIError(cmd.OutOrStdout(), err, flags)
 		}
 		return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"success": status >= 200 && status < 300, "status": status, "data": jsonRawToAny(data)}, flags)
 	}}
@@ -212,13 +218,13 @@ func newVideosClipsReplaceWordRangesCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		data, status, err := c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/cut-by-transcript", args[0], args[1]), body)
+		data, status, err := c.Post(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/cut-by-transcript", args[0], args[1]), body)
 		if err != nil {
-			return classifyAPIError(err, flags)
+			return classifyAPIError(cmd.OutOrStdout(), err, flags)
 		}
 		out := map[string]any{"cut_status": status, "cut": jsonRawToAny(data)}
 		if insertFile != "" {
-			created, up, b, err := createAndUploadSource(c, insertFile, width, height, duration, contentType)
+			created, up, b, err := createAndUploadSource(cmd.Context(), c, insertFile, width, height, duration, contentType)
 			if err != nil {
 				return err
 			}
@@ -226,9 +232,9 @@ func newVideosClipsReplaceWordRangesCmd(flags *rootFlags) *cobra.Command {
 			if name != "" {
 				clipBody["name"] = name
 			}
-			cd, cs, err := c.Post(fmt.Sprintf("/v1/videos/%s/clips", args[0]), clipBody)
+			cd, cs, err := c.Post(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips", args[0]), clipBody)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			out["replacement"] = map[string]any{"status": cs, "upload_status": up, "bytes": b, "sourceId": created.SourceID, "clip": jsonRawToAny(cd)}
 		}
@@ -245,46 +251,14 @@ func newVideosClipsReplaceWordRangesCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-func newVideosStoryboardCmd(flags *rootFlags) *cobra.Command {
-	var includeTranscript bool
-	cmd := &cobra.Command{Use: "storyboard <videoId>", Short: "Dump video, clips, cuts, layouts, effects, and transcript snippets into one JSON timeline", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := flags.newClient()
-		if err != nil {
-			return err
-		}
-		vid := args[0]
-		if dryRunOK(flags) {
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "reads": []string{"video", "clips", "layouts", "zooms", "blurs", "highlights", "transcripts"}}, flags)
-		}
-		video, _ := c.Get("/v1/videos/"+vid, nil)
-		clipsRaw, err := c.Get("/v1/videos/"+vid+"/clips", nil)
-		if err != nil {
-			return classifyAPIError(err, flags)
-		}
-		clipIDs := extractAnyIDs(clipsRaw)
-		clips := []map[string]any{}
-		for _, cid := range clipIDs {
-			item := map[string]any{"id": cid}
-			for _, res := range []string{"layouts", "zooms", "blurs", "highlights", "sources"} {
-				raw, _ := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/%s", vid, cid, res), nil)
-				item[res] = jsonRawToAny(raw)
-			}
-			if includeTranscript {
-				raw, _ := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/transcript/uncut", vid, cid), nil)
-				item["uncutTranscript"] = jsonRawToAny(raw)
-			}
-			clips = append(clips, item)
-		}
-		return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"video_id": vid, "video": jsonRawToAny(video), "clips": clips}, flags)
-	}}
-	cmd.Flags().BoolVar(&includeTranscript, "include-transcript", false, "Include uncut transcript for each clip")
-	return cmd
-}
-
 func newVideosApplyStoryboardCmd(flags *rootFlags) *cobra.Command {
 	var file string
 	var apply bool
 	cmd := &cobra.Command{Use: "apply-storyboard <videoId>", Short: "Apply a declarative JSON edit plan to video/clips/effects", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		if workflowOffline(flags) {
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "apply": false, "workflow": "videos apply-storyboard", "video_id": args[0], "file": file, "steps": []string{"read storyboard file", "build video and clip edit requests"}}, flags)
+		}
+
 		if file == "" {
 			return usageErr(fmt.Errorf("--file is required"))
 		}
@@ -303,7 +277,7 @@ func newVideosApplyStoryboardCmd(flags *rootFlags) *cobra.Command {
 		results := []map[string]any{}
 		failedCount := 0
 		for _, step := range steps {
-			data, status, err := applyStoryboardStep(c, step)
+			data, status, err := applyStoryboardStep(cmd.Context(), c, step)
 			r := map[string]any{"step": step, "status": status}
 			if err != nil {
 				failedCount++
@@ -339,9 +313,9 @@ func newVideosFormatCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		data, status, err := c.Patch("/v1/videos/"+args[0], body)
+		data, status, err := c.Patch(cmd.Context(), "/v1/videos/"+args[0], body)
 		if err != nil {
-			return classifyAPIError(err, flags)
+			return classifyAPIError(cmd.OutOrStdout(), err, flags)
 		}
 		return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"status": status, "data": jsonRawToAny(data)}, flags)
 	}}
@@ -351,19 +325,19 @@ func newVideosFormatCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newVideosAuditCmd(flags *rootFlags) *cobra.Command {
-	cmd := &cobra.Command{Use: "audit <videoId>", Short: "Detect likely pre-publish issues in a Tella video", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "audit <videoId>", Annotations: map[string]string{"mcp:read-only": "true"}, Short: "Detect likely pre-publish issues in a Tella video", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		c, err := flags.newClient()
 		if err != nil {
 			return err
 		}
 		vid := args[0]
-		clipsRaw, err := c.Get("/v1/videos/"+vid+"/clips", nil)
+		clipsRaw, err := c.Get(cmd.Context(), "/v1/videos/"+vid+"/clips", nil)
 		if err != nil {
-			return classifyAPIError(err, flags)
+			return classifyAPIError(cmd.OutOrStdout(), err, flags)
 		}
 		issues := []map[string]any{}
 		for _, cid := range extractAnyIDs(clipsRaw) {
-			sil, silErr := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/silences", vid, cid), nil)
+			sil, silErr := c.Get(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s/silences", vid, cid), nil)
 			if silErr != nil {
 				issues = append(issues, map[string]any{"clip_id": cid, "type": "silences_unavailable", "error": truncate(silErr.Error(), 200)})
 			} else {
@@ -373,7 +347,7 @@ func newVideosAuditCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
-			tr, trErr := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/transcript/uncut", vid, cid), nil)
+			tr, trErr := getClipTranscript(cmd.Context(), c, vid, cid, true)
 			if trErr != nil {
 				issues = append(issues, map[string]any{"clip_id": cid, "type": "transcript_unavailable", "error": truncate(trErr.Error(), 200)})
 			} else if transcriptLooksEmpty(tr) {
@@ -392,15 +366,15 @@ func newPlaylistsEditPassCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		vids, err := listPlaylistVideoIDs(c, args[0])
+		vids, err := listPlaylistVideoIDs(cmd.Context(), c, args[0])
 		if err != nil {
-			return classifyAPIError(err, flags)
+			return classifyAPIError(cmd.OutOrStdout(), err, flags)
 		}
 		steps := []map[string]any{}
 		for _, vid := range vids {
-			clips, err := listClipIDs(c, vid)
+			clips, err := listClipIDs(cmd.Context(), c, vid)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			for _, cid := range clips {
 				if removeFillers {
@@ -453,8 +427,8 @@ func sourceCreateBody(width, height int, duration float64) map[string]any {
 	}
 	return b
 }
-func createAndUploadSource(c *client.Client, filePath string, width, height int, duration float64, contentType string) (sourceUploadResponse, int, int, error) {
-	data, _, err := c.Post("/v1/sources", sourceCreateBody(width, height, duration))
+func createAndUploadSource(ctx context.Context, c *client.Client, filePath string, width, height int, duration float64, contentType string) (sourceUploadResponse, int, int, error) {
+	data, _, err := c.Post(ctx, "/v1/sources", sourceCreateBody(width, height, duration))
 	if err != nil {
 		return sourceUploadResponse{}, 0, 0, err
 	}
@@ -466,7 +440,7 @@ func createAndUploadSource(c *client.Client, filePath string, width, height int,
 	if err != nil {
 		return created, 0, 0, err
 	}
-	req, err := http.NewRequest(http.MethodPut, created.UploadURL, bytes.NewReader(payload))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, created.UploadURL, bytes.NewReader(payload))
 	if err != nil {
 		return created, 0, 0, err
 	}
@@ -544,8 +518,8 @@ func uniqueStrings(in []string) []string {
 	}
 	return out
 }
-func transcriptTermRanges(c *client.Client, vid, cid, term string) ([]map[string]int, error) {
-	raw, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/transcript/uncut", vid, cid), nil)
+func transcriptTermRanges(ctx context.Context, c *client.Client, vid, cid, term string) ([]map[string]int, error) {
+	raw, err := getClipTranscript(ctx, c, vid, cid, true)
 	if err != nil {
 		return nil, err
 	}
@@ -715,15 +689,15 @@ func videoPatchBody(in map[string]any) map[string]any {
 	return body
 }
 
-func applyStoryboardStep(c *client.Client, step map[string]any) (json.RawMessage, int, error) {
+func applyStoryboardStep(ctx context.Context, c *client.Client, step map[string]any) (json.RawMessage, int, error) {
 	method, _ := step["method"].(string)
 	path, _ := step["path"].(string)
 	body := step["body"]
 	switch method {
 	case "PATCH":
-		return c.Patch(path, body)
+		return c.Patch(ctx, path, body)
 	case "POST":
-		return c.Post(path, body)
+		return c.Post(ctx, path, body)
 	default:
 		return nil, 0, fmt.Errorf("unsupported method %q", method)
 	}
@@ -743,4 +717,11 @@ func formatPresetBody(preset string) map[string]any {
 		body["dimensions"] = map[string]any{"width": 1920, "height": 1080}
 	}
 	return body
+}
+func attachExistingSource(ctx context.Context, c *client.Client, video, source, name string) (json.RawMessage, int, error) {
+	body := map[string]any{"sourceId": source}
+	if name != "" {
+		body["name"] = name
+	}
+	return c.Post(ctx, videoPath(video)+"/clips", body)
 }

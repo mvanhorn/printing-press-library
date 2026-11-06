@@ -17,7 +17,7 @@ func newVideosClipsGetCutTranscriptCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get-cut-transcript <id> <clipId>",
 		Short:       "Returns the words spoken in a clip with cuts applied — what viewers actually hear. Times are in ms relative to the...",
 		Example:     "  tella-pp-cli videos clips get-cut-transcript 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "clips.get-cut-transcript", "pp:method": "GET", "pp:path": "/v1/videos/{id}/clips/{clipId}/transcript/cut", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "clips.get-cut-transcript", "pp:method": "GET", "pp:path": "/v1/videos/{id}/clips/{clipId}/transcript", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				_ = cmd.Help()
@@ -28,16 +28,14 @@ func newVideosClipsGetCutTranscriptCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v1/videos/{id}/clips/{clipId}/transcript/cut"
-			path = replacePathParam(path, "id", args[0])
 			if len(args) < 2 {
 				return usageErr(fmt.Errorf("clipId is required\nUsage: %s <%s>", cmd.CommandPath(), "clipId"))
 			}
-			path = replacePathParam(path, "clipId", args[1])
-			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "clips", false, path, params, nil)
+			path := clipTranscriptPath(args[0], args[1])
+			params := clipTranscriptParams(false)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "clips", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{

@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 )
@@ -26,7 +27,7 @@ func mutationOutcomeIndeterminate(status int) bool {
 	return status == 0 || status >= 500
 }
 
-func reconcileCleanRecovery(
+func reconcileCleanRecovery(ctx context.Context,
 	api cleanAPI,
 	touched []string,
 	snapshots map[string]cutSnapshot,
@@ -37,7 +38,7 @@ func reconcileCleanRecovery(
 		key := touched[i]
 		snapshot := snapshots[key]
 		item := cleanRecoveryResult{VideoID: snapshot.VideoID, ClipID: snapshot.ClipID}
-		current, err := captureCutSnapshot(api, snapshot.VideoID, snapshot.ClipID)
+		current, err := captureCutSnapshot(ctx, api, snapshot.VideoID, snapshot.ClipID)
 		if err != nil {
 			item.ManualRestoreRequired = true
 			item.Error = fmt.Sprintf("checking current cuts for recovery: %v", err)

@@ -1,0 +1,5914 @@
+[
+  {
+    "method": "GET",
+    "path": "/v1/account",
+    "id": "getAccount",
+    "summary": "Get the account",
+    "params": [],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetAccountResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/agent-chats",
+    "id": "listAgentChats",
+    "summary": "List a video's agent chats",
+    "params": [
+      [
+        "videoId",
+        true,
+        {
+          "description": "The video whose agent chats to list",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListAgentChatsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/agent-chats",
+    "id": "startAgentChat",
+    "summary": "Start an agent chat",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/StartAgentChatRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "GET",
+    "path": "/v1/analytics",
+    "id": "getWorkspaceAnalytics",
+    "summary": "Get workspace analytics",
+    "params": [
+      [
+        "startDate",
+        null,
+        {
+          "description": "First day of the range, inclusive, as YYYY-MM-DD in UTC. Omit to start from the first recorded view. Without a Premium plan it is required and must be within the last 30 days.",
+          "example": "2026-01-01",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "type": "string"
+        }
+      ],
+      [
+        "endDate",
+        null,
+        {
+          "description": "Last day of the range, inclusive, as YYYY-MM-DD in UTC. Omit to run through today.",
+          "example": "2026-01-01",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "type": "string"
+        }
+      ],
+      [
+        "timezone",
+        null,
+        {
+          "description": "IANA time zone used to bucket viewsOverTime into days (default: UTC)",
+          "example": "America/New_York",
+          "type": "string"
+        }
+      ],
+      [
+        "scope",
+        null,
+        {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/AnalyticsScope"
+            }
+          ],
+          "description": "Which videos to aggregate (default: workspace)"
+        }
+      ],
+      [
+        "limit",
+        null,
+        {
+          "description": "Top videos per page (default: 20, max: 100)",
+          "example": 20,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      [
+        "cursor",
+        null,
+        {
+          "description": "Opaque cursor for the next page of top videos, from the previous response's pagination.nextCursor",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/WorkspaceAnalyticsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/auto-captures/{sourceId}/reports",
+    "id": "reportAutoCapture",
+    "summary": "Report an Auto Capture take",
+    "params": [
+      [
+        "sourceId",
+        true,
+        {
+          "description": "The take's `sourceId`",
+          "example": "su_abc",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/ReportAutoCaptureRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "GET",
+    "path": "/v1/backgrounds",
+    "id": "listBackgrounds",
+    "summary": "List available backgrounds",
+    "params": [
+      [
+        "scope",
+        null,
+        {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/BackgroundScope"
+            }
+          ],
+          "description": "Filter by scope"
+        }
+      ],
+      [
+        "categoryId",
+        null,
+        {
+          "description": "Filter by category ID, such as personal, workspace, default:tella, default:macos, or default:animated",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListBackgroundsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/library",
+    "id": "listLibraryItems",
+    "summary": "List library items",
+    "params": [
+      [
+        "scope",
+        true,
+        {
+          "$ref": "#/components/schemas/LibraryReadScope"
+        }
+      ],
+      [
+        "type",
+        null,
+        {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/LibraryItemType"
+            }
+          ],
+          "description": "Only return items of this type. With `scope=default` only `sound-effect` and `music` are valid, since the curated catalog holds no other media type; omitting it returns both."
+        }
+      ],
+      [
+        "query",
+        null,
+        {
+          "description": "With `scope=pinterest`, `arena`, `mymind` or `vintage` only: words to search for. Omit to list your newest saves, or with `vintage`, to browse featured films.",
+          "example": "mountain logo",
+          "type": "string"
+        }
+      ],
+      [
+        "collection",
+        null,
+        {
+          "description": "With `scope=pinterest`, `arena` or `mymind` only: one of your boards, channels or spaces, by its name, id or address (an Are.na channel can be anyone's public one). Lists its images, and adds the `collection` with its description to the response; `query` is ignored.",
+          "example": "Moodboard",
+          "type": "string"
+        }
+      ],
+      [
+        "cursor",
+        null,
+        {
+          "description": "Pagination cursor from a previous response. Keep paging while `cursor` is present. `scope=default` is a fixed catalog, and `pinterest`, `arena` and `mymind` return a single page of your newest saves or best matches, so they never set one. `vintage` pages through its results.",
+          "type": "string"
+        }
+      ],
+      [
+        "limit",
+        null,
+        {
+          "description": "Items per page (1-60, default 24). Treat it as a target rather than an exact count: pages are read from storage before unlistable items are filtered out, and cursors address whole storage pages, so a response may contain somewhat more than `limit`. Returning the extra items is deliberate \u2014 trimming them would drop them, because the cursor has already moved past.",
+          "example": 24,
+          "maximum": 60,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListLibraryResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/library",
+    "id": "createLibraryItem",
+    "summary": "Add a source to the library",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CreateLibraryItemRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "POST",
+    "path": "/v1/library/generations",
+    "id": "createGeneration",
+    "summary": "Generate media with AI",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CreateGenerationRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "GET",
+    "path": "/v1/library/generations/{id}",
+    "id": "getGeneration",
+    "summary": "Get a generation's status",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Generation ID \u2014 the `generation.id` returned when it was started",
+          "example": "mi_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetGenerationResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/library/imports",
+    "id": "startImport",
+    "summary": "Import media from a URL",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/StartImportRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "GET",
+    "path": "/v1/library/imports/{id}",
+    "id": "getImport",
+    "summary": "Get an import's status",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Import ID \u2014 the `import.id` returned when it was started",
+          "example": "mi_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "videoId",
+        null,
+        {
+          "description": "The `videoId` the import was started with, if any",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ImportResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/library/screenshots",
+    "id": "captureScreenshot",
+    "summary": "Capture a web page or social post",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CaptureScreenshotRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/library/{id}",
+    "id": "deleteLibraryItem",
+    "summary": "Remove a library item",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Library item ID",
+          "example": "media_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "scope",
+        true,
+        {
+          "$ref": "#/components/schemas/LibraryScope"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/motion/clips",
+    "id": "createMotionClip",
+    "summary": "Add a Tella Motion clip",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CreateMotionClipRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/documents",
+    "id": "listMotionDocuments",
+    "summary": "List Tella Motion documents",
+    "params": [
+      [
+        "storyId",
+        null,
+        {
+          "description": "The video (vid_\u2026) whose documents to list. Leave it out for your documents that no video plays yet.",
+          "example": "vid_abc123",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListMotionDocumentsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/motion/documents",
+    "id": "createMotionDocument",
+    "summary": "Create a Tella Motion document",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CreateMotionDocumentRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/documents/{id}",
+    "id": "getMotionDocument",
+    "summary": "Summarize a Tella Motion document",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tella Motion document ID (ffd_\u2026), from `GET /v1/motion/documents`.",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MotionDocumentSummary"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/motion/documents/{id}/commands",
+    "id": "applyMotionCommands",
+    "summary": "Edit a Tella Motion document",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tella Motion document ID (ffd_\u2026), from `GET /v1/motion/documents`.",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/ApplyMotionCommandsRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MotionApplyResult"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/documents/{id}/compositions/{compositionId}",
+    "id": "getMotionComposition",
+    "summary": "Inspect a composition",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tella Motion document ID (ffd_\u2026), from `GET /v1/motion/documents`.",
+          "type": "string"
+        }
+      ],
+      [
+        "compositionId",
+        true,
+        {
+          "description": "The composition asset's ID, from the document's outline.",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MotionComposition"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/documents/{id}/download",
+    "id": "downloadMotionDocument",
+    "summary": "Download a Tella Motion document",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tella Motion document ID (ffd_\u2026), from `GET /v1/motion/documents`.",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MotionDocumentDownload"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/motion/documents/{id}/duplicate",
+    "id": "duplicateMotionDocument",
+    "summary": "Duplicate a Tella Motion document",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tella Motion document ID (ffd_\u2026), from `GET /v1/motion/documents`.",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/DuplicateMotionDocumentRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/documents/{id}/media",
+    "id": "listMotionMedia",
+    "summary": "List a document's media",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tella Motion document ID (ffd_\u2026), from `GET /v1/motion/documents`.",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MotionMediaResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/documents/{id}/nodes",
+    "id": "inspectMotionNode",
+    "summary": "Inspect a node's properties",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tella Motion document ID (ffd_\u2026), from `GET /v1/motion/documents`.",
+          "type": "string"
+        }
+      ],
+      [
+        "path",
+        true,
+        {
+          "description": "The node's path, from the document's outline.",
+          "example": "scene.0",
+          "type": "string"
+        }
+      ],
+      [
+        "at",
+        null,
+        {
+          "description": "Seconds on the node's composition's clock. Defaults to the node's start.",
+          "minimum": 0,
+          "type": "number"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MotionNodeProperties"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/documents/{id}/nodes/raw",
+    "id": "getMotionNode",
+    "summary": "Get a node's stored fields",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tella Motion document ID (ffd_\u2026), from `GET /v1/motion/documents`.",
+          "type": "string"
+        }
+      ],
+      [
+        "path",
+        true,
+        {
+          "description": "The node's path, from the document's outline.",
+          "example": "scene.0",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MotionNode"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/documents/{id}/thumbnail",
+    "id": "getMotionDocumentThumbnail",
+    "summary": "Get a frame or preview of a Tella Motion document",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tella Motion document ID (ffd_\u2026), from `GET /v1/motion/documents`.",
+          "type": "string"
+        }
+      ],
+      [
+        "format",
+        null,
+        {
+          "description": "Output format. Defaults to jpg.",
+          "enum": [
+            "jpg",
+            "png",
+            "webp",
+            "gif",
+            "mp4"
+          ],
+          "example": "jpg",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Frame offset in ms on the playback timeline (cuts applied) \u2014 clip-relative for the clip thumbnail, video-relative (cumulative across clips) for the video thumbnail. Defaults to 0.",
+          "example": 1000,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "durationMs",
+        null,
+        {
+          "description": "Duration of the animated preview in ms. Only valid when format is gif or mp4.",
+          "example": 3000,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "fps",
+        null,
+        {
+          "description": "Frame rate for MP4 previews. Must be 1, 2, 5, 10, or 30. Defaults to 30.",
+          "example": 10,
+          "type": "number"
+        }
+      ],
+      [
+        "width",
+        null,
+        {
+          "description": "Output width in pixels. The thumbnail keeps the video's aspect ratio; a missing side is derived from it.",
+          "example": 1280,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "height",
+        null,
+        {
+          "description": "Output height in pixels. Derived from the video's aspect ratio when omitted.",
+          "example": 720,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "download",
+        null,
+        {
+          "anyOf": [
+            {
+              "enum": [
+                "true"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "false"
+              ],
+              "type": "string"
+            }
+          ],
+          "description": "Suggest a download disposition on the signed URL.",
+          "example": "false"
+        }
+      ],
+      [
+        "response",
+        null,
+        {
+          "description": "Set to 'json' to receive `{url}` instead of the default 302 redirect.",
+          "enum": [
+            "json"
+          ],
+          "example": "json",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ThumbnailResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/effects",
+    "id": "listMotionEffects",
+    "summary": "List Tella Motion effects",
+    "params": [
+      [
+        "kind",
+        null,
+        {
+          "description": "One effect kind: the response is `effect`, with each preset's values where they differ from the kind's defaults.",
+          "example": "fx.liquidGlass",
+          "type": "string"
+        }
+      ],
+      [
+        "preset",
+        null,
+        {
+          "description": "With `kind`: one of its presets, with every value it sets.",
+          "example": "regularLight",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MotionEffectsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/fonts",
+    "id": "listMotionFonts",
+    "summary": "List Tella Motion fonts",
+    "params": [],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MotionFontsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/motion/schema",
+    "id": "getMotionSchema",
+    "summary": "Get a Tella Motion JSON schema",
+    "params": [
+      [
+        "schema",
+        true,
+        {
+          "description": "`document`: a document as the download returns it (about 160 KB). `edits`: one item of a commands batch, every op and command (about 180 KB), or with `type` that one edit's schema.",
+          "enum": [
+            "document",
+            "edits"
+          ],
+          "type": "string"
+        }
+      ],
+      [
+        "type",
+        null,
+        {
+          "description": "With `schema=edits`: one op or command type.",
+          "example": "node.patch",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MotionSchemaResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/playlist-groups",
+    "id": "listPlaylistGroups",
+    "summary": "List playlist groups",
+    "params": [
+      [
+        "visibility",
+        null,
+        {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/PlaylistGroupVisibility"
+            }
+          ],
+          "description": "Filter by visibility: personal or org. Omit to list all groups."
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListPlaylistGroupsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/playlist-groups",
+    "id": "createPlaylistGroup",
+    "summary": "Create a playlist group",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CreatePlaylistGroupRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/playlist-groups/{id}",
+    "id": "deletePlaylistGroup",
+    "summary": "Delete a playlist group",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique playlist group identifier",
+          "example": "pg_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/playlist-groups/{id}",
+    "id": "updatePlaylistGroup",
+    "summary": "Rename or reorder a playlist group",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique playlist group identifier",
+          "example": "pg_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdatePlaylistGroupRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/PlaylistGroupResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/playlists",
+    "id": "listPlaylists",
+    "summary": "List all playlists",
+    "params": [
+      [
+        "visibility",
+        null,
+        {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/PlaylistVisibility"
+            }
+          ],
+          "default": "personal",
+          "description": "Filter by visibility: personal (only your playlists) or org (shared with organization). Default: personal"
+        }
+      ],
+      [
+        "cursor",
+        null,
+        {
+          "description": "Pagination cursor from previous response",
+          "example": "eyJpZCI6InBsX3h5eiJ9",
+          "type": "string"
+        }
+      ],
+      [
+        "limit",
+        null,
+        {
+          "description": "Items per page (default: 20, max: 100)",
+          "example": 20,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "pagination": {
+              "$ref": "#/components/schemas/Pagination"
+            },
+            "playlists": {
+              "description": "List of playlists",
+              "items": {
+                "$ref": "#/components/schemas/PlaylistListItem"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "playlists",
+            "pagination"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/playlists",
+    "id": "createPlaylist",
+    "summary": "Create a new playlist",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CreatePlaylistRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "playlist": {
+              "$ref": "#/components/schemas/PlaylistDetail"
+            }
+          },
+          "required": [
+            "playlist"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/playlists/{id}",
+    "id": "deletePlaylist",
+    "summary": "Delete a playlist",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique playlist identifier",
+          "example": "pl_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/playlists/{id}",
+    "id": "getPlaylist",
+    "summary": "Get playlist details",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique playlist identifier",
+          "example": "pl_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "playlist": {
+              "$ref": "#/components/schemas/PlaylistDetail"
+            }
+          },
+          "required": [
+            "playlist"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/playlists/{id}",
+    "id": "updatePlaylist",
+    "summary": "Update a playlist",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique playlist identifier",
+          "example": "pl_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdatePlaylistRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "playlist": {
+              "$ref": "#/components/schemas/PlaylistDetail"
+            }
+          },
+          "required": [
+            "playlist"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/playlists/{id}/videos",
+    "id": "addVideoToPlaylist",
+    "summary": "Add a video to a playlist",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique playlist identifier",
+          "example": "pl_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddVideoRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/playlists/{id}/videos/{videoId}",
+    "id": "removeVideoFromPlaylist",
+    "summary": "Remove a video from a playlist",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique playlist identifier",
+          "example": "pl_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "videoId",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/social-accounts",
+    "id": "listSocialAccounts",
+    "summary": "List connected social accounts",
+    "params": [],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListSocialAccountsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/sources",
+    "id": "createSource",
+    "summary": "Create a source upload (video, audio, image, or LUT)",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CreateSourceRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/CreateSourceResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/sources/{sourceId}",
+    "id": "getSource",
+    "summary": "Get a source's processing status",
+    "params": [
+      [
+        "sourceId",
+        true,
+        {
+          "description": "Source ID",
+          "example": "su_abc",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetSourceResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/sources/{sourceId}/beats",
+    "id": "getSourceBeats",
+    "summary": "Get the beats of an audio or video source",
+    "params": [
+      [
+        "sourceId",
+        true,
+        {
+          "description": "Streaming upload source identifier",
+          "example": "su_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MusicBeatsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/sources/{sourceId}/storyboard",
+    "id": "getSourceStoryboard",
+    "summary": "Get a streaming upload storyboard",
+    "params": [
+      [
+        "sourceId",
+        true,
+        {
+          "description": "Streaming upload source identifier",
+          "example": "su_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Start time in ms on the selected target's playback timeline. Defaults to 0.",
+          "example": 1000,
+          "maximum": 2147483647,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "durationMs",
+        null,
+        {
+          "description": "Storyboard window duration in ms. Defaults to 80000; the selected target's remaining duration may shorten it. Pass the target's full duration to sample it end to end.",
+          "example": 30000,
+          "maximum": 2147483647,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      [
+        "response",
+        null,
+        {
+          "description": "Set to 'json' to receive `{url, columns, rows, intervalMs}` instead of the default 302 redirect.",
+          "enum": [
+            "json"
+          ],
+          "example": "json",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/StoryboardResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/sources/{sourceId}/thumbnail",
+    "id": "getStandaloneSourceThumbnail",
+    "summary": "Get a thumbnail of a source on no clip",
+    "params": [
+      [
+        "sourceId",
+        true,
+        {
+          "description": "Streaming upload source identifier",
+          "example": "su_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "format",
+        null,
+        {
+          "description": "Output format. Defaults to jpg. Image sources support only still thumbnails (jpg, png or webp); gif and mp4 return a 400 error.",
+          "enum": [
+            "jpg",
+            "png",
+            "webp",
+            "gif",
+            "mp4"
+          ],
+          "example": "jpg",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Frame offset in ms from the source's start. Defaults to 0.",
+          "example": 1000,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "durationMs",
+        null,
+        {
+          "description": "Duration of the animated preview in ms. Only valid when format is gif or mp4.",
+          "example": 3000,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "width",
+        null,
+        {
+          "description": "Output width in pixels. The thumbnail keeps the source's aspect ratio; a missing side is derived from it.",
+          "example": 1280,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "height",
+        null,
+        {
+          "description": "Output height in pixels. Derived from the source's aspect ratio when omitted.",
+          "example": 720,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "download",
+        null,
+        {
+          "anyOf": [
+            {
+              "enum": [
+                "true"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "false"
+              ],
+              "type": "string"
+            }
+          ],
+          "description": "Suggest a download disposition on the signed URL."
+        }
+      ],
+      [
+        "response",
+        null,
+        {
+          "description": "Set to 'json' to receive `{url}` instead of the default 302 redirect.",
+          "enum": [
+            "json"
+          ],
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ThumbnailResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/sources/{sourceId}/transcript",
+    "id": "getSourceTranscript",
+    "summary": "Get the transcript of a source on no clip",
+    "params": [
+      [
+        "sourceId",
+        true,
+        {
+          "description": "Streaming upload source identifier",
+          "example": "su_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Only return items at or after this time, in ms on the clip's playback timeline. Defaults to the clip's start.",
+          "example": 60000,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "endTimeMs",
+        null,
+        {
+          "description": "Only return items before this time (exclusive), in ms on the clip's playback timeline. Must be greater than `startTimeMs`. Defaults to the clip's end. Page through a long clip with windows that meet end to start.",
+          "example": 120000,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      [
+        "view",
+        null,
+        {
+          "description": "`words` (default): every word with its index, times and flags. `text`: every word with its index as plain text, one sentence per line starting with its start time, about a seventh of the size, for reading a whole long clip (finding retakes, repeats or where something is said). `sentences`: one row per sentence (first and last word index, start and end time, text), about a quarter of the size. A time window cuts sentences at its edges.",
+          "enum": [
+            "words",
+            "sentences",
+            "text"
+          ],
+          "example": "text",
+          "type": "string"
+        }
+      ],
+      [
+        "includeCut",
+        null,
+        {
+          "description": "`true`: also return the words that cuts removed, each marked `cut`, with every word's times in the clip's source recording (`sourceStartTimeMs`/`sourceEndTimeMs`). Use it to find footage the cuts took out, such as a retake, without undoing the cuts. Kept words still carry their playback `startTimeMs`/`endTimeMs`. `startTimeMs`/`endTimeMs` filter on the source times. Words view only.",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "true",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/ClipTranscriptResponse"
+            },
+            {
+              "$ref": "#/components/schemas/ClipTranscriptSentencesResponse"
+            },
+            {
+              "$ref": "#/components/schemas/ClipTranscriptTextResponse"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/sources/{sourceId}/waveform",
+    "id": "getStandaloneSourceWaveform",
+    "summary": "Get the audio waveform JSON for a source on no clip",
+    "params": [
+      [
+        "sourceId",
+        true,
+        {
+          "description": "Streaming upload source identifier",
+          "example": "su_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SourceWaveformResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/subtitle-presets",
+    "id": "listSubtitlePresets",
+    "summary": "List subtitle presets",
+    "params": [],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "presets": {
+              "items": {
+                "$ref": "#/components/schemas/SubtitlePreset"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "presets"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/subtitle-presets",
+    "id": "saveSubtitlePreset",
+    "summary": "Save a subtitle preset",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/SaveSubtitlePresetRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "preset": {
+              "$ref": "#/components/schemas/SubtitlePreset"
+            }
+          },
+          "required": [
+            "preset"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/tags",
+    "id": "listTags",
+    "summary": "List all tags",
+    "params": [],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListTagsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/tags",
+    "id": "createTag",
+    "summary": "Create a new tag",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CreateTagRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/tags/{id}",
+    "id": "deleteTag",
+    "summary": "Delete a tag",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tag ID",
+          "example": "tag_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/tags/{id}",
+    "id": "updateTag",
+    "summary": "Update a tag",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Tag ID",
+          "example": "tag_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateTagRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/UpdateTagResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/text-presets",
+    "id": "listTextPresets",
+    "summary": "List text presets",
+    "params": [],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "presets": {
+              "items": {
+                "$ref": "#/components/schemas/TextPreset"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "presets"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/text-presets",
+    "id": "saveTextPreset",
+    "summary": "Save a text preset",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/SaveTextPresetRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "preset": {
+              "$ref": "#/components/schemas/TextPreset"
+            }
+          },
+          "required": [
+            "preset"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/text-presets/{presetId}",
+    "id": "deleteTextPreset",
+    "summary": "Delete a text preset",
+    "params": [
+      [
+        "presetId",
+        true,
+        {
+          "description": "A `personal` preset ID from GET /v1/text-presets",
+          "example": "tp_abc123",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos",
+    "id": "listVideos",
+    "summary": "List all videos",
+    "params": [
+      [
+        "cursor",
+        null,
+        {
+          "description": "Pagination cursor from previous response",
+          "example": "eyJpZCI6InZpZF94eXoifQ",
+          "type": "string"
+        }
+      ],
+      [
+        "limit",
+        null,
+        {
+          "description": "Items per page (default: 20, max: 100)",
+          "example": 20,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      [
+        "playlistId",
+        null,
+        {
+          "description": "Filter videos by playlist ID",
+          "example": "pl_xyz789ghi012",
+          "type": "string"
+        }
+      ],
+      [
+        "tagIds",
+        null,
+        {
+          "description": "Filter videos by tag IDs, comma-separated. Multiple tags are combined with AND. Ignored when playlistId is set.",
+          "example": "tag_abc123def456,tag_ghi789jkl012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "pagination": {
+              "$ref": "#/components/schemas/Pagination"
+            },
+            "videos": {
+              "description": "List of videos",
+              "items": {
+                "$ref": "#/components/schemas/VideoListItem"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "videos",
+            "pagination"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos",
+    "id": "createVideo",
+    "summary": "Create a video",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CreateVideoRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/search",
+    "id": "searchVideos",
+    "summary": "Search videos",
+    "params": [
+      [
+        "query",
+        true,
+        {
+          "description": "Words to find in video titles or indexed transcript sentences",
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        }
+      ],
+      [
+        "searchIn",
+        null,
+        {
+          "description": "Fields to search (default: all)",
+          "enum": [
+            "all",
+            "title",
+            "transcript"
+          ],
+          "type": "string"
+        }
+      ],
+      [
+        "limit",
+        null,
+        {
+          "description": "Upper bound on results per page (default: 20, max: 100). A page can be shorter once results the caller cannot see are removed, so keep paging while hasMore is true.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      [
+        "cursor",
+        null,
+        {
+          "description": "Opaque pagination cursor from the previous response",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SearchVideosResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}",
+    "id": "deleteVideo",
+    "summary": "Delete a video",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}",
+    "id": "getVideo",
+    "summary": "Get video information",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "video": {
+              "$ref": "#/components/schemas/VideoDetail"
+            }
+          },
+          "required": [
+            "video"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}",
+    "id": "updateVideo",
+    "summary": "Update a video",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateVideoRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "video": {
+              "$ref": "#/components/schemas/VideoDetail"
+            }
+          },
+          "required": [
+            "video"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/analytics",
+    "id": "getVideoAnalytics",
+    "summary": "Get video analytics",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "startDate",
+        null,
+        {
+          "description": "First day of the range, inclusive, as YYYY-MM-DD in UTC. Omit to start from the first recorded view. Without a Premium plan it is required and must be within the last 30 days.",
+          "example": "2026-01-01",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "type": "string"
+        }
+      ],
+      [
+        "endDate",
+        null,
+        {
+          "description": "Last day of the range, inclusive, as YYYY-MM-DD in UTC. Omit to run through today.",
+          "example": "2026-01-01",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "type": "string"
+        }
+      ],
+      [
+        "timezone",
+        null,
+        {
+          "description": "IANA time zone used to bucket viewsOverTime into days (default: UTC)",
+          "example": "America/New_York",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/VideoAnalyticsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/background-music",
+    "id": "removeBackgroundMusic",
+    "summary": "Remove background music",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/videos/{id}/background-music",
+    "id": "setBackgroundMusic",
+    "summary": "Set background music",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/SetBackgroundMusicRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "backgroundMusic": {
+              "$ref": "#/components/schemas/BackgroundMusic"
+            }
+          },
+          "required": [
+            "backgroundMusic"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/background-music/beats",
+    "id": "getBackgroundMusicBeats",
+    "summary": "Get the beats of the background music",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/MusicBeatsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/captions",
+    "id": "getVideoCaptions",
+    "summary": "Download video captions",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "format",
+        null,
+        {
+          "default": "srt",
+          "description": "Caption file format. Defaults to srt.",
+          "enum": [
+            "srt",
+            "vtt"
+          ],
+          "example": "vtt",
+          "type": "string"
+        }
+      ],
+      [
+        "lang",
+        null,
+        {
+          "description": "Return the translated subtitle track for this language code instead of the spoken one. The language must have been added to the video first (see subtitle-languages).",
+          "example": "es",
+          "pattern": "^[a-z]{2,3}(_[a-z]{2,4})?$",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/x-subrip": {
+        "schema": {
+          "type": "string"
+        }
+      },
+      "text/vtt": {
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/chapters",
+    "id": "getVideoChapters",
+    "summary": "Get video chapters",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Video chapters",
+          "properties": {
+            "chapters": {
+              "description": "Chapters on the final video timeline, ordered by timestamp",
+              "items": {
+                "$ref": "#/components/schemas/Chapter"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "chapters"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/videos/{id}/chapters",
+    "id": "setVideoChapters",
+    "summary": "Replace video chapters",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "description": "Replace all chapters on a video",
+      "properties": {
+        "chapters": {
+          "description": "Complete replacement chapter list in ascending timestamp order (maximum 100). Pass an empty array to clear all chapters.",
+          "items": {
+            "$ref": "#/components/schemas/ChapterInput"
+          },
+          "maxItems": 100,
+          "type": "array"
+        }
+      },
+      "required": [
+        "chapters"
+      ],
+      "type": "object"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Video chapters",
+          "properties": {
+            "chapters": {
+              "description": "Chapters on the final video timeline, ordered by timestamp",
+              "items": {
+                "$ref": "#/components/schemas/Chapter"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "chapters"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips",
+    "id": "listClips",
+    "summary": "List clips for a video",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips",
+    "id": "addClip",
+    "summary": "Add a clip from an uploaded source",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddClipRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetClipResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/clips/{clipId}",
+    "id": "deleteClip",
+    "summary": "Delete a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}",
+    "id": "getClip",
+    "summary": "Get a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetClipResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}",
+    "id": "updateClip",
+    "summary": "Update a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetClipResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/audio-levels",
+    "id": "getClipAudioLevels",
+    "summary": "Get audio levels in a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        true,
+        {
+          "description": "Start of the range on the clip's playback timeline, in ms",
+          "example": 12000,
+          "minimum": 0,
+          "type": "number"
+        }
+      ],
+      [
+        "endTimeMs",
+        true,
+        {
+          "description": "End of the range on the clip's playback timeline, in ms",
+          "example": 15000,
+          "minimum": 0,
+          "type": "number"
+        }
+      ],
+      [
+        "stepMs",
+        null,
+        {
+          "description": "Width of each level step in ms (default 10, at least 5). A range may have up to 12,000 steps.",
+          "example": 10,
+          "minimum": 5,
+          "type": "number"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipAudioLevelsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/auto-crop",
+    "id": "autoCropClip",
+    "summary": "Auto-crop a clip's screen recording",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AutoCropRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/AutoCropResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/blurs",
+    "id": "listClipBlurs",
+    "summary": "List blurs on a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipMasksResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/blurs",
+    "id": "addClipBlur",
+    "summary": "Add a blur to a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddClipMaskRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipMaskResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/clips/{clipId}/blurs/{maskId}",
+    "id": "removeClipBlur",
+    "summary": "Remove a blur",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "maskId",
+        true,
+        {
+          "description": "Mask ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}/blurs/{maskId}",
+    "id": "updateClipBlur",
+    "summary": "Update a blur",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "maskId",
+        true,
+        {
+          "description": "Mask ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipMaskRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipMaskResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/camera-faces",
+    "id": "listClipCameraFaces",
+    "summary": "List faces in a clip's camera",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Only return items at or after this time, in ms on the clip's playback timeline. Defaults to the clip's start.",
+          "example": 60000,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "endTimeMs",
+        null,
+        {
+          "description": "Only return items before this time (exclusive), in ms on the clip's playback timeline. Must be greater than `startTimeMs`. Defaults to the clip's end. Page through a long clip with windows that meet end to start.",
+          "example": 120000,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipCameraFacesResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/cut",
+    "id": "cutClip",
+    "summary": "Cut one or more time ranges from a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/CutClipRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetClipResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/cut-by-transcript",
+    "id": "cutClipByTranscript",
+    "summary": "Cut clip ranges by transcript word indices",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/CutClipByTranscriptRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetClipResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/duplicate",
+    "id": "duplicateClip",
+    "summary": "Duplicate a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/DuplicateClipRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetClipResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/filters",
+    "id": "getClipFilters",
+    "summary": "Get clip color filters",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipFiltersResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}/filters",
+    "id": "setClipFilters",
+    "summary": "Set clip color filters",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipFiltersRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipFiltersResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/highlights",
+    "id": "listClipHighlights",
+    "summary": "List highlights on a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipMasksResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/highlights",
+    "id": "addClipHighlight",
+    "summary": "Add a highlight to a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddClipMaskRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipMaskResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/clips/{clipId}/highlights/{maskId}",
+    "id": "removeClipHighlight",
+    "summary": "Remove a highlight",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "maskId",
+        true,
+        {
+          "description": "Mask ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}/highlights/{maskId}",
+    "id": "updateClipHighlight",
+    "summary": "Update a highlight",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "maskId",
+        true,
+        {
+          "description": "Mask ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipMaskRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipMaskResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/key-events",
+    "id": "listClipKeyEvents",
+    "summary": "List key presses on a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Only return items at or after this time, in ms on the clip's playback timeline. Defaults to the clip's start.",
+          "example": 60000,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "endTimeMs",
+        null,
+        {
+          "description": "Only return items before this time (exclusive), in ms on the clip's playback timeline. Must be greater than `startTimeMs`. Defaults to the clip's end. Page through a long clip with windows that meet end to start.",
+          "example": 120000,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipKeyEventsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/layouts",
+    "id": "listClipLayouts",
+    "summary": "List layouts on a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipLayoutsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/layouts",
+    "id": "addClipLayout",
+    "summary": "Add a layout to a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddClipLayoutRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipLayoutResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/clips/{clipId}/layouts/{layoutId}",
+    "id": "removeClipLayout",
+    "summary": "Remove a layout",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "layoutId",
+        true,
+        {
+          "description": "Layout (section) ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}/layouts/{layoutId}",
+    "id": "updateClipLayout",
+    "summary": "Update a layout",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "layoutId",
+        true,
+        {
+          "description": "Layout (section) ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipLayoutRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipLayoutResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/mouse-events",
+    "id": "listClipMouseEvents",
+    "summary": "List mouse events on a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Only return items at or after this time, in ms on the clip's playback timeline. Defaults to the clip's start.",
+          "example": 60000,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "endTimeMs",
+        null,
+        {
+          "description": "Only return items before this time (exclusive), in ms on the clip's playback timeline. Must be greater than `startTimeMs`. Defaults to the clip's end. Page through a long clip with windows that meet end to start.",
+          "example": 120000,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      [
+        "intervalMs",
+        null,
+        {
+          "description": "Thin move events to at most one per this many ms of playback \u2014 clicks are always kept. Defaults to 100. Pass 0 for every recorded event (can be tens of thousands on long recordings).",
+          "example": 100,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "types",
+        null,
+        {
+          "description": "Comma-separated event kinds to return: clicks, moves. Default: both. Use types=clicks for the positions where a mouse button went down \u2014 one event per press, not one per sample of a held button.",
+          "example": "clicks",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipMouseEventsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/overlays",
+    "id": "listClipOverlays",
+    "summary": "List overlays on a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipOverlaysResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/overlays",
+    "id": "addClipOverlay",
+    "summary": "Add an overlay to a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddClipOverlayRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipOverlayResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/clips/{clipId}/overlays/{overlayId}",
+    "id": "removeClipOverlay",
+    "summary": "Remove an overlay",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "overlayId",
+        true,
+        {
+          "description": "Overlay ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}/overlays/{overlayId}",
+    "id": "updateClipOverlay",
+    "summary": "Update an overlay",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "overlayId",
+        true,
+        {
+          "description": "Overlay ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipOverlayRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipOverlayResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/remove-fillers",
+    "id": "removeClipFillers",
+    "summary": "Remove filler words from a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetClipResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/remove-silences",
+    "id": "removeClipSilences",
+    "summary": "Remove silences from a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/RemoveSilencesRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetClipResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/reorder",
+    "id": "reorderClip",
+    "summary": "Reorder a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/ReorderClipRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetClipResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/shape-overlays",
+    "id": "listClipShapeOverlays",
+    "summary": "List shape overlays on a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipShapeOverlaysResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/shape-overlays",
+    "id": "addClipShapeOverlay",
+    "summary": "Add a shape overlay to a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddClipShapeOverlayRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipShapeOverlayResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/clips/{clipId}/shape-overlays/{shapeOverlayId}",
+    "id": "removeClipShapeOverlay",
+    "summary": "Remove a shape overlay",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "shapeOverlayId",
+        true,
+        {
+          "description": "Shape overlay ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}/shape-overlays/{shapeOverlayId}",
+    "id": "updateClipShapeOverlay",
+    "summary": "Update a shape overlay",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "shapeOverlayId",
+        true,
+        {
+          "description": "Shape overlay ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipShapeOverlayRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipShapeOverlayResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/silences",
+    "id": "getClipSilences",
+    "summary": "Get silent ranges in a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ],
+      [
+        "minDurationMs",
+        null,
+        {
+          "description": "Minimum silence duration to report, in ms. Defaults to 200.",
+          "example": 500,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipSilencesResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/sound-effects",
+    "id": "listClipSoundEffects",
+    "summary": "List sound effects on a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipSoundEffectsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/sound-effects",
+    "id": "addClipSoundEffect",
+    "summary": "Add a sound effect to a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddClipSoundEffectRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipSoundEffectResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/clips/{clipId}/sound-effects/{soundEffectId}",
+    "id": "removeClipSoundEffect",
+    "summary": "Remove a sound effect",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "soundEffectId",
+        true,
+        {
+          "description": "Sound effect ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}/sound-effects/{soundEffectId}",
+    "id": "updateClipSoundEffect",
+    "summary": "Update a sound effect",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "soundEffectId",
+        true,
+        {
+          "description": "Sound effect ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipSoundEffectRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipSoundEffectResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/sources",
+    "id": "listClipSources",
+    "summary": "List sources for a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipSourcesResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/sources/{sourceId}/thumbnail",
+    "id": "getSourceThumbnail",
+    "summary": "Get a source thumbnail or animated preview",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "sourceId",
+        true,
+        {
+          "description": "Source ID",
+          "type": "string"
+        }
+      ],
+      [
+        "format",
+        null,
+        {
+          "description": "Output format. Defaults to jpg. Image sources support only still thumbnails (jpg, png or webp); gif and mp4 return a 400 error.",
+          "enum": [
+            "jpg",
+            "png",
+            "webp",
+            "gif",
+            "mp4"
+          ],
+          "example": "jpg",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Frame offset in ms from the source's start. Defaults to 0.",
+          "example": 1000,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "durationMs",
+        null,
+        {
+          "description": "Duration of the animated preview in ms. Only valid when format is gif or mp4.",
+          "example": 3000,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "width",
+        null,
+        {
+          "description": "Output width in pixels. The thumbnail keeps the source's aspect ratio; a missing side is derived from it.",
+          "example": 1280,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "height",
+        null,
+        {
+          "description": "Output height in pixels. Derived from the source's aspect ratio when omitted.",
+          "example": 720,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "download",
+        null,
+        {
+          "anyOf": [
+            {
+              "enum": [
+                "true"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "false"
+              ],
+              "type": "string"
+            }
+          ],
+          "description": "Suggest a download disposition on the signed URL."
+        }
+      ],
+      [
+        "response",
+        null,
+        {
+          "description": "Set to 'json' to receive `{url}` instead of the default 302 redirect.",
+          "enum": [
+            "json"
+          ],
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ThumbnailResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/sources/{sourceId}/waveform",
+    "id": "getSourceWaveform",
+    "summary": "Get the audio waveform JSON for a source",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "sourceId",
+        true,
+        {
+          "description": "Source ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SourceWaveformResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/split",
+    "id": "splitClip",
+    "summary": "Split a clip in two",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/SplitClipRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SplitClipResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/storyboard",
+    "id": "getClipStoryboard",
+    "summary": "Get a clip storyboard",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Start time in ms on the selected target's playback timeline. Defaults to 0.",
+          "example": 1000,
+          "maximum": 2147483647,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "durationMs",
+        null,
+        {
+          "description": "Storyboard window duration in ms. Defaults to 80000; the selected target's remaining duration may shorten it. Pass the target's full duration to sample it end to end.",
+          "example": 30000,
+          "maximum": 2147483647,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      [
+        "response",
+        null,
+        {
+          "description": "Set to 'json' to receive `{url, columns, rows, intervalMs}` instead of the default 302 redirect.",
+          "enum": [
+            "json"
+          ],
+          "example": "json",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/StoryboardResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/text-overlays",
+    "id": "listClipTextOverlays",
+    "summary": "List text overlays on a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipTextOverlaysResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/text-overlays",
+    "id": "addClipTextOverlay",
+    "summary": "Add a text overlay to a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddClipTextOverlayRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipTextOverlayResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/clips/{clipId}/text-overlays/{textOverlayId}",
+    "id": "removeClipTextOverlay",
+    "summary": "Remove a text overlay",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "textOverlayId",
+        true,
+        {
+          "description": "Text overlay ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}/text-overlays/{textOverlayId}",
+    "id": "updateClipTextOverlay",
+    "summary": "Update a text overlay",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "textOverlayId",
+        true,
+        {
+          "description": "Text overlay ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipTextOverlayRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipTextOverlayResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/thumbnail",
+    "id": "getClipThumbnail",
+    "summary": "Get a clip thumbnail or animated preview",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ],
+      [
+        "format",
+        null,
+        {
+          "description": "Output format. Defaults to jpg.",
+          "enum": [
+            "jpg",
+            "png",
+            "webp",
+            "gif",
+            "mp4"
+          ],
+          "example": "jpg",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Frame offset in ms on the playback timeline (cuts applied) \u2014 clip-relative for the clip thumbnail, video-relative (cumulative across clips) for the video thumbnail. Defaults to 0.",
+          "example": 1000,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "durationMs",
+        null,
+        {
+          "description": "Duration of the animated preview in ms. Only valid when format is gif or mp4.",
+          "example": 3000,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "fps",
+        null,
+        {
+          "description": "Frame rate for MP4 previews. Must be 1, 2, 5, 10, or 30. Defaults to 30.",
+          "example": 10,
+          "type": "number"
+        }
+      ],
+      [
+        "width",
+        null,
+        {
+          "description": "Output width in pixels. The thumbnail keeps the video's aspect ratio; a missing side is derived from it.",
+          "example": 1280,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "height",
+        null,
+        {
+          "description": "Output height in pixels. Derived from the video's aspect ratio when omitted.",
+          "example": 720,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "download",
+        null,
+        {
+          "anyOf": [
+            {
+              "enum": [
+                "true"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "false"
+              ],
+              "type": "string"
+            }
+          ],
+          "description": "Suggest a download disposition on the signed URL.",
+          "example": "false"
+        }
+      ],
+      [
+        "subtitles",
+        null,
+        {
+          "anyOf": [
+            {
+              "enum": [
+                "true"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "false"
+              ],
+              "type": "string"
+            }
+          ],
+          "description": "Draw the video's captions, as an export with subtitles does. Defaults to false.",
+          "example": "true"
+        }
+      ],
+      [
+        "response",
+        null,
+        {
+          "description": "Set to 'json' to receive `{url}` instead of the default 302 redirect.",
+          "enum": [
+            "json"
+          ],
+          "example": "json",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ThumbnailResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/transcript",
+    "id": "getClipTranscript",
+    "summary": "Get clip transcript",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Only return items at or after this time, in ms on the clip's playback timeline. Defaults to the clip's start.",
+          "example": 60000,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "endTimeMs",
+        null,
+        {
+          "description": "Only return items before this time (exclusive), in ms on the clip's playback timeline. Must be greater than `startTimeMs`. Defaults to the clip's end. Page through a long clip with windows that meet end to start.",
+          "example": 120000,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      [
+        "view",
+        null,
+        {
+          "description": "`words` (default): every word with its index, times and flags. `text`: every word with its index as plain text, one sentence per line starting with its start time, about a seventh of the size, for reading a whole long clip (finding retakes, repeats or where something is said). `sentences`: one row per sentence (first and last word index, start and end time, text), about a quarter of the size. A time window cuts sentences at its edges.",
+          "enum": [
+            "words",
+            "sentences",
+            "text"
+          ],
+          "example": "text",
+          "type": "string"
+        }
+      ],
+      [
+        "includeCut",
+        null,
+        {
+          "description": "`true`: also return the words that cuts removed, each marked `cut`, with every word's times in the clip's source recording (`sourceStartTimeMs`/`sourceEndTimeMs`). Use it to find footage the cuts took out, such as a retake, without undoing the cuts. Kept words still carry their playback `startTimeMs`/`endTimeMs`. `startTimeMs`/`endTimeMs` filter on the source times. Words view only.",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "true",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/ClipTranscriptResponse"
+            },
+            {
+              "$ref": "#/components/schemas/ClipTranscriptSentencesResponse"
+            },
+            {
+              "$ref": "#/components/schemas/ClipTranscriptTextResponse"
+            },
+            {
+              "$ref": "#/components/schemas/ClipUncutTranscriptResponse"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}/transcript/words",
+    "id": "updateClipTranscriptWords",
+    "summary": "Correct transcript words",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipTranscriptWordsRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/UpdateClipTranscriptWordsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/clips/{clipId}/zooms",
+    "id": "listClipZooms",
+    "summary": "List zooms on a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListClipZoomsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/zooms",
+    "id": "addClipZoom",
+    "summary": "Add a zoom to a clip",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddClipZoomRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipZoomResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/clips/{clipId}/zooms/auto",
+    "id": "generateAutoZooms",
+    "summary": "Auto-generate zooms from mouse activity",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip identifier",
+          "example": "cl_xyz789ghi012",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/GenerateAutoZoomsRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GenerateAutoZoomsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/clips/{clipId}/zooms/{zoomId}",
+    "id": "removeClipZoom",
+    "summary": "Remove a zoom",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "zoomId",
+        true,
+        {
+          "description": "Zoom ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/videos/{id}/clips/{clipId}/zooms/{zoomId}",
+    "id": "updateClipZoom",
+    "summary": "Update a zoom",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "type": "string"
+        }
+      ],
+      [
+        "clipId",
+        true,
+        {
+          "description": "Clip ID",
+          "type": "string"
+        }
+      ],
+      [
+        "zoomId",
+        true,
+        {
+          "description": "Zoom ID",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateClipZoomRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ClipZoomResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/collaborators",
+    "id": "addCollaboratorToVideo",
+    "summary": "Add a collaborator to a video",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddCollaboratorRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/AddCollaboratorResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/duplicate",
+    "id": "duplicateVideo",
+    "summary": "Duplicate a video",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/DuplicateVideoRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "video": {
+              "$ref": "#/components/schemas/VideoDetail"
+            }
+          },
+          "required": [
+            "video"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/edits",
+    "id": "applyVideoEdits",
+    "summary": "Apply many video edits",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/ApplyVideoEditsRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApplyVideoEditsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/exports",
+    "id": "listVideoExports",
+    "summary": "List video exports",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListExportsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/exports",
+    "id": "exportVideo",
+    "summary": "Start a video export",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/ExportVideoRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ExportVideoResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/exports/{exportId}",
+    "id": "getVideoExport",
+    "summary": "Get video export status",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "exportId",
+        true,
+        {
+          "description": "Export identifier returned when the export was started. The identifier contains slashes and must be encoded as a single path segment when constructing a URL manually.",
+          "example": "Export-Story-vid_abc123def456/2026-01-15T10:00:00Z/Story/1920x1080/30FPS",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetExportResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/live-preview",
+    "id": "getLivePreviewLink",
+    "summary": "Get a live preview link",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/LivePreviewLink"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/publish",
+    "id": "cancelScheduledPublication",
+    "summary": "Cancel a scheduled publish",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "destination",
+        true,
+        {
+          "description": "The scheduled publication's destination",
+          "enum": [
+            "youtube",
+            "youtube_shorts",
+            "linkedin",
+            "x",
+            "instagram_post",
+            "instagram_reel",
+            "instagram_story",
+            "facebook_post",
+            "facebook_story",
+            "facebook_reel"
+          ],
+          "type": "string"
+        }
+      ],
+      [
+        "accountId",
+        null,
+        {
+          "description": "The scheduled publication's `accountId`, from GET /v1/videos/{id}/publish",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/PublishVideoResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/publish",
+    "id": "listVideoPublications",
+    "summary": "List social publications",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListPublicationsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/publish",
+    "id": "publishVideo",
+    "summary": "Publish a video to social media",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/PublishVideoRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/recording-link",
+    "id": "getRecordingLink",
+    "summary": "Get a recording link",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/RecordingLink"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/storyboard",
+    "id": "getVideoStoryboard",
+    "summary": "Get a video storyboard",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Start time in ms on the selected target's playback timeline. Defaults to 0.",
+          "example": 1000,
+          "maximum": 2147483647,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "durationMs",
+        null,
+        {
+          "description": "Storyboard window duration in ms. Defaults to 80000; the selected target's remaining duration may shorten it. Pass the target's full duration to sample it end to end.",
+          "example": 30000,
+          "maximum": 2147483647,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      [
+        "response",
+        null,
+        {
+          "description": "Set to 'json' to receive `{url, columns, rows, intervalMs}` instead of the default 302 redirect.",
+          "enum": [
+            "json"
+          ],
+          "example": "json",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/StoryboardResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/videos/{id}/subtitle-preset",
+    "id": "applySubtitlePreset",
+    "summary": "Apply a subtitle preset",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "properties": {
+        "presetId": {
+          "example": "default:spotlight",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "presetId"
+      ],
+      "type": "object"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "preset": {
+              "$ref": "#/components/schemas/SubtitlePreset"
+            }
+          },
+          "required": [
+            "preset"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/tags",
+    "id": "listVideoTags",
+    "summary": "List a video's tags",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListVideoTagsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/videos/{id}/tags",
+    "id": "addVideoTag",
+    "summary": "Add a tag to a video",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/AddVideoTagRequest"
+    },
+    "response": {}
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/tags/{tagId}",
+    "id": "removeVideoTag",
+    "summary": "Remove a tag from a video",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Video ID",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "tagId",
+        true,
+        {
+          "description": "Tag ID",
+          "example": "tag_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SuccessResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/videos/{id}/thumbnail",
+    "id": "removeVideoThumbnail",
+    "summary": "Remove a video's custom thumbnail",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "description": "Operation status",
+              "enum": [
+                "ok"
+              ],
+              "example": "ok",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "type": "object"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/thumbnail",
+    "id": "getVideoThumbnail",
+    "summary": "Get a video thumbnail or animated preview",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "format",
+        null,
+        {
+          "description": "Output format. Defaults to jpg.",
+          "enum": [
+            "jpg",
+            "png",
+            "webp",
+            "gif",
+            "mp4"
+          ],
+          "example": "jpg",
+          "type": "string"
+        }
+      ],
+      [
+        "startTimeMs",
+        null,
+        {
+          "description": "Frame offset in ms on the playback timeline (cuts applied) \u2014 clip-relative for the clip thumbnail, video-relative (cumulative across clips) for the video thumbnail. Defaults to 0.",
+          "example": 1000,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "durationMs",
+        null,
+        {
+          "description": "Duration of the animated preview in ms. Only valid when format is gif or mp4.",
+          "example": 3000,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "fps",
+        null,
+        {
+          "description": "Frame rate for MP4 previews. Must be 1, 2, 5, 10, or 30. Defaults to 30.",
+          "example": 10,
+          "type": "number"
+        }
+      ],
+      [
+        "width",
+        null,
+        {
+          "description": "Output width in pixels. The thumbnail keeps the video's aspect ratio; a missing side is derived from it.",
+          "example": 1280,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "height",
+        null,
+        {
+          "description": "Output height in pixels. Derived from the video's aspect ratio when omitted.",
+          "example": 720,
+          "exclusiveMinimum": true,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      ],
+      [
+        "download",
+        null,
+        {
+          "anyOf": [
+            {
+              "enum": [
+                "true"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "false"
+              ],
+              "type": "string"
+            }
+          ],
+          "description": "Suggest a download disposition on the signed URL.",
+          "example": "false"
+        }
+      ],
+      [
+        "subtitles",
+        null,
+        {
+          "anyOf": [
+            {
+              "enum": [
+                "true"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "false"
+              ],
+              "type": "string"
+            }
+          ],
+          "description": "Draw the video's captions, as an export with subtitles does. Defaults to false.",
+          "example": "true"
+        }
+      ],
+      [
+        "response",
+        null,
+        {
+          "description": "Set to 'json' to receive `{url}` instead of the default 302 redirect.",
+          "enum": [
+            "json"
+          ],
+          "example": "json",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ThumbnailResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/videos/{id}/thumbnail",
+    "id": "setVideoThumbnail",
+    "summary": "Set a video's thumbnail",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/SetVideoThumbnailRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/SetVideoThumbnailResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/videos/{id}/timeline",
+    "id": "getVideoTimeline",
+    "summary": "Get a video's timeline",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "Unique video identifier",
+          "example": "vid_abc123def456",
+          "type": "string"
+        }
+      ],
+      [
+        "clipIds",
+        null,
+        {
+          "description": "Comma-separated clip IDs to return details for. The complete ordered clip outline is always returned.",
+          "example": "scn_abc123,scn_def456",
+          "type": "string"
+        }
+      ],
+      [
+        "include",
+        null,
+        {
+          "description": "Comma-separated details to include: all, settings, chapters, backgroundMusic, clipSettings, cuts, layouts, zooms, blurs, highlights, overlays, textOverlays, soundEffects, transcript, words. Default: none.",
+          "example": "layouts,zooms,words",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/GetTimelineResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/webhooks/endpoints",
+    "id": "listWebhookEndpoints",
+    "summary": "List webhook endpoints",
+    "params": [
+      [
+        "cursor",
+        null,
+        {
+          "description": "Pagination cursor returned by the previous request",
+          "type": "string"
+        }
+      ],
+      [
+        "limit",
+        null,
+        {
+          "description": "Maximum endpoints to return (default: 20, max: 100)",
+          "example": 20,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListWebhookEndpointsResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/webhooks/endpoints",
+    "id": "createWebhookEndpoint",
+    "summary": "Create a webhook endpoint",
+    "params": [],
+    "body": {
+      "$ref": "#/components/schemas/CreateEndpointRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/CreateEndpointResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/webhooks/endpoints/{id}",
+    "id": "deleteWebhookEndpoint",
+    "summary": "Delete a webhook endpoint",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "The webhook endpoint ID",
+          "example": "ep_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/DeleteEndpointResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/webhooks/endpoints/{id}",
+    "id": "updateWebhookEndpoint",
+    "summary": "Update a webhook endpoint",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "The webhook endpoint ID",
+          "example": "ep_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": {
+      "$ref": "#/components/schemas/UpdateWebhookEndpointRequest"
+    },
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/UpdateWebhookEndpointResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/webhooks/endpoints/{id}/secret",
+    "id": "getWebhookEndpointSecret",
+    "summary": "Get endpoint signing secret",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "The webhook endpoint ID",
+          "example": "ep_abc123def456",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/EndpointSecretResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/webhooks/messages",
+    "id": "listWebhookMessages",
+    "summary": "List recent webhook messages",
+    "params": [
+      [
+        "event_types",
+        null,
+        {
+          "description": "Comma-separated list of event types to filter by",
+          "example": "video.created,export.ready",
+          "type": "string"
+        }
+      ],
+      [
+        "limit",
+        null,
+        {
+          "description": "Maximum number of messages to return (default: 10)",
+          "example": 20,
+          "type": "number"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ListMessagesResponse"
+        }
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/webhooks/messages/{id}",
+    "id": "getWebhookMessage",
+    "summary": "Get a specific webhook message",
+    "params": [
+      [
+        "id",
+        true,
+        {
+          "description": "The webhook message ID",
+          "example": "msg_abc123",
+          "type": "string"
+        }
+      ]
+    ],
+    "body": null,
+    "response": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/WebhookMessage"
+        }
+      }
+    }
+  }
+]

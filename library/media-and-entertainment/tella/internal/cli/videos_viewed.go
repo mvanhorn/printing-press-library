@@ -1,5 +1,6 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
 package cli
 
 // PATCH(upstream cli-printing-press#918): added long-form --help text
@@ -25,14 +26,15 @@ func newVideosViewedCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:   "viewed",
-		Short: "Roll up webhook view-milestone events by video",
+		Short: "Roll up webhook view-count milestone events by video",
 		Long: `Roll up viewer activity by reading the webhook inbox (video.viewed,
 video.milestone) over a window. Returns one entry per video with hit counts.
+Milestones fire at view counts of 1, 5, 10, 25, 50, 100, and 500.
 
 Note: this is sourced from your webhook *event stream* — videos with views
 recorded only in the API counter (Video.views) but no inbox events will not
 appear here. Wire a webhook endpoint and let it accumulate to populate this.`,
-		Example:     "  tella-pp-cli videos viewed --since 7d --milestone 75 --json",
+		Example:     "  tella-pp-cli videos viewed --since 7d --milestone 25 --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -46,11 +48,11 @@ appear here. Wire a webhook endpoint and let it accumulate to populate this.`,
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/v1/webhooks/messages", map[string]string{
+			data, err := c.Get(cmd.Context(), "/v1/webhooks/messages", map[string]string{
 				"limit": strconv.Itoa(limit),
 			})
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			messages := extractMessageObjects(data)
 			type rollup struct {
@@ -102,7 +104,7 @@ appear here. Wire a webhook endpoint and let it accumulate to populate this.`,
 		},
 	}
 	cmd.Flags().StringVar(&since, "since", "7d", "Time window: Go duration (1h30m) or shorthand <N><unit> with unit in m/h/d/w (15m, 1h, 7d, 2w); pass an empty string for no window")
-	cmd.Flags().IntVar(&milestone, "milestone", 0, "Minimum milestone percentage threshold (0 = any)")
+	cmd.Flags().IntVar(&milestone, "milestone", 0, "Minimum view-count milestone (1, 5, 10, 25, 50, 100, 500); 0 = any")
 	cmd.Flags().IntVar(&limit, "limit", 200, "Max webhook messages to scan")
 	return cmd
 }

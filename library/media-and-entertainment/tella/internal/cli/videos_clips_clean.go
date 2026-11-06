@@ -1,5 +1,6 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
 package cli
 
 import (
@@ -8,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -36,11 +36,10 @@ The default is a read-only preview. --apply snapshots the exact existing cuts
 before mutation. If any step fails, clean reports recovery state and keeps the
 snapshot for an explicit undo; it never overwrites cuts automatically.
 
---find-mistakes remains an explicit unofficial, cookie-authenticated feature;
-detected ranges are applied through the official batched cut endpoint.`,
+--find-mistakes is retired. Use clips find-retakes or agent-chats start.`,
 		Example: `  tella-pp-cli videos clips clean vid_abc cl_xyz --remove-fillers --remove-silences natural --dry-run
   tella-pp-cli videos clips clean vid_abc cl_xyz --range 1200:1800 --word-range 42:46 --apply
-  TELLA_SESSION_COOKIE='__Secure-Tella.session=...' tella-pp-cli videos clips clean vid_abc cl_xyz --find-mistakes --unofficial --apply`,
+  tella-pp-cli clips find-retakes vid_abc cl_xyz`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts, err := cleanFlags.options()
@@ -58,9 +57,9 @@ detected ranges are applied through the official batched cut endpoint.`,
 			if err != nil {
 				return err
 			}
-			plan, snapshot, err := planCleanClip(api, args[0], args[1], opts)
+			plan, snapshot, err := planCleanClip(cmd.Context(), api, args[0], args[1], opts)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			result := map[string]any{
 				"video_id": args[0], "clip_id": args[1], "planned": plan,
@@ -78,7 +77,7 @@ detected ranges are applied through the official batched cut endpoint.`,
 				return fmt.Errorf("saving pre-clean cuts snapshot: %w", err)
 			}
 			snapshots := []cutSnapshot{snapshot}
-			applyResult, applyErr := applyCleanPlans(api, []cleanClipPlan{plan}, snapshots)
+			applyResult, applyErr := applyCleanPlans(cmd.Context(), api, []cleanClipPlan{plan}, snapshots)
 			applyErr = errors.Join(applyErr, updateCutSnapshotFiles(map[string]string{snapshot.ClipID: snapshotPath}, snapshots))
 			result["dry_run"] = false
 			result["applied"] = applyErr == nil
@@ -102,8 +101,10 @@ func (flags *cleanCommandFlags) add(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&flags.trimEdges, "trim-edges", false, "Cut leading and trailing silence only")
 	cmd.Flags().StringArrayVar(&flags.timeRanges, "range", nil, "Playback-time range to cut as fromMs:toMs; repeatable")
 	cmd.Flags().StringArrayVar(&flags.wordRanges, "word-range", nil, "Transcript word-index range to cut as from:to; repeatable")
-	cmd.Flags().BoolVar(&flags.findMistakes, "find-mistakes", false, "Analyze unofficial Tella AI mistakes and cut their ranges")
-	cmd.Flags().BoolVar(&flags.unofficial, "unofficial", false, "Opt in to the undocumented cookie-authenticated Find Mistakes service")
+	cmd.Flags().BoolVar(&flags.findMistakes, "find-mistakes", false, "Retired; use clips find-retakes or agent-chats start")
+	cmd.Flags().BoolVar(&flags.unofficial, "unofficial", false, "Retired compatibility flag")
+	_ = cmd.Flags().MarkDeprecated("find-mistakes", mistakesRetired)
+	_ = cmd.Flags().MarkDeprecated("unofficial", mistakesRetired)
 	cmd.Flags().BoolVar(&flags.apply, "apply", false, "Apply the previewed edits; default is read-only")
 }
 
@@ -114,8 +115,8 @@ func (flags *cleanCommandFlags) options() (cleanOptions, error) {
 	if flags.removeBuffers && flags.removeSilences != "" {
 		return cleanOptions{}, fmt.Errorf("choose --remove-buffers or --remove-silences, not both")
 	}
-	if flags.findMistakes && !flags.unofficial {
-		return cleanOptions{}, fmt.Errorf("--find-mistakes calls Tella's unofficial AI service; pass --unofficial to opt in")
+	if flags.findMistakes {
+		return cleanOptions{}, fmt.Errorf("%s", mistakesRetired)
 	}
 	if flags.removeSilences != "" {
 		switch flags.removeSilences {
@@ -144,31 +145,10 @@ func (flags *cleanCommandFlags) options() (cleanOptions, error) {
 }
 
 func (flags *cleanCommandFlags) addMistakeRanges(opts *cleanOptions, videoID, clipID string, root *rootFlags) (map[string]any, error) {
-	if !flags.findMistakes {
-		return nil, nil
+	if flags.findMistakes {
+		return nil, usageErr(fmt.Errorf("%s", mistakesRetired))
 	}
-	cfg, err := config.Load(root.configPath)
-	if err != nil {
-		return nil, configErr(err)
-	}
-	api, err := newUnofficialClient(cfg.SessionCookie, root.timeout)
-	if err != nil {
-		return nil, configErr(err)
-	}
-	mistakes, unknownEvents, status, err := analyzeMistakes(api, videoID, clipID)
-	if err != nil {
-		return nil, apiErr(err)
-	}
-	for _, mistake := range mistakes {
-		if mistake.Trim.Duration <= 0 {
-			continue
-		}
-		opts.TimeRanges = append(opts.TimeRanges, cleanRange{
-			FromMs: int(mistake.Trim.StartTime + 0.5),
-			ToMs:   int(mistake.Trim.StartTime + mistake.Trim.Duration + 0.5),
-		})
-	}
-	return map[string]any{"status": status, "detected": len(mistakes), "unknown_events": unknownEvents, "official": false}, nil
+	return nil, nil
 }
 
 func parseCleanTimeRanges(values []string) ([]cleanRange, error) {

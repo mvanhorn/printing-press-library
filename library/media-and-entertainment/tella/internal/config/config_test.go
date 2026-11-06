@@ -10,60 +10,40 @@ import (
 	"time"
 )
 
-// PATCH(library): regression coverage for TELLA_SESSION_COOKIE persistence.
-// The env var is an ephemeral browser-cookie override; token saves must not
-// silently write it into config.toml.
-func TestSaveTokensDoesNotPersistEnvSessionCookie(t *testing.T) {
-	t.Setenv("TELLA_SESSION_COOKIE", "Cookie: session=env-secret")
-	path := filepath.Join(t.TempDir(), "config.toml")
-
-	cfg, err := Load(path)
+func TestRetiredSessionCookieDoesNotAffectBearerAuth(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("TELLA_SESSION_COOKIE", "Cookie: session=retired-env-fixture")
+	t.Setenv("TELLA_API_KEY", "bearer-fixture")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(configPath, []byte("session_cookie = \"retired-disk-fixture\"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(configPath)
 	if err != nil {
-		t.Fatalf("Load: %v", err)
+		t.Fatal(err)
 	}
-	if cfg.SessionCookie != "session=env-secret" {
-		t.Fatalf("SessionCookie = %q, want env cookie", cfg.SessionCookie)
+	if cfg.TellaApiKey != "bearer-fixture" || cfg.AuthSource != "env:TELLA_API_KEY" {
+		t.Fatal("bearer environment authentication was not retained")
 	}
-	if err := cfg.SaveTokens("", "", "access-token", "", time.Time{}); err != nil {
-		t.Fatalf("SaveTokens: %v", err)
+	if err := cfg.SaveTokens("client-fixture", "client-secret-fixture", "access-fixture", "refresh-fixture", time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
 	}
-
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(configPath)
 	if err != nil {
-		t.Fatalf("ReadFile: %v", err)
+		t.Fatal(err)
 	}
-	if strings.Contains(string(data), "env-secret") {
-		t.Fatalf("env session cookie was persisted: %s", data)
+	if strings.Contains(string(data), "session_cookie") || strings.Contains(string(data), "retired-") {
+		t.Fatal("retired cookie persisted")
 	}
-}
-
-func TestSaveTokensPreservesDiskSessionCookieWhenEnvOverrides(t *testing.T) {
-	t.Setenv("TELLA_SESSION_COOKIE", "Cookie: session=env-secret")
-	path := filepath.Join(t.TempDir(), "config.toml")
-	if err := os.WriteFile(path, []byte("session_cookie = \"session=disk-secret\"\n"), 0o600); err != nil {
-		t.Fatalf("WriteFile: %v", err)
-	}
-
-	cfg, err := Load(path)
+	t.Setenv("TELLA_API_KEY", "")
+	loaded, err := Load(configPath)
 	if err != nil {
-		t.Fatalf("Load: %v", err)
+		t.Fatal(err)
 	}
-	if cfg.SessionCookie != "session=env-secret" {
-		t.Fatalf("SessionCookie = %q, want env override", cfg.SessionCookie)
+	if loaded.AccessToken != "access-fixture" || loaded.RefreshToken != "refresh-fixture" || loaded.ClientID != "client-fixture" || loaded.ClientSecret != "client-secret-fixture" {
+		t.Fatal("OAuth token persistence was not retained")
 	}
-	if err := cfg.SaveTokens("", "", "access-token", "", time.Time{}); err != nil {
-		t.Fatalf("SaveTokens: %v", err)
-	}
-
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("ReadFile: %v", err)
-	}
-	got := string(data)
-	if strings.Contains(got, "env-secret") {
-		t.Fatalf("env session cookie was persisted: %s", got)
-	}
-	if !strings.Contains(got, "disk-secret") {
-		t.Fatalf("disk session cookie was not preserved: %s", got)
+	if loaded.envOverrides["SessionCookie"] {
+		t.Fatal("retired cookie registered an environment override")
 	}
 }

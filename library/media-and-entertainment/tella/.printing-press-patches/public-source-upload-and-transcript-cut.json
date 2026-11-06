@@ -19,7 +19,7 @@
     "internal/cli/videos.go",
     "internal/cli/videos_clips.go",
     "internal/cli/videos_clips_add.go",
-    "internal/cli/videos_clips_clean_restore.go",
+    "internal/cli/videos_clips_restore.go",
     "internal/cli/videos_clips_clean_restore_test.go",
     "internal/cli/videos_clips_cut-by-transcript.go",
     "internal/cli/videos_clips_cut.go",

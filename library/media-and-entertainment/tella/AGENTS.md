@@ -1,6 +1,6 @@
 # Tella Printed CLI Agent Guide
 
-This directory is a generated `tella-pp-cli` printed CLI. It was produced by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press), so treat systemic fixes as upstream Printing Press fixes first. Keep local edits narrow and document why a generated-tree patch belongs here.
+This directory is a generated `tella-pp-cli` printed CLI produced by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press). Repair broken published behavior here and record code customizations under `.printing-press-patches/`. Coordinate an upstream generator fix when the defect affects multiple CLIs.
 
 ## Local Operating Contract
 
@@ -14,24 +14,25 @@ tella-pp-cli agent-context --pretty
 Use runtime discovery instead of relying on a copied command list:
 
 ```bash
-tella-pp-cli which "<capability>" --json
-tella-pp-cli <command> --help
+tella-pp-cli which captions --json
+tella-pp-cli clips captions --help
 ```
 
 Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, no color, and confirmation-safe scripting:
 
 ```bash
-tella-pp-cli <command> --agent
+tella-pp-cli account --agent
 ```
 
 Before running an unfamiliar command that may mutate remote state, inspect its help and prefer a dry run:
 
 ```bash
-tella-pp-cli <command> --help
-tella-pp-cli <command> --dry-run --agent
+tella-pp-cli videos auto --help
+tella-pp-cli videos auto vid_example --silences natural --dry-run --agent
 ```
 
 Use `--yes --no-input` only after the target, arguments, and side effects are clear.
+Paid `agent-chats start` still requires explicit `--yes`; agent mode does not grant paid consent.
 
 For install, auth, examples, and longer product guidance, read `README.md` and `SKILL.md`. This file intentionally stays small so repo-local agents get invariant local guidance without duplicating the generated docs.
 

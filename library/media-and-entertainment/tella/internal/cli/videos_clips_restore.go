@@ -1,8 +1,11 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source auto
+// Restore compares locally saved snapshots with current API cuts before applying.
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -19,7 +22,7 @@ type snapshotRestoreCheck struct {
 	Reason                    string `json:"reason,omitempty"`
 }
 
-func inspectSnapshotRestore(api cleanAPI, snapshot cutSnapshot) (snapshotRestoreCheck, error) {
+func inspectSnapshotRestore(ctx context.Context, api cleanAPI, snapshot cutSnapshot) (snapshotRestoreCheck, error) {
 	check := snapshotRestoreCheck{
 		ExpectedCuts: snapshot.ExpectedCuts, RequiresExclusiveEditing: true,
 		ConditionalWriteSupported: false,
@@ -28,7 +31,7 @@ func inspectSnapshotRestore(api cleanAPI, snapshot cutSnapshot) (snapshotRestore
 		check.Reason = "snapshot has no expected post-clean cuts; snapshot restore is unavailable"
 		return check, nil
 	}
-	current, err := captureCutSnapshot(api, snapshot.VideoID, snapshot.ClipID)
+	current, err := captureCutSnapshot(ctx, api, snapshot.VideoID, snapshot.ClipID)
 	if err != nil {
 		return check, err
 	}
@@ -79,9 +82,9 @@ which asserts that nobody else can save this clip until the command finishes.`,
 			}
 			api.DryRun = false
 			api.NoCache = true
-			check, err := inspectSnapshotRestore(api, snapshot)
+			check, err := inspectSnapshotRestore(cmd.Context(), api, snapshot)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			result := map[string]any{
 				"video_id": videoID, "clip_id": clipID, "snapshot": path,
@@ -105,9 +108,9 @@ which asserts that nobody else can save this clip until the command finishes.`,
 				}
 				return usageErr(fmt.Errorf("refusing snapshot restore: pass --confirm-exclusive-editing only after ensuring nobody else can save this clip until the command finishes"))
 			}
-			status, err := restoreCutSnapshot(api, snapshot)
+			status, err := restoreCutSnapshot(cmd.Context(), api, snapshot)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			result["dry_run"] = false
 			result["applied"] = true
@@ -169,9 +172,9 @@ func newVideosClipsRestoreCutsCmd(flags *rootFlags) *cobra.Command {
 				client.DryRun = false
 				client.NoCache = true
 				api = client
-				check, err := inspectSnapshotRestore(api, *snapshot)
+				check, err := inspectSnapshotRestore(cmd.Context(), api, *snapshot)
 				if err != nil {
-					return classifyAPIError(err, flags)
+					return classifyAPIError(cmd.OutOrStdout(), err, flags)
 				}
 				result["restore_check"] = check
 				if apply && !flags.dryRun && !check.CurrentMatchesExpected {
@@ -199,9 +202,9 @@ func newVideosClipsRestoreCutsCmd(flags *rootFlags) *cobra.Command {
 				}
 				api = client
 			}
-			_, status, err := api.Patch(fmt.Sprintf("/v1/videos/%s/clips/%s", videoID, clipID), body)
+			_, status, err := api.Patch(cmd.Context(), fmt.Sprintf("/v1/videos/%s/clips/%s", videoID, clipID), body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			result["dry_run"] = false
 			result["applied"] = true

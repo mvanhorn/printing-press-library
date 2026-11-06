@@ -1,0 +1,27 @@
+{
+  "owned_created": 3,
+  "owned_deleted": 3,
+  "remaining_owned_ids": [],
+  "get_after_delete_http": [
+    404,
+    404,
+    404
+  ],
+  "final_list_complete": true,
+  "terminal_cursor_absent": true,
+  "pages": [
+    {
+      "http": 200,
+      "rows": 45,
+      "has_next": false,
+      "has_more": false
+    }
+  ],
+  "final_list_count": 45,
+  "original_source_timeline_exact_equality": true,
+  "credits_before_chat": 9000,
+  "credits_after_chat_settled": 8958.61185,
+  "credits_after_cleanup": 8958.61185,
+  "observed_credits_spent": "41.38815",
+  "chat_attempts": 1
+}

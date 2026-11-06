@@ -1,0 +1,11 @@
+{
+  "binary": "<workspace>/.pp-bin/cli-printing-press",
+  "sha256": "bca064d7012a7d5954d5974b050ddd30aeefb6d8b1e457be3109fb54e806e672",
+  "previous_sha256": "91f0c98e18c0d7a709bb6185d9ca830858116bd81a21d3f244bb8b5329b76398",
+  "version": "4.35.2",
+  "upstream_main": "e44bea57",
+  "patch_commit": "483767eb",
+  "patch_pr": 5362,
+  "coordinator_authorized": true,
+  "timestamp": "2026-11-06T01:08:28.076624+00:00"
+}

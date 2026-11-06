@@ -1,0 +1,12 @@
+{
+  "query": "the",
+  "hit_count": 2,
+  "limit": 2,
+  "query_token_present_in_each_hit": true,
+  "warmup": {
+    "videos_seen": 5,
+    "transcripts": 4,
+    "skipped_clips": 1
+  },
+  "exit_code": 0
+}

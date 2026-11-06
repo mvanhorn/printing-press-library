@@ -1,0 +1,24 @@
+{
+  "gitleaks_findings": 0,
+  "pii_strict_exit": 0,
+  "pii_findings": 0,
+  "exact_live_key_matching_files": 0,
+  "publish_validate_failed_checks": [
+    "phase5"
+  ],
+  "all_other_publish_checks_pass": true,
+  "generic_runner_exception": "scoped-reprint scoped-matrix+mock evidence",
+  "matrix": {
+    "pass": 120,
+    "fail": 0,
+    "skipped": 241,
+    "rows": 361
+  },
+  "cleanup": {
+    "created": 3,
+    "deleted": 3,
+    "final_list_count": 45,
+    "complete": true
+  },
+  "credits_spent": "41.38815"
+}

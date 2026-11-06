@@ -1,9 +1,11 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
 package cli
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -42,9 +44,9 @@ func newWebhooksTailCmd(flags *rootFlags) *cobra.Command {
 			c.NoCache = true
 
 			// Initial snapshot of the inbox.
-			data, err := c.Get("/v1/webhooks/messages", nil)
+			data, err := c.Get(cmd.Context(), "/v1/webhooks/messages", nil)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			seen := map[string]bool{}
 			messages := extractMessageObjects(data)
@@ -80,7 +82,7 @@ func newWebhooksTailCmd(flags *rootFlags) *cobra.Command {
 				case <-sig:
 					return nil
 				case <-ticker.C:
-					data, err := c.Get("/v1/webhooks/messages", nil)
+					data, err := c.Get(cmd.Context(), "/v1/webhooks/messages", nil)
 					if err != nil {
 						fmt.Fprintf(os.Stderr, "warning: poll failed: %v\n", err)
 						continue
@@ -127,9 +129,9 @@ func newWebhooksReplayCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			body, err := c.Get(fmt.Sprintf("/v1/webhooks/messages/%s", msgID), nil)
+			body, err := c.Get(cmd.Context(), fmt.Sprintf("/v1/webhooks/messages/%s", msgID), nil)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			signature := ""
 			if endpoint != "" {
@@ -141,9 +143,9 @@ func newWebhooksReplayCmd(flags *rootFlags) *cobra.Command {
 				// with no indication that signing was attempted and
 				// failed. classifyAPIError preserves 401/404/network
 				// distinctions for the user.
-				secret, sErr := fetchEndpointSecret(c, endpoint)
+				secret, sErr := fetchEndpointSecret(cmd.Context(), c, endpoint)
 				if sErr != nil {
-					return classifyAPIError(fmt.Errorf("fetching endpoint secret for %q: %w", endpoint, sErr), flags)
+					return classifyAPIError(cmd.OutOrStdout(), fmt.Errorf("fetching endpoint secret for %q: %w", endpoint, sErr), flags)
 				}
 				if secret == "" {
 					return apiErr(fmt.Errorf("endpoint %q returned an empty secret; cannot sign replay", endpoint))
@@ -189,10 +191,10 @@ func newWebhooksReplayCmd(flags *rootFlags) *cobra.Command {
 
 // fetchEndpointSecret resolves the HMAC signing secret for a webhook endpoint.
 // The Tella endpoint returns either {secret: "..."} or a raw string.
-func fetchEndpointSecret(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+func fetchEndpointSecret(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 }, endpointID string) (string, error) {
-	data, err := c.Get(fmt.Sprintf("/v1/webhooks/endpoints/%s/secret", endpointID), nil)
+	data, err := c.Get(ctx, fmt.Sprintf("/v1/webhooks/endpoints/%s/secret", endpointID), nil)
 	if err != nil {
 		return "", err
 	}

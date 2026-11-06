@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -10,9 +11,9 @@ import (
 )
 
 type cleanAPI interface {
-	Get(path string, params map[string]string) (json.RawMessage, error)
-	Post(path string, body any) (json.RawMessage, int, error)
-	Patch(path string, body any) (json.RawMessage, int, error)
+	Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error)
+	Post(ctx context.Context, path string, body any) (json.RawMessage, int, error)
+	Patch(ctx context.Context, path string, body any) (json.RawMessage, int, error)
 }
 
 type cleanRange struct {
@@ -49,9 +50,9 @@ type cleanClipPlan struct {
 	Operations   []cleanOperation `json:"operations"`
 }
 
-func planCleanClip(api cleanAPI, videoID, clipID string, opts cleanOptions) (cleanClipPlan, cutSnapshot, error) {
+func planCleanClip(ctx context.Context, api cleanAPI, videoID, clipID string, opts cleanOptions) (cleanClipPlan, cutSnapshot, error) {
 	plan := cleanClipPlan{VideoID: videoID, ClipID: clipID, Operations: []cleanOperation{}}
-	snapshot, err := captureCutSnapshot(api, videoID, clipID)
+	snapshot, err := captureCutSnapshot(ctx, api, videoID, clipID)
 	if err != nil {
 		return plan, cutSnapshot{}, err
 	}
@@ -63,7 +64,7 @@ func planCleanClip(api cleanAPI, videoID, clipID string, opts cleanOptions) (cle
 		if opts.TrimEdges {
 			minimum = 0
 		}
-		silenceData, getErr := api.Get(
+		silenceData, getErr := api.Get(ctx,
 			fmt.Sprintf("/v1/videos/%s/clips/%s/silences", videoID, clipID),
 			map[string]string{"minDurationMs": strconv.Itoa(minimum)},
 		)
@@ -79,7 +80,7 @@ func planCleanClip(api cleanAPI, videoID, clipID string, opts cleanOptions) (cle
 			}
 		}
 		if opts.TrimEdges && len(silences) > 0 {
-			durationMs, durationErr := fetchClipDurationMs(api, videoID, clipID)
+			durationMs, durationErr := fetchClipDurationMs(ctx, api, videoID, clipID)
 			if durationErr != nil {
 				return plan, snapshot, durationErr
 			}
@@ -146,7 +147,7 @@ type cleanApplyResult struct {
 	Recovery         []cleanRecoveryResult `json:"recovery,omitempty"`
 }
 
-func applyCleanPlans(api cleanAPI, plans []cleanClipPlan, snapshots []cutSnapshot) (cleanApplyResult, error) {
+func applyCleanPlans(ctx context.Context, api cleanAPI, plans []cleanClipPlan, snapshots []cutSnapshot) (cleanApplyResult, error) {
 	result := cleanApplyResult{Operations: []cleanOpResult{}}
 	snapshotByClip := make(map[string]cutSnapshot, len(snapshots))
 	snapshotIndex := make(map[string]int, len(snapshots))
@@ -165,7 +166,7 @@ func applyCleanPlans(api cleanAPI, plans []cleanClipPlan, snapshots []cutSnapsho
 			if !ok {
 				return result, fmt.Errorf("clean plan for video %s clip %s has no recovery snapshot", plan.VideoID, plan.ClipID)
 			}
-			data, status, err := applyCleanOperation(api, plan.VideoID, plan.ClipID, operation)
+			data, status, err := applyCleanOperation(ctx, api, plan.VideoID, plan.ClipID, operation)
 			opResult := cleanOpResult{VideoID: plan.VideoID, ClipID: plan.ClipID, Op: operation.Op, Status: status}
 			if err == nil {
 				if !seenTouched[key] {
@@ -201,7 +202,7 @@ func applyCleanPlans(api cleanAPI, plans []cleanClipPlan, snapshots []cutSnapsho
 					snapshots[snapshotPosition].ExpectedCuts = nil
 				}
 			}
-			result.Recovery = reconcileCleanRecovery(api, touched, snapshotByClip, expectedCuts)
+			result.Recovery = reconcileCleanRecovery(ctx, api, touched, snapshotByClip, expectedCuts)
 			result.RecoveryComplete = allRecoveryComplete(result.Recovery)
 			return result, fmt.Errorf("clean failed for video %s clip %s operation %s: %w", plan.VideoID, plan.ClipID, operation.Op, err)
 		}
@@ -209,17 +210,17 @@ func applyCleanPlans(api cleanAPI, plans []cleanClipPlan, snapshots []cutSnapsho
 	return result, nil
 }
 
-func applyCleanOperation(api cleanAPI, videoID, clipID string, operation cleanOperation) (json.RawMessage, int, error) {
+func applyCleanOperation(ctx context.Context, api cleanAPI, videoID, clipID string, operation cleanOperation) (json.RawMessage, int, error) {
 	base := fmt.Sprintf("/v1/videos/%s/clips/%s", videoID, clipID)
 	switch operation.Op {
 	case "cut":
-		return api.Post(base+"/cut", map[string]any{"cuts": operation.Cuts})
+		return api.Post(ctx, base+"/cut", map[string]any{"cuts": operation.Cuts})
 	case "cut-by-transcript":
-		return api.Post(base+"/cut-by-transcript", map[string]any{"wordRanges": operation.WordRanges})
+		return api.Post(ctx, base+"/cut-by-transcript", map[string]any{"wordRanges": operation.WordRanges})
 	case "remove-fillers":
-		return api.Post(base+"/remove-fillers", map[string]any{})
+		return api.Post(ctx, base+"/remove-fillers", map[string]any{})
 	case "remove-silences":
-		return api.Post(base+"/remove-silences", map[string]any{"mode": operation.Mode})
+		return api.Post(ctx, base+"/remove-silences", map[string]any{"mode": operation.Mode})
 	default:
 		return nil, 0, fmt.Errorf("unsupported cleanup operation %q", operation.Op)
 	}

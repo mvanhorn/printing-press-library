@@ -8,8 +8,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
+	"mime"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -30,30 +33,39 @@ func newSourcesUploadFileCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "upload-file <path>",
-		Short:       "Create a Tella source and upload a local video file to its pre-signed URL",
+		Short:       "Create a Tella source and upload a local media file to its pre-signed URL",
 		Long:        "Creates a source via POST /v1/sources, uploads the file bytes to the returned pre-signed S3 URL, and returns the sourceId to use with videos clips add or layout media.",
 		Example:     "  tella-pp-cli sources upload-file intro.mp4 --width 1920 --height 1080 --duration 42.5 --json",
-		Annotations: map[string]string{"pp:endpoint": "sources.upload-file", "pp:method": "POST+PUT", "pp:path": "/v1/sources"},
+		Annotations: map[string]string{"pp:method": "POST+PUT", "pp:path": "/v1/sources"},
 		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("width") && !flags.dryRun {
-				return fmt.Errorf("required flag %q not set", "width")
+			if bodyKind != "video" && bodyKind != "audio" && bodyKind != "image" && bodyKind != "lut" && bodyKind != "font" {
+				return usageErr(fmt.Errorf("--kind must be video, audio, image, lut, or font"))
 			}
-			if !cmd.Flags().Changed("height") && !flags.dryRun {
-				return fmt.Errorf("required flag %q not set", "height")
+			if !flags.dryRun {
+				if (bodyKind == "video" || bodyKind == "image") && (bodyWidth <= 0 || bodyHeight <= 0) {
+					return usageErr(fmt.Errorf("positive --width and --height are required for %s", bodyKind))
+				}
+				if (bodyKind == "video" || bodyKind == "audio") && !(bodyDuration > 0 && !math.IsInf(bodyDuration, 0)) {
+					return usageErr(fmt.Errorf("positive --duration is required for %s", bodyKind))
+				}
 			}
-			if !cmd.Flags().Changed("duration") && !flags.dryRun {
-				return fmt.Errorf("required flag %q not set", "duration")
-			}
+
 			filePath := args[0]
+			if contentType == "" {
+				contentType = mime.TypeByExtension(filepath.Ext(filePath))
+				if contentType == "" {
+					contentType = "application/octet-stream"
+				}
+			}
 			body := map[string]any{"kind": bodyKind}
-			if bodyWidth != 0 {
+			if (bodyKind == "video" || bodyKind == "image") && bodyWidth != 0 {
 				body["width"] = bodyWidth
 			}
-			if bodyHeight != 0 {
+			if (bodyKind == "video" || bodyKind == "image") && bodyHeight != 0 {
 				body["height"] = bodyHeight
 			}
-			if bodyDuration != 0 {
+			if (bodyKind == "video" || bodyKind == "audio") && bodyDuration != 0 {
 				body["duration"] = bodyDuration
 			}
 			if flags.dryRun {
@@ -79,9 +91,9 @@ func newSourcesUploadFileCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			createData, createStatus, err := c.Post("/v1/sources", body)
+			createData, createStatus, err := c.Post(cmd.Context(), "/v1/sources", body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			var created sourceUploadResponse
 			if err := json.Unmarshal(createData, &created); err != nil {
@@ -90,7 +102,7 @@ func newSourcesUploadFileCmd(flags *rootFlags) *cobra.Command {
 			if created.UploadURL == "" || created.SourceID == "" {
 				return fmt.Errorf("create source response missing sourceId or uploadUrl")
 			}
-			req, err := http.NewRequest(http.MethodPut, created.UploadURL, bytes.NewReader(dataBytes))
+			req, err := http.NewRequestWithContext(cmd.Context(), http.MethodPut, created.UploadURL, bytes.NewReader(dataBytes))
 			if err != nil {
 				return fmt.Errorf("creating source upload request: %w", err)
 			}
@@ -130,10 +142,10 @@ func newSourcesUploadFileCmd(flags *rootFlags) *cobra.Command {
 			return printOutput(cmd.OutOrStdout(), json.RawMessage(b), flags.asJSON || !isTerminal(cmd.OutOrStdout()))
 		},
 	}
-	cmd.Flags().StringVar(&bodyKind, "kind", "video", "Source kind. Only video is supported")
+	cmd.Flags().StringVar(&bodyKind, "kind", "video", "Source kind: video, audio, image, lut, or font")
 	cmd.Flags().IntVar(&bodyWidth, "width", 0, "Source width in pixels")
 	cmd.Flags().IntVar(&bodyHeight, "height", 0, "Source height in pixels")
 	cmd.Flags().Float64Var(&bodyDuration, "duration", 0, "Source duration in seconds")
-	cmd.Flags().StringVar(&contentType, "content-type", "video/mp4", "Content-Type for the pre-signed upload PUT")
+	cmd.Flags().StringVar(&contentType, "content-type", "", "Content-Type for the pre-signed upload PUT")
 	return cmd
 }

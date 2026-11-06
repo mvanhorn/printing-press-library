@@ -1,0 +1,344 @@
+{
+  "api_name": "tella",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Tella official skills",
+      "url": "https://github.com/tellahq/skills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tella-cli",
+      "url": "https://github.com/Melvynx/tella-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "No public auto-layout endpoint; official guidance composes manual layout operations."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-05T21:34:16.988855Z",
+  "novel_features": [
+    {
+      "name": "Cross-video transcript search",
+      "command": "transcripts search",
+      "description": "FTS5 search across cached clip transcripts; returns video and clip references with matching text snippets.",
+      "rationale": ""
+    },
+    {
+      "name": "Watch-milestone digest",
+      "command": "videos viewed",
+      "description": "Roll up webhook view-count milestone events into a per-video summary over a window (e.g. which videos reached 25 views in the last 7 days).",
+      "rationale": ""
+    },
+    {
+      "name": "Webhook tail + replay",
+      "command": "webhooks tail",
+      "description": "webhooks tail streams or snapshots inbox events; webhooks replay separately replays prior messages to a local URL with valid HMAC headers.",
+      "rationale": ""
+    },
+    {
+      "name": "Bulk standard edit pass",
+      "command": "clips edit-pass",
+      "description": "Plan or apply public filler, buffer, edge and silence edits across playlist clips; use find-retakes for transcript retakes and agent-chats for semantic edits.",
+      "rationale": ""
+    },
+    {
+      "name": "Transcript diff (cut vs uncut)",
+      "command": "clips transcript-diff",
+      "description": "Diff a clip's cut transcript against its uncut transcript to surface every word that editing removed (filler, silence, hand-edit) with timecodes.",
+      "rationale": "",
+      "example": "tella-pp-cli clips transcript-diff cl_example --video=vid_example --json"
+    },
+    {
+      "name": "Upload-to-edit workflow",
+      "command": "sources upload-file",
+      "description": "Create a Tella source and upload local media bytes to its pre-signed URL then return the source ID; use videos clips insert-file to upload and attach media to a video.",
+      "rationale": ""
+    },
+    {
+      "name": "Exports waitlist",
+      "command": "exports wait",
+      "description": "Kick off exports for one or more videos and poll GET /v1/videos/{id}/exports/{exportId}, reporting progress and the download URL. Exit non-zero if an export fails or times out.",
+      "rationale": "",
+      "example": "tella-pp-cli exports wait --video=vid_example_one --video=vid_example_two --timeout 10m --json"
+    },
+    {
+      "name": "Caption-file export",
+      "command": "clips captions",
+      "description": "Format a clip's cut transcript as an SRT or VTT subtitle file ready to attach to an embed or upload.",
+      "rationale": "",
+      "example": "tella-pp-cli clips captions cl_example --video=vid_example --format srt \u003e captions.srt"
+    },
+    {
+      "name": "Workspace stats",
+      "command": "workspace stats",
+      "description": "Local aggregate of video count, clip count, total duration, transcript word count, and export count by month across the cached workspace.",
+      "rationale": ""
+    },
+    {
+      "name": "Declarative video storyboard",
+      "command": "videos storyboard",
+      "description": "Export editable video timeline and state only; use videos apply-storyboard --file PLAN.json --apply to apply a reviewed JSON edit plan.",
+      "rationale": ""
+    },
+    {
+      "name": "One-shot media insertion",
+      "command": "videos clips insert-file",
+      "description": "Upload local media into a Tella source and attach it as a clip; use videos clips add-broll for B-roll layout media.",
+      "rationale": ""
+    },
+    {
+      "name": "Transcript-driven repairs",
+      "command": "videos clips cut-words",
+      "description": "Plan or apply term-matched transcript-index cuts; use videos clips replace-word-ranges for replacement media.",
+      "rationale": ""
+    },
+    {
+      "name": "Pre-publish edit QA",
+      "command": "videos audit",
+      "description": "Scan a video timeline for likely issues such as long silences before export or sharing.",
+      "rationale": ""
+    },
+    {
+      "name": "Playlist-scale edit planning",
+      "command": "playlists edit-pass",
+      "description": "Plan a standard remove-fillers/remove-buffers/trim-edges/export recipe across every video in a playlist.",
+      "rationale": ""
+    },
+    {
+      "name": "Safe clip clean workflow",
+      "command": "videos clips clean",
+      "description": "Plan or apply official per-clip cleanup with automatic pre-apply cut snapshots and explicit recovery.",
+      "rationale": ""
+    },
+    {
+      "name": "Cut rollback workflow",
+      "command": "videos clips undo-last-cuts",
+      "description": "Restore a saved cuts snapshot (latest by default or selected with --snapshot); use videos clips restore-cuts for inline cuts JSON and retain divergence checks and exclusive-editing confirmation.",
+      "rationale": ""
+    },
+    {
+      "name": "Automatic video edit pass",
+      "command": "videos auto",
+      "description": "Apply selected automatic edits across clips with recovery snapshots and finish with a live preview.",
+      "rationale": "Composes recorded lesson editing and review steps safely.",
+      "group": "Browser-free lessons"
+    },
+    {
+      "name": "House-style lesson preparation",
+      "command": "lessons pass",
+      "description": "Prepare a lesson from a validated recipe and finish with a preview for review.",
+      "rationale": "Composes recorded lesson editing and review steps safely.",
+      "group": "Browser-free lessons"
+    },
+    {
+      "name": "Reviewed lesson delivery",
+      "command": "lessons ship",
+      "description": "Export, wait, and download a lesson MP4 and SRT or VTT captions.",
+      "rationale": "Composes recorded lesson editing and review steps safely.",
+      "group": "Browser-free lessons"
+    },
+    {
+      "name": "Conservative retake plan",
+      "command": "clips find-retakes",
+      "description": "Propose repeated sentence cuts with timestamps and apply reviewed cuts under snapshots.",
+      "rationale": "Composes recorded lesson editing and review steps safely.",
+      "group": "Browser-free lessons"
+    },
+    {
+      "name": "Review storyboard files",
+      "command": "videos storyboard-image",
+      "description": "Save video, clip, or source storyboard images for visual inspection.",
+      "rationale": "Composes recorded lesson editing and review steps safely.",
+      "group": "Browser-free lessons"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-video transcript search",
+      "command": "transcripts search",
+      "description": "FTS5 search across cached clip transcripts; returns video and clip references with matching text snippets.",
+      "rationale": ""
+    },
+    {
+      "name": "Watch-milestone digest",
+      "command": "videos viewed",
+      "description": "Roll up webhook view-count milestone events into a per-video summary over a window (e.g. which videos reached 25 views in the last 7 days).",
+      "rationale": ""
+    },
+    {
+      "name": "Webhook tail + replay",
+      "command": "webhooks tail",
+      "description": "webhooks tail streams or snapshots inbox events; webhooks replay separately replays prior messages to a local URL with valid HMAC headers.",
+      "rationale": ""
+    },
+    {
+      "name": "Bulk standard edit pass",
+      "command": "clips edit-pass",
+      "description": "Plan or apply public filler, buffer, edge and silence edits across playlist clips; use find-retakes for transcript retakes and agent-chats for semantic edits.",
+      "rationale": ""
+    },
+    {
+      "name": "Transcript diff (cut vs uncut)",
+      "command": "clips transcript-diff",
+      "description": "Diff a clip's cut transcript against its uncut transcript to surface every word that editing removed (filler, silence, hand-edit) with timecodes.",
+      "rationale": "",
+      "example": "tella-pp-cli clips transcript-diff cl_example --video=vid_example --json"
+    },
+    {
+      "name": "Upload-to-edit workflow",
+      "command": "sources upload-file",
+      "description": "Create a Tella source and upload local media bytes to its pre-signed URL then return the source ID; use videos clips insert-file to upload and attach media to a video.",
+      "rationale": ""
+    },
+    {
+      "name": "Exports waitlist",
+      "command": "exports wait",
+      "description": "Kick off exports for one or more videos and poll GET /v1/videos/{id}/exports/{exportId}, reporting progress and the download URL. Exit non-zero if an export fails or times out.",
+      "rationale": "",
+      "example": "tella-pp-cli exports wait --video=vid_example_one --video=vid_example_two --timeout 10m --json"
+    },
+    {
+      "name": "Caption-file export",
+      "command": "clips captions",
+      "description": "Format a clip's cut transcript as an SRT or VTT subtitle file ready to attach to an embed or upload.",
+      "rationale": "",
+      "example": "tella-pp-cli clips captions cl_example --video=vid_example --format srt \u003e captions.srt"
+    },
+    {
+      "name": "Workspace stats",
+      "command": "workspace stats",
+      "description": "Local aggregate of video count, clip count, total duration, transcript word count, and export count by month across the cached workspace.",
+      "rationale": ""
+    },
+    {
+      "name": "Declarative video storyboard",
+      "command": "videos storyboard",
+      "description": "Export editable video timeline and state only; use videos apply-storyboard --file PLAN.json --apply to apply a reviewed JSON edit plan.",
+      "rationale": ""
+    },
+    {
+      "name": "One-shot media insertion",
+      "command": "videos clips insert-file",
+      "description": "Upload local media into a Tella source and attach it as a clip; use videos clips add-broll for B-roll layout media.",
+      "rationale": ""
+    },
+    {
+      "name": "Transcript-driven repairs",
+      "command": "videos clips cut-words",
+      "description": "Plan or apply term-matched transcript-index cuts; use videos clips replace-word-ranges for replacement media.",
+      "rationale": ""
+    },
+    {
+      "name": "Pre-publish edit QA",
+      "command": "videos audit",
+      "description": "Scan a video timeline for likely issues such as long silences before export or sharing.",
+      "rationale": ""
+    },
+    {
+      "name": "Playlist-scale edit planning",
+      "command": "playlists edit-pass",
+      "description": "Plan a standard remove-fillers/remove-buffers/trim-edges/export recipe across every video in a playlist.",
+      "rationale": ""
+    },
+    {
+      "name": "Safe clip clean workflow",
+      "command": "videos clips clean",
+      "description": "Plan or apply official per-clip cleanup with automatic pre-apply cut snapshots and explicit recovery.",
+      "rationale": ""
+    },
+    {
+      "name": "Cut rollback workflow",
+      "command": "videos clips undo-last-cuts",
+      "description": "Restore a saved cuts snapshot (latest by default or selected with --snapshot); use videos clips restore-cuts for inline cuts JSON and retain divergence checks and exclusive-editing confirmation.",
+      "rationale": ""
+    },
+    {
+      "name": "Automatic video edit pass",
+      "command": "videos auto",
+      "description": "Apply selected automatic edits across clips with recovery snapshots and finish with a live preview.",
+      "rationale": "Composes recorded lesson editing and review steps safely.",
+      "group": "Browser-free lessons"
+    },
+    {
+      "name": "House-style lesson preparation",
+      "command": "lessons pass",
+      "description": "Prepare a lesson from a validated recipe and finish with a preview for review.",
+      "rationale": "Composes recorded lesson editing and review steps safely.",
+      "group": "Browser-free lessons"
+    },
+    {
+      "name": "Reviewed lesson delivery",
+      "command": "lessons ship",
+      "description": "Export, wait, and download a lesson MP4 and SRT or VTT captions.",
+      "rationale": "Composes recorded lesson editing and review steps safely.",
+      "group": "Browser-free lessons"
+    },
+    {
+      "name": "Conservative retake plan",
+      "command": "clips find-retakes",
+      "description": "Propose repeated sentence cuts with timestamps and apply reviewed cuts under snapshots.",
+      "rationale": "Composes recorded lesson editing and review steps safely.",
+      "group": "Browser-free lessons"
+    },
+    {
+      "name": "Review storyboard files",
+      "command": "videos storyboard-image",
+      "description": "Save video, clip, or source storyboard images for visual inspection.",
+      "rationale": "Composes recorded lesson editing and review steps safely.",
+      "group": "Browser-free lessons"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "TELLA_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Tella",
+    "headline": "Edit recorded lessons, review a live preview, and deliver video with captions.",
+    "value_prop": "Prepare lesson recordings with repeatable recipes and reversible transcript cuts. Keep the review step separate from export and delivery.",
+    "quickstart": [
+      {
+        "command": "tella-pp-cli doctor --json",
+        "comment": "Check credentials and connectivity."
+      },
+      {
+        "command": "tella-pp-cli videos list --json --select videos.id,videos.name",
+        "comment": "Find lesson recordings."
+      }
+    ],
+    "when_to_use": "Use for editing recorded lessons, reviewing live previews, and delivering exports with captions.",
+    "anti_triggers": [
+      "Recording a screen or camera directly",
+      "Publishing videos without explicit approval"
+    ],
+    "recipes": [
+      {
+        "title": "Plan a lesson pass",
+        "command": "tella-pp-cli lessons pass vid_lesson --dry-run --json",
+        "explanation": "Inspect the house-style edit plan before applying it."
+      }
+    ],
+    "trigger_phrases": [
+      "edit my Tella lesson",
+      "preview a Tella video",
+      "export Tella captions",
+      "use tella",
+      "run tella"
+    ]
+  },
+  "homepage": "https://www.tella.com"
+}

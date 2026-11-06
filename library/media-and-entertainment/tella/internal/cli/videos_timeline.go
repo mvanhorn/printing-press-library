@@ -3,7 +3,7 @@
 package cli
 
 import (
-	"fmt"
+	"encoding/json"
 
 	"github.com/spf13/cobra"
 )
@@ -12,27 +12,35 @@ func newVideosTimelineCmd(flags *rootFlags) *cobra.Command {
 	var include string
 	var clipIDs string
 	cmd := &cobra.Command{
-		Use:   "timeline <id>",
-		Short: "Get the ordered video timeline with optional editing details",
-		Long:  "Returns every clip in playback order. --clip-ids limits optional details only; the complete outline is always returned.",
-		Example: `  tella-pp-cli videos timeline vid_abc --json
-  tella-pp-cli videos timeline vid_abc --include cuts,words --clip-ids cl_one,cl_two --json`,
-		Args:        cobra.ExactArgs(1),
-		Annotations: map[string]string{"pp:endpoint": "videos.timeline", "pp:method": "GET", "pp:path": "/v1/videos/{id}/timeline", "mcp:read-only": "true"},
+		Use:         "timeline <id>",
+		Short:       "Get timeline for videos",
+		Args:        workflowArgs(1),
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
 			api, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			params := map[string]string{"include": include, "clipIds": clipIDs}
-			data, err := api.Get(fmt.Sprintf("/v1/videos/%s/timeline", args[0]), params)
+			data, err := api.Get(cmd.Context(), videoPath(args[0])+"/timeline", params)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var timeline lessonTimeline
+				if err := json.Unmarshal(data, &timeline); err != nil {
+					return err
+				}
+				return printLessonTimeline(cmd, timeline)
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), jsonRawToAny(data), flags)
 		},
 	}
 	cmd.Flags().StringVar(&include, "include", "", "Comma-separated details: all, settings, chapters, cuts, layouts, zooms, transcript, words, and other timeline resources")
 	cmd.Flags().StringVar(&clipIDs, "clip-ids", "", "Comma-separated clip IDs to return details for")
+	cmd.AddCommand(newVideosTimelineGetVideoCmd(flags))
 	return cmd
 }

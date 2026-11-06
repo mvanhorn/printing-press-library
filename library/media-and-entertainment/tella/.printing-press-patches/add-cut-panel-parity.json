@@ -13,8 +13,6 @@
     "internal/cli/videos_clips.go",
     "internal/cli/clips_edit_pass.go",
     "internal/cli/clips_edit_pass_test.go",
-    "internal/cli/unofficial.go",
-    "internal/cli/sse_mistakes.go",
     "internal/cli/sse_mistakes_test.go",
     "internal/cli/root.go",
     "internal/cli/which.go",
@@ -32,8 +30,12 @@
     },
     {
       "feature": "browser session-cookie ingestion UX",
-      "reason": "TELLA_SESSION_COOKIE manual paste is brittle. A login flow or browser-extension capture would improve UX; out of scope for this patch."
+      "reason": "Retired in the 2026-11-05 reprint: session-cookie ingestion and persistence are intentionally removed with the unofficial mistake transport. Do not restore browser-cookie auth; public workflows use bearer auth."
     }
   ],
-  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1528"
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1528",
+  "retirement": {
+    "superseded_by": "reprint-current-framework-workflows",
+    "contract": "The 2026-11-05 reprint retires cookie mistake detection and removes its unreachable transport/parser. Public buffer/edge cleanup remains. Old mistake flags refuse before HTTP and point to reviewed find-retakes and credit-gated agent-chats. The obsolete config field, environment override and save preservation are retired too; token saves discard legacy session_cookie and retain API-key/OAuth support."
+  }
 }
