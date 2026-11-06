@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-06
+
+- feat(tella): add tella (#2434).
+
 ## 2026.9.2 - 2026-09-11
 
 - fix: fail closed on ambiguous fleet write retries (#1978).

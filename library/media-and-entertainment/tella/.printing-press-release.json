@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "tella",
   "cli_name": "tella-pp-cli",
-  "version": "2026.9.2",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
-  "printing_press_version": "4.2.1",
-  "run_id": "20260509-180956",
+  "version": "2026.11.1",
+  "released_at": "2026-11-06T03:45:24Z",
+  "source_commit": "660f47077ea1b57069690991b1b13ce375ed9151",
+  "printing_press_version": "4.35.2",
+  "run_id": "20261105-153117-4073b2c1",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "feat(tella): add tella",
+      "pr": 2434,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2434",
+      "commit": "660f47077ea1b57069690991b1b13ce375ed9151"
     }
   ]
 }
