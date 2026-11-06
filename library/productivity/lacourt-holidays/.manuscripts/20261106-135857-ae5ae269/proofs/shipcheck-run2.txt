@@ -1,0 +1,165 @@
+
+=== verify ===
+Runtime Verification: <runstate>/bobbenjy-1be6c62e/runs/20261106-135857-ae5ae269/working/lacourt-holidays-pp-cli/lacourt-holidays-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+add-court-days                 read         PASS   PASS     FAIL     2/3
+agent-context                  write        PASS   PASS     PASS     3/3
+court-days-between             read         PASS   PASS     FAIL     2/3
+deadline                       read         PASS   PASS     FAIL     2/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+holidays                       write        PASS   PASS     FAIL     2/3
+ics                            write        PASS   PASS     FAIL     2/3
+is-court-day                   read         PASS   PASS     FAIL     2/3
+learnings                      read         PASS   PASS     PASS     3/3
+local-data                     write        PASS   PASS     PASS     3/3
+next-holiday                   write        PASS   PASS     FAIL     2/3
+playbook                       write        PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     PASS     3/3
+recall                         read         PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: SKIP (CLI has no sync command)
+Pass Rate: 100% (28/28 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 8 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec <runstate>/bobbenjy-1be6c62e/runs/20261106-135857-ae5ae269/working/lacourt-holidays-pp-cli/spec.yaml (bundled)
+dogfood: caller --spec=<runstate>/bobbenjy-1be6c62e/runs/20261106-135857-ae5ae269/research/lacourt-holidays-browser-sniff-spec.yaml overridden by bundled <runstate>/bobbenjy-1be6c62e/runs/20261106-135857-ae5ae269/working/lacourt-holidays-pp-cli/spec.yaml
+Dogfood Report: lacourt-holidays-pp-cli
+================================
+
+Path Validity:     0/0 valid (N/A)
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        1 dead (WARN)
+  - maxAge (declared, never read)
+
+Dead Functions:    2 dead (WARN)
+  - endpointPositionalArgs (defined, never called)
+  - retainCLIQueryParams (defined, never called)
+
+Data Pipeline:     PARTIAL
+  Sync: SKIP (no sync command)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    6/6 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 1 dead flags found
+  - 2 dead helper functions found
+
+=== workflow-verify ===
+Workflow Verification: lacourt-holidays-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== lacourt-holidays-pp-cli ===
+  ✘ 3 error(s), 0 likely false-positive(s)
+    [flag-names] lacourt-holidays-pp-cli sync: --full is referenced in README.md but not declared in any internal/cli/*.go
+      evidence: README.md
+    [flag-commands] lacourt-holidays-pp-cli sync: --full is not declared anywhere
+      evidence: README.md
+    [unknown-command] lacourt-holidays-pp-cli sync: command path not found in internal/cli/*.go (no matching Use: declaration)
+      evidence: prose invocation (README.md)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: lacourt-holidays
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       8/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          7/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      3/10
+  Breadth              9/10
+  Vision               7/10
+  Workflows            8/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           N/A
+  Data Pipeline Integrity 7/10
+  Sync Correctness        8/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               3/5
+
+  Total: 86/100 - Grade A
+  Denominator: infrastructure 190, domain 40
+  Note: omitted from denominator: mcp_surface_strategy, auth_protocol, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: no_stage (no staged binary found)
+  Review: pass
+  Passed: 5/5  (100% pass rate, 1 skipped)
+
+Gaps:
+  - MCP: 1 tools (1 public, 0 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         1.854s
+  validate-narrative  PASS    0         123ms
+  dogfood           PASS    0         1.201s
+  workflow-verify   PASS    0         15ms
+  apify-audit       PASS    0         22ms
+  verify-skill      FAIL    1         1.966s
+  scorecard         PASS    0         724ms
+
+Verdict: FAIL (1/7 legs failed)

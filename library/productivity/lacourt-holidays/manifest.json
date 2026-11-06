@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "lacourt-holidays-pp-mcp",
+  "display_name": "LA Superior Court Holidays",
+  "version": "1.0.0",
+  "description": "LA Superior Court judicial holidays plus court-day deadline math and calendar export, from the court's own published list.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/lacourt-holidays-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/lacourt-holidays-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

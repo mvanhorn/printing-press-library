@@ -1,0 +1,4 @@
+# Phase 4.8 + 4.9 doc review (one reviewer agent, both contracts)
+17 findings (9 error, 8 warning). Fixed: all 9 errors (year-42 examples -> 2027; --select placeholder; phantom sync/search/workflow-archive text; config path; generic not-found troubleshooting -> unpublished-year guidance; README anti-triggers; AGENTS/SKILL placeholder examples) and warnings 11 (compact dropped holiday names: now kept via printJSONFilteredKeep), 12 (unpublished-year exit 3 disclosed in SKILL anti-triggers), 13 (empty-list wording), 14 (marketing line), 15 (read-only/no-auth line in AGENTS, credential/jobs wording), 16 (sink list wording), 17 (feedback example).
+False positive: 10 (dry-run shape) - hand-written commands emit {"dry_run":true,"success":true,...}; verified.
+Left: AGENTS.md platform-credential section is generator boilerplate (retro candidate).

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "lacourt-holidays-year-range-docs",
+  "applied_at": "2026-11-06",
+  "base_run_id": "20261106-135857-ae5ae269",
+  "base_printing_press_version": "4.35.3",
+  "summary": "Live probing showed the API serves 2006-2030, not only the 2026-2030 tabs the web page shows; spec was corrected too, so a regen reproduces this text.",
+  "reason": "Live probing showed the API serves 2006-2030, not only the 2026-2030 tabs the web page shows; spec was corrected too, so a regen reproduces this text.",
+  "files": [
+    "internal/cli/promoted_holidays.go",
+    "internal/cli/which.go",
+    "internal/mcp/tools.go",
+    "tools-manifest.json",
+    "README.md",
+    "SKILL.md"
+  ],
+  "marker": "published 2006 through about five years ahead"
+}

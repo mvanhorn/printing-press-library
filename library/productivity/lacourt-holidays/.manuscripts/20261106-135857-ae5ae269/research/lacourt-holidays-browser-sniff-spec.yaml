@@ -1,0 +1,45 @@
+openapi: 3.0.3
+info:
+  title: LA Superior Court Holidays
+  x-display-name: LA Superior Court Holidays
+  x-website: https://www.lacourt.ca.gov/apps/court-holidays
+  version: 1.0.0
+  description: Judicial holiday schedule for the Superior Court of Los Angeles County, discovered via browser capture of the court-holidays page. Public, no auth.
+servers:
+  - url: https://www.lacourt.ca.gov/web3/holidays
+x-cache:
+  enabled: true
+  stale_after: 720h
+  refresh_timeout: 30s
+x-learn:
+  entity_lookup_seeds:
+    holiday:
+      - canonical: Martin Luther King, Jr. Birthday
+        aliases: [mlk day, mlk, martin luther king day]
+      - canonical: Day after Thanksgiving
+        aliases: [black friday, friday after thanksgiving]
+      - canonical: Farmworkers Day
+        aliases: [cesar chavez day, chavez day]
+      - canonical: Presidents' Day
+        aliases: [presidents day, washington's birthday]
+      - canonical: Native American Day
+        aliases: [native american heritage day]
+paths:
+  /api/holidays/getholidays/{year}:
+    get:
+      operationId: getHolidays
+      summary: List court holidays for a year (published 2006 through about five years ahead; years before 2006 and beyond the published window return an empty list)
+      parameters:
+        - name: year
+          in: path
+          required: true
+          example: 2027
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: A JSON-encoded string containing an array of holidays
+          content:
+            application/json:
+              schema:
+                type: string

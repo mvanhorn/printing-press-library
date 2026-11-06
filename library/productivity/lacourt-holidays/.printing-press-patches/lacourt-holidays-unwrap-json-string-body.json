@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "lacourt-holidays-unwrap-json-string-body",
+  "applied_at": "2026-11-06",
+  "base_run_id": "20261106-135857-ae5ae269",
+  "base_printing_press_version": "4.35.3",
+  "summary": "LASC getholidays returns its array double-encoded as a JSON string when Accept: application/json is sent; the client decodes it so every command sees the array",
+  "reason": "LASC getholidays returns its array double-encoded as a JSON string when Accept: application/json is sent; the client decodes it so every command sees the array. Upstream candidate: generic string-wrapped-JSON unwrap in the client template.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/unwrap.go"
+  ],
+  "marker": "unwrapJSONStringBody",
+  "call_sites": [
+    "unwrapJSONStringBody(sanitizeJSONResponse(respBody))"
+  ]
+}

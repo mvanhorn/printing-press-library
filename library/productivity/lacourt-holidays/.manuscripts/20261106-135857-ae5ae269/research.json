@@ -1,0 +1,190 @@
+{
+  "api_name": "lacourt-holidays",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-06T22:07:42Z",
+  "novel_features": [
+    {
+      "name": "Court-day check",
+      "command": "is-court-day",
+      "description": "Answer yes/no for whether a date is an LASC court day, with the reason.",
+      "rationale": "Joins weekend rules with the court's own synced holiday list; the web page cannot answer it.",
+      "example": "lacourt-holidays-pp-cli is-court-day 2027-11-26 --agent",
+      "why_it_matters": "Reach for this before setting a hearing or filing date.",
+      "group": "Court-day math"
+    },
+    {
+      "name": "Add court days",
+      "command": "add-court-days",
+      "description": "Count N court days forward or backward from a date, skipping weekends and LASC holidays.",
+      "rationale": "Date arithmetic over the court's published holidays, which the page does not offer.",
+      "example": "lacourt-holidays-pp-cli add-court-days 2027-03-01 16 --agent",
+      "why_it_matters": "Use for any court-day deadline instead of counting by hand.",
+      "group": "Court-day math"
+    },
+    {
+      "name": "Next holiday",
+      "command": "next-holiday",
+      "description": "Show the next LASC court holiday and how many days away it is.",
+      "rationale": "Cross-year lookup relative to today over the cached holiday list.",
+      "example": "lacourt-holidays-pp-cli next-holiday --agent",
+      "why_it_matters": "Quick answer to 'when is the court closed next?'.",
+      "group": "Court-day math"
+    },
+    {
+      "name": "Calendar-day deadline with roll-forward",
+      "command": "deadline",
+      "description": "Add N calendar days and roll a weekend or holiday end date to the next court day.",
+      "rationale": "CCP 12a-style roll-forward needs LASC holiday awareness.",
+      "example": "lacourt-holidays-pp-cli deadline 2027-03-01 30 --agent",
+      "why_it_matters": "Use for calendar-day periods; use add-court-days for court-day periods.",
+      "group": "Court-day math"
+    },
+    {
+      "name": "Court days between",
+      "command": "court-days-between",
+      "description": "Count court days between two dates and list the holidays in the span.",
+      "rationale": "Counts weekdays minus LASC holidays across years from the local store.",
+      "example": "lacourt-holidays-pp-cli court-days-between 2027-03-01 2027-04-15 --agent",
+      "why_it_matters": "Check whether there is still time before a hearing.",
+      "group": "Court-day math"
+    },
+    {
+      "name": "ICS export",
+      "command": "ics",
+      "description": "Export LASC holidays as calendar files, for one year or every published year.",
+      "rationale": "The court page has no export; this produces RFC 5545 files from the published list.",
+      "example": "lacourt-holidays-pp-cli ics --out-dir ./lasc-holidays",
+      "why_it_matters": "Import every upcoming court holiday onto your own calendar or device.",
+      "group": "Calendar export"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Court-day check",
+      "command": "is-court-day",
+      "description": "Answer yes/no for whether a date is an LASC court day, with the reason.",
+      "rationale": "Joins weekend rules with the court's own synced holiday list; the web page cannot answer it.",
+      "example": "lacourt-holidays-pp-cli is-court-day 2027-11-26 --agent",
+      "why_it_matters": "Reach for this before setting a hearing or filing date.",
+      "group": "Court-day math"
+    },
+    {
+      "name": "Add court days",
+      "command": "add-court-days",
+      "description": "Count N court days forward or backward from a date, skipping weekends and LASC holidays.",
+      "rationale": "Date arithmetic over the court's published holidays, which the page does not offer.",
+      "example": "lacourt-holidays-pp-cli add-court-days 2027-03-01 16 --agent",
+      "why_it_matters": "Use for any court-day deadline instead of counting by hand.",
+      "group": "Court-day math"
+    },
+    {
+      "name": "Next holiday",
+      "command": "next-holiday",
+      "description": "Show the next LASC court holiday and how many days away it is.",
+      "rationale": "Cross-year lookup relative to today over the cached holiday list.",
+      "example": "lacourt-holidays-pp-cli next-holiday --agent",
+      "why_it_matters": "Quick answer to 'when is the court closed next?'.",
+      "group": "Court-day math"
+    },
+    {
+      "name": "Calendar-day deadline with roll-forward",
+      "command": "deadline",
+      "description": "Add N calendar days and roll a weekend or holiday end date to the next court day.",
+      "rationale": "CCP 12a-style roll-forward needs LASC holiday awareness.",
+      "example": "lacourt-holidays-pp-cli deadline 2027-03-01 30 --agent",
+      "why_it_matters": "Use for calendar-day periods; use add-court-days for court-day periods.",
+      "group": "Court-day math"
+    },
+    {
+      "name": "Court days between",
+      "command": "court-days-between",
+      "description": "Count court days between two dates and list the holidays in the span.",
+      "rationale": "Counts weekdays minus LASC holidays across years from the local store.",
+      "example": "lacourt-holidays-pp-cli court-days-between 2027-03-01 2027-04-15 --agent",
+      "why_it_matters": "Check whether there is still time before a hearing.",
+      "group": "Court-day math"
+    },
+    {
+      "name": "ICS export",
+      "command": "ics",
+      "description": "Export LASC holidays as calendar files, for one year or every published year.",
+      "rationale": "The court page has no export; this produces RFC 5545 files from the published list.",
+      "example": "lacourt-holidays-pp-cli ics --out-dir ./lasc-holidays",
+      "why_it_matters": "Import every upcoming court holiday onto your own calendar or device.",
+      "group": "Calendar export"
+    }
+  ],
+  "narrative": {
+    "display_name": "LA Superior Court Holidays",
+    "headline": "LA Superior Court judicial holidays plus court-day deadline math and calendar export, from the court's own published list.",
+    "value_prop": "Lists the Superior Court of Los Angeles County's judicial holidays straight from the court's site, caches them offline, and answers the questions the page can't: is-court-day, add-court-days, deadline roll-forward, court-days-between, next-holiday. ics exports every published year as calendar files.",
+    "quickstart": [
+      {
+        "command": "lacourt-holidays-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI is installed and configured"
+      },
+      {
+        "command": "lacourt-holidays-pp-cli next-holiday",
+        "comment": "See the next day the court is closed"
+      },
+      {
+        "command": "lacourt-holidays-pp-cli add-court-days 2027-03-01 16",
+        "comment": "Count 16 court days from a date"
+      },
+      {
+        "command": "lacourt-holidays-pp-cli ics --out-dir ./lasc-holidays",
+        "comment": "Write one .ics per published year for your calendar"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Date is outside published years",
+        "fix": "The court publishes 2006 through about five years ahead (2030 today); run lacourt-holidays-pp-cli holidays --year \u003cyear\u003e to check a year"
+      },
+      {
+        "symptom": "Results look stale",
+        "fix": "Add --no-cache to bypass the local response cache and fetch the court's current list"
+      }
+    ],
+    "when_to_use": "Use this CLI to check LASC court holidays, decide whether a date is a court day, or compute court-day and calendar-day deadlines for Los Angeles Superior Court matters. It also exports the holidays as ICS calendar files.",
+    "anti_triggers": [
+      "Do not use it for other courts' holidays (federal courts, other counties)",
+      "Do not use it to look up statutory notice periods; it only does the date arithmetic you give it",
+      "Not legal advice; confirm critical deadlines against the court"
+    ],
+    "recipes": [
+      {
+        "title": "Is the day after Thanksgiving a court day?",
+        "command": "lacourt-holidays-pp-cli is-court-day 2027-11-26 --agent",
+        "explanation": "Returns false with the holiday name as the reason."
+      },
+      {
+        "title": "Count back 16 court days from a hearing",
+        "command": "lacourt-holidays-pp-cli add-court-days 2027-05-20 16 --back",
+        "explanation": "--back counts backward, skipping weekends and holidays."
+      },
+      {
+        "title": "Just the dates and names",
+        "command": "lacourt-holidays-pp-cli next-holiday --agent --select date,description",
+        "explanation": "Narrow agent output to the fields you need."
+      },
+      {
+        "title": "Every year as calendar files",
+        "command": "lacourt-holidays-pp-cli ics --out-dir ./lasc-holidays",
+        "explanation": "One .ics per published year to import on your device."
+      }
+    ],
+    "trigger_phrases": [
+      "is this an LA court day",
+      "add 16 court days",
+      "next LASC court holiday",
+      "LA superior court holidays calendar",
+      "use lacourt-holidays"
+    ]
+  },
+  "homepage": "https://www.lacourt.ca.gov/apps/court-holidays"
+}

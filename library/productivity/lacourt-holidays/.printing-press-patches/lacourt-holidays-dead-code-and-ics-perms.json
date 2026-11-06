@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "lacourt-holidays-dead-code-and-ics-perms",
+  "applied_at": "2026-11-06",
+  "base_run_id": "20261106-135857-ae5ae269",
+  "base_printing_press_version": "4.35.3",
+  "summary": "Polish: removed generator-emitted helpers with no callers in this CLI (endpointPositionalArgs, retainCLIQueryParams and the chain they orphaned: booleanSpaceFormPositionalErr, endpointArgsUsageErr, en",
+  "reason": "Polish: removed generator-emitted helpers with no callers in this CLI (endpointPositionalArgs, retainCLIQueryParams and the chain they orphaned: booleanSpaceFormPositionalErr, endpointArgsUsageErr, endpointUsageLine, booleanNoValueFlags, retainExplicitQueryParams) and the unread --max-age persistent flag (it promised a sync hint; this CLI has no sync). ics --out-dir now creates 0750 dirs and 0600 files (gosec G301/G306). Removed a duplicate README API-specific troubleshooting block that dogfood's first resync appended under 'When not to use'. Upstream candidate: only emit endpoint-arg/query-retain helpers and --max-age when the CLI has generated endpoint commands with positional args / a sync command.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/root.go",
+    "internal/cli/ics.go",
+    "README.md"
+  ],
+  "marker": "os.MkdirAll(outDir, 0o750)"
+}

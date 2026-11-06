@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "lacourt-holidays-holidays-example-fixture",
+  "applied_at": "2026-11-06",
+  "base_run_id": "20261106-135857-ae5ae269",
+  "base_printing_press_version": "4.35.3",
+  "summary": "Generated holidays command had no derivable example; spec now carries example: 2027, and the promoted command declares an Example and happy-args so live dogfood exercises it.",
+  "reason": "Generated holidays command had no derivable example; spec now carries example: 2027, and the promoted command declares an Example and happy-args so live dogfood exercises it.",
+  "files": [
+    "internal/cli/promoted_holidays.go"
+  ],
+  "marker": "pp:happy-args\": \"--year=2027\""
+}

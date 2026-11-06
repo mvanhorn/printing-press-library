@@ -1,0 +1,29 @@
+{
+  "api_name": "lacourt-holidays",
+  "base_url": "https://www.lacourt.ca.gov/web3/holidays",
+  "description": "LA Superior Court judicial holidays plus court-day deadline math and calendar export, from the court's own published list.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "holidays_get",
+      "description": "List court holidays for a year (published 2006 through about five years ahead; years before 2006 and beyond the published window return an empty list). Required: year.",
+      "method": "GET",
+      "path": "/api/holidays/getholidays/{year}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "path",
+          "description": "Year",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

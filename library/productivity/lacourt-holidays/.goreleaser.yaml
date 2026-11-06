@@ -1,0 +1,55 @@
+version: 2
+project_name: lacourt-holidays-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: lacourt-holidays-pp-cli
+    main: ./cmd/lacourt-holidays-pp-cli
+    binary: lacourt-holidays-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/lacourt-holidays/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: lacourt-holidays-pp-mcp
+    main: ./cmd/lacourt-holidays-pp-mcp
+    binary: lacourt-holidays-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: lacourt-holidays-pp-cli
+    repository:
+      owner: bbenjyesq
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "LA Superior Court judicial holidays plus court-day deadline math and calendar export, from the court's own published list."
+    install: |
+      bin.install "lacourt-holidays-pp-cli"
+      bin.install "lacourt-holidays-pp-mcp"

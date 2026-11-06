@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "lacourt-holidays-holidays-id-override",
+  "applied_at": "2026-11-06",
+  "base_run_id": "20261106-135857-ae5ae269",
+  "base_printing_press_version": "4.35.3",
+  "summary": "Holiday rows have no id field; key the local cache by date so rows are stored instead of skipped with a warning.",
+  "reason": "Holiday rows have no id field; key the local cache by date so rows are stored instead of skipped with a warning.",
+  "files": [
+    "internal/store/holidays_id.go"
+  ],
+  "marker": "resourceIDFieldOverrides[\"holidays\"]"
+}

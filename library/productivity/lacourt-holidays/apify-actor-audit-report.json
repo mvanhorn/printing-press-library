@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/lacourt-holidays-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261106-135857-ae5ae269",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

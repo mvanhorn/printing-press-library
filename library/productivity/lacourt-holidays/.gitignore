@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/lacourt-holidays-pp-cli
+/lacourt-holidays-pp-cli.exe
+/lacourt-holidays-pp-mcp
+/lacourt-holidays-pp-mcp.exe
+/bin/
+/build/
+/dist/
