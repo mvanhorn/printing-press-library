@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -143,7 +144,7 @@ func TestAutoRecoveryHonorsHome(t *testing.T) {
 				if info.IsDir() {
 					want = 0700
 				}
-				if info.Mode().Perm() != want {
+				if runtime.GOOS != "windows" && info.Mode().Perm() != want {
 					t.Fatalf("%s mode = %o, want %o", path, info.Mode().Perm(), want)
 				}
 			}
