@@ -64,11 +64,11 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("async_batch",
 			mcplib.WithDescription("Submit up to 500 async tasks in one request. Each task is validated independently, so one invalid task does not block the rest. Returns per-task results."),
-			mcplib.WithString("body_json", mcplib.Required(), mcplib.Description("Request body as a JSON object string (this endpoint accepts a polymorphic schema: oneOf/anyOf)")),
+			mcplib.WithString("body_json", mcplib.Required(), mcplib.Description("Request body as a JSON array string of 1 to 500 task objects. Each task has taskType, payload and optional priority, idempotencyKey and webhook, as in async_create. Example: [{\"taskType\":\"CHATGPT\",\"payload\":{\"prompt\":\"What do you know about Acme Corp?\",\"country\":\"US\"}}]")),
 			mcplib.WithSchemaAdditionalProperties(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/async/task/batch", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "body_json", WireName: "body_json", Location: "body_json"}}, []string{}),
+		makeAPIHandler("POST", "/v1/async/task/batch", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "body_json", WireName: "body_json", Location: "body_json", Format: "array"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("async_create",
@@ -527,12 +527,21 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				}
 			case "body_json":
 				if s, ok := v.(string); ok && s != "" {
+					// PATCH(mcp-body-json-accepts-array-request-bodies): a binding
+					// with Format "array" takes a JSON array, because the endpoint
+					// request body is an array. Other bindings take a JSON object.
+					wantShape := "object"
+					if binding.Format == "array" {
+						wantShape = "array"
+					}
 					var parsed any
 					if err := json.Unmarshal([]byte(s), &parsed); err != nil {
-						return mcpToolError("body_json must be a valid JSON object: " + err.Error()), nil
+						return mcpToolError("body_json must be a valid JSON " + wantShape + ": " + err.Error()), nil
 					}
-					if _, isMap := parsed.(map[string]any); !isMap {
-						return mcpToolError(fmt.Sprintf("body_json must be a JSON object, got JSON %T", parsed)), nil
+					_, isMap := parsed.(map[string]any)
+					_, isArray := parsed.([]any)
+					if (wantShape == "array" && !isArray) || (wantShape == "object" && !isMap) {
+						return mcpToolError(fmt.Sprintf("body_json must be a JSON %s, got JSON %T", wantShape, parsed)), nil
 					}
 					bodyJSONOverride = json.RawMessage(s)
 				}

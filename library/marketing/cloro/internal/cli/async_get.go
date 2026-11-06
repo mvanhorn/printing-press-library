@@ -47,6 +47,9 @@ func newAsyncGetCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// PATCH(async-poll-reads-skip-response-cache): the task status changes
+			// between calls. Do not read the response cache for this endpoint.
+			c.NoCache = true
 			params := map[string]string{}
 			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "async", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
