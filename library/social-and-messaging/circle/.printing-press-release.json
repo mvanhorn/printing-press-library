@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "circle",
+  "cli_name": "circle-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-06T09:58:26Z",
+  "source_commit": "4d79418e23c024572115392b53cc135a12e165a3",
+  "printing_press_version": "4.35.2",
+  "run_id": "20261105-112545-5c241c59",
+  "changes": [
+    {
+      "title": "feat(circle): add circle",
+      "pr": 2433,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2433",
+      "commit": "4d79418e23c024572115392b53cc135a12e165a3"
+    }
+  ]
+}
