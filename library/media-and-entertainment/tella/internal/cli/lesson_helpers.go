@@ -210,11 +210,11 @@ func saveAutoRecovery(p autoPlan) (autoRecovery, error) {
 		}
 		r.Cuts[s.ClipID] = name
 	}
-	base, err := os.UserConfigDir()
+	base, err := snapshotConfigDir()
 	if err != nil {
 		return r, err
 	}
-	dir := filepath.Join(base, "tella-pp-cli", "lesson-snapshots")
+	dir := filepath.Join(base, "lesson-snapshots")
 	if err = os.MkdirAll(dir, 0700); err != nil {
 		return r, err
 	}

@@ -1,4 +1,4 @@
-# Examples only: these are not Cathryn's house style or real source/preset IDs.
+# Examples only: example house style with synthetic source/preset IDs.
 # Active defaults preserve existing styling; uncomment optional settings deliberately.
 silences: natural
 fillers: true

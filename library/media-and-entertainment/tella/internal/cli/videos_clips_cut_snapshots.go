@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"sort"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/cliutil"
 )
 
 type cutSnapshot struct {
@@ -158,15 +160,34 @@ func latestCutSnapshotPath(videoID, clipID string) (string, error) {
 	return matches[len(matches)-1], nil
 }
 
-func cutSnapshotDir(videoID, clipID string) (string, error) {
+func snapshotConfigDir() (string, error) {
+	resolution, err := cliutil.ResolveKindDir(cliutil.PathKindConfig)
+	if err != nil {
+		return "", err
+	}
+	if resolution.Rung != "platform-default" {
+		return resolution.Dir, nil
+	}
+	// Keep existing OS-default snapshots discoverable without migration.
 	base, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(base, "tella-pp-cli", "cut-snapshots", safePathSegment(videoID), safePathSegment(clipID)), nil
+	return filepath.Join(base, "tella-pp-cli"), nil
+}
+
+func cutSnapshotDir(videoID, clipID string) (string, error) {
+	base, err := snapshotConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(base, "cut-snapshots", safePathSegment(videoID), safePathSegment(clipID)), nil
 }
 
 func safePathSegment(value string) string {
+	if value == "" || value == "." || value == ".." {
+		return "_"
+	}
 	out := []rune(value)
 	for i, current := range out {
 		if !(current == '-' || current == '_' || current == '.' || current >= '0' && current <= '9' || current >= 'a' && current <= 'z' || current >= 'A' && current <= 'Z') {

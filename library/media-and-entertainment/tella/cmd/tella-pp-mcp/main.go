@@ -53,8 +53,6 @@ const (
 
 const httpAllowedOriginsEnvVar = "TELLA_MCP_HTTP_ALLOWED_ORIGINS"
 
-// version is the printed MCP server's version, overridable at build time via ldflags.
-
 func main() {
 	// Pin the learn-event surface for this process and every walker
 	// shell-out child, so usage events record surface=mcp.

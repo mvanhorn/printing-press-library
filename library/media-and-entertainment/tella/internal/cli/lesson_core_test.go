@@ -3,7 +3,10 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/cliutil/testenv"
 	"github.com/spf13/cobra"
 	"net/http"
 	"net/http/httptest"
@@ -67,10 +70,95 @@ func TestAutoPlansThenAppliesAndPreservesZooms(t *testing.T) {
 	if len(writes) != 3 || !strings.Contains(out, "#fake-token") {
 		t.Fatal(writes, out)
 	}
-	base, _ := os.UserConfigDir()
-	entries, err := os.ReadDir(filepath.Join(base, "tella-pp-cli", "lesson-snapshots"))
+	base, err := snapshotConfigDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	entries, err := os.ReadDir(filepath.Join(base, "lesson-snapshots"))
 	if err != nil || len(entries) != 1 {
 		t.Fatal(entries, err)
+	}
+}
+
+func TestSnapshotConfigDirPreservesOSDefault(t *testing.T) {
+	restore, err := cliutil.SetHomeOverride("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(restore)
+	home := testenv.Isolate(t, cliutil.ConfigDir)
+	t.Setenv("AppData", home)
+	base, err := os.UserConfigDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := snapshotConfigDir()
+	if want := filepath.Join(base, "tella-pp-cli"); err != nil || got != want {
+		t.Fatalf("snapshot config = %q, %v; want %q", got, err, want)
+	}
+}
+
+func TestAutoRecoveryHonorsHome(t *testing.T) {
+	for _, explicit := range []bool{false, true} {
+		t.Run(fmt.Sprintf("explicit=%t", explicit), func(t *testing.T) {
+			restore, err := cliutil.SetHomeOverride("")
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(restore)
+			testenv.Isolate(t, cliutil.ConfigDir)
+			blocked := filepath.Join(t.TempDir(), "not-a-directory")
+			if err := os.WriteFile(blocked, nil, 0600); err != nil {
+				t.Fatal(err)
+			}
+			// Block every platform's legacy OS config location without touching user files.
+			for _, name := range []string{"HOME", "USERPROFILE", "AppData", "XDG_CONFIG_HOME"} {
+				t.Setenv(name, blocked)
+			}
+			home := t.TempDir()
+			t.Setenv("TELLA_HOME", home)
+			if explicit {
+				t.Setenv("TELLA_HOME", blocked)
+				restore, err := cliutil.SetHomeOverride(home)
+				if err != nil {
+					t.Fatal(err)
+				}
+				t.Cleanup(restore)
+			}
+			snapshot := cutSnapshot{VideoID: "v", ClipID: "c", CreatedAt: time.Now().UTC(), Cuts: []any{}}
+			recovery, err := saveAutoRecovery(autoPlan{Snapshots: []cutSnapshot{snapshot}, VideoState: json.RawMessage(`{"id":"v"}`)})
+			if err != nil {
+				t.Fatal(err)
+			}
+			config := filepath.Join(home, "config")
+			if filepath.Dir(recovery.State) != filepath.Join(config, "lesson-snapshots") || filepath.Dir(recovery.Cuts["c"]) != filepath.Join(config, "cut-snapshots", "v", "c") {
+				t.Fatalf("recovery escaped selected home: %+v", recovery)
+			}
+			for _, path := range []string{recovery.State, recovery.Cuts["c"], filepath.Dir(recovery.State), filepath.Dir(recovery.Cuts["c"])} {
+				info, err := os.Stat(path)
+				if err != nil {
+					t.Fatal(err)
+				}
+				want := os.FileMode(0600)
+				if info.IsDir() {
+					want = 0700
+				}
+				if info.Mode().Perm() != want {
+					t.Fatalf("%s mode = %o, want %o", path, info.Mode().Perm(), want)
+				}
+			}
+			data, err := os.ReadFile(recovery.State)
+			if err != nil || !bytes.Contains(data, []byte(`"id": "v"`)) {
+				t.Fatalf("recorded state missing video: %s, %v", data, err)
+			}
+			latest, err := latestCutSnapshotPath("v", "c")
+			if err != nil || latest != recovery.Cuts["c"] {
+				t.Fatalf("latest = %q, %v; want %q", latest, err, recovery.Cuts["c"])
+			}
+			if _, err := readCutSnapshot(latest); err != nil {
+				t.Fatal(err)
+			}
+		})
 	}
 }
 func TestAutoLayoutsAndDryRunNeverWrite(t *testing.T) {

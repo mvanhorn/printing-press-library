@@ -8,12 +8,37 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/cliutil"
 )
 
 func TestSafePathSegment(t *testing.T) {
 	got := safePathSegment("vid/abc:123")
 	if got != "vid_abc_123" {
 		t.Fatalf("safePathSegment = %q", got)
+	}
+}
+
+func TestCutSnapshotDirConfinesSegments(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("TELLA_CONFIG_DIR", "")
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(restore)
+	root := filepath.Join(home, "config", "cut-snapshots")
+	segments := []struct{ id, want string }{{"", "_"}, {".", "_"}, {"..", "_"}, {"vid_1-a.b", "vid_1-a.b"}}
+	for _, video := range segments {
+		for _, clip := range segments {
+			got, err := cutSnapshotDir(video.id, clip.id)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if want := filepath.Join(root, video.want, clip.want); got != want {
+				t.Errorf("cutSnapshotDir(%q, %q) = %q, want %q", video.id, clip.id, got, want)
+			}
+		}
 	}
 }
 

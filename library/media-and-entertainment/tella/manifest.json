@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "tella-pp-mcp",
   "display_name": "Tella Public",
-  "version": "4.2.1",
+  "version": "4.35.2",
   "description": "Edit recorded lessons, review a live preview, and deliver video with captions.",
   "author": {
     "name": "CLI Printing Press"
