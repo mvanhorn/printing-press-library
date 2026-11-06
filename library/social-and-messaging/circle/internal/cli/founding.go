@@ -16,12 +16,12 @@ func newNovelFoundingCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "founding",
 		Short: "Answer whether at least N people paid with GO or NO-GO and the count.",
-		Long:  "Use this command for a GO/NO-GO verdict on whether at least N people have paid. Do NOT use this command to list payers or remaining capacity; use 'seats' instead.\n\nExit codes: 0 GO, 2 NO-GO",
+		Long:  "Use this command for a GO/NO-GO verdict on whether at least N people have paid. Do NOT use this command to list payers or remaining capacity; use 'seats' instead.\n\nExit codes: 0 GO, 3 NO-GO, 2 usage error",
 		Example: strings.Trim(`
   circle-pp-cli founding --go-no-go 10 --json
   circle-pp-cli founding --go-no-go 10 --paywall 1000969 --data-source live
 `, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "auto", "pp:typed-exit-codes": "0,2", "pp:happy-args": "--go-no-go=1"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "auto", "pp:typed-exit-codes": "0,3", "pp:happy-args": "--go-no-go=1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -55,7 +55,7 @@ func newNovelFoundingCmd(flags *rootFlags) *cobra.Command {
 			if result.Verdict == "NO-GO" {
 				cmd.SilenceErrors = true
 				cmd.SilenceUsage = true
-				return &cliError{code: 2, err: fmt.Errorf("NO-GO")}
+				return &cliError{code: 3, err: fmt.Errorf("NO-GO")}
 			}
 			return nil
 		},

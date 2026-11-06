@@ -398,12 +398,14 @@ func parseOnboardTagID(raw json.RawMessage) (int64, error) {
 }
 
 func applyOnboardPlan(ctx context.Context, c *client.Client, plan *onboardPlan, tagIDs map[string]int64) {
-	plan.Applied = true
 	tagErrors := make(map[string]error)
 	post := func(endpoint string, body any) (json.RawMessage, error) {
 		raw, _, err := c.Post(ctx, endpoint, body)
 		if err == nil {
 			err = checkOnboardResponse(raw)
+		}
+		if err == nil {
+			plan.Applied = true
 		}
 		return raw, err
 	}

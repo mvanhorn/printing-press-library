@@ -273,7 +273,7 @@ func inboxRecordTime(r inboxRecord) time.Time {
 func buildInbox(records []inboxRecord, cutoff time.Time, space string, limit int) inboxReport {
 	report := inboxReport{
 		Since:      cutoff.UTC().Format(time.RFC3339),
-		Counts:     map[string]int{"members": 0, "posts": 0, "comments": 0, "spaces": 0},
+		Counts:     map[string]int{"members": 0, "posts": 0, "comments": 0, "spaces": 0, "new_members": 0, "unreplied_posts": 0, "flagged_content": 0, "form_submissions": 0, "failed_charges": 0, "cancellations": 0},
 		NewMembers: make([]inboxMember, 0), UnrepliedPosts: make([]inboxPost, 0),
 		FlaggedContent: make([]inboxFlag, 0), FormSubmissions: make([]inboxSubmission, 0),
 		FailedCharges: make([]inboxCharge, 0), Cancellations: make([]inboxCancellation, 0),
@@ -286,40 +286,52 @@ func buildInbox(records []inboxRecord, cutoff time.Time, space string, limit int
 		switch r.ResourceType {
 		case "community-members":
 			report.Counts["members"]++
-			if recent && len(report.NewMembers) < limit {
-				report.NewMembers = append(report.NewMembers, inboxMember{r.ID, r.Name, r.Email, r.CreatedAt})
+			if recent {
+				report.Counts["new_members"]++
+				if len(report.NewMembers) < limit {
+					report.NewMembers = append(report.NewMembers, inboxMember{r.ID, r.Name, r.Email, r.CreatedAt})
+				}
 			}
 		case "posts":
 			report.Counts["posts"]++
-			if recent && r.CommentsCount == 0 && (space == "" || r.SpaceID == space || strings.EqualFold(r.SpaceName, space)) && len(report.UnrepliedPosts) < limit {
-				report.UnrepliedPosts = append(report.UnrepliedPosts, inboxPost{r.ID, r.Name, r.SpaceName, r.UserName, r.URL, r.CreatedAt})
+			if recent && r.CommentsCount == 0 && (space == "" || r.SpaceID == space || strings.EqualFold(r.SpaceName, space)) {
+				report.Counts["unreplied_posts"]++
+				if len(report.UnrepliedPosts) < limit {
+					report.UnrepliedPosts = append(report.UnrepliedPosts, inboxPost{r.ID, r.Name, r.SpaceName, r.UserName, r.URL, r.CreatedAt})
+				}
 			}
 		case "comments", "spaces":
 			report.Counts[r.ResourceType]++
 		case "flagged-contents":
-			if status != "resolved" && status != "approved" && status != "dismissed" && status != "rejected" && !inboxTime(r.ReportedAt).IsZero() && !inboxTime(r.ReportedAt).Before(cutoff) && len(report.FlaggedContent) < limit {
-				report.FlaggedContent = append(report.FlaggedContent, inboxFlag{r.ID, r.ContentType, r.ContentID, r.ReportedReasonType, r.ReportedByName, r.ReportedAt, r.Status})
+			if status != "resolved" && status != "approved" && status != "dismissed" && status != "rejected" && !inboxTime(r.ReportedAt).IsZero() && !inboxTime(r.ReportedAt).Before(cutoff) {
+				report.Counts["flagged_content"]++
+				if len(report.FlaggedContent) < limit {
+					report.FlaggedContent = append(report.FlaggedContent, inboxFlag{r.ID, r.ContentType, r.ContentID, r.ReportedReasonType, r.ReportedByName, r.ReportedAt, r.Status})
+				}
 			}
 		case "community-member-charges":
-			if recent && (status == "failed" || status == "declined" || status == "requires_payment_method") && len(report.FailedCharges) < limit {
-				report.FailedCharges = append(report.FailedCharges, inboxCharge{r.ID, r.CommunityMemberEmail, r.Amount, inboxAmountDisplay(r.Amount, r.Currency), r.Currency, r.Status, r.CreatedAt})
+			if recent && (status == "failed" || status == "declined" || status == "requires_payment_method") {
+				report.Counts["failed_charges"]++
+				if len(report.FailedCharges) < limit {
+					report.FailedCharges = append(report.FailedCharges, inboxCharge{r.ID, r.CommunityMemberEmail, r.Amount, inboxAmountDisplay(r.Amount, r.Currency), r.Currency, r.Status, r.CreatedAt})
+				}
 			}
 		case "community-member-subscriptions":
-			if (status == "canceled" || status == "cancelled" || r.ScheduledToCancel) && !inboxRecordTime(r).IsZero() && !inboxRecordTime(r).Before(cutoff) && len(report.Cancellations) < limit {
-				report.Cancellations = append(report.Cancellations, inboxCancellation{r.ID, r.CommunityMemberEmail, r.PaywallName, r.Status, r.EndsAt})
+			if (status == "canceled" || status == "cancelled" || r.ScheduledToCancel) && !inboxRecordTime(r).IsZero() && !inboxRecordTime(r).Before(cutoff) {
+				report.Counts["cancellations"]++
+				if len(report.Cancellations) < limit {
+					report.Cancellations = append(report.Cancellations, inboxCancellation{r.ID, r.CommunityMemberEmail, r.PaywallName, r.Status, r.EndsAt})
+				}
 			}
 		default:
-			if strings.HasSuffix(r.ResourceType, "submissions") && recent && len(report.FormSubmissions) < limit {
-				report.FormSubmissions = append(report.FormSubmissions, inboxSubmission{r.ID, r.ResourceType, r.CreatedAt})
+			if strings.HasSuffix(r.ResourceType, "submissions") && recent {
+				report.Counts["form_submissions"]++
+				if len(report.FormSubmissions) < limit {
+					report.FormSubmissions = append(report.FormSubmissions, inboxSubmission{r.ID, r.ResourceType, r.CreatedAt})
+				}
 			}
 		}
 	}
-	report.Counts["new_members"] = len(report.NewMembers)
-	report.Counts["unreplied_posts"] = len(report.UnrepliedPosts)
-	report.Counts["flagged_content"] = len(report.FlaggedContent)
-	report.Counts["form_submissions"] = len(report.FormSubmissions)
-	report.Counts["failed_charges"] = len(report.FailedCharges)
-	report.Counts["cancellations"] = len(report.Cancellations)
 	return report
 }
 

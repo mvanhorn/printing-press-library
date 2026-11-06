@@ -102,6 +102,11 @@ func readShowTellLedger(path string) (showTellLedger, error) {
 			if err := circlePositiveID(entry.EventID.String()); err != nil {
 				return nil, fmt.Errorf("invalid ledger event: %w", err)
 			}
+			if entry.SpaceID != "" {
+				if err := validateShowTellLedgerSpace(entry, path); err != nil {
+					return nil, err
+				}
+			}
 		}
 	}
 	return ledger, nil
@@ -115,10 +120,17 @@ func writeShowTellLedger(path string, ledger showTellLedger) error {
 	return cliutil.AtomicWritePrivateFile(path, data, 0o600, 0o700)
 }
 
-func validShowTellEntries(entries []showTellLedgerEntry, get func(string) (string, error)) ([]showTellLedgerEntry, error) {
+func validateShowTellLedgerSpace(entry showTellLedgerEntry, path string) error {
+	if err := circlePositiveID(entry.SpaceID); err != nil {
+		return fmt.Errorf("event %s in ledger %s has no valid space id; add a positive \"space_id\" to that ledger entry or remove it: %w", entry.EventID, path, err)
+	}
+	return nil
+}
+
+func validShowTellEntries(entries []showTellLedgerEntry, path string, get func(string) (circleEvent, error)) ([]showTellLedgerEntry, error) {
 	valid := make([]showTellLedgerEntry, 0, len(entries))
 	for _, entry := range entries {
-		space, err := get(entry.EventID.String())
+		event, err := get(entry.EventID.String())
 		var apiErr *client.APIError
 		if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound {
 			continue
@@ -127,7 +139,13 @@ func validShowTellEntries(entries []showTellLedgerEntry, get func(string) (strin
 			return nil, fmt.Errorf("verify ledger event %s: %w", entry.EventID, err)
 		}
 		if entry.SpaceID == "" {
-			entry.SpaceID = space
+			entry.SpaceID = event.SpaceID.String()
+			if entry.SpaceID == "" {
+				entry.SpaceID = event.Space.ID.String()
+			}
+		}
+		if err := validateShowTellLedgerSpace(entry, path); err != nil {
+			return nil, err
 		}
 		valid = append(valid, entry)
 	}
@@ -287,22 +305,18 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 						otherEntries = append(otherEntries, entry)
 					}
 				}
-				verified, err := validShowTellEntries(destinationEntries, func(id string) (string, error) {
+				liveStatuses := make(map[string]string)
+				verified, err := validShowTellEntries(destinationEntries, stateFile, func(id string) (circleEvent, error) {
 					raw, err := c.GetNoCache(ctx, "/events/"+id, nil)
 					if err != nil {
-						return "", err
+						return circleEvent{}, err
 					}
 					var event circleEvent
 					if err := circleDecode(raw, &event); err != nil {
-						return "", err
+						return circleEvent{}, fmt.Errorf("event %s in ledger %s could not be decoded; add a positive \"space_id\" to that ledger entry or remove it: %w", id, stateFile, err)
 					}
-					if event.SpaceID != "" {
-						return event.SpaceID.String(), nil
-					}
-					if event.Space.ID != "" {
-						return event.Space.ID.String(), nil
-					}
-					return sourceSpace, nil
+					liveStatuses[id] = event.Status
+					return event, nil
 				})
 				if err != nil {
 					return err
@@ -322,6 +336,13 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				result := showTellSchedule{TemplateID: template, Every: every, Until: until, Warnings: warnings, Occurrences: showTellPlan(event.Name, dates, events, time.Now().UTC(), entries...)}
+				for i := range result.Occurrences {
+					item := &result.Occurrences[i]
+					if item.Action == "reschedule" && liveStatuses[item.EventID.String()] != "draft" {
+						item.Action = "skipped"
+						result.Warnings = append(result.Warnings, fmt.Sprintf("event %s for %s is not a draft (status %q); skipped rescheduling", item.EventID, item.Date, liveStatuses[item.EventID.String()]))
+					}
+				}
 				defer func() {
 					if returnErr != nil && flags.yes {
 						returnErr = errors.Join(returnErr, printJSONFiltered(cmd.OutOrStdout(), result, flags))

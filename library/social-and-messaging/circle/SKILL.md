@@ -112,7 +112,7 @@ Do not use this CLI for:
   ```
 - **`founding`** — Answer whether at least N people paid with GO or NO-GO and the count.
 
-  _Use this for the launch decision. Branch on the verdict field: exit 2 is also used for usage errors. Trialing and past-due subscriptions count as paid._
+  _Use this for the launch decision. Exit 3 means NO-GO; exit 2 means a usage error. Trialing and past-due subscriptions count as paid._
 
   ```bash
   circle-pp-cli founding --go-no-go 10 --agent
@@ -493,7 +493,7 @@ Prints which sections and lessons would be created or updated; re-run with --yes
 circle-pp-cli founding --go-no-go 10 --agent
 ```
 
-Exit 0 means at least 10 people paid; exit 2 means not yet.
+Exit 0 means at least 10 people paid; exit 3 means not yet.
 
 ### Narrow a member listing
 

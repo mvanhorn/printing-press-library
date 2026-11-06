@@ -7,10 +7,14 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/circle/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/circle/internal/cliutil/testenv"
 )
 
@@ -33,6 +37,58 @@ func TestNovelOnboardHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("onboard --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestOnboardAppliedRequiresSuccessfulWrite(t *testing.T) {
+	for _, partial := range []bool{false, true} {
+		t.Run(fmt.Sprint(partial), func(t *testing.T) {
+			testenv.Isolate(t)
+			previousHooks := clientHooks
+			t.Cleanup(func() { clientHooks = previousHooks })
+			posts := 0
+			registerClientHook(func(c *client.Client) error {
+				c.Config.CircleApiToken = "onboard-unit-test"
+				c.HTTPClient.Transport = showTellScheduleTransport(func(req *http.Request) (*http.Response, error) {
+					code, body := 200, `{"success":true}`
+					switch req.Method + " " + req.URL.Path {
+					case "GET /api/admin/v2/community_members/search":
+						code, body = 404, `{"success":false}`
+					case "GET /api/admin/v2/member_tags":
+						body = `{"records":[],"has_next_page":false}`
+					case "POST /api/admin/v2/community_members":
+						posts++
+						if !partial || posts == 1 {
+							code, body = 400, `{"success":false,"message":"rejected"}`
+						}
+					default:
+						return nil, fmt.Errorf("unexpected request: %s %s", req.Method, req.URL.Path)
+					}
+					return &http.Response{StatusCode: code, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+				})
+				return nil
+			})
+			cmd := newNovelOnboardCmd(&rootFlags{asJSON: true, yes: true, noCache: true})
+			cmd.SilenceUsage = true
+			cmd.SetArgs([]string{"a@example.com", "b@example.com", "--space", "1"})
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			cmd.SetErr(io.Discard)
+			if err := cmd.Execute(); err == nil {
+				t.Fatal("expected failures")
+			}
+			var plan onboardPlan
+			if err := json.Unmarshal(out.Bytes(), &plan); err != nil {
+				t.Fatal(err)
+			}
+			wantFailures := 2
+			if partial {
+				wantFailures = 1
+			}
+			if plan.Applied != partial || len(plan.Failures) != wantFailures || posts != 2 {
+				t.Fatalf("applied=%v failures=%+v posts=%d", plan.Applied, plan.Failures, posts)
+			}
+		})
 	}
 }
 

@@ -134,8 +134,13 @@ func TestBuildInboxOrderingLimitsAndTotals(t *testing.T) {
 		t.Fatal("buildInbox mutated input")
 	}
 	for _, section := range []string{"new_members", "unreplied_posts", "flagged_content", "form_submissions", "failed_charges", "cancellations"} {
-		if report.Counts[section] != 1 {
+		if report.Counts[section] != 3 {
 			t.Fatalf("%s count = %d", section, report.Counts[section])
+		}
+	}
+	for _, shown := range []int{len(report.NewMembers), len(report.UnrepliedPosts), len(report.FlaggedContent), len(report.FormSubmissions), len(report.FailedCharges), len(report.Cancellations)} {
+		if shown != 1 {
+			t.Fatalf("shown items = %d, want limit 1", shown)
 		}
 	}
 	for _, total := range []string{"members", "posts", "comments", "spaces"} {

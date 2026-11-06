@@ -67,11 +67,14 @@ func TestFoundingLocalExitCodes(t *testing.T) {
 		target, code int
 		verdict      string
 	}{
-		{1, 0, "GO"}, {2, 2, "NO-GO"},
+		{1, 0, "GO"}, {2, 3, "NO-GO"}, {0, 2, ""},
 	} {
 		t.Run(tc.verdict, func(t *testing.T) {
 			flags := &rootFlags{asJSON: true, dataSource: "local"}
 			cmd := newNovelFoundingCmd(flags)
+			if cmd.Annotations["pp:typed-exit-codes"] != "0,3" || !strings.Contains(cmd.Long, "3 NO-GO") {
+				t.Fatal("NO-GO exit code is not documented")
+			}
 			var out, stderr bytes.Buffer
 			cmd.SetOut(&out)
 			cmd.SetErr(&stderr)
@@ -83,6 +86,9 @@ func TestFoundingLocalExitCodes(t *testing.T) {
 			}
 			if code != tc.code {
 				t.Fatalf("exit code %d, want %d; err=%v", code, tc.code, err)
+			}
+			if tc.target == 0 {
+				return
 			}
 			// Sync hints are allowed; the verdict must not be repeated as a Cobra error.
 			if strings.Contains(stderr.String(), "Error:") || strings.Contains(stderr.String(), "NO-GO") {

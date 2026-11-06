@@ -235,11 +235,11 @@ func TestShowTellLedgerVerification(t *testing.T) {
 		{"unavailable", errors.New("connection failed"), "", true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			entries, err := validShowTellEntries([]showTellLedgerEntry{{Date: "2026-12-03", EventID: "30000897"}}, func(id string) (string, error) {
+			entries, err := validShowTellEntries([]showTellLedgerEntry{{Date: "2026-12-03", EventID: "30000897"}}, "ledger.json", func(id string) (circleEvent, error) {
 				if id != "30000897" {
 					t.Fatalf("unexpected id %s", id)
 				}
-				return "2", tc.err
+				return circleEvent{SpaceID: "2", Status: "draft"}, tc.err
 			})
 			if (err != nil) != tc.bad {
 				t.Fatalf("error=%v", err)
@@ -288,7 +288,7 @@ func TestShowTellScheduleLedgerRerun(t *testing.T) {
 			case "GET /api/admin/v2/events":
 				body = `{"has_next_page":false,"records":[]}`
 			case "GET /api/admin/v2/events/30000897", "GET /api/admin/v2/events/30000898":
-				body = `{"id":30000897,"status":"draft"}`
+				body = `{"id":30000897,"space_id":1001070,"status":"draft"}`
 			case "POST /api/admin/v2/spaces/1001070/events/30000788/duplicate":
 				if puts == 0 {
 					body = `{"id":30000897}`
@@ -360,7 +360,7 @@ func TestShowTellScheduleRetriesUnscheduled(t *testing.T) {
 			case "GET /api/admin/v2/events":
 				body = `{"records":[],"has_next_page":false}`
 			case "GET /api/admin/v2/events/3":
-				body = `{"id":3,"status":"draft"}`
+				body = `{"id":3,"space_id":2,"status":"draft"}`
 			case "PUT /api/admin/v2/events/3":
 				puts++
 				acquired, err := cliutil.TryWithFileLock(file, func() error { return nil })
@@ -485,7 +485,7 @@ func TestShowTellScheduleLegacySpace(t *testing.T) {
 		{"override preview", "3", `,"space_id":3`, "exists", false},
 		{"template preview", "2", `,"space_id":3`, "create", false},
 		{"override apply", "3", `,"space_id":3`, "exists", true},
-		{"missing space fallback", "2", "", "exists", true},
+		{"nested space", "3", `,"space":{"id":3}`, "exists", true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			testenv.Isolate(t)
@@ -546,6 +546,128 @@ func TestShowTellScheduleLegacySpace(t *testing.T) {
 	}
 }
 
+func TestShowTellScheduleInvalidLedgerSpace(t *testing.T) {
+	for _, tc := range []struct{ name, stored, response string }{
+		{"missing", "", `{"id":4,"status":"draft"}`},
+		{"zero", "", `{"id":4,"space_id":0}`},
+		{"negative", "", `{"id":4,"space_id":-1}`},
+		{"fraction", "", `{"id":4,"space_id":1.5}`},
+		{"invalid string", "", `{"id":4,"space_id":"bad"}`},
+		{"nested zero", "", `{"id":4,"space":{"id":0}}`},
+		{"stored zero", `,"space_id":"0"`, `{"id":4,"space_id":2}`},
+		{"stored negative", `,"space_id":"-1"`, `{"id":4,"space_id":2}`},
+		{"stored invalid", `,"space_id":"bad"`, `{"id":4,"space_id":2}`},
+	} {
+		for _, yes := range []bool{false, true} {
+			t.Run(fmt.Sprintf("%s/yes=%v", tc.name, yes), func(t *testing.T) {
+				testenv.Isolate(t)
+				previousHooks := clientHooks
+				t.Cleanup(func() { clientHooks = previousHooks })
+				file := filepath.Join(t.TempDir(), "ledger.json")
+				original := []byte(`{"1":[{"date":"2099-01-02","event_id":3},{"date":"2099-01-03","event_id":4` + tc.stored + `}]}`)
+				if err := os.WriteFile(file, original, 0o600); err != nil {
+					t.Fatal(err)
+				}
+				writes := 0
+				registerClientHook(func(c *client.Client) error {
+					c.Config.CircleApiToken = "schedule-unit-test"
+					c.HTTPClient.Transport = showTellScheduleTransport(func(req *http.Request) (*http.Response, error) {
+						body := `{"success":true}`
+						if req.Method != "GET" {
+							writes++
+						} else {
+							switch req.URL.Path {
+							case "/api/admin/v2/events/1":
+								body = `{"id":1,"name":"Show & Tell","space_id":2,"starts_at":"2099-01-01T18:00:00Z","duration_in_seconds":60}`
+							case "/api/admin/v2/events":
+								body = `{"records":[],"has_next_page":false}`
+							case "/api/admin/v2/events/3":
+								body = `{"id":3,"space_id":2,"status":"draft"}`
+							case "/api/admin/v2/events/4":
+								body = tc.response
+							default:
+								return nil, fmt.Errorf("unexpected GET %s", req.URL.Path)
+							}
+						}
+						return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+					})
+					return nil
+				})
+				cmd := newNovelShowTellScheduleCmd(&rootFlags{asJSON: true, yes: yes, noCache: true})
+				cmd.SetArgs([]string{"--template", "1", "--every", "1d", "--until", "2099-01-04", "--state-file", file})
+				cmd.SetOut(io.Discard)
+				cmd.SetErr(io.Discard)
+				err := cmd.Execute()
+				if err == nil {
+					t.Fatal("accepted unsafe ledger space")
+				}
+				for _, want := range []string{"event 4", file, `"space_id"`, "remove it"} {
+					if !strings.Contains(err.Error(), want) {
+						t.Fatalf("missing %q in error: %v", want, err)
+					}
+				}
+				got, readErr := os.ReadFile(file)
+				if readErr != nil || !bytes.Equal(got, original) || writes != 0 {
+					t.Fatalf("ledger changed=%v writes=%d error=%v", !bytes.Equal(got, original), writes, readErr)
+				}
+			})
+		}
+	}
+}
+
+func TestShowTellScheduleSkipsPublishedUnscheduled(t *testing.T) {
+	for _, yes := range []bool{false, true} {
+		t.Run(fmt.Sprint(yes), func(t *testing.T) {
+			testenv.Isolate(t)
+			previousHooks := clientHooks
+			t.Cleanup(func() { clientHooks = previousHooks })
+			file := filepath.Join(t.TempDir(), "ledger.json")
+			original := []byte(`{"1":[{"date":"2099-01-02","event_id":3,"space_id":"2","status":"unscheduled"}]}`)
+			if err := os.WriteFile(file, original, 0o600); err != nil {
+				t.Fatal(err)
+			}
+			writes := 0
+			registerClientHook(func(c *client.Client) error {
+				c.Config.CircleApiToken = "schedule-unit-test"
+				c.HTTPClient.Transport = showTellScheduleTransport(func(req *http.Request) (*http.Response, error) {
+					body := `{"success":true}`
+					switch req.Method + " " + req.URL.Path {
+					case "GET /api/admin/v2/events/1":
+						body = `{"id":1,"name":"Show & Tell","space_id":2,"starts_at":"2099-01-01T18:00:00Z","duration_in_seconds":60}`
+					case "GET /api/admin/v2/events":
+						body = `{"records":[],"has_next_page":false}`
+					case "GET /api/admin/v2/events/3":
+						body = `{"id":3,"space_id":2,"status":"published"}`
+					default:
+						writes++
+					}
+					return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+				})
+				return nil
+			})
+			cmd := newNovelShowTellScheduleCmd(&rootFlags{asJSON: true, yes: yes, noCache: true})
+			cmd.SetArgs([]string{"--template", "1", "--every", "1d", "--until", "2099-01-02", "--state-file", file})
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			cmd.SetErr(io.Discard)
+			if err := cmd.Execute(); err != nil {
+				t.Fatal(err)
+			}
+			var result showTellSchedule
+			if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+				t.Fatal(err)
+			}
+			if writes != 0 || len(result.Occurrences) != 1 || result.Occurrences[0].Action != "skipped" || len(result.Warnings) != 1 || !strings.Contains(result.Warnings[0], "published") {
+				t.Fatalf("writes=%d result=%+v", writes, result)
+			}
+			got, err := os.ReadFile(file)
+			if err != nil || !bytes.Equal(got, original) {
+				t.Fatalf("ledger changed: %s error=%v", got, err)
+			}
+		})
+	}
+}
+
 func TestShowTellScheduleDryRunSkipsLedger(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "ledger.json")
 	if err := os.WriteFile(file, []byte("invalid ledger"), 0o600); err != nil {
@@ -588,6 +710,7 @@ func TestShowTellScheduleSpaceAndLock(t *testing.T) {
 					case "GET /api/admin/v2/events":
 						body = `{"has_next_page":false,"records":[]}`
 					case "GET /api/admin/v2/events/4", "GET /api/admin/v2/events/5":
+						body = `{"id":4,"space_id":2,"status":"draft"}`
 					case "POST /api/admin/v2/spaces/2/events/1/duplicate":
 						posts++
 						body = fmt.Sprintf(`{"id":%d}`, 3+posts)
