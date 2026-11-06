@@ -133,7 +133,10 @@ func validShowTellEntries(entries []showTellLedgerEntry, path string, get func(s
 		event, err := get(entry.EventID.String())
 		var apiErr *client.APIError
 		if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound {
-			continue
+			if entry.Status != "unscheduled" {
+				continue
+			}
+			err = nil
 		}
 		if err != nil {
 			return nil, fmt.Errorf("verify ledger event %s: %w", entry.EventID, err)
@@ -170,10 +173,10 @@ func showTellPlan(name string, dates []time.Time, events []circleEvent, now time
 		if id, ok := existing[item.Date]; ok {
 			item.Action, item.EventID = "exists", id
 			if unscheduled[item.Date] {
-				item.Action = "reschedule"
+				item.Action = "needs-reconciliation"
 			}
 		}
-		if date.Before(now) {
+		if date.Before(now) && item.Action != "needs-reconciliation" {
 			item.Action = "past"
 		}
 		plan = append(plan, item)
@@ -305,7 +308,6 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 						otherEntries = append(otherEntries, entry)
 					}
 				}
-				liveStatuses := make(map[string]string)
 				verified, err := validShowTellEntries(destinationEntries, stateFile, func(id string) (circleEvent, error) {
 					raw, err := c.GetNoCache(ctx, "/events/"+id, nil)
 					if err != nil {
@@ -315,7 +317,6 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 					if err := circleDecode(raw, &event); err != nil {
 						return circleEvent{}, fmt.Errorf("event %s in ledger %s could not be decoded; add a positive \"space_id\" to that ledger entry or remove it: %w", id, stateFile, err)
 					}
-					liveStatuses[id] = event.Status
 					return event, nil
 				})
 				if err != nil {
@@ -327,6 +328,24 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 						entries = append(entries, entry)
 					}
 				}
+				result := showTellSchedule{TemplateID: template, Every: every, Until: until, Warnings: warnings, Occurrences: showTellPlan(event.Name, dates, events, time.Now().UTC(), entries...)}
+				var reconciliationErr error
+				for _, entry := range entries {
+					if entry.Status == "unscheduled" {
+						reconciliationErr = errors.Join(reconciliationErr, fmt.Errorf("event %s on %s in ledger %s: Circle's event API does not report draft status, so this CLI cannot verify the event. In Circle, set the event's time, publish it or delete it; then remove \"status\" from that entry in %s (or remove the entry if you deleted the event) and run again.", entry.EventID, entry.Date, stateFile, stateFile))
+					}
+				}
+				defer func() {
+					if returnErr != nil && flags.yes {
+						returnErr = errors.Join(returnErr, printJSONFiltered(cmd.OutOrStdout(), result, flags))
+					}
+				}()
+				if reconciliationErr != nil {
+					cmd.SilenceUsage = true
+					if flags.yes {
+						return reconciliationErr
+					}
+				}
 				if backfilled || len(verified) != len(destinationEntries) {
 					ledger[template] = append(otherEntries, verified...)
 					if flags.yes {
@@ -335,41 +354,9 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
-				result := showTellSchedule{TemplateID: template, Every: every, Until: until, Warnings: warnings, Occurrences: showTellPlan(event.Name, dates, events, time.Now().UTC(), entries...)}
-				for i := range result.Occurrences {
-					item := &result.Occurrences[i]
-					if item.Action == "reschedule" && liveStatuses[item.EventID.String()] != "draft" {
-						item.Action = "skipped"
-						result.Warnings = append(result.Warnings, fmt.Sprintf("event %s for %s is not a draft (status %q); skipped rescheduling", item.EventID, item.Date, liveStatuses[item.EventID.String()]))
-					}
-				}
-				defer func() {
-					if returnErr != nil && flags.yes {
-						returnErr = errors.Join(returnErr, printJSONFiltered(cmd.OutOrStdout(), result, flags))
-					}
-				}()
 				if flags.yes {
 					for i := range result.Occurrences {
 						item := &result.Occurrences[i]
-						if item.Action == "reschedule" {
-							raw, _, err := c.Put(ctx, "/events/"+item.EventID.String(), showTellEventUpdate(json.Number(space), dates[i], duration))
-							if err == nil {
-								err = circleDecode(raw, nil)
-							}
-							if err != nil {
-								return fmt.Errorf("reschedule event %s for %s: %w", item.EventID, item.Date, err)
-							}
-							for j, entry := range ledger[template] {
-								if entry.SpaceID == space && entry.Date == item.Date && entry.EventID == item.EventID {
-									ledger[template][j].Status = ""
-								}
-							}
-							if err := writeShowTellLedger(stateFile, ledger); err != nil {
-								return fmt.Errorf("event %s was rescheduled but ledger save failed: %w", item.EventID, err)
-							}
-							item.Action = "rescheduled"
-							continue
-						}
 						if item.Action != "create" {
 							continue
 						}
@@ -406,17 +393,17 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 					result.Applied = true
 				}
 				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-					return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+					return errors.Join(reconciliationErr, printJSONFiltered(cmd.OutOrStdout(), result, flags))
 				}
 				for _, item := range result.Occurrences {
 					if _, err := fmt.Fprintf(cmd.OutOrStdout(), "%s\t%s\t%s\n", item.StartsAt, item.Action, item.EventID); err != nil {
 						return err
 					}
 				}
-				if !result.Applied {
+				if !result.Applied && reconciliationErr == nil {
 					_, err = fmt.Fprintln(cmd.OutOrStdout(), "Preview only. Pass --yes to create draft events.")
 				}
-				return err
+				return errors.Join(reconciliationErr, err)
 			}
 			if flags.yes {
 				if err := os.MkdirAll(filepath.Dir(stateFile), 0o700); err != nil {

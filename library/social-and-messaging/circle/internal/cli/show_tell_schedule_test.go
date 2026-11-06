@@ -239,7 +239,7 @@ func TestShowTellLedgerVerification(t *testing.T) {
 				if id != "30000897" {
 					t.Fatalf("unexpected id %s", id)
 				}
-				return circleEvent{SpaceID: "2", Status: "draft"}, tc.err
+				return circleEvent{SpaceID: "2"}, tc.err
 			})
 			if (err != nil) != tc.bad {
 				t.Fatalf("error=%v", err)
@@ -288,7 +288,7 @@ func TestShowTellScheduleLedgerRerun(t *testing.T) {
 			case "GET /api/admin/v2/events":
 				body = `{"has_next_page":false,"records":[]}`
 			case "GET /api/admin/v2/events/30000897", "GET /api/admin/v2/events/30000898":
-				body = `{"id":30000897,"space_id":1001070,"status":"draft"}`
+				body = `{"id":30000897,"space_id":1001070}`
 			case "POST /api/admin/v2/spaces/1001070/events/30000788/duplicate":
 				if puts == 0 {
 					body = `{"id":30000897}`
@@ -332,24 +332,30 @@ func TestShowTellScheduleLedgerRerun(t *testing.T) {
 		t.Fatalf("partial run lost first occurrence: %v, %v", ledger, err)
 	}
 	result, err := run(false)
-	if err != nil || result.Occurrences[0].Action != "exists" || result.Occurrences[0].EventID != "30000897" || result.Occurrences[1].Action != "reschedule" || puts != 2 {
+	if err == nil || result.Occurrences[0].Action != "exists" || result.Occurrences[0].EventID != "30000897" || result.Occurrences[1].Action != "needs-reconciliation" || puts != 2 {
 		t.Fatalf("rerun=%+v, puts=%d, error=%v", result, puts, err)
 	}
 }
 
-func TestShowTellScheduleRetriesUnscheduled(t *testing.T) {
+func TestShowTellScheduleNeedsReconciliation(t *testing.T) {
 	testenv.Isolate(t)
 	previousHooks := clientHooks
 	t.Cleanup(func() { clientHooks = previousHooks })
 	file := filepath.Join(t.TempDir(), "ledger.json")
 	ledger := showTellLedger{"1": {
-		{Date: "2099-01-02", EventID: "3", Status: "unscheduled", SpaceID: "2"},
+		{Date: "2099-01-02", EventID: "3", Status: "unscheduled"},
 		{Date: "2099-01-02", EventID: "4", Status: "unscheduled", SpaceID: "5"},
+		{Date: "2099-01-03", EventID: "5", Status: "unscheduled", SpaceID: "2"},
 	}}
 	if err := writeShowTellLedger(file, ledger); err != nil {
 		t.Fatal(err)
 	}
-	puts := 0
+	original, err := os.ReadFile(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writes := 0
+	applying := false
 	registerClientHook(func(c *client.Client) error {
 		c.Config.CircleApiToken = "schedule-unit-test"
 		c.HTTPClient.Transport = showTellScheduleTransport(func(req *http.Request) (*http.Response, error) {
@@ -359,56 +365,54 @@ func TestShowTellScheduleRetriesUnscheduled(t *testing.T) {
 				body = `{"id":1,"name":"Show & Tell","space_id":2,"starts_at":"2099-01-01T18:00:00Z","duration_in_seconds":60}`
 			case "GET /api/admin/v2/events":
 				body = `{"records":[],"has_next_page":false}`
-			case "GET /api/admin/v2/events/3":
-				body = `{"id":3,"space_id":2,"status":"draft"}`
-			case "PUT /api/admin/v2/events/3":
-				puts++
-				acquired, err := cliutil.TryWithFileLock(file, func() error { return nil })
-				if err != nil || acquired {
-					t.Fatalf("reschedule outside lock: acquired=%v error=%v", acquired, err)
-				}
-				var got map[string]any
-				if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
-					t.Fatal(err)
-				}
-				start := time.Date(2099, 1, 2, 18, 0, 0, 0, time.UTC)
-				want, _ := json.Marshal(showTellEventUpdate("2", start, time.Minute))
-				actual, _ := json.Marshal(got)
-				if !bytes.Equal(actual, want) {
-					t.Fatalf("PUT body=%s, want %s", actual, want)
+			case "GET /api/admin/v2/events/3", "GET /api/admin/v2/events/5":
+				body = `{"id":3,"space_id":2}`
+				if applying {
+					acquired, err := cliutil.TryWithFileLock(file, func() error { return nil })
+					if err != nil || acquired {
+						t.Fatalf("reconciliation check outside lock: acquired=%v error=%v", acquired, err)
+					}
 				}
 			default:
-				return nil, fmt.Errorf("unexpected request: %s %s", req.Method, req.URL.Path)
+				if req.Method == "GET" {
+					return nil, fmt.Errorf("unexpected request: %s %s", req.Method, req.URL.Path)
+				}
+				writes++
 			}
 			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
 		})
 		return nil
 	})
-	for i, wantAction := range []string{"reschedule", "rescheduled", "exists"} {
-		cmd := newNovelShowTellScheduleCmd(&rootFlags{asJSON: true, yes: i > 0, noCache: true})
-		cmd.SetArgs([]string{"--template", "1", "--every", "1d", "--until", "2099-01-02", "--state-file", file})
+	for _, yes := range []bool{false, true} {
+		applying = yes
+		cmd := newNovelShowTellScheduleCmd(&rootFlags{asJSON: true, yes: yes, noCache: true})
+		cmd.SetArgs([]string{"--template", "1", "--every", "1d", "--until", "2099-01-04", "--state-file", file})
 		var out bytes.Buffer
 		cmd.SetOut(&out)
 		cmd.SetErr(io.Discard)
-		if err := cmd.Execute(); err != nil {
-			t.Fatal(err)
+		err := cmd.Execute()
+		if err == nil || ExitCode(err) == 0 {
+			t.Fatal("unconfirmed schedule returned success")
+		}
+		for _, entry := range []showTellLedgerEntry{ledger["1"][0], ledger["1"][2]} {
+			want := fmt.Sprintf("event %s on %s in ledger %s: Circle's event API does not report draft status, so this CLI cannot verify the event. In Circle, set the event's time, publish it or delete it; then remove \"status\" from that entry in %s (or remove the entry if you deleted the event) and run again.", entry.EventID, entry.Date, file, file)
+			if !strings.Contains(err.Error(), want) {
+				t.Fatalf("missing reconciliation instructions: %v", err)
+			}
+		}
+		if strings.Contains(err.Error(), "event 4") {
+			t.Fatalf("unrelated destination blocks scheduling: %v", err)
 		}
 		var result showTellSchedule
 		if err := json.Unmarshal(out.Bytes(), &result); err != nil {
 			t.Fatal(err)
 		}
-		if len(result.Occurrences) != 1 || result.Occurrences[0].Action != wantAction || result.Occurrences[0].EventID != "3" {
-			t.Fatalf("run %d: %+v", i, result)
+		if result.Applied || len(result.Occurrences) != 3 || result.Occurrences[0].Action != "needs-reconciliation" || result.Occurrences[0].EventID != "3" || result.Occurrences[1].Action != "needs-reconciliation" || result.Occurrences[1].EventID != "5" || result.Occurrences[2].Action != "create" {
+			t.Fatalf("yes=%v: %+v", yes, result)
 		}
-		wantPuts := 1
-		if i == 0 {
-			wantPuts = 0
-		} else {
-			ledger["1"][0].Status = ""
-		}
-		got, err := readShowTellLedger(file)
-		if err != nil || !reflect.DeepEqual(got, ledger) || puts != wantPuts {
-			t.Fatalf("ledger=%+v puts=%d error=%v", got, puts, err)
+		got, err := os.ReadFile(file)
+		if err != nil || !bytes.Equal(got, original) || writes != 0 {
+			t.Fatalf("ledger changed=%v writes=%d error=%v", !bytes.Equal(got, original), writes, err)
 		}
 	}
 }
@@ -615,7 +619,7 @@ func TestShowTellScheduleInvalidLedgerSpace(t *testing.T) {
 	}
 }
 
-func TestShowTellScheduleSkipsPublishedUnscheduled(t *testing.T) {
+func TestShowTellScheduleDeletedUnscheduledNeedsReconciliation(t *testing.T) {
 	for _, yes := range []bool{false, true} {
 		t.Run(fmt.Sprint(yes), func(t *testing.T) {
 			testenv.Isolate(t)
@@ -631,17 +635,18 @@ func TestShowTellScheduleSkipsPublishedUnscheduled(t *testing.T) {
 				c.Config.CircleApiToken = "schedule-unit-test"
 				c.HTTPClient.Transport = showTellScheduleTransport(func(req *http.Request) (*http.Response, error) {
 					body := `{"success":true}`
+					code := http.StatusOK
 					switch req.Method + " " + req.URL.Path {
 					case "GET /api/admin/v2/events/1":
 						body = `{"id":1,"name":"Show & Tell","space_id":2,"starts_at":"2099-01-01T18:00:00Z","duration_in_seconds":60}`
 					case "GET /api/admin/v2/events":
 						body = `{"records":[],"has_next_page":false}`
 					case "GET /api/admin/v2/events/3":
-						body = `{"id":3,"space_id":2,"status":"published"}`
+						code, body = http.StatusNotFound, `{"success":false,"message":"gone"}`
 					default:
 						writes++
 					}
-					return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+					return &http.Response{StatusCode: code, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
 				})
 				return nil
 			})
@@ -650,14 +655,14 @@ func TestShowTellScheduleSkipsPublishedUnscheduled(t *testing.T) {
 			var out bytes.Buffer
 			cmd.SetOut(&out)
 			cmd.SetErr(io.Discard)
-			if err := cmd.Execute(); err != nil {
-				t.Fatal(err)
+			if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "event 3") || !strings.Contains(err.Error(), "remove the entry if you deleted the event") {
+				t.Fatalf("missing reconciliation error: %v", err)
 			}
 			var result showTellSchedule
 			if err := json.Unmarshal(out.Bytes(), &result); err != nil {
 				t.Fatal(err)
 			}
-			if writes != 0 || len(result.Occurrences) != 1 || result.Occurrences[0].Action != "skipped" || len(result.Warnings) != 1 || !strings.Contains(result.Warnings[0], "published") {
+			if writes != 0 || result.Applied || len(result.Occurrences) != 1 || result.Occurrences[0].Action != "needs-reconciliation" {
 				t.Fatalf("writes=%d result=%+v", writes, result)
 			}
 			got, err := os.ReadFile(file)

@@ -4,8 +4,8 @@
   "applied_at": "2026-11-05",
   "base_run_id": "20261105-112545-5c241c59",
   "base_printing_press_version": "4.35.2",
-  "summary": "Scheduling requires positive verified ledger space IDs and only retries live drafts; operator reports distinguish NO-GO, successful writes, and total matches from displayed rows.",
-  "reason": "Guessing legacy destinations or reverting published events can affect the wrong space or event state. Distinct verdict codes, truthful applied status, and uncapped counts keep automation from treating usage failures, rejected writes, or limited output as successful outcomes.",
+  "summary": "Scheduling requires positive verified ledger space IDs and manual reconciliation of unconfirmed duplicates; operator reports distinguish NO-GO, successful writes, and total matches from displayed rows.",
+  "reason": "Guessing legacy destinations or inferring draft status from Circle's event response can affect the wrong space or event state. Unconfirmed duplicates must block writes; distinct verdict codes, truthful applied status, and uncapped counts keep operator reports reliable.",
   "files": [
     "internal/cli/circle_events.go",
     "internal/cli/show_tell_schedule.go",

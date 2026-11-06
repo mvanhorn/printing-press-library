@@ -22,7 +22,6 @@ import (
 type circleEvent struct {
 	ID              json.Number `json:"id"`
 	Name            string      `json:"name"`
-	Status          string      `json:"status,omitempty"`
 	StartsAt        time.Time   `json:"starts_at"`
 	EndsAt          time.Time   `json:"ends_at,omitempty"`
 	DurationSeconds *int64      `json:"duration_in_seconds,omitempty"`
