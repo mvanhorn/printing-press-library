@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -95,7 +96,8 @@ func readShowTellLedger(path string) (showTellLedger, error) {
 		if err := circlePositiveID(template); err != nil {
 			return nil, fmt.Errorf("invalid ledger template: %w", err)
 		}
-		for _, entry := range entries {
+		for i := range entries {
+			entry := &entries[i]
 			if _, err := time.Parse(time.DateOnly, entry.Date); err != nil {
 				return nil, fmt.Errorf("invalid ledger date: %w", err)
 			}
@@ -103,7 +105,7 @@ func readShowTellLedger(path string) (showTellLedger, error) {
 				return nil, fmt.Errorf("invalid ledger event: %w", err)
 			}
 			if entry.SpaceID != "" {
-				if err := validateShowTellLedgerSpace(entry, path); err != nil {
+				if err := canonicalizeShowTellLedgerSpace(entry, path); err != nil {
 					return nil, err
 				}
 			}
@@ -120,10 +122,20 @@ func writeShowTellLedger(path string, ledger showTellLedger) error {
 	return cliutil.AtomicWritePrivateFile(path, data, 0o600, 0o700)
 }
 
-func validateShowTellLedgerSpace(entry showTellLedgerEntry, path string) error {
-	if err := circlePositiveID(entry.SpaceID); err != nil {
+func canonicalShowTellSpaceID(id string) (string, error) {
+	if err := circlePositiveID(id); err != nil {
+		return "", err
+	}
+	n, _ := strconv.ParseInt(id, 10, 64)
+	return strconv.FormatInt(n, 10), nil
+}
+
+func canonicalizeShowTellLedgerSpace(entry *showTellLedgerEntry, path string) error {
+	space, err := canonicalShowTellSpaceID(entry.SpaceID)
+	if err != nil {
 		return fmt.Errorf("event %s in ledger %s has no valid space id; add a positive \"space_id\" to that ledger entry or remove it: %w", entry.EventID, path, err)
 	}
+	entry.SpaceID = space
 	return nil
 }
 
@@ -147,7 +159,7 @@ func validShowTellEntries(entries []showTellLedgerEntry, path string, get func(s
 				entry.SpaceID = event.Space.ID.String()
 			}
 		}
-		if err := validateShowTellLedgerSpace(entry, path); err != nil {
+		if err := canonicalizeShowTellLedgerSpace(&entry, path); err != nil {
 			return nil, err
 		}
 		valid = append(valid, entry)
@@ -224,7 +236,9 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("--template: %w", err))
 			}
 			if space != "" {
-				if err := circlePositiveID(space); err != nil {
+				var err error
+				space, err = canonicalShowTellSpaceID(space)
+				if err != nil {
 					return usageErr(fmt.Errorf("--space: %w", err))
 				}
 			}
@@ -261,7 +275,8 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 			if sourceSpace == "" {
 				sourceSpace = event.SpaceID.String()
 			}
-			if err := circlePositiveID(sourceSpace); err != nil {
+			sourceSpace, err = canonicalShowTellSpaceID(sourceSpace)
+			if err != nil {
 				return fmt.Errorf("template has no valid space: %w", err)
 			}
 			if space == "" {
@@ -280,7 +295,7 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 			}
 			run := func() (returnErr error) {
 				if err := ctx.Err(); err != nil {
-					return fmt.Errorf("ledger %s is locked by another show-tell schedule run: %w", stateFile, err)
+					return fmt.Errorf("stopped waiting for ledger lock %s (held by another show-tell schedule run): %w", stateFile, err)
 				}
 				events, err := circleList[circleEvent](ctx, c, "/events", map[string]string{"space_id": space})
 				if err != nil {
@@ -413,7 +428,7 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 				defer retry.Stop()
 				for {
 					if err := ctx.Err(); err != nil {
-						return fmt.Errorf("ledger %s is locked by another show-tell schedule run: %w", stateFile, err)
+						return fmt.Errorf("stopped waiting for ledger lock %s (held by another show-tell schedule run): %w", stateFile, err)
 					}
 					acquired, err := cliutil.TryWithFileLock(stateFile, run)
 					if acquired || err != nil {

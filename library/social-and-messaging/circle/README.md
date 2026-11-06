@@ -214,7 +214,7 @@ circle-pp-cli seats --cap 30
   ```
 - **`founding`** — Answer whether at least N people paid with GO or NO-GO and the count.
 
-  _Use this for the launch decision. Exit 3 means NO-GO; exit 2 means a usage error. Trialing and past-due subscriptions count as paid._
+  _Use this for the launch decision. Exit 8 means NO-GO; exit 2 means a usage error. Trialing and past-due subscriptions count as paid._
 
   ```bash
   circle-pp-cli founding --go-no-go 10 --agent
@@ -244,7 +244,7 @@ Prints which sections and lessons would be created or updated; re-run with --yes
 circle-pp-cli founding --go-no-go 10 --agent
 ```
 
-Exit 0 means at least 10 people paid; exit 3 means not yet.
+Exit 0 means at least 10 people paid; exit 8 means not yet.
 
 ### Narrow a member listing
 

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "circle-canonical-spaces-and-verdict-code",
+  "applied_at": "2026-11-05",
+  "base_run_id": "20261105-112545-5c241c59",
+  "base_printing_press_version": "4.35.2",
+  "summary": "Founding NO-GO uses exit 8, scheduling compares and saves canonical positive space IDs, and interrupted lock waits disclose the context error.",
+  "reason": "NO-GO must not collide with usage or not-found failures. Padded space IDs identify the same destination and must not create duplicate occurrences or invalid numeric request bodies; a canceled lock wait must not be reported as unexplained contention.",
+  "files": [
+    "internal/cli/founding.go",
+    "internal/cli/founding_test.go",
+    "internal/cli/show_tell_schedule.go",
+    "internal/cli/show_tell_schedule_test.go"
+  ]
+}

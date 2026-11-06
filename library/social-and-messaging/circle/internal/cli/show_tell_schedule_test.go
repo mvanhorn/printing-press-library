@@ -467,7 +467,7 @@ func TestShowTellScheduleLockDeadline(t *testing.T) {
 	if lockErr := <-done; lockErr != nil {
 		t.Fatal(lockErr)
 	}
-	if err == nil || !strings.Contains(err.Error(), "ledger "+file+" is locked by another show-tell schedule run") || !errors.Is(err, context.DeadlineExceeded) || elapsed > 500*time.Millisecond {
+	if err == nil || !strings.Contains(err.Error(), "stopped waiting for ledger lock "+file+" (held by another show-tell schedule run): context deadline exceeded") || !errors.Is(err, context.DeadlineExceeded) || elapsed > 500*time.Millisecond {
 		t.Fatalf("lock wait=%s error=%v", elapsed, err)
 	}
 	select {
@@ -478,6 +478,97 @@ func TestShowTellScheduleLockDeadline(t *testing.T) {
 	got, err := os.ReadFile(file)
 	if err != nil || !bytes.Equal(got, original) {
 		t.Fatalf("ledger changed after deadline: %s error=%v", got, err)
+	}
+}
+
+func TestShowTellScheduleCanonicalSpaceIDs(t *testing.T) {
+	for _, destination := range []string{"7", "007", ""} {
+		for _, yes := range []bool{false, true} {
+			t.Run(fmt.Sprintf("space=%s/yes=%v", destination, yes), func(t *testing.T) {
+				testenv.Isolate(t)
+				previousHooks := clientHooks
+				t.Cleanup(func() { clientHooks = previousHooks })
+				file := filepath.Join(t.TempDir(), "ledger.json")
+				original := []byte(`{"1":[{"date":"2099-01-02","event_id":3,"space_id":"007"},{"date":"2099-02-01","event_id":5,"space_id":"0008"}]}`)
+				if err := os.WriteFile(file, original, 0o600); err != nil {
+					t.Fatal(err)
+				}
+				posts, puts := 0, 0
+				registerClientHook(func(c *client.Client) error {
+					c.Config.CircleApiToken = "schedule-unit-test"
+					c.HTTPClient.Transport = showTellScheduleTransport(func(req *http.Request) (*http.Response, error) {
+						body := `{"success":true}`
+						switch req.Method + " " + req.URL.Path {
+						case "GET /api/admin/v2/events/1":
+							body = `{"id":1,"name":"Show & Tell","space_id":7,"starts_at":"2099-01-01T18:00:00Z","duration_in_seconds":60}`
+						case "GET /api/admin/v2/events":
+							if req.URL.Query().Get("space_id") != "7" {
+								t.Fatalf("noncanonical destination query: %s", req.URL.RawQuery)
+							}
+							body = `{"records":[],"has_next_page":false}`
+						case "GET /api/admin/v2/events/3":
+							body = `{"id":3,"space_id":7}`
+						case "POST /api/admin/v2/spaces/7/events/1/duplicate":
+							posts++
+							body = `{"id":4}`
+						case "PUT /api/admin/v2/events/4":
+							puts++
+							var update struct {
+								SpaceID int64 `json:"space_id"`
+							}
+							if err := json.NewDecoder(req.Body).Decode(&update); err != nil || update.SpaceID != 7 {
+								t.Fatalf("noncanonical PUT: %+v error=%v", update, err)
+							}
+						default:
+							return nil, fmt.Errorf("unexpected request: %s %s", req.Method, req.URL.Path)
+						}
+						return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+					})
+					return nil
+				})
+				cmd := newNovelShowTellScheduleCmd(&rootFlags{asJSON: true, yes: yes, noCache: true})
+				args := []string{"--template", "1", "--every", "1d", "--until", "2099-01-03", "--state-file", file}
+				if destination != "" {
+					args = append(args, "--space", destination)
+				}
+				cmd.SetArgs(args)
+				var out bytes.Buffer
+				cmd.SetOut(&out)
+				cmd.SetErr(io.Discard)
+				if err := cmd.Execute(); err != nil {
+					t.Fatal(err)
+				}
+				var result showTellSchedule
+				if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+					t.Fatal(err)
+				}
+				if len(result.Occurrences) != 2 || result.Occurrences[0].Action != "exists" || result.Occurrences[0].EventID != "3" {
+					t.Fatalf("padded ledger ID did not match destination: %+v", result)
+				}
+				got, err := os.ReadFile(file)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !yes {
+					if posts != 0 || puts != 0 || !bytes.Equal(got, original) {
+						t.Fatalf("preview changed state: posts=%d puts=%d ledger=%s", posts, puts, got)
+					}
+					return
+				}
+				var saved showTellLedger
+				if err := json.Unmarshal(got, &saved); err != nil {
+					t.Fatal(err)
+				}
+				want := showTellLedger{"1": {
+					{Date: "2099-01-02", EventID: "3", SpaceID: "7"},
+					{Date: "2099-02-01", EventID: "5", SpaceID: "8"},
+					{Date: "2099-01-03", EventID: "4", SpaceID: "7"},
+				}}
+				if posts != 1 || puts != 1 || !reflect.DeepEqual(saved, want) {
+					t.Fatalf("posts=%d puts=%d ledger=%+v", posts, puts, saved)
+				}
+			})
+		}
 	}
 }
 

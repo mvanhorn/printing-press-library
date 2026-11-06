@@ -46,6 +46,6 @@ Skip reasons, by count:
 - `show-tell schedule` / `show-tell recap`:
   - 4 quiet draft events (all notifications off); a rerun marks every date as existing.
   - The recap was saved as a draft post with notifications skipped.
-- `seats`, `founding`, `inbox`: live reads, 0 payers, so `founding` returned NO-GO with exit 2 in the release run. After review, NO-GO exits 3 (2 is reserved for usage errors); that change is covered by unit tests and was not re-run live.
+- `seats`, `founding`, `inbox`: live reads, 0 payers, so `founding` returned NO-GO with exit 2 in the release run. After review, NO-GO exits 8 (2 is usage, 3 is not-found); that change is covered by unit tests and was not re-run live.
 
 Hand edit disclosure: the one hand-level change in the release run was a dependency bump of `github.com/yuin/goldmark` from v1.7.13 to v1.7.17 (GO-2026-5320), made with `go get`.

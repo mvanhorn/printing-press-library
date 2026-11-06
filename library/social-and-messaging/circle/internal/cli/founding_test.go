@@ -67,12 +67,12 @@ func TestFoundingLocalExitCodes(t *testing.T) {
 		target, code int
 		verdict      string
 	}{
-		{1, 0, "GO"}, {2, 3, "NO-GO"}, {0, 2, ""},
+		{1, 0, "GO"}, {2, 8, "NO-GO"}, {0, 2, ""},
 	} {
 		t.Run(tc.verdict, func(t *testing.T) {
 			flags := &rootFlags{asJSON: true, dataSource: "local"}
 			cmd := newNovelFoundingCmd(flags)
-			if cmd.Annotations["pp:typed-exit-codes"] != "0,3" || !strings.Contains(cmd.Long, "3 NO-GO") {
+			if cmd.Annotations["pp:typed-exit-codes"] != "0,8" || !strings.Contains(cmd.Long, "8 NO-GO") {
 				t.Fatal("NO-GO exit code is not documented")
 			}
 			var out, stderr bytes.Buffer
