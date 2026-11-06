@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-06T05:33:33.62506Z",
+  "printing_press_version": "4.35.2",
+  "api_name": "cloro",
+  "display_name": "cloro",
+  "cli_name": "cloro-pp-cli",
+  "creator": {
+    "handle": "rbatista191",
+    "name": "Ricardo Batista"
+  },
+  "owner": "rbatista191",
+  "printer": "rbatista191",
+  "printer_name": "Ricardo Batista",
+  "spec_url": "https://cloro.dev/docs/api-reference/openapi.json",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:abc597afb09a9b470b82e9fecff3d26d7f731c5234b5a1069b34a45f72cf7174",
+  "run_id": "20261106-060011-eac342d0",
+  "category": "marketing",
+  "description": "ChatGPT, Google AI Mode and Gemini answers with their cited sources, Google results with the AI Overview, and a citation check across engines.",
+  "homepage": "https://cloro.dev/?utm_source=printing-press-library\u0026utm_medium=byok",
+  "mcp_binary": "cloro-pp-mcp",
+  "mcp_tool_count": 14,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
+  "auth_env_vars": [
+    "CLORO_API_KEY"
+  ],
+  "auth_key_url": "https://dashboard.cloro.dev/api-keys?utm_source=printing-press-library\u0026utm_medium=byok",
+  "auth_description": "cloro API key, sent as a bearer token. Create one at https://dashboard.cloro.dev/api-keys?utm_source=printing-press-library\u0026utm_medium=byok (the free plan has 500 credits a month).",
+  "novel_features": [
+    {
+      "name": "Cross-engine citation check",
+      "command": "cited",
+      "description": "See whether ChatGPT, Google AI Mode, Gemini and the Google AI Overview cite a domain for a prompt, with the source positions, in one command."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-engine citation check",
+      "command": "cited",
+      "description": "See whether ChatGPT, Google AI Mode, Gemini and the Google AI Overview cite a domain for a prompt, with the source positions, in one command."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 42,
+    "total": 42,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 92,
+      "grade": "A",
+      "total": 92
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "cloro-pp-mcp",
+  "display_name": "cloro",
+  "version": "1.0.0",
+  "description": "ChatGPT, Google AI Mode and Gemini answers with their cited sources, Google results with the AI Overview, and a citation check across engines.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cloro-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cloro-pp-mcp",
+      "args": [],
+      "env": {
+        "CLORO_API_KEY": "${user_config.cloro_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "cloro_api_key": {
+      "type": "string",
+      "title": "CLORO_API_KEY",
+      "description": "cloro API key, sent as a bearer token. Create one at https://dashboard.cloro.dev/api-keys?utm_source=printing-press-library&utm_medium=byok (the free plan has 500 credits a month).",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

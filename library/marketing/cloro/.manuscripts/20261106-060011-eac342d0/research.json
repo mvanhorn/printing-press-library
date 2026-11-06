@@ -1,0 +1,128 @@
+{
+  "api_name": "cloro",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "cloro-dev/mcp-server",
+      "url": "https://github.com/cloro-dev/mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-06T05:02:12Z",
+  "novel_features": [
+    {
+      "name": "Cross-engine citation check",
+      "command": "cited",
+      "description": "See whether ChatGPT, Google AI Mode, Gemini and the Google AI Overview cite a domain for a prompt, with the source positions, in one command.",
+      "rationale": "Runs the prompt on each engine in parallel and matches the domain against each engine's cited sources; no endpoint compares engines.",
+      "example": "cloro-pp-cli cited nike.com --prompt \"best running shoes for flat feet\" --country US --engines aimode,gemini --agent",
+      "why_it_matters": "Reach for this when the question is whether a site is cited for a prompt, not what the answers say.",
+      "group": "AI visibility"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-engine citation check",
+      "command": "cited",
+      "description": "See whether ChatGPT, Google AI Mode, Gemini and the Google AI Overview cite a domain for a prompt, with the source positions, in one command.",
+      "rationale": "Runs the prompt on each engine in parallel and matches the domain against each engine's cited sources; no endpoint compares engines.",
+      "example": "cloro-pp-cli cited nike.com --prompt \"best running shoes for flat feet\" --country US --engines aimode,gemini --agent",
+      "why_it_matters": "Reach for this when the question is whether a site is cited for a prompt, not what the answers say.",
+      "group": "AI visibility"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "CLORO_API_KEY"
+  },
+  "narrative": {
+    "display_name": "cloro",
+    "headline": "ChatGPT, Google AI Mode and Gemini answers with their cited sources, Google results with the AI Overview, and a citation check across engines.",
+    "value_prop": "Each engine is a typed command and an MCP tool: chatgpt, aimode, gemini, google (with --include-aioverview) and news, geo-targeted by country. The cited command runs one prompt on several engines in parallel and tells you which of them cite your domain, and at which source positions.",
+    "quickstart": [
+      {
+        "command": "cloro-pp-cli doctor --dry-run",
+        "comment": "Check the install and config without spending credits"
+      },
+      {
+        "command": "cloro-pp-cli credits",
+        "comment": "Read the credit balance (free)"
+      },
+      {
+        "command": "cloro-pp-cli chatgpt --prompt \"best running shoes for flat feet\" --country US",
+        "comment": "A ChatGPT answer with its cited sources (7 credits)"
+      },
+      {
+        "command": "cloro-pp-cli google --query \"best running shoes for flat feet\" --country US --include-aioverview",
+        "comment": "Google results with the AI Overview (7 credits)"
+      },
+      {
+        "command": "cloro-pp-cli cited nike.com --prompt \"best running shoes for flat feet\" --country US",
+        "comment": "Which engines cite a domain for the prompt (26 credits for all four engines)"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 INVALID_API_KEY_FORMAT",
+        "fix": "export CLORO_API_KEY=\u003ckey from https://dashboard.cloro.dev/api-keys?utm_source=printing-press-library\u0026utm_medium=byok\u003e"
+      },
+      {
+        "symptom": "403 INSUFFICIENT_CREDITS",
+        "fix": "Check the balance with cloro-pp-cli credits, then add credits in the dashboard or check fewer engines per cited run"
+      },
+      {
+        "symptom": "429 CONCURRENCY_LIMIT_EXCEEDED",
+        "fix": "Wait for running requests to finish, or send bulk work through cloro-pp-cli async batch"
+      },
+      {
+        "symptom": "A Google result link is empty or a google.com/goto URL",
+        "fix": "Pass its redirectLink to cloro-pp-cli goto --url \u003credirectLink\u003e"
+      }
+    ],
+    "when_to_use": "Use this CLI when a task needs the live answer of ChatGPT, Google AI Mode or Gemini with the sources it cites, Google results with the AI Overview, or Google News, for a given country. Use cited to check whether a domain is cited for a prompt across engines. Each scrape spends credits, so prefer one targeted call over many.",
+    "anti_triggers": [
+      "Plain web search where answer engines and the AI Overview do not matter; a cheaper SERP API fits better",
+      "Historical rank or citation trends; this CLI returns live results and keeps no history",
+      "Crawling or rendering arbitrary web pages"
+    ],
+    "recipes": [
+      {
+        "title": "ChatGPT sources only",
+        "command": "cloro-pp-cli chatgpt --prompt \"best running shoes for flat feet\" --country US --agent --select result.sources.url,result.sources.position",
+        "explanation": "Keep only the cited URLs and their positions from a large answer payload."
+      },
+      {
+        "title": "AI Overview sources for a keyword",
+        "command": "cloro-pp-cli google --query \"best running shoes for flat feet\" --country US --include-aioverview --agent --select result.aioverview.sources.url",
+        "explanation": "Read which pages the Google AI Overview cites."
+      },
+      {
+        "title": "Citation check on two engines",
+        "command": "cloro-pp-cli cited nike.com --prompt \"best running shoes for flat feet\" --country US --engines aimode,gemini --agent",
+        "explanation": "Run fewer engines to spend fewer credits."
+      },
+      {
+        "title": "Countries for an engine",
+        "command": "cloro-pp-cli countries --model aimode",
+        "explanation": "List the country codes an engine supports (free)."
+      }
+    ],
+    "trigger_phrases": [
+      "is my site cited by ChatGPT",
+      "check AI Overview sources",
+      "what does Google AI Mode say about",
+      "brand visibility in AI answers",
+      "use cloro",
+      "run cloro"
+    ]
+  },
+  "homepage": "https://cloro.dev/?utm_source=printing-press-library\u0026utm_medium=byok"
+}
