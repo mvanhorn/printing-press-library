@@ -5464,6 +5464,12 @@
         "See whether ChatGPT, Google AI Mode, Gemini and the Google AI Overview cite a domain for a prompt, with the source positions, in one command."
       ],
       "path": "library/marketing/cloro",
+      "release": {
+        "cli_name": "cloro-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-06T09:57:20Z",
+        "source_commit": "a593d80c0599094889de57622e627d89239aef18"
+      },
       "printer": "rbatista191",
       "printer_name": "Ricardo Batista",
       "creator": {
