@@ -5017,6 +5017,12 @@
         "Pull a past session's RSVPed attendees and its live-room transcript into a markdown recap draft."
       ],
       "path": "library/social-and-messaging/circle",
+      "release": {
+        "cli_name": "circle-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-06T09:58:26Z",
+        "source_commit": "0abb8ed19f31a7ca689ce4a0dcd186fe39ded510"
+      },
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",
       "creator": {
