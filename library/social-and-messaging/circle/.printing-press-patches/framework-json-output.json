@@ -1,6 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "framework-json-output",
+  "summary": "Disabled learning commands and non-following tail reads must still emit a complete JSON result when structured output is requested.",
+  "reason": "Agent and MCP consumers require a parseable result even when learning is disabled or a read finishes immediately. Consistent envelopes prevent empty responses and incompatible streaming output from breaking those callers.",
   "files": [
     "internal/cli/teach.go",
     "internal/cli/teach_playbook.go",

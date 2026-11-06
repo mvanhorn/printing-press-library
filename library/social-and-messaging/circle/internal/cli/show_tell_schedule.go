@@ -71,6 +71,7 @@ type showTellLedgerEntry struct {
 	Date    string      `json:"date"`
 	EventID json.Number `json:"event_id"`
 	Status  string      `json:"status,omitempty"`
+	SpaceID string      `json:"space_id,omitempty"`
 }
 
 type showTellLedger map[string][]showTellLedgerEntry
@@ -241,10 +242,6 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(err)
 			}
-			events, err := circleList[circleEvent](ctx, c, "/events", map[string]string{"space_id": space})
-			if err != nil {
-				return err
-			}
 			if stateFile == "" {
 				dir, err := cliutil.StateDir()
 				if err != nil {
@@ -252,91 +249,118 @@ func newNovelShowTellScheduleCmd(flags *rootFlags) *cobra.Command {
 				}
 				stateFile = filepath.Join(dir, "show-tell-schedule.json")
 			}
-			_, statErr := os.Stat(stateFile)
-			warnings := make([]string, 0)
-			if errors.Is(statErr, os.ErrNotExist) {
-				warning := fmt.Sprintf("no ledger at %s: drafts created from another machine or state file are invisible (GET /events lists published events only)", stateFile)
-				warnings = append(warnings, warning)
-				_, _ = fmt.Fprintln(cmd.ErrOrStderr(), warning)
-			}
-			ledger, err := readShowTellLedger(stateFile)
-			if err != nil {
-				return err
-			}
-			entries, err := validShowTellEntries(ledger[template], func(id string) error {
-				raw, err := c.GetNoCache(ctx, "/events/"+id, nil)
+			run := func() (returnErr error) {
+				events, err := circleList[circleEvent](ctx, c, "/events", map[string]string{"space_id": space})
 				if err != nil {
 					return err
 				}
-				return circleDecode(raw, nil)
-			})
-			if err != nil {
-				return err
-			}
-			if len(entries) != len(ledger[template]) {
-				ledger[template] = entries
-				if flags.yes {
-					if err := writeShowTellLedger(stateFile, ledger); err != nil {
-						return err
-					}
+				_, statErr := os.Stat(stateFile)
+				warnings := make([]string, 0)
+				if errors.Is(statErr, os.ErrNotExist) {
+					warning := fmt.Sprintf("no ledger at %s: drafts created from another machine or state file are invisible (GET /events lists published events only)", stateFile)
+					warnings = append(warnings, warning)
+					_, _ = fmt.Fprintln(cmd.ErrOrStderr(), warning)
 				}
-			}
-			result := showTellSchedule{TemplateID: template, Every: every, Until: until, Warnings: warnings, Occurrences: showTellPlan(event.Name, dates, events, time.Now().UTC(), entries...)}
-			defer func() {
-				if returnErr != nil && flags.yes {
-					returnErr = errors.Join(returnErr, printJSONFiltered(cmd.OutOrStdout(), result, flags))
-				}
-			}()
-			if flags.yes {
-				for i := range result.Occurrences {
-					item := &result.Occurrences[i]
-					if item.Action != "create" {
-						continue
-					}
-					raw, _, err := c.Post(ctx, "/spaces/"+sourceSpace+"/events/"+template+"/duplicate", map[string]any{"event": map[string]any{"space_id": json.Number(space)}})
-					if err != nil {
-						return fmt.Errorf("duplicate for %s: %w", item.Date, err)
-					}
-					var copy circleEvent
-					if err := circleDecode(raw, &copy); err != nil {
-						return err
-					}
-					if err := circlePositiveID(copy.ID.String()); err != nil {
-						return fmt.Errorf("duplicate for %s returned no valid event id: %w", item.Date, err)
-					}
-					item.EventID = copy.ID
-					item.Action = "created-unscheduled"
-					ledger[template] = append(ledger[template], showTellLedgerEntry{Date: item.Date, EventID: copy.ID, Status: "unscheduled"})
-					if err := writeShowTellLedger(stateFile, ledger); err != nil {
-						return fmt.Errorf("draft event %s was duplicated but ledger save failed; record it before retrying: %w", copy.ID, err)
-					}
-					raw, _, err = c.Put(ctx, "/events/"+copy.ID.String(), showTellEventUpdate(json.Number(space), dates[i], duration))
-					if err == nil {
-						err = circleDecode(raw, nil)
-					}
-					if err != nil {
-						return fmt.Errorf("draft event %s was duplicated but could not be rescheduled for %s; inspect it before retrying: %w", copy.ID, item.Date, err)
-					}
-					item.Action = "created"
-					ledger[template][len(ledger[template])-1].Status = ""
-					if err := writeShowTellLedger(stateFile, ledger); err != nil {
-						return fmt.Errorf("draft event %s was scheduled for %s but ledger save failed; record it before retrying: %w", copy.ID, item.Date, err)
-					}
-				}
-				result.Applied = true
-			}
-			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
-			}
-			for _, item := range result.Occurrences {
-				if _, err := fmt.Fprintf(cmd.OutOrStdout(), "%s\t%s\t%s\n", item.StartsAt, item.Action, item.EventID); err != nil {
+				ledger, err := readShowTellLedger(stateFile)
+				if err != nil {
 					return err
 				}
+				// Legacy entries belong to the template's original destination.
+				destinationEntries := make([]showTellLedgerEntry, 0)
+				otherEntries := make([]showTellLedgerEntry, 0)
+				for i := range ledger[template] {
+					if ledger[template][i].SpaceID == "" {
+						ledger[template][i].SpaceID = sourceSpace
+					}
+					entry := ledger[template][i]
+					if entry.SpaceID == space {
+						destinationEntries = append(destinationEntries, entry)
+					} else {
+						otherEntries = append(otherEntries, entry)
+					}
+				}
+				entries, err := validShowTellEntries(destinationEntries, func(id string) error {
+					raw, err := c.GetNoCache(ctx, "/events/"+id, nil)
+					if err != nil {
+						return err
+					}
+					return circleDecode(raw, nil)
+				})
+				if err != nil {
+					return err
+				}
+				if len(entries) != len(destinationEntries) {
+					ledger[template] = append(otherEntries, entries...)
+					if flags.yes {
+						if err := writeShowTellLedger(stateFile, ledger); err != nil {
+							return err
+						}
+					}
+				}
+				result := showTellSchedule{TemplateID: template, Every: every, Until: until, Warnings: warnings, Occurrences: showTellPlan(event.Name, dates, events, time.Now().UTC(), entries...)}
+				defer func() {
+					if returnErr != nil && flags.yes {
+						returnErr = errors.Join(returnErr, printJSONFiltered(cmd.OutOrStdout(), result, flags))
+					}
+				}()
+				if flags.yes {
+					for i := range result.Occurrences {
+						item := &result.Occurrences[i]
+						if item.Action != "create" {
+							continue
+						}
+						raw, _, err := c.Post(ctx, "/spaces/"+sourceSpace+"/events/"+template+"/duplicate", map[string]any{"event": map[string]any{"space_id": json.Number(space)}})
+						if err != nil {
+							return fmt.Errorf("duplicate for %s: %w", item.Date, err)
+						}
+						var copy circleEvent
+						if err := circleDecode(raw, &copy); err != nil {
+							return err
+						}
+						if err := circlePositiveID(copy.ID.String()); err != nil {
+							return fmt.Errorf("duplicate for %s returned no valid event id: %w", item.Date, err)
+						}
+						item.EventID = copy.ID
+						item.Action = "created-unscheduled"
+						ledger[template] = append(ledger[template], showTellLedgerEntry{Date: item.Date, EventID: copy.ID, Status: "unscheduled", SpaceID: space})
+						if err := writeShowTellLedger(stateFile, ledger); err != nil {
+							return fmt.Errorf("draft event %s was duplicated but ledger save failed; record it before retrying: %w", copy.ID, err)
+						}
+						raw, _, err = c.Put(ctx, "/events/"+copy.ID.String(), showTellEventUpdate(json.Number(space), dates[i], duration))
+						if err == nil {
+							err = circleDecode(raw, nil)
+						}
+						if err != nil {
+							return fmt.Errorf("draft event %s was duplicated but could not be rescheduled for %s; inspect it before retrying: %w", copy.ID, item.Date, err)
+						}
+						item.Action = "created"
+						ledger[template][len(ledger[template])-1].Status = ""
+						if err := writeShowTellLedger(stateFile, ledger); err != nil {
+							return fmt.Errorf("draft event %s was scheduled for %s but ledger save failed; record it before retrying: %w", copy.ID, item.Date, err)
+						}
+					}
+					result.Applied = true
+				}
+				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+					return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+				}
+				for _, item := range result.Occurrences {
+					if _, err := fmt.Fprintf(cmd.OutOrStdout(), "%s\t%s\t%s\n", item.StartsAt, item.Action, item.EventID); err != nil {
+						return err
+					}
+				}
+				if !result.Applied {
+					_, err = fmt.Fprintln(cmd.OutOrStdout(), "Preview only. Pass --yes to create draft events.")
+				}
+				return err
 			}
-			if !result.Applied {
-				_, err = fmt.Fprintln(cmd.OutOrStdout(), "Preview only. Pass --yes to create draft events.")
+			if flags.yes {
+				if err := os.MkdirAll(filepath.Dir(stateFile), 0o700); err != nil {
+					return err
+				}
+				return cliutil.WithFileLock(stateFile, run)
 			}
-			return err
+			return run()
 		},
 	}
 	cmd.Flags().StringVar(&template, "template", "", "ID of the event to duplicate.")

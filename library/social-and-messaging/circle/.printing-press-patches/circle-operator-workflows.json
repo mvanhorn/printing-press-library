@@ -1,6 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "circle-operator-workflows",
+  "summary": "Operator workflows must validate and deduplicate onboarding inputs, disclose mirror freshness, require completed payment syncs for local payer counts, and retain confirmed partial space changes.",
+  "reason": "Operators rely on these reports and plans to manage memberships and capacity. Explicit sync completeness and partial outcomes prevent understated payer counts, stale reports presented as current, and retries that hide already applied changes.",
   "files": [
     "internal/cli/onboard.go",
     "internal/cli/inbox.go",

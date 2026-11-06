@@ -111,20 +111,30 @@ func loadCirclePayers(ctx context.Context, cmd *cobra.Command, flags *rootFlags,
 			}
 			defer func() { _ = db.Close() }()
 			unsyncedHint := false
+			complete := true
 			for i, resource := range resources {
 				if !unsyncedHint {
 					unsyncedHint = hintIfUnsynced(cmd, db, resource)
 				}
 				hintIfStale(cmd, db, resource, flags.maxAge)
+				cursor, synced, _, err := db.GetSyncState(resource)
+				if err != nil {
+					return nil, "local", err
+				}
+				var finished bool
+				if err := db.DB().QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM sync_state WHERE resource_type = ? AND last_attempt_complete = 1)`, resource).Scan(&finished); err != nil {
+					return nil, "local", err
+				}
+				complete = complete && finished && cursor == "" && !synced.IsZero()
 				lists[i], err = readCirclePayments(ctx, db, resource)
 				if err != nil {
 					return nil, "local", err
 				}
 			}
-			if flags.dataSource == "local" || (len(lists[0]) > 0 && len(lists[1]) > 0) {
-				if len(lists[0])+len(lists[1]) == 0 {
-					return nil, "local", fmt.Errorf("no synced payment data; run sync --resources community-member-subscriptions,community-member-charges")
-				}
+			if flags.dataSource == "local" && !complete {
+				return nil, "local", fmt.Errorf("no synced payment data; run sync --resources community-member-subscriptions,community-member-charges (sync missing or incomplete)")
+			}
+			if complete {
 				flags.agentSource = "local"
 				return distinctCirclePayers(lists[0], lists[1], paywall), "local", nil
 			}

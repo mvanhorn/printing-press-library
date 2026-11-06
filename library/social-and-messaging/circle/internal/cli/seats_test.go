@@ -120,6 +120,9 @@ func circlePayerTestDB(t *testing.T) string {
 		if err := db.Upsert(resource, "1", json.RawMessage(data)); err != nil {
 			t.Fatal(err)
 		}
+		if err := db.SaveSyncState(resource, "", 1); err != nil {
+			t.Fatal(err)
+		}
 	}
 	if err := db.Close(); err != nil {
 		t.Fatal(err)
@@ -253,6 +256,9 @@ func TestCirclePayersUnsyncedHintOnce(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			if err := db.ClearSyncCursors(); err != nil {
+				t.Fatal(err)
+			}
 			for _, resource := range synced {
 				if err := db.SaveSyncState(resource, "", 1); err != nil {
 					t.Fatal(err)
@@ -266,8 +272,8 @@ func TestCirclePayersUnsyncedHintOnce(t *testing.T) {
 			cmd.SetOut(&out)
 			cmd.SetErr(&stderr)
 			cmd.SetArgs([]string{"--db", dbPath})
-			if err := cmd.Execute(); err != nil {
-				t.Fatal(err)
+			if err := cmd.Execute(); (err != nil) != (len(synced) != 2) {
+				t.Fatalf("sync completeness error = %v", err)
 			}
 			want := 1
 			if len(synced) == 2 {
@@ -275,6 +281,61 @@ func TestCirclePayersUnsyncedHintOnce(t *testing.T) {
 			}
 			if got := strings.Count(stderr.String(), "has not been synced yet"); got != want {
 				t.Fatalf("got %d unsynced hints, want %d: %s", got, want, &stderr)
+			}
+		})
+	}
+}
+
+func TestCirclePayersSyncCompleteness(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		second string
+		bad    bool
+	}{
+		{"completed empty", "complete", false},
+		{"never synced", "missing", true},
+		{"partial first sync", "partial", true},
+		{"interrupted refresh", "refresh", true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			testenv.Isolate(t)
+			file := filepath.Join(t.TempDir(), "payers.db")
+			db, err := store.OpenWithContext(context.Background(), file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := db.SaveSyncState("community-member-subscriptions", "", 0); err != nil {
+				t.Fatal(err)
+			}
+			resource := "community-member-charges"
+			if tc.second == "complete" || tc.second == "refresh" {
+				if err := db.SaveSyncState(resource, "", 0); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if tc.second == "partial" || tc.second == "refresh" {
+				if err := db.SaveSyncProgress(resource, "next", 1); err != nil {
+					t.Fatal(err)
+				}
+				if err := db.Upsert(resource, "1", json.RawMessage(`{"community_member_id":2,"status":"paid","amount":100}`)); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := db.Close(); err != nil {
+				t.Fatal(err)
+			}
+			cmd := &cobra.Command{}
+			cmd.SetErr(&bytes.Buffer{})
+			payers, source, err := loadCirclePayers(context.Background(), cmd, &rootFlags{dataSource: "local"}, file, "")
+			if (err != nil) != tc.bad {
+				t.Fatalf("error = %v", err)
+			}
+			if tc.bad {
+				if !strings.Contains(err.Error(), "run sync --resources") {
+					t.Fatalf("not actionable: %v", err)
+				}
+			} else if len(payers) != 0 || source != "local" {
+				t.Fatalf("payers=%v source=%s", payers, source)
 			}
 		})
 	}

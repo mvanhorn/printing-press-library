@@ -1,6 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "novel-group-mcp",
+  "summary": "Course and show-tell command groups must be marked as parent groups so MCP discovers their runnable child commands.",
+  "reason": "These group commands are navigation surfaces rather than executable operations. Explicit parent annotations prevent unusable group tools from being exposed in place of their actual workflows.",
   "files": [
     "internal/cli/course.go",
     "internal/cli/show_tell.go"

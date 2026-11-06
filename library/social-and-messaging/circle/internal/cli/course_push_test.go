@@ -43,6 +43,68 @@ func TestNovelCoursePushHelpWires(t *testing.T) {
 
 func courseTestBody(s string) *string { return &s }
 
+func TestCourseBodyWhitespaceComparison(t *testing.T) {
+	for _, tt := range []struct {
+		name, before, after string
+		equal               bool
+	}{
+		{"code indentation", "<pre><code>if ok:\n  run()\n</code></pre>", "<pre><code>if ok:\n    run()\n</code></pre>", false},
+		{"inline code", "<p><code>a  b</code></p>", "<p><code>a b</code></p>", false},
+		{"pre whitespace", "<pre>  \n</pre>", "<pre> \n</pre>", false},
+		{"ordinary whitespace", "<p>Two  words\n here</p>", "<p>Two words here</p>", true},
+		{"around code blocks", "<p>Body</p>\n<pre><code>  run()\n</code></pre>\n<p>End</p>", "<p>Body</p><pre><code>  run()\n</code></pre><p>End</p>", true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			if (normalizeCourseBody(tt.before) == normalizeCourseBody(tt.after)) != tt.equal || (courseBodySHA256(tt.before) == courseBodySHA256(tt.after)) != tt.equal {
+				t.Fatal("normalized body/hash lost meaningful whitespace or retained ordinary whitespace")
+			}
+		})
+	}
+}
+
+func TestCourseMovedPathReused(t *testing.T) {
+	for _, path := range []string{"01-one/new.md", "02-two/new.md"} {
+		t.Run(path, func(t *testing.T) {
+			folder := t.TempDir()
+			old := "01-one/old.md"
+			baseline := courseRef{ID: 2, Status: "draft", BodySHA256: courseBodySHA256("Body"), MediaChecksum: "media"}
+			manifest := emptyCourseManifest()
+			manifest.Lessons[old] = baseline
+			manifest.Sections["01-one"] = courseRef{ID: 1}
+			manifest.Order = []courseOrder{{SectionID: 1, LessonIDs: []int64{2}}}
+			live := courseLive{Sections: []courseSection{{ID: 1, Name: "One"}}, Lessons: []courseLesson{{ID: 2, SectionID: 1, Name: "Moved", Status: "draft", BodyHTML: courseTestBody("Body")}}}
+			local := courseFolder{Manifest: manifest, Sections: []courseLocalSection{{ID: 1, Path: "01-one", Name: "One", Lessons: []courseLocalLesson{{ID: 2, Path: path, Name: "Moved", BodyHTML: "Body"}}}}}
+			plan, err := buildCoursePlan(local, live, 1, false)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, ok := plan.Manifest.Lessons[old]; ok || plan.Manifest.Lessons[path] != baseline {
+				t.Fatalf("move lost baseline or retained old path: %+v", plan.Manifest)
+			}
+			if err := applyCoursePlan(context.Background(), nil, folder, manifest, &plan); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.MkdirAll(filepath.Join(folder, "01-one"), 0700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(folder, old), []byte("---\nname: Replacement\n---\nNew body"), 0600); err != nil {
+				t.Fatal(err)
+			}
+			next, err := readCourseFolder(folder)
+			if err != nil {
+				t.Fatal(err)
+			}
+			plan, err = buildCoursePlan(next, live, 1, false)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(plan.Plan) == 0 || plan.Plan[0].Action != "create" || plan.Plan[0].Kind != "lesson" || plan.Plan[0].ID == 2 {
+				t.Fatalf("replacement plan = %+v", plan.Plan)
+			}
+		})
+	}
+}
+
 func TestNormalizeCourseBody(t *testing.T) {
 	for _, tt := range []struct{ name, input, want string }{
 		{"wrapper", "  <div><p>Second lesson body.</p></div>\n", "<p>Second lesson body.</p>"},
@@ -351,8 +413,8 @@ func TestCourseSyncConflicts(t *testing.T) {
 				if len(p.Plan) != 0 || p.Summary["noop"] != 1 {
 					t.Fatalf("plan = %+v", p.Plan)
 				}
-				if p.Manifest.Lessons["01-welcome/01-old.md"].BodySHA256 != courseBodySHA256(tt.localBody) {
-					t.Fatal("old path kept a stale baseline")
+				if p.Manifest.Lessons[path].BodySHA256 != courseBodySHA256(tt.localBody) {
+					t.Fatal("current path kept a stale baseline")
 				}
 				return
 			}

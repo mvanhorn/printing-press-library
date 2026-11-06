@@ -409,15 +409,41 @@ func validateCourseLive(live courseLive) error {
 
 var courseTagWhitespace = regexp.MustCompile(`>\s+<`)
 var courseHeadingOne = regexp.MustCompile(`(?i)<(/?)h1(\s[^>]*)?>`)
+var courseVerbatim = regexp.MustCompile(`(?is)<pre\b[^>]*>.*?</pre\s*>|<code\b[^>]*>.*?</code\s*>`)
 
 func normalizeCourseBody(body string) string {
 	body = strings.TrimSpace(body)
 	if strings.HasPrefix(body, "<div>") && strings.HasSuffix(body, "</div>") {
 		body = body[len("<div>") : len(body)-len("</div>")]
 	}
-	body = courseHeadingOne.ReplaceAllString(body, "<${1}h2${2}>")
-	body = courseTagWhitespace.ReplaceAllString(body, "><")
-	return strings.Join(strings.Fields(body), " ")
+	var normalized strings.Builder
+	ordinary := func(text string, before, after bool) {
+		// Include adjacent tag boundaries when collapsing ordinary whitespace.
+		if before {
+			text = ">" + text
+		}
+		if after {
+			text += "<"
+		}
+		text = courseHeadingOne.ReplaceAllString(text, "<${1}h2${2}>")
+		text = courseTagWhitespace.ReplaceAllString(text, "><")
+		text = strings.Join(strings.Fields(text), " ")
+		if before {
+			text = strings.TrimPrefix(text, ">")
+		}
+		if after {
+			text = strings.TrimSuffix(text, "<")
+		}
+		normalized.WriteString(text)
+	}
+	end := 0
+	for _, span := range courseVerbatim.FindAllStringIndex(body, -1) {
+		ordinary(body[end:span[0]], end > 0, true)
+		normalized.WriteString(body[span[0]:span[1]])
+		end = span[1]
+	}
+	ordinary(body[end:], end > 0, false)
+	return strings.TrimSpace(normalized.String())
 }
 
 func courseBodySHA256(body string) string {
@@ -572,6 +598,11 @@ func buildCoursePlan(local courseFolder, live courseLive, spaceID int64, publish
 			}
 			usedLessons[lessonID] = true
 			ref.ID = lessonID
+			for path, previous := range p.Manifest.Lessons {
+				if previous.ID == lessonID && path != l.Path {
+					delete(p.Manifest.Lessons, path)
+				}
+			}
 			p.Manifest.Lessons[l.Path] = ref
 			if !liveOnly && l.MediaPath != "" && l.Checksum != ref.MediaChecksum {
 				add(courseStep{Action: "upload", Kind: "media", Path: l.Path, Name: l.Name, ID: lessonID, MediaPath: l.MediaPath, Checksum: l.Checksum, Size: l.Size, LiveChanged: blocked})
@@ -699,6 +730,11 @@ func applyCoursePlan(ctx context.Context, c *client.Client, folder string, origi
 		for key, ref := range p.Manifest.Lessons {
 			ref.ID = resolve(ref.ID)
 			if ref.ID > 0 {
+				for oldPath, previous := range manifest.Lessons {
+					if previous.ID == ref.ID && oldPath != key {
+						delete(manifest.Lessons, oldPath)
+					}
+				}
 				manifest.Lessons[key] = ref
 			}
 		}

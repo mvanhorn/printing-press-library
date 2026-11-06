@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/circle/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/circle/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/circle/internal/cliutil/testenv"
 )
 
@@ -346,6 +347,89 @@ func TestShowTellScheduleDryRunSkipsLedger(t *testing.T) {
 	cmd.SetOut(&out)
 	if err := cmd.Execute(); err != nil || !strings.Contains(out.String(), `"dry_run":true`) {
 		t.Fatalf("dry run read ledger: output=%s, error=%v", out.String(), err)
+	}
+}
+
+func TestShowTellScheduleSpaceAndLock(t *testing.T) {
+	for _, tc := range []struct {
+		name         string
+		legacy, fail bool
+	}{
+		{name: "space scoped"}, {name: "legacy ledger", legacy: true}, {name: "release on error", fail: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			testenv.Isolate(t)
+			previousHooks := clientHooks
+			t.Cleanup(func() { clientHooks = previousHooks })
+			file := filepath.Join(t.TempDir(), "state", "ledger.json")
+			if tc.legacy {
+				if err := writeShowTellLedger(file, showTellLedger{"1": {{Date: "2099-01-02", EventID: "4"}}}); err != nil {
+					t.Fatal(err)
+				}
+			}
+			posts, lockedChecks := 0, 0
+			registerClientHook(func(c *client.Client) error {
+				c.Config.CircleApiToken = "schedule-unit-test"
+				c.HTTPClient.Transport = showTellScheduleTransport(func(req *http.Request) (*http.Response, error) {
+					body := `{"success":true}`
+					switch req.Method + " " + req.URL.Path {
+					case "GET /api/admin/v2/events/1":
+						body = `{"id":1,"name":"Show & Tell","space_id":2,"starts_at":"2099-01-01T18:00:00Z","duration_in_seconds":60}`
+					case "GET /api/admin/v2/events":
+						body = `{"has_next_page":false,"records":[]}`
+					case "GET /api/admin/v2/events/4", "GET /api/admin/v2/events/5":
+					case "POST /api/admin/v2/spaces/2/events/1/duplicate":
+						posts++
+						body = fmt.Sprintf(`{"id":%d}`, 3+posts)
+					case "PUT /api/admin/v2/events/4", "PUT /api/admin/v2/events/5":
+						if tc.fail {
+							return nil, errors.New("test reschedule failure")
+						}
+					default:
+						return nil, fmt.Errorf("unexpected request: %s %s", req.Method, req.URL.Path)
+					}
+					if req.URL.Path != "/api/admin/v2/events/1" {
+						acquired, err := cliutil.TryWithFileLock(file, func() error { return nil })
+						if err != nil || acquired {
+							t.Errorf("second acquirer entered during run: acquired=%v error=%v", acquired, err)
+						}
+						lockedChecks++
+					}
+					return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+				})
+				return nil
+			})
+			for _, space := range []string{"2", "3"} {
+				cmd := newNovelShowTellScheduleCmd(&rootFlags{asJSON: true, yes: true, noCache: true})
+				cmd.SetOut(io.Discard)
+				cmd.SetErr(io.Discard)
+				cmd.SetArgs([]string{"--template", "1", "--space", space, "--every", "1d", "--until", "2099-01-02", "--state-file", file})
+				if err := cmd.Execute(); (err != nil) != tc.fail {
+					t.Fatalf("run error = %v", err)
+				}
+				acquired, err := cliutil.TryWithFileLock(file, func() error { return nil })
+				if err != nil || !acquired {
+					t.Fatalf("lock not released: %v, %v", acquired, err)
+				}
+				if tc.fail {
+					break
+				}
+			}
+			want := 2
+			if tc.legacy || tc.fail {
+				want = 1
+			}
+			if posts != want || lockedChecks == 0 {
+				t.Fatalf("posts=%d want=%d lock checks=%d", posts, want, lockedChecks)
+			}
+			ledger, err := readShowTellLedger(file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !tc.fail && (len(ledger["1"]) != 2 || ledger["1"][0].SpaceID != "2" || ledger["1"][1].SpaceID != "3") {
+				t.Fatalf("space entries lost: %+v", ledger)
+			}
+		})
 	}
 }
 

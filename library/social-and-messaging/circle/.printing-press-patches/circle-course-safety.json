@@ -1,6 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "circle-course-safety",
+  "summary": "Course synchronization must preserve code whitespace and moved lesson identity, detect local and live conflicts, retain unmanaged order, and protect existing pull destinations.",
+  "reason": "Circle does not expose lesson order, and both local authors and online editors can change a course between syncs. Saved baselines and safe file handling prevent lost edits, reused paths overwriting moved lessons, and accidental local data loss.",
   "files": [
     "internal/cli/circle_course.go",
     "internal/cli/course_push.go",
