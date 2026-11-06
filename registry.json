@@ -4981,6 +4981,65 @@
       }
     },
     {
+      "name": "circle",
+      "category": "social-and-messaging",
+      "api": "Circle",
+      "description": "Run a Circle community from the terminal: spaces as files, courses as files, seat counts, and an offline mirror.",
+      "homepage": "https://circle.so",
+      "search_terms": [
+        "circle",
+        "circle-pp-cli",
+        "Run a Circle community from the terminal: spaces as files, courses as files, seat counts, and an offline mirror.",
+        "Morning triage",
+        "inbox",
+        "See new members, unreplied posts, flagged content, form submissions, failed charges and cancellations since a time, read from the local mirror.",
+        "Declarative structure apply",
+        "spaces apply",
+        "Make Circle's space groups and spaces match a YAML file, with a plan printed before any write.",
+        "Course push",
+        "Upload a course kept as module folders and markdown lessons to a Circle course space, new lessons as drafts.",
+        "Course pull",
+        "Download a Circle course space into module folders with one file per lesson; lesson bodies stay as Circle's HTML and media is not downloaded.",
+        "Seat count",
+        "seats",
+        "Count paying members against a seat cap and list who paid.",
+        "Batch onboarding",
+        "onboard",
+        "Add people to the community, their spaces, space groups and access groups, and tag them, without sending invite emails by default.",
+        "Founding go/no-go",
+        "founding",
+        "Answer whether at least N people paid with GO or NO-GO and the count.",
+        "Recurring session scheduler",
+        "show-tell schedule",
+        "Create the next Show & Tell events on a cadence by duplicating a template event.",
+        "Session recap draft",
+        "show-tell recap",
+        "Pull a past session's RSVPed attendees and its live-room transcript into a markdown recap draft."
+      ],
+      "path": "library/social-and-messaging/circle",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "creator": {
+        "handle": "cathrynlavery",
+        "name": "Cathryn Lavery"
+      },
+      "mcp": {
+        "binary": "circle-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 175,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "CIRCLE_API_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "clarify",
       "category": "sales-and-crm",
       "api": "Clarify",
@@ -5384,6 +5443,44 @@
         "auth_type": "api_key",
         "env_vars": [
           "CLOCKIFY_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "cloro",
+      "category": "marketing",
+      "api": "cloro",
+      "description": "ChatGPT, Google AI Mode and Gemini answers with their cited sources, Google results with the AI Overview, and a citation check across engines.",
+      "homepage": "https://cloro.dev/?utm_source=printing-press-library&utm_medium=byok",
+      "search_terms": [
+        "cloro",
+        "cloro-pp-cli",
+        "ChatGPT, Google AI Mode and Gemini answers with their cited sources, Google results with the AI Overview, and a citation check across engines.",
+        "cloro API key, sent as a bearer token. Create one at https://dashboard.cloro.dev/api-keys?utm_source=printing-press-library&utm_medium=byok (the free plan has 500 credits a month).",
+        "Cross-engine citation check",
+        "cited",
+        "See whether ChatGPT, Google AI Mode, Gemini and the Google AI Overview cite a domain for a prompt, with the source positions, in one command."
+      ],
+      "path": "library/marketing/cloro",
+      "printer": "rbatista191",
+      "printer_name": "Ricardo Batista",
+      "creator": {
+        "handle": "rbatista191",
+        "name": "Ricardo Batista"
+      },
+      "mcp": {
+        "binary": "cloro-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 14,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "CLORO_API_KEY"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
