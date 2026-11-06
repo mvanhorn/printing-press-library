@@ -7,6 +7,7 @@
   "summary": "Preserve the current Tella framework and published workflows; implement browser-free lesson planning, editing, review and delivery.",
   "reason": "The current generator emits scaffolds for existing novel commands and has context-aware clients, scoped storage, a new error-writer signature, and runtime MCP mirroring. Preserve actual workflow bodies, snapshot and divergence protections, transcript FTS data, uncached exports and credential probes, current transcript routes, all source media kinds, and old flags while keeping generated endpoints, validation, output envelopes and transport security. Preserve the original creator and release ledger. Compose official lesson workflows using existing cut safety and shared HTTP helpers. Retire cookie mistake transport; preserve creator, contributor alignment and release ledger. Keep capability descriptions aligned with source-only upload, storyboard export versus apply, term-matched cuts versus replacement media, saved-snapshot undo versus inline restore, and separate webhook tail/replay commands; use concrete safe documentation examples and scoped acceptance evidence.",
   "files": [
+    ".goreleaser.yaml",
     ".printing-press.json",
     "README.md",
     "SKILL.md",
@@ -107,6 +108,7 @@
   ],
   "validated_outcome": "Offline HTTP fixtures exercise official request bodies, preview URL preservation, apply/dry-run/refusal safety, fresh playback chapters, strict YAML, saved retake divergence, source insertion order, raw caption bytes, encoded export polling, real artifact writes and credential isolation. Full tests/vet/build and local binary help are required for T2 completion. Live Tella acceptance remains unverified in this coding task; no shipcheck, live mutation, install, stage, commit, push or PR.",
   "contracts": [
+    "Release version linker targets follow the canonical Go module; retain existing distribution owners and URLs.",
     "videos preview preserves the complete returned bearer URL including fragment, expiresAt and 24-hour TTL; dry-run never POSTs.",
     "videos auto plans actual timeline clips by default, requires --apply, saves pre-write cut and editor reference state, preserves existing zooms with replaceExisting:false, uses official auto crop/filler/silence APIs, refuses unsupported --layouts before writes, stops on errors and ends successful apply in a preview.",
     "Cut snapshots provide divergence-protected cut-only undo with exclusive editing confirmation. Non-cut reference snapshots never pretend to restore editor history or roll back crop/zoom/style/media effects.",

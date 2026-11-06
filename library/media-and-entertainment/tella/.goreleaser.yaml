@@ -11,7 +11,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -X tella-pp-cli/internal/cli.version={{ .Version }}
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -27,7 +27,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -X main.version={{ .Version }}
+      - -s -w
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -46,9 +46,9 @@ checksum:
 brews:
   - name: tella-pp-cli
     repository:
-      owner: cathrynlavery
+      owner: gregce
       name: homebrew-tap
-    homepage: "https://github.com/cathrynlavery/tella-pp-cli"
+    homepage: "https://github.com/mvanhorn/printing-press-library"
     description: "Edit recorded lessons, review a live preview, and deliver video with captions."
     install: |
       bin.install "tella-pp-cli"
