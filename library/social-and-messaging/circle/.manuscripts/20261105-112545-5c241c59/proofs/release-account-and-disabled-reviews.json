@@ -1,0 +1,26 @@
+[
+  {
+    "command": "community list",
+    "exit": 0,
+    "account_id": "redacted",
+    "slug": "redacted"
+  },
+  {
+    "command": "spaces get 1001068",
+    "exit": 0,
+    "id": 1001068,
+    "name": "pp-test-course"
+  },
+  {
+    "command": "community-reviews list",
+    "exit": 3,
+    "stdout": "{\"code\":3,\"error\":\"GET /community_reviews returned HTTP 404: {\\\"success\\\":false,\\\"message\\\":\\\"Reviews are not enabled for this community\\\",\\\"error_details\\\":{}}\\nhint: resource not found. Run the 'list' command to see available items\"}\n",
+    "stderr": "Error: GET /community_reviews returned HTTP 404: {\"success\":false,\"message\":\"Reviews are not enabled for this community\",\"error_details\":{}}\nhint: resource not found. Run the 'list' command to see available items\n"
+  },
+  {
+    "command": "community-reviews list-communityreviews",
+    "exit": 3,
+    "stdout": "{\"code\":3,\"error\":\"GET /community_reviews/summary returned HTTP 404: {\\\"success\\\":false,\\\"message\\\":\\\"Reviews are not enabled for this community\\\",\\\"error_details\\\":{}}\\nhint: resource not found. Run the 'list' command to see available items\"}\n",
+    "stderr": "Error: GET /community_reviews/summary returned HTTP 404: {\"success\":false,\"message\":\"Reviews are not enabled for this community\",\"error_details\":{}}\nhint: resource not found. Run the 'list' command to see available items\n"
+  }
+]

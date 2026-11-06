@@ -1,0 +1,11 @@
+- empty records page: list read-through cache warns 'no extractable ID field' (envelope treated as 1 item) on every empty list
+- flattened nested body fields exceed 64-char MCP key limit and hard-fail generate (Circle PUT /community, POST/PUT /events); generator should fall back to a JSON-object flag past a depth/length
+- OpenAPI x-resource-id only read at path-item level; operation-level silently ignored (no warning)
+- parent-keyed dependent /spaces/{space_id}/images/posts syncs for every space and 404s on non-image spaces
+- no OpenAPI way to opt a resource out of default sync (x-pp-syncable:false is opt-in only)
+- full go test ./... exceeds default 10m timeout in internal/generator on a loaded Mac; TestSnapshotLiveCheckBinaryStagesBesideSymlinkTarget fails on macOS (/var vs /private/var) on origin/main
+- concurrent generate/validate runs wipe the shared isolated GOCACHE (~/.cache/printing-press/go-build) under each other: 'could not import sort ... no such file' in generator tests and 'unlinkat ... directory not empty' in generate
+- README template: 'auth-status' (not a command), 'echo $<API>_TOKEN' prints the secret, placeholder literals in AGENTS/SKILL boilerplate, SKILL command reference omits nested subcommands, 'Three sinks' omits spacefast
+- local-store JSON envelopes carry no sync state on stdout (stderr-only hint); agents read empty mirror as all-clear (output review)
+- novel parent groups emitted without pp:parent-group (novel_feature_command.go.tmpl line ~34, `{{if not .Feature}}`), so MCP mirrors them as runnable read-only tools that print help (FIXING in Press this session)
+- recipe intent positional naming: a filename like spaces.yaml is classified as "domain" (looksLikeRecipeDomain) and becomes a required MCP input named domain; file positionals in recipes bypass mcp:read-flags

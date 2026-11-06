@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "circle-pp-mcp",
+  "display_name": "Circle",
+  "version": "4.35.2",
+  "description": "Run a Circle community from the terminal: declared spaces, course-as-files, seat counts, and a local mirror that saves your API quota.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/circle-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/circle-pp-mcp",
+      "args": [],
+      "env": {
+        "CIRCLE_API_TOKEN": "${user_config.circle_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "circle_api_token": {
+      "type": "string",
+      "title": "CIRCLE_API_TOKEN",
+      "description": "Sets CIRCLE_API_TOKEN for the Circle MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

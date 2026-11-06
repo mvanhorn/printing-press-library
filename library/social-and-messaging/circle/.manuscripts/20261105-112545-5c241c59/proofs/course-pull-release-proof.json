@@ -1,0 +1,46 @@
+{
+  "command": "course pull",
+  "space_id": 1001068,
+  "destination": "<runstate>/circle-cli-0cb1e47d/runs/20261105-112545-5c241c59/proofs/course-pull-release.e4o5h9m4/course",
+  "dry_run_verified": true,
+  "remote_writes": false,
+  "result": {
+    "space_id": 1001068,
+    "folder": "<runstate>/circle-cli-0cb1e47d/runs/20261105-112545-5c241c59/proofs/course-pull-release.e4o5h9m4/course",
+    "files_written": 6,
+    "note": "Circle's API does not expose lesson order; files are numbered in creation order. Lesson bodies retain HTML; media is not downloaded.",
+    "stale_files": []
+  },
+  "files": [
+    {
+      "path": "01-pp-test-module-one/01-pp-test-lesson-one.md",
+      "bytes": 127,
+      "sha256": "b7e33639755a775f74272b406e701536ba3f5ebcf01ac1f0d6579edb9575e36e"
+    },
+    {
+      "path": "01-pp-test-module-one/02-pp-test-lesson-two.md",
+      "bytes": 104,
+      "sha256": "b05ff72241bee9920a17b70a15d9937e3816890f2c30123e4b38c043aeca558d"
+    },
+    {
+      "path": "01-pp-test-module-one/_section.md",
+      "bytes": 45,
+      "sha256": "9356e1015e9a1566759e46f78de9551050754cc18ce86b12ee5871bf24f18c4f"
+    },
+    {
+      "path": "02-pp-test-module-two/01-pp-test-lesson-three.md",
+      "bytes": 97,
+      "sha256": "167bfc3ac9011f2e06dacf1b080c608ad3f6cbf30eca88828e58d880d5a6f809"
+    },
+    {
+      "path": "02-pp-test-module-two/_section.md",
+      "bytes": 45,
+      "sha256": "1f4e67d94f93c5ef27a008d0179efb31f0d029061ccb09e8f037fe6d97b9ad0a"
+    },
+    {
+      "path": "course.yaml",
+      "bytes": 822,
+      "sha256": "b43b8de93a6b5437b309204cb960cddfb466d40723ec6b8527c0d31e02ba5554"
+    }
+  ]
+}

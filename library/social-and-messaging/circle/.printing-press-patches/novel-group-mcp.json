@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "novel-group-mcp",
+  "files": [
+    "internal/cli/course.go",
+    "internal/cli/show_tell.go"
+  ],
+  "markers": [
+    "\"pp:parent-group\": \"true\""
+  ],
+  "applied_at": "2026-11-05",
+  "base_run_id": "20261105-112545-5c241c59",
+  "base_printing_press_version": "4.35.2"
+}

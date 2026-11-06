@@ -1,0 +1,1111 @@
+{
+  "endpoint_dry_runs": [
+    {
+      "command": "access-groups community-member get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "access-groups community-members create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "access-groups community-members delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "access-groups community-members get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "access-groups content update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "access-groups create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "access-groups delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "access-groups list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "access-groups unarchive update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "access-groups update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "advanced-search",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "chat-preferences",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "chat-room-message-imports",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "comments create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "comments delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "comments get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "comments list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-leads create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-leads delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-member-charges export",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-member-charges list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-member-charges refund refund",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-member-spaces",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-member-subscriptions billing-date update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-member-subscriptions cancel cancel",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-member-subscriptions export",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-member-subscriptions list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-member-subscriptions resume resume",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-members access-groups get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-members ban-member update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-members create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-members delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-members delete-member update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-members get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-members list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-members list-communitymembers",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-members update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-reviews get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-reviews list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-reviews list-communityreviews",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-segments create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-segments delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-segments duplicate create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-segments list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "community-segments update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "contacts contact-notes create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "contacts contact-notes list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-lesson-progress",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-lessons create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-lessons delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-lessons get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-lessons list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-lessons reorder",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-lessons update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-sections create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-sections delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-sections get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-sections list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "course-sections update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "direct-uploads",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "embeds create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "embeds get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "event-attendees create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "event-attendees delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "event-attendees list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "events create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "events delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "events get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "events list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "events update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "filter-kit-configuration",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "filter-kit-controls create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "filter-kit-controls delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "filter-kit-controls get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "filter-kit-controls list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "filter-kit-controls update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "flagged-contents create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "flagged-contents list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "forms delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "forms duplicate create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "forms get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "forms list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "forms submissions create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "forms submissions get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "forms update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "gamification",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "invitation-links create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "invitation-links delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "invitation-links list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "invitation-links revoke update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "invitation-links update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "live get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "live list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "locations",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "member-tags create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "member-tags delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "member-tags get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "member-tags list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "member-tags update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "messages",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "page-profile-fields",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "payment-method-setting",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywall-affiliate-payouts export-payouts",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywall-affiliate-payouts mark-paid",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywall-affiliate-payouts start",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywall-affiliates create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywall-affiliates list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywall-affiliates update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywall-coupons",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywall-groups create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywall-groups update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywalls archive update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywalls delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywalls list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywalls member-access-syncs create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywalls publish update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "paywalls unarchive update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "posts create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "posts delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "posts get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "posts list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "posts post-followers delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "posts summary get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "posts update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "profile-fields archive update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "profile-fields create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "profile-fields delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "profile-fields list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "profile-fields unarchive update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "profile-fields update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "settings list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "settings update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-group-member",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-group-members create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-group-members delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-group-members list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-groups create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-groups delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-groups get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-groups list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-groups update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-member",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-members create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-members delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "space-members list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces ai-summaries get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces events create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces images create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces images delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces images duplicate",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces images get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces images list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "spaces update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "tagged-members create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "tagged-members delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "tagged-members get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "tagged-members list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "tax-setting list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "tax-setting update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "topics create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "topics delete",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "topics get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "topics list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "topics update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "workflows activate update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "workflows deactivate update",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "workflows duplicate create",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "workflows get",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    },
+    {
+      "command": "workflows list",
+      "passed": true,
+      "exit": 0,
+      "detail": ""
+    }
+  ],
+  "mcp": {
+    "tool_count": 38,
+    "pages": 1,
+    "next_cursor": null,
+    "calls": [
+      {
+        "tool": "onboard",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "tool": "course_push",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "tool": "course_pull",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "tool": "spaces_apply",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "tool": "show_tell_recap",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "tool": "show_tell_schedule",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "tool": "seats",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "tool": "founding",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "tool": "inbox",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "yes_rejected": true,
+    "read_only_tool_count": 17,
+    "read_only_pages": 1,
+    "read_only_enforced": true
+  },
+  "passed": true
+}

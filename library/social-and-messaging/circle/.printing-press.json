@@ -1,0 +1,141 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-05T23:53:12.848599Z",
+  "printing_press_version": "4.35.2",
+  "api_name": "circle",
+  "display_name": "Circle",
+  "cli_name": "circle-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:c459ad80e3da47c67346ecf259de71e8b227d1d29bbb0f4e93984e77e2af4af7",
+  "run_id": "20261105-112545-5c241c59",
+  "category": "social-and-messaging",
+  "description": "Run a Circle community from the terminal: spaces as files, courses as files, seat counts, and an offline mirror.",
+  "homepage": "https://circle.so",
+  "mcp_binary": "circle-pp-mcp",
+  "mcp_tool_count": 175,
+  "mcp_ready": "full",
+  "api_version": "v2",
+  "auth_type": "api_key",
+  "auth_preference": "token_auth",
+  "auth_env_vars": [
+    "CIRCLE_API_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Morning triage",
+      "command": "inbox",
+      "description": "See new members, unreplied posts, flagged content, form submissions, failed charges and cancellations since a time, read from the local mirror."
+    },
+    {
+      "name": "Declarative structure apply",
+      "command": "spaces apply",
+      "description": "Make Circle's space groups and spaces match a YAML file, with a plan printed before any write."
+    },
+    {
+      "name": "Course push",
+      "command": "course push",
+      "description": "Upload a course kept as module folders and markdown lessons to a Circle course space, new lessons as drafts."
+    },
+    {
+      "name": "Course pull",
+      "command": "course pull",
+      "description": "Download a Circle course space into module folders with one file per lesson; lesson bodies stay as Circle's HTML and media is not downloaded."
+    },
+    {
+      "name": "Seat count",
+      "command": "seats",
+      "description": "Count paying members against a seat cap and list who paid."
+    },
+    {
+      "name": "Batch onboarding",
+      "command": "onboard",
+      "description": "Add people to the community, their spaces, space groups and access groups, and tag them, without sending invite emails by default."
+    },
+    {
+      "name": "Founding go/no-go",
+      "command": "founding",
+      "description": "Answer whether at least N people paid with GO or NO-GO and the count."
+    },
+    {
+      "name": "Recurring session scheduler",
+      "command": "show-tell schedule",
+      "description": "Create the next Show \u0026 Tell events on a cadence by duplicating a template event."
+    },
+    {
+      "name": "Session recap draft",
+      "command": "show-tell recap",
+      "description": "Pull a past session's RSVPed attendees and its live-room transcript into a markdown recap draft."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Morning triage",
+      "command": "inbox",
+      "description": "See new members, unreplied posts, flagged content, form submissions, failed charges and cancellations since a time, read from the local mirror."
+    },
+    {
+      "name": "Declarative structure apply",
+      "command": "spaces apply",
+      "description": "Make Circle's space groups and spaces match a YAML file, with a plan printed before any write."
+    },
+    {
+      "name": "Course push",
+      "command": "course push",
+      "description": "Upload a course kept as module folders and markdown lessons to a Circle course space, new lessons as drafts."
+    },
+    {
+      "name": "Course pull",
+      "command": "course pull",
+      "description": "Download a Circle course space into module folders with one file per lesson; lesson bodies stay as Circle's HTML and media is not downloaded."
+    },
+    {
+      "name": "Seat count",
+      "command": "seats",
+      "description": "Count paying members against a seat cap and list who paid."
+    },
+    {
+      "name": "Batch onboarding",
+      "command": "onboard",
+      "description": "Add people to the community, their spaces, space groups and access groups, and tag them, without sending invite emails by default."
+    },
+    {
+      "name": "Founding go/no-go",
+      "command": "founding",
+      "description": "Answer whether at least N people paid with GO or NO-GO and the count."
+    },
+    {
+      "name": "Recurring session scheduler",
+      "command": "show-tell schedule",
+      "description": "Create the next Show \u0026 Tell events on a cadence by duplicating a template event."
+    },
+    {
+      "name": "Session recap draft",
+      "command": "show-tell recap",
+      "description": "Pull a past session's RSVPed attendees and its live-room transcript into a markdown recap draft."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 182,
+    "total": 182,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 94,
+      "grade": "A",
+      "total": 94
+    }
+  }
+}
