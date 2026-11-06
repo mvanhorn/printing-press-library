@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "cloro",
+  "cli_name": "cloro-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-06T09:57:20Z",
+  "source_commit": "b1fb7f7fc5779467e3fba455d6bb5cc9604b15ba",
+  "printing_press_version": "4.35.2",
+  "run_id": "20261106-060011-eac342d0",
+  "changes": [
+    {
+      "title": "feat(cloro): add cloro",
+      "pr": 2435,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2435",
+      "commit": "b1fb7f7fc5779467e3fba455d6bb5cc9604b15ba"
+    }
+  ]
+}
