@@ -2396,6 +2396,12 @@
         "Merge saved transcript searches, deduplicate passages and keep the source link and search terms for each quote."
       ],
       "path": "library/media-and-entertainment/arcmira",
+      "release": {
+        "cli_name": "arcmira-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-07T09:49:38Z",
+        "source_commit": "23f4379abdde62fda3606f5770d0fd0ec7fd424a"
+      },
       "printer": "zealous1",
       "printer_name": "Arcmira",
       "creator": {
