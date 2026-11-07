@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-10-28T18:38:39.899213Z",
-  "printing_press_version": "4.34.2",
+  "printing_press_version": "4.35.0",
   "api_name": "normattiva",
   "display_name": "Normattiva",
   "cli_name": "normattiva-pp-cli",
