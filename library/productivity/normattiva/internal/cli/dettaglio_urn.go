@@ -44,7 +44,7 @@ func newDettaglioUrnCmd(flags *rootFlags) *cobra.Command {
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("urn") && bodyUrn == "" && !requiredInputWaived() {
-					return fmt.Errorf("required flag \"%s\" not set", "urn")
+					return dryRunValidationErr(cmd, flags, fmt.Errorf("required flag \"%s\" not set", "urn"))
 				}
 			}
 			path := "/atto/dettaglio-atto-urn"

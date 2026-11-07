@@ -45,10 +45,10 @@ func newRicercaAggiornatiCmd(flags *rootFlags) *cobra.Command {
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("data-inizio-aggiornamento") && bodyDataInizioAggiornamento == "" && !requiredInputWaived() {
-					return fmt.Errorf("required flag \"%s\" not set", "data-inizio-aggiornamento")
+					return dryRunValidationErr(cmd, flags, fmt.Errorf("required flag \"%s\" not set", "data-inizio-aggiornamento"))
 				}
 				if !cmd.Flags().Changed("data-fine-aggiornamento") && bodyDataFineAggiornamento == "" && !requiredInputWaived() {
-					return fmt.Errorf("required flag \"%s\" not set", "data-fine-aggiornamento")
+					return dryRunValidationErr(cmd, flags, fmt.Errorf("required flag \"%s\" not set", "data-fine-aggiornamento"))
 				}
 			}
 			path := "/ricerca/aggiornati"

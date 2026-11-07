@@ -46,10 +46,10 @@ func newDettaglioGazzettaCmd(flags *rootFlags) *cobra.Command {
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice-redazionale") && bodyCodiceRedazionale == "" && !requiredInputWaived() {
-					return fmt.Errorf("required flag \"%s\" not set", "codice-redazionale")
+					return dryRunValidationErr(cmd, flags, fmt.Errorf("required flag \"%s\" not set", "codice-redazionale"))
 				}
 				if !cmd.Flags().Changed("data-gu") && bodyDataGU == "" && !requiredInputWaived() {
-					return fmt.Errorf("required flag \"%s\" not set", "data-gu")
+					return dryRunValidationErr(cmd, flags, fmt.Errorf("required flag \"%s\" not set", "data-gu"))
 				}
 			}
 			path := "/atto/dettaglio-atto"

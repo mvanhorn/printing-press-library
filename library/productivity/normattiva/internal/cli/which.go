@@ -27,10 +27,6 @@ type whichEntry struct {
 // Novel hero features come first (declaration-order ties); promoted
 // endpoint commands follow so natural-language queries can find them.
 var whichIndex = []whichEntry{
-	{Command: "verifica", Description: "Check every Italian law citation in a draft or an AI answer: does it exist, and was it in force on a given date?", Group: "Citation checking and context packs", WhyItMatters: "Reach for this before trusting any generated legal citation; non-zero exit means at least one citation is wrong or no longer in force."},
-	{Command: "diff", Description: "See word by word what an article said on one date versus another, or versus its original text.", Group: "Law across time", WhyItMatters: "Use it when the applicable version of a norm depends on the date of the facts (tempus regit actum)."},
-	{Command: "novita", Description: "Follow the acts you care about (segui add) and get a report of which ones and which articles changed since your last check.", Group: "Law across time", WhyItMatters: "Use it for recurring compliance monitoring instead of scanning the whole national updates feed."},
-	{Command: "fascicolo", Description: "Assemble several articles from different laws, all pinned to one reference date, into one Markdown document.", Group: "Citation checking and context packs", WhyItMatters: "Use it to give an agent or a filing the exact text of every relevant norm as of one date."},
 	{Command: "collezioni", Description: "List prebuilt collections with their act counts", Group: "collezioni", WhyItMatters: "List prebuilt collections with their act counts"},           // pp:which-promoted
 	{Command: "esportazioni", Description: "Check the status of an asynchronous export request", Group: "esportazioni", WhyItMatters: "Check the status of an asynchronous export request"}, // pp:which-promoted
 }

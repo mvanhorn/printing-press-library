@@ -46,7 +46,7 @@ func newRicercaSempliceCmd(flags *rootFlags) *cobra.Command {
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("testo-ricerca") && bodyTestoRicerca == "" && !requiredInputWaived() {
-					return fmt.Errorf("required flag \"%s\" not set", "testo-ricerca")
+					return dryRunValidationErr(cmd, flags, fmt.Errorf("required flag \"%s\" not set", "testo-ricerca"))
 				}
 			}
 			path := "/ricerca/semplice"

@@ -230,9 +230,27 @@ func requiredInputWaived() bool {
 }
 
 type dryRunResult struct {
-	DryRun bool   `json:"dry_run"`
-	Action string `json:"action"`
-	Would  string `json:"would"`
+	DryRun  bool   `json:"dry_run"`
+	Success bool   `json:"success"`
+	Action  string `json:"action"`
+	Would   string `json:"would"`
+}
+
+// dryRunValidationErr is a dry run that never built a request. Machine output
+// reports success:false so it cannot be read as a completed plan. The error
+// itself is unchanged, including its exit code.
+func dryRunValidationErr(cmd *cobra.Command, flags *rootFlags, err error) error {
+	if err == nil {
+		return nil
+	}
+	if cmd != nil && flags != nil && flags.dryRun && flags.asJSON {
+		_ = writeEncodedJSON(cmd.OutOrStdout(), map[string]any{
+			"success": false,
+			"dry_run": true,
+			"error":   err.Error(),
+		}, "", "")
+	}
+	return err
 }
 
 type harnessRefusalResult struct {
@@ -244,13 +262,15 @@ type harnessRefusalResult struct {
 }
 
 // writeDryRun ends a --dry-run short-circuit by reporting the action that was
-// skipped. Returning silently leaves a --json caller with empty stdout, which
-// is indistinguishable from a broken command rather than a deliberate no-op.
-// Callers pass cmd.OutOrStdout() so the report follows any redirected writer.
+// skipped. A completed dry run reports success:true with dry_run:true and no
+// HTTP status. Returning silently leaves a --json caller with empty stdout,
+// which is indistinguishable from a broken command rather than a deliberate
+// no-op. Callers pass cmd.OutOrStdout() so the report follows any redirected
+// writer. Hand-written commands should call this instead of emitting success:false.
 func writeDryRun(w io.Writer, flags *rootFlags, action string) error {
 	would := "run " + action + "; no changes made"
 	if flags != nil && flags.asJSON {
-		return writeEncodedJSON(w, dryRunResult{DryRun: true, Action: action, Would: would}, "", "")
+		return writeEncodedJSON(w, dryRunResult{DryRun: true, Success: true, Action: action, Would: would}, "", "")
 	}
 	_, err := fmt.Fprintf(w, "dry-run: would %s\n", would)
 	return err
@@ -937,6 +957,48 @@ func paginatedGetWithResponsePath(ctx context.Context, c interface {
 	return applyResponsePath(data, responsePath), nil
 }
 
+// Generated commands stringify every flag, so an unset default and an
+// operator-set --flag=false or --n=0 are the same "false"/"0" bytes.
+// Explicit false/0 must stay on the wire; otherwise a boolean that
+// defaults to true is accepted and never reaches the API.
+func retainCLIQueryParams(cmd *cobra.Command, params map[string]string, flagNamesByWire map[string][]string, cursorParam, paginationType string) map[string]string {
+	explicit := map[string]struct{}{}
+	for wire := range params {
+		names, tracked := flagNamesByWire[wire]
+		if !tracked {
+			explicit[wire] = struct{}{}
+			continue
+		}
+		if cmd == nil {
+			continue
+		}
+		for _, name := range names {
+			if cmd.Flags().Changed(name) {
+				explicit[wire] = struct{}{}
+				break
+			}
+		}
+	}
+	return retainExplicitQueryParams(params, explicit, cursorParam, paginationType)
+}
+
+func retainExplicitQueryParams(params map[string]string, explicit map[string]struct{}, cursorParam, paginationType string) map[string]string {
+	clean := map[string]string{}
+	for k, v := range params {
+		if v == "" {
+			continue
+		}
+		if _, ok := explicit[k]; ok {
+			clean[k] = v
+			continue
+		}
+		if (k == cursorParam && paginationType == "offset") || (v != "0" && v != "false") {
+			clean[k] = v
+		}
+	}
+	return clean
+}
+
 // paginatedGet fetches pages and concatenates array results. The headers
 // argument carries per-endpoint required headers (e.g. cal-api-version) that
 // must be sent on every page request, including the first; pass nil when the
@@ -944,7 +1006,8 @@ func paginatedGetWithResponsePath(ctx context.Context, c interface {
 func paginatedGet(ctx context.Context, c interface {
 	GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
 }, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
-	// Values that reach this loop — including operator-set
+	// Generated commands run retainCLIQueryParams first so unset "0"/"false"
+	// never reach this loop. Values that remain — including operator-set
 	// false/0 — go on the wire. Empty strings are still dropped. The offset
 	// cursor is exempt so offset=0 is a legitimate first page. Under
 	// id-cursor pagination 0 is not a real record id: APIs answer it with

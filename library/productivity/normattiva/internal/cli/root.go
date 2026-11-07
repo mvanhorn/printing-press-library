@@ -337,7 +337,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 			flag.Hidden = true
 		}
 	}
-	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
+	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>, spacefast:<name> (live web page)")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", client.RateLimitAuto, "Max requests per second (0 to disable; default auto — pace to server rate-limit headers)")
 	if f := rootCmd.PersistentFlags().Lookup("rate-limit"); f != nil {
 		f.DefValue = "auto"

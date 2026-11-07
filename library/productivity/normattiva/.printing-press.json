@@ -1,35 +1,26 @@
 {
-  "schema_version": 2,
-  "generated_at": "2026-10-28T18:38:39.899213Z",
-  "printing_press_version": "4.35.0",
   "api_name": "normattiva",
-  "display_name": "Normattiva",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "category": "productivity",
   "cli_name": "normattiva-pp-cli",
-  "creator": {
-    "handle": "luigipastore61063-del",
-    "name": "Luigi Pastore"
-  },
   "contributors": [
     {
       "handle": "tmchow",
       "name": "Trevin Chow"
     }
   ],
-  "owner": "luigipastore61063-del",
-  "printer": "luigipastore61063-del",
-  "printer_name": "Luigi Pastore",
-  "spec_path": "spec.yaml",
-  "spec_format": "internal",
-  "spec_checksum": "sha256:024e3633a96f5764c47ee557d675aa9f8dc4748bcd2f92095f34e7162dfe3097",
-  "run_id": "20261028-132341-29de1036",
-  "category": "productivity",
+  "creator": {
+    "handle": "luigipastore61063-del",
+    "name": "Luigi Pastore"
+  },
   "description": "Italian law in your terminal: resolve citations, read any article at any date, diff versions and track amendments.",
+  "display_name": "Normattiva",
+  "generated_at": "2026-11-07T20:14:01.493993454Z",
   "mcp_binary": "normattiva-pp-mcp",
-  "mcp_tool_count": 11,
   "mcp_public_tool_count": 11,
   "mcp_ready": "full",
-  "api_version": "0.1.0",
-  "auth_type": "none",
+  "mcp_tool_count": 11,
   "novel_features": [
     {
       "name": "Citation checker",
@@ -51,5 +42,14 @@
       "command": "fascicolo",
       "description": "Assemble several articles from different laws, all pinned to one reference date, into one Markdown document."
     }
-  ]
+  ],
+  "owner": "luigipastore61063-del",
+  "printer": "luigipastore61063-del",
+  "printer_name": "Luigi Pastore",
+  "printing_press_version": "4.35.3",
+  "run_id": "20261028-132341-29de1036",
+  "schema_version": 2,
+  "spec_checksum": "sha256:024e3633a96f5764c47ee557d675aa9f8dc4748bcd2f92095f34e7162dfe3097",
+  "spec_format": "internal",
+  "spec_path": "spec.yaml"
 }

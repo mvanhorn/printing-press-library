@@ -6,9 +6,11 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/productivity/normattiva/internal/cliutil"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,6 +29,7 @@ type DeliverSink struct {
 //	stdout          -> default, no redirection
 //	file:<path>     -> write output atomically to a private file at <path>
 //	webhook:<url>   -> POST output body to <url> (redirects are not followed)
+//	spacefast:<name> -> publish output as a live web page on Spacefast
 //
 // Returns an error for unknown schemes with a message naming the
 // supported set, so agents see a structured refusal rather than a
@@ -37,7 +40,7 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 	}
 	idx := strings.Index(spec, ":")
 	if idx == -1 {
-		return DeliverSink{}, fmt.Errorf("unknown --deliver sink %q: expected scheme:target (supported: stdout, file:<path>, webhook:<url>)", spec)
+		return DeliverSink{}, fmt.Errorf("unknown --deliver sink %q: expected scheme:target (supported: stdout, file:<path>, webhook:<url>, spacefast:<name>)", spec)
 	}
 	scheme := spec[:idx]
 	target := spec[idx+1:]
@@ -50,8 +53,12 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 		if !strings.HasPrefix(target, "http://") && !strings.HasPrefix(target, "https://") {
 			return DeliverSink{}, fmt.Errorf("--deliver webhook:<url> requires an http:// or https:// URL, got %q", target)
 		}
+	case "spacefast":
+		if _, err := parseSpacefastTarget(target); err != nil {
+			return DeliverSink{}, err
+		}
 	default:
-		return DeliverSink{}, fmt.Errorf("unknown --deliver scheme %q (supported: stdout, file, webhook)", scheme)
+		return DeliverSink{}, fmt.Errorf("unknown --deliver scheme %q (supported: stdout, file, webhook, spacefast)", scheme)
 	}
 	return DeliverSink{Scheme: scheme, Target: target}, nil
 }
@@ -68,6 +75,8 @@ func Deliver(sink DeliverSink, body []byte, compact bool) error {
 		return deliverFile(sink.Target, body)
 	case "webhook":
 		return deliverWebhook(sink.Target, body, compact)
+	case "spacefast":
+		return deliverSpacefast(sink.Target, body)
 	default:
 		return fmt.Errorf("unsupported deliver sink %q", sink.Scheme)
 	}
@@ -150,10 +159,10 @@ func writeDownloadUnder(dir, name string, body []byte) error {
 	return nil
 }
 
-func deliverWebhook(url string, body []byte, compact bool) error {
+func deliverWebhook(webhookURL string, body []byte, compact bool) error {
 	_ = compact
 	contentType := "application/json"
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	req, err := http.NewRequest(http.MethodPost, webhookURL, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("building webhook request: %w", err)
 	}
@@ -164,21 +173,33 @@ func deliverWebhook(url string, body []byte, compact bool) error {
 		req.Header.Set("User-Agent", "normattiva-pp-cli/deliver")
 	}
 
-	// One POST. A followed 3xx would replay the body at a Location the
-	// operator did not name, including another host or an http downgrade.
-	httpClient := &http.Client{
-		Timeout: 30 * time.Second,
-		CheckRedirect: func(*http.Request, []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
+	// RoundTrip performs one POST and returns a 3xx as-is. Client.Do parses
+	// Location before ErrUseLastResponse and puts the raw header in that error.
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	req = req.WithContext(ctx)
+	// Client.Do copies URL userinfo into Authorization before RoundTrip.
+	// Transport.RoundTrip does not, so do that copy here.
+	if user := req.URL.User; user != nil && req.Header.Get("Authorization") == "" {
+		password, _ := user.Password()
+		req.SetBasicAuth(user.Username(), password)
 	}
-	resp, err := httpClient.Do(req)
+	resp, err := http.DefaultTransport.RoundTrip(req)
 	if err != nil {
 		return fmt.Errorf("posting to webhook: %w", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 && resp.StatusCode < 400 {
-		return fmt.Errorf("webhook returned %s (Location: %q); redirects are not followed", resp.Status, resp.Header.Get("Location"))
+		loc := resp.Header.Get("Location")
+		var locDisplay string
+		if loc == "" {
+			locDisplay = `""`
+		} else if u, err := url.Parse(loc); err == nil && u.Scheme != "" && u.Host != "" {
+			locDisplay = fmt.Sprintf("%q", u.Scheme+"://"+u.Host)
+		} else {
+			locDisplay = `"(redacted)"`
+		}
+		return fmt.Errorf("webhook returned %s (Location: %s); redirects are not followed", resp.Status, locDisplay)
 	}
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("webhook returned %s", resp.Status)
