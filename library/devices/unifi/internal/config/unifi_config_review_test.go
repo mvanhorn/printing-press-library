@@ -64,3 +64,46 @@ func TestLegacyGatewayHostStillRoutesLocally(t *testing.T) {
 		t.Fatalf("the cloud key must not become a local key without the legacy host: %+v", got)
 	}
 }
+
+// A file others can edit is not trusted to choose where a key goes, and a save must not
+// launder it: rewriting at 0600 would make the next load trust what this one rejected.
+func TestSavingDoesNotTrustALooseConfigsGateway(t *testing.T) {
+	cfg := loadFixture(t, "console_id = \"C1\"\ngateway = \"192.0.2.66\"\nlocal_api_key = \"planted\"\n")
+	if err := os.Chmod(cfg.Path, 0o666); err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveCredential("new-key"); err != nil {
+		t.Skipf("a loose config refuses to save here: %v", err)
+	}
+	reloaded, err := Load(cfg.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := reloaded.UniFiTarget()
+	if got.Gateway != "" || got.LocalAPIKey != "" {
+		t.Fatalf("a loose file's route became trusted: %+v", got)
+	}
+	if got.ConsoleID != "C1" {
+		t.Fatalf("the console id is safe to keep: %+v", got)
+	}
+}
+
+// Logout says credentials are cleared, so the gateway key has to go with them. The route
+// itself is not a secret and stays.
+func TestLogoutRemovesTheStoredGatewayKey(t *testing.T) {
+	cfg := loadFixture(t, "console_id = \"C1\"\ngateway = \"192.0.2.1\"\nlocal_api_key = \"local\"\n")
+	if err := cfg.ClearTokens(); err != nil {
+		t.Fatal(err)
+	}
+	reloaded, err := Load(cfg.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := reloaded.UniFiTarget()
+	if got.LocalAPIKey != "" {
+		t.Fatal("logout left the gateway key on disk")
+	}
+	if got.ConsoleID != "C1" || got.Gateway != "192.0.2.1" {
+		t.Fatalf("logout should keep the route: %+v", got)
+	}
+}

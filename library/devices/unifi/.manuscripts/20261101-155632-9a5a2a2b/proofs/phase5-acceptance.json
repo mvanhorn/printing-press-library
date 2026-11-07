@@ -12,7 +12,7 @@
     "type": "api_key",
     "api_key_available": true
   },
-  "source_fingerprint": "188dd847246e3534359ef2db22b381542836358855cd815f7bed889d8bf67fcf",
+  "source_fingerprint": "dfb78d8cc042bf1d4d3b0e18ce4ca7fca0acfeac9bb71768978d1168fd325bdc",
   "source_files": {
     "cmd/unifi-pp-cli/main.go": "9bdca0441f283350aa026208e96fcdfa24879576eafadd3d3499ae8799a7630d",
     "cmd/unifi-pp-mcp/http_auth_test.go": "26f915525de0d55216c964926b0434d8d315e5c0bfc55e76072f8a0a93f4587f",
@@ -344,10 +344,10 @@
     "internal/cliutil/text.go": "a79400626a412e1b7c41887cc6cce8bc9dd753705b0dafcd9ca70beb3000de35",
     "internal/cliutil/verifyenv.go": "80e79940af69db83ab4025e8404a377d08f7977a3e9d1e338c24e4b1dfb1794f",
     "internal/cliutil/windows_account.go": "fac87b3742462d54090dec0f959643e351499886a03c07e4f098923a9e64b198",
-    "internal/config/config.go": "e68753d3abf62bc0e1cca2f455563cb6d0a23a96ec0f02a235f86eb774525b3e",
+    "internal/config/config.go": "bde768c1d00c249256cb42fe6a0a01215b0d9fb52adb74789428a9e0fce2f15d",
     "internal/config/config_perms_test.go": "d108cecc26f4f305bf964b9dfcba7466a7a32d7efb9b947e36e34160653f206f",
-    "internal/config/unifi_config.go": "e246e0abfc411f481443328c891a0a43214d903f282d8668b8d46902e87f2871",
-    "internal/config/unifi_config_review_test.go": "6ebc63257f6d72b367deaadd80de52640c8a56c37fcfe76a9a48f5d909016c05",
+    "internal/config/unifi_config.go": "e12b8e12978ce5dd1c352eb12fa3461a64ae8ef71ba5a690bc0e1ef3deaa5416",
+    "internal/config/unifi_config_review_test.go": "27d23b499258aeb2a7b8d2ae2005f491666791b968a7632c8036c7accc7cf99e",
     "internal/learn/derive.go": "0b290095bcead5de754f4948f70d58d482f5c3513b2dbd2228ca57d55edaa315",
     "internal/learn/derive_test.go": "6f2f9bf478b75478672be20677d777f41ceb31a18815f3a30054d6e927f7477e",
     "internal/learn/doc.go": "d11e1734b9e1a06762430bc967e654771397f3672f236c583038493792172fca",

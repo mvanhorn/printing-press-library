@@ -40,14 +40,26 @@ type persistedUniFiTarget struct {
 // keepUniFiTarget carries the route settings across a config save. The emitted Config
 // does not know them, so saving a credential would otherwise erase them and the next
 // command could reach a different console. They go first because TOML would read
-// top-level keys placed after a table as part of that table.
-func keepUniFiTarget(path string, data []byte) []byte {
+// top-level keys placed after a table as part of that table. Logging out drops the
+// stored gateway key, since it is a credential and the route is not.
+func keepUniFiTarget(path string, data []byte, loggingOut bool) []byte {
 	opened, err := cliutil.ReadOpenedConfig(path)
 	if err != nil {
 		return data
 	}
 	var parsed persistedUniFiTarget
-	if toml.Unmarshal(opened.Data, &parsed) != nil || parsed == (persistedUniFiTarget{}) {
+	if toml.Unmarshal(opened.Data, &parsed) != nil {
+		return data
+	}
+	// UniFiTarget refuses these from a file others can edit. The save rewrites the file
+	// at 0600, so carrying them over would make the next load trust what this one refused.
+	if opened.PermErr != nil {
+		parsed.Gateway, parsed.LocalAPIKey = "", ""
+	}
+	if loggingOut {
+		parsed.LocalAPIKey = ""
+	}
+	if parsed == (persistedUniFiTarget{}) {
 		return data
 	}
 	head, err := toml.Marshal(parsed)

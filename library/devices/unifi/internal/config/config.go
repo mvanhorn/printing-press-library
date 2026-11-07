@@ -48,6 +48,7 @@ type Config struct {
 	ClientSecret   string          `toml:"client_secret"`
 	Path           string          `toml:"-"`
 	envOverrides   map[string]bool `toml:"-"`
+	loggingOut     bool            `toml:"-"`
 	fileConfig     *Config         `toml:"-"`
 	UnifiApiKey    string          `toml:"api_key"`
 }
@@ -1028,6 +1029,10 @@ func (c *Config) SaveCredential(token string) error {
 }
 
 func (c *Config) ClearTokens() error {
+	// Logout reports credentials as cleared, so the save below must not carry the
+	// gateway's stored key forward along with the route.
+	c.loggingOut = true
+	defer func() { c.loggingOut = false }()
 	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
 	// and AccessToken are empty, so dropping the working credential requires
 	// zeroing every emitted credential field, not just the OAuth trio.
@@ -1189,7 +1194,7 @@ func (c *Config) save() error {
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	data = keepUniFiTarget(c.Path, data)
+	data = keepUniFiTarget(c.Path, data, c.loggingOut)
 	if err := cliutil.AtomicWritePrivateFile(c.Path, data, 0o600, 0o700); err != nil {
 		return err
 	}

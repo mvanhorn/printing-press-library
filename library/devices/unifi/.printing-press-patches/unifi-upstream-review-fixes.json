@@ -19,5 +19,5 @@
     "keepUniFiTarget",
     "UNIFI_GATEWAY_HOST"
   ],
-  "validated_outcome": "TestImportHasNoProtectWriteTarget, TestPlanUndoUsesTheMethodTheEndpointAccepts, TestRollbackIsConfirmedByReadBack, TestSavingACredentialKeepsTheRoute, TestLegacyGatewayHostStillRoutesLocally."
+  "validated_outcome": "TestImportHasNoProtectWriteTarget, TestPlanUndoUsesTheMethodTheEndpointAccepts, TestRollbackIsConfirmedByReadBack, TestSavingACredentialKeepsTheRoute, TestLegacyGatewayHostStillRoutesLocally, TestSavingDoesNotTrustALooseConfigsGateway, TestLogoutRemovesTheStoredGatewayKey."
 }
