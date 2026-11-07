@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "arcmira",
+  "cli_name": "arcmira-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-07T09:49:38Z",
+  "source_commit": "62b4cee5db4dd6c6dae83066e2f7728f6dda0e4a",
+  "printing_press_version": "4.35.1",
+  "run_id": "20261103-003317",
+  "changes": [
+    {
+      "title": "feat(arcmira): add transcript search and quote sheets",
+      "pr": 2422,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2422",
+      "commit": "62b4cee5db4dd6c6dae83066e2f7728f6dda0e4a"
+    }
+  ]
+}
