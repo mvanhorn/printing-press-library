@@ -87,7 +87,8 @@ func sourcesAt(path ...string) func(json.RawMessage) ([]citedSource, error) {
 }
 
 // citedEngines lists the engines in their default order. The AI Overview
-// runs a Google search with the prompt as the query.
+// runs a Google search with the prompt as the query. Bing AI Mode is not in
+// the default list; name it in --engines to run it.
 var citedEngines = []citedEngine{
 	{Name: "chatgpt", Path: "/v1/monitor/chatgpt", Body: promptBody, Sources: sourcesAt()},
 	{Name: "aimode", Path: "/v1/monitor/aimode", Body: promptBody, Sources: sourcesAt()},
@@ -104,9 +105,13 @@ var citedEngines = []citedEngine{
 		},
 		Sources: sourcesAt("aioverview"),
 	},
+	{Name: "bing-aimode", Path: "/v1/monitor/bing/aimode", Body: promptBody, Sources: sourcesAt()},
 }
 
 const citedDefaultEngines = "chatgpt,aimode,gemini,aioverview"
+
+// citedAllEngines names every engine that --engines accepts.
+const citedAllEngines = citedDefaultEngines + ",bing-aimode"
 
 // parseCitedEngines returns the engines named in a comma-separated list, in
 // the order given, without duplicates.
@@ -124,13 +129,13 @@ func parseCitedEngines(list string) ([]citedEngine, error) {
 		}
 		e, ok := byName[name]
 		if !ok {
-			return nil, fmt.Errorf("unknown engine %q; use one or more of %s", name, citedDefaultEngines)
+			return nil, fmt.Errorf("unknown engine %q; use one or more of %s", name, citedAllEngines)
 		}
 		seen[name] = true
 		out = append(out, e)
 	}
 	if len(out) == 0 {
-		return nil, fmt.Errorf("--engines is empty; use one or more of %s", citedDefaultEngines)
+		return nil, fmt.Errorf("--engines is empty; use one or more of %s", citedAllEngines)
 	}
 	return out, nil
 }
@@ -199,7 +204,8 @@ with an empty URL does not match; resolve its redirect link with 'goto'.
 The AI Overview check runs a Google search with the prompt as the query and
 reads the sources of the AI Overview. Each engine is one sync request at its
 sync price: ChatGPT 7 credits, AI Mode 6, Gemini 6, Google with the AI
-Overview 7. Use --engines to run fewer engines.
+Overview 7. Use --engines to run fewer engines. Bing AI Mode (6 credits) runs
+only when you name it in --engines.
 
 Answers and their sources change between runs of the same prompt, so one run
 is a sample, not a rank.
@@ -314,7 +320,7 @@ instead.`, "\n"),
 	}
 	cmd.Flags().StringVar(&flagPrompt, "prompt", "", "Prompt to send to each engine (the search query for the AI Overview).")
 	cmd.Flags().StringVar(&flagCountry, "country", "US", "ISO 3166-1 alpha-2 country code the engines answer from.")
-	cmd.Flags().StringVar(&flagEngines, "engines", citedDefaultEngines, "Comma-separated engines to check: chatgpt, aimode, gemini, aioverview.")
+	cmd.Flags().StringVar(&flagEngines, "engines", citedDefaultEngines, "Comma-separated engines to check: chatgpt, aimode, gemini, aioverview, bing-aimode.")
 	return cmd
 }
 

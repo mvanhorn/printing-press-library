@@ -104,6 +104,22 @@ func RegisterTools(s *server.MCPServer) {
 		),
 		makeAPIHandler("GET", "/v1/async/status", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
+	// PATCH(bing-aimode-endpoint): hand-written from the gemini_gemini tool.
+	s.AddTool(
+		mcplib.NewTool("bing-aimode_bing_aimode",
+			mcplib.WithDescription("Extract structured data from Bing AI Mode: answer text, cited sources and citation pills. Required: prompt. Optional: country, include, state. Returns the answer text, sources and citationPills, plus markdown and html when asked."),
+			mcplib.WithString("country", mcplib.Description("Country/region code for localized response, using ISO 3166-1 alpha-2 country codes.")),
+			mcplib.WithBoolean("include-html", mcplib.Description("Include a URL to the full HTML of the response (default: false)")),
+			mcplib.WithBoolean("include-markdown", mcplib.Description("Include markdown-formatted response in the result. result.markdown is returned only when this is true. (default: false)")),
+			mcplib.WithString("prompt", mcplib.Required(), mcplib.Description("The prompt to send to Bing AI Mode. Maximum 3,500 characters after URL encoding.")),
+			mcplib.WithString("state", mcplib.Description("State code for sub-country geo-targeting (e.g., 'CA'). Only valid with country 'US'.")),
+			mcplib.WithSchemaAdditionalProperties(false),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/v1/monitor/bing/aimode", true, false, map[string]string{client.ReplaySafeHeader: "false"}, mcpPageConfig{}, []mcpParamBinding{{PublicName: "country", WireName: "country", Location: "body"}, {PublicName: "include-html", WireName: "html", Location: "body", BodyPath: []string{"include", "html"}}, {PublicName: "include-markdown", WireName: "markdown", Location: "body", BodyPath: []string{"include", "markdown"}}, {PublicName: "prompt", WireName: "prompt", Location: "body"}, {PublicName: "state", WireName: "state", Location: "body"}}, []string{}),
+	)
 	s.AddTool(
 		mcplib.NewTool("chatgpt_chatgpt",
 			mcplib.WithDescription("Extract structured data from ChatGPT, answer text, cited sources, shopping cards, brand entities, and ads, for any prompt across supported regions. Required: country, prompt. Optional: disableWebSearch (default: false), include, legacy (default: false) (plus 1 more). Returns the new ChatGptmonitorResponse."),
@@ -1525,6 +1541,12 @@ func handleContextResult(s *server.MCPServer, _ context.Context, _ mcplib.CallTo
 				"endpoints":   []string{"batch", "create", "get", "queue"},
 				"searchable":  true,
 				"writable":    true,
+			},
+			{
+				"name":        "bing-aimode",
+				"description": "Manage bing-aimode",
+				"endpoints":   []string{"bing_aimode"},
+				"searchable":  true,
 			},
 			{
 				"name":        "chatgpt",

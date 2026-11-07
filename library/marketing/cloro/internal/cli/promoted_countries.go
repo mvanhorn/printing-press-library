@@ -24,7 +24,7 @@ func newCountriesPromotedCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "countries.get", "pp:method": "GET", "pp:path": "/v1/countries", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("model") {
-				allowedModel := []string{"aimode", "aioverview", "chatgpt", "gemini", "google"}
+				allowedModel := []string{"aimode", "aioverview", "bing_aimode", "chatgpt", "gemini", "google"}
 				validModel := false
 				for _, v := range allowedModel {
 					if flagModel == v {
@@ -110,7 +110,7 @@ func newCountriesPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
 		},
 	}
-	cmd.Flags().StringVar(&flagModel, "model", "", "Filter countries available for a specific model. Omit to return all supported countries. (one of: aimode, aioverview, chatgpt, gemini, google)")
+	cmd.Flags().StringVar(&flagModel, "model", "", "Filter countries available for a specific model. Omit to return all supported countries. (one of: aimode, aioverview, bing_aimode, chatgpt, gemini, google)")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

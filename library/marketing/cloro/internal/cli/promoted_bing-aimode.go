@@ -1,0 +1,164 @@
+// Copyright 2026 Ricardo Batista and contributors. Licensed under Apache-2.0. See LICENSE.
+// PATCH(bing-aimode-endpoint): hand-written from the gemini command. See
+// .printing-press-patches/bing-aimode-endpoint.json.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+
+	"github.com/spf13/cobra"
+)
+
+func newBingAimodePromotedCmd(flags *rootFlags) *cobra.Command {
+	var bodyCountry string
+	var bodyIncludeHtml bool
+	var bodyIncludeMarkdown bool
+	var bodyPrompt string
+	var bodyState string
+
+	cmd := &cobra.Command{
+		Use:         "bing-aimode",
+		Short:       "Extract structured data from Bing AI Mode: answer text, cited sources and citation pills",
+		Long:        "Extract structured data from Bing AI Mode: answer text, cited sources and citation pills.\n\nThe prompt can have a maximum of 3,500 characters after URL encoding, so fewer characters for non-Latin scripts. Costs 4 credits, plus 2 for a sync request and 2 for a US state.",
+		Example:     "  cloro-pp-cli bing-aimode --prompt \"best running shoes for flat feet\" --country US",
+		Args:        cobra.NoArgs,
+		Annotations: map[string]string{"pp:endpoint": "bing-aimode.bing_aimode", "pp:method": "POST", "pp:path": "/v1/monitor/bing/aimode", "mcp:read-only": "true", "pp:requires-input": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with a required flag/body prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only reads fall through so a bare call still executes; positional
+			// commands keep their existing usageErr (exit 2 + JSON envelope).
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
+			if !cmd.Flags().Changed("prompt") && bodyPrompt == "" && !requiredInputWaived() {
+				return dryRunValidationErr(cmd, flags, fmt.Errorf("required flag \"%s\" not set", "prompt"))
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+
+			path := "/v1/monitor/bing/aimode"
+			headerOverrides := map[string]string{
+				"X-Printing-Press-Replay-Safe": "false",
+			}
+
+			params := map[string]string{}
+			// HasStore + non-GET falls through to a live API call here
+			// rather than through resolveRead (GET-only internally); a
+			// body-aware cached read helper is filed as #425 for when a
+			// second store-backed POST-search consumer ships.
+			bodyMap := map[string]any{}
+			var body any = bodyMap
+			if cmd.Flags().Changed("country") || bodyCountry != "" {
+				bodyMap["country"] = bodyCountry
+			}
+			{
+				nestedInclude := map[string]any{}
+				if cmd.Flags().Changed("include-html") {
+					nestedInclude["html"] = bodyIncludeHtml
+				}
+				if cmd.Flags().Changed("include-markdown") {
+					nestedInclude["markdown"] = bodyIncludeMarkdown
+				}
+				if len(nestedInclude) > 0 {
+					bodyMap["include"] = nestedInclude
+				}
+			}
+			if cmd.Flags().Changed("prompt") || bodyPrompt != "" {
+				bodyMap["prompt"] = bodyPrompt
+			}
+			if cmd.Flags().Changed("state") || bodyState != "" {
+				bodyMap["state"] = bodyState
+			}
+			data, _, err := c.PostQueryWithParamsAndHeaders(cmd.Context(), path, params, body, headerOverrides)
+
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
+			outputData := data
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var countItems []json.RawMessage
+				if json.Unmarshal(outputData, &countItems) != nil {
+					// Single object, not an array
+					countItems = []json.RawMessage{outputData}
+				}
+				printProvenance(cmd, len(countItems), prov)
+			}
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				var selectErr error
+				filtered := data
+				if flags.selectFields != "" {
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
+				} else if flags.compact {
+					filtered = compactFields(filtered, nil)
+				}
+				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				if err := printOutput(cmd.OutOrStdout(), wrapped, true); err != nil {
+					return err
+				}
+				return selectErr
+			}
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var items []map[string]any
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						return err
+					}
+					if len(items) >= 25 {
+						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+					}
+					return nil
+				}
+			}
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+		},
+	}
+	cmd.Flags().StringVar(&bodyCountry, "country", "", "Country/region code for localized response, using ISO 3166-1 alpha-2 country codes. Run 'countries --model bing_aimode' for the list.")
+	cmd.Flags().BoolVar(&bodyIncludeHtml, "include-html", false, "Include a URL to the full HTML of the response (default: false)")
+	cmd.Flags().BoolVar(&bodyIncludeMarkdown, "include-markdown", false, "Include markdown-formatted response in the result. result.markdown is returned only when this is true. (default: false)")
+	cmd.Flags().StringVar(&bodyPrompt, "prompt", "", "The prompt to send to Bing AI Mode. Maximum 3,500 characters after URL encoding.")
+	cmd.Flags().StringVar(&bodyState, "state", "", "State code for sub-country geo-targeting (e.g., 'CA'). Only valid with country 'US'.")
+
+	// Wire sibling endpoints and sub-resources as subcommands
+
+	return cmd
+}

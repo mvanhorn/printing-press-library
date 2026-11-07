@@ -2,7 +2,7 @@
 
 **ChatGPT, Google AI Mode and Gemini answers with their cited sources, Google results with the AI Overview, and a citation check across engines.**
 
-Each engine is a typed command and an MCP tool: chatgpt, aimode, gemini, google (with --include-aioverview) and news, geo-targeted by country. The cited command runs one prompt on several engines in parallel and tells you which of them cite your domain, and at which source positions.
+Each engine is a typed command and an MCP tool: chatgpt, aimode, bing-aimode, gemini, google (with --include-aioverview) and news, geo-targeted by country. The cited command runs one prompt on several engines in parallel and tells you which of them cite your domain, and at which source positions.
 
 Learn more at [cloro](https://cloro.dev/?utm_source=printing-press-library&utm_medium=byok).
 
@@ -286,6 +286,12 @@ Manage async
 - **`cloro-pp-cli async create`** - Submit an asynchronous task for background processing. Returns a task ID that you can use to poll for results or receive via webhook.
 - **`cloro-pp-cli async get`** - Poll the status and result of an asynchronous task by ID. Returns the task state and, once complete, the full structured result payload.
 - **`cloro-pp-cli async queue`** - Get organization-wide async queue metrics including queued and processing task counts, and concurrency usage.
+
+### bing-aimode
+
+Manage bing-aimode
+
+- **`cloro-pp-cli bing-aimode`** - Extract structured data from Bing AI Mode: answer text, cited sources and citation pills. The prompt can have a maximum of 3,500 characters after URL encoding. Costs 4 credits, plus 2 for a sync request and 2 for a US state. To check a domain on Bing AI Mode with `cited`, add `bing-aimode` to `--engines`.
 
 ### chatgpt
 
