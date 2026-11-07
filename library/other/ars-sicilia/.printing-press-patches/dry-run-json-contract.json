@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "dry-run-json-contract",
+  "applied_at": "2026-11-06",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Every --dry-run --json prints an object with `dry_run: true` and a non-empty `action`, including commands that used to exit silently or ignore the flag.",
+  "reason": "The press 4.34.2 live gate added a dry-run JSON contract, taking the matrix from 127 to 168 tests: 39 commands failed it with empty action or empty output, and `doctor` and `which` ignored the flag. All 127 existing tests still passed, so this is a conformance gap of a CLI printed with 4.30.3, not a regression.",
+  "files": ["internal/cli/helpers.go", "internal/cli/icaro_helpers.go", "internal/cli/ddl_iter.go", "internal/cli/gruppi.go", "internal/cli/sync.go", "internal/cli/analytics.go", "internal/cli/ddl_drift.go", "internal/cli/ddl_firmatari.go", "internal/cli/ddl_iniziative.go", "internal/cli/ddl_materie.go", "internal/cli/novita.go", "internal/cli/sync_coverage.go", "internal/cli/sync_stale.go", "internal/cli/doctor.go", "internal/cli/which.go", "internal/cli/profile.go", "internal/cli/feedback.go", "SKILL.md", "README.md"],
+  "validated_outcome": "`TestDryRunJSONContratto` applies the gate's contract to 21 commands offline; the live gate result is in the marker refreshed with this change."
+}

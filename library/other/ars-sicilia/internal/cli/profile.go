@@ -256,6 +256,9 @@ func newProfileListCmd(flags *rootFlags) *cobra.Command {
 		Example: `  ars-sicilia-pp-cli profile list
   ars-sicilia-pp-cli profile list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			if dryRunOK(flags) {
+				return emitDryRunAzione(cmd)
+			}
 			s, err := loadProfileStore()
 			if err != nil {
 				return err

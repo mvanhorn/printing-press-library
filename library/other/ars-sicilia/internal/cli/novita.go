@@ -103,7 +103,7 @@ tali invece di essere riportati vuoti.`,
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) || cliIsVerify() {
-				return nil
+				return emitDryRunAzione(cmd)
 			}
 			return runNovita(cmd, flags, flagSince, flagDal, flagArchvi, flagLimit)
 		},

@@ -151,30 +151,77 @@ func TestUnknownSelectNames(t *testing.T) {
 // esce: senza avviso `ddl iter --select numero,titolo` dava 0 eventi su 31 con
 // stderr muto, e chi legge conclude che la cronologia non esiste.
 func TestAvvisoArrayScartato(t *testing.T) {
-	originale := json.RawMessage(`{"numero":6030,"titolo":"un ddl","eventi":[{"data":"13 gen 2026","fase":"commissione"},{"data":"27.01.26","fase":"presentazione"}]}`)
+	originale := json.RawMessage(`{"numero":1030,"titolo":"un ddl","stralci":[{"data":"14.01.26","numero":3030,"titolo":"a"},{"data":"27.01.26","numero":5030,"titolo":"b"}]}`)
+	scartato := json.RawMessage(`{"numero":1030,"titolo":"un ddl"}`)
 
-	scartato := json.RawMessage(`{"numero":6030,"titolo":"un ddl"}`)
-	msg := avvisoArrayScartato(originale, scartato)
-	for _, atteso := range []string{"eventi", "2 righe", "data, fase"} {
+	msg := avvisoArrayScartato(originale, scartato, "numero,titolo")
+	for _, atteso := range []string{"stralci (2 righe)", "numero, titolo esistono", "--select numero,titolo,stralci.numero,stralci.titolo", "anche: data."} {
 		if !strings.Contains(msg, atteso) {
 			t.Errorf("l'avviso deve citare %q: %q", atteso, msg)
 		}
 	}
 
 	// L'array c'e' ancora: niente da dire.
-	tenuto := json.RawMessage(`{"titolo":"un ddl","eventi":[{"data":"13 gen 2026"}]}`)
-	if msg := avvisoArrayScartato(originale, tenuto); msg != "" {
+	tenuto := json.RawMessage(`{"titolo":"un ddl","stralci":[{"data":"14.01.26"}]}`)
+	if msg := avvisoArrayScartato(originale, tenuto, "titolo,data"); msg != "" {
 		t.Errorf("array conservato, nessun avviso atteso: %q", msg)
 	}
 	// Un array vuoto non e' una perdita.
 	vuoto := json.RawMessage(`{"numero":1,"eventi":[]}`)
-	if msg := avvisoArrayScartato(vuoto, json.RawMessage(`{"numero":1}`)); msg != "" {
+	if msg := avvisoArrayScartato(vuoto, json.RawMessage(`{"numero":1}`), "numero"); msg != "" {
 		t.Errorf("array vuoto, nessun avviso atteso: %q", msg)
 	}
 	// Una lista semplice non e' un envelope.
 	lista := json.RawMessage(`[{"numero":1}]`)
-	if msg := avvisoArrayScartato(lista, lista); msg != "" {
+	if msg := avvisoArrayScartato(lista, lista, "numero"); msg != "" {
 		t.Errorf("lista semplice, nessun avviso atteso: %q", msg)
+	}
+}
+
+// Un elenco che nessuno ha chiesto non e' un elenco perso: su `resoconti get`
+// chi vuole pdf_url e presidenza non deve sentirsi dire che mancano gli allegati.
+func TestAvvisoArrayScartato_NomiChiestiFuoriDalleRighe(t *testing.T) {
+	originale := json.RawMessage(`{"pdf_url":"u","presidenza":[{"nome":"x"}],"allegati":[{"titolo":"a","url":"b"}]}`)
+	filtrato := json.RawMessage(`{"pdf_url":"u","presidenza":[{"nome":"x"}]}`)
+	if msg := avvisoArrayScartato(originale, filtrato, "pdf_url,presidenza"); msg != "" {
+		t.Errorf("nessun nome chiesto vive nelle righe di allegati: %q", msg)
+	}
+}
+
+// Ogni elenco che risponde ai nomi chiesti va nominato, non solo il primo, e
+// l'ordine non deve cambiare da un'esecuzione all'altra.
+func TestAvvisoArrayScartato_PiuElenchi(t *testing.T) {
+	originale := json.RawMessage(`{"titolo":"t","odg":[{"titolo":"o"}],"allegati":[{"titolo":"a"}]}`)
+	filtrato := json.RawMessage(`{"titolo":"t"}`)
+	msg := avvisoArrayScartato(originale, filtrato, "titolo")
+	want := []string{"allegati (1 riga) non esce, perché titolo esiste", "odg.titolo"}
+	righe := strings.Split(msg, "\n")
+	if len(righe) != 2 {
+		t.Fatalf("attesa una riga per elenco: %q", msg)
+	}
+	for i, w := range want {
+		if !strings.Contains(righe[i], w) {
+			t.Errorf("riga %d: manca %q: %q", i, w, righe[i])
+		}
+	}
+}
+
+// La semantica di --select non cambia: radice che vince, percorso puntato per
+// le righe, nome misto che apre l'elenco. E il selettore che l'avviso propone
+// deve dare davvero radice e righe.
+func TestFilterFields_RadiceERighe(t *testing.T) {
+	data := json.RawMessage(`{"numero":1030,"titolo":"r","legisl":18,"stralci":[{"numero":3030,"titolo":"s","data":"d"}]}`)
+	casi := []struct{ select_, want string }{
+		{"titolo", `{"titolo":"r"}`},
+		{"numero,titolo", `{"numero":1030,"titolo":"r"}`},
+		{"stralci.titolo", `{"stralci":[{"titolo":"s"}]}`},
+		{"titolo,data", `{"stralci":[{"data":"d","titolo":"s"}],"titolo":"r"}`},
+		{"numero,titolo,stralci.numero,stralci.titolo", `{"numero":1030,"stralci":[{"numero":3030,"titolo":"s"}],"titolo":"r"}`},
+	}
+	for _, c := range casi {
+		if got := string(filterFields(data, c.select_)); got != c.want {
+			t.Errorf("--select %s = %s, atteso %s", c.select_, got, c.want)
+		}
 	}
 }
 

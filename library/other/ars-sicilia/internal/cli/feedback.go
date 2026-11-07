@@ -188,6 +188,9 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
   ars-sicilia-pp-cli feedback list --limit 5
   ars-sicilia-pp-cli feedback list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			if dryRunOK(flags) {
+				return emitDryRunAzione(cmd)
+			}
 			p, err := feedbackFilePath()
 			if err != nil {
 				return err

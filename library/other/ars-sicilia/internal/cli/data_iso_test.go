@@ -116,7 +116,7 @@ func TestBustaEIniezioneDannoLoStessoDataISO(t *testing.T) {
 	// --envelope e non l'avevano con --envelope.
 	righe := []map[string]string{{"data": "02/09/2026"}, {"data": "28.07.26"}}
 	var buf bytes.Buffer
-	if err := emitEnvelope(&buf, righe, true, "", &rootFlags{}); err != nil {
+	if err := emitEnvelope(&buf, righe, true, 0, "", &rootFlags{}); err != nil {
 		t.Fatal(err)
 	}
 	var busta struct {

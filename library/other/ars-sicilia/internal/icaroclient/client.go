@@ -138,6 +138,12 @@ type SearchOptions struct {
 	// commissione dossier) use this to flag undercounts instead of silently
 	// presenting a capped count as complete.
 	Truncated *bool
+	// Totale, se non nil, riceve quanti documenti la fonte dichiara per questa
+	// ricerca. Sta nella pagina che apre la sessione, quindi non costa richieste.
+	// Resta 0 quando il dato non c'è: archivi /bd/, che non lo pubblicano, e
+	// ricerche spezzate, dove le fette non interrogate non hanno un conteggio e
+	// sommare le altre darebbe un numero finto.
+	Totale *int
 	// Spezzato dice che il portale ha rifiutato il range chiesto e la risposta
 	// è stata ricomposta interrogando sottorange. Il risultato è quello giusto,
 	// ma l'ordine delle righe è quello delle fette (dalla più recente alla più
@@ -273,6 +279,7 @@ func (c *Client) searchSpezzato(ctx context.Context, arc Archive, opts SearchOpt
 		}
 		var fettaTroncata bool
 		sub.Truncated = &fettaTroncata
+		sub.Totale = nil
 
 		recs, err := c.searchIcaro(ctx, arc, sub)
 		var rifiutata *QueryFailedError
@@ -332,6 +339,11 @@ func (c *Client) searchIcaro(ctx context.Context, arc Archive, opts SearchOption
 	}
 	if code, failed := DetectQueryError(body); failed {
 		return nil, &QueryFailedError{Archive: arc.Slug, Query: expr, Code: code, Malformata: QueryNonCostruibile(body)}
+	}
+	if opts.Totale != nil {
+		if n, ok := ParseResultCount(body); ok {
+			*opts.Totale = n
+		}
 	}
 	maxPages := opts.MaxPages
 	if maxPages <= 0 {

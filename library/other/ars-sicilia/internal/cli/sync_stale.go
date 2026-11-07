@@ -32,7 +32,7 @@ func newNovelSyncStaleCmd(flags *rootFlags) *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return nil
+				return emitDryRunAzione(cmd)
 			}
 			return runSyncStale(cmd, flags, flagDB, flagMaxAge)
 		},

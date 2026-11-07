@@ -47,7 +47,7 @@ Esempi:
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return nil
+				return emitDryRunAzione(cmd)
 			}
 			return runAnalytics(cmd, flags, flagType, flagGroupBy, flagLimit, flagLegisl, flagDB)
 		},

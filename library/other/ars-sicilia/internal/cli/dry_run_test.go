@@ -464,3 +464,54 @@ func TestDryRunBDDataMalformataFallisceComeIlVivo(t *testing.T) {
 		t.Errorf("data valida: errore inatteso %v", err)
 	}
 }
+
+// Il contratto che il collaudo live della press applica a --dry-run --json:
+// un oggetto con `dry_run: true` e un `action` non vuoto. Un comando che esce
+// muto o ignora il flag non lo rispetta, e qui si vede senza andare in rete.
+func TestDryRunJSONContratto(t *testing.T) {
+	casi := [][]string{
+		{"analytics", "--type", "ddl", "--group-by", "cofirmatari"},
+		{"ddl", "drift", "--since", "7d"},
+		{"ddl", "firmatari", "--legisl", "18"},
+		{"ddl", "iniziative"},
+		{"ddl", "materie"},
+		{"novita", "--since", "7d"},
+		{"sync", "coverage", "--resources", "ddl"},
+		{"sync", "stale"},
+		{"doctor"},
+		{"which"},
+		{"feedback", "list"},
+		{"profile", "list"},
+		{"ddl", "cerca", "--legisl", "18"},
+		{"resoconti", "cerca", "--legisl", "18"},
+		{"ddl", "get", "18", "1030"},
+		{"ddl", "iter", "18", "1030"},
+		{"ddl", "stralci", "18", "1030"},
+		{"legge", "cronologia", "18", "33"},
+		{"deputato", "profilo", "Rossi Mario"},
+		{"commissione", "dossier", "5"},
+		{"gruppi", "elenco"},
+	}
+	for _, c := range casi {
+		t.Run(strings.Join(c, " "), func(t *testing.T) {
+			var flags rootFlags
+			root := newRootCmd(&flags)
+			var buf bytes.Buffer
+			root.SetOut(&buf)
+			root.SetArgs(append(append([]string{}, c...), "--json", "--dry-run"))
+			if err := root.Execute(); err != nil {
+				t.Fatalf("exit non zero: %v", err)
+			}
+			var got map[string]any
+			if err := json.Unmarshal(buf.Bytes(), &got); err != nil {
+				t.Fatalf("non è un oggetto JSON (%q): %v", buf.String(), err)
+			}
+			if got["dry_run"] != true {
+				t.Errorf("manca dry_run:true: %v", got)
+			}
+			if a, _ := got["action"].(string); strings.TrimSpace(a) == "" {
+				t.Errorf("action vuoto: %v", got)
+			}
+		})
+	}
+}

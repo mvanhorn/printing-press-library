@@ -165,16 +165,58 @@ func TestDdlCerca_AnnoDataMutuallyExclusive(t *testing.T) {
 // un archivio che non contiene il documento: deve tacere solo quando i
 // risultati sono completi.
 func TestTruncatedHint(t *testing.T) {
-	if got := truncatedHint(false, 10, "leggi"); got != "" {
+	if got := truncatedHint(false, 10, 24, "leggi", false); got != "" {
 		t.Errorf("risultati completi: atteso nessun avviso, ottenuto %q", got)
 	}
-	got := truncatedHint(true, 10, "leggi")
-	if got == "" {
-		t.Fatal("risultati troncati: atteso un avviso, ottenuta stringa vuota")
+	casi := []struct {
+		nome            string
+		mostrati, tot   int
+		maxPages        bool
+		devono, vietati []string
+	}{
+		{"totale ignoto", 10, 0, false, []string{"troncati", "mostrati 10,", "leggi", "--limit 50", "pertinenza"}, []string{"mostrati 10 di"}},
+		{"totale ignoto, max-pages", 10, 0, true, []string{"--limit 50 --max-pages 5"}, nil},
+		{"totale piccolo", 10, 24, false, []string{"mostrati 10 di 24", "leggi", "--limit 24"}, []string{"--limit 50", "--max-pages"}},
+		{"totale piccolo, max-pages", 10, 24, true, []string{"--limit 24 --max-pages 3"}, nil},
+		{"al tetto", 10, 200, false, []string{"--limit 200"}, nil},
+		{"oltre il tetto", 10, 201, false, []string{"mostrati 10 di 201", "restringi"}, []string{"--limit"}},
+		{"totale incoerente", 10, 9, false, []string{"mostrati 10,", "--limit 50"}, []string{"di 9"}},
 	}
-	for _, want := range []string{"troncati", "10", "leggi", "--limit"} {
-		if !strings.Contains(got, want) {
-			t.Errorf("avviso %q: manca %q (conteggio, archivio e rimedio devono esserci)", got, want)
+	for _, c := range casi {
+		t.Run(c.nome, func(t *testing.T) {
+			got := truncatedHint(true, c.mostrati, c.tot, "leggi", c.maxPages)
+			for _, w := range c.devono {
+				if !strings.Contains(got, w) {
+					t.Errorf("manca %q in %q", w, got)
+				}
+			}
+			for _, v := range c.vietati {
+				if strings.Contains(got, v) {
+					t.Errorf("non deve esserci %q in %q", v, got)
+				}
+			}
+		})
+	}
+}
+
+// Il totale sta nella busta quando c'e', e sparisce quando non c'e': chi legge
+// il JSON non deve trovare un 0 che sembra una risposta.
+func TestEmitEnvelopeTotale(t *testing.T) {
+	for _, c := range []struct {
+		totale int
+		atteso bool
+	}{{24, true}, {0, false}} {
+		var buf bytes.Buffer
+		if err := emitEnvelope(&buf, []map[string]any{{"numero": "1"}}, true, c.totale, "", &rootFlags{asJSON: true}); err != nil {
+			t.Fatal(err)
+		}
+		var env map[string]any
+		if err := json.Unmarshal(buf.Bytes(), &env); err != nil {
+			t.Fatal(err)
+		}
+		v, c2 := env["totale"]
+		if c2 != c.atteso || (c.atteso && v != float64(c.totale)) {
+			t.Errorf("totale=%d: nella busta %v (presente %v)", c.totale, v, c2)
 		}
 	}
 }
@@ -207,7 +249,7 @@ func TestAnnoNonPinnatoHint(t *testing.T) {
 func TestEmitEnvelope(t *testing.T) {
 	var buf bytes.Buffer
 	payload := []map[string]any{{"data": "06/11/2019", "title": "Seduta n. 150"}}
-	if err := emitEnvelope(&buf, payload, true, "hint: risultati troncati", &rootFlags{asJSON: true}); err != nil {
+	if err := emitEnvelope(&buf, payload, true, 0, "hint: risultati troncati", &rootFlags{asJSON: true}); err != nil {
 		t.Fatalf("emitEnvelope: %v", err)
 	}
 	var env struct {
@@ -236,7 +278,7 @@ func TestEmitEnvelopeConSelect(t *testing.T) {
 	var buf bytes.Buffer
 	payload := []map[string]any{{"data": "06/11/2019", "title": "Seduta n. 150", "url": "https://x"}}
 	flags := &rootFlags{asJSON: true, selectFields: "data"}
-	if err := emitEnvelope(&buf, payload, false, "", flags); err != nil {
+	if err := emitEnvelope(&buf, payload, false, 0, "", flags); err != nil {
 		t.Fatalf("emitEnvelope: %v", err)
 	}
 	var env struct {

@@ -46,7 +46,7 @@ func TestSelectTuttoIgnotoNonSvuotaArray(t *testing.T) {
 func TestSelectTuttoIgnotoNellaBusta(t *testing.T) {
 	var buf bytes.Buffer
 	flags := &rootFlags{selectFields: "pippo", asJSON: true}
-	if err := emitEnvelope(&buf, []map[string]any{{"numero": "1"}}, false, "", flags); err != nil {
+	if err := emitEnvelope(&buf, []map[string]any{{"numero": "1"}}, false, 0, "", flags); err != nil {
 		t.Fatal(err)
 	}
 	if !bytes.Contains(buf.Bytes(), []byte(`"numero"`)) {
@@ -54,7 +54,7 @@ func TestSelectTuttoIgnotoNellaBusta(t *testing.T) {
 	}
 	buf.Reset()
 	flags.selectFields = "numero,pippo"
-	_ = emitEnvelope(&buf, []map[string]any{{"numero": "1", "x": 2}}, false, "", flags)
+	_ = emitEnvelope(&buf, []map[string]any{{"numero": "1", "x": 2}}, false, 0, "", flags)
 	if bytes.Contains(buf.Bytes(), []byte(`"x"`)) {
 		t.Errorf("il selettore misto non ha filtrato: %s", buf.String())
 	}

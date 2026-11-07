@@ -255,6 +255,7 @@ func emitDdlIterDryRun(cmd *cobra.Command, legisl, numero int) error {
 		"would_fetch": fmt.Sprintf("%s/icaro/default.jsp?icaDB=%s&icaQuery=%s", icaro.DefaultBaseURL, arc.ID, expr),
 		"note":        "pins the DDL via this query, then fetches its document body to parse the iter timeline",
 		"dry_run":     true,
+		"action":      dryRunAction(cmd),
 	}
 	return writeJSON(cmd.OutOrStdout(), out)
 }
