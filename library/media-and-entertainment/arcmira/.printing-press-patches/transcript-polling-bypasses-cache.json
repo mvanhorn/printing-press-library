@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "transcript-polling-bypasses-cache",
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261103-003317",
+  "base_printing_press_version": "4.35.1",
+  "summary": "Transcript reads always reach the API, including when an older pending response exists in the local cache.",
+  "reason": "Premium reads can return HTTP 202 while processing. Reusing that response prevents repeated reads from observing completion.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/transcript_polling_test.go"
+  ],
+  "validated_outcome": "Local fixtures verify pending-to-ready polling, bypass of an older pending cache, and continued cache use for unrelated reads."
+}

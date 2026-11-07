@@ -1,15 +1,18 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "quote-sheet",
   "files": [
     "internal/cli/quote_sheet.go",
     "README.md",
     "SKILL.md",
-    "examples/quote-sheet.json"
+    "examples/quote-sheet.json",
+    "internal/cli/quote_sheet_test.go"
   ],
   "markers": [
     "registerNovelCommand(",
     "quote-sheet <search.json>",
     "## Build a quote sheet"
-  ]
+  ],
+  "summary": "Merge saved transcript searches without changing quotation text, timestamps or source links, retain all matching queries, and reject conflicting passage versions.",
+  "reason": "The quote sheet is a local research artifact whose source context must survive deduplication and agent output."
 }

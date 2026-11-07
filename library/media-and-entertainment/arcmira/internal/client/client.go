@@ -1219,7 +1219,7 @@ func (c *Client) GetWithHeaders(ctx context.Context, path string, params map[str
 		return nil, err
 	}
 	binaryResponse := c.wantsBinaryResponse(headers)
-	cacheEnabled := c.responseCacheEnabled(binaryResponse)
+	cacheEnabled := c.responseCacheEnabled(binaryResponse, path)
 	// A credentialed plaintext target is refused before the wire. A cached
 	// body would hide that refusal.
 	if cacheEnabled && c.plaintextCredentialTarget(path, params, headers) {
@@ -1276,7 +1276,7 @@ func (c *Client) GetWithHeadersNoCache(ctx context.Context, path string, params 
 	}
 	binaryResponse := c.wantsBinaryResponse(headers)
 	result, _, err := c.do(ctx, "GET", path, params, nil, headers)
-	if err == nil && c.responseCacheEnabled(binaryResponse) {
+	if err == nil && c.responseCacheEnabled(binaryResponse, path) {
 		c.writeCacheWithHeaders(path, params, headers, result)
 	}
 	return result, err
@@ -1286,8 +1286,9 @@ func (c *Client) GetWithHeadersNoCacheValues(ctx context.Context, path string, p
 	return c.GetWithHeadersNoCache(ctx, pathWithQueryValues(path, params), nil, headers)
 }
 
-func (c *Client) responseCacheEnabled(binaryResponse bool) bool {
-	return !binaryResponse && !c.NoCache && !c.DryRun && c.cacheDir != ""
+func (c *Client) responseCacheEnabled(binaryResponse bool, path string) bool {
+	// Transcript reads may return a pending job or an updated correction.
+	return !strings.HasPrefix(path, "/v1/transcripts/") && !binaryResponse && !c.NoCache && !c.DryRun && c.cacheDir != ""
 }
 
 func (c *Client) plaintextCredentialTarget(path string, params map[string]string, headers map[string]string) bool {
