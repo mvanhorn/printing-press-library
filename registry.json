@@ -2458,9 +2458,9 @@
       "path": "library/other/ars-sicilia",
       "release": {
         "cli_name": "ars-sicilia-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-12T08:48:46Z",
-        "source_commit": "7c4fa13fca4cb31ede8588a437bfca4754a98819"
+        "version": "2026.11.1",
+        "released_at": "2026-11-07T09:50:33Z",
+        "source_commit": "41fb9f83199534141eb680f2856a674ab5422df4"
       },
       "printer": "aborruso",
       "printer_name": "aborruso",
