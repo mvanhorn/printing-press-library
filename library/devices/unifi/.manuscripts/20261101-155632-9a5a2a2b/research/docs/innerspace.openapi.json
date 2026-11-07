@@ -1,0 +1,1962 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "UniFi InnerSpace Integration API",
+    "version": "1"
+  },
+  "servers": [
+    {
+      "url": "https://api.ui.com/v1/connector/consoles/{consoleId}/proxy/innerspace/integration",
+      "description": "UniFi API Cloud Connector",
+      "variables": {
+        "consoleId": {
+          "default": "942A6FF664C0000000000964970E0000000009E710560000000068A9873F:9999999999",
+          "description": "ID of the console to proxy requests to"
+        }
+      }
+    },
+    {
+      "url": "https://{consoleIP}/proxy/innerspace/integration",
+      "description": "Local Console",
+      "variables": {
+        "consoleIP": {
+          "default": "192.168.0.1",
+          "description": "IP address of the console on the local network"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/v1/project": {
+      "get": {
+        "summary": "Get project data for integration",
+        "description": "Returns the project state for external integrations including shapes, plans, products, wall types, and attenuation object types. Use the mode query parameter for 2D or 3D representations.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "mode",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "3D",
+                "2D"
+              ],
+              "default": "3D"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "shapes": {
+                          "type": "array",
+                          "items": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "projectId": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "planId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid"
+                                  },
+                                  "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "const": "map"
+                                  },
+                                  "opacity": {
+                                    "type": "number"
+                                  },
+                                  "rotation": {
+                                    "type": "number"
+                                  },
+                                  "position": {
+                                    "type": "array",
+                                    "maxItems": 1,
+                                    "minItems": 1,
+                                    "prefixItems": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      }
+                                    ],
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "x": {
+                                          "type": "number"
+                                        },
+                                        "y": {
+                                          "type": "number"
+                                        },
+                                        "z": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "x",
+                                        "y",
+                                        "z"
+                                      ]
+                                    }
+                                  },
+                                  "scale": {
+                                    "type": "object",
+                                    "properties": {
+                                      "x": {
+                                        "type": "number"
+                                      },
+                                      "y": {
+                                        "type": "number"
+                                      },
+                                      "z": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "x",
+                                      "y",
+                                      "z"
+                                    ]
+                                  },
+                                  "status": {
+                                    "type": "number"
+                                  },
+                                  "urlImage": {
+                                    "type": "string"
+                                  },
+                                  "urlModel": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "additionalZipUrl": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "additionalBinUrl": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "projectId",
+                                  "planId",
+                                  "type",
+                                  "opacity",
+                                  "rotation",
+                                  "position",
+                                  "scale",
+                                  "status",
+                                  "urlImage",
+                                  "urlModel"
+                                ],
+                                "title": "Map"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "projectId": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "planId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid"
+                                  },
+                                  "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "const": "device"
+                                  },
+                                  "productId": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  },
+                                  "rackId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid"
+                                  },
+                                  "rackOrder": {
+                                    "type": [
+                                      "array",
+                                      "null"
+                                    ],
+                                    "items": {
+                                      "type": "number",
+                                      "exclusiveMinimum": 0
+                                    },
+                                    "minItems": 1,
+                                    "maxItems": 2
+                                  },
+                                  "meta": {
+                                    "type": "object",
+                                    "properties": {
+                                      "ip": {
+                                        "type": "string"
+                                      },
+                                      "mac": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "rotation": {
+                                    "type": "object",
+                                    "properties": {
+                                      "base": {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          },
+                                          "w": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z",
+                                          "w"
+                                        ]
+                                      },
+                                      "pov": {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          },
+                                          "w": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z",
+                                          "w"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "base",
+                                      "pov"
+                                    ]
+                                  },
+                                  "parentId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid"
+                                  },
+                                  "childIndex": {
+                                    "type": [
+                                      "number",
+                                      "null"
+                                    ]
+                                  },
+                                  "position": {
+                                    "type": "array",
+                                    "maxItems": 1,
+                                    "minItems": 1,
+                                    "prefixItems": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      }
+                                    ],
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "x": {
+                                          "type": "number"
+                                        },
+                                        "y": {
+                                          "type": "number"
+                                        },
+                                        "z": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "x",
+                                        "y",
+                                        "z"
+                                      ]
+                                    }
+                                  },
+                                  "status": {
+                                    "type": "number"
+                                  },
+                                  "mount": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "enum": [
+                                      "ceiling",
+                                      "wall",
+                                      "rack",
+                                      "floor"
+                                    ]
+                                  },
+                                  "antenna": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "enum": [
+                                      "builtIn",
+                                      "omni",
+                                      "panel",
+                                      "wide",
+                                      "narrow",
+                                      "dual",
+                                      "stub",
+                                      "terminal",
+                                      "highGain"
+                                    ]
+                                  },
+                                  "location": {
+                                    "type": [
+                                      "array",
+                                      "null"
+                                    ],
+                                    "maxItems": 2,
+                                    "minItems": 2,
+                                    "prefixItems": [
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "number"
+                                      }
+                                    ],
+                                    "description": "[latitude, longitude] for site maps",
+                                    "items": {
+                                      "type": "number"
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "projectId",
+                                  "planId",
+                                  "type",
+                                  "productId",
+                                  "title",
+                                  "rackId",
+                                  "rackOrder",
+                                  "rotation",
+                                  "position",
+                                  "status",
+                                  "mount",
+                                  "antenna"
+                                ],
+                                "title": "Device"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "projectId": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "planId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid"
+                                  },
+                                  "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "const": "scale"
+                                  },
+                                  "position": {
+                                    "type": "array",
+                                    "maxItems": 2,
+                                    "minItems": 2,
+                                    "prefixItems": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      }
+                                    ],
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "x": {
+                                          "type": "number"
+                                        },
+                                        "y": {
+                                          "type": "number"
+                                        },
+                                        "z": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "x",
+                                        "y",
+                                        "z"
+                                      ]
+                                    }
+                                  },
+                                  "height": {
+                                    "type": [
+                                      "number",
+                                      "null"
+                                    ],
+                                    "exclusiveMinimum": 0
+                                  },
+                                  "scale": {
+                                    "type": [
+                                      "number",
+                                      "null"
+                                    ],
+                                    "exclusiveMinimum": 0
+                                  },
+                                  "computedScale": {
+                                    "type": [
+                                      "number",
+                                      "null"
+                                    ]
+                                  },
+                                  "status": {
+                                    "type": "number"
+                                  },
+                                  "defaultScale": {
+                                    "type": "boolean"
+                                  },
+                                  "defaultHeight": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "projectId",
+                                  "planId",
+                                  "type",
+                                  "position",
+                                  "height",
+                                  "scale",
+                                  "computedScale",
+                                  "status",
+                                  "defaultScale",
+                                  "defaultHeight"
+                                ],
+                                "title": "Scale"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "projectId": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "planId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid"
+                                  },
+                                  "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "const": "wall"
+                                  },
+                                  "position": {
+                                    "type": "array",
+                                    "maxItems": 2,
+                                    "minItems": 2,
+                                    "prefixItems": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      }
+                                    ],
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "x": {
+                                          "type": "number"
+                                        },
+                                        "y": {
+                                          "type": "number"
+                                        },
+                                        "z": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "x",
+                                        "y",
+                                        "z"
+                                      ]
+                                    }
+                                  },
+                                  "originalPosition": {
+                                    "type": [
+                                      "array",
+                                      "null"
+                                    ],
+                                    "maxItems": 2,
+                                    "minItems": 2,
+                                    "prefixItems": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      }
+                                    ],
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "x": {
+                                          "type": "number"
+                                        },
+                                        "y": {
+                                          "type": "number"
+                                        },
+                                        "z": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "x",
+                                        "y",
+                                        "z"
+                                      ]
+                                    }
+                                  },
+                                  "variant": {
+                                    "type": "string",
+                                    "enum": [
+                                      "concrete",
+                                      "drywall",
+                                      "drywall_heavy",
+                                      "glass",
+                                      "glass_thin",
+                                      "brick",
+                                      "metal",
+                                      "wood",
+                                      "door_wood",
+                                      "door_metal",
+                                      "door_glass",
+                                      "window_1_pane",
+                                      "window_2_pane",
+                                      "window_3_pane",
+                                      "custom"
+                                    ]
+                                  },
+                                  "status": {
+                                    "type": "number"
+                                  },
+                                  "wallTypeId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "projectId",
+                                  "planId",
+                                  "type",
+                                  "position",
+                                  "variant",
+                                  "status"
+                                ],
+                                "title": "Wall"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "projectId": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "planId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid"
+                                  },
+                                  "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "const": "calibration"
+                                  },
+                                  "position": {
+                                    "type": "array",
+                                    "maxItems": 4,
+                                    "minItems": 4,
+                                    "prefixItems": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      }
+                                    ],
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "x": {
+                                          "type": "number"
+                                        },
+                                        "y": {
+                                          "type": "number"
+                                        },
+                                        "z": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "x",
+                                        "y",
+                                        "z"
+                                      ]
+                                    }
+                                  },
+                                  "videoPosition": {
+                                    "type": "array",
+                                    "maxItems": 4,
+                                    "minItems": 4,
+                                    "prefixItems": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "x": {
+                                            "type": "number"
+                                          },
+                                          "y": {
+                                            "type": "number"
+                                          },
+                                          "z": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "x",
+                                          "y",
+                                          "z"
+                                        ]
+                                      }
+                                    ],
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "x": {
+                                          "type": "number"
+                                        },
+                                        "y": {
+                                          "type": "number"
+                                        },
+                                        "z": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "x",
+                                        "y",
+                                        "z"
+                                      ]
+                                    }
+                                  },
+                                  "deviceId": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "status": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "projectId",
+                                  "planId",
+                                  "type",
+                                  "position",
+                                  "videoPosition",
+                                  "deviceId",
+                                  "status"
+                                ],
+                                "title": "Calibration",
+                                "description": "Camera-to-floor-plan calibration for a Protect device. `position` is four footprint corners in map-local meters. `videoPosition` is the matching corners on the camera image in normalized 0-1 coordinates (origin top-left)."
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "projectId": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "planId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid"
+                                  },
+                                  "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "const": "attenuationObject"
+                                  },
+                                  "position": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "x": {
+                                          "type": "number"
+                                        },
+                                        "y": {
+                                          "type": "number"
+                                        },
+                                        "z": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "x",
+                                        "y",
+                                        "z"
+                                      ]
+                                    },
+                                    "minItems": 4
+                                  },
+                                  "variant": {
+                                    "type": "string",
+                                    "enum": [
+                                      "custom",
+                                      "car",
+                                      "cubicles",
+                                      "elevator",
+                                      "foliage_heavy",
+                                      "foliage_light",
+                                      "human_crowd",
+                                      "machinery",
+                                      "server_rack",
+                                      "shelf_small",
+                                      "shelf_medium",
+                                      "shelf_warehouse",
+                                      "truck"
+                                    ]
+                                  },
+                                  "status": {
+                                    "type": "number"
+                                  },
+                                  "attenuationObjectTypeId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "projectId",
+                                  "planId",
+                                  "type",
+                                  "position",
+                                  "variant",
+                                  "status"
+                                ],
+                                "title": "Attenuation object"
+                              }
+                            ]
+                          },
+                          "description": "Map, device, scale, wall, calibration and attenuation-object shapes in the project.",
+                          "example": [
+                            {
+                              "id": "11111111-1111-1111-1111-111111111101",
+                              "projectId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                              "planId": "f1111111-1111-1111-1111-111111111111",
+                              "type": "map",
+                              "opacity": 1,
+                              "rotation": 0,
+                              "position": [
+                                {
+                                  "x": 0,
+                                  "y": 0,
+                                  "z": 0
+                                }
+                              ],
+                              "scale": {
+                                "x": 1,
+                                "y": 1,
+                                "z": 1
+                              },
+                              "status": 0,
+                              "urlImage": "/proxy/innerspace/assets/plan/floor.png",
+                              "urlModel": null
+                            },
+                            {
+                              "id": "11111111-1111-1111-1111-111111111102",
+                              "projectId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                              "planId": "f1111111-1111-1111-1111-111111111111",
+                              "type": "device",
+                              "productId": "p1111111-1111-1111-1111-111111111111",
+                              "title": "Lobby AP",
+                              "rackId": null,
+                              "rackOrder": null,
+                              "rotation": {
+                                "base": {
+                                  "x": 0,
+                                  "y": 0,
+                                  "z": 0,
+                                  "w": 1
+                                },
+                                "pov": {
+                                  "x": 0,
+                                  "y": 0,
+                                  "z": 0,
+                                  "w": 1
+                                }
+                              },
+                              "position": [
+                                {
+                                  "x": 1520,
+                                  "y": 980,
+                                  "z": 0
+                                }
+                              ],
+                              "status": 0,
+                              "mount": "ceiling",
+                              "antenna": "omni"
+                            },
+                            {
+                              "id": "11111111-1111-1111-1111-111111111103",
+                              "projectId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                              "planId": "f1111111-1111-1111-1111-111111111111",
+                              "type": "scale",
+                              "position": [
+                                {
+                                  "x": 420,
+                                  "y": 2180,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 3880,
+                                  "y": 2180,
+                                  "z": 0
+                                }
+                              ],
+                              "height": 3,
+                              "scale": 42.5,
+                              "computedScale": null,
+                              "status": 0,
+                              "defaultScale": true,
+                              "defaultHeight": true
+                            },
+                            {
+                              "id": "11111111-1111-1111-1111-111111111104",
+                              "projectId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                              "planId": "f1111111-1111-1111-1111-111111111111",
+                              "type": "wall",
+                              "position": [
+                                {
+                                  "x": 640,
+                                  "y": 1200,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 3520,
+                                  "y": 1200,
+                                  "z": 0
+                                }
+                              ],
+                              "variant": "concrete",
+                              "status": 0,
+                              "wallTypeId": "w1111111-1111-1111-1111-111111111111"
+                            },
+                            {
+                              "id": "11111111-1111-1111-1111-111111111105",
+                              "projectId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                              "planId": "f1111111-1111-1111-1111-111111111111",
+                              "type": "calibration",
+                              "position": [
+                                {
+                                  "x": 10.949428380799723,
+                                  "y": 9.029862300585927,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 10.949428380799725,
+                                  "y": -9.029862300585924,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 1.621570500417014,
+                                  "y": -1.9368987090618943,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 1.6312559837010507,
+                                  "y": 1.9529719770113363,
+                                  "z": 0
+                                }
+                              ],
+                              "videoPosition": [
+                                {
+                                  "x": 0.02,
+                                  "y": 0.02,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 0.98,
+                                  "y": 0.02,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 0.98,
+                                  "y": 0.98,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 0.02,
+                                  "y": 0.98,
+                                  "z": 0
+                                }
+                              ],
+                              "deviceId": "d1111111-1111-1111-1111-111111111111",
+                              "status": 0
+                            },
+                            {
+                              "id": "11111111-1111-1111-1111-111111111106",
+                              "projectId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                              "planId": "f1111111-1111-1111-1111-111111111111",
+                              "type": "attenuationObject",
+                              "position": [
+                                {
+                                  "x": 880,
+                                  "y": 1560,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 2120,
+                                  "y": 1560,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 2120,
+                                  "y": 2680,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 880,
+                                  "y": 2680,
+                                  "z": 0
+                                },
+                                {
+                                  "x": 880,
+                                  "y": 1560,
+                                  "z": 0
+                                }
+                              ],
+                              "variant": "tree",
+                              "status": 0
+                            }
+                          ]
+                        },
+                        "plans": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "real",
+                                  "blank",
+                                  "sample",
+                                  "geo"
+                                ]
+                              },
+                              "projectId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "siteId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "ordering": {
+                                "type": "number"
+                              },
+                              "location": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "longitude": {
+                                    "type": "number"
+                                  },
+                                  "latitude": {
+                                    "type": "number"
+                                  },
+                                  "zoom": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": [
+                                  "longitude",
+                                  "latitude",
+                                  "zoom"
+                                ]
+                              },
+                              "attenuation": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "type",
+                              "projectId",
+                              "ordering",
+                              "location",
+                              "attenuation",
+                              "createdAt",
+                              "updatedAt"
+                            ]
+                          }
+                        },
+                        "products": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "sku": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ]
+                          },
+                          "description": "Devices placed in the project with their fingerprint data."
+                        },
+                        "wallTypes": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "projectId": {
+                                "type": "string",
+                                "format": "uuid"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "projectId"
+                            ]
+                          }
+                        },
+                        "attenuationObjectTypes": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "projectId": {
+                                "type": "string",
+                                "format": "uuid"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "projectId"
+                            ]
+                          }
+                        },
+                        "project": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "title",
+                            "createdAt",
+                            "updatedAt"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "shapes",
+                        "plans",
+                        "products",
+                        "wallTypes",
+                        "attenuationObjectTypes",
+                        "project"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/floor_plans": {
+      "get": {
+        "summary": "List floor plans",
+        "description": "Returns floor plans for RF planning import including image URLs, scale (pixels per meter), and coordinate origin. Optionally filter by `siteId`.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "siteId",
+            "description": "Optional UniFi site filter. When set, only devices whose product siteId matches are returned.",
+            "schema": {
+              "type": "string",
+              "description": "Optional UniFi site filter. When set, only devices whose product siteId matches are returned."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "floor_plans": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "floor_number": {
+                            "type": "number",
+                            "description": "Floor ordering index. Omitted when 0."
+                          },
+                          "image_url": {
+                            "type": "string",
+                            "description": "Floor plan image path at `/proxy/innerspace/integration/v1/assets/{planId}/{filename}`. Requires the same session auth headers as this endpoint. Prepend the API origin (e.g. api.ui.com connector prefix) to fetch."
+                          },
+                          "ppm": {
+                            "type": "number",
+                            "description": "Pixels per meter (`ppm`). Required to interpret coordinates and heights."
+                          },
+                          "width": {
+                            "type": "number",
+                            "description": "Floor plan image width in pixels. Omitted when unknown."
+                          },
+                          "height": {
+                            "type": "number",
+                            "description": "Floor plan image height in pixels. Omitted when unknown."
+                          },
+                          "origin_x": {
+                            "type": "number",
+                            "description": "X coordinate of the floor plan origin in pixels (0 when coordinates use top-left image origin)."
+                          },
+                          "origin_y": {
+                            "type": "number",
+                            "description": "Y coordinate of the floor plan origin in pixels (0 when coordinates use top-left image origin)."
+                          },
+                          "site_id": {
+                            "type": "string",
+                            "description": "UniFi site ID when `siteId` query filter is applied."
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "floor_plans"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/access_points": {
+      "get": {
+        "summary": "List access points",
+        "description": "Returns placed UniFi access points with position, orientation, mounting details, and status. Optionally filter by `siteId`.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "siteId",
+            "description": "Optional UniFi site filter. When set, only devices whose product siteId matches are returned.",
+            "schema": {
+              "type": "string",
+              "description": "Optional UniFi site filter. When set, only devices whose product siteId matches are returned."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_points": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "model": {
+                            "type": "string",
+                            "description": "Hardware model / SKU."
+                          },
+                          "mac": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "MAC address in colon-separated form (`aa:bb:cc:dd:ee:ff`)."
+                          },
+                          "serial": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "Device identifier for Hamina import. Uses the MAC address without colons, prefixed with `SN`."
+                          },
+                          "floor_plan_id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "x": {
+                            "type": "number",
+                            "description": "X coordinate on the floor plan image in pixels."
+                          },
+                          "y": {
+                            "type": "number",
+                            "description": "Y coordinate on the floor plan image in pixels."
+                          },
+                          "height": {
+                            "type": "number",
+                            "description": "Mounting height in meters above the floor."
+                          },
+                          "azimuth": {
+                            "type": "number",
+                            "description": "Antenna orientation in degrees (0–360), derived from device rotation."
+                          },
+                          "mount": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "enum": [
+                              "ceiling",
+                              "wall",
+                              "rack",
+                              "floor"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "online",
+                              "offline"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "model",
+                          "mac",
+                          "serial",
+                          "floor_plan_id",
+                          "x",
+                          "y",
+                          "height",
+                          "azimuth",
+                          "mount",
+                          "status"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "access_points"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/switches": {
+      "get": {
+        "summary": "List switches",
+        "description": "Returns placed UniFi switches with position and status. Optionally filter by `siteId`.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "siteId",
+            "description": "Optional UniFi site filter. When set, only devices whose product siteId matches are returned.",
+            "schema": {
+              "type": "string",
+              "description": "Optional UniFi site filter. When set, only devices whose product siteId matches are returned."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "switches": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "const": "switch"
+                          },
+                          "mac": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "MAC address in colon-separated form (`aa:bb:cc:dd:ee:ff`)."
+                          },
+                          "serial": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "Device identifier for Hamina import. Uses the MAC address without colons, prefixed with `SN`."
+                          },
+                          "floor_plan_id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "x": {
+                            "type": "number"
+                          },
+                          "y": {
+                            "type": "number"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "online",
+                              "offline"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "model",
+                          "type",
+                          "mac",
+                          "serial",
+                          "floor_plan_id",
+                          "x",
+                          "y",
+                          "status"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "switches"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory": {
+      "get": {
+        "summary": "List unplaced device inventory",
+        "description": "Returns managed access points and switches that are not placed on any floor plan. Optionally filter by `siteId`.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "siteId",
+            "description": "Optional UniFi site filter. When set, only devices whose product siteId matches are returned.",
+            "schema": {
+              "type": "string",
+              "description": "Optional UniFi site filter. When set, only devices whose product siteId matches are returned."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "devices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "mac": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "MAC address in colon-separated form (`aa:bb:cc:dd:ee:ff`)."
+                          },
+                          "serial": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "Device identifier for Hamina import. Uses the MAC address without colons, prefixed with `SN`."
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "model",
+                          "mac",
+                          "serial"
+                        ]
+                      },
+                      "description": "Managed access points and switches not placed on any floor plan."
+                    }
+                  },
+                  "required": [
+                    "devices"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/assets/{planId}/{filename}": {
+      "get": {
+        "summary": "Download plan asset file",
+        "description": "Serves a floor plan asset file for the given plan ID and filename. Requires the same session authentication as other integration endpoints.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "planId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "filename",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "description": "Floor plan image file (JPEG or PNG; Content-Type matches the stored upload).",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "description": "Floor plan image file (JPEG or PNG; Content-Type matches the stored upload).",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-06",
+  "base_run_id": "20261101-155632-9a5a2a2b",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
+  "id": "unifi-voucher-delete-names",
+  "summary": "delete-hotspot-voucher deletes one voucher by id; delete-hotspot-vouchers is the filter-based bulk delete.",
+  "reason": "Generated names were crossed: the singular name ran the bulk delete. An agent reading the name could delete more than intended. The network overlay was flipped too so regeneration keeps the fix.",
+  "files": [
+    "internal/cli/network_delete-hotspot-voucher.go",
+    "internal/cli/network_delete-hotspot-vouchers.go"
+  ],
+  "call_sites": [
+    "newNetworkDeleteHotspotVoucherCmd"
+  ],
+  "validated_outcome": "TestVoucherDeleteNamesMatchWhatTheyDelete pins each name to its shape."
+}

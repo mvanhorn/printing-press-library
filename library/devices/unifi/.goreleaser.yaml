@@ -8,6 +8,8 @@ builds:
     binary: unifi-pp-cli
     env:
       - CGO_ENABLED=0
+    flags:
+      - -trimpath
     ldflags:
       - -s -w -X github.com/mvanhorn/printing-press-library/library/devices/unifi/internal/cli.version={{ .Version }}
     targets:
@@ -22,6 +24,8 @@ builds:
     binary: unifi-pp-mcp
     env:
       - CGO_ENABLED=0
+    flags:
+      - -trimpath
     ldflags:
       - -s -w -X main.version={{ .Version }}
     targets:
@@ -45,7 +49,7 @@ brews:
       owner: phoenix-server
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has."
+    description: "Operate your UniFi console from anywhere, with history, previews and undo no other UniFi tool has."
     install: |
       bin.install "unifi-pp-cli"
       bin.install "unifi-pp-mcp"

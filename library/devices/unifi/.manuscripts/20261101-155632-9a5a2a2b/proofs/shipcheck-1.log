@@ -1,0 +1,331 @@
+
+=== verify ===
+warning: no servers defined in spec; generated CLI will require base_url in config
+warning: accepted root-level 'mcp:' for backwards compatibility; rename to 'x-mcp:' per OpenAPI extension convention
+Runtime Verification: <runstate>/unifi-pp-cli-7ed2cd20/runs/20261101-155632-9a5a2a2b/working/unifi-pp-cli/unifi-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:tail             static       PASS   PASS     PASS     3/3
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+audit                          write        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+carrier                        read         PASS   PASS     PASS     3/3
+change                         read         PASS   PASS     PASS     3/3
+devices                        write        PASS   PASS     FAIL     2/3
+digest                         write        PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+drift                          write        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+fleet                          write        PASS   PASS     FAIL     2/3
+hosts                          read         PASS   PASS     PASS     3/3
+impact                         read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+innerspace                     read         PASS   PASS     PASS     3/3
+isp-metrics                    read         PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+local-data                     write        PASS   PASS     PASS     3/3
+mobility                       read         PASS   PASS     PASS     3/3
+network                        read         PASS   PASS     PASS     3/3
+newcomer                       write        PASS   PASS     PASS     3/3
+playbook                       write        PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     PASS     3/3
+protect                        read         PASS   PASS     PASS     3/3
+raw                            write        PASS   FAIL     FAIL     1/3
+reach                          write        PASS   PASS     FAIL     2/3
+recall                         read         PASS   PASS     PASS     3/3
+rule-predict                   read         PASS   PASS     FAIL     2/3
+sd-wan-configs                 read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sites                          write        PASS   PASS     FAIL     2/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+topology                       write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS carrier assign-subscriber-plan
+  PASS carrier attach-subscriber-host
+  PASS carrier detach-subscriber-host
+  PASS carrier get-service-plan
+  PASS carrier get-subscriber
+  PASS carrier resume-subscriber
+  PASS carrier suspend-subscriber
+  PASS carrier update-subscriber
+  PASS change apply
+  PASS change undo
+  PASS hosts get-by-id
+  PASS innerspace get-asset
+  PASS isp-metrics query ispmetrics
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS mobility get-device
+  PASS mobility list-device-clients
+  PASS mobility list-devices
+  PASS mobility list-workspace-admins
+  PASS mobility update-device-name
+  PASS mobility update-device-network
+  PASS mobility update-device-wireless
+  PASS network adopt-device
+  PASS network create
+  PASS network create-acl-rule
+  PASS network create-dns-policy
+  PASS network create-firewall-policy
+  PASS network create-firewall-zone
+  PASS network create-hotspot-voucher
+  PASS network create-traffic-matching-list
+  PASS network create-wifi-broadcast
+  PASS network delete
+  PASS network delete-acl-rule
+  PASS network delete-dns-policy
+  PASS network delete-firewall-policy
+  PASS network delete-firewall-zone
+  PASS network delete-hotspot-voucher
+  PASS network delete-hotspot-vouchers
+  PASS network delete-traffic-matching-list
+  PASS network delete-wifi-broadcast
+  PASS network get
+  PASS network get-acl-rule
+  PASS network get-acl-rule-ordering
+  PASS network get-client
+  PASS network get-device
+  PASS network get-device-statistics
+  PASS network get-dns-policy
+  PASS network get-firewall-policy
+  PASS network get-firewall-policy-ordering
+  PASS network get-firewall-zone
+  PASS network get-hotspot-voucher
+  PASS network get-references
+  PASS network get-switching-lag
+  PASS network get-switching-mc-lag-domain
+  PASS network get-switching-switch-stack
+  PASS network get-traffic-matching-list
+  PASS network get-wifi-broadcast
+  PASS network list
+  PASS network list-acl-rules
+  PASS network list-clients
+  PASS network list-device-tags
+  PASS network list-devices
+  PASS network list-dns-policies
+  PASS network list-firewall-policies
+  PASS network list-firewall-zones
+  PASS network list-hotspot-vouchers
+  PASS network list-radius-profiles
+  PASS network list-switching-lags
+  PASS network list-switching-mc-lag-domains
+  PASS network list-switching-switch-stacks
+  PASS network list-traffic-matching-lists
+  PASS network list-vpn-servers
+  PASS network list-vpn-site-to-site-tunnels
+  PASS network list-wans
+  PASS network list-wifi-broadcasts
+  PASS network patch-firewall-policy
+  PASS network remove-device
+  PASS network run-client-action
+  PASS network run-device-action
+  PASS network run-port-action
+  PASS network set-acl-rule-ordering
+  PASS network set-firewall-policy-ordering
+  PASS network update
+  PASS network update-acl-rule
+  PASS network update-dns-policy
+  PASS network update-firewall-policy
+  PASS network update-firewall-zone
+  PASS network update-traffic-matching-list
+  PASS network update-wifi-broadcast
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS protect alarm-hub-trigger
+  PASS protect alarm-webhook
+  PASS protect create-camera-rtsps-stream
+  PASS protect create-talkback-session
+  PASS protect delete-arm-profile
+  PASS protect delete-camera-rtsps-stream
+  PASS protect disable-camera-mic-permanently
+  PASS protect get-alarm-hub
+  PASS protect get-bridge
+  PASS protect get-camera
+  PASS protect get-camera-rtsps-stream
+  PASS protect get-camera-snapshot
+  PASS protect get-chime
+  PASS protect get-fob
+  PASS protect get-light
+  PASS protect get-link-station
+  PASS protect get-liveview
+  PASS protect get-relay
+  PASS protect get-sensor
+  PASS protect get-siren
+  PASS protect get-speaker
+  PASS protect get-ulp-user
+  PASS protect get-user
+  PASS protect get-viewer
+  PASS protect patch-alarm-hub
+  PASS protect patch-arm-profile
+  PASS protect patch-bridge
+  PASS protect patch-camera
+  PASS protect patch-chime
+  PASS protect patch-fob
+  PASS protect patch-light
+  PASS protect patch-link-station
+  PASS protect patch-liveview
+  PASS protect patch-relay
+  PASS protect patch-sensor
+  PASS protect patch-siren
+  PASS protect patch-speaker
+  PASS protect patch-viewer
+  PASS protect pos-transaction
+  PASS protect ptz-goto
+  PASS protect ptz-patrol-start
+  PASS protect ptz-patrol-stop
+  PASS protect relay-activate
+  PASS protect siren-play
+  PASS protect siren-stop
+  PASS protect siren-test-sound
+  PASS protect speaker-test-sound
+  PASS sd-wan-configs get-sdwan-config-by-id
+  PASS sd-wan-configs status get-sdwan-config
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 99% (188/189 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+FAILED [recipes]: unifi-pp-cli sites devices list default --agent --select data.name,data.model,data.state → full example failed: <runstate>/unifi-pp-cli-7ed2cd20/runs/20261101-155632-9a5a2a2b/working/unifi-pp-cli/build/stage/bin/unifi-pp-cli sites devices list default --agent --select data.name,data.model,data.state --dry-run: exit status 2: Error: unknown command "devices" for "unifi-pp-cli sites"
+DONE: 6 ok, 0 missing, 0 empty-words, 1 failed-examples, 0 unsupported
+narrative validation failed
+
+=== dogfood ===
+dogfood: using spec <runstate>/unifi-pp-cli-7ed2cd20/runs/20261101-155632-9a5a2a2b/working/unifi-pp-cli/spec.json (bundled)
+warning: no servers defined in spec; generated CLI will require base_url in config
+warning: accepted root-level 'mcp:' for backwards compatibility; rename to 'x-mcp:' per OpenAPI extension convention
+Dogfood Report: unifi-pp-cli
+================================
+
+Path Validity:     0/0 valid (N/A)
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          7/10 commands have examples (PASS)
+  - network delete-wifi-broadcast: missing example
+  - network list-acl-rules: missing example
+  - network list-wifi-broadcasts: missing example
+
+Novel Features:    8/8 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - 2 naming violations: verb info→get in internal/cli/network_info.go; verb info→get in internal/cli/protect_info.go
+Error: dogfood failed
+
+=== workflow-verify ===
+Workflow Verification: unifi-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== unifi-pp-cli ===
+  ✘ 0 error(s), 2 likely false-positive(s)
+    [positional-args] unifi-pp-cli sites: got 3 positional args; Use: "sites" expects 0–0  [likely false positive]
+      evidence: SKILL.md: devices list default
+    [positional-args] unifi-pp-cli sites: got 3 positional args; Use: "sites" expects 0–0  [likely false positive]
+      evidence: README.md: devices list default
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: unifi
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              7/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           N/A
+  Auth Protocol           N/A
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 96/100 - Grade A
+  Denominator: infrastructure 180, domain 30
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, path_validity, auth_protocol, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: rebuilt (staged binary was older than Go sources)
+  Review: fail
+  Passed: 5/7  (71% pass rate, 1 skipped)
+  Failures:
+    - Path and capability probe: exit 4: Error: GET /v1/hosts returned HTTP 401: {"code":"unauthorized","httpStatusCode":401,"message":"unauthorized","traceId":"63cac70108d5e07b65ddb17a0b96a683"}
+hint: check your API key. Set your API key with: export UNIFI_API_KEY="your-token-here"
+      Run 'unifi-pp-cli doctor' to check auth status.
+    - Firewall rule prediction: exit 2: Error: zone "lan" is not in the mirror; known zones:
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         29.253s
+  validate-narrative  FAIL    1         406ms
+  dogfood           FAIL    3         7.089s
+  workflow-verify   PASS    0         15ms
+  apify-audit       PASS    0         41ms
+  verify-skill      PASS    0         10.976s
+  scorecard         PASS    0         3.317s
+
+Verdict: FAIL (2/7 legs failed)

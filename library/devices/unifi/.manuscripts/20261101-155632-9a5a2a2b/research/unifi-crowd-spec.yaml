@@ -1,0 +1,1776 @@
+name: unifi
+description: Discovered API spec for unifi (crowd-sniff)
+version: 0.1.0
+base_url: https://api.ui.com
+spec_source: community
+auth:
+    type: api_key
+    header: X-Api-Key
+    format: ""
+    env_vars:
+        - UNIFI_PROTECT_API_KEY
+    env_var_specs:
+        - name: UNIFI_PROTECT_API_KEY
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: header
+config:
+    format: toml
+    path: ~/.config/unifi-pp-cli/config.toml
+resources:
+    _growthCoachingService.js:
+        description: Operations on _growthCoachingService.js
+        endpoints:
+            list__growthCoachingService.js:
+                method: GET
+                path: /api/_growthCoachingService.js
+                description: GET /api/_growthCoachingService.js
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    _workNotifications.js:
+        description: Operations on _workNotifications.js
+        endpoints:
+            list__workNotifications.js:
+                method: GET
+                path: /api/_workNotifications.js
+                description: GET /api/_workNotifications.js
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    MalchusResponseGarments.js:
+        description: Operations on MalchusResponseGarments.js
+        endpoints:
+            list_MalchusResponseGarments.js:
+                method: GET
+                path: /api/MalchusResponseGarments.js
+                description: GET /api/MalchusResponseGarments.js
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    about:
+        description: Operations on about
+        endpoints:
+            list_about:
+                method: GET
+                path: /api/about
+                description: GET /api/about
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    add-chat-msg:
+        description: Operations on add-chat-msg
+        endpoints:
+            list_add_chat_msg:
+                method: GET
+                path: /api/add-chat-msg
+                description: GET /api/add-chat-msg
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    admin:
+        description: Operations on inquiries
+        endpoints:
+            list_inquiries:
+                method: GET
+                path: /api/admin/inquiries
+                description: GET /api/admin/inquiries
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    alarm-manager:
+        description: Operations on webhook
+        endpoints:
+            create_webhook:
+                method: POST
+                path: /alarm-manager/webhook/{id}
+                description: POST /alarm-manager/webhook/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    applications:
+        description: Operations on student
+        endpoints:
+            list_student:
+                method: GET
+                path: /api/applications/student
+                description: GET /api/applications/student
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    arm-profiles:
+        description: Operations on arm-profiles
+        endpoints:
+            create_arm_profiles:
+                method: POST
+                path: /arm-profiles
+                description: POST /arm-profiles
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_disable:
+                method: POST
+                path: /arm-profiles/disable
+                description: POST /arm-profiles/disable
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_enable:
+                method: POST
+                path: /arm-profiles/enable
+                description: POST /arm-profiles/enable
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            delete_arm_profiles:
+                method: DELETE
+                path: /arm-profiles/{id}
+                description: DELETE /arm-profiles/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_arm_profiles:
+                method: GET
+                path: /arm-profiles
+                description: GET /arm-profiles
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            update_arm_profiles:
+                method: PATCH
+                path: /arm-profiles/{id}
+                description: PATCH /arm-profiles/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            update_settings:
+                method: PATCH
+                path: /arm-profiles/settings
+                description: PATCH /arm-profiles/settings
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    artifacts:
+        description: Operations on artifacts
+        endpoints:
+            list_artifacts:
+                method: GET
+                path: /api/artifacts
+                description: GET /api/artifacts
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    auth:
+        description: Operations on auth
+        endpoints:
+            create_logout:
+                method: POST
+                path: /api/auth/logout
+                description: POST /api/auth/logout
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_auth:
+                method: GET
+                path: /api/auth
+                description: GET /api/auth
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_login:
+                method: GET
+                path: /api/auth/login
+                description: GET /api/auth/login
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    available:
+        description: Operations on groups
+        endpoints:
+            list_groups:
+                method: GET
+                path: /api/available/groups
+                description: GET /api/available/groups
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_sectors:
+                method: GET
+                path: /api/available/sectors
+                description: GET /api/available/sectors
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    bounties:
+        description: Operations on users
+        endpoints:
+            list_users:
+                method: GET
+                path: /api/bounties/users
+                description: GET /api/bounties/users
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    cameras:
+        description: Operations on cameras
+        endpoints:
+            create_disable_mic_permanently:
+                method: POST
+                path: /cameras/{id}/disable-mic-permanently
+                description: POST /cameras/{id}/disable-mic-permanently
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_goto:
+                method: POST
+                path: /cameras/{id}/ptz/goto/{id}
+                description: POST /cameras/{id}/ptz/goto/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_rtsps_stream:
+                method: POST
+                path: /cameras/{id}/rtsps-stream
+                description: POST /cameras/{id}/rtsps-stream
+                params:
+                    - name: qualities
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_start:
+                method: POST
+                path: /cameras/{id}/ptz/patrol/start/{id}
+                description: POST /cameras/{id}/ptz/patrol/start/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_stop:
+                method: POST
+                path: /cameras/{id}/ptz/patrol/stop
+                description: POST /cameras/{id}/ptz/patrol/stop
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_talkback_session:
+                method: POST
+                path: /cameras/{id}/talkback-session
+                description: POST /cameras/{id}/talkback-session
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_cameras:
+                method: GET
+                path: /cameras/{id}
+                description: GET /cameras/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_rtsps_stream:
+                method: GET
+                path: /cameras/{id}/rtsps-stream
+                description: GET /cameras/{id}/rtsps-stream
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_cameras:
+                method: GET
+                path: /cameras
+                description: GET /cameras
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            update_cameras:
+                method: PATCH
+                path: /cameras/{id}
+                description: PATCH /cameras/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    card-config:
+        description: Operations on card-config
+        endpoints:
+            list_card_config:
+                method: GET
+                path: /api/card-config
+                description: GET /api/card-config
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    case-studies:
+        description: Operations on visibility
+        endpoints:
+            list_visibility:
+                method: GET
+                path: /api/case-studies/visibility
+                description: GET /api/case-studies/visibility
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    chat:
+        description: Operations on chat
+        endpoints:
+            list_chat:
+                method: GET
+                path: /api/chat
+                description: GET /api/chat
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    client:
+        description: Operations on client
+        endpoints:
+            list_client:
+                method: GET
+                path: /api/client
+                description: GET /api/client
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    clients:
+        description: Operations on clients
+        endpoints:
+            list_clients:
+                method: GET
+                path: /api/clients
+                description: GET /api/clients
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    competitions:
+        description: Operations on matches
+        endpoints:
+            list_matches:
+                method: GET
+                path: /v4/competitions/BSA/matches
+                description: GET /v4/competitions/BSA/matches
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    contracts-history.js:
+        description: Operations on contracts-history.js
+        endpoints:
+            list_contracts_history.js:
+                method: GET
+                path: /api/contracts-history.js
+                description: GET /api/contracts-history.js
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    copilot:
+        description: Operations on chat
+        endpoints:
+            list_chat:
+                method: GET
+                path: /api/copilot/chat
+                description: GET /api/copilot/chat
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    countries:
+        description: Operations on countries
+        endpoints:
+            list_countries:
+                method: GET
+                path: /v1/countries
+                description: GET /v1/countries
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    cron:
+        description: Operations on cron
+        endpoints:
+            list_cron:
+                method: GET
+                path: /api/cron
+                description: GET /api/cron
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    default:
+        description: Operations on default
+        endpoints:
+            get_endpoint:
+                method: GET
+                path: /{id}
+                description: GET /{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_endpoint_2:
+                method: GET
+                path: /{id}/{id}
+                description: GET /{id}/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_endpoint:
+                method: GET
+                path: /api/v1
+                description: GET /api/v1
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_endpoint_2:
+                method: GET
+                path: /api
+                description: GET /api
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            update_endpoint:
+                method: PATCH
+                path: /{id}/{id}
+                description: PATCH /{id}/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    dpi:
+        description: Operations on categories
+        endpoints:
+            list_applications:
+                method: GET
+                path: /v1/dpi/applications
+                description: GET /v1/dpi/applications
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_categories:
+                method: GET
+                path: /v1/dpi/categories
+                description: GET /v1/dpi/categories
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    error-handler:
+        description: Operations on error-handler
+        endpoints:
+            list_error_handler:
+                method: GET
+                path: /api/error-handler
+                description: GET /api/error-handler
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    events:
+        description: Operations on events
+        endpoints:
+            list_events:
+                method: GET
+                path: /api/events
+                description: GET /api/events
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    fav:
+        description: Operations on list
+        endpoints:
+            list_list:
+                method: GET
+                path: /v3/fav/resource/list
+                description: GET /v3/fav/resource/list
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    files:
+        description: Operations on files
+        endpoints:
+            get_files:
+                method: GET
+                path: /files/{id}
+                description: GET /files/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    generated:
+        description: Operations on generated
+        endpoints:
+            list_generated:
+                method: GET
+                path: /api/generated
+                description: GET /api/generated
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    google:
+        description: 'Operations on token:'
+        endpoints:
+            'list_token:':
+                method: GET
+                path: '/api/google/token:'
+                description: 'GET /api/google/token:'
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    hotmail:
+        description: Operations on read
+        endpoints:
+            create_read:
+                method: POST
+                path: /api/hotmail/read
+                description: POST /api/hotmail/read
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    import:
+        description: Operations on history
+        endpoints:
+            list_history:
+                method: GET
+                path: /api/import/history
+                description: GET /api/import/history
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    index.js:
+        description: Operations on index.js
+        endpoints:
+            list_index.js:
+                method: GET
+                path: /api/index.js
+                description: GET /api/index.js
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    info:
+        description: Operations on info
+        endpoints:
+            list_info:
+                method: GET
+                path: /v1/info
+                description: GET /v1/info
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    innovation:
+        description: Operations on status
+        endpoints:
+            list_status:
+                method: GET
+                path: /api/innovation/status
+                description: GET /api/innovation/status
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    klines:
+        description: Operations on klines
+        endpoints:
+            list_klines:
+                method: GET
+                path: /api/v3/klines
+                description: GET /api/v3/klines
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    learning:
+        description: Operations on IMAGE_VISION
+        endpoints:
+            list_IMAGE_VISION:
+                method: GET
+                path: /api/v1/learning/export-dataset/IMAGE_VISION
+                description: GET /api/v1/learning/export-dataset/IMAGE_VISION
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    live-tactico:
+        description: Operations on live-tactico
+        endpoints:
+            list_live_tactico:
+                method: GET
+                path: /api/live-tactico
+                description: GET /api/live-tactico
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    liveviews:
+        description: Operations on liveviews
+        endpoints:
+            create_liveviews:
+                method: POST
+                path: /liveviews
+                description: POST /liveviews
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_liveviews:
+                method: GET
+                path: /liveviews/{id}
+                description: GET /liveviews/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_liveviews:
+                method: GET
+                path: /liveviews
+                description: GET /liveviews
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            update_liveviews:
+                method: PATCH
+                path: /liveviews/{id}
+                description: PATCH /liveviews/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    lux:
+        description: Operations on lux
+        endpoints:
+            list_lux:
+                method: GET
+                path: /lux
+                description: GET /lux
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    markets:
+        description: Operations on tick
+        endpoints:
+            list_tick:
+                method: GET
+                path: /v1/markets/-symbol-/tick
+                description: GET /v1/markets/-symbol-/tick
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    media:
+        description: Operations on media
+        endpoints:
+            get_media:
+                method: GET
+                path: /api/media/{id}
+                description: GET /api/media/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    messages:
+        description: Operations on messages
+        endpoints:
+            list_messages:
+                method: GET
+                path: /v1/messages
+                description: GET /v1/messages
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    meta:
+        description: Operations on info
+        endpoints:
+            list_info:
+                method: GET
+                path: /meta/info
+                description: GET /meta/info
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    nvrs:
+        description: Operations on nvrs
+        endpoints:
+            list_nvrs:
+                method: GET
+                path: /nvrs
+                description: GET /nvrs
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    optimize:
+        description: Operations on stream
+        endpoints:
+            list_stream:
+                method: GET
+                path: /api/optimize/stream
+                description: GET /api/optimize/stream
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    orders:
+        description: Operations on orders
+        endpoints:
+            list_orders:
+                method: GET
+                path: /api/orders
+                description: GET /api/orders
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_status:
+                method: GET
+                path: /api/orders/status
+                description: GET /api/orders/status
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    orient:
+        description: Operations on session
+        endpoints:
+            list_session:
+                method: GET
+                path: /api/orient/scoring/session
+                description: GET /api/orient/scoring/session
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    pedidos:
+        description: Operations on pedidos
+        endpoints:
+            list_pedidos:
+                method: GET
+                path: /api/pedidos
+                description: GET /api/pedidos
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    pending-devices:
+        description: Operations on pending-devices
+        endpoints:
+            list_pending_devices:
+                method: GET
+                path: /v1/pending-devices
+                description: GET /v1/pending-devices
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    plate-reads:
+        description: Operations on plate-reads
+        endpoints:
+            list_plate_reads:
+                method: GET
+                path: /api/plate-reads
+                description: GET /api/plate-reads
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    presupuestos:
+        description: Operations on presupuestos
+        endpoints:
+            list_presupuestos:
+                method: GET
+                path: /api/presupuestos
+                description: GET /api/presupuestos
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    products:
+        description: Operations on products
+        endpoints:
+            list_products:
+                method: GET
+                path: /api/products
+                description: GET /api/products
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    profile:
+        description: Operations on trust-score
+        endpoints:
+            get_trust_score:
+                method: GET
+                path: /api/profile/{id}/trust-score
+                description: GET /api/profile/{id}/trust-score
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    properties:
+        description: Operations on aggregated
+        endpoints:
+            get_aggregated:
+                method: GET
+                path: /api/properties/{id}/aggregated
+                description: GET /api/properties/{id}/aggregated
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    read-3utools:
+        description: Operations on read-3utools
+        endpoints:
+            list_read_3utools:
+                method: GET
+                path: /api/read-3utools
+                description: GET /api/read-3utools
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    remoteplay_api.go:
+        description: Operations on remoteplay_api.go
+        endpoints:
+            list_remoteplay_api.go:
+                method: GET
+                path: /api/remoteplay_api.go
+                description: GET /api/remoteplay_api.go
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    reports:
+        description: Operations on reports
+        endpoints:
+            get_reports:
+                method: GET
+                path: /api/v1/reports/{id}
+                description: GET /api/v1/reports/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    responses:
+        description: Operations on responses
+        endpoints:
+            list_responses:
+                method: GET
+                path: /v1/responses
+                description: GET /v1/responses
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    rest:
+        description: Operations on trading-api
+        endpoints:
+            list_trading_api:
+                method: GET
+                path: /api/rest/trading-api/v2
+                description: GET /api/rest/trading-api/v2
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    review:
+        description: Operations on review
+        endpoints:
+            list_review:
+                method: GET
+                path: /api/review
+                description: GET /api/review
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    settings:
+        description: Operations on settings
+        endpoints:
+            list_settings:
+                method: GET
+                path: /api/settings
+                description: GET /api/settings
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    sirens:
+        description: Operations on play
+        endpoints:
+            create_play:
+                method: POST
+                path: /sirens/{id}/play
+                description: POST /sirens/{id}/play
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_stop:
+                method: POST
+                path: /sirens/{id}/stop
+                description: POST /sirens/{id}/stop
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_test_sound:
+                method: POST
+                path: /sirens/{id}/test-sound
+                description: POST /sirens/{id}/test-sound
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    sites:
+        description: Operations on acl-rules
+        endpoints:
+            create_acl_rules:
+                method: POST
+                path: /v1/sites/{id}/acl-rules
+                description: POST /v1/sites/{id}/acl-rules
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_devices:
+                method: POST
+                path: /v1/sites/{id}/devices
+                description: POST /v1/sites/{id}/devices
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_networks:
+                method: POST
+                path: /v1/sites/{id}/networks
+                description: POST /v1/sites/{id}/networks
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_acl_rules:
+                method: GET
+                path: /v1/sites/{id}/acl-rules
+                description: GET /v1/sites/{id}/acl-rules
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_clients:
+                method: GET
+                path: /v1/sites/{id}/clients
+                description: GET /v1/sites/{id}/clients
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_device_tags:
+                method: GET
+                path: /v1/sites/{id}/device-tags
+                description: GET /v1/sites/{id}/device-tags
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_devices:
+                method: GET
+                path: /v1/sites/{id}/devices
+                description: GET /v1/sites/{id}/devices
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_networks:
+                method: GET
+                path: /v1/sites/{id}/networks
+                description: GET /v1/sites/{id}/networks
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_servers:
+                method: GET
+                path: /v1/sites/{id}/vpn/servers
+                description: GET /v1/sites/{id}/vpn/servers
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_wans:
+                method: GET
+                path: /v1/sites/{id}/wans
+                description: GET /v1/sites/{id}/wans
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_sites:
+                method: GET
+                path: /v1/sites
+                description: GET /v1/sites
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    speakers:
+        description: Operations on test-sound
+        endpoints:
+            create_test_sound:
+                method: POST
+                path: /speakers/{id}/test-sound
+                description: POST /speakers/{id}/test-sound
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    stocks:
+        description: Operations on stocks
+        endpoints:
+            create_stocks:
+                method: POST
+                path: /api/stocks
+                description: POST /api/stocks
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    timer:
+        description: Operations on timer
+        endpoints:
+            list_timer:
+                method: GET
+                path: /api/timer
+                description: GET /api/timer
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    ulp-users:
+        description: Operations on ulp-users
+        endpoints:
+            get_ulp_users:
+                method: GET
+                path: /ulp-users/{id}
+                description: GET /ulp-users/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_ulp_users:
+                method: GET
+                path: /ulp-users
+                description: GET /ulp-users
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    unified-search:
+        description: Operations on unified-search
+        endpoints:
+            list_unified_search:
+                method: GET
+                path: /v1/unified-search
+                description: GET /v1/unified-search
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    users:
+        description: Operations on users
+        endpoints:
+            get_users:
+                method: GET
+                path: /users/{id}
+                description: GET /users/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_users:
+                method: GET
+                path: /users
+                description: GET /users
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_users_2:
+                method: GET
+                path: /api/users
+                description: GET /api/users
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    utils:
+        description: Operations on runtimePaths
+        endpoints:
+            list_runtimePaths:
+                method: GET
+                path: /api/utils/runtimePaths
+                description: GET /api/utils/runtimePaths
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    video:
+        description: Operations on video
+        endpoints:
+            list_video:
+                method: GET
+                path: /api/v2/video
+                description: GET /api/v2/video
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    voice:
+        description: Operations on compare
+        endpoints:
+            list_compare:
+                method: GET
+                path: /api/voice/compare
+                description: GET /api/voice/compare
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+types: {}

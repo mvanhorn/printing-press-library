@@ -1,207 +1,204 @@
 // Copyright 2026 Ricardo Cabral and contributors. Licensed under Apache-2.0. See LICENSE.
-// Novel command: see .printing-press-patches/ for context. Hand-authored, not
-// generator output — regen-merge preserves this file.
-
-// pp:data-source computed
+// Hand-authored novel command. pp:data-source local.
 
 package cli
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"os"
-	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/devices/unifi/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/devices/unifi/internal/store"
 	"github.com/spf13/cobra"
 )
 
-type firstSeenRecord struct {
-	FirstSeenAt time.Time `json:"first_seen_at"`
-	Name        string    `json:"name,omitempty"`
-	MAC         string    `json:"mac,omitempty"`
+func parseLooseDuration(raw string) (time.Duration, error) { return cliutil.ParseDurationLoose(raw) }
+
+// noSyncNote and baselineOnlyNote exist because an empty answer from a store that has
+// never synced reads as an all clear, which is the one thing it cannot say.
+const (
+	noSyncNote       = "no sync has run yet, so this is not an all clear; run: unifi-pp-cli sync"
+	baselineOnlyNote = "only one sync so far, so nothing can be compared yet; run unifi-pp-cli sync again later"
+)
+
+func syncCoverageNote(snapshots int) string {
+	switch snapshots {
+	case 0:
+		return noSyncNote
+	case 1:
+		return baselineOnlyNote
+	}
+	return ""
 }
 
-type firstSeenFile struct {
-	// Resource -> entity id -> record.
-	Resources map[string]map[string]firstSeenRecord `json:"resources"`
+type newcomerRow struct {
+	ConsoleID   string `json:"console_id"`
+	Kind        string `json:"kind"`
+	EntityID    string `json:"entity_id"`
+	SiteID      string `json:"site_id,omitempty"`
+	Name        string `json:"name,omitempty"`
+	MAC         string `json:"mac,omitempty"`
+	IP          string `json:"ip,omitempty"`
+	FirstSeenAt string `json:"first_seen_at"`
+	LastSeenAt  string `json:"last_seen_at"`
+	// RandomizedMAC flags the locally-administered bit: phones rotate these, so one
+	// device can show up as several newcomers.
+	RandomizedMAC bool `json:"randomized_mac,omitempty"`
 }
 
-func firstSeenPath(dir, siteID string) string {
-	return filepath.Join(dir, fmt.Sprintf("newcomer-first-seen-%s.json", siteID))
+type newcomerView struct {
+	// Window echoes what the user asked for; WindowSeconds is the machine-readable form.
+	Window        string        `json:"window"`
+	WindowSeconds int64         `json:"window_seconds"`
+	Note          string        `json:"note,omitempty"`
+	Newcomers     []newcomerRow `json:"newcomers"`
+	Truncated     bool          `json:"truncated,omitempty"`
+	SnapshotCount int           `json:"snapshot_count"`
+	Notes         []string      `json:"notes"`
 }
 
-func loadFirstSeen(path string) (*firstSeenFile, error) {
-	data, err := os.ReadFile(path) //nolint:gosec // path built from internal allowlist + synced site id
+var newcomerNotes = []string{
+	"First-seen is local: only clients present at a sync are seen, so a brief visit between syncs is missed.",
+	"Entities in a console's first snapshot are the baseline and are never reported as new.",
+	"MAC randomization can inflate results; randomized_mac marks addresses likely to rotate.",
+}
+
+func macIsRandomized(mac string) bool {
+	if len(mac) < 2 {
+		return false
+	}
+	first, err := strconv.ParseUint(mac[:2], 16, 8)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
+		return false
+	}
+	return first&0x02 != 0
+}
+
+func newcomerKind(resourceType string) string {
+	switch resourceType {
+	case rtClients:
+		return "client"
+	case rtDevices:
+		return "device"
+	case rtCameras:
+		return "camera"
+	}
+	return resourceType
+}
+
+func newcomerRowFrom(row store.FirstSeenRow) newcomerRow {
+	entity, site := row.EntityID, ""
+	if i := strings.LastIndexByte(entity, '/'); i >= 0 {
+		site, entity = entity[:i], entity[i+1:]
+	}
+	return newcomerRow{ConsoleID: row.ConsoleID, Kind: newcomerKind(row.ResourceType), EntityID: entity, SiteID: site, Name: row.Label, MAC: row.MAC, IP: row.IP, FirstSeenAt: row.FirstSeenAt, LastSeenAt: row.LastSeenAt, RandomizedMAC: macIsRandomized(row.MAC)}
+}
+
+func loadNewcomers(ctx context.Context, db *store.Store, console string, window time.Duration, kind string, now time.Time) (newcomerView, error) {
+	view := newcomerView{WindowSeconds: int64(window.Seconds()), Newcomers: make([]newcomerRow, 0), Notes: newcomerNotes}
+	rows, err := db.FirstSeenSince(ctx, console, now.Add(-window))
+	if err != nil {
+		return view, err
+	}
+	for _, row := range rows {
+		out := newcomerRowFrom(row)
+		if kind != "" && kind != out.Kind {
+			continue
 		}
-		return nil, err
+		view.Newcomers = append(view.Newcomers, out)
 	}
-	var f firstSeenFile
-	if err := json.Unmarshal(data, &f); err != nil {
-		return nil, fmt.Errorf("parsing %s: %w", path, err)
-	}
-	return &f, nil
-}
-
-func saveFirstSeen(path string, f firstSeenFile) error {
-	data, err := json.Marshal(f)
+	snaps, err := db.ListSnapshots(ctx, console)
 	if err != nil {
-		return err
+		return view, err
 	}
-	return os.WriteFile(path, data, 0o600)
-}
-
-type newcomerEntry struct {
-	Resource    string    `json:"resource"`
-	ID          string    `json:"id"`
-	Name        string    `json:"name,omitempty"`
-	MAC         string    `json:"mac,omitempty"`
-	FirstSeenAt time.Time `json:"first_seen_at"`
+	view.SnapshotCount = len(snaps)
+	view.Note = syncCoverageNote(len(snaps))
+	if len(snaps) == 0 {
+		view.Notes = append([]string{"No snapshots yet; each successful sync takes one."}, newcomerNotes...)
+	} else if len(snaps) == 1 {
+		view.Notes = append([]string{"Only the baseline snapshot exists, so nothing can be new yet. Sync again later."}, newcomerNotes...)
+	}
+	return view, nil
 }
 
 func newNovelNewcomerCmd(flags *rootFlags) *cobra.Command {
-	var flagSite string
-	var flagSince string
-
+	var dbFlag, sinceRaw, kind string
+	var limit int
 	cmd := &cobra.Command{
 		Use:   "newcomer",
-		Short: "List devices and clients first seen since a given sync, for spotting new hardware joining the network.",
-		Long: "Maintains a local 'first seen' record for every device and " +
-			"client, updated each time this command runs against the synced " +
-			"local mirror. On the very first run for a site, every currently " +
-			"synced device/client becomes the baseline (not reported as new) so " +
-			"the whole network isn't dumped as 'newcomers' on day one. --since " +
-			"filters to entities first recorded within that window (default 24h). " +
-			"Run 'unifi-pp-cli sync' before each 'newcomer' to pick up devices/" +
-			"clients that joined since the last check.",
-		Example:     "  unifi-pp-cli newcomer --since 7d --json",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Short: "List clients, devices and cameras first seen at a sync in a window.",
+		Long: `Use this command to list clients and devices first seen in a window. Do NOT use it for
+config changes or a general timeline; use 'digest' instead.
+
+The API has no first-seen field, so this is computed from local history. Only what
+was present at a sync is seen, and randomized MACs can inflate the count.`,
+		Example: strings.Trim(`
+  unifi-pp-cli newcomer --since 24h --agent
+  unifi-pp-cli newcomer --since 7d --kind client --json`, "\n"),
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "local"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
-				return cmd.Help()
-			}
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "newcomer")
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
-
-			since := 24 * time.Hour
-			if flagSince != "" {
-				d, err := cliutil.ParseDurationLoose(flagSince)
-				if err != nil {
-					_ = cmd.Usage()
-					return usageErr(fmt.Errorf("invalid --since %q: %w", flagSince, err))
-				}
-				since = d
+			window, err := parseLooseDuration(sinceRaw)
+			if err != nil {
+				return usageErr(fmt.Errorf("--since %q: %w", sinceRaw, err))
 			}
-
-			dbPath := defaultDBPath("unifi-pp-cli")
-			db, err := openNovelStore(ctx, dbPath)
+			if kind != "" && kind != "client" && kind != "device" && kind != "camera" {
+				return usageErr(fmt.Errorf("--kind %q must be client, device or camera", kind))
+			}
+			dbPath := mirrorDBPath(dbFlag)
+			if mirrorMissing(dbPath) {
+				fmt.Fprintf(cmd.ErrOrStderr(), "no local mirror at %s\nrun: unifi-pp-cli sync --console <id> --db %s\n", dbPath, dbPath)
+				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+					return printJSONFiltered(cmd.OutOrStdout(), newcomerView{Window: sinceRaw, WindowSeconds: int64(window.Seconds()), Note: noSyncNote, Newcomers: make([]newcomerRow, 0), Notes: newcomerNotes}, flags)
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), noSyncNote)
+				return nil
+			}
+			db, err := openMirror(ctx, dbPath)
 			if err != nil {
 				return err
-			}
-			if db == nil {
-				fmt.Fprintf(cmd.ErrOrStderr(), "no local mirror at %s\nrun: unifi-pp-cli sync\n", dbPath)
-				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-					return printJSONFiltered(cmd.OutOrStdout(), []newcomerEntry{}, flags)
-				}
-				return nil
 			}
 			defer db.Close()
-
-			siteID, _, err := resolveSiteIDLocal(ctx, db.DB(), flagSite)
+			view, err := loadNewcomers(ctx, db, store.ActiveConsole(), window, kind, time.Now())
 			if err != nil {
-				if isNoLocalDataYet(err) {
-					fmt.Fprintf(cmd.ErrOrStderr(), "%s\nrun: unifi-pp-cli sync\n", err)
-					if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-						return printJSONFiltered(cmd.OutOrStdout(), []newcomerEntry{}, flags)
-					}
+				return err
+			}
+			view.Window = sinceRaw
+			if limit > 0 && len(view.Newcomers) > limit {
+				// Keep the newest, as digest does: dropping them hides the arrivals an
+				// operator is most likely checking for, and the flag says rows are gone.
+				view.Newcomers = view.Newcomers[len(view.Newcomers)-limit:]
+				view.Truncated = true
+			}
+			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
+			}
+			if len(view.Newcomers) == 0 {
+				if view.Note != "" {
+					fmt.Fprintln(cmd.OutOrStdout(), view.Note)
 					return nil
 				}
-				return err
-			}
-
-			snapDir, err := novelSnapshotDir()
-			if err != nil {
-				return err
-			}
-			fsPath := firstSeenPath(snapDir, siteID)
-			fs, err := loadFirstSeen(fsPath)
-			if err != nil {
-				return err
-			}
-			isBootstrap := fs == nil
-			if fs == nil {
-				fs = &firstSeenFile{Resources: map[string]map[string]firstSeenRecord{}}
-			}
-			if fs.Resources == nil {
-				fs.Resources = map[string]map[string]firstSeenRecord{}
-			}
-
-			now := time.Now().UTC()
-			cutoff := now.Add(-since)
-			newcomers := make([]newcomerEntry, 0)
-
-			for _, res := range []string{"devices", "clients"} {
-				rows, err := resourceRows(ctx, db.DB(), res, siteID)
-				if err != nil {
-					return err
-				}
-				if fs.Resources[res] == nil {
-					fs.Resources[res] = map[string]firstSeenRecord{}
-				}
-				for _, id := range sortedKeys(rows) {
-					var meta struct {
-						Name string `json:"name"`
-						MAC  string `json:"macAddress"`
-					}
-					_ = json.Unmarshal(rows[id], &meta)
-
-					rec, known := fs.Resources[res][id]
-					if !known {
-						rec = firstSeenRecord{FirstSeenAt: now, Name: meta.Name, MAC: meta.MAC}
-						fs.Resources[res][id] = rec
-						if !isBootstrap && rec.FirstSeenAt.After(cutoff) {
-							newcomers = append(newcomers, newcomerEntry{
-								Resource: res, ID: id, Name: meta.Name, MAC: meta.MAC, FirstSeenAt: rec.FirstSeenAt,
-							})
-						}
-					} else if rec.FirstSeenAt.After(cutoff) {
-						newcomers = append(newcomers, newcomerEntry{
-							Resource: res, ID: id, Name: rec.Name, MAC: rec.MAC, FirstSeenAt: rec.FirstSeenAt,
-						})
-					}
-				}
-			}
-
-			if err := saveFirstSeen(fsPath, *fs); err != nil {
-				return fmt.Errorf("saving first-seen record: %w", err)
-			}
-
-			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), newcomers, flags)
-			}
-			w := cmd.OutOrStdout()
-			if len(newcomers) == 0 {
-				if isBootstrap {
-					fmt.Fprintln(w, "First run: baseline captured for every currently synced device/client. Re-run newcomer later to see new joins.")
-				} else {
-					fmt.Fprintf(w, "No devices or clients first seen within %s.\n", since)
-				}
+				fmt.Fprintf(cmd.OutOrStdout(), "No newcomers in the last %s.\n", sinceRaw)
 				return nil
 			}
-			for _, n := range newcomers {
-				fmt.Fprintf(w, "%-8s %-24s %-18s %s\n", n.Resource, n.Name, n.MAC, n.FirstSeenAt.Format(time.RFC3339))
+			tw := newTabWriter(cmd.OutOrStdout())
+			fmt.Fprintln(tw, "FIRST SEEN\tKIND\tNAME\tMAC\tIP\tCONSOLE")
+			for _, n := range view.Newcomers {
+				fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\n", n.FirstSeenAt, n.Kind, firstNonEmpty(n.Name, n.EntityID), n.MAC, n.IP, n.ConsoleID)
 			}
-			return nil
+			return tw.Flush()
 		},
 	}
-	cmd.Flags().StringVar(&flagSite, "site", "", "Site id, internalReference, or name (default: the only synced site)")
-	cmd.Flags().StringVar(&flagSince, "since", "24h", "Show entities first seen within this window (e.g. 24h, 7d)")
+	cmd.Flags().StringVar(&dbFlag, "db", "", "Local mirror path (default: the standard mirror)")
+	cmd.Flags().StringVar(&sinceRaw, "since", "24h", "Window to look back over, e.g. 24h, 7d")
+	cmd.Flags().StringVar(&kind, "kind", "", "Only this kind: client, device or camera")
+	cmd.Flags().IntVar(&limit, "limit", 200, "Maximum newcomers to return; 0 for all")
 	return cmd
 }

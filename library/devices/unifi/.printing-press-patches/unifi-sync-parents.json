@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-01",
+  "base_run_id": "20261101-155632-9a5a2a2b",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
+  "id": "unifi-sync-parents",
+  "summary": "Network site-scoped dependents iterate /network/integration/v1/sites instead of Site Manager /v1/sites, and the mis-parented Mobility devices_clients dependent is removed from sync.",
+  "reason": "The generator matched path parameter names and picked Site Manager /v1/sites, whose siteId is a different identifier from the integration site UUID, and parented Mobility device clients on Site Manager devices, which have no workspace id.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "call_sites": [
+    "networkSitesParent"
+  ],
+  "validated_outcome": "TestSyncIteratesConsoleSitesAndKeysRowsByConsole and TestSyncPaginatesNetworkByOffset."
+}

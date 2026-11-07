@@ -3,7 +3,7 @@
 schema_version = 2
 name = "unifi-pp-cli"
 display_name = "UniFi"
-description = "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has."
+description = "Operate UniFi consoles through the cloud connector or your LAN, with a local history, change previews and a change journal."
 project_kind = "cli"
 
 [secrets.file]

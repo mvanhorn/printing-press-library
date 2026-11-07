@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-06",
+  "base_run_id": "20261101-155632-9a5a2a2b",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
+  "id": "unifi-legacy-firewall-is-not-a-failure",
+  "summary": "Consoles without zone-based firewall sync with a warning, and rule-predict names the cause.",
+  "reason": "The Network API answers firewall zones and policies with HTTP 400 api.firewall.zone-based-firewall-not-configured on consoles using legacy rules. That counted as a sync error, and rule-predict told the user to run sync, which can never help.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/rule_predict.go"
+  ],
+  "call_sites": [
+    "zoneFirewallNotConfiguredCode",
+    "noZonesReason("
+  ],
+  "validated_outcome": "Live sync on a legacy-firewall console reports 0 errors; rule-predict states the legacy firewall reason after a sync."
+}

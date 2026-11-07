@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/unifi-pp-cli
+/unifi-pp-cli.exe
+/unifi-pp-mcp
+/unifi-pp-mcp.exe
+/bin/
+/build/
+/dist/

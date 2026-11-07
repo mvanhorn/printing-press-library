@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261101-155632-9a5a2a2b",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
+  "id": "unifi-security-review-hardening",
+  "summary": "Receipts redact secret argv values, a configured CA turns on verification for private gateways, the learn surface follows the MCP child marker, and API strings in errors are escaped.",
+  "reason": "A security review found no exploit but these gaps: secrets typed on the command line reached receipts, UNIFI_CA_CERT was overwritten by the private-address default, an exported variable could relabel the surface, and console names reached the terminal unescaped.",
+  "files": [
+    "internal/platform/receipt.go",
+    "internal/cli/platform_client.go",
+    "internal/client/unifi_transport.go",
+    "internal/store/events.go",
+    "internal/mcp/cobratree/shellout.go",
+    "cmd/unifi-pp-mcp/unifi_readonly.go"
+  ],
+  "call_sites": [
+    "SensitiveArgvPositions",
+    "gatewayTrustSkipsVerify",
+    "MCPChildEnvVar",
+    "EscapeTerminalStream"
+  ],
+  "validated_outcome": "TestSensitiveArgvPositions, TestReceiptWriterRedactsSecretArgv, TestConfiguredCAKeepsVerificationOnPrivateGateway, TestLearnEventSurfaceFollowsMCPChildMarker and TestCLIFailureDetailEscapesControlBytes."
+}
