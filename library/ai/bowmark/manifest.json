@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "bowmark-pp-mcp",
+  "display_name": "Bowmark",
+  "version": "1.0.0",
+  "description": "Run real tasks on live websites over plain HTTP.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/bowmark-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/bowmark-pp-mcp",
+      "args": [],
+      "env": {
+        "BOWMARK_TOKEN": "${user_config.bowmark_token}"
+      }
+    }
+  },
+  "user_config": {
+    "bowmark_token": {
+      "type": "string",
+      "title": "BOWMARK_TOKEN",
+      "description": "Sets BOWMARK_TOKEN for the Bowmark MCP server. Get a credential from https://bowmark.ai/dashboard/keys.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
