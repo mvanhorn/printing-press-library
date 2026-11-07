@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "arcmira-pp-mcp",
+  "display_name": "Arcmira",
+  "version": "1.0.0",
+  "description": "Search indexed YouTube and podcast transcripts for timestamped quotes and clip boundaries.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/arcmira-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/arcmira-pp-mcp",
+      "args": [],
+      "env": {
+        "ARCMIRA_BEARER_AUTH": "${user_config.arcmira_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "arcmira_bearer_auth": {
+      "type": "string",
+      "title": "ARCMIRA_BEARER_AUTH",
+      "description": "Sets ARCMIRA_BEARER_AUTH for the Arcmira MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

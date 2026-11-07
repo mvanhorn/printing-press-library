@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "live-acceptance",
+  "files": [
+    "internal/cli/mentions_count.go",
+    "internal/cli/tail.go"
+  ],
+  "markers": [
+    "mentions count --entity-ids",
+    "poll resource"
+  ],
+  "summary": "Keep mention-count discovery examples valid and allow a single tail poll to return a JSON array, including when there are no changes.",
+  "reason": "Generated examples and streaming defaults must remain usable by non-interactive callers."
+}

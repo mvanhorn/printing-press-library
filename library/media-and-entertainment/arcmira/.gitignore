@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/arcmira-pp-cli
+/arcmira-pp-cli.exe
+/arcmira-pp-mcp
+/arcmira-pp-mcp.exe
+/bin/
+/build/
+/dist/

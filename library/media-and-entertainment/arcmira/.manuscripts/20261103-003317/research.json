@@ -1,0 +1,11 @@
+{
+  "novel_features": [
+    {
+      "name": "Transcript quote sheet",
+      "command": "quote-sheet",
+      "description": "Merge saved transcript searches, deduplicate passages and keep the source link and search terms for each quote.",
+      "rationale": "A researcher needs to trace a quote back to every search that found it without duplicating the passage.",
+      "example": "arcmira-pp-cli quote-sheet examples/quote-sheet.json --json"
+    }
+  ]
+}

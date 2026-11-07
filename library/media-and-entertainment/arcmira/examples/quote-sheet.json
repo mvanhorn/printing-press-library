@@ -1,0 +1,13 @@
+{
+  "query": "clip research",
+  "chunks": [
+    {
+      "id": "sample@12",
+      "video_title": "Example search response",
+      "channel_name": "Demo",
+      "start_seconds": 12,
+      "text": "A saved search keeps the timestamp alongside the quote.",
+      "watch_url": "https://example.org/watch?t=12"
+    }
+  ]
+}
