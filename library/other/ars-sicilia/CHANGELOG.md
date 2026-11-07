@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-07
+
+- fix(ars-sicilia): truncation hint states the declared total, --select hint gives a working selector (#2436).
+
 ## 2026.10.1 - 2026-10-12
 
 - fix(ars-sicilia): repeated numbers on per-committee archives are distinct acts, not versions (#2309).
