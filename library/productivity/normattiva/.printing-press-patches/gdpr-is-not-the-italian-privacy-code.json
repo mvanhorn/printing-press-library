@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "gdpr-is-not-the-italian-privacy-code",
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261028-132341-29de1036",
+  "base_printing_press_version": "4.35.3",
+  "summary": "The name gdpr is rejected; it is not an alias for D.Lgs. 196/2003.",
+  "reason": "Normattiva does not publish Regulation (EU) 2016/679. Mapping gdpr to the Italian privacy code makes testo gdpr --articolo 13 return the wrong law. The privacy-code aliases stay codice privacy, codice della privacy, and privacy.",
+  "files": ["internal/norma/fonti.go", "internal/norma/cite.go"],
+  "validated_outcome": "TestLookupFonte rejects gdpr and ParseCitation names codice privacy."
+}

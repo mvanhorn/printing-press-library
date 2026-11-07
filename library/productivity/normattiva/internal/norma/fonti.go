@@ -3,6 +3,7 @@
 package norma
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"unicode"
@@ -40,7 +41,7 @@ var Fonti = []Fonte{
 	{Key: "codice-procedura-penale", Nome: "Codice di procedura penale", Estremi: "D.P.R. 22 settembre 1988, n. 447", URN: "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447",
 		Alias: []string{"codice di procedura penale", "codice procedura penale"}, Abbreviazioni: []string{"c.p.p.", "cpp"}},
 	{Key: "codice-privacy", Nome: "Codice in materia di protezione dei dati personali", Estremi: "D.Lgs. 30 giugno 2003, n. 196", URN: "urn:nir:stato:decreto.legislativo:2003-06-30;196",
-		Alias: []string{"codice privacy", "codice della privacy", "privacy", "gdpr", "gdpr nazionale", "protezione dei dati personali"}},
+		Alias: []string{"codice privacy", "codice della privacy", "privacy", "protezione dei dati personali"}},
 	{Key: "cad", Nome: "Codice dell'amministrazione digitale", Estremi: "D.Lgs. 7 marzo 2005, n. 82", URN: "urn:nir:stato:decreto.legislativo:2005-03-07;82",
 		Alias: []string{"cad", "codice dell'amministrazione digitale", "codice amministrazione digitale"}},
 	{Key: "codice-appalti", Nome: "Codice dei contratti pubblici", Estremi: "D.Lgs. 31 marzo 2023, n. 36", URN: "urn:nir:stato:decreto.legislativo:2023-03-31;36",
@@ -82,6 +83,17 @@ func normKey(s string) string {
 		}
 	}
 	return strings.Join(strings.Fields(b.String()), " ")
+}
+
+// RejectOutsideNormattiva reports a name for a law this API does not publish.
+// "gdpr" is Regulation (EU) 2016/679, not D.Lgs. 196/2003.
+func RejectOutsideNormattiva(name string) error {
+	for _, word := range strings.Fields(normKey(name)) {
+		if word == "gdpr" {
+			return fmt.Errorf("%q is Regulation (EU) 2016/679, which Normattiva does not publish; use \"codice privacy\" for D.Lgs. 196/2003", strings.TrimSpace(name))
+		}
+	}
+	return nil
 }
 
 // LookupFonte resolves a name, alias or abbreviation to a well-known act.

@@ -144,6 +144,9 @@ func normaStore(ctx context.Context) (*store.Store, error) {
 }
 
 func cacheArticle(ctx context.Context, v articleView) {
+	if localDataDisabled() {
+		return
+	}
 	db, err := normaStore(ctx)
 	if err != nil {
 		return
@@ -181,10 +184,25 @@ func cachedArticle(ctx context.Context, urn string) (articleView, bool) {
 	return v, true
 }
 
+// versionWindowClosed reports whether a cached version can no longer change.
+// A FineVigenza that is missing or still today-or-later can be filled in or
+// replaced: a future pin can pick up an amendment, and a past pin can gain
+// its end date after that version is superseded. Only a FineVigenza that has
+// already passed is safe to reuse indefinitely.
+func versionWindowClosed(v articleView, now time.Time) bool {
+	if v.FineVigenza == "" {
+		return false
+	}
+	if _, err := time.Parse("2006-01-02", v.FineVigenza); err != nil {
+		return false
+	}
+	return v.FineVigenza < now.UTC().Format("2006-01-02")
+}
+
 // fetchArticle reads one URN, honoring --data-source: "local" reads only the
 // cache, "live" only the API, "auto" goes live and falls back to the cache on
-// network failure. Pinned versions (!vig= / @originale) never change, so auto
-// serves them from the cache when present.
+// network failure. A pinned version (!vig= / @originale) is reused from the
+// cache only after its version window has closed.
 func fetchArticle(ctx context.Context, c *client.Client, flags *rootFlags, u norma.URN) (articleView, error) {
 	key := u.String()
 	pinned := u.Vigenza != "" || u.Originale
@@ -196,7 +214,7 @@ func fetchArticle(ctx context.Context, c *client.Client, flags *rootFlags, u nor
 		return articleView{}, fmt.Errorf("%w in the local cache: %s (read it once without --data-source local)", errNotFound, key)
 	case "", "auto":
 		if pinned {
-			if v, ok := cachedArticle(ctx, key); ok {
+			if v, ok := cachedArticle(ctx, key); ok && versionWindowClosed(v, timeNow()) {
 				return v, nil
 			}
 		}

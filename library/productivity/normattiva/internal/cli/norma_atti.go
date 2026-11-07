@@ -240,7 +240,7 @@ func nextCandidate(art string, noSuffissi bool) string {
 func newFontiCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "fonti [ricerca]",
-		Short: "List the well-known acts you can call by name (codice civile, costituzione, gdpr, tuel, ...)",
+		Short: "List the well-known acts you can call by name (codice civile, costituzione, codice privacy, tuel, ...)",
 		Example: strings.Trim(`
   normattiva-pp-cli fonti
   normattiva-pp-cli fonti codice

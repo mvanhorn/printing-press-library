@@ -286,7 +286,7 @@ func postRicerca(ctx context.Context, c *client.Client, path string, body map[st
 }
 
 func cacheAttoRows(ctx context.Context, rows []attoRow) {
-	if len(rows) == 0 {
+	if localDataDisabled() || len(rows) == 0 {
 		return
 	}
 	db, err := normaStore(ctx)

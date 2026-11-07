@@ -109,7 +109,7 @@ which of them were amended since the last check and, for the articles you pin
 with --articoli, exactly which articles changed.`, "\n"),
 		Example: strings.Trim(`
   normattiva-pp-cli segui add "d.lgs. 231/2001" --articoli 5,6,24
-  normattiva-pp-cli segui add gdpr
+  normattiva-pp-cli segui add "codice privacy"
   normattiva-pp-cli segui list`, "\n"),
 	}
 	cmd.AddCommand(newSeguiAddCmd(flags), newSeguiLsCmd(flags), newSeguiRmCmd(flags))

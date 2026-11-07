@@ -25,7 +25,7 @@ func newTestoCmd(flags *rootFlags) *cobra.Command {
 Read the authoritative Normattiva text of an article.
 
 The act can be a URN:NIR, a well-known name ("codice civile", "costituzione",
-"gdpr" — see 'fonti'), or a citation as lawyers write it ("d.lgs. 196/2003",
+"codice privacy" — see 'fonti'), or a citation as lawyers write it ("d.lgs. 196/2003",
 "art. 3 L. 241/1990", "2043 c.c."). Use --al for the version in force on a
 date and --originale for the text as first published. Acts that have no
 verified URN form can be read from their Gazzetta coordinates with --codice

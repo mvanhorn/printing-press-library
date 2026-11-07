@@ -60,7 +60,7 @@ func TestNormalizeArticle(t *testing.T) {
 }
 
 func TestLookupFonte(t *testing.T) {
-	cases := map[string]string{"codice civile": "codice-civile", "c.c.": "codice-civile", "C.P.C.": "codice-procedura-civile", "gdpr": "codice-privacy", "Costituzione": "costituzione", "tuel": "tuel"}
+	cases := map[string]string{"codice civile": "codice-civile", "c.c.": "codice-civile", "C.P.C.": "codice-procedura-civile", "codice privacy": "codice-privacy", "privacy": "codice-privacy", "Costituzione": "costituzione", "tuel": "tuel"}
 	for in, want := range cases {
 		f, ok := LookupFonte(in)
 		if !ok || f.Key != want {
@@ -69,6 +69,18 @@ func TestLookupFonte(t *testing.T) {
 	}
 	if _, ok := LookupFonte("legge inesistente sui gatti"); ok {
 		t.Error("expected miss")
+	}
+	if _, ok := LookupFonte("gdpr"); ok {
+		t.Error("gdpr must not resolve to the Italian privacy code")
+	}
+	if err := RejectOutsideNormattiva("gdpr"); err == nil || !strings.Contains(err.Error(), "2016/679") {
+		t.Fatalf("RejectOutsideNormattiva(gdpr) = %v", err)
+	}
+	if _, err := ParseCitation("gdpr", "13"); err == nil || !strings.Contains(err.Error(), "codice privacy") {
+		t.Fatalf("ParseCitation(gdpr) = %v", err)
+	}
+	if f, ok := LookupFonte("privacy"); !ok || f.Key != "codice-privacy" {
+		t.Fatalf("privacy alias = %q, %v", f.Key, ok)
 	}
 	if got := SearchFonti("codice procedura"); len(got) != 2 {
 		t.Errorf("SearchFonti(codice procedura) = %d results, want 2", len(got))

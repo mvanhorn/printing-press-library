@@ -322,6 +322,9 @@ func ParseCitation(s, article string) (Citation, error) {
 	if s == "" {
 		return Citation{}, fmt.Errorf("empty act reference")
 	}
+	if err := RejectOutsideNormattiva(s); err != nil {
+		return Citation{}, err
+	}
 	if IsURN(s) {
 		u, err := ParseURN(s)
 		if err != nil {
