@@ -1,0 +1,6 @@
+# URLs documented in the Normattiva Open Data spec and verified live on 2026-10-28
+https://api.normattiva.it/t/normattiva.api/bff-opendata/v1/api/v1/tipologiche/estensioni
+https://api.normattiva.it/t/normattiva.api/bff-opendata/v1/api/v1/atto/dettaglio-atto-urn
+# Public permalink resolver embedded by the API in article HTML links
+https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:1990-08-07;241
+https://www.normattiva.it/atto/caricaDettaglioAtto
