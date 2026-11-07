@@ -6,6 +6,7 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 )
 
@@ -28,34 +29,48 @@ import (
 // Nel secondo caso le righe delle sotto-liste vengono concatenate e i campi
 // scalari del contenitore (`tipo`, `archivio`) diventano colonne su ogni riga,
 // che è l'unico modo di non perdere a quale sezione apparteneva una riga.
-func righeDaOggetto(data json.RawMessage) []map[string]any {
+// Una sezione con la lista vuota non dà righe e torna in `vuote`.
+func righeDaOggetto(data json.RawMessage) (righeTabella, vuote []map[string]any) {
 	var obj map[string]json.RawMessage
 	if err := json.Unmarshal(data, &obj); err != nil || obj == nil {
-		return nil
+		return nil, nil
 	}
 	nome, righe := unicaListaDiOggetti(obj)
 	if nome == "" {
-		return nil
+		return nil, nil
 	}
 
-	// Livello annidato: ogni riga avvolge a sua volta una sola lista.
-	annidate := make([]map[string]any, 0, len(righe))
-	tutteAnnidate := len(righe) > 0
-	for _, r := range righe {
+	// Livello annidato: ogni riga avvolge a sua volta una sola lista. Il nome
+	// della lista viene dalle righe che ne hanno una piena: le altre devono
+	// averla vuota sotto lo stesso nome, altrimenti la forma non è questa.
+	interni := make([]map[string]json.RawMessage, len(righe))
+	sottoNome := ""
+	for i, r := range righe {
 		grezzo, err := json.Marshal(r)
-		if err != nil {
-			tutteAnnidate = false
-			break
+		if err != nil || json.Unmarshal(grezzo, &interni[i]) != nil {
+			return righe, nil
 		}
-		var interno map[string]json.RawMessage
-		if err := json.Unmarshal(grezzo, &interno); err != nil {
-			tutteAnnidate = false
-			break
+		n, _ := unicaListaDiOggetti(interni[i])
+		if n == "" {
+			continue
 		}
-		sottoNome, sotto := unicaListaDiOggetti(interno)
-		if sottoNome == "" {
-			tutteAnnidate = false
-			break
+		if sottoNome != "" && n != sottoNome {
+			return righe, nil
+		}
+		sottoNome = n
+	}
+	if sottoNome == "" {
+		return righe, nil
+	}
+
+	annidate := make([]map[string]any, 0, len(righe))
+	for i, r := range righe {
+		var sotto []map[string]any
+		if err := json.Unmarshal(interni[i][sottoNome], &sotto); err != nil {
+			return righe, nil
+		}
+		if n, _ := unicaListaDiOggetti(interni[i]); n == "" && len(sotto) > 0 {
+			return righe, nil // più di una lista piena in questa riga
 		}
 		contesto := map[string]any{}
 		for k, v := range r {
@@ -70,6 +85,10 @@ func righeDaOggetto(data json.RawMessage) []map[string]any {
 			}
 			contesto[k] = v
 		}
+		if len(sotto) == 0 {
+			vuote = append(vuote, contesto)
+			continue
+		}
 		for _, s := range sotto {
 			riga := map[string]any{}
 			for k, v := range contesto {
@@ -81,10 +100,29 @@ func righeDaOggetto(data json.RawMessage) []map[string]any {
 			annidate = append(annidate, riga)
 		}
 	}
-	if tutteAnnidate && len(annidate) > 0 {
-		return annidate
+	return annidate, vuote
+}
+
+// avvisiSezioniVuote dice quali sezioni non hanno portato righe nella tabella,
+// con la loro `nota` se ce l'hanno: `novita` ci scrive perché un archivio non è
+// databile, e nel CSV non c'è una riga su cui metterla.
+func avvisiSezioniVuote(vuote []map[string]any) []string {
+	var out []string
+	for _, c := range vuote {
+		nome, _ := c["tipo"].(string)
+		if nome == "" {
+			nome, _ = c["archivio"].(string)
+		}
+		if nome == "" {
+			nome = "una sezione"
+		}
+		testo := fmt.Sprintf("hint: --csv: %s non ha righe", nome)
+		if nota, _ := c["nota"].(string); nota != "" {
+			testo += ": " + nota
+		}
+		out = append(out, testo)
 	}
-	return righe
+	return out
 }
 
 // unicaListaDiOggetti torna il nome e il contenuto dell'unica chiave che porta
