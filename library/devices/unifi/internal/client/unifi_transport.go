@@ -517,7 +517,7 @@ func (c *Client) authHeaderFor(ctx context.Context, target requestTarget) (strin
 // httpClientFor keeps certificate relaxation away from api.ui.com: a single
 // shared client would have to skip verification for both or for neither.
 func (c *Client) httpClientFor(target requestTarget) (*http.Client, error) {
-	if target.Kind != TransportLocal {
+	if target.Kind != TransportLocal && !savedGatewayBase(target) {
 		return c.HTTPClient, nil
 	}
 	c.transport.mu.Lock()
@@ -563,6 +563,17 @@ func (c *Client) httpClientFor(target requestTarget) (*http.Client, error) {
 	}
 	c.transport.localClient = hc
 	return hc, nil
+}
+
+// savedGatewayBase spots a base_url aimed at a gateway on the LAN. Those serve self-signed
+// certificates, so they need the same trust handling as a configured gateway, including
+// UNIFI_CA_CERT and the warning. Plain http mocks and public hosts are unaffected.
+func savedGatewayBase(target requestTarget) bool {
+	if target.Kind != TransportPassthrough {
+		return false
+	}
+	u, err := url.Parse(target.URL)
+	return err == nil && u.Scheme == "https" && hostIsLocalNetwork(u.Hostname())
 }
 
 // passthroughURL keeps a saved gateway base_url working. Earlier releases documented

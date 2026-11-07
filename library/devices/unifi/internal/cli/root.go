@@ -183,6 +183,16 @@ func Execute() (retErr error) {
 	// before parse so a failure that never gets there still consults argv.
 	preRunReached = false
 
+	rewritten, note, legacyErr := legacyInvocation(os.Args[1:])
+	if legacyErr != nil {
+		fmt.Fprintln(os.Stderr, "Error:", legacyErr)
+		return usageErr(legacyErr)
+	}
+	if note != "" {
+		fmt.Fprint(os.Stderr, note)
+		rootCmd.SetArgs(rewritten)
+	}
+
 	executedCmd, err := rootCmd.ExecuteC()
 	var journalFailedFlag, journalSuggestedFlag string
 	defer func() {
