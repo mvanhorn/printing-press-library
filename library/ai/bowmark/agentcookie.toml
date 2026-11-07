@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "bowmark-pp-cli"
+display_name = "Bowmark"
+description = "Run real tasks on live websites over plain HTTP."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/bowmark-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+BOWMARK_TOKEN = true

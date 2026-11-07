@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/bowmark-pp-cli
+/bowmark-pp-cli.exe
+/bowmark-pp-mcp
+/bowmark-pp-mcp.exe
+/bin/
+/build/
+/dist/
