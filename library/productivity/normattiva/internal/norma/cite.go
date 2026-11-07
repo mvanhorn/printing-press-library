@@ -13,15 +13,18 @@ import (
 // Citation is one reference to an Italian State act found in text, e.g.
 // "art. 2043 c.c." or "L. 7 agosto 1990, n. 241, art. 3".
 type Citation struct {
-	Raw      string `json:"raw"`
-	Start    int    `json:"-"`
-	End      int    `json:"-"`
-	Fonte    string `json:"fonte,omitempty"` // key of a well-known act, when matched
-	Tipo     string `json:"tipo,omitempty"`  // URN act type
-	Data     string `json:"data,omitempty"`  // YYYY-MM-DD or YYYY
-	Numero   string `json:"numero,omitempty"`
-	Articolo string `json:"articolo,omitempty"`
-	Comma    string `json:"comma,omitempty"`
+	Raw       string `json:"raw"`
+	Start     int    `json:"-"`
+	End       int    `json:"-"`
+	Fonte     string `json:"fonte,omitempty"` // key of a well-known act, when matched
+	Tipo      string `json:"tipo,omitempty"`  // URN act type
+	Data      string `json:"data,omitempty"`  // YYYY-MM-DD or YYYY
+	Numero    string `json:"numero,omitempty"`
+	Articolo  string `json:"articolo,omitempty"`
+	Comma     string `json:"comma,omitempty"`
+	Allegato  string `json:"allegato,omitempty"`
+	Originale bool   `json:"originale,omitempty"`
+	Vigenza   string `json:"vigenza,omitempty"`
 }
 
 // URN builds the URN:NIR for the citation (article-level when an article
@@ -43,8 +46,19 @@ func (c Citation) URN() URN {
 			u = f.Base()
 		}
 	}
+	// Explicit annex and version win over a well-known act's default.
+	// verifica and fascicolo request Citation.URN(), so these fields must survive.
+	if c.Allegato != "" {
+		u.Allegato = c.Allegato
+	}
 	if c.Articolo != "" {
 		u = u.WithArticle(c.Articolo)
+	}
+	switch {
+	case c.Originale:
+		u = u.WithOriginale()
+	case c.Vigenza != "":
+		u = u.WithVigenza(c.Vigenza)
 	}
 	return u
 }
@@ -313,7 +327,10 @@ func ParseCitation(s, article string) (Citation, error) {
 		if err != nil {
 			return Citation{}, err
 		}
-		c := Citation{Raw: s, Tipo: u.Tipo, Data: u.Data, Numero: u.Numero, Articolo: u.Articolo}
+		c := Citation{
+			Raw: s, Tipo: u.Tipo, Data: u.Data, Numero: u.Numero, Articolo: u.Articolo,
+			Allegato: u.Allegato, Originale: u.Originale, Vigenza: u.Vigenza,
+		}
 		for _, f := range Fonti {
 			if f.URN == u.Act().String() {
 				c.Fonte = f.Key

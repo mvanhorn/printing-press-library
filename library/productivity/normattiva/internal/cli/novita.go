@@ -74,6 +74,23 @@ func loadSnapshot(ctx context.Context, db *store.Store, urn string) (snapshot, b
 	return s, err == nil, err
 }
 
+// saveNewSnapshots records a baseline only for articles that do not already
+// have one. Adding an article or changing a label must leave hashes that
+// novita has not reported yet untouched.
+func saveNewSnapshots(ctx context.Context, db *store.Store, actURN string, views []articleView) error {
+	for _, v := range views {
+		if _, exists, err := loadSnapshot(ctx, db, v.URN); err != nil {
+			return err
+		} else if exists {
+			continue
+		}
+		if err := saveSnapshot(ctx, db, actURN, v); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func saveSnapshot(ctx context.Context, db *store.Store, actURN string, v articleView) error {
 	_, err := db.DB().ExecContext(ctx, `INSERT INTO norma_snapshot (urn, atto_urn, hash, inizio_vigenza, fine_vigenza, testo, visto_il)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -183,10 +200,8 @@ func newSeguiAddCmd(flags *rootFlags) *cobra.Command {
 				act.String(), etichetta, strings.Join(arts, ","), now, now); err != nil {
 				return fmt.Errorf("saving watchlist: %w", err)
 			}
-			for _, v := range views {
-				if err := saveSnapshot(ctx, db, act.String(), v); err != nil {
-					return fmt.Errorf("saving snapshot: %w", err)
-				}
+			if err := saveNewSnapshots(ctx, db, act.String(), views); err != nil {
+				return fmt.Errorf("saving snapshot: %w", err)
 			}
 			s := seguito{URN: act.String(), Etichetta: etichetta, Articoli: arts, AggiuntoIl: now, UltimoControllo: now}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {

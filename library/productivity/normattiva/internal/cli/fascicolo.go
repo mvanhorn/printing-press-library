@@ -56,7 +56,7 @@ instead.`, "\n"),
 		Example: strings.Trim(`
   normattiva-pp-cli fascicolo "art. 2043 c.c." "art. 3 L. 241/1990" --al 2021-05-10
   normattiva-pp-cli fascicolo --file atto-di-citazione.txt --al 2019-03-01 --output norme.md`, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true", "mcp:write-flags": "output", "pp:data-source": "auto",
+		Annotations: map[string]string{"mcp:read-only": "true", "mcp:read-flags": "file", "mcp:write-flags": "output", "pp:data-source": "auto",
 			"pp:happy-args": "citazione=art. 2043 c.c.;--al=2021-05-10"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {

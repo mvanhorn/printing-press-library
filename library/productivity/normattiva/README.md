@@ -2,6 +2,9 @@
 
 **Italian law in your terminal: resolve citations, read any article at any date, diff versions and track amendments.**
 
+Created by [@luigipastore61063-del](https://github.com/luigipastore61063-del) (Luigi Pastore).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 Type citations the way lawyers write them ("art. 2043 c.c.", "d.lgs. 196/2003 art. 13") and get the authoritative Normattiva text as clean text (or Markdown with --formato markdown), at today's date or any past date. On top of search and reading: verifica checks citations in a draft, diff shows how an article changed, novita reports changes to the acts you follow with segui add, and fascicolo builds date-pinned context packs for filings and AI agents.
 
 ## Install

@@ -136,6 +136,34 @@ func TestParseCitation(t *testing.T) {
 	}
 }
 
+func TestParseCitationKeepsURNAnnexAndVersion(t *testing.T) {
+	cases := []struct{ in, art, want string }{
+		// A known code's default annex must not replace an explicit one.
+		{"urn:nir:stato:regio.decreto:1942-03-16;262:9~art1", "", "urn:nir:stato:regio.decreto:1942-03-16;262:9~art1"},
+		// An annex on an act that is not a code must not disappear.
+		{"urn:nir:stato:legge:1990-08-07;241:4~art5", "", "urn:nir:stato:legge:1990-08-07;241:4~art5"},
+		{"urn:nir:stato:decreto.legislativo:2003-06-30;196~art13!vig=2010-01-01", "", "urn:nir:stato:decreto.legislativo:2003-06-30;196~art13!vig=2010-01-01"},
+		// A year-only known act is still canonicalized, and the version pin stays.
+		{"urn:nir:stato:decreto.legislativo:2003;196~art13@originale", "", "urn:nir:stato:decreto.legislativo:2003-06-30;196~art13@originale"},
+		{"urn:nir:stato:legge:1999-01-01;1~art2@originale", "", "urn:nir:stato:legge:1999-01-01;1~art2@originale"},
+		{"urn:nir:stato:legge:1999-01-01;1:3~art2!vig=2011-05-01", "", "urn:nir:stato:legge:1999-01-01;1:3~art2!vig=2011-05-01"},
+		// Article override keeps the version pin the URN named.
+		{"urn:nir:stato:decreto.legislativo:2003-06-30;196~art13!vig=2010-01-01", "14", "urn:nir:stato:decreto.legislativo:2003-06-30;196~art14!vig=2010-01-01"},
+		// A code URN with no annex still receives the annex that holds its articles.
+		{"urn:nir:stato:regio.decreto:1942-03-16;262~art2043", "", "urn:nir:stato:regio.decreto:1942-03-16;262:2~art2043"},
+		{"urn:nir:stato:regio.decreto:1942-03-16;262:9~art1!vig=2010-01-01", "", "urn:nir:stato:regio.decreto:1942-03-16;262:9~art1!vig=2010-01-01"},
+	}
+	for _, c := range cases {
+		got, err := ParseCitation(c.in, c.art)
+		if err != nil {
+			t.Fatalf("ParseCitation(%q): %v", c.in, err)
+		}
+		if s := got.URN().String(); s != c.want {
+			t.Errorf("ParseCitation(%q,%q) = %s, want %s", c.in, c.art, s, c.want)
+		}
+	}
+}
+
 func TestRenderArticle(t *testing.T) {
 	src := `<div class="bodyTesto"><h2 class="preamble-title-akn"></h2><h2 class="article-num-akn" id="art_3">Art. 3</h2>
 <div class="article-heading-akn">(Motivazione del provvedimento)</div><div class="art-commi-div-akn">

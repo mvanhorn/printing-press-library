@@ -72,7 +72,7 @@ URN offline; use 'urn' instead.`, "\n"),
   normattiva-pp-cli verifica "art. 2043 c.c." "art. 3 L. 241/1990" --al 2024-01-01 --agent
   normattiva-pp-cli verifica --file bozza.txt
   cat risposta.txt | normattiva-pp-cli verifica --file - --solo-problemi --json`, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "auto", "pp:typed-exit-codes": "0,1",
+		Annotations: map[string]string{"mcp:read-only": "true", "mcp:read-flags": "file", "pp:data-source": "auto", "pp:typed-exit-codes": "0,1",
 			"pp:happy-args": "citazione=art. 2043 c.c.;--al=2024-01-01"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
