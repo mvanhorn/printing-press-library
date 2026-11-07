@@ -2383,6 +2383,41 @@
       }
     },
     {
+      "name": "arcmira",
+      "category": "media-and-entertainment",
+      "api": "Arcmira",
+      "description": "Search indexed YouTube and podcast transcripts for timestamped quotes and clip boundaries.",
+      "search_terms": [
+        "arcmira",
+        "arcmira-pp-cli",
+        "Search indexed YouTube and podcast transcripts for timestamped quotes and clip boundaries.",
+        "Transcript quote sheet",
+        "quote-sheet",
+        "Merge saved transcript searches, deduplicate passages and keep the source link and search terms for each quote."
+      ],
+      "path": "library/media-and-entertainment/arcmira",
+      "printer": "zealous1",
+      "printer_name": "Arcmira",
+      "creator": {
+        "handle": "zealous1",
+        "name": "Arcmira"
+      },
+      "mcp": {
+        "binary": "arcmira-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 35,
+        "public_tool_count": 4,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "ARCMIRA_BEARER_AUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "ars-sicilia",
       "category": "other",
       "api": "ars-sicilia",
