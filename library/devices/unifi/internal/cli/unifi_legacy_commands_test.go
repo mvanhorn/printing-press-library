@@ -24,6 +24,8 @@ func TestLegacyCommandsRewriteToTheirNewNames(t *testing.T) {
 	}{
 		{[]string{"sites", "clients", "get-connected-overview-page", "SITE", "--limit", "5"}, []string{"network", "list-clients", "SITE", "--limit", "5"}},
 		{[]string{"--json", "--console", "C1", "sites", "firewall", "get-policy", "S", "P"}, []string{"--json", "--console", "C1", "network", "get-firewall-policy", "S", "P"}},
+		{[]string{"sites", "--json", "clients", "get-connected-overview-page", "S"}, []string{"network", "list-clients", "--json", "S"}},
+		{[]string{"sites", "--console", "clients", "hotspot", "delete-voucher", "S", "V"}, []string{"network", "delete-hotspot-voucher", "--console", "clients", "S", "V"}},
 		{[]string{"countries", "--all"}, []string{"network", "list-countries", "--all"}},
 		{[]string{"dpi", "get-applications"}, []string{"network", "list-dpi-applications"}},
 		{[]string{"info"}, []string{"network", "get-info"}},

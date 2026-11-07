@@ -4,6 +4,7 @@ package cli
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -161,21 +162,42 @@ func rewriteLegacyArgs(root *cobra.Command, args []string) ([]string, string) {
 		return args, ""
 	}
 	old := strings.Fields(strings.TrimPrefix(cmd.CommandPath(), root.Name()+" "))
-	for start := 0; start+len(old) <= len(args); start++ {
-		if strings.Join(args[start:start+len(old)], " ") != strings.Join(old, " ") {
+	// Walk argv the way the parser does: flags may sit between command words, and a flag's
+	// value can equal an old name, so only real positional tokens count as words.
+	var words []int
+	for i := 0; i < len(args) && len(words) < len(old); i++ {
+		arg := args[i]
+		if strings.HasPrefix(arg, "-") {
+			if !strings.Contains(arg, "=") && flagTakesValue(root, arg) {
+				i++
+			}
 			continue
 		}
-		// A global flag's value can equal an old name, and only the real position counts.
-		if start > 0 && strings.HasPrefix(args[start-1], "-") && !strings.Contains(args[start-1], "=") && flagTakesValue(root, args[start-1]) {
-			continue
+		if arg != old[len(words)] {
+			return args, ""
 		}
-		rewritten := append(append(append([]string{}, args[:start]...), strings.Fields(target)...), args[start+len(old):]...)
-		return rewritten, fmt.Sprintf("note: '%s' has moved to '%s'\n", strings.Join(old, " "), target)
+		words = append(words, i)
 	}
-	return args, ""
+	if len(words) != len(old) {
+		return args, ""
+	}
+	rewritten := make([]string, 0, len(args))
+	for i, arg := range args {
+		if i == words[0] {
+			rewritten = append(rewritten, strings.Fields(target)...)
+		}
+		if !slices.Contains(words, i) {
+			rewritten = append(rewritten, arg)
+		}
+	}
+	return rewritten, fmt.Sprintf("note: '%s' has moved to '%s'\n", strings.Join(old, " "), target)
 }
 
 func flagTakesValue(root *cobra.Command, token string) bool {
-	flag := root.PersistentFlags().Lookup(strings.TrimLeft(token, "-"))
+	name := strings.TrimLeft(token, "-")
+	flag := root.PersistentFlags().Lookup(name)
+	if flag == nil && len(name) == 1 {
+		flag = root.PersistentFlags().ShorthandLookup(name)
+	}
 	return flag != nil && flag.NoOptDefVal == ""
 }

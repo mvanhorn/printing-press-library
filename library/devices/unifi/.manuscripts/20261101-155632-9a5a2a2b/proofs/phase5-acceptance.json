@@ -12,7 +12,7 @@
     "type": "api_key",
     "api_key_available": true
   },
-  "source_fingerprint": "88826f6195c51bf9a104cf44710c30a436371fa52ca5831270200179cd1429ba",
+  "source_fingerprint": "1606a1460ae1f2d387660e3809862954f98da97d86137843f384e74d5d48ff55",
   "source_files": {
     "cmd/unifi-pp-cli/main.go": "9bdca0441f283350aa026208e96fcdfa24879576eafadd3d3499ae8799a7630d",
     "cmd/unifi-pp-mcp/http_auth_test.go": "26f915525de0d55216c964926b0434d8d315e5c0bfc55e76072f8a0a93f4587f",
@@ -281,8 +281,8 @@
     "internal/cli/topology_test.go": "b8a5c9647bbd39feee8df85858407b02dcb708dd64c74b7c6b2649458577db3a",
     "internal/cli/unifi_absorbed_test.go": "aec926910c72b5ac5f4f4f16192248998fd7370a204e6130cb04fd7ad3948432",
     "internal/cli/unifi_dogfood_fixes_test.go": "bb3d4116346857d58263800f66d9af112adff2f3bbe017a7022a3895fa32439b",
-    "internal/cli/unifi_legacy_commands.go": "3c1189d75d1c0cffcafd03bbdc6bb1755762aec585703261c2d20f76f08794ee",
-    "internal/cli/unifi_legacy_commands_test.go": "ea886b4f81ff645067f644816f7a6232afea9ecfb6ac7326be9cea0197f15c11",
+    "internal/cli/unifi_legacy_commands.go": "27b58a1f0141a293a099d167f0927cc4827ca1223375c6892e4a4467847d2d2f",
+    "internal/cli/unifi_legacy_commands_test.go": "1602b15166ed7b16fc11fa07fb02facee50dce302c94781a6916f5c67489bb20",
     "internal/cli/unifi_mirror.go": "dae2a1a54edc2bcc818d29d760d25906cdd36da97ec231f6533b2df424966317",
     "internal/cli/unifi_novel_a_test.go": "8ef5b27c706200262ab35b0cbabf397bf37b5e53f1ed3ecc0a88fd358f064459",
     "internal/cli/unifi_novel_b_test.go": "94c1ce1bb05dc48959dd99fa60cb62fd79f4e5fd9ed0a79e428499930fd7d784",
