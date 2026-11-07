@@ -760,12 +760,7 @@ func avvisoElencoDiSezione(orig, filt map[string]json.RawMessage, chiesti map[st
 			if len(puntati) == 0 {
 				continue
 			}
-			var sezione []string
-			for _, f := range strings.Split(fields, ",") {
-				if f = strings.TrimSpace(f); f != "" && !strings.Contains(f, ".") {
-					sezione = append(sezione, k+"."+f)
-				}
-			}
+			selettore := selettoreConElenco(fields, k, sezOrig, puntati)
 			quante, esiste := fmt.Sprintf("%d righe", len(righe[sotto])), "esiste"
 			if len(righe[sotto]) == 1 {
 				quante = "1 riga"
@@ -774,11 +769,48 @@ func avvisoElencoDiSezione(orig, filt map[string]json.RawMessage, chiesti map[st
 				esiste = "esistono"
 			}
 			avvisi = append(avvisi, fmt.Sprintf(
-				"hint: --select: %s.%s (%s) non esce, perché %s %s anche in ogni voce di %s e lì si ferma. Per avere anche l'elenco usa --select %s,%s.",
-				k, sotto, quante, strings.Join(collisioni, ", "), esiste, k, strings.Join(sezione, ","), strings.Join(puntati, ",")))
+				"hint: --select: %s.%s (%s) non esce, perché %s %s anche in ogni voce di %s e lì si ferma. Per avere anche l'elenco usa --select %s.",
+				k, sotto, quante, strings.Join(collisioni, ", "), esiste, k, selettore))
 		}
 	}
 	return strings.Join(avvisi, "\n")
+}
+
+// selettoreConElenco riscrive il selettore dell'utente aggiungendo i percorsi
+// che aprono l'elenco. Solo i nomi che vivono nelle voci di `k` diventano
+// `k.nome`: un campo della radice (`totale`) e un percorso già puntato restano
+// come sono, altrimenti seguire l'avviso farebbe perdere ciò che era stato chiesto.
+func selettoreConElenco(fields, k string, voci []map[string]json.RawMessage, puntati []string) string {
+	inVoce := func(nome string) bool {
+		chiesto := map[string]bool{strings.ToLower(nome): true}
+		for _, voce := range voci {
+			for c := range voce {
+				if matchSelectSegment(c, chiesto, nil) != "" {
+					return true
+				}
+			}
+		}
+		return false
+	}
+	visti := map[string]bool{}
+	var out []string
+	aggiungi := func(p string) {
+		if p != "" && !visti[p] {
+			visti[p] = true
+			out = append(out, p)
+		}
+	}
+	for _, f := range strings.Split(fields, ",") {
+		f = strings.TrimSpace(f)
+		if f != "" && !strings.Contains(f, ".") && inVoce(f) {
+			f = k + "." + f
+		}
+		aggiungi(f)
+	}
+	for _, p := range puntati {
+		aggiungi(p)
+	}
+	return strings.Join(out, ",")
 }
 
 // warnUnknownSelectFields avverte su stderr quando un nome passato a --select

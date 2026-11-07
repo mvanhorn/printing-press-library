@@ -128,3 +128,25 @@ func TestCSVCellaAnnidataInJSON(t *testing.T) {
 		t.Fatalf("csv = %q, want %q", got, want)
 	}
 }
+
+// Sul tipo vero di `novita`: un archivio fallito non deve sembrare vuoto, e la
+// forma annidata deve reggere anche con quello fallito.
+func TestCSVArchivioFallitoNonSembraVuoto(t *testing.T) {
+	data, err := json.Marshal(novitaReport{Archivi: []novitaArchivio{
+		{Archivio: "ddl", Conteggio: 1, Nuovi: []map[string]string{{"numero": "1"}}},
+		{Archivio: "odg", Errore: "portale non raggiungibile"},
+		{Archivio: "pareri", Nota: "non databile"},
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	righe, vuote := righeDaOggetto(data)
+	if len(righe) != 1 || righe[0]["archivio"] != "ddl" {
+		t.Fatalf("righe = %v", righe)
+	}
+	got := strings.Join(avvisiSezioniVuote(vuote), "|")
+	want := "hint: --csv: odg non è stato letto: portale non raggiungibile|hint: --csv: pareri non ha righe: non databile"
+	if got != want {
+		t.Fatalf("avvisi = %q, want %q", got, want)
+	}
+}

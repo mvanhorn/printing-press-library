@@ -125,3 +125,28 @@ func TestAvvisoElencoDiSezione(t *testing.T) {
 		t.Fatalf("avviso non dovuto: %q", msg)
 	}
 }
+
+// Seguire l'avviso non deve far perdere nulla di ciò che era stato chiesto: un
+// campo della radice e un percorso già puntato restano come sono.
+func TestSelettoreConElencoConservaIlResto(t *testing.T) {
+	data := json.RawMessage(`{"totale":3,"archivi":[{"archivio":"ddl","conteggio":3,"nuovi":[{"archivio":"ddl","numero":"1"}]}]}`)
+	for _, tc := range []struct{ fields, selettore string }{
+		{"archivio,totale", "archivi.archivio,totale,archivi.nuovi.archivio"},
+		{"archivio,archivi.conteggio", "archivi.archivio,archivi.conteggio,archivi.nuovi.archivio"},
+	} {
+		msg := avvisoArrayScartato(data, filterFields(data, tc.fields), tc.fields)
+		if !strings.Contains(msg, "usa --select "+tc.selettore+".") {
+			t.Fatalf("%s: avviso = %q", tc.fields, msg)
+		}
+		out := string(filterFields(data, tc.selettore))
+		if !strings.Contains(out, `"nuovi":[{"archivio":"ddl"}]`) || !strings.Contains(out, `"archivio":"ddl"`) {
+			t.Fatalf("%s: il selettore non apre l'elenco: %s", tc.fields, out)
+		}
+		if tc.fields == "archivio,totale" && !strings.Contains(out, `"totale":3`) {
+			t.Fatalf("totale perso: %s", out)
+		}
+		if tc.fields != "archivio,totale" && !strings.Contains(out, `"conteggio":3`) {
+			t.Fatalf("conteggio perso: %s", out)
+		}
+	}
+}

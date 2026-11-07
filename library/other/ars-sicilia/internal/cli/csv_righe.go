@@ -104,8 +104,9 @@ func righeDaOggetto(data json.RawMessage) (righeTabella, vuote []map[string]any)
 }
 
 // avvisiSezioniVuote dice quali sezioni non hanno portato righe nella tabella,
-// con la loro `nota` se ce l'hanno: `novita` ci scrive perché un archivio non è
-// databile, e nel CSV non c'è una riga su cui metterla.
+// con il loro `errore` o la loro `nota` se ce l'hanno: `novita` ci scrive perché
+// un archivio non è databile o non è stato letto, e nel CSV non c'è una riga su
+// cui metterlo.
 func avvisiSezioniVuote(vuote []map[string]any) []string {
 	var out []string
 	for _, c := range vuote {
@@ -117,7 +118,10 @@ func avvisiSezioniVuote(vuote []map[string]any) []string {
 			nome = "una sezione"
 		}
 		testo := fmt.Sprintf("hint: --csv: %s non ha righe", nome)
-		if nota, _ := c["nota"].(string); nota != "" {
+		if errore, _ := c["errore"].(string); errore != "" {
+			// Una richiesta fallita non è un archivio senza novità.
+			testo = fmt.Sprintf("hint: --csv: %s non è stato letto: %s", nome, errore)
+		} else if nota, _ := c["nota"].(string); nota != "" {
 			testo += ": " + nota
 		}
 		out = append(out, testo)
