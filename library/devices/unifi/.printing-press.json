@@ -20,8 +20,8 @@
     }
   ],
   "owner": "phoenix-server",
-  "printer": "amansk",
-  "printer_name": "Amandeep Khurana",
+  "printer": "phoenix-server",
+  "printer_name": "Ricardo Cabral",
   "spec_path": "spec.json",
   "spec_format": "internal",
   "spec_source": "official",
