@@ -355,7 +355,7 @@ func (c *Client) resolveTarget(ctx context.Context, path string) (requestTarget,
 			if err := consoleAllowed(""); err != nil {
 				return requestTarget{}, err
 			}
-			return requestTarget{URL: c.BaseURL + path, Kind: TransportPassthrough}, nil
+			return requestTarget{URL: passthroughURL(c.BaseURL, path), Kind: TransportPassthrough}, nil
 		}
 		if c.DryRun {
 			// A preview must not spend a request on /v1/hosts.
@@ -563,6 +563,17 @@ func (c *Client) httpClientFor(target requestTarget) (*http.Client, error) {
 	}
 	c.transport.localClient = hc
 	return hc, nil
+}
+
+// passthroughURL keeps a saved gateway base_url working. Earlier releases documented
+// https://<gateway>/proxy/network, but console paths now start with their product, so
+// appending them directly would request /proxy/network/network/... and miss the gateway.
+func passthroughURL(base, path string) string {
+	trimmed := strings.TrimRight(base, "/")
+	if strings.HasSuffix(trimmed, "/proxy/network") && (strings.HasPrefix(path, "/network/") || strings.HasPrefix(path, "/protect/")) {
+		return strings.TrimSuffix(trimmed, "/network") + path
+	}
+	return base + path
 }
 
 // gatewaySkipsTLSVerify: UniFi OS gateways serve a self-signed certificate on

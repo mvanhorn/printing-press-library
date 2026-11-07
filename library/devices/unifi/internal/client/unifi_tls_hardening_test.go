@@ -56,3 +56,19 @@ func TestConfiguredCAKeepsVerificationOnPrivateGateway(t *testing.T) {
 		t.Fatal("the explicit operator switch still wins")
 	}
 }
+
+// Earlier releases told gateway users to save base_url with /proxy/network. Requests now
+// carry their product in the path, so that prefix doubled it and missed the gateway.
+func TestSavedGatewayBaseURLDoesNotDoubleTheProduct(t *testing.T) {
+	cases := []struct{ base, path, want string }{
+		{"https://192.0.2.1/proxy/network", "/network/integration/v1/sites", "https://192.0.2.1/proxy/network/integration/v1/sites"},
+		{"https://192.0.2.1/proxy/network/", "/protect/integration/v1/cameras", "https://192.0.2.1/proxy/protect/integration/v1/cameras"},
+		{"http://127.0.0.1:9000", "/network/integration/v1/sites", "http://127.0.0.1:9000/network/integration/v1/sites"},
+		{"https://192.0.2.1/proxy/network", "/v1/hosts", "https://192.0.2.1/proxy/network/v1/hosts"},
+	}
+	for _, tc := range cases {
+		if got := passthroughURL(tc.base, tc.path); got != tc.want {
+			t.Errorf("passthroughURL(%q, %q) = %q, want %q", tc.base, tc.path, got, tc.want)
+		}
+	}
+}

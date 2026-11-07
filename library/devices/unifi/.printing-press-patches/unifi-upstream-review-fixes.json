@@ -11,13 +11,15 @@
     "internal/cli/resource_paths.go",
     "internal/cli/change_apply.go",
     "internal/config/config.go",
-    "internal/config/unifi_config.go"
+    "internal/config/unifi_config.go",
+    "internal/client/unifi_transport.go"
   ],
   "call_sites": [
     "Protect stays out on purpose",
     "restoreRequest",
     "keepUniFiTarget",
-    "UNIFI_GATEWAY_HOST"
+    "UNIFI_GATEWAY_HOST",
+    "passthroughURL"
   ],
-  "validated_outcome": "TestImportHasNoProtectWriteTarget, TestPlanUndoUsesTheMethodTheEndpointAccepts, TestRollbackIsConfirmedByReadBack, TestSavingACredentialKeepsTheRoute, TestLegacyGatewayHostStillRoutesLocally, TestSavingDoesNotTrustALooseConfigsGateway, TestLogoutRemovesTheStoredGatewayKey."
+  "validated_outcome": "TestImportHasNoProtectWriteTarget, TestPlanUndoUsesTheMethodTheEndpointAccepts, TestRollbackIsConfirmedByReadBack, TestSavingACredentialKeepsTheRoute, TestLegacyGatewayHostStillRoutesLocally, TestSavingDoesNotTrustALooseConfigsGateway, TestLogoutRemovesTheStoredGatewayKey, TestSavedGatewayBaseURLDoesNotDoubleTheProduct."
 }

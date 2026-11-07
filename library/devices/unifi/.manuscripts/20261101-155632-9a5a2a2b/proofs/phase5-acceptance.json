@@ -12,7 +12,7 @@
     "type": "api_key",
     "api_key_available": true
   },
-  "source_fingerprint": "dfb78d8cc042bf1d4d3b0e18ce4ca7fca0acfeac9bb71768978d1168fd325bdc",
+  "source_fingerprint": "31f52f116f65e1ecd09b6c62552089db075bf5de55555eb671b404acb337a0eb",
   "source_files": {
     "cmd/unifi-pp-cli/main.go": "9bdca0441f283350aa026208e96fcdfa24879576eafadd3d3499ae8799a7630d",
     "cmd/unifi-pp-mcp/http_auth_test.go": "26f915525de0d55216c964926b0434d8d315e5c0bfc55e76072f8a0a93f4587f",
@@ -300,8 +300,8 @@
     "internal/client/platform_rate_limit_test.go": "2fc9154f95c4b20963977b7f6c2daae7d7031ddee6dd0fb3eda78a335d38bfe5",
     "internal/client/unifi_audit.go": "749d1bba4346243784bf65d0d82d1ae468d9f09b425b90db1d840bcb9fe9a467",
     "internal/client/unifi_review_test.go": "ce03159aa2fc248614a69030894d66c4d4dfc4b9289fb065b17382ea88481b14",
-    "internal/client/unifi_tls_hardening_test.go": "9d8c05ef5f3303a1014792bcc4977b7e8ab85923d385d6a3f03b522cc7a24c2a",
-    "internal/client/unifi_transport.go": "2d20f892229ec48ead752d729ac0faa4cc35a7e5e361763c0c2699dc6c9bef19",
+    "internal/client/unifi_tls_hardening_test.go": "4017c07aa1a4f5c980254aee9b8dcbbac00d4438f9c0639b5e9cc0a68a479450",
+    "internal/client/unifi_transport.go": "5416329136ab5784e9c2c010b51267cf1017bcdc082bd7365d3dee7a8c3eb57c",
     "internal/client/unifi_transport_test.go": "44bbe22c052ac42e8c86f168e767b8ae15f6485444e2aa16a0845f525395501d",
     "internal/cliutil/cliutil_test.go": "423febbfde52cc205fbda39cceb9c0ec2711d3b9a47caa49e908daf475b2f4ec",
     "internal/cliutil/credentials.go": "fd7784c390bf6f92edeaf807e464e57c59d74230a7b92def18e024ab4f93111a",
