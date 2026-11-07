@@ -43,7 +43,8 @@ var resourceDetailPaths = map[string]string{ // #nosec G101 -- endpoint paths, n
 
 var resourceWritePaths = map[string]string{ // #nosec G101 -- endpoint paths, not credentials.
 	"carrier": "/v1/carrier/subscribers",
-	"protect": "/protect/integration/v1/arm-profiles/disable",
+	// Protect stays out on purpose. Its only POST the generator could pick here is
+	// arm-profiles/disable, so an "import" would have stood down the alarm system.
 }
 
 var resourceReadConfigs = map[string]resourceReadConfig{

@@ -591,6 +591,10 @@ func (r *changeRunner) autoRevert(ctx context.Context, entry *store.JournalEntry
 			// Status only: this text is stored, and an API error can quote request values.
 			return failRevert(fmt.Sprintf("%s; auto-revert delete failed (HTTP %d)", why, statusOf(0, err)))
 		}
+		// An accepted DELETE is not proof, and "reverted" is what someone will rely on.
+		if _, status, err := r.c.Do(ctx, http.MethodGet, entry.ReadPath, nil, nil); statusOf(status, err) != http.StatusNotFound {
+			return failRevert(why + "; auto-revert delete was accepted but read-back does not show it gone")
+		}
 	} else {
 		if entry.SecretsScrubbed {
 			return failRevert(why + "; auto-revert skipped because the before-image held secrets that are not journaled")
@@ -604,11 +608,12 @@ func (r *changeRunner) autoRevert(ctx context.Context, entry *store.JournalEntry
 		if r.caller != nil && r.caller.Err() != nil {
 			return failRevert(why + "; auto-revert not sent because the command was cancelled or timed out")
 		}
-		if _, _, err := r.c.Do(ctx, http.MethodPut, entry.ReadPath, nil, restorableBody(before)); err != nil {
+		method, body := restoreRequest(entry.Method, entry.ReadPath, entry.RequestBody, before)
+		if _, _, err := r.c.Do(ctx, method, entry.ReadPath, nil, body); err != nil {
 			return failRevert(fmt.Sprintf("%s; auto-revert write failed (HTTP %d)", why, statusOf(0, err)))
 		}
 		data, _, err := r.c.Do(ctx, http.MethodGet, entry.ReadPath, nil, nil)
-		if err != nil || len(subsetMismatches("", restorableBody(before), decodeAny(data))) > 0 {
+		if err != nil || len(subsetMismatches("", body, decodeAny(data))) > 0 {
 			return failRevert(why + "; auto-revert was sent but read-back does not confirm it")
 		}
 	}
@@ -845,8 +850,30 @@ func planUndo(e store.JournalEntry) (method, path string, body any) {
 	case changeKindDelete:
 		return http.MethodPost, strings.TrimSuffix(e.Path, "/"+lastSegment(e.Path)), restorableBody(e.BeforeImage)
 	default:
-		return http.MethodPut, e.ReadPath, restorableBody(e.BeforeImage)
+		method, body := restoreRequest(e.Method, e.ReadPath, e.RequestBody, e.BeforeImage)
+		return method, e.ReadPath, body
 	}
+}
+
+// restoreRequest picks how to put an object back. Protect settings only document PATCH,
+// and a PUT there leaves the change in place. A PATCH sends back just the fields the change
+// named, because a before-image also holds read-only fields the endpoint can refuse.
+func restoreRequest(method, path string, request, before []byte) (string, any) {
+	full := restorableBody(before)
+	if method != http.MethodPatch && !strings.HasPrefix(path, "/protect/") {
+		return http.MethodPut, full
+	}
+	values, _ := full.(map[string]any)
+	fields, _ := decodeAny(request).(map[string]any)
+	if values == nil || len(fields) == 0 {
+		return http.MethodPatch, full
+	}
+	partial := make(map[string]any, len(fields))
+	for name := range fields {
+		// A field the object did not have before is cleared rather than left changed.
+		partial[name] = values[name]
+	}
+	return http.MethodPatch, partial
 }
 
 func (r *changeRunner) undoChange(ctx context.Context, e store.JournalEntry) (changeResult, error) {
@@ -932,14 +959,23 @@ func (r *changeRunner) undoChange(ctx context.Context, e store.JournalEntry) (ch
 		result.Detail = "the created object is gone"
 	case changeKindDelete:
 		newID := asString(asMap(decodeAny(response))["id"])
-		result.Detail = "recreated"
-		if newID != "" {
-			result.EntityID = newID
-			result.Detail = "recreated with new id " + newID + ", which can break references to the old id " + e.EntityID
-			undoEntry.ReadPath = path + "/" + newID
-			undoEntry.EntityID = newID
-			after = response
+		if newID == "" {
+			return unresolved("recreate was accepted but returned no id, so read-back cannot confirm it")
 		}
+		recreated := path + "/" + newID
+		data, readStatus, err := r.c.Do(ctx, http.MethodGet, recreated, nil, nil)
+		if err != nil {
+			return unresolved(fmt.Sprintf("recreate was accepted but read-back failed (HTTP %d)", statusOf(readStatus, err)))
+		}
+		if mismatched := subsetMismatches("", body, decodeAny(data)); len(mismatched) > 0 {
+			result.Mismatch = mismatched
+			return unresolved("recreate was accepted but read-back differs: " + strings.Join(mismatched, ", "))
+		}
+		result.EntityID = newID
+		result.Detail = "recreated with new id " + newID + ", which can break references to the old id " + e.EntityID
+		undoEntry.ReadPath = recreated
+		undoEntry.EntityID = newID
+		after = data
 		result.UndoNote = "recreated objects get new ids"
 	default:
 		data, readStatus, err := r.c.Do(ctx, http.MethodGet, e.ReadPath, nil, nil)

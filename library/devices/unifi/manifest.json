@@ -19,6 +19,7 @@
         "UNIFI_CONSOLE_ALLOWLIST": "${user_config.unifi_console_allowlist}",
         "UNIFI_CONSOLE_ID": "${user_config.unifi_console_id}",
         "UNIFI_GATEWAY": "${user_config.unifi_gateway}",
+        "UNIFI_GATEWAY_HOST": "${user_config.unifi_gateway_host}",
         "UNIFI_INSECURE_SKIP_VERIFY": "${user_config.unifi_insecure_skip_verify}",
         "UNIFI_LOCAL_API_KEY": "${user_config.unifi_local_api_key}",
         "UNIFI_READ_ONLY": "${user_config.unifi_read_only}",
@@ -52,6 +53,13 @@
       "type": "string",
       "title": "UNIFI_GATEWAY",
       "description": "Sets UNIFI_GATEWAY for the UniFi MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "unifi_gateway_host": {
+      "type": "string",
+      "title": "UNIFI_GATEWAY_HOST",
+      "description": "Sets UNIFI_GATEWAY_HOST for the UniFi MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
       "sensitive": true,
       "required": true
     },

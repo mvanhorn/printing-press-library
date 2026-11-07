@@ -228,6 +228,10 @@ type statefulObject struct {
 	dead        bool
 	onWrite     func()
 	nextID      string
+	// ignoreDelete accepts a DELETE without removing anything.
+	ignoreDelete bool
+	// noID leaves the id out of a POST response.
+	noID bool
 }
 
 func (s *statefulObject) handle(w http.ResponseWriter, r *http.Request) bool {
@@ -262,7 +266,9 @@ func (s *statefulObject) handle(w http.ResponseWriter, r *http.Request) bool {
 	apply := func() {
 		switch r.Method {
 		case http.MethodDelete:
-			s.obj = nil
+			if !s.ignoreDelete {
+				s.obj = nil
+			}
 		case http.MethodPost:
 			body["id"] = s.nextID
 			s.obj = body
@@ -289,6 +295,10 @@ func (s *statefulObject) handle(w http.ResponseWriter, r *http.Request) bool {
 	apply()
 	if s.dieAfter {
 		s.dead = true
+	}
+	if s.noID && r.Method == http.MethodPost {
+		_ = json.NewEncoder(w).Encode(map[string]any{"name": s.obj["name"]})
+		return true
 	}
 	_ = json.NewEncoder(w).Encode(s.obj)
 	return true
@@ -405,7 +415,7 @@ func TestChangeApplyVerifiedThenUndo(t *testing.T) {
 	}
 
 	run = runUniFiCLI(t, "change", "undo", result.JournalID, "--console", "C1", "--db", db, "--json")
-	if preview := parseChange(t, run); preview.Sent || preview.Method != "PUT" {
+	if preview := parseChange(t, run); preview.Sent || preview.Method != "PATCH" {
 		t.Fatalf("undo preview: %+v", preview)
 	}
 	if n := obj.writeCount(); n != 1 {

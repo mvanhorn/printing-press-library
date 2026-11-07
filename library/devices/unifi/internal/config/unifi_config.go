@@ -29,6 +29,34 @@ type unifiTargetFile struct {
 	Transport   string `toml:"transport"`
 }
 
+// persistedUniFiTarget omits empty values so a save does not invent route settings.
+type persistedUniFiTarget struct {
+	ConsoleID   string `toml:"console_id,omitempty"`
+	Gateway     string `toml:"gateway,omitempty"`
+	LocalAPIKey string `toml:"local_api_key,omitempty"`
+	Transport   string `toml:"transport,omitempty"`
+}
+
+// keepUniFiTarget carries the route settings across a config save. The emitted Config
+// does not know them, so saving a credential would otherwise erase them and the next
+// command could reach a different console. They go first because TOML would read
+// top-level keys placed after a table as part of that table.
+func keepUniFiTarget(path string, data []byte) []byte {
+	opened, err := cliutil.ReadOpenedConfig(path)
+	if err != nil {
+		return data
+	}
+	var parsed persistedUniFiTarget
+	if toml.Unmarshal(opened.Data, &parsed) != nil || parsed == (persistedUniFiTarget{}) {
+		return data
+	}
+	head, err := toml.Marshal(parsed)
+	if err != nil {
+		return data
+	}
+	return append(head, data...)
+}
+
 // UniFiTarget resolves env over config file. Flags are layered on top by the
 // caller because config must stay importable without cobra.
 func (c *Config) UniFiTarget() UniFiTarget {
@@ -61,6 +89,15 @@ func (c *Config) UniFiTarget() UniFiTarget {
 	}
 	if v := strings.TrimSpace(cliutil.EnvOverride("UNIFI_TRANSPORT")); v != "" {
 		target.Transport = v
+	}
+	// Earlier releases documented UNIFI_GATEWAY_HOST with the gateway's key in
+	// UNIFI_API_KEY. Keep those installs local, or that key would go to the cloud API.
+	// The key only moves when the legacy host is what chose the gateway.
+	if v := strings.TrimSpace(cliutil.EnvOverride("UNIFI_GATEWAY_HOST")); v != "" && target.Gateway == "" {
+		target.Gateway = v
+		if target.LocalAPIKey == "" {
+			target.LocalAPIKey = strings.TrimSpace(cliutil.EnvOverride("UNIFI_API_KEY"))
+		}
 	}
 	return target
 }
