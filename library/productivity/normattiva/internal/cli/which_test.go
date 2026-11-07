@@ -368,3 +368,15 @@ func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {
 		}
 	}
 }
+
+func TestWhichIndexKeepsNovelHeroesFirst(t *testing.T) {
+	want := []string{"verifica", "diff", "novita", "fascicolo"}
+	if len(whichIndex) < len(want) {
+		t.Fatalf("whichIndex has %d entries, want the novel heroes first", len(whichIndex))
+	}
+	for i, name := range want {
+		if whichIndex[i].Command != name {
+			t.Errorf("whichIndex[%d] = %q, want %q", i, whichIndex[i].Command, name)
+		}
+	}
+}
