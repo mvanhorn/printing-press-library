@@ -104,7 +104,7 @@ func RegisterTools(s *server.MCPServer) {
 		),
 		makeAPIHandler("GET", "/v1/async/status", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
-	// PATCH(bing-aimode-endpoint): hand-written from the gemini_gemini tool.
+	// PATCH(bing-aimode-endpoint-is-hand-wired-until-the-spec-lists-it): hand-written from the gemini_gemini tool.
 	s.AddTool(
 		mcplib.NewTool("bing-aimode_bing_aimode",
 			mcplib.WithDescription("Extract structured data from Bing AI Mode: answer text, cited sources and citation pills. Required: prompt. Optional: country, include, state. Returns the answer text, sources and citationPills, plus markdown and html when asked."),

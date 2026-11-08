@@ -1,5 +1,5 @@
 // Copyright 2026 Ricardo Batista and contributors. Licensed under Apache-2.0. See LICENSE.
-// PATCH(bing-aimode-endpoint): tests for the hand-written bing-aimode command.
+// PATCH(bing-aimode-endpoint-is-hand-wired-until-the-spec-lists-it): tests for the hand-written bing-aimode command.
 
 package cli
 

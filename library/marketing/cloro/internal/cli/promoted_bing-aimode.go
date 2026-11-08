@@ -1,6 +1,7 @@
 // Copyright 2026 Ricardo Batista and contributors. Licensed under Apache-2.0. See LICENSE.
-// PATCH(bing-aimode-endpoint): hand-written from the gemini command. See
-// .printing-press-patches/bing-aimode-endpoint.json.
+// PATCH(bing-aimode-endpoint-is-hand-wired-until-the-spec-lists-it): hand-written
+// from the gemini command. See
+// .printing-press-patches/bing-aimode-endpoint-is-hand-wired-until-the-spec-lists-it.json.
 
 package cli
 
