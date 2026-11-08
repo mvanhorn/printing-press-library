@@ -711,7 +711,106 @@ func avvisoArrayScartato(originale, filtrato json.RawMessage, fields string) str
 		}
 		avvisi = append(avvisi, msg)
 	}
+	if msg := avvisoElencoDiSezione(orig, filt, chiesti, fields); msg != "" {
+		avvisi = append(avvisi, msg)
+	}
 	return strings.Join(avvisi, "\n")
+}
+
+// avvisoElencoDiSezione è lo stesso avviso un livello più sotto: `novita
+// --select archivio` trova `archivio` su ogni archivio e lì si ferma, e le righe
+// di `nuovi`, che pure hanno `archivio`, non escono.
+func avvisoElencoDiSezione(orig, filt map[string]json.RawMessage, chiesti map[string]bool, fields string) string {
+	var avvisi []string
+	chiavi := make([]string, 0, len(filt))
+	for k := range filt {
+		chiavi = append(chiavi, k)
+	}
+	sort.Strings(chiavi)
+	for _, k := range chiavi {
+		var sezOrig, sezFilt []map[string]json.RawMessage
+		if json.Unmarshal(orig[k], &sezOrig) != nil || json.Unmarshal(filt[k], &sezFilt) != nil || len(sezOrig) != len(sezFilt) {
+			continue
+		}
+		righe := map[string][]json.RawMessage{}
+		for i, sez := range sezOrig {
+			for sotto, v := range sez {
+				var arr []json.RawMessage
+				if _, resta := sezFilt[i][sotto]; resta || json.Unmarshal(v, &arr) != nil {
+					continue
+				}
+				righe[sotto] = append(righe[sotto], arr...)
+			}
+		}
+		nomi := make([]string, 0, len(righe))
+		for sotto := range righe {
+			nomi = append(nomi, sotto)
+		}
+		sort.Strings(nomi)
+		for _, sotto := range nomi {
+			campi := unionObjectKeys(righe[sotto])
+			sort.Strings(campi)
+			var collisioni, puntati []string
+			for _, c := range campi {
+				if matchSelectSegment(c, chiesti, nil) != "" {
+					collisioni = append(collisioni, c)
+					puntati = append(puntati, k+"."+sotto+"."+c)
+				}
+			}
+			if len(puntati) == 0 {
+				continue
+			}
+			selettore := selettoreConElenco(fields, k, sezOrig, puntati)
+			quante, esiste := fmt.Sprintf("%d righe", len(righe[sotto])), "esiste"
+			if len(righe[sotto]) == 1 {
+				quante = "1 riga"
+			}
+			if len(collisioni) > 1 {
+				esiste = "esistono"
+			}
+			avvisi = append(avvisi, fmt.Sprintf(
+				"hint: --select: %s.%s (%s) non esce, perché %s %s anche in ogni voce di %s e lì si ferma. Per avere anche l'elenco usa --select %s.",
+				k, sotto, quante, strings.Join(collisioni, ", "), esiste, k, selettore))
+		}
+	}
+	return strings.Join(avvisi, "\n")
+}
+
+// selettoreConElenco riscrive il selettore dell'utente aggiungendo i percorsi
+// che aprono l'elenco. Solo i nomi che vivono nelle voci di `k` diventano
+// `k.nome`: un campo della radice (`totale`) e un percorso già puntato restano
+// come sono, altrimenti seguire l'avviso farebbe perdere ciò che era stato chiesto.
+func selettoreConElenco(fields, k string, voci []map[string]json.RawMessage, puntati []string) string {
+	inVoce := func(nome string) bool {
+		chiesto := map[string]bool{strings.ToLower(nome): true}
+		for _, voce := range voci {
+			for c := range voce {
+				if matchSelectSegment(c, chiesto, nil) != "" {
+					return true
+				}
+			}
+		}
+		return false
+	}
+	visti := map[string]bool{}
+	var out []string
+	aggiungi := func(p string) {
+		if p != "" && !visti[p] {
+			visti[p] = true
+			out = append(out, p)
+		}
+	}
+	for _, f := range strings.Split(fields, ",") {
+		f = strings.TrimSpace(f)
+		if f != "" && !strings.Contains(f, ".") && inVoce(f) {
+			f = k + "." + f
+		}
+		aggiungi(f)
+	}
+	for _, p := range puntati {
+		aggiungi(p)
+	}
+	return strings.Join(out, ",")
 }
 
 // warnUnknownSelectFields avverte su stderr quando un nome passato a --select
@@ -737,44 +836,65 @@ func warnUnknownSelectFields(data json.RawMessage, fields string) {
 	}
 	dove := ""
 	if paths := doveVivono(data, unknown); len(paths) > 0 {
-		dove = fmt.Sprintf(" %s sta un livello sotto: usa %s.", unknown[0], strings.Join(paths, " o "))
+		dove = fmt.Sprintf(" %s sta più sotto: usa %s.", unknown[0], strings.Join(paths, " o "))
 	}
 	fmt.Fprintf(os.Stderr, "hint: --select: %s %s.%s %s: %s.\n",
 		strings.Join(unknown, ", "), esiste, dove, ignorato, strings.Join(avail, ", "))
 }
 
-// doveVivono cerca i nomi ignorati dentro i campi-oggetto della radice e torna
-// i path puntati con cui si raggiungono davvero.
+// doveVivono cerca il primo nome ignorato dentro i campi-oggetto della radice,
+// a ogni profondità e attraverso gli array, e torna i path puntati con cui si
+// raggiunge davvero.
 //
 // `ddl get` non espone data, numero e titolo in radice: stanno dentro `fields`,
-// col nome che usa il portale (`fields.Data`). Chi ha imparato `--select data`
-// su `ddl cerca` lo riusa su `get`, non trova nulla, e l'elenco dei campi
-// disponibili gli dice che esiste `fields` senza dirgli che è lì dentro che
-// deve scendere. Il nome giusto lo si conosce già: basta dirlo.
-//
-// Si guarda un solo livello e solo il primo nome ignorato: serve a rimettere in
-// carreggiata, non a mappare il payload.
+// col nome che usa il portale (`fields.Data`), e `variante` sta in
+// `stralcio.di[]`. Chi ha imparato `--select data` su `ddl cerca` lo riusa su
+// `get`, non trova nulla, e l'elenco dei campi disponibili gli dice che esiste
+// `fields` senza dirgli che è lì dentro che deve scendere. Il nome giusto lo si
+// conosce già: basta dirlo.
 func doveVivono(data json.RawMessage, unknown []string) []string {
 	if len(unknown) == 0 {
 		return nil
 	}
-	var obj map[string]json.RawMessage
-	if json.Unmarshal(data, &obj) != nil {
+	cercato := strings.ToLower(unknown[0])
+	trovati := map[string]bool{}
+	var scendi func(prefisso string, v json.RawMessage)
+	scendi = func(prefisso string, v json.RawMessage) {
+		var arr []json.RawMessage
+		if json.Unmarshal(v, &arr) == nil {
+			for _, el := range arr {
+				scendi(prefisso, el)
+			}
+			return
+		}
+		var obj map[string]json.RawMessage
+		if json.Unmarshal(v, &obj) != nil {
+			return
+		}
+		for k, inner := range obj {
+			path := k
+			if prefisso != "" {
+				path = prefisso + "." + k
+				if strings.ToLower(k) == cercato || camelToKebab(k) == cercato {
+					trovati[path] = true
+				}
+			}
+			scendi(path, inner)
+		}
+	}
+	var radice map[string]json.RawMessage
+	if json.Unmarshal(data, &radice) != nil {
 		return nil
 	}
-	cercato := strings.ToLower(unknown[0])
-	var out []string
-	for _, k := range objectKeys(data) {
-		var inner map[string]json.RawMessage
-		if json.Unmarshal(obj[k], &inner) != nil {
-			continue
-		}
-		for _, ik := range objectKeys(obj[k]) {
-			if strings.ToLower(ik) == cercato || camelToKebab(ik) == cercato {
-				out = append(out, k+"."+ik)
-			}
-		}
+	scendi("", data)
+	if len(trovati) == 0 {
+		return nil
 	}
+	out := make([]string, 0, len(trovati))
+	for p := range trovati {
+		out = append(out, p)
+	}
+	sort.Strings(out)
 	return out
 }
 
@@ -831,7 +951,8 @@ func unknownSelectNames(data json.RawMessage, fields string) []string {
 // unite di tutti gli elementi se è una lista, le proprie se è un oggetto. Su
 // un oggetto aggiunge anche le chiavi delle righe di ogni array figlio,
 // perché su un envelope (`{"items":[...]}`) filterFieldsRec applica il
-// selettore là dentro. L'insieme è deliberatamente ADDITIVO e mai
+// selettore là dentro, a ogni profondità (`sezioni[].risultati[]` di
+// `commissione dossier`). L'insieme è deliberatamente ADDITIVO e mai
 // sostitutivo: serve a decidere se tacere, quindi un nome di troppo fa solo
 // perdere un avviso, mentre un nome mancante produrrebbe un avviso falso su
 // un campo che invece esce.
@@ -858,13 +979,15 @@ func topLevelKeys(data json.RawMessage) []string {
 	}
 	for _, v := range obj {
 		var inner []json.RawMessage
-		if json.Unmarshal(v, &inner) != nil || len(inner) == 0 {
+		if json.Unmarshal(v, &inner) != nil {
 			continue
 		}
-		for _, k := range unionObjectKeys(inner) {
-			if !seen[k] {
-				seen[k] = true
-				keys = append(keys, k)
+		for _, el := range inner {
+			for _, k := range topLevelKeys(el) {
+				if !seen[k] {
+					seen[k] = true
+					keys = append(keys, k)
+				}
 			}
 		}
 	}
@@ -1137,8 +1260,11 @@ func printCSV(w io.Writer, data json.RawMessage) error {
 		// Payload che avvolge la lista in un oggetto: i comandi aggregati
 		// finivano tutti qui e uscivano in JSON senza dire che il formato
 		// chiesto non era arrivato.
-		if righe := righeDaOggetto(data); len(righe) > 0 {
+		if righe, vuote := righeDaOggetto(data); len(righe) > 0 {
 			items = righe
+			for _, avviso := range avvisiSezioniVuote(vuote) {
+				fmt.Fprintln(os.Stderr, avviso)
+			}
 		} else {
 			fmt.Fprintln(w, string(data))
 			fmt.Fprintln(os.Stderr, "hint: --csv: questa risposta non ha una lista di righe da mettere in tabella, l'output è JSON.")
@@ -1168,9 +1294,17 @@ func printCSV(w io.Writer, data json.RawMessage) error {
 				vals = append(vals, "")
 			} else {
 				var s string
-				if f, ok := v.(float64); ok {
-					s = strconv.FormatFloat(f, 'f', -1, 64)
-				} else {
+				switch t := v.(type) {
+				case float64:
+					s = strconv.FormatFloat(t, 'f', -1, 64)
+				case map[string]any, []any:
+					// `%v` scriverebbe `map[...]`, che nessuno sa rileggere.
+					grezzo, err := json.Marshal(t)
+					if err != nil {
+						return err
+					}
+					s = string(grezzo)
+				default:
 					s = fmt.Sprintf("%v", v)
 				}
 				if strings.ContainsAny(s, ",\"\n") {

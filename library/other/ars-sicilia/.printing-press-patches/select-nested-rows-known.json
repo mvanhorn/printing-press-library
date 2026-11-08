@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "select-nested-rows-known",
+  "applied_at": "2026-11-07",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "--select recognises field names in rows nested through several arrays, so `commissione dossier --select titolo` and `novita --select titolo` filter the rows instead of reporting the field as missing.",
+  "reason": "topLevelKeys looked one array level below the root while filterFieldsRec descends through every array, so the warning contradicted the output on `sezioni[].risultati[]`.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/select_annidato_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Live: `commissione dossier 5 --select titolo` and `novita --select titolo` keep only `titolo` in rows with no warning; `pippo` still warns and prints the full payload. Old and new binaries match on 18 --select cases across `ddl get`, `ddl iter`, `ddl stralci`, `legge cronologia`, `deputato profilo`, `resoconti get`, `interrogazioni get`, `interrogazioni cerca` and `gruppi get`, apart from the cache-busting timestamp in `ddl get` URLs."
+}

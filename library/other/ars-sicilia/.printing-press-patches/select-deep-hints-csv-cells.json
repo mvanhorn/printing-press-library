@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "select-deep-hints-csv-cells",
+  "applied_at": "2026-11-07",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "--select hints give the path for names in arrays inside objects and warn when a list drops at section level; objects and lists in a CSV cell are written as JSON.",
+  "reason": "`ddl get --select variante` said the field does not exist, `novita --select archivio` lost the rows with no warning, and `which --csv` wrote Go `map[...]` literals.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/select_annidato_test.go",
+    "internal/cli/csv_righe_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Live: both proposed selectors return the data. stdout of 14 --select and --csv cases on other commands matches the previous build; the only stderr change is the wording of the `fields.Iter` hint."
+}
