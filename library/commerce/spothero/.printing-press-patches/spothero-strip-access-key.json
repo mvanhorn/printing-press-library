@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261107-122157-08957e70",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
+  "id": "spothero-strip-access-key",
+  "summary": "The generated client removes access_key from every API response.",
+  "reason": "SpotHero returns a per-reservation refund secret in reservation bodies, and generated reads passed it to stdout, the cache and MCP callers.",
+  "files": [
+    "internal/client/spothero_redact.go",
+    "internal/client/client.go"
+  ],
+  "call_sites": [
+    "stripAccessKey(sanitizeJSONResponse(respBody))"
+  ],
+  "validated_outcome": "reservations list --json has no access_key; the cancel path reads it through internal/consumer."
+}

@@ -1,0 +1,159 @@
+name: spothero
+description: "SpotHero consumer parking: search, quote, reservations, and hard gated book and cancel"
+cli_description: "Find, quote, book and cancel SpotHero parking from the terminal, with spend caps and hard gates"
+category: commerce
+version: "0.2.0"
+base_url: "https://spothero.com/api/v1"
+health_check_path: "/search-params/?latitude=41.88&longitude=-87.62"
+http_transport: standard
+required_headers:
+  - name: Referer
+    value: "https://spothero.com/search"
+  - name: Origin
+    value: "https://spothero.com"
+auth:
+  type: cookie
+  header: Cookie
+  in: cookie
+  env_vars:
+    - SPOTHERO_COOKIES
+  cookie_domain: spothero.com
+  cookies:
+    - AUTH_TOKEN
+  jwt_carrier_cookie: AUTH_TOKEN
+  login_url: https://spothero.com/login
+cache:
+  enabled: false
+resources:
+  reservations:
+    description: "Your SpotHero reservations (read only)"
+    endpoints:
+      list:
+        method: GET
+        path: /reservations/
+        description: "List your reservations, most recent first"
+        params:
+          - name: page_size
+            flag_name: page-size
+            type: int
+            default: 25
+            description: "Results per page"
+          - name: page
+            type: int
+            description: "Page number"
+        response_path: data.results
+        response:
+          type: array
+          item: Reservation
+        pagination:
+          type: offset
+          cursor_param: page
+      get:
+        method: GET
+        path: /reservations/{id}/
+        description: "Get one reservation by rental id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Reservation rental id"
+        response_path: data
+        response:
+          type: object
+          item: Reservation
+      eligibility:
+        method: GET
+        path: /reservations/{id}/refund-eligibility/
+        description: "Show whether a reservation can be refunded and which cancellation reasons apply"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Reservation rental id"
+        response_path: data
+  users:
+    description: "Your SpotHero account profile (read only)"
+    endpoints:
+      me:
+        method: GET
+        path: /users/me/
+        description: "Show the signed in account"
+        response_path: data
+  facilities:
+    description: "Facility details such as hours, address and requirements (public, read only)"
+    endpoints:
+      get:
+        method: GET
+        path: /search/transient/{id}
+        base_url: "https://api.spothero.com/v2"
+        no_auth: true
+        description: "Show one facility's details, with no quote"
+        example: "  spothero-pp-cli facilities get 2175 --agent"
+        happy_args: "id=2175"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Facility id from find results"
+        # Only the facility block: the rest of this payload holds signed quote tokens,
+        # which must not reach output.
+        response_path: result.facility.common
+  cities:
+    description: "Cities SpotHero serves (public)"
+    endpoints:
+      list:
+        method: GET
+        path: /cities/
+        no_auth: true
+        description: "List SpotHero cities with slugs and coordinates"
+        response_path: data.results
+        response:
+          type: array
+          item: City
+  airports:
+    description: "Airports SpotHero serves (public)"
+    endpoints:
+      list:
+        method: GET
+        path: /airports/
+        no_auth: true
+        description: "List airports with IATA codes and time zones"
+        response_path: data.results
+        response:
+          type: array
+          item: Airport
+types:
+  Reservation:
+    fields:
+      - {name: rental_id, type: int}
+      - {name: facility_id, type: int}
+      - {name: stall_name, type: string}
+      - {name: city, type: string}
+      - {name: timezone, type: string}
+      - {name: reservation_type, type: string}
+      - {name: starts, type: string}
+      - {name: ends, type: string}
+      - {name: price, type: int}
+      - {name: display_id, type: string}
+      - {name: reservation_status, type: string}
+      - {name: cancellation_allowed, type: bool}
+  City:
+    fields:
+      - {name: id, type: int}
+      - {name: title, type: string}
+      - {name: slug, type: string}
+      - {name: latitude, type: float}
+      - {name: longitude, type: float}
+      - {name: country_code, type: string}
+  Airport:
+    fields:
+      - {name: iata_code, type: string}
+      - {name: name, type: string}
+      - {name: city, type: string}
+      - {name: latitude, type: float}
+      - {name: longitude, type: float}
+      - {name: timezone, type: string}
+      - {name: spothero_city_slug, type: string}

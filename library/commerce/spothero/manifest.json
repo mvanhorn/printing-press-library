@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "spothero-pp-mcp",
+  "display_name": "SpotHero",
+  "version": "0.2.0",
+  "description": "Find, quote, book and cancel SpotHero parking from the terminal, with spend caps and hard gates.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/spothero-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/spothero-pp-mcp",
+      "args": [],
+      "env": {
+        "SPOTHERO_COOKIES": "${user_config.spothero_cookies}"
+      }
+    }
+  },
+  "user_config": {
+    "spothero_cookies": {
+      "type": "string",
+      "title": "SPOTHERO_COOKIES",
+      "description": "Optional. Sets SPOTHERO_COOKIES for the SpotHero MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

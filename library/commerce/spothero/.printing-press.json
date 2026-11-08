@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-07T21:42:11.407073Z",
+  "printing_press_version": "4.35.0",
+  "api_name": "spothero",
+  "display_name": "SpotHero",
+  "cli_name": "spothero-pp-cli",
+  "creator": {
+    "handle": "amansk",
+    "name": "Amandeep Khurana"
+  },
+  "owner": "amansk",
+  "printer": "amansk",
+  "printer_name": "Amandeep Khurana",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:eb1eb6231e01e352bb042549dc6949147a525502aaef9186f097e14bbc41232b",
+  "run_id": "20261107-122157-08957e70",
+  "category": "commerce",
+  "description": "Find, quote, book and cancel SpotHero parking from the terminal, with spend caps and hard gates.",
+  "homepage": "https://spothero.com",
+  "mcp_binary": "spothero-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "partial",
+  "api_version": "0.2.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "SPOTHERO_COOKIES"
+  ],
+  "novel_features": [
+    {
+      "name": "Best pick",
+      "command": "best",
+      "description": "Get one ranked parking pick plus alternatives for a place and time window."
+    },
+    {
+      "name": "Booking preflight",
+      "command": "preflight",
+      "description": "Check session, vehicle, card, overlaps and spend cap before you try to book."
+    },
+    {
+      "name": "Next pass",
+      "command": "next",
+      "description": "See your soonest upcoming reservation and when it starts."
+    },
+    {
+      "name": "Rebook preview",
+      "command": "rebook",
+      "description": "Re-quote a past reservation's garage for a new window and compare with what you paid."
+    },
+    {
+      "name": "Refund view",
+      "command": "refundable",
+      "description": "See refund status across upcoming reservations at once."
+    },
+    {
+      "name": "Commute plan",
+      "command": "commute",
+      "description": "Quote a recurring series of parking windows with a total."
+    },
+    {
+      "name": "Regular garages",
+      "command": "regulars",
+      "description": "See which garages you book most, with last booked and last price."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Best pick",
+      "command": "best",
+      "description": "Get one ranked parking pick plus alternatives for a place and time window."
+    },
+    {
+      "name": "Booking preflight",
+      "command": "preflight",
+      "description": "Check session, vehicle, card, overlaps and spend cap before you try to book."
+    },
+    {
+      "name": "Next pass",
+      "command": "next",
+      "description": "See your soonest upcoming reservation and when it starts."
+    },
+    {
+      "name": "Rebook preview",
+      "command": "rebook",
+      "description": "Re-quote a past reservation's garage for a new window and compare with what you paid."
+    },
+    {
+      "name": "Refund view",
+      "command": "refundable",
+      "description": "See refund status across upcoming reservations at once."
+    },
+    {
+      "name": "Commute plan",
+      "command": "commute",
+      "description": "Quote a recurring series of parking windows with a total."
+    },
+    {
+      "name": "Regular garages",
+      "command": "regulars",
+      "description": "See which garages you book most, with last booked and last price."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 46,
+    "total": 46,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 86,
+      "grade": "A",
+      "total": 86
+    }
+  }
+}

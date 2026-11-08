@@ -1,0 +1,68 @@
+{
+  "tracking": {
+    "search_id": "REDACTED-SEARCH-ID",
+    "action_id": "REDACTED-ACTION-ID"
+  },
+  "result": {
+    "distance": {
+      "walking_meters": 0,
+      "linear_meters": 0
+    },
+    "availability": {
+      "available": true,
+      "available_spaces": 1
+    },
+    "rates": [
+      {
+        "quote": {
+          "meta": {
+            "quote_mac": "113821",
+            "quote_token": "REDACTED-QUOTE-TOKEN"
+          },
+          "order": [
+            {
+              "rate_id": "113821",
+              "starts": "2026-09-15T09:00:00-07:00",
+              "ends": "2026-09-15T17:00:00-07:00",
+              "total_price": {
+                "currency_code": "USD",
+                "value": 2968
+              }
+            }
+          ],
+          "total_price": {
+            "currency_code": "USD",
+            "value": 2968
+          },
+          "advertised_price": {
+            "currency_code": "USD",
+            "value": 2800
+          }
+        }
+      }
+    ],
+    "facility": {
+      "common": {
+        "id": "6698",
+        "title": "Example Facility 6698",
+        "slug": "example-facility-6698",
+        "status": "on_sales_allowed",
+        "addresses": [
+          {
+            "street_address": "500 Howard Street",
+            "city": "San Francisco",
+            "state": "CA",
+            "postal_code": "94105",
+            "types": ["search"]
+          }
+        ]
+      },
+      "requirements": {
+        "license_plate": false
+      }
+    },
+    "options": {
+      "commuter_card_eligible": false
+    }
+  }
+}

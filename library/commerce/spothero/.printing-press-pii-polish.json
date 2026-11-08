@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-11-08T00:06:50.778845Z",
+  "cli_dir": "\u003ccli-dir\u003e/spothero",
+  "findings": [
+    {
+      "kind": "postal-address",
+      "file": "internal/consumer/testdata/search_transient_facility_live_shape.json",
+      "line": 52,
+      "column": 32,
+      "matched_span": "500 Howard Street",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Under facility addresses[]: \"street_address\": \"500 Howard Street\", \"city\": \"San Francisco\". A public garage location from the public /v2/search/transient inventory endpoint (see PLAN.md Inventory), not a customer address."
+    },
+    {
+      "kind": "postal-address",
+      "file": "internal/consumer/testdata/search_transient_facility_outside_hours_shape.json",
+      "line": 53,
+      "column": 32,
+      "matched_span": "123 Example Ave",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Under facility addresses[] in a hand-trimmed fixture: \"street_address\": \"123 Example Ave\", \"city\": \"Chicago\". An invented street named Example, used only by the consumer package parser tests."
+    },
+    {
+      "kind": "postal-address",
+      "file": "internal/consumer/testdata/search_transient_live_shape.json",
+      "line": 42,
+      "column": 34,
+      "matched_span": "500 Howard Street",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Under facility addresses[]: \"street_address\": \"500 Howard Street\", \"city\": \"San Francisco\". A public garage location from the public /v2/search/transient inventory endpoint (see PLAN.md Inventory), not a customer address."
+    }
+  ],
+  "findings_count_before": 3
+}

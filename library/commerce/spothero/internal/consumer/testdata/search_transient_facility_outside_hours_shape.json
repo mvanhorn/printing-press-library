@@ -1,0 +1,69 @@
+{
+  "tracking": {
+    "search_id": "REDACTED-SEARCH-ID",
+    "action_id": "REDACTED-ACTION-ID"
+  },
+  "result": {
+    "distance": {
+      "walking_meters": 0,
+      "linear_meters": 0
+    },
+    "availability": {
+      "available": false,
+      "available_spaces": 0,
+      "unavailable_reasons": ["Outside Hours"]
+    },
+    "rates": [
+      {
+        "quote": {
+          "meta": {
+            "quote_mac": "144293",
+            "quote_token": ""
+          },
+          "order": [
+            {
+              "rate_id": "144293",
+              "starts": "2026-09-14T09:00:00-05:00",
+              "ends": "2026-09-14T17:00:00-05:00",
+              "total_price": {
+                "currency_code": "USD",
+                "value": 1500
+              }
+            }
+          ],
+          "total_price": {
+            "currency_code": "USD",
+            "value": 1500
+          },
+          "advertised_price": {
+            "currency_code": "USD",
+            "value": 1400
+          }
+        }
+      }
+    ],
+    "facility": {
+      "common": {
+        "id": "144293",
+        "title": "Foundry 144293",
+        "slug": "foundry-144293",
+        "status": "on_sales_allowed",
+        "addresses": [
+          {
+            "street_address": "123 Example Ave",
+            "city": "Chicago",
+            "state": "IL",
+            "postal_code": "60601",
+            "types": ["search"]
+          }
+        ]
+      },
+      "requirements": {
+        "license_plate": false
+      }
+    },
+    "options": {
+      "commuter_card_eligible": false
+    }
+  }
+}

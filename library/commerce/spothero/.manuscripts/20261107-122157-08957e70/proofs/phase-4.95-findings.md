@@ -1,0 +1,3 @@
+# Local review findings, fixed
+
+An independent read-only review found these, all fixed: saved profile could supply gates; --max-total 0 disabled the cap; unknown --card-id charged the default card; naive times with no zone became UTC; an empty 2xx reported booked or cancelled; the post-ambiguity read reused an expired context; a 200 with no account passed auth; concurrent processes could spend one cancel token; docs claimed read-only. No path was found that books or cancels from MCP, the harness, or a generated command. Not fixed: reservations get and its MCP tool return the API's raw reservation, including any access_key the API sends (it was empty on the tested reservations).
