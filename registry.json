@@ -19827,6 +19827,55 @@
       }
     },
     {
+      "name": "normattiva",
+      "category": "productivity",
+      "api": "Normattiva",
+      "description": "Italian law in your terminal: resolve citations, read any article at any date, diff versions and track amendments.",
+      "search_terms": [
+        "normattiva",
+        "normattiva-pp-cli",
+        "Italian law in your terminal: resolve citations, read any article at any date, diff versions and track amendments.",
+        "Citation checker",
+        "verifica",
+        "Check every Italian law citation in a draft or an AI answer: does it exist, and was it in force on a given date?",
+        "Article diff between dates",
+        "diff",
+        "See word by word what an article said on one date versus another, or versus its original text.",
+        "Watchlist change report",
+        "novita",
+        "Follow the acts you care about (segui add) and get a report of which ones and which articles changed since your last check.",
+        "Context pack",
+        "fascicolo",
+        "Assemble several articles from different laws, all pinned to one reference date, into one Markdown document."
+      ],
+      "path": "library/productivity/normattiva",
+      "printer": "luigipastore61063-del",
+      "printer_name": "Luigi Pastore",
+      "creator": {
+        "handle": "luigipastore61063-del",
+        "name": "Luigi Pastore"
+      },
+      "contributors": [
+        {
+          "handle": "tmchow",
+          "name": "Trevin Chow"
+        }
+      ],
+      "mcp": {
+        "binary": "normattiva-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 11,
+        "public_tool_count": 11,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "notebooklm",
       "category": "ai",
       "api": "Gemini Notebook (NotebookLM)",
