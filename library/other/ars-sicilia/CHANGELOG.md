@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.2 - 2026-11-08
+
+- fix(ars-sicilia): --select reaches nested rows, --csv survives empty sections (#2439).
+
 ## 2026.11.1 - 2026-11-07
 
 - fix(ars-sicilia): truncation hint states the declared total, --select hint gives a working selector (#2436).

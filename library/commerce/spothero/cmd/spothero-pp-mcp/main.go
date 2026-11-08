@@ -54,7 +54,7 @@ const (
 const httpAllowedOriginsEnvVar = "SPOTHERO_MCP_HTTP_ALLOWED_ORIGINS"
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
-var version = "0.2.0"
+var version = "2026.11.1"
 
 func main() {
 	// Pin the learn-event surface for this process and every walker

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "spothero",
+  "cli_name": "spothero-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-08T09:54:01Z",
+  "source_commit": "e54f4e5ef236447599ef7c1713c1a8a37b222cc8",
+  "printing_press_version": "4.35.0",
+  "run_id": "20261107-122157-08957e70",
+  "changes": [
+    {
+      "title": "feat(spothero): add spothero",
+      "pr": 2443,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2443",
+      "commit": "e54f4e5ef236447599ef7c1713c1a8a37b222cc8"
+    }
+  ]
+}
