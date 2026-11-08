@@ -19849,6 +19849,12 @@
         "Assemble several articles from different laws, all pinned to one reference date, into one Markdown document."
       ],
       "path": "library/productivity/normattiva",
+      "release": {
+        "cli_name": "normattiva-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-08T09:53:14Z",
+        "source_commit": "f2617b84b8b30ad827dd52681153850a0e31110f"
+      },
       "printer": "luigipastore61063-del",
       "printer_name": "Luigi Pastore",
       "creator": {
