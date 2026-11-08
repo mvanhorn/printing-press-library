@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "parse-citation-keeps-urn-annex-and-version",
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261028-132341-29de1036",
+  "base_printing_press_version": "4.34.2",
+  "summary": "A supplied URN's annex and version pin must survive ParseCitation and Citation.URN().",
+  "reason": "verifica and fascicolo rebuild the request from Citation.URN() rather than the typed URN. Dropping the annex substitutes a known code's default annex, or drops the annex entirely, and dropping the version pin makes verifica read a different text than the one named.",
+  "files": ["internal/norma/cite.go"],
+  "validated_outcome": "TestParseCitationKeepsURNAnnexAndVersion: explicit annexes, @originale, and !vig= round-trip; a code URN with no annex still receives that code's default annex."
+}

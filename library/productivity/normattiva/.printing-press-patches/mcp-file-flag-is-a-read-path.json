@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "mcp-file-flag-is-a-read-path",
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261028-132341-29de1036",
+  "base_printing_press_version": "4.34.2",
+  "summary": "verifica and fascicolo --file must stay declared as an MCP read path.",
+  "reason": "The shared MCP guard leaves the ambiguous flag name file unblocked. Without mcp:read-flags, a caller can open any file the server account can read and receive excerpts back.",
+  "files": ["internal/cli/verifica.go", "internal/cli/fascicolo.go"],
+  "validated_outcome": "TestFileFlagIsMCPReadPath: InputFlagBlocked is true for --file on verifica and fascicolo, and false for --al."
+}

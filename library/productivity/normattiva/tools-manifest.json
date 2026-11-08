@@ -1,0 +1,328 @@
+{
+  "api_name": "normattiva",
+  "base_url": "https://api.normattiva.it/t/normattiva.api/bff-opendata/v1/api/v1",
+  "description": "Italian law in your terminal: resolve citations, read any article at any date, diff versions and track amendments.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "collezioni_list",
+      "description": "List prebuilt collections with their act counts. Returns array of Collezione.",
+      "method": "GET",
+      "path": "/collections/collection-predefinite",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "dettaglio_gazzetta",
+      "description": "Read an act by Gazzetta Ufficiale coordinates (current text only). Required: codice-redazionale, data-gu. Optional: articolo. Returns the new DettaglioRisposta.",
+      "method": "POST",
+      "path": "/atto/dettaglio-atto",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "codice-redazionale",
+          "wire_name": "codiceRedazionale",
+          "type": "string",
+          "location": "body",
+          "description": "Gazzetta editorial code, e.g. 090G0294",
+          "required": true
+        },
+        {
+          "name": "data-gu",
+          "wire_name": "dataGU",
+          "type": "string",
+          "location": "body",
+          "description": "Gazzetta publication date (YYYY-MM-DD)",
+          "required": true
+        },
+        {
+          "name": "articolo",
+          "wire_name": "idArticolo",
+          "type": "int",
+          "location": "body",
+          "description": "Article number inside the act"
+        }
+      ]
+    },
+    {
+      "name": "dettaglio_urn",
+      "description": "Read an act or article by URN:NIR (supports ~artN, @originale, !vig=YYYY-MM-DD). Required: urn. Returns the new DettaglioRisposta.",
+      "method": "POST",
+      "path": "/atto/dettaglio-atto-urn",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "urn",
+          "type": "string",
+          "location": "body",
+          "description": "URN:NIR, e.g. urn:nir:stato:legge:1990-08-07;241~art3!vig=2010-01-01",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "esportazioni_stato",
+      "description": "Check the status of an asynchronous export request. Required: token. Returns the StatoEsportazione.",
+      "method": "GET",
+      "path": "/ricerca-asincrona/check-status/{token}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "Export token (ID_COLLEZIONE) returned when the export was requested",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ricerca_aggiornati",
+      "description": "Acts whose consolidated text changed between two dates (max 12 months). Required: data-inizio-aggiornamento, data-fine-aggiornamento. Returns the new RisultatoRicerca.",
+      "method": "POST",
+      "path": "/ricerca/aggiornati",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "data-inizio-aggiornamento",
+          "wire_name": "dataInizioAggiornamento",
+          "type": "string",
+          "location": "body",
+          "description": "Window start (RFC3339)",
+          "required": true
+        },
+        {
+          "name": "data-fine-aggiornamento",
+          "wire_name": "dataFineAggiornamento",
+          "type": "string",
+          "location": "body",
+          "description": "Window end (RFC3339)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ricerca_avanzata",
+      "description": "Advanced search by act type, title, text, dates, vigenza and number. Optional: denominazione-atto, titolo, testo-ricerca (plus 12 more). Returns the new RisultatoRicerca.",
+      "method": "POST",
+      "path": "/ricerca/avanzata",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "denominazione-atto",
+          "wire_name": "denominazioneAtto",
+          "type": "string",
+          "location": "body",
+          "description": "Act type, e.g. LEGGE, DECRETO-LEGGE, DECRETO LEGISLATIVO, COSTITUZIONE"
+        },
+        {
+          "name": "titolo",
+          "wire_name": "titoloRicerca",
+          "type": "string",
+          "location": "body",
+          "description": "Words to match in the act title"
+        },
+        {
+          "name": "testo-ricerca",
+          "wire_name": "testoRicerca",
+          "type": "string",
+          "location": "body",
+          "description": "Words to match in the act text"
+        },
+        {
+          "name": "emanato-dal",
+          "wire_name": "dataInizioEmanazione",
+          "type": "string",
+          "location": "body",
+          "description": "Enacted on or after (YYYY-MM-DD)"
+        },
+        {
+          "name": "emanato-al",
+          "wire_name": "dataFineEmanazione",
+          "type": "string",
+          "location": "body",
+          "description": "Enacted on or before (YYYY-MM-DD)"
+        },
+        {
+          "name": "pubblicato-dal",
+          "wire_name": "dataInizioPubProvvedimento",
+          "type": "string",
+          "location": "body",
+          "description": "Published in Gazzetta Ufficiale on or after (YYYY-MM-DD)"
+        },
+        {
+          "name": "pubblicato-al",
+          "wire_name": "dataFinePubProvvedimento",
+          "type": "string",
+          "location": "body",
+          "description": "Published in Gazzetta Ufficiale on or before (YYYY-MM-DD)"
+        },
+        {
+          "name": "vigente-al",
+          "wire_name": "vigenza",
+          "type": "string",
+          "location": "body",
+          "description": "Only acts in force on this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "classe",
+          "wire_name": "classeProvvedimento",
+          "type": "string",
+          "location": "body",
+          "description": "Vigenza class code from 'tipologiche classi' (1 no updates, 2 updated, 3 repealed)"
+        },
+        {
+          "name": "anno-provvedimento",
+          "wire_name": "annoProvvedimento",
+          "type": "int",
+          "location": "body",
+          "description": "Year the act was enacted"
+        },
+        {
+          "name": "mese-provvedimento",
+          "wire_name": "meseProvvedimento",
+          "type": "int",
+          "location": "body",
+          "description": "Month the act was enacted"
+        },
+        {
+          "name": "giorno-provvedimento",
+          "wire_name": "giornoProvvedimento",
+          "type": "int",
+          "location": "body",
+          "description": "Day the act was enacted"
+        },
+        {
+          "name": "numero-provvedimento",
+          "wire_name": "numeroProvvedimento",
+          "type": "int",
+          "location": "body",
+          "description": "Act number"
+        },
+        {
+          "name": "ordine",
+          "wire_name": "orderType",
+          "type": "string",
+          "location": "body",
+          "description": "Result order: recente or vecchio"
+        },
+        {
+          "name": "paginazione-pagina",
+          "wire_name": "paginazione.paginaCorrente",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "paginazione-per-pagina",
+          "wire_name": "paginazione.numeroElementiPerPagina",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "ricerca_predefinite",
+      "description": "List predefined searches offered by the Normattiva portal. Returns array of RicercaPredefinita.",
+      "method": "GET",
+      "path": "/ricerca/predefinita",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "ricerca_semplice",
+      "description": "Full-text search over act titles and text. Required: testo-ricerca. Optional: ordine (default: recente), paginazione. Returns the new RisultatoRicerca.",
+      "method": "POST",
+      "path": "/ricerca/semplice",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "testo-ricerca",
+          "wire_name": "testoRicerca",
+          "type": "string",
+          "location": "body",
+          "description": "Words to search in title and text",
+          "required": true
+        },
+        {
+          "name": "ordine",
+          "wire_name": "orderType",
+          "type": "string",
+          "location": "body",
+          "description": "Result order: recente (newest first) or vecchio (oldest first)"
+        },
+        {
+          "name": "paginazione-pagina",
+          "wire_name": "paginazione.paginaCorrente",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "paginazione-per-pagina",
+          "wire_name": "paginazione.numeroElementiPerPagina",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "tipologiche_classi",
+      "description": "List act vigenza classes (no updates, updated, repealed). Returns array of Tipologica.",
+      "method": "GET",
+      "path": "/tipologiche/classe-provvedimento",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tipologiche_denominazioni",
+      "description": "List act type names and codes (LEGGE, DECRETO-LEGGE, DECRETO LEGISLATIVO, ...). Returns array of Tipologica.",
+      "method": "GET",
+      "path": "/tipologiche/denominazione-atto",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tipologiche_estensioni",
+      "description": "List export formats (AKN, XML, JSON, HTML, PDF, EPUB, RTF, URI/ELI). Returns array of Estensione.",
+      "method": "GET",
+      "path": "/tipologiche/estensioni",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Citation checker",
+      "command": "verifica",
+      "description": "Check every Italian law citation in a draft or an AI answer: does it exist, and was it in force on a given date?"
+    },
+    {
+      "name": "Article diff between dates",
+      "command": "diff",
+      "description": "See word by word what an article said on one date versus another, or versus its original text."
+    },
+    {
+      "name": "Watchlist change report",
+      "command": "novita",
+      "description": "Follow the acts you care about (segui add) and get a report of which ones and which articles changed since your last check."
+    },
+    {
+      "name": "Context pack",
+      "command": "fascicolo",
+      "description": "Assemble several articles from different laws, all pinned to one reference date, into one Markdown document."
+    }
+  ]
+}

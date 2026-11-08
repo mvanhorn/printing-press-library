@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "no-local-data-skips-custom-caches",
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261028-132341-29de1036",
+  "base_printing_press_version": "4.35.3",
+  "summary": "NORMATTIVA_NO_LOCAL_DATA=1 skips the article and search SQLite writers, not only the generated write-through cache.",
+  "reason": "fetchArticle and cerca call cacheArticle and cacheAttoRows after a live read. Those writers ignored the opt-out that writeThroughCache already honors, so the disable switch still saved API data.",
+  "files": ["internal/cli/norma_shared.go", "internal/cli/norma_cerca.go"],
+  "validated_outcome": "TestNoLocalDataSkipsCustomCaches"
+}

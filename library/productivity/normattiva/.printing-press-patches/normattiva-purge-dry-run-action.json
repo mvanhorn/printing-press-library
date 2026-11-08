@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "normattiva-purge-dry-run-action",
+  "applied_at": "2026-10-28",
+  "base_run_id": "20261028-132341-29de1036",
+  "base_printing_press_version": "4.34.2",
+  "summary": "local-data purge --dry-run --json now includes an \"action\" key.",
+  "reason": "Live dogfood json_fidelity rejects dry-run envelopes without an action; the generated template omitted it.",
+  "files": ["internal/cli/local_data.go"],
+  "markers": ["\"action\": \"local-data purge\""],
+  "validated_outcome": "dogfood --live --level full: local-data purge json_fidelity pass."
+}

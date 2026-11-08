@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "dated-cache-reused-only-after-window-closes",
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261028-132341-29de1036",
+  "base_printing_press_version": "4.35.3",
+  "summary": "A pinned article is reused from the local cache only after its FineVigenza has passed.",
+  "reason": "An open or future version window can still change: a future date can pick up an amendment, and a past date can gain FineVigenza after that version is replaced. Reusing those entries makes verifica --al miss modificato_dopo.",
+  "files": ["internal/cli/norma_shared.go"],
+  "validated_outcome": "TestDatedCacheReusedOnlyAfterWindowCloses"
+}

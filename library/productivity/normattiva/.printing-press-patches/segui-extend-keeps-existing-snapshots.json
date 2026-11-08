@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "segui-extend-keeps-existing-snapshots",
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261028-132341-29de1036",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Extending a segui entry or changing its label must keep snapshots novita has not reported yet.",
+  "reason": "Re-saving every watched article replaces the hash novita diffs against. A change that landed before the next article was added would then look unchanged.",
+  "files": ["internal/cli/novita.go"],
+  "validated_outcome": "TestSeguiExtendKeepsExistingSnapshots: adding article 6 and renaming the entry leave article 5's stored hash in place and still baseline the new article."
+}

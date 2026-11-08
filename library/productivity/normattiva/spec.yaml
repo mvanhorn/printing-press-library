@@ -1,0 +1,374 @@
+name: normattiva
+description: "Italian national legislation from the Normattiva Open Data API: search acts, read articles at any date, track amendments."
+cli_description: "Italian law from Normattiva in your terminal: resolve citations, read any article at any date, diff versions, and track amendments."
+version: "0.1.0"
+category: productivity
+base_url: "https://api.normattiva.it/t/normattiva.api/bff-opendata/v1/api/v1"
+http_transport: standard
+health_check_path: "/tipologiche/estensioni"
+required_headers:
+  - name: Accept
+    value: "application/json"
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/normattiva-pp-cli/config.toml"
+
+learn:
+  entity_lookup_seeds:
+    act_type:
+      - canonical: LEGGE
+        aliases: [l., legge, law]
+      - canonical: DECRETO LEGISLATIVO
+        aliases: [d.lgs., dlgs, d.lgs, decreto legislativo]
+      - canonical: DECRETO-LEGGE
+        aliases: [d.l., dl, decreto legge]
+      - canonical: DECRETO DEL PRESIDENTE DELLA REPUBBLICA
+        aliases: [d.p.r., dpr]
+      - canonical: REGIO DECRETO
+        aliases: [r.d., rd, regio decreto]
+      - canonical: COSTITUZIONE
+        aliases: [cost., costituzione, constitution]
+  ticker_patterns:
+    - "^[0-9]{3}[a-z][0-9]{4}$"
+    - "^urn:nir:[a-z.:;0-9~@!=-]+$"
+  synonyms:
+    "testo vigente": "vigente"
+    "in vigore": "vigente"
+
+resources:
+  tipologiche:
+    description: "Code dictionaries used by Normattiva search filters"
+    endpoints:
+      estensioni:
+        method: GET
+        syncable: true
+        id_field: label
+        path: "/tipologiche/estensioni"
+        description: "List export formats (AKN, XML, JSON, HTML, PDF, EPUB, RTF, URI/ELI)"
+        response:
+          type: array
+          item: Estensione
+      classi:
+        method: GET
+        syncable: true
+        id_field: label
+        path: "/tipologiche/classe-provvedimento"
+        description: "List act vigenza classes (no updates, updated, repealed)"
+        response:
+          type: array
+          item: Tipologica
+      denominazioni:
+        method: GET
+        syncable: true
+        id_field: label
+        path: "/tipologiche/denominazione-atto"
+        description: "List act type names and codes (LEGGE, DECRETO-LEGGE, DECRETO LEGISLATIVO, ...)"
+        response:
+          type: array
+          item: Tipologica
+
+  collezioni:
+    description: "Prebuilt collections of acts (e.g. Codici)"
+    endpoints:
+      list:
+        method: GET
+        path: "/collections/collection-predefinite"
+        description: "List prebuilt collections with their act counts"
+        response:
+          type: array
+          item: Collezione
+
+  ricerca:
+    description: "Search Italian legislation (raw search endpoints; prefer cerca)"
+    endpoints:
+      predefinite:
+        method: GET
+        path: "/ricerca/predefinita"
+        description: "List predefined searches offered by the Normattiva portal"
+        response:
+          type: array
+          item: RicercaPredefinita
+        response_path: ricerchePredefinite
+      semplice:
+        method: POST
+        mutation: false
+        path: "/ricerca/semplice"
+        description: "Full-text search over act titles and text"
+        happy_args: "--testo-ricerca=privacy"
+        body:
+          - name: testoRicerca
+            flag_name: testo-ricerca
+            type: string
+            required: true
+            description: "Words to search in title and text"
+          - name: orderType
+            flag_name: ordine
+            type: string
+            enum: [recente, vecchio]
+            default: recente
+            description: "Result order: recente (newest first) or vecchio (oldest first)"
+          - name: paginazione
+            type: object
+            fields:
+              - name: paginaCorrente
+                flag_name: pagina
+                type: int
+                default: 1
+                description: "Page number (1-based)"
+              - name: numeroElementiPerPagina
+                flag_name: per-pagina
+                type: int
+                default: 20
+                description: "Results per page"
+        response:
+          type: object
+          item: RisultatoRicerca
+        response_path: listaAtti
+      avanzata:
+        method: POST
+        mutation: false
+        path: "/ricerca/avanzata"
+        description: "Advanced search by act type, title, text, dates, vigenza and number"
+        happy_args: "--denominazione-atto=LEGGE;--anno-provvedimento=1990;--numero-provvedimento=241"
+        body:
+          - name: denominazioneAtto
+            flag_name: denominazione-atto
+            type: string
+            description: "Act type, e.g. LEGGE, DECRETO-LEGGE, DECRETO LEGISLATIVO, COSTITUZIONE"
+          - name: titoloRicerca
+            flag_name: titolo
+            type: string
+            description: "Words to match in the act title"
+          - name: testoRicerca
+            flag_name: testo-ricerca
+            type: string
+            description: "Words to match in the act text"
+          - name: dataInizioEmanazione
+            flag_name: emanato-dal
+            type: string
+            format: date
+            description: "Enacted on or after (YYYY-MM-DD)"
+          - name: dataFineEmanazione
+            flag_name: emanato-al
+            type: string
+            format: date
+            description: "Enacted on or before (YYYY-MM-DD)"
+          - name: dataInizioPubProvvedimento
+            flag_name: pubblicato-dal
+            type: string
+            format: date
+            description: "Published in Gazzetta Ufficiale on or after (YYYY-MM-DD)"
+          - name: dataFinePubProvvedimento
+            flag_name: pubblicato-al
+            type: string
+            format: date
+            description: "Published in Gazzetta Ufficiale on or before (YYYY-MM-DD)"
+          - name: vigenza
+            flag_name: vigente-al
+            type: string
+            format: date
+            description: "Only acts in force on this date (YYYY-MM-DD)"
+          - name: classeProvvedimento
+            flag_name: classe
+            type: string
+            description: "Vigenza class code from 'tipologiche classi' (1 no updates, 2 updated, 3 repealed)"
+          - name: annoProvvedimento
+            flag_name: anno-provvedimento
+            type: int
+            description: "Year the act was enacted"
+          - name: meseProvvedimento
+            flag_name: mese-provvedimento
+            type: int
+            description: "Month the act was enacted"
+          - name: giornoProvvedimento
+            flag_name: giorno-provvedimento
+            type: int
+            description: "Day the act was enacted"
+          - name: numeroProvvedimento
+            flag_name: numero-provvedimento
+            type: int
+            description: "Act number"
+          - name: orderType
+            flag_name: ordine
+            type: string
+            enum: [recente, vecchio]
+            default: recente
+            description: "Result order: recente or vecchio"
+          - name: paginazione
+            type: object
+            fields:
+              - name: paginaCorrente
+                flag_name: pagina
+                type: int
+                default: 1
+                description: "Page number (1-based)"
+              - name: numeroElementiPerPagina
+                flag_name: per-pagina
+                type: int
+                default: 20
+                description: "Results per page"
+        response:
+          type: object
+          item: RisultatoRicerca
+        response_path: listaAtti
+      aggiornati:
+        method: POST
+        mutation: false
+        path: "/ricerca/aggiornati"
+        description: "Acts whose consolidated text changed between two dates (max 12 months)"
+        happy_args: "--data-inizio-aggiornamento=2026-10-01T00:00:00Z;--data-fine-aggiornamento=2026-10-15T00:00:00Z"
+        body:
+          - name: dataInizioAggiornamento
+            flag_name: data-inizio-aggiornamento
+            type: string
+            format: date-time
+            required: true
+            description: "Window start (RFC3339)"
+          - name: dataFineAggiornamento
+            flag_name: data-fine-aggiornamento
+            type: string
+            format: date-time
+            required: true
+            description: "Window end (RFC3339)"
+        response:
+          type: object
+          item: RisultatoRicerca
+        response_path: listaAtti
+
+  dettaglio:
+    description: "Raw act and article detail endpoints (use 'testo' and 'atto' for rendered text)"
+    endpoints:
+      urn:
+        method: POST
+        mutation: false
+        path: "/atto/dettaglio-atto-urn"
+        description: "Read an act or article by URN:NIR (supports ~artN, @originale, !vig=YYYY-MM-DD)"
+        happy_args: "--urn=urn:nir:stato:legge:1990-08-07\\;241~art3"
+        body:
+          - name: urn
+            type: string
+            required: true
+            description: "URN:NIR, e.g. urn:nir:stato:legge:1990-08-07;241~art3!vig=2010-01-01"
+        response:
+          type: object
+          item: DettaglioRisposta
+      gazzetta:
+        method: POST
+        mutation: false
+        path: "/atto/dettaglio-atto"
+        description: "Read an act by Gazzetta Ufficiale coordinates (current text only)"
+        happy_args: "--codice-redazionale=090G0294;--data-gu=1990-08-18"
+        body:
+          - name: codiceRedazionale
+            flag_name: codice-redazionale
+            type: string
+            required: true
+            description: "Gazzetta editorial code, e.g. 090G0294"
+          - name: dataGU
+            flag_name: data-gu
+            type: string
+            format: date
+            required: true
+            description: "Gazzetta publication date (YYYY-MM-DD)"
+          - name: idArticolo
+            flag_name: articolo
+            type: int
+            description: "Article number inside the act"
+        response:
+          type: object
+          item: DettaglioRisposta
+
+  esportazioni:
+    description: "Bulk exports of acts as ZIP archives"
+    endpoints:
+      stato:
+        method: GET
+        path: "/ricerca-asincrona/check-status/{token}"
+        description: "Check the status of an asynchronous export request"
+        params:
+          - name: token
+            type: string
+            required: true
+            positional: true
+            description: "Export token (ID_COLLEZIONE) returned when the export was requested"
+        response:
+          type: object
+          item: StatoEsportazione
+
+types:
+  Estensione:
+    fields:
+      - name: label
+        type: string
+      - name: value
+        type: string
+  Tipologica:
+    fields:
+      - name: label
+        type: string
+      - name: value
+        type: string
+  Collezione:
+    fields:
+      - name: nomeCollezione
+        type: string
+      - name: formatoCollezione
+        type: string
+      - name: descrizioneFormatoCollezione
+        type: string
+      - name: dataCreazione
+        type: string
+      - name: numeroAtti
+        type: int
+  RicercaPredefinita:
+    fields:
+      - name: nome
+        type: string
+      - name: dettagli
+        type: array
+      - name: dataCreazione
+        type: string
+  RisultatoRicerca:
+    fields:
+      - name: codiceRedazionale
+        type: string
+      - name: dataGU
+        type: string
+      - name: numeroGU
+        type: string
+      - name: denominazioneAtto
+        type: string
+      - name: numeroProvvedimento
+        type: string
+      - name: annoProvvedimento
+        type: string
+      - name: meseProvvedimento
+        type: string
+      - name: giornoProvvedimento
+        type: string
+      - name: descrizioneAtto
+        type: string
+      - name: titoloAtto
+        type: string
+      - name: dataEmanazione
+        type: string
+      - name: dataUltimaModifica
+        type: string
+      - name: ultimiAttiModificanti
+        type: string
+  DettaglioRisposta:
+    fields:
+      - name: success
+        type: bool
+      - name: data
+        type: object
+  StatoEsportazione:
+    fields:
+      - name: stato
+        type: int
+      - name: descrizioneStato
+        type: string
+      - name: descrizioneErrore
+        type: string
