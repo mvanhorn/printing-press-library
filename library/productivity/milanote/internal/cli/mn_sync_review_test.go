@@ -103,6 +103,26 @@ func TestSettlePending(t *testing.T) {
 	}
 }
 
+func TestRestartOnlyAfterEmptyFirstPush(t *testing.T) {
+	board := &milanote.BoardPayload{Elements: map[string]*milanote.Element{
+		"landed": {ID: "landed", Location: milanote.CanvasAt("b", 1, 1, 1)},
+	}}
+	cases := []struct {
+		name string
+		rec  pairRecord
+		want bool
+	}{
+		{"first push that reached nothing", pairRecord{FirstPush: true, Items: []pairItem{{ID: "lost", Pending: true}}}, true},
+		{"first push that left a card", pairRecord{FirstPush: true, Items: []pairItem{{ID: "landed", Pending: true}}}, false},
+		{"replacement of the only card failed", pairRecord{Ignored: []string{"x"}, Items: []pairItem{{ID: "lost", Pending: true}}}, false},
+	}
+	for _, c := range cases {
+		if got := settleAndCheckRestart(&c.rec, board); got != c.want {
+			t.Errorf("%s: restart = %v, want %v", c.name, got, c.want)
+		}
+	}
+}
+
 func TestBoardFileMode(t *testing.T) {
 	dir := t.TempDir()
 	if m := boardFileMode(filepath.Join(dir, "new.md")); m != 0o600 {

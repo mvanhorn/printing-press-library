@@ -84,7 +84,8 @@ type pairRecord struct {
 	File      string     `json:"file"`
 	Board     string     `json:"board"`
 	Items     []pairItem `json:"items"`
-	Ignored   []string   `json:"ignored,omitempty"` // cards that were on the board before pairing
+	Ignored   []string   `json:"ignored,omitempty"`    // cards that were on the board before pairing
+	FirstPush bool       `json:"first_push,omitempty"` // the first push has not finished yet
 	UpdatedAt string     `json:"updated_at"`
 }
 
@@ -229,6 +230,14 @@ func settlePending(rec *pairRecord, p *milanote.BoardPayload) bool {
 	return had
 }
 
+// settleAndCheckRestart settles interrupted writes and reports whether the sync
+// should start over. Only a first push that left nothing behind does: a pairing
+// that lost its last card to a failed replacement is still a pairing.
+func settleAndCheckRestart(rec *pairRecord, p *milanote.BoardPayload) bool {
+	settlePending(rec, p)
+	return rec.FirstPush && len(rec.Items) == 0
+}
+
 // matchChunks pairs chunks with remembered cards. Identical content pairs
 // first, wherever it moved to; what is left pairs in document order between
 // the fixed points, which is how an edited paragraph keeps its card.
@@ -338,8 +347,8 @@ func runSync(ctx context.Context, c *milanote.Client, file, boardID string, o sy
 		DryRun: o.dryRun, Actions: []syncAction{}, Conflicts: []syncConflict{}}
 	writer := &lazyWriter{c: c}
 	defer writer.close(ctx)
-	if !starting && settlePending(rec, payload) && len(rec.Items) == 0 {
-		starting = true // nothing from the interrupted first sync reached the board
+	if !starting {
+		starting = settleAndCheckRestart(rec, payload)
 	}
 	if starting {
 		res.Paired = true
@@ -387,7 +396,7 @@ func firstPush(ctx context.Context, writer *lazyWriter, file, boardID, text stri
 		cols = milanote.DefaultCols(chunks)
 	}
 	plan := milanote.PlanLayout(chunks, milanote.PlanOpts{X: x, Y: y, Cols: cols, ColW: o.colW, Gutter: o.gutter})
-	rec := &pairRecord{File: file, Board: boardID}
+	rec := &pairRecord{File: file, Board: boardID, FirstPush: true}
 	for _, el := range boardCards(payload, boardID) {
 		rec.Ignored = append(rec.Ignored, el.ID)
 	}
@@ -424,7 +433,11 @@ func firstPush(ctx context.Context, writer *lazyWriter, file, boardID, text stri
 		action.ID = item.ID
 		res.Actions = append(res.Actions, action)
 	}
-	return nil
+	if o.dryRun {
+		return nil
+	}
+	rec.FirstPush = false
+	return savePair(rec)
 }
 
 type lineEdit struct {
@@ -460,6 +473,7 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 	}
 	chunkItem, used := matchChunks(chunks, hashes, rec.Items)
 	push, pull := o.direction != "pull", o.direction != "push"
+	rec.FirstPush = false // an interrupted first push is finished here
 
 	var edits []lineEdit
 	var tail []string
