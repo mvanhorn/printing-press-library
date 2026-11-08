@@ -32,6 +32,7 @@ func TestDeclaredAPISurfaceReachable(t *testing.T) {
 		"async create",
 		"async get",
 		"async queue",
+		"bing-aimode",
 		"chatgpt",
 		"countries",
 		"credits",

@@ -160,6 +160,47 @@
       "params": []
     },
     {
+      "name": "bing-aimode_bing_aimode",
+      "description": "Extract structured data from Bing AI Mode: answer text, cited sources and citation pills. Required: prompt. Optional: country, include, state. Returns the answer text, sources and citationPills, plus markdown and html when asked.",
+      "method": "POST",
+      "path": "/v1/monitor/bing/aimode",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country/region code for localized response, using ISO 3166-1 alpha-2 country codes."
+        },
+        {
+          "name": "include-html",
+          "wire_name": "include.html",
+          "type": "bool",
+          "location": "body",
+          "description": "Include a URL to the full HTML of the response"
+        },
+        {
+          "name": "include-markdown",
+          "wire_name": "include.markdown",
+          "type": "bool",
+          "location": "body",
+          "description": "Include markdown-formatted response in the result. result.markdown is returned only when this is true."
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt to send to Bing AI Mode. Maximum 3,500 characters after URL encoding.",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State code for sub-country geo-targeting (e.g., 'CA'). Only valid with country 'US'. Paid add-on: +2 credits, on top of the base cost and any other add-on ([pricing](https://cloro.dev/docs/guides/providers?utm_source=printing-press-library\u0026utm_medium=byok#state-level-targeting))."
+        }
+      ]
+    },
+    {
       "name": "chatgpt_chatgpt",
       "description": "Extract structured data from ChatGPT, answer text, cited sources, shopping cards, brand entities, and ads, for any prompt across supported regions. Required: country, prompt. Optional: disableWebSearch (default: false), include, legacy (default: false) (plus 1 more). Returns the new ChatGptmonitorResponse.",
       "method": "POST",

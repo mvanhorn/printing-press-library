@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "bing-aimode-endpoint-is-hand-wired-until-the-spec-lists-it",
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261106-060011-eac342d0",
+  "base_printing_press_version": "4.35.2",
+  "summary": "POST /v1/monitor/bing/aimode is a typed command (bing-aimode), an MCP tool and an opt-in cited engine, with the same body shape as gemini: prompt, country, state, include.markdown, include.html.",
+  "reason": "cloro added Bing AI Mode after the archived spec.json was taken, and the published openapi.json does not list it yet. A reprint from the archived spec drops the command; reprint from a spec that has the path, or keep these files.",
+  "files": [
+    "internal/cli/promoted_bing-aimode.go",
+    "internal/cli/promoted_bing-aimode_test.go",
+    "internal/cli/root.go",
+    "internal/cli/root_test.go",
+    "internal/cli/which.go",
+    "internal/cli/learn_init.go",
+    "internal/cli/promoted_countries.go",
+    "internal/cli/cited.go",
+    "internal/mcp/tools.go",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "TestBingAimodeSendsBodyToEndpoint checks the path and body against a stub server with a trimmed live response; cited keeps its four default engines."
+}

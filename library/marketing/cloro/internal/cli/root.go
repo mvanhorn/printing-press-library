@@ -506,6 +506,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newAimodePromotedCmd(flags))
+	rootCmd.AddCommand(newBingAimodePromotedCmd(flags))
 	rootCmd.AddCommand(newChatgptPromotedCmd(flags))
 	rootCmd.AddCommand(newCountriesPromotedCmd(flags))
 	rootCmd.AddCommand(newCreditsPromotedCmd(flags))
