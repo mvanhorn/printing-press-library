@@ -15,6 +15,24 @@ import (
 	"time"
 )
 
+// flexInt unmarshals a JSON integer that SEC may also return as a
+// zero-padded string (e.g. "cik":"0001181412") — issue #2445.
+type flexInt int64
+
+func (f *flexInt) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(strings.TrimSpace(string(b)), `"`)
+	if s == "" || s == "null" {
+		*f = 0
+		return nil
+	}
+	n, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return fmt.Errorf("cik %q: %w", s, err)
+	}
+	*f = flexInt(n)
+	return nil
+}
+
 // padCIK normalizes an incoming CIK string to 10 digits, zero-padded.
 // Accepts: "320193", "0000320193", "CIK0000320193", "cik320193".
 func padCIK(raw string) (string, error) {

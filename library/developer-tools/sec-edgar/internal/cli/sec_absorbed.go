@@ -854,7 +854,7 @@ var statementTags = map[string][]string{
 }
 
 type companyFacts struct {
-	CIK        int                              `json:"cik"`
+	CIK        flexInt                          `json:"cik"`
 	EntityName string                           `json:"entityName"`
 	Facts      map[string]map[string]factDetail `json:"facts"`
 }
