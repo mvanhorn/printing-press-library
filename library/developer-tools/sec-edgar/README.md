@@ -4,7 +4,7 @@
 
 An agent-native CLI for the entire SEC EDGAR surface — data.sec.gov XBRL, efts.sec.gov full-text search, and the live Atom feed. The synced SQLite store enables joins no single SEC endpoint supports: insider-cluster detection across issuers, XBRL peer-group benchmarks by SIC, 13F holdings deltas across quarters, and live filing watches with multi-dimensional filters. All free — SEC provides no API key, just a mandatory User-Agent header.
 
-Created by [@ChrisDrit](https://github.com/ChrisDrit) (Chris Drit).
+Created by [@ChrisDrit](https://github.com/ChrisDrit) (Chris Drit). Contributors: [@Alexi5000](https://github.com/Alexi5000) (Alex Cinovoj).
 
 ## Install
 

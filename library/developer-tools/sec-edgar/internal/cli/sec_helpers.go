@@ -20,10 +20,17 @@ import (
 type flexInt int64
 
 func (f *flexInt) UnmarshalJSON(b []byte) error {
-	s := strings.Trim(strings.TrimSpace(string(b)), `"`)
-	if s == "" || s == "null" {
+	s := strings.TrimSpace(string(b))
+	if s == "null" {
 		*f = 0
 		return nil
+	}
+	if strings.HasPrefix(s, `"`) {
+		var str string
+		if err := json.Unmarshal([]byte(s), &str); err != nil {
+			return fmt.Errorf("cik %s: %w", s, err)
+		}
+		s = str
 	}
 	n, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {

@@ -36,6 +36,16 @@ func TestCompanyFactsCIKAcceptsStringAndNumber(t *testing.T) {
 	if err := json.Unmarshal([]byte(`{"cik":"abc"}`), &cfBad); err == nil {
 		t.Fatal("non-numeric cik: expected error, got nil")
 	}
+
+	// Empty and "null" quoted strings are nonnumeric, not JSON null.
+	var cfEmpty companyFacts
+	if err := json.Unmarshal([]byte(`{"cik":""}`), &cfEmpty); err == nil {
+		t.Fatal(`cik "": expected error, got nil`)
+	}
+	var cfNullStr companyFacts
+	if err := json.Unmarshal([]byte(`{"cik":"null"}`), &cfNullStr); err == nil {
+		t.Fatal(`cik "null": expected error, got nil`)
+	}
 }
 
 func TestFrameUnitCIKAcceptsString(t *testing.T) {
