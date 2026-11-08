@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "normattiva",
+  "cli_name": "normattiva-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-08T09:53:14Z",
+  "source_commit": "495a7656630bcd1911aa96c7bbd6e23488848523",
+  "printing_press_version": "4.35.3",
+  "run_id": "20261028-132341-29de1036",
+  "changes": [
+    {
+      "title": "feat(normattiva): add normattiva",
+      "pr": 2442,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2442",
+      "commit": "495a7656630bcd1911aa96c7bbd6e23488848523"
+    }
+  ]
+}
