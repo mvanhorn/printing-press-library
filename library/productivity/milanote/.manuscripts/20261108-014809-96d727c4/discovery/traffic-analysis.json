@@ -1,0 +1,1346 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://app.milanote.com/api/boards/modified?ids=BOARD_ID",
+    "entry_count": 20,
+    "api_entry_count": 20,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "app.milanote.com": 20
+    },
+    "http_version_distribution": {
+      "http/1.1": 20
+    },
+    "time_start": "2026-11-08T09:55:24.335Z",
+    "time_end": "2026-11-08T09:58:03.611Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api//icons",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/custom-templates-init",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "app.milanote.com",
+          "path": "/api/elements/attachments/presign",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/search",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/history",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/search",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/history",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/labels",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/trash",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/counts",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/permissions/board/BOARD_ID",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "endpoint_clusters": [
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api//icons",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "icons",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api//icons",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api/boards",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "boardIds",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "canvasOrder",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "childrenReturned",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "commentCount",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "comments",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "elementCount",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "elements",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "errorCount",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "errors",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "fetchedTime",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "labels",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api/boards/modified",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "modifiedTimes",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api/boards/search",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "offset",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "results",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "size",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "sort",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "timestamp",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "total",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/search",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/search",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "POST",
+      "path": "/api/elements/attachments/presign",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "contentType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "elementId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "fileSize",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "fileType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "filename",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "imageType",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "presignedUrl",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "app.milanote.com",
+          "path": "/api/elements/attachments/presign",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api/labels",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "labels",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/labels",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api/permissions/board/BOARD_ID",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "permissions",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/permissions/board/BOARD_ID",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api/users/me",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "analytics",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "betterAuthSession",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "elements",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "user",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api/users/me/counts",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "cache",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "contentLimit",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "counts",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "isUnlimited",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "rootBoardId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "totalUsage",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "userId",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/counts",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api/users/me/custom-templates-init",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "elements",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/custom-templates-init",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api/users/me/history",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "count",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "elements",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "history",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "historyIds",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "permissionEntries",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/history",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/history",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "app.milanote.com",
+      "method": "GET",
+      "path": "/api/users/me/trash",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "comments",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "earliestId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "earliestTimestamp",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "elements",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "hasMore",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "hasOlderTrash",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "totalCount",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/trash",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api//icons",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/custom-templates-init",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "app.milanote.com",
+          "path": "/api/elements/attachments/presign",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "pagination": [
+    {
+      "location": "query",
+      "name": "offset",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/search",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "pagination-like query parameter"
+        }
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_presign",
+      "resource": "presign",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/elements/attachments/presign traffic.",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "app.milanote.com",
+          "path": "/api/elements/attachments/presign",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_BOARD_ID",
+      "resource": "BOARD_ID",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/permissions/board/BOARD_ID traffic.",
+      "evidence": [
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/permissions/board/BOARD_ID",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_boards",
+      "resource": "boards",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/boards traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_counts",
+      "resource": "counts",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/users/me/counts traffic.",
+      "evidence": [
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/counts",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_custom_templates_init",
+      "resource": "custom_templates_init",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/users/me/custom-templates-init traffic.",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/custom-templates-init",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_history",
+      "resource": "history",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/users/me/history traffic.",
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/history",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/history",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_icons",
+      "resource": "icons",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api//icons traffic.",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api//icons",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_labels",
+      "resource": "labels",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/labels traffic.",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/labels",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_me",
+      "resource": "me",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/users/me traffic.",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_modified",
+      "resource": "modified",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/boards/modified traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/modified",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_search",
+      "resource": "search",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/boards/search traffic.",
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/search",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/boards/search",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_trash",
+      "resource": "trash",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/users/me/trash traffic.",
+      "evidence": [
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "app.milanote.com",
+          "path": "/api/users/me/trash",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ]
+}

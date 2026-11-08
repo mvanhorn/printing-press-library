@@ -1,0 +1,1011 @@
+name: milanote
+description: Discovered API spec for milanote
+version: 0.1.0
+base_url: https://app.milanote.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "offset" from query: search input'
+    - 'rejected auth candidate "q" from query: search input'
+    - 'rejected auth candidate "query" from query: search input'
+    - 'rejected auth candidate "search" from query: search input'
+    - 'rejected auth candidate "sort" from query: search input'
+config:
+    format: toml
+    path: ~/.config/milanote-pp-cli/config.toml
+resources:
+    boards:
+        description: Operations on modified
+        endpoints:
+            list_boards:
+                method: GET
+                path: /api/boards
+                description: GET /api/boards
+                params:
+                    - name: excludeSelf
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ids
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: loadAncestors
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Board
+                pagination: null
+            list_modified:
+                method: GET
+                path: /api/boards/modified
+                description: GET /api/boards/modified
+                params:
+                    - name: ids
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ModifiedModifiedTime
+                pagination: null
+                response_path: modifiedTimes
+            list_search:
+                method: GET
+                path: /api/boards/search
+                description: GET /api/boards/search
+                params:
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: SearchResult
+                pagination: null
+                response_path: results
+    elements:
+        description: Operations on presign
+        endpoints:
+            create_presign:
+                method: POST
+                path: /api/elements/attachments/presign
+                description: POST /api/elements/attachments/presign
+                params: []
+                body:
+                    - name: contentType
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: elementId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: fileSize
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: fileType
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filename
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: imageType
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Presign
+                pagination: null
+    icons:
+        description: Operations on icons
+        endpoints:
+            list_icons:
+                method: GET
+                path: /api//icons
+                description: GET /api//icons
+                params:
+                    - name: count
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: queryType
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: search
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Icon
+                pagination: null
+                response_path: icons
+    labels:
+        description: Operations on labels
+        endpoints:
+            list_labels:
+                method: GET
+                path: /api/labels
+                description: GET /api/labels
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: Label
+                pagination: null
+    permissions:
+        description: Operations on BOARD_ID
+        endpoints:
+            list_BOARD_ID:
+                method: GET
+                path: /api/permissions/board/BOARD_ID
+                description: GET /api/permissions/board/BOARD_ID
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: TBOARD_ID2
+                pagination: null
+    users:
+        description: Operations on custom-templates-init
+        endpoints:
+            list_counts:
+                method: GET
+                path: /api/users/me/counts
+                description: GET /api/users/me/counts
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: Count
+                pagination: null
+            list_custom_templates_init:
+                method: GET
+                path: /api/users/me/custom-templates-init
+                description: GET /api/users/me/custom-templates-init
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: CustomTemplatesInit
+                pagination: null
+            list_history:
+                method: GET
+                path: /api/users/me/history
+                description: GET /api/users/me/history
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: History
+                pagination: null
+                response_path: history
+            list_me:
+                method: GET
+                path: /api/users/me
+                description: GET /api/users/me
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: MeAnalytic
+                pagination: null
+                response_path: analytics
+            list_trash:
+                method: GET
+                path: /api/users/me/trash
+                description: GET /api/users/me/trash
+                params:
+                    - name: other-users
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Trash
+                pagination: null
+types:
+    Ancestor:
+        fields:
+            - name: _id
+              type: string
+            - name: title
+              type: string
+    Board:
+        fields:
+            - name: boardIds
+              type: array
+            - name: canvasOrder
+              type: object
+            - name: childrenReturned
+              type: ref:ChildrenReturned
+            - name: commentCount
+              type: integer
+            - name: comments
+              type: object
+            - name: elementCount
+              type: integer
+            - name: elements
+              type: ref:Elements
+            - name: errorCount
+              type: integer
+            - name: errors
+              type: object
+            - name: fetchedTime
+              type: integer
+            - name: labels
+              type: object
+    Board2:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    ChildrenReturned:
+        fields:
+            - name: BOARD_ID
+              type: bool
+              omit_empty: true
+            - name: BOARD_ID
+              type: bool
+              omit_empty: true
+            - name: BOARD_ID
+              type: bool
+              omit_empty: true
+    ContentLimit:
+        fields:
+            - name: current
+              type: integer
+            - name: default
+              type: integer
+            - name: exceeded
+              type: bool
+            - name: giftBonus
+              type: integer
+            - name: maxReferralBonus
+              type: integer
+            - name: referralBonus
+              type: integer
+    Count:
+        fields:
+            - name: cache
+              type: string
+            - name: contentLimit
+              type: ref:ContentLimit
+            - name: counts
+              type: ref:Counts
+            - name: isUnlimited
+              type: bool
+            - name: rootBoardId
+              type: string
+            - name: totalUsage
+              type: integer
+            - name: userId
+              type: string
+    Counts:
+        fields:
+            - name: BOARD
+              type: integer
+            - name: CARD
+              type: integer
+            - name: IMAGE
+              type: integer
+            - name: TASK_LIST
+              type: integer
+    CustomTemplatesInit:
+        fields:
+            - name: elements
+              type: object
+    ElementCounts:
+        fields:
+            - name: BOARD
+              type: integer
+            - name: TASK_LIST
+              type: integer
+    Elements:
+        fields:
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+              omit_empty: true
+    Elements2:
+        fields:
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+            - name: BOARD_ID
+              type: ref:TBOARD_ID
+    History:
+        fields:
+            - name: elementId
+              type: string
+            - name: lastView
+              type: integer
+            - name: viewCount
+              type: integer
+    Icon:
+        fields:
+            - name: id
+              type: string
+            - name: name
+              type: string
+            - name: png
+              type: string
+              format: url
+            - name: svg
+              type: string
+            - name: type
+              type: string
+    InnerHit:
+        fields:
+            - name: _id
+              type: string
+            - name: content
+              type: array
+            - name: elementType
+              type: string
+            - name: labels
+              type: array
+    Label:
+        fields:
+            - name: labels
+              type: array
+    MeAnalytic:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: createdAt
+              type: integer
+            - name: pendingEvent
+              type: ref:PendingEvent
+            - name: trackerType
+              type: string
+            - name: updatedAt
+              type: integer
+            - name: userId
+              type: string
+    ModifiedModifiedTime:
+        fields:
+            - name: id
+              type: string
+            - name: modifiedTime
+              type: integer
+    PendingEvent:
+        fields:
+            - name: eventProperties
+              type: object
+    Presign:
+        fields:
+            - name: presignedUrl
+              type: string
+    SearchResult:
+        fields:
+            - name: _id
+              type: string
+              omit_empty: true
+            - name: ancestors
+              type: '[]ref:Ancestor'
+              omit_empty: true
+            - name: board
+              type: ref:Board2
+              omit_empty: true
+            - name: elementCounts
+              type: ref:ElementCounts
+              omit_empty: true
+            - name: innerHits
+              type: '[]ref:InnerHit'
+              omit_empty: true
+            - name: modifiedTime
+              type: integer
+              omit_empty: true
+            - name: ownerId
+              type: string
+              omit_empty: true
+            - name: score
+              type: number
+              omit_empty: true
+            - name: userIds
+              type: array
+              omit_empty: true
+            - name: viewedTime
+              type: integer
+              omit_empty: true
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID2:
+        fields:
+            - name: permissions
+              type: array
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    TBOARD_ID:
+        fields:
+            - name: __v
+              type: integer
+            - name: _id
+              type: string
+            - name: content
+              type: object
+            - name: elementType
+              type: string
+            - name: id
+              type: string
+            - name: location
+              type: object
+            - name: meta
+              type: object
+    Trash:
+        fields:
+            - name: comments
+              type: object
+            - name: earliestId
+              type: string
+            - name: earliestTimestamp
+              type: integer
+            - name: elements
+              type: ref:Elements2
+            - name: hasMore
+              type: bool
+            - name: hasOlderTrash
+              type: bool
+            - name: totalCount
+              type: integer

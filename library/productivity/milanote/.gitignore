@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/milanote-pp-cli
+/milanote-pp-cli.exe
+/milanote-pp-mcp
+/milanote-pp-mcp.exe
+/bin/
+/build/
+/dist/

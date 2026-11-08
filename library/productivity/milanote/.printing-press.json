@@ -1,0 +1,159 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-08T18:34:54.197013Z",
+  "printing_press_version": "4.35.3",
+  "api_name": "milanote",
+  "display_name": "Milanote",
+  "cli_name": "milanote-pp-cli",
+  "creator": {
+    "handle": "beausterling",
+    "name": "Beau Sterling"
+  },
+  "owner": "beausterling",
+  "printer": "beausterling",
+  "printer_name": "Beau Sterling",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:f0b49f20e73a3caecbe29e51cfeedcde5e4dfab3532bbdfddb1d82da50543243",
+  "run_id": "20261108-014809-96d727c4",
+  "category": "productivity",
+  "description": "Treat a Milanote board like an addressable canvas: native headings, lists and checkboxes, laid out on an even grid, and read back as Markdown.",
+  "mcp_binary": "milanote-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "MILANOTE_SESSION_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Markdown to laid-out board",
+      "command": "layout md",
+      "description": "Turn a Markdown file into native heading cards, rich-text notes, bullet lists and checkbox lists in evenly spaced columns."
+    },
+    {
+      "name": "Board tree to Markdown outline",
+      "command": "outline",
+      "description": "Get a board and its sub-boards back as Markdown in canvas reading order, with headings, lists and checkboxes intact."
+    },
+    {
+      "name": "Even-grid re-space with undo",
+      "command": "layout grid",
+      "description": "Re-space a board's cards (or empty its Unsorted panel) onto an even grid with equal gutters, and undo it if you don't like it."
+    },
+    {
+      "name": "Storyboard and moodboard image grid",
+      "command": "images grid",
+      "description": "Upload a folder of frames as an evenly spaced, numbered grid with optional captions."
+    },
+    {
+      "name": "Open tasks across all boards",
+      "command": "todos open",
+      "description": "List every unchecked checkbox across your boards with where it lives, ready to tick off."
+    },
+    {
+      "name": "Layout lint",
+      "command": "layout check",
+      "description": "Report off-grid cards, uneven gutters, overlaps, cards stuck in Unsorted, and text that should be a heading or list."
+    },
+    {
+      "name": "Two-way Markdown sync",
+      "command": "mirror",
+      "description": "Pair a Markdown file with a board so edits on either side flow to the other."
+    },
+    {
+      "name": "Board snapshots and diff",
+      "command": "snapshot diff",
+      "description": "Save a board's state and later see exactly which cards were added, moved, edited or ticked."
+    },
+    {
+      "name": "Board templates",
+      "command": "template apply",
+      "description": "Save a board's structure as a small YAML kit and stamp out fresh copies."
+    },
+    {
+      "name": "CSV to card grid",
+      "command": "layout csv",
+      "description": "Turn spreadsheet rows such as a shot list into a numbered, evenly spaced grid of cards."
+    },
+    {
+      "name": "One-command login from Chrome",
+      "command": "chrome-login",
+      "description": "Pull the Milanote login from a running Chrome in one step."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Markdown to laid-out board",
+      "command": "layout md",
+      "description": "Turn a Markdown file into native heading cards, rich-text notes, bullet lists and checkbox lists in evenly spaced columns."
+    },
+    {
+      "name": "Board tree to Markdown outline",
+      "command": "outline",
+      "description": "Get a board and its sub-boards back as Markdown in canvas reading order, with headings, lists and checkboxes intact."
+    },
+    {
+      "name": "Even-grid re-space with undo",
+      "command": "layout grid",
+      "description": "Re-space a board's cards (or empty its Unsorted panel) onto an even grid with equal gutters, and undo it if you don't like it."
+    },
+    {
+      "name": "Storyboard and moodboard image grid",
+      "command": "images grid",
+      "description": "Upload a folder of frames as an evenly spaced, numbered grid with optional captions."
+    },
+    {
+      "name": "Open tasks across all boards",
+      "command": "todos open",
+      "description": "List every unchecked checkbox across your boards with where it lives, ready to tick off."
+    },
+    {
+      "name": "Layout lint",
+      "command": "layout check",
+      "description": "Report off-grid cards, uneven gutters, overlaps, cards stuck in Unsorted, and text that should be a heading or list."
+    },
+    {
+      "name": "Two-way Markdown sync",
+      "command": "mirror",
+      "description": "Pair a Markdown file with a board so edits on either side flow to the other."
+    },
+    {
+      "name": "Board snapshots and diff",
+      "command": "snapshot diff",
+      "description": "Save a board's state and later see exactly which cards were added, moved, edited or ticked."
+    },
+    {
+      "name": "Board templates",
+      "command": "template apply",
+      "description": "Save a board's structure as a small YAML kit and stamp out fresh copies."
+    },
+    {
+      "name": "CSV to card grid",
+      "command": "layout csv",
+      "description": "Turn spreadsheet rows such as a shot list into a numbered, evenly spaced grid of cards."
+    },
+    {
+      "name": "One-command login from Chrome",
+      "command": "chrome-login",
+      "description": "Pull the Milanote login from a running Chrome in one step."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 87,
+    "total": 87,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 95,
+      "grade": "A",
+      "total": 95
+    }
+  }
+}

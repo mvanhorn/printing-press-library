@@ -1,0 +1,324 @@
+{
+  "api_name": "milanote",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "milanote-api-mcp-server",
+      "url": "https://github.com/cotletdev/milanote-api-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Milanote-Unofficial-API",
+      "url": "https://github.com/serhanceetin/Milanote-Unofficial-API",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "milanote-api",
+      "url": "https://github.com/setobox/milanote-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-08T10:07:22Z",
+  "novel_features": [
+    {
+      "name": "Markdown to laid-out board",
+      "command": "layout md",
+      "description": "Turn a Markdown file into native heading cards, rich-text notes, bullet lists and checkbox lists in evenly spaced columns.",
+      "rationale": "Builds Milanote's own heading, list and task nodes and computes canvas positions; every other tool drops plain cards into Unsorted.",
+      "example": "milanote-pp-cli layout md outline.md --board 1Ab2Cd3EfGh4iJ --cols 3 --gutter 4",
+      "why_it_matters": "Reach for this whenever a multi-section document has to land on a board looking organized, not one card at a time.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "Board tree to Markdown outline",
+      "command": "outline",
+      "description": "Get a board and its sub-boards back as Markdown in canvas reading order, with headings, lists and checkboxes intact.",
+      "rationale": "Orders cards by column and position and converts Milanote rich text to Markdown; Milanote's exporter only makes PDF and images.",
+      "example": "milanote-pp-cli outline 1Ab2Cd3EfGh4iJ --depth 2 --out board.md",
+      "why_it_matters": "Use it to read a whole board as text before editing or summarizing it.",
+      "group": "Read it back"
+    },
+    {
+      "name": "Even-grid re-space with undo",
+      "command": "layout grid",
+      "description": "Re-space a board's cards (or empty its Unsorted panel) onto an even grid with equal gutters, and undo it if you don't like it.",
+      "rationale": "Computes a grid from every element's position and applies it in one bulk move, keeping the old positions locally for undo.",
+      "example": "milanote-pp-cli layout grid 1Ab2Cd3EfGh4iJ --cols 4 --gutter 4 --dry-run",
+      "why_it_matters": "Use it after edits to keep a board tidy without moving cards one by one.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "Storyboard and moodboard image grid",
+      "command": "images grid",
+      "description": "Upload a folder of frames as an evenly spaced, numbered grid with optional captions.",
+      "rationale": "Uses each file's real pixel size to space the grid exactly and batches the uploads.",
+      "example": "milanote-pp-cli images grid ./frames --board 1Ab2Cd3EfGh4iJ --cols 3 --number",
+      "why_it_matters": "Use it for storyboards and reference boards instead of dropping images one at a time.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "Open tasks across all boards",
+      "command": "todos open",
+      "description": "List every unchecked checkbox across your boards with where it lives, ready to tick off.",
+      "rationale": "A cross-board query over the local mirror; the web app has no such view.",
+      "example": "milanote-pp-cli todos open --agent",
+      "why_it_matters": "Use it to answer what is left to do without opening every board.",
+      "group": "Read it back"
+    },
+    {
+      "name": "Layout lint",
+      "command": "layout check",
+      "description": "Report off-grid cards, uneven gutters, overlaps, cards stuck in Unsorted, and text that should be a heading or list.",
+      "rationale": "Applies geometric and content rules across every element and returns findings with element ids.",
+      "example": "milanote-pp-cli layout check 1Ab2Cd3EfGh4iJ --json",
+      "why_it_matters": "Use it to verify a layout by numbers instead of a screenshot.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "Two-way Markdown sync",
+      "command": "mirror",
+      "description": "Pair a Markdown file with a board so edits on either side flow to the other.",
+      "rationale": "Tracks which card came from which section and what changed since last run, so updates edit cards in place instead of duplicating them.",
+      "example": "milanote-pp-cli mirror script.md --board 1Ab2Cd3EfGh4iJ --once",
+      "why_it_matters": "Use it when a document lives in both an editor and a board and must stay in step.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "Board snapshots and diff",
+      "command": "snapshot diff",
+      "description": "Save a board's state and later see exactly which cards were added, moved, edited or ticked.",
+      "rationale": "Keeps full element history locally; Milanote shows no change history.",
+      "example": "milanote-pp-cli snapshot diff 1Ab2Cd3EfGh4iJ --json",
+      "why_it_matters": "Use it to review what changed between revisions without eyeballing the canvas.",
+      "group": "Read it back"
+    },
+    {
+      "name": "Board templates",
+      "command": "template apply",
+      "description": "Save a board's structure as a small YAML kit and stamp out fresh copies.",
+      "rationale": "Serialises headings, columns, checklists and relative spacing, then rebuilds them with new ids.",
+      "example": "milanote-pp-cli template apply film-kit.yaml --parent 1Ab2Cd3EfGh4iJ --name 'New short' --dry-run",
+      "why_it_matters": "Use it to start every project from the same organized layout.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "CSV to card grid",
+      "command": "layout csv",
+      "description": "Turn spreadsheet rows such as a shot list into a numbered, evenly spaced grid of cards.",
+      "rationale": "Maps columns to bold-labelled lines in native rich text and computes the grid.",
+      "example": "milanote-pp-cli layout csv shots.csv --board 1Ab2Cd3EfGh4iJ --title-col shot --cols 4",
+      "why_it_matters": "Use it for tabular data instead of building cards one by one.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "One-command login from Chrome",
+      "command": "chrome-login",
+      "description": "Pull the Milanote login from a running Chrome in one step.",
+      "rationale": "Reads only the Milanote session cookie over the DevTools protocol and stores it locally.",
+      "example": "milanote-pp-cli chrome-login --port 9222",
+      "why_it_matters": "Use it to set up or refresh auth without exporting cookies by hand.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Markdown to laid-out board",
+      "command": "layout md",
+      "description": "Turn a Markdown file into native heading cards, rich-text notes, bullet lists and checkbox lists in evenly spaced columns.",
+      "rationale": "Builds Milanote's own heading, list and task nodes and computes canvas positions; every other tool drops plain cards into Unsorted.",
+      "example": "milanote-pp-cli layout md outline.md --board 1Ab2Cd3EfGh4iJ --cols 3 --gutter 4",
+      "why_it_matters": "Reach for this whenever a multi-section document has to land on a board looking organized, not one card at a time.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "Board tree to Markdown outline",
+      "command": "outline",
+      "description": "Get a board and its sub-boards back as Markdown in canvas reading order, with headings, lists and checkboxes intact.",
+      "rationale": "Orders cards by column and position and converts Milanote rich text to Markdown; Milanote's exporter only makes PDF and images.",
+      "example": "milanote-pp-cli outline 1Ab2Cd3EfGh4iJ --depth 2 --out board.md",
+      "why_it_matters": "Use it to read a whole board as text before editing or summarizing it.",
+      "group": "Read it back"
+    },
+    {
+      "name": "Even-grid re-space with undo",
+      "command": "layout grid",
+      "description": "Re-space a board's cards (or empty its Unsorted panel) onto an even grid with equal gutters, and undo it if you don't like it.",
+      "rationale": "Computes a grid from every element's position and applies it in one bulk move, keeping the old positions locally for undo.",
+      "example": "milanote-pp-cli layout grid 1Ab2Cd3EfGh4iJ --cols 4 --gutter 4 --dry-run",
+      "why_it_matters": "Use it after edits to keep a board tidy without moving cards one by one.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "Storyboard and moodboard image grid",
+      "command": "images grid",
+      "description": "Upload a folder of frames as an evenly spaced, numbered grid with optional captions.",
+      "rationale": "Uses each file's real pixel size to space the grid exactly and batches the uploads.",
+      "example": "milanote-pp-cli images grid ./frames --board 1Ab2Cd3EfGh4iJ --cols 3 --number",
+      "why_it_matters": "Use it for storyboards and reference boards instead of dropping images one at a time.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "Open tasks across all boards",
+      "command": "todos open",
+      "description": "List every unchecked checkbox across your boards with where it lives, ready to tick off.",
+      "rationale": "A cross-board query over the local mirror; the web app has no such view.",
+      "example": "milanote-pp-cli todos open --agent",
+      "why_it_matters": "Use it to answer what is left to do without opening every board.",
+      "group": "Read it back"
+    },
+    {
+      "name": "Layout lint",
+      "command": "layout check",
+      "description": "Report off-grid cards, uneven gutters, overlaps, cards stuck in Unsorted, and text that should be a heading or list.",
+      "rationale": "Applies geometric and content rules across every element and returns findings with element ids.",
+      "example": "milanote-pp-cli layout check 1Ab2Cd3EfGh4iJ --json",
+      "why_it_matters": "Use it to verify a layout by numbers instead of a screenshot.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "Two-way Markdown sync",
+      "command": "mirror",
+      "description": "Pair a Markdown file with a board so edits on either side flow to the other.",
+      "rationale": "Tracks which card came from which section and what changed since last run, so updates edit cards in place instead of duplicating them.",
+      "example": "milanote-pp-cli mirror script.md --board 1Ab2Cd3EfGh4iJ --once",
+      "why_it_matters": "Use it when a document lives in both an editor and a board and must stay in step.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "Board snapshots and diff",
+      "command": "snapshot diff",
+      "description": "Save a board's state and later see exactly which cards were added, moved, edited or ticked.",
+      "rationale": "Keeps full element history locally; Milanote shows no change history.",
+      "example": "milanote-pp-cli snapshot diff 1Ab2Cd3EfGh4iJ --json",
+      "why_it_matters": "Use it to review what changed between revisions without eyeballing the canvas.",
+      "group": "Read it back"
+    },
+    {
+      "name": "Board templates",
+      "command": "template apply",
+      "description": "Save a board's structure as a small YAML kit and stamp out fresh copies.",
+      "rationale": "Serialises headings, columns, checklists and relative spacing, then rebuilds them with new ids.",
+      "example": "milanote-pp-cli template apply film-kit.yaml --parent 1Ab2Cd3EfGh4iJ --name 'New short' --dry-run",
+      "why_it_matters": "Use it to start every project from the same organized layout.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "CSV to card grid",
+      "command": "layout csv",
+      "description": "Turn spreadsheet rows such as a shot list into a numbered, evenly spaced grid of cards.",
+      "rationale": "Maps columns to bold-labelled lines in native rich text and computes the grid.",
+      "example": "milanote-pp-cli layout csv shots.csv --board 1Ab2Cd3EfGh4iJ --title-col shot --cols 4",
+      "why_it_matters": "Use it for tabular data instead of building cards one by one.",
+      "group": "Canvas layout"
+    },
+    {
+      "name": "One-command login from Chrome",
+      "command": "chrome-login",
+      "description": "Pull the Milanote login from a running Chrome in one step.",
+      "rationale": "Reads only the Milanote session cookie over the DevTools protocol and stores it locally.",
+      "example": "milanote-pp-cli chrome-login --port 9222",
+      "why_it_matters": "Use it to set up or refresh auth without exporting cookies by hand.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Milanote",
+    "headline": "Treat a Milanote board like an addressable canvas: native headings, lists and checkboxes, laid out on an even grid, and read back as Markdown.",
+    "value_prop": "Every Milanote board, note, heading, to-do, image and comment from the command line, written through the same channel the web app uses. layout md turns a Markdown file into an evenly spaced board, outline turns a board back into Markdown, and a local mirror makes search and todos open work across every board offline.",
+    "auth_narrative": "Milanote has no API keys. The CLI uses the session cookie from a browser where you are logged in. Easiest: start Chrome with remote debugging and run chrome-login, which copies only the Milanote session cookie. Or paste it with auth login --cookie, or point MILANOTE_COOKIE_FILE at a JSON cookie export. Sessions last about a month; doctor tells you when it has expired.",
+    "quickstart": [
+      {
+        "command": "milanote-pp-cli doctor --dry-run",
+        "comment": "Check config and auth wiring without touching the network"
+      },
+      {
+        "command": "milanote-pp-cli whoami",
+        "comment": "Confirm the cookie works and find your root board id"
+      },
+      {
+        "command": "milanote-pp-cli boards list --json",
+        "comment": "Walk the board tree"
+      },
+      {
+        "command": "milanote-pp-cli outline 1Ab2Cd3EfGh4iJ",
+        "comment": "Read a board as Markdown"
+      },
+      {
+        "command": "milanote-pp-cli layout md notes.md --board 1Ab2Cd3EfGh4iJ --dry-run",
+        "comment": "Preview a Markdown file laid out as a board before writing"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "The session cookie expired; log in to Milanote in the browser and re-run auth login --cookie"
+      },
+      {
+        "symptom": "socket.io handshake returns 400",
+        "fix": "Load-balancer stickiness was lost; retry the command (the client re-handshakes with a fresh cookie jar)"
+      },
+      {
+        "symptom": "Writes rejected on a free account",
+        "fix": "Free plans stop at 100 cards; run usage to see the count"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to read, build or reorganize Milanote boards: pushing a Markdown outline onto a board as headings, notes and checklists, tidying a board onto an even grid, uploading a folder of storyboard frames, or reading a board tree back as text.",
+    "anti_triggers": [
+      "Drawing sketches or editing images inside Milanote",
+      "Real-time collaboration or watching other people's cursors",
+      "Accounts you are not logged in to in a browser"
+    ],
+    "recipes": [
+      {
+        "title": "Push a scene outline",
+        "command": "milanote-pp-cli layout md scenes.md --board 1Ab2Cd3EfGh4iJ --cols 3",
+        "explanation": "Each ## becomes a heading column with its notes and checklists underneath, evenly spaced."
+      },
+      {
+        "title": "Read a board back",
+        "command": "milanote-pp-cli outline 1Ab2Cd3EfGh4iJ --out board.md",
+        "explanation": "Markdown in reading order, checkboxes preserved."
+      },
+      {
+        "title": "Just the card texts",
+        "command": "milanote-pp-cli boards get 1Ab2Cd3EfGh4iJ --agent --select id,type,text",
+        "explanation": "Narrow a large board payload to ids, types and plain text."
+      },
+      {
+        "title": "What's left to do",
+        "command": "milanote-pp-cli todos open --agent",
+        "explanation": "Every unchecked task across boards with its board path and id."
+      }
+    ],
+    "trigger_phrases": [
+      "put this on my Milanote board",
+      "lay out these notes in Milanote",
+      "read my Milanote board",
+      "what's left on my Milanote checklist",
+      "use milanote",
+      "run milanote-pp-cli"
+    ]
+  }
+}

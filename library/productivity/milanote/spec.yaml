@@ -1,0 +1,154 @@
+name: milanote
+description: "Milanote boards from the command line: native headings, lists and checkboxes, laid out on an even grid"
+version: "0.1.0"
+category: productivity
+base_url: "https://app.milanote.com"
+http_transport: standard
+health_check_path: "/api/users/me"
+# learn: element-type vocabulary agents type in several ways
+learn:
+  entity_lookup_seeds:
+    element_type:
+      - canonical: CARD
+        aliases: [note, card, text card]
+      - canonical: TASK_LIST
+        aliases: [todo, to-do, checklist, task list, checkboxes]
+      - canonical: IMAGE
+        aliases: [image, picture, photo, frame]
+      - canonical: BOARD
+        aliases: [board, sub-board, folder]
+      - canonical: COLUMN
+        aliases: [column]
+      - canonical: LINK
+        aliases: [link, url, bookmark]
+  synonyms:
+    "to-do": "todo"
+    "check list": "checklist"
+
+auth:
+  type: cookie
+  header: "Cookie"
+  cookie_domain: "app.milanote.com"
+  cookies:
+    - __Secure-milanote.session_token
+  env_vars:
+    - MILANOTE_SESSION_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/milanote-pp-cli/config.toml"
+
+resources:
+  account:
+    description: "Your Milanote account"
+    endpoints:
+      me:
+        method: GET
+        path: /api/users/me
+        description: "Show the signed-in user, root board id and plan"
+        response: {type: object}
+      counts:
+        method: GET
+        path: /api/users/me/counts
+        description: "Card and board counts used against plan limits"
+        response: {type: object}
+      history:
+        method: GET
+        path: /api/users/me/history
+        description: "Recently viewed boards (raw history ids and timestamps)"
+        response: {type: object}
+      trash:
+        method: GET
+        path: /api/users/me/trash
+        description: "Elements in your trash"
+        params:
+          - name: other-users
+            flag_name: other-users
+            type: bool
+            default: false
+            description: "Include items other collaborators trashed"
+        response: {type: object}
+      users:
+        method: GET
+        path: /api/users
+        description: "Look up collaborators by user id"
+        params:
+          - name: ids
+            type: string
+            required: true
+            description: "Comma-separated user ids"
+        happy_args: "--ids=example-value"
+        response: {type: object}
+  boards:
+    description: "Boards: the canvases that hold notes, headings, images and sub-boards"
+    endpoints:
+      fetch:
+        method: GET
+        path: /api/boards
+        description: "Fetch raw board payloads (elements, comments, labels) by id"
+        params:
+          - name: ids
+            type: string
+            required: true
+            description: "Comma-separated board ids"
+          - name: excludeSelf
+            flag_name: exclude-self
+            type: bool
+            default: false
+            description: "Leave the board element itself out of the payload"
+          - name: loadAncestors
+            flag_name: load-ancestors
+            type: bool
+            default: false
+            description: "Also return the parent boards"
+        happy_args: "--ids=example-value"
+        response: {type: object}
+      search:
+        method: GET
+        path: /api/boards/search
+        description: "Search board titles on the server"
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Text to search for"
+          - name: offset
+            type: int
+            default: 0
+            description: "Result offset"
+          - name: sort
+            type: string
+            description: "Sort order"
+        happy_args: "--query=story"
+        response: {type: object}
+      modified:
+        method: GET
+        path: /api/boards/modified
+        description: "Last-modified times for boards"
+        params:
+          - name: ids
+            type: string
+            required: true
+            description: "Comma-separated board ids"
+        happy_args: "--ids=example-value"
+        response: {type: object}
+      permissions:
+        method: GET
+        path: /api/permissions/board/{board_id}
+        description: "Who can see and edit a board"
+        params:
+          - name: board_id
+            type: string
+            required: true
+            positional: true
+            description: "Board id"
+        happy_args: "board_id=example-value"
+        response: {type: object}
+  labels:
+    description: "Card labels"
+    endpoints:
+      list:
+        method: GET
+        path: /api/labels
+        description: "List your labels"
+        response: {type: object}
