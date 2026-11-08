@@ -471,7 +471,7 @@ func newBoardsExportCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return mnErr(err)
 				}
-				if err := os.WriteFile(out, data, 0o644); err != nil {
+				if err := os.WriteFile(out, data, 0o600); err != nil {
 					return usageErr(err)
 				}
 				result["out"], result["bytes"] = out, len(data)

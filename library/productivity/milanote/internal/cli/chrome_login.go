@@ -45,17 +45,21 @@ No other cookies are read or stored. Log in to Milanote in that Chrome first.`,
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			cookie := milanote.SessionCookie + "=" + value
-			mc, err := milanote.New("", cookie, flags.timeout)
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
+			}
+			opts, err := mnOptions(flags, cfg)
+			if err != nil {
+				return err
+			}
+			mc, err := milanote.New("", cookie, opts)
 			if err != nil {
 				return mnErr(err)
 			}
 			me, err := mc.Me(ctx)
 			if err != nil {
 				return authErr(fmt.Errorf("Chrome's Milanote session was rejected, so nothing was saved: %w", err))
-			}
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return configErr(err)
 			}
 			cfg.CredentialDomain = "app.milanote.com"
 			if err := cfg.SaveTokens("", "", cookie, "", time.Time{}); err != nil {

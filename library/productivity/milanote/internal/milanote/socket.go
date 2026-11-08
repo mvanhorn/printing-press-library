@@ -149,6 +149,9 @@ func (s *Conn) Send(ctx context.Context, action map[string]any, channels []strin
 	if s.closed {
 		return errors.New("milanote sync connection is closed")
 	}
+	if err := s.c.limiter.Wait(ctx); err != nil {
+		return err
+	}
 	id := s.ack
 	s.ack++
 	frame, err := json.Marshal([]any{"action", s.stamp(action, channels)})

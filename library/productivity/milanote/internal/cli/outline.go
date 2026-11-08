@@ -52,7 +52,7 @@ func newNovelOutlineCmd(flags *rootFlags) *cobra.Command {
 			renderBoard(&b, boards, rootID, 1)
 			md := strings.TrimSpace(b.String()) + "\n"
 			if out != "" && !dryRunOK(flags) {
-				if err := os.WriteFile(out, []byte(md), 0o644); err != nil {
+				if err := os.WriteFile(out, []byte(md), 0o600); err != nil {
 					return usageErr(err)
 				}
 			}

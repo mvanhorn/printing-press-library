@@ -34,7 +34,26 @@ type Chunk struct {
 // line, one to-do list per run of "- [ ]" lines, and one note for everything
 // between. A horizontal rule ends a note without becoming a card.
 func ChunkMarkdown(md string) []Chunk {
-	lines := strings.Split(strings.ReplaceAll(md, "\r\n", "\n"), "\n")
+	return chunkLines(strings.Split(strings.ReplaceAll(md, "\r\n", "\n"), "\n"))
+}
+
+// CardOpen and CardClose mark text that must stay one note, even if it holds
+// headings or rules that would otherwise start new cards.
+const (
+	CardOpen  = "<!-- card -->"
+	CardClose = "<!-- /card -->"
+)
+
+// CardBlock is the text to write to a file for a card's Markdown so it reads
+// back as exactly one chunk.
+func CardBlock(md string) string {
+	if len(ChunkMarkdown(md)) == 1 {
+		return md
+	}
+	return CardOpen + "\n" + md + "\n" + CardClose
+}
+
+func chunkLines(lines []string) []Chunk {
 	var out []Chunk
 	band, section := 0, 0
 	seenHeading := false
@@ -61,6 +80,24 @@ func ChunkMarkdown(md string) []Chunk {
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
 		trimmed := strings.TrimSpace(line)
+		if trimmed == CardOpen && !inFence {
+			flush(i)
+			stop := i + 1
+			for stop < len(lines) && strings.TrimSpace(lines[stop]) != CardClose {
+				stop++
+			}
+			body := strings.TrimSpace(strings.Join(lines[i+1:stop], "\n"))
+			end := stop + 1
+			if end > len(lines) {
+				end = len(lines)
+			}
+			if body != "" {
+				// Start and End cover the markers so an edit replaces the whole block.
+				out = append(out, Chunk{Kind: ChunkNote, MD: body, Band: band, Section: section, Start: i, End: end})
+			}
+			i = end - 1
+			continue
+		}
 		if strings.HasPrefix(trimmed, "```") {
 			if noteStart < 0 {
 				noteStart = i

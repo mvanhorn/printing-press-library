@@ -67,7 +67,7 @@ func TestApplyLineEdits(t *testing.T) {
 	text := "a\n\nb\n\nc\n"
 	repl := "B1\nB2"
 	got := applyLineEdits(text, []lineEdit{{start: 2, end: 3, text: &repl}, {start: 4, end: 5}}, []string{"tail"})
-	if want := "a\n\nB1\nB2\n\ntail\n"; got != want {
+	if want := "a\n\nB1\nB2\n\n---\n\ntail\n"; got != want {
 		t.Fatalf("got %q want %q", got, want)
 	}
 }

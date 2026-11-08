@@ -69,8 +69,13 @@ func newNovelTodosOpenCmd(flags *rootFlags) *cobra.Command {
 						if t.Checked {
 							continue
 						}
+						// The id targets exactly one item; text matches any item containing it.
+						ref := t.ID
+						if ref == "" {
+							ref = t.Text
+						}
 						out = append(out, openTask{Board: b.ID, Path: b.PathString(), ListID: list.ID, TaskID: t.ID, Text: t.Text,
-							Command: fmt.Sprintf("milanote-pp-cli todos check %s %s %q", b.ID, list.ID, t.Text)})
+							Command: fmt.Sprintf("milanote-pp-cli todos check %s %s %q", b.ID, list.ID, ref)})
 					}
 				}
 				return nil

@@ -77,9 +77,21 @@ func NormalizeCookie(raw string) string {
 	return raw
 }
 
-// New builds a client from a session credential. timeout bounds REST calls;
-// socket.io long-polls use a separate, longer budget.
-func New(baseURL, credential string, timeout time.Duration) (*Client, error) {
+// DefaultRequestRate is the pace, in requests per second, used unless the
+// caller asks for another.
+const DefaultRequestRate = 4.0
+
+// Options tunes a Client. The zero value is not the default for RateLimit:
+// use RateLimit < 0 for DefaultRequestRate, 0 to turn pacing off, and a positive
+// number for that many requests per second.
+type Options struct {
+	Timeout   time.Duration     // bounds REST calls; socket.io long-polls use a longer budget
+	RateLimit float64           // see above
+	Transport http.RoundTripper // nil uses the default transport
+}
+
+// New builds a client from a session credential.
+func New(baseURL, credential string, opts Options) (*Client, error) {
 	cookie := NormalizeCookie(credential)
 	if cookie == "" {
 		return nil, ErrUnauthorized
@@ -102,14 +114,19 @@ func New(baseURL, credential string, timeout time.Duration) (*Client, error) {
 		cookies = append(cookies, &http.Cookie{Name: name, Value: value, Path: "/", Secure: u.Scheme == "https"})
 	}
 	jar.SetCookies(u, cookies)
+	timeout := opts.Timeout
 	if timeout <= 0 {
 		timeout = 30 * time.Second
 	}
+	rate := opts.RateLimit
+	if rate < 0 {
+		rate = DefaultRequestRate
+	}
 	return &Client{
 		BaseURL:   baseURL,
-		HTTP:      &http.Client{Jar: jar, Timeout: timeout},
-		Poll:      &http.Client{Jar: jar, Timeout: 40 * time.Second},
-		limiter:   cliutil.NewAdaptiveLimiter(4),
+		HTTP:      &http.Client{Jar: jar, Timeout: timeout, Transport: opts.Transport},
+		Poll:      &http.Client{Jar: jar, Timeout: 40 * time.Second, Transport: opts.Transport},
+		limiter:   cliutil.NewAdaptiveLimiter(rate),
 		userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
 	}, nil
 }
@@ -397,6 +414,18 @@ func (c *Client) Fetch(ctx context.Context, rawURL string) ([]byte, error) {
 	return io.ReadAll(io.LimitReader(resp.Body, 256<<20))
 }
 
+// storageTransport keeps the trusted CAs for uploads but drops any certificate
+// name override, which describes the Milanote host and not the storage host.
+func storageTransport(rt http.RoundTripper) http.RoundTripper {
+	tr, ok := rt.(*http.Transport)
+	if !ok || tr.TLSClientConfig == nil || tr.TLSClientConfig.ServerName == "" {
+		return rt
+	}
+	clone := tr.Clone()
+	clone.TLSClientConfig.ServerName = ""
+	return clone
+}
+
 // PutBytes uploads bytes to a presigned storage URL. No session cookie is
 // sent: the URL itself carries the authorization.
 func (c *Client) PutBytes(ctx context.Context, rawURL, contentType string, data []byte) error {
@@ -405,7 +434,7 @@ func (c *Client) PutBytes(ctx context.Context, rawURL, contentType string, data 
 		return err
 	}
 	req.Header.Set("Content-Type", contentType)
-	resp, err := (&http.Client{Timeout: 5 * time.Minute}).Do(req)
+	resp, err := (&http.Client{Timeout: 5 * time.Minute, Transport: storageTransport(c.HTTP.Transport)}).Do(req)
 	if err != nil {
 		return fmt.Errorf("uploading file: %w", err)
 	}

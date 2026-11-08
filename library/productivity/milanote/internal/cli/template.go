@@ -102,7 +102,7 @@ use 'boards duplicate' for an exact copy.`,
 				_, err := cmd.OutOrStdout().Write(data)
 				return err
 			}
-			if err := os.WriteFile(out, data, 0o644); err != nil {
+			if err := os.WriteFile(out, data, 0o600); err != nil {
 				return usageErr(err)
 			}
 			return emit(cmd, flags, map[string]any{"out": out, "boards": len(boards), "skipped_uploads": skipped}, func(w io.Writer) error {

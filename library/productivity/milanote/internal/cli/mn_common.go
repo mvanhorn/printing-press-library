@@ -8,12 +8,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/milanote/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/milanote/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/milanote/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/milanote/internal/milanote"
@@ -30,11 +32,30 @@ func mnClient(flags *rootFlags) (*milanote.Client, error) {
 	if strings.TrimSpace(cred) == "" {
 		return nil, authErr(errors.New("not logged in to Milanote: run 'milanote-pp-cli chrome-login' (or 'auth login'), or set MILANOTE_SESSION_TOKEN"))
 	}
-	c, err := milanote.New(cfg.BaseURL, cred, flags.timeout)
+	opts, err := mnOptions(flags, cfg)
+	if err != nil {
+		return nil, err
+	}
+	c, err := milanote.New(cfg.BaseURL, cred, opts)
 	if err != nil {
 		return nil, mnErr(err)
 	}
 	return c, nil
+}
+
+// mnOptions applies the global --timeout, --rate-limit, --ca-cert and
+// --tls-server-name settings to the hand-written client.
+func mnOptions(flags *rootFlags, cfg *config.Config) (milanote.Options, error) {
+	flags.applyTLSFlags(cfg)
+	var transport http.RoundTripper
+	if strings.TrimSpace(cfg.CACert) != "" || strings.TrimSpace(cfg.TLSServerName) != "" {
+		hc, err := client.NewPlainHTTPClient(flags.timeout, cfg)
+		if err != nil {
+			return milanote.Options{}, configErr(err)
+		}
+		transport = hc.Transport
+	}
+	return milanote.Options{Timeout: flags.timeout, RateLimit: flags.rateLimit, Transport: transport}, nil
 }
 
 // mnErr maps Milanote errors onto the CLI's typed exit codes.

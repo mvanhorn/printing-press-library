@@ -49,6 +49,15 @@ func atomicWrite(path string, data []byte, perm os.FileMode) error {
 	return os.Rename(tmp.Name(), path)
 }
 
+// boardFileMode keeps the permissions of a file being replaced; a new file
+// holds private board text, so only its owner can read it.
+func boardFileMode(path string) os.FileMode {
+	if info, err := os.Stat(path); err == nil {
+		return info.Mode().Perm()
+	}
+	return 0o600
+}
+
 func writeJSONState(path string, v any) error {
 	data, err := json.MarshalIndent(v, "", " ")
 	if err != nil {
@@ -263,10 +272,18 @@ func (l *lazyWriter) close(ctx context.Context) {
 	}
 }
 
-func readSyncFile(path, direction string) (string, error) {
+// readSyncFile allows a missing file only when a first pull is about to create
+// it. For a paired file, absence must not read as empty text, or a sync would
+// take it to mean every card was removed.
+func readSyncFile(path, direction string, starting bool) (string, error) {
 	data, err := os.ReadFile(path)
-	if errors.Is(err, os.ErrNotExist) && direction != "push" {
-		return "", nil
+	if errors.Is(err, os.ErrNotExist) {
+		if starting && direction == "pull" {
+			return "", nil
+		}
+		if !starting {
+			return "", usageErr(fmt.Errorf("%s is paired with this board but is missing: restore it and sync again; no cards were changed", path))
+		}
 	}
 	if err != nil {
 		return "", usageErr(err)
@@ -277,9 +294,17 @@ func readSyncFile(path, direction string) (string, error) {
 // runSync brings a Markdown file and a board together. With no pairing yet it
 // lays the file out as new cards (or, for pull, writes the board to the file).
 func runSync(ctx context.Context, c *milanote.Client, file, boardID string, o syncOptions, fresh bool) (*mirrorResult, error) {
-	text, err := readSyncFile(file, o.direction)
+	rec, err := loadPair(file, boardID)
 	if err != nil {
 		return nil, err
+	}
+	starting := rec == nil || fresh
+	text, err := readSyncFile(file, o.direction, starting)
+	if err != nil {
+		return nil, err
+	}
+	if !starting && o.direction != "pull" && strings.TrimSpace(text) == "" && len(rec.Items) > 0 {
+		return nil, usageErr(fmt.Errorf("%s is empty but is paired with %d card(s): refusing to trash them all; no cards were changed", file, len(rec.Items)))
 	}
 	payload, err := loadBoard(ctx, c, boardID)
 	if err != nil {
@@ -287,13 +312,9 @@ func runSync(ctx context.Context, c *milanote.Client, file, boardID string, o sy
 	}
 	res := &mirrorResult{File: file, Board: boardID, URL: boardURL(boardID), Direction: o.direction,
 		DryRun: o.dryRun, Actions: []syncAction{}, Conflicts: []syncConflict{}}
-	rec, err := loadPair(file, boardID)
-	if err != nil {
-		return nil, err
-	}
 	writer := &lazyWriter{c: c}
 	defer writer.close(ctx)
-	if rec == nil || fresh {
+	if starting {
 		res.Paired = true
 		if o.direction == "pull" {
 			return res, firstPull(file, boardID, payload, o, res)
@@ -303,20 +324,23 @@ func runSync(ctx context.Context, c *milanote.Client, file, boardID string, o sy
 	return res, incremental(ctx, writer, file, boardID, text, payload, rec, o, res)
 }
 
+// cardSeparator keeps neighbouring cards apart when the file is read back.
+const cardSeparator = "\n\n---\n\n"
+
 func firstPull(file, boardID string, payload *milanote.BoardPayload, o syncOptions, res *mirrorResult) error {
 	cards := boardCards(payload, boardID)
 	rec := &pairRecord{File: file, Board: boardID}
 	parts := make([]string, 0, len(cards))
 	for _, el := range cards {
 		md := milanote.ElementMarkdown(el)
-		parts = append(parts, md)
+		parts = append(parts, milanote.CardBlock(md))
 		rec.Items = append(rec.Items, pairItem{ID: el.ID, Kind: milanote.ChunkKindOf(el), Hash: milanote.HashText(md)})
 		res.note("pull", milanote.ChunkKindOf(el), el.ID, md)
 	}
 	if o.dryRun {
 		return nil
 	}
-	if err := atomicWrite(file, []byte(strings.Join(parts, "\n\n")+"\n"), 0o644); err != nil {
+	if err := atomicWrite(file, []byte(strings.Join(parts, cardSeparator)+"\n"), boardFileMode(file)); err != nil {
 		return err
 	}
 	return savePair(rec)
@@ -362,11 +386,13 @@ func firstPush(ctx context.Context, writer *lazyWriter, file, boardID, text stri
 		action.ID = id
 		res.Actions = append(res.Actions, action)
 		rec.Items = append(rec.Items, pairItem{ID: id, Kind: ch.Kind, Hash: milanote.HashText(ch.Normalized())})
+		if !o.dryRun { // a later failure must not lose the cards already made
+			if err := savePair(rec); err != nil {
+				return err
+			}
+		}
 	}
-	if o.dryRun {
-		return nil
-	}
-	return savePair(rec)
+	return nil
 }
 
 type lineEdit struct {
@@ -387,7 +413,7 @@ func applyLineEdits(text string, edits []lineEdit, tail []string) string {
 	out := strings.TrimRight(strings.Join(lines, "\n"), "\n")
 	for _, t := range tail {
 		if out != "" {
-			out += "\n\n"
+			out += cardSeparator
 		}
 		out += t
 	}
@@ -412,25 +438,36 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 	}
 	score := milanote.MaxScore(payload, boardID)
 
-	createCard := func(ch milanote.Chunk) (string, error) {
+	var created []pairItem
+	createCard := func(ch milanote.Chunk, hash string) error {
 		h := ch.Height(milanote.CardWidth)
 		act := syncAction{Action: "create", Kind: ch.Kind, Text: preview(ch.MD), X: x, Y: y}
 		id := ""
 		if !o.dryRun {
 			w, err := writer.get(ctx)
 			if err != nil {
-				return "", mnErr(err)
+				return mnErr(err)
 			}
 			elType, content := ch.Element()
 			score += milanote.ScoreStep
 			if id, err = w.Create(ctx, boardID, elType, milanote.CanvasAt(boardID, x, y, score), content, ""); err != nil {
-				return "", mnErr(err)
+				return mnErr(err)
 			}
 		}
 		act.ID = id
 		res.Actions = append(res.Actions, act)
 		y += h + o.gutter
-		return id, nil
+		item := pairItem{ID: id, Kind: ch.Kind, Hash: hash}
+		newItems = append(newItems, item)
+		if o.dryRun {
+			return nil
+		}
+		// Record it now: if a later write fails, a retry must find this card
+		// instead of creating it again.
+		created = append(created, item)
+		progress := *rec
+		progress.Items = append(append([]pairItem{}, rec.Items...), created...)
+		return savePair(&progress)
 	}
 	updateCard := func(el *milanote.Element, ch milanote.Chunk) error {
 		res.note("update", ch.Kind, el.ID, ch.MD)
@@ -451,38 +488,30 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 				res.note("skip-new-in-file", ch.Kind, "", ch.MD)
 				continue
 			}
-			id, err := createCard(ch)
-			if err != nil {
+			if err := createCard(ch, hashes[i]); err != nil {
 				return err
 			}
-			newItems = append(newItems, pairItem{ID: id, Kind: ch.Kind, Hash: hashes[i]})
 			continue
 		}
 		item := rec.Items[j]
 		fileChanged := hashes[i] != item.Hash
 		el := liveCard(payload, item.ID)
 		if el == nil {
+			keepFile := fileChanged && o.prefer == "file"
 			switch {
-			case fileChanged && o.prefer != "board":
-				if o.prefer == "file" {
-					id, err := createCard(ch)
-					if err != nil {
-						return err
-					}
-					newItems = append(newItems, pairItem{ID: id, Kind: ch.Kind, Hash: hashes[i]})
-					continue
-				}
+			case fileChanged && o.prefer == "":
 				res.Conflicts = append(res.Conflicts, syncConflict{ID: item.ID, Text: preview(ch.MD), Reason: "edited in the file but deleted on the board"})
 				newItems = append(newItems, item)
-			case pull:
-				res.note("remove-from-file", ch.Kind, item.ID, ch.MD)
-				edits = append(edits, lineEdit{start: ch.Start, end: ch.End})
-			default:
-				id, err := createCard(ch)
-				if err != nil {
+			case keepFile && push, !fileChanged && !pull:
+				if err := createCard(ch, hashes[i]); err != nil {
 					return err
 				}
-				newItems = append(newItems, pairItem{ID: id, Kind: ch.Kind, Hash: hashes[i]})
+			case pull && !keepFile:
+				res.note("remove-from-file", ch.Kind, item.ID, ch.MD)
+				edits = append(edits, lineEdit{start: ch.Start, end: ch.End})
+			default: // the winning side's change is outside the selected direction
+				res.note("skip-file-edit", ch.Kind, item.ID, ch.MD)
+				newItems = append(newItems, item)
 			}
 			continue
 		}
@@ -511,7 +540,7 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 			item.Hash = hashes[i]
 		case boardChanged && pull:
 			res.note("pull", ch.Kind, item.ID, md)
-			m := md
+			m := milanote.CardBlock(md)
 			edits = append(edits, lineEdit{start: ch.Start, end: ch.End, text: &m})
 			item.Hash = boardHash
 		case fileChanged || boardChanged:
@@ -540,7 +569,7 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 			if o.prefer == "board" && pull {
 				md := milanote.ElementMarkdown(el)
 				res.note("pull", item.Kind, item.ID, md)
-				tail = append(tail, md)
+				tail = append(tail, milanote.CardBlock(md))
 				item.Hash = milanote.HashText(md)
 				newItems = append(newItems, item)
 				continue
@@ -582,7 +611,7 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 			}
 			md := milanote.ElementMarkdown(el)
 			res.note("append-to-file", milanote.ChunkKindOf(el), el.ID, md)
-			tail = append(tail, md)
+			tail = append(tail, milanote.CardBlock(md))
 			newItems = append(newItems, pairItem{ID: el.ID, Kind: milanote.ChunkKindOf(el), Hash: milanote.HashText(md)})
 		}
 	}
@@ -594,7 +623,7 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 		if dir, err := stateDir("mirror"); err == nil { // keep the previous text in case a pull surprises you
 			_ = atomicWrite(filepath.Join(dir, milanote.HashText(file)+".bak.md"), []byte(text), 0o600)
 		}
-		if err := atomicWrite(file, []byte(applyLineEdits(text, edits, tail)), 0o644); err != nil {
+		if err := atomicWrite(file, []byte(applyLineEdits(text, edits, tail)), boardFileMode(file)); err != nil {
 			return err
 		}
 	}
