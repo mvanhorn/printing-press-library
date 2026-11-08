@@ -3,7 +3,7 @@
 BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
 
 build:
-	go build -o bin/unifi-pp-cli$(BIN_EXT) ./cmd/unifi-pp-cli
+	go build -trimpath -o bin/unifi-pp-cli$(BIN_EXT) ./cmd/unifi-pp-cli
 
 test:
 	go test ./...
@@ -18,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/unifi-pp-mcp$(BIN_EXT) ./cmd/unifi-pp-mcp
+	go build -trimpath -o bin/unifi-pp-mcp$(BIN_EXT) ./cmd/unifi-pp-mcp
 
 install-mcp:
 	go install ./cmd/unifi-pp-mcp

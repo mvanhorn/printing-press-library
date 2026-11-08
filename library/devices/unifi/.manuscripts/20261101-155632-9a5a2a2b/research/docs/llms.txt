@@ -1,0 +1,413 @@
+# Ubiquiti Developer Documentation
+
+> Official API documentation for Ubiquiti's developer platform. Browse API references, guides, and OpenAPI specifications for Site Manager, Network, and Protect services.
+
+Authentication: All APIs use API Key authentication via the `X-API-KEY` header. Generate keys at unifi.ui.com. Site Manager API base URL: `https://api.ui.com`. Network and Protect APIs run locally on each UniFi host and are accessed through the Site Manager Cloud Connector or directly on-site.
+
+## API Services
+- [Network API v11.0.97](https://developer.ui.com/network/v11.0.97/gettingstarted): Network API documentation
+- [Protect API v7.3.74](https://developer.ui.com/protect/v7.3.74/gettingstarted): Protect API documentation
+- [Mobility API v1.0.0](https://developer.ui.com/mobility/v1.0.0/getting-started): Mobility API documentation
+- [InnerSpace API v1.3.23](https://developer.ui.com/innerspace/v1.3.23/gettingstarted): InnerSpace API documentation
+- [Site Manager API v1.0.0](https://developer.ui.com/site-manager/v1.0.0/gettingstarted): Site Manager API documentation
+- [Carrier Fabric API v1.0.0](https://developer.ui.com/carrier-fabric/v1.0.0/getting-started): Carrier Fabric API documentation
+
+## OpenAPI Specifications
+- [Network OpenAPI Spec](https://developer.ui.com/network/v11.0.97/openapi.json): Machine-readable OpenAPI specification
+- [Network Postman Collection](https://developer.ui.com/network/v11.0.97/postman-collection.json): Postman collection for import
+- [Protect OpenAPI Spec](https://developer.ui.com/protect/v7.3.74/openapi.json): Machine-readable OpenAPI specification
+- [Protect Postman Collection](https://developer.ui.com/protect/v7.3.74/postman-collection.json): Postman collection for import
+- [Mobility OpenAPI Spec](https://developer.ui.com/mobility/v1.0.0/openapi.json): Machine-readable OpenAPI specification
+- [Mobility Postman Collection](https://developer.ui.com/mobility/v1.0.0/postman-collection.json): Postman collection for import
+- [InnerSpace OpenAPI Spec](https://developer.ui.com/innerspace/v1.3.23/openapi.json): Machine-readable OpenAPI specification
+- [InnerSpace Postman Collection](https://developer.ui.com/innerspace/v1.3.23/postman-collection.json): Postman collection for import
+- [Site Manager OpenAPI Spec](https://developer.ui.com/site-manager/v1.0.0/openapi.json): Machine-readable OpenAPI specification
+- [Site Manager Postman Collection](https://developer.ui.com/site-manager/v1.0.0/postman-collection.json): Postman collection for import
+- [Carrier Fabric OpenAPI Spec](https://developer.ui.com/carrier-fabric/v1.0.0/openapi.json): Machine-readable OpenAPI specification
+- [Carrier Fabric Postman Collection](https://developer.ui.com/carrier-fabric/v1.0.0/postman-collection.json): Postman collection for import
+
+## Network (v11.0.97)
+
+**General**
+- [Getting Started](https://developer.ui.com/network/v11.0.97/gettingstarted)
+- [Filtering](https://developer.ui.com/network/v11.0.97/filtering)
+- [Error Handling](https://developer.ui.com/network/v11.0.97/error-handling)
+
+**API Endpoints**
+
+*Application Info*
+- `GET /v1/info` - [Get Application Info](https://developer.ui.com/network/v11.0.97/getinfo)
+
+*Sites*
+- `GET /v1/sites` - [List Local Sites](https://developer.ui.com/network/v11.0.97/getsiteoverviewpage)
+
+*UniFi Devices*
+- `GET /v1/pending-devices` - [List Devices Pending Adoption](https://developer.ui.com/network/v11.0.97/getpendingdevicepage)
+- `GET /v1/sites/{siteId}/devices` - [List Adopted Devices](https://developer.ui.com/network/v11.0.97/getadopteddeviceoverviewpage)
+- `POST /v1/sites/{siteId}/devices` - [Adopt Devices](https://developer.ui.com/network/v11.0.97/adoptdevice)
+- `DELETE /v1/sites/{siteId}/devices/{deviceId}` - [Remove (Unadopt) Device](https://developer.ui.com/network/v11.0.97/removedevice)
+- `GET /v1/sites/{siteId}/devices/{deviceId}` - [Get Adopted Device Details](https://developer.ui.com/network/v11.0.97/getadopteddevicedetails)
+- `POST /v1/sites/{siteId}/devices/{deviceId}/actions` - [Execute Adopted Device Action](https://developer.ui.com/network/v11.0.97/executeadopteddeviceaction)
+- `POST /v1/sites/{siteId}/devices/{deviceId}/interfaces/ports/{portIdx}/actions` - [Execute Port Action](https://developer.ui.com/network/v11.0.97/executeportaction)
+- `GET /v1/sites/{siteId}/devices/{deviceId}/statistics/latest` - [Get Latest Adopted Device Statistics](https://developer.ui.com/network/v11.0.97/getadopteddevicelateststatistics)
+
+*Clients*
+- `GET /v1/sites/{siteId}/clients` - [List Connected Clients](https://developer.ui.com/network/v11.0.97/getconnectedclientoverviewpage)
+- `GET /v1/sites/{siteId}/clients/{clientId}` - [Get Connected Client Details](https://developer.ui.com/network/v11.0.97/getconnectedclientdetails)
+- `POST /v1/sites/{siteId}/clients/{clientId}/actions` - [Execute Client Action](https://developer.ui.com/network/v11.0.97/executeconnectedclientaction)
+
+*Networks*
+- `GET /v1/sites/{siteId}/networks` - [List Networks](https://developer.ui.com/network/v11.0.97/getnetworksoverviewpage)
+- `POST /v1/sites/{siteId}/networks` - [Create Network](https://developer.ui.com/network/v11.0.97/createnetwork)
+- `DELETE /v1/sites/{siteId}/networks/{networkId}` - [Delete Network](https://developer.ui.com/network/v11.0.97/deletenetwork)
+- `GET /v1/sites/{siteId}/networks/{networkId}` - [Get Network Details](https://developer.ui.com/network/v11.0.97/getnetworkdetails)
+- `PUT /v1/sites/{siteId}/networks/{networkId}` - [Update Network](https://developer.ui.com/network/v11.0.97/updatenetwork)
+- `GET /v1/sites/{siteId}/networks/{networkId}/references` - [Get Network References](https://developer.ui.com/network/v11.0.97/getnetworkreferences)
+
+*WiFi Broadcasts*
+- `GET /v1/sites/{siteId}/wifi/broadcasts` - [List Wifi Broadcasts](https://developer.ui.com/network/v11.0.97/getwifibroadcastpage)
+- `POST /v1/sites/{siteId}/wifi/broadcasts` - [Create Wifi Broadcast](https://developer.ui.com/network/v11.0.97/createwifibroadcast)
+- `DELETE /v1/sites/{siteId}/wifi/broadcasts/{wifiBroadcastId}` - [Delete Wifi Broadcast](https://developer.ui.com/network/v11.0.97/deletewifibroadcast)
+- `GET /v1/sites/{siteId}/wifi/broadcasts/{wifiBroadcastId}` - [Get Wifi Broadcast Details](https://developer.ui.com/network/v11.0.97/getwifibroadcastdetails)
+- `PUT /v1/sites/{siteId}/wifi/broadcasts/{wifiBroadcastId}` - [Update Wifi Broadcast](https://developer.ui.com/network/v11.0.97/updatewifibroadcast)
+
+*Hotspot*
+- `DELETE /v1/sites/{siteId}/hotspot/vouchers` - [Delete Vouchers](https://developer.ui.com/network/v11.0.97/deletevouchers)
+- `GET /v1/sites/{siteId}/hotspot/vouchers` - [List Vouchers](https://developer.ui.com/network/v11.0.97/getvouchers)
+- `POST /v1/sites/{siteId}/hotspot/vouchers` - [Generate Vouchers](https://developer.ui.com/network/v11.0.97/createvouchers)
+- `DELETE /v1/sites/{siteId}/hotspot/vouchers/{voucherId}` - [Delete Voucher](https://developer.ui.com/network/v11.0.97/deletevoucher)
+- `GET /v1/sites/{siteId}/hotspot/vouchers/{voucherId}` - [Get Voucher Details](https://developer.ui.com/network/v11.0.97/getvoucher)
+
+*Firewall*
+- `GET /v1/sites/{siteId}/firewall/policies` - [List Firewall Policies](https://developer.ui.com/network/v11.0.97/getfirewallpolicies)
+- `POST /v1/sites/{siteId}/firewall/policies` - [Create Firewall Policy](https://developer.ui.com/network/v11.0.97/createfirewallpolicy)
+- `GET /v1/sites/{siteId}/firewall/policies/ordering` - [Get User-Defined Firewall Policy Ordering](https://developer.ui.com/network/v11.0.97/getfirewallpolicyordering)
+- `PUT /v1/sites/{siteId}/firewall/policies/ordering` - [Reorder User-Defined Firewall Policies](https://developer.ui.com/network/v11.0.97/updatefirewallpolicyordering)
+- `DELETE /v1/sites/{siteId}/firewall/policies/{firewallPolicyId}` - [Delete Firewall Policy](https://developer.ui.com/network/v11.0.97/deletefirewallpolicy)
+- `GET /v1/sites/{siteId}/firewall/policies/{firewallPolicyId}` - [Get Firewall Policy](https://developer.ui.com/network/v11.0.97/getfirewallpolicy)
+- `PATCH /v1/sites/{siteId}/firewall/policies/{firewallPolicyId}` - [Patch Firewall Policy](https://developer.ui.com/network/v11.0.97/patchfirewallpolicy)
+- `PUT /v1/sites/{siteId}/firewall/policies/{firewallPolicyId}` - [Update Firewall Policy](https://developer.ui.com/network/v11.0.97/updatefirewallpolicy)
+- `GET /v1/sites/{siteId}/firewall/zones` - [List Firewall Zones](https://developer.ui.com/network/v11.0.97/getfirewallzones)
+- `POST /v1/sites/{siteId}/firewall/zones` - [Create Custom Firewall Zone](https://developer.ui.com/network/v11.0.97/createfirewallzone)
+- `DELETE /v1/sites/{siteId}/firewall/zones/{firewallZoneId}` - [Delete Custom Firewall Zone](https://developer.ui.com/network/v11.0.97/deletefirewallzone)
+- `GET /v1/sites/{siteId}/firewall/zones/{firewallZoneId}` - [Get Firewall Zone](https://developer.ui.com/network/v11.0.97/getfirewallzone)
+- `PUT /v1/sites/{siteId}/firewall/zones/{firewallZoneId}` - [Update Firewall Zone](https://developer.ui.com/network/v11.0.97/updatefirewallzone)
+
+*Access Control (ACL Rules)*
+- `GET /v1/sites/{siteId}/acl-rules` - [List ACL Rules](https://developer.ui.com/network/v11.0.97/getaclrulepage)
+- `POST /v1/sites/{siteId}/acl-rules` - [Create ACL Rule](https://developer.ui.com/network/v11.0.97/createaclrule)
+- `GET /v1/sites/{siteId}/acl-rules/ordering` - [Get User-Defined ACL Rule Ordering](https://developer.ui.com/network/v11.0.97/getaclruleordering)
+- `PUT /v1/sites/{siteId}/acl-rules/ordering` - [Reorder User-Defined ACL Rules](https://developer.ui.com/network/v11.0.97/updateaclruleordering)
+- `DELETE /v1/sites/{siteId}/acl-rules/{aclRuleId}` - [Delete ACL Rule](https://developer.ui.com/network/v11.0.97/deleteaclrule)
+- `GET /v1/sites/{siteId}/acl-rules/{aclRuleId}` - [Get ACL Rule](https://developer.ui.com/network/v11.0.97/getaclrule)
+- `PUT /v1/sites/{siteId}/acl-rules/{aclRuleId}` - [Update ACL Rule](https://developer.ui.com/network/v11.0.97/updateaclrule)
+
+*Switching*
+- `GET /v1/sites/{siteId}/switching/lags` - [List LAGs](https://developer.ui.com/network/v11.0.97/getlagpage)
+- `GET /v1/sites/{siteId}/switching/lags/{lagId}` - [Get LAG Details](https://developer.ui.com/network/v11.0.97/getlag)
+- `GET /v1/sites/{siteId}/switching/mc-lag-domains` - [List MC-LAG Domains](https://developer.ui.com/network/v11.0.97/getmclagdomainpage)
+- `GET /v1/sites/{siteId}/switching/mc-lag-domains/{mcLagDomainId}` - [Get MC-LAG Domain](https://developer.ui.com/network/v11.0.97/getmclagdomain)
+- `GET /v1/sites/{siteId}/switching/switch-stacks` - [List Switch Stacks](https://developer.ui.com/network/v11.0.97/getswitchstackpage)
+- `GET /v1/sites/{siteId}/switching/switch-stacks/{switchStackId}` - [Get Switch Stack](https://developer.ui.com/network/v11.0.97/getswitchstack)
+
+*DNS Policies*
+- `GET /v1/sites/{siteId}/dns/policies` - [List DNS Policies](https://developer.ui.com/network/v11.0.97/getdnspolicypage)
+- `POST /v1/sites/{siteId}/dns/policies` - [Create DNS Policy](https://developer.ui.com/network/v11.0.97/creatednspolicy)
+- `DELETE /v1/sites/{siteId}/dns/policies/{dnsPolicyId}` - [Delete DNS Policy](https://developer.ui.com/network/v11.0.97/deletednspolicy)
+- `GET /v1/sites/{siteId}/dns/policies/{dnsPolicyId}` - [Get DNS Policy](https://developer.ui.com/network/v11.0.97/getdnspolicy)
+- `PUT /v1/sites/{siteId}/dns/policies/{dnsPolicyId}` - [Update DNS Policy](https://developer.ui.com/network/v11.0.97/updatednspolicy)
+
+*Traffic Matching Lists*
+- `GET /v1/sites/{siteId}/traffic-matching-lists` - [List Traffic Matching Lists](https://developer.ui.com/network/v11.0.97/gettrafficmatchinglists)
+- `POST /v1/sites/{siteId}/traffic-matching-lists` - [Create Traffic Matching List](https://developer.ui.com/network/v11.0.97/createtrafficmatchinglist)
+- `DELETE /v1/sites/{siteId}/traffic-matching-lists/{trafficMatchingListId}` - [Delete Traffic Matching List](https://developer.ui.com/network/v11.0.97/deletetrafficmatchinglist)
+- `GET /v1/sites/{siteId}/traffic-matching-lists/{trafficMatchingListId}` - [Get Traffic Matching List](https://developer.ui.com/network/v11.0.97/gettrafficmatchinglist)
+- `PUT /v1/sites/{siteId}/traffic-matching-lists/{trafficMatchingListId}` - [Update Traffic Matching List](https://developer.ui.com/network/v11.0.97/updatetrafficmatchinglist)
+
+*Supporting Resources*
+- `GET /v1/countries` - [List Countries](https://developer.ui.com/network/v11.0.97/getcountries)
+- `GET /v1/dpi/applications` - [List DPI Applications](https://developer.ui.com/network/v11.0.97/getdpiapplications)
+- `GET /v1/dpi/categories` - [List DPI Application Categories](https://developer.ui.com/network/v11.0.97/getdpiapplicationcategories)
+- `GET /v1/sites/{siteId}/device-tags` - [List Device Tags](https://developer.ui.com/network/v11.0.97/getdevicetagpage)
+- `GET /v1/sites/{siteId}/radius/profiles` - [List Radius Profiles](https://developer.ui.com/network/v11.0.97/getradiusprofileoverviewpage)
+- `GET /v1/sites/{siteId}/vpn/servers` - [List VPN Servers](https://developer.ui.com/network/v11.0.97/getvpnserverpage)
+- `GET /v1/sites/{siteId}/vpn/site-to-site-tunnels` - [List Site-To-Site VPN Tunnels](https://developer.ui.com/network/v11.0.97/getsitetositevpntunnelpage)
+- `GET /v1/sites/{siteId}/wans` - [List WAN Interfaces](https://developer.ui.com/network/v11.0.97/getwansoverviewpage)
+
+## Protect (v7.3.74)
+
+**General**
+- [Getting Started](https://developer.ui.com/protect/v7.3.74/gettingstarted)
+
+**API Endpoints**
+
+*Information about application*
+- `GET /v1/meta/info` - [Get application information](https://developer.ui.com/protect/v7.3.74/get-v1metainfo)
+
+*Viewer information & management*
+- `GET /v1/viewers/{id}` - [Get viewer details](https://developer.ui.com/protect/v7.3.74/get-v1viewersid)
+- `PATCH /v1/viewers/{id}` - [Patch viewer settings](https://developer.ui.com/protect/v7.3.74/patch-v1viewersid)
+- `GET /v1/viewers` - [Get all viewers](https://developer.ui.com/protect/v7.3.74/get-v1viewers)
+
+*Live view management*
+- `GET /v1/liveviews/{id}` - [Get live view details](https://developer.ui.com/protect/v7.3.74/get-v1liveviewsid)
+- `PATCH /v1/liveviews/{id}` - [Patch live view configuration](https://developer.ui.com/protect/v7.3.74/patch-v1liveviewsid)
+- `GET /v1/liveviews` - [Get all live views](https://developer.ui.com/protect/v7.3.74/get-v1liveviews)
+- `POST /v1/liveviews` - [Create live view](https://developer.ui.com/protect/v7.3.74/post-v1liveviews)
+
+*WebSocket updates*
+- `GET /v1/subscribe/devices` - [Get update messages about devices](https://developer.ui.com/protect/v7.3.74/get-v1subscribedevices)
+- `GET /v1/subscribe/events` - [Get Protect event messages](https://developer.ui.com/protect/v7.3.74/get-v1subscribeevents)
+
+*Camera PTZ control & management*
+- `POST /v1/cameras/{id}/ptz/patrol/start/{slot}` - [Start a camera PTZ patrol](https://developer.ui.com/protect/v7.3.74/post-v1camerasidptzpatrolstartslot)
+- `POST /v1/cameras/{id}/ptz/patrol/stop` - [Stop active camera PTZ patrol](https://developer.ui.com/protect/v7.3.74/post-v1camerasidptzpatrolstop)
+- `POST /v1/cameras/{id}/ptz/goto/{slot}` - [Move PTZ camera to preset](https://developer.ui.com/protect/v7.3.74/post-v1camerasidptzgotoslot)
+
+*Alarm manager integration*
+- `POST /v1/alarm-manager/webhook/{id}` - [Send a webhook to the alarm manager](https://developer.ui.com/protect/v7.3.74/post-v1alarm-managerwebhookid)
+
+*Arm profile management*
+- `GET /v1/arm-profiles` - [Get all arm profiles](https://developer.ui.com/protect/v7.3.74/get-v1arm-profiles)
+- `POST /v1/arm-profiles` - [Create arm profile](https://developer.ui.com/protect/v7.3.74/post-v1arm-profiles)
+- `PATCH /v1/arm-profiles/settings` - [Set current arm profile](https://developer.ui.com/protect/v7.3.74/patch-v1arm-profilessettings)
+- `PATCH /v1/arm-profiles/{id}` - [Update arm profile](https://developer.ui.com/protect/v7.3.74/patch-v1arm-profilesid)
+- `DELETE /v1/arm-profiles/{id}` - [Delete arm profile](https://developer.ui.com/protect/v7.3.74/delete-v1arm-profilesid)
+- `POST /v1/arm-profiles/enable` - [Enable arm alarm](https://developer.ui.com/protect/v7.3.74/post-v1arm-profilesenable)
+- `POST /v1/arm-profiles/disable` - [Disable arm alarm](https://developer.ui.com/protect/v7.3.74/post-v1arm-profilesdisable)
+
+*Light information & management*
+- `GET /v1/lights/{id}` - [Get light details](https://developer.ui.com/protect/v7.3.74/get-v1lightsid)
+- `PATCH /v1/lights/{id}` - [Patch light settings](https://developer.ui.com/protect/v7.3.74/patch-v1lightsid)
+- `GET /v1/lights` - [Get all lights](https://developer.ui.com/protect/v7.3.74/get-v1lights)
+
+*Camera information & management*
+- `GET /v1/cameras/{id}` - [Get camera details](https://developer.ui.com/protect/v7.3.74/get-v1camerasid)
+- `PATCH /v1/cameras/{id}` - [Patch camera settings](https://developer.ui.com/protect/v7.3.74/patch-v1camerasid)
+- `GET /v1/cameras` - [Get all cameras](https://developer.ui.com/protect/v7.3.74/get-v1cameras)
+- `POST /v1/cameras/{id}/rtsps-stream` - [Create RTSPS streams for camera](https://developer.ui.com/protect/v7.3.74/post-v1camerasidrtsps-stream)
+- `DELETE /v1/cameras/{id}/rtsps-stream` - [Delete camera RTSPS stream](https://developer.ui.com/protect/v7.3.74/delete-v1camerasidrtsps-stream)
+- `GET /v1/cameras/{id}/rtsps-stream` - [Get RTSPS streams for camera](https://developer.ui.com/protect/v7.3.74/get-v1camerasidrtsps-stream)
+- `GET /v1/cameras/{id}/snapshot` - [Get camera snapshot](https://developer.ui.com/protect/v7.3.74/get-v1camerasidsnapshot)
+- `POST /v1/cameras/{id}/disable-mic-permanently` - [Permanently disable camera microphone](https://developer.ui.com/protect/v7.3.74/post-v1camerasiddisable-mic-permanently)
+- `POST /v1/cameras/{id}/talkback-session` - [Create talkback session for camera](https://developer.ui.com/protect/v7.3.74/post-v1camerasidtalkback-session)
+
+*Sensor information & management*
+- `GET /v1/sensors/{id}` - [Get sensor details](https://developer.ui.com/protect/v7.3.74/get-v1sensorsid)
+- `PATCH /v1/sensors/{id}` - [Patch sensor settings](https://developer.ui.com/protect/v7.3.74/patch-v1sensorsid)
+- `GET /v1/sensors` - [Get all sensors](https://developer.ui.com/protect/v7.3.74/get-v1sensors)
+
+*Siren information & management*
+- `GET /v1/sirens/{id}` - [Get siren details](https://developer.ui.com/protect/v7.3.74/get-v1sirensid)
+- `PATCH /v1/sirens/{id}` - [Patch siren settings](https://developer.ui.com/protect/v7.3.74/patch-v1sirensid)
+- `GET /v1/sirens` - [Get all sirens](https://developer.ui.com/protect/v7.3.74/get-v1sirens)
+- `POST /v1/sirens/{id}/play` - [Play siren](https://developer.ui.com/protect/v7.3.74/post-v1sirensidplay)
+- `POST /v1/sirens/{id}/stop` - [Stop siren](https://developer.ui.com/protect/v7.3.74/post-v1sirensidstop)
+- `POST /v1/sirens/{id}/test-sound` - [Test siren sound](https://developer.ui.com/protect/v7.3.74/post-v1sirensidtest-sound)
+
+*Fob information & management*
+- `GET /v1/fobs/{id}` - [Get fob details](https://developer.ui.com/protect/v7.3.74/get-v1fobsid)
+- `PATCH /v1/fobs/{id}` - [Patch fob settings](https://developer.ui.com/protect/v7.3.74/patch-v1fobsid)
+- `GET /v1/fobs` - [Get all fobs](https://developer.ui.com/protect/v7.3.74/get-v1fobs)
+
+*Relay information & management*
+- `GET /v1/relays/{id}` - [Get relay details](https://developer.ui.com/protect/v7.3.74/get-v1relaysid)
+- `PATCH /v1/relays/{id}` - [Patch relay settings](https://developer.ui.com/protect/v7.3.74/patch-v1relaysid)
+- `GET /v1/relays` - [Get all relays](https://developer.ui.com/protect/v7.3.74/get-v1relays)
+- `POST /v1/relays/{id}/outputs/{outputId}/activate` - [Activate relay output](https://developer.ui.com/protect/v7.3.74/post-v1relaysidoutputsoutputidactivate)
+
+*Speaker information & management*
+- `GET /v1/speakers/{id}` - [Get speaker details](https://developer.ui.com/protect/v7.3.74/get-v1speakersid)
+- `PATCH /v1/speakers/{id}` - [Patch speaker settings](https://developer.ui.com/protect/v7.3.74/patch-v1speakersid)
+- `GET /v1/speakers` - [Get all speakers](https://developer.ui.com/protect/v7.3.74/get-v1speakers)
+- `POST /v1/speakers/{id}/test-sound` - [Test speaker sound](https://developer.ui.com/protect/v7.3.74/post-v1speakersidtest-sound)
+
+*Bridge information & management*
+- `GET /v1/bridges/{id}` - [Get bridge details](https://developer.ui.com/protect/v7.3.74/get-v1bridgesid)
+- `PATCH /v1/bridges/{id}` - [Patch bridge settings](https://developer.ui.com/protect/v7.3.74/patch-v1bridgesid)
+- `GET /v1/bridges` - [Get all bridges](https://developer.ui.com/protect/v7.3.74/get-v1bridges)
+
+*Link station information & management*
+- `GET /v1/link-stations/{id}` - [Get link station details](https://developer.ui.com/protect/v7.3.74/get-v1link-stationsid)
+- `PATCH /v1/link-stations/{id}` - [Patch link station settings](https://developer.ui.com/protect/v7.3.74/patch-v1link-stationsid)
+- `GET /v1/link-stations` - [Get all link stations](https://developer.ui.com/protect/v7.3.74/get-v1link-stations)
+
+*Alarm hub information & management*
+- `GET /v1/alarm-hubs/{id}` - [Get alarm hub details](https://developer.ui.com/protect/v7.3.74/get-v1alarm-hubsid)
+- `PATCH /v1/alarm-hubs/{id}` - [Patch alarm hub settings](https://developer.ui.com/protect/v7.3.74/patch-v1alarm-hubsid)
+- `GET /v1/alarm-hubs` - [Get all alarm hubs](https://developer.ui.com/protect/v7.3.74/get-v1alarm-hubs)
+- `POST /v1/alarm-hubs/{id}/outputs/{outputId}/trigger` - [Trigger alarm hub output](https://developer.ui.com/protect/v7.3.74/post-v1alarm-hubsidoutputsoutputidtrigger)
+
+*NVR information & management*
+- `GET /v1/nvrs` - [Get NVR details](https://developer.ui.com/protect/v7.3.74/get-v1nvrs)
+
+*Device asset file management*
+- `POST /v1/files/{fileType}` - [Upload device asset file](https://developer.ui.com/protect/v7.3.74/post-v1filesfiletype)
+- `GET /v1/files/{fileType}` - [Get device asset files](https://developer.ui.com/protect/v7.3.74/get-v1filesfiletype)
+
+*Chime information & management*
+- `GET /v1/chimes/{id}` - [Get chime details](https://developer.ui.com/protect/v7.3.74/get-v1chimesid)
+- `PATCH /v1/chimes/{id}` - [Patch chime settings](https://developer.ui.com/protect/v7.3.74/patch-v1chimesid)
+- `GET /v1/chimes` - [Get all chimes](https://developer.ui.com/protect/v7.3.74/get-v1chimes)
+
+*Protect User information*
+- `GET /v1/users/{id}` - [Get user details](https://developer.ui.com/protect/v7.3.74/get-v1usersid)
+- `GET /v1/users` - [Get all users](https://developer.ui.com/protect/v7.3.74/get-v1users)
+
+*UniFi Identity User information*
+- `GET /v1/ulp-users/{id}` - [Get identity user details](https://developer.ui.com/protect/v7.3.74/get-v1ulp-usersid)
+- `GET /v1/ulp-users` - [Get all identity users](https://developer.ui.com/protect/v7.3.74/get-v1ulp-users)
+
+*Point of sale event ingestion*
+- `POST /v1/pos/cameras/{id}/transactions` - [Ingest a POS transaction](https://developer.ui.com/protect/v7.3.74/post-v1poscamerasidtransactions)
+
+## Mobility (v1.0.0)
+
+**General**
+- [Getting Started](https://developer.ui.com/mobility/v1.0.0/getting-started)
+
+**API Endpoints**
+
+*Workspaces*
+- `GET /v1/mobility/workspaces` - [List workspaces](https://developer.ui.com/mobility/v1.0.0/listworkspaces)
+- `GET /v1/mobility/workspaces/{workspaceID}/admins` - [List workspace admins](https://developer.ui.com/mobility/v1.0.0/listworkspaceadmins)
+
+*Devices*
+- `GET /v1/mobility/workspaces/{workspaceID}/devices` - [List devices](https://developer.ui.com/mobility/v1.0.0/listdevices)
+- `GET /v1/mobility/workspaces/{workspaceID}/devices/{deviceID}` - [Get device detail](https://developer.ui.com/mobility/v1.0.0/getdevice)
+
+*Clients*
+- `GET /v1/mobility/workspaces/{workspaceID}/devices/{deviceID}/clients` - [List device clients](https://developer.ui.com/mobility/v1.0.0/listdeviceclients)
+
+*Device Configuration*
+- `PUT /v1/mobility/workspaces/{workspaceID}/devices/{deviceID}` - [Update device name](https://developer.ui.com/mobility/v1.0.0/updatedevicename)
+- `PUT /v1/mobility/workspaces/{workspaceID}/devices/{deviceID}/network` - [Update LAN / DHCP settings](https://developer.ui.com/mobility/v1.0.0/updatedevicenetwork)
+- `PUT /v1/mobility/workspaces/{workspaceID}/devices/{deviceID}/wireless` - [Update WiFi settings](https://developer.ui.com/mobility/v1.0.0/updatedevicewireless)
+
+## InnerSpace (v1.3.23)
+
+**General**
+- [Getting Started](https://developer.ui.com/innerspace/v1.3.23/gettingstarted)
+
+**API Endpoints**
+
+*API Endpoints*
+- `GET /v1/project` - [Get project data for integration](https://developer.ui.com/innerspace/v1.3.23/get-v1project)
+- `GET /v1/floor_plans` - [List floor plans](https://developer.ui.com/innerspace/v1.3.23/get-v1floor_plans)
+- `GET /v1/access_points` - [List access points](https://developer.ui.com/innerspace/v1.3.23/get-v1access_points)
+- `GET /v1/switches` - [List switches](https://developer.ui.com/innerspace/v1.3.23/get-v1switches)
+- `GET /v1/inventory` - [List unplaced device inventory](https://developer.ui.com/innerspace/v1.3.23/get-v1inventory)
+- `GET /v1/assets/{planId}/{filename}` - [Download plan asset file](https://developer.ui.com/innerspace/v1.3.23/get-v1assetsplanidfilename)
+
+## Site Manager (v1.0.0)
+
+**General**
+- [Getting Started](https://developer.ui.com/site-manager/v1.0.0/gettingstarted)
+- [Response Format](https://developer.ui.com/site-manager/v1.0.0/responseformat)
+- [Version Control](https://developer.ui.com/site-manager/v1.0.0/versioncontrol)
+
+**API Endpoints**
+
+*API Endpoints*
+- `GET /v1/hosts` - [List Hosts](https://developer.ui.com/site-manager/v1.0.0/listhosts)
+- `GET /v1/hosts/{id}` - [Get Host by ID](https://developer.ui.com/site-manager/v1.0.0/gethostbyid)
+- `GET /v1/sites` - [List Sites](https://developer.ui.com/site-manager/v1.0.0/listsites)
+- `GET /v1/devices` - [List Devices](https://developer.ui.com/site-manager/v1.0.0/listdevices)
+- `GET /v1/isp-metrics/{type}` - [Get ISP Metrics](https://developer.ui.com/site-manager/v1.0.0/getispmetrics)
+- `POST /v1/isp-metrics/{type}/query` - [Query ISP Metrics](https://developer.ui.com/site-manager/v1.0.0/queryispmetrics)
+- `GET /v1/sd-wan-configs` - [List SD-WAN Configs](https://developer.ui.com/site-manager/v1.0.0/listsdwanconfigs)
+- `GET /v1/sd-wan-configs/{id}` - [Get SD-WAN Config by ID](https://developer.ui.com/site-manager/v1.0.0/getsdwanconfigbyid)
+- `GET /v1/sd-wan-configs/{id}/status` - [Get SD-WAN Config Status](https://developer.ui.com/site-manager/v1.0.0/getsdwanconfigstatus)
+
+## Carrier Fabric (v1.0.0)
+
+**General**
+- [Getting Started](https://developer.ui.com/carrier-fabric/v1.0.0/getting-started)
+- [Examples](https://developer.ui.com/carrier-fabric/v1.0.0/examples)
+- [Error Handling](https://developer.ui.com/carrier-fabric/v1.0.0/error-handling)
+
+**API Endpoints**
+
+*Subscribers*
+- `GET /v1/carrier/subscribers` - [List subscribers](https://developer.ui.com/carrier-fabric/v1.0.0/listsubscribers)
+- `POST /v1/carrier/subscribers` - [Create a subscriber](https://developer.ui.com/carrier-fabric/v1.0.0/createsubscriber)
+- `GET /v1/carrier/subscribers/{id}` - [Get a subscriber](https://developer.ui.com/carrier-fabric/v1.0.0/getsubscriber)
+- `PATCH /v1/carrier/subscribers/{id}` - [Update a subscriber](https://developer.ui.com/carrier-fabric/v1.0.0/updatesubscriber)
+- `PUT /v1/carrier/subscribers/{id}/host` - [Attach or re-link the gateway host](https://developer.ui.com/carrier-fabric/v1.0.0/attachsubscriberhost)
+- `DELETE /v1/carrier/subscribers/{id}/host` - [Detach the gateway host](https://developer.ui.com/carrier-fabric/v1.0.0/detachsubscriberhost)
+- `PUT /v1/carrier/subscribers/{id}/plan` - [Assign a service plan](https://developer.ui.com/carrier-fabric/v1.0.0/assignsubscriberplan)
+
+*Service State*
+- `POST /v1/carrier/subscribers/{id}/suspend` - [Suspend service](https://developer.ui.com/carrier-fabric/v1.0.0/suspendsubscriber)
+- `POST /v1/carrier/subscribers/{id}/resume` - [Resume service](https://developer.ui.com/carrier-fabric/v1.0.0/resumesubscriber)
+
+*Service Plans*
+- `GET /v1/carrier/service-plans` - [List service plans](https://developer.ui.com/carrier-fabric/v1.0.0/listserviceplans)
+- `GET /v1/carrier/service-plans/{id}` - [Get a service plan](https://developer.ui.com/carrier-fabric/v1.0.0/getserviceplan)
+
+## Optional
+
+**Network Ansible Modules**
+- [Quick Start](https://developer.ui.com/network/v11.0.97/quick_start.ansible)
+
+**Protect Ansible Modules**
+- [Quick Start](https://developer.ui.com/protect/v7.3.74/quick_start.ansible)
+
+**Network Version History**
+- [Network v11.0.97](https://developer.ui.com/network/v11.0.97/llms.txt)
+- [Network v10.6.109](https://developer.ui.com/network/v10.6.109/llms.txt)
+- [Network v10.6.106](https://developer.ui.com/network/v10.6.106/llms.txt)
+- [Network v10.6.102](https://developer.ui.com/network/v10.6.102/llms.txt)
+- [Network v10.5.67](https://developer.ui.com/network/v10.5.67/llms.txt)
+- [Network v10.4.57](https://developer.ui.com/network/v10.4.57/llms.txt)
+- [Network v10.3.58](https://developer.ui.com/network/v10.3.58/llms.txt)
+- [Network v10.1.84](https://developer.ui.com/network/v10.1.84/llms.txt)
+- [Network v10.0.162](https://developer.ui.com/network/v10.0.162/llms.txt)
+- [Network v9.5.21](https://developer.ui.com/network/v9.5.21/llms.txt)
+- [Network v9.4.19](https://developer.ui.com/network/v9.4.19/llms.txt)
+- [Network v9.4.17](https://developer.ui.com/network/v9.4.17/llms.txt)
+- [Network v9.3.45](https://developer.ui.com/network/v9.3.45/llms.txt)
+- [Network v9.3.43](https://developer.ui.com/network/v9.3.43/llms.txt)
+- [Network v9.2.87](https://developer.ui.com/network/v9.2.87/llms.txt)
+- [Network v9.2.86](https://developer.ui.com/network/v9.2.86/llms.txt)
+- [Network v9.1.120](https://developer.ui.com/network/v9.1.120/llms.txt)
+
+**Protect Version History**
+- [Protect v7.3.74](https://developer.ui.com/protect/v7.3.74/llms.txt)
+- [Protect v7.3.70](https://developer.ui.com/protect/v7.3.70/llms.txt)
+- [Protect v7.2.105](https://developer.ui.com/protect/v7.2.105/llms.txt)
+- [Protect v7.1.87](https://developer.ui.com/protect/v7.1.87/llms.txt)
+- [Protect v7.1.83](https://developer.ui.com/protect/v7.1.83/llms.txt)
+- [Protect v7.1.77](https://developer.ui.com/protect/v7.1.77/llms.txt)
+- [Protect v7.1.76](https://developer.ui.com/protect/v7.1.76/llms.txt)
+- [Protect v7.1.75](https://developer.ui.com/protect/v7.1.75/llms.txt)
+- [Protect v7.1.74](https://developer.ui.com/protect/v7.1.74/llms.txt)
+- [Protect v7.1.73](https://developer.ui.com/protect/v7.1.73/llms.txt)
+- [Protect v7.1.69](https://developer.ui.com/protect/v7.1.69/llms.txt)
+- [Protect v7.0.107](https://developer.ui.com/protect/v7.0.107/llms.txt)
+- [Protect v7.0.104](https://developer.ui.com/protect/v7.0.104/llms.txt)
+- [Protect v7.0.94](https://developer.ui.com/protect/v7.0.94/llms.txt)
+- [Protect v6.2.88](https://developer.ui.com/protect/v6.2.88/llms.txt)
+- [Protect v6.2.87](https://developer.ui.com/protect/v6.2.87/llms.txt)
+- [Protect v6.2.83](https://developer.ui.com/protect/v6.2.83/llms.txt)
+- [Protect v6.2.72](https://developer.ui.com/protect/v6.2.72/llms.txt)
+- [Protect v6.1.79](https://developer.ui.com/protect/v6.1.79/llms.txt)
+- [Protect v6.1.78](https://developer.ui.com/protect/v6.1.78/llms.txt)
+- [Protect v6.1.75](https://developer.ui.com/protect/v6.1.75/llms.txt)
+- [Protect v6.1.68](https://developer.ui.com/protect/v6.1.68/llms.txt)
+- [Protect v6.1.65](https://developer.ui.com/protect/v6.1.65/llms.txt)
+- [Protect v6.0.53](https://developer.ui.com/protect/v6.0.53/llms.txt)
+- [Protect v6.0.47](https://developer.ui.com/protect/v6.0.47/llms.txt)
+- [Protect v5.3.48](https://developer.ui.com/protect/v5.3.48/llms.txt)
+
+**Mobility Version History**
+- [Mobility v1.0.0](https://developer.ui.com/mobility/v1.0.0/llms.txt)
+
+**InnerSpace Version History**
+- [InnerSpace v1.3.23](https://developer.ui.com/innerspace/v1.3.23/llms.txt)
+
+**Site Manager Version History**
+- [Site Manager v1.0.0](https://developer.ui.com/site-manager/v1.0.0/llms.txt)
+
+**Carrier Fabric Version History**
+- [Carrier Fabric v1.0.0](https://developer.ui.com/carrier-fabric/v1.0.0/llms.txt)

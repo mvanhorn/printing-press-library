@@ -1,0 +1,329 @@
+{
+  "api_name": "unifi",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "unifi-mcp",
+      "url": "https://github.com/sirkirby/unifi-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 979,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "unifi-mcp-server",
+      "url": "https://github.com/enuno/unifi-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 333,
+      "last_updated": "",
+      "command_count": 343,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-unifi",
+      "url": "https://github.com/pete-builds/mcp-unifi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 29,
+      "last_updated": "",
+      "command_count": 86,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-unifi (Workers)",
+      "url": "https://github.com/jason-mspkickstart/mcp-unifi",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "unifi-cli",
+      "url": "https://github.com/lucasilverentand/unifi-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 67,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "UniFi Access and Talk have no official spec",
+    "Cloud write access through the connector proven only for one hotspot voucher create and delete on one test console"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-02T00:17:10Z",
+  "novel_features": [
+    {
+      "name": "Path and capability probe",
+      "command": "reach",
+      "description": "See which transports and products answer on each console. Write status is yes, no or unproven, and a probe alone never reports yes.",
+      "rationale": "Combines every surface and both transports into one per-console verdict.",
+      "example": "unifi-pp-cli reach --agent",
+      "why_it_matters": "Run this first in a session to learn what answers before planning a change. Spends one read per surface per console.",
+      "group": "Safe remote operation"
+    },
+    {
+      "name": "Impact and lockout check",
+      "command": "impact",
+      "description": "Estimate from the last sync what a proposed action would take down and whether it risks your way back in. It never reports safe.",
+      "rationale": "Joins mirrored devices, clients, cameras and WANs against the control path.",
+      "example": "unifi-pp-cli impact device restart gateway --agent",
+      "why_it_matters": "Use before any change that could cut the path needed to undo it. Verdicts are blocks-path, at-risk, no-known-risk or cannot-determine, and it cannot see every cause of path loss.",
+      "group": "Safe remote operation"
+    },
+    {
+      "name": "Journaled change with undo",
+      "command": "change apply",
+      "description": "Send one change to an official Network or Protect path with a journaled before-image, a read-back check and undo. Nothing is sent without --confirm.",
+      "rationale": "Needs a local journal linking before-image, mutation and read-back.",
+      "example": "unifi-pp-cli change apply firewall-policy.json --trial --site 11111111-2222-3333-4444-555555555555 --agent",
+      "why_it_matters": "Use instead of a plain write when the change must be checked and revertible. Docs say cloud keys are read-only today, other cloud writes are unproven beyond one voucher create and delete, and --trial expiry is unverified.",
+      "group": "Safe remote operation"
+    },
+    {
+      "name": "Config drift",
+      "command": "drift",
+      "description": "See field-level config changes between two synced snapshots, marked attributed (in the change journal) or out-of-band.",
+      "rationale": "Needs console-keyed snapshots joined to the change journal.",
+      "example": "unifi-pp-cli drift --agent",
+      "why_it_matters": "Use to answer what changed in config and whether it went through change apply. Needs at least two syncs.",
+      "group": "Local history"
+    },
+    {
+      "name": "What happened since I looked",
+      "command": "digest",
+      "description": "One timeline, built from local syncs, of state changes, ISP dips, drift, newcomers and journaled changes.",
+      "rationale": "Requires a local join across products and snapshots.",
+      "example": "unifi-pp-cli digest --since 7d --agent",
+      "why_it_matters": "Use for a catch-up summary instead of querying each product. A flap between two syncs is missed.",
+      "group": "Local history"
+    },
+    {
+      "name": "Newcomer detection",
+      "command": "newcomer",
+      "description": "List clients, devices and cameras first seen at a sync in a window.",
+      "rationale": "The API has no first-seen field; only local history knows.",
+      "example": "unifi-pp-cli newcomer --since 24h --agent",
+      "why_it_matters": "Use to spot unfamiliar hardware. Randomized MACs can inflate the list, and a visit between syncs is missed.",
+      "group": "Local history"
+    },
+    {
+      "name": "Firewall rule prediction",
+      "command": "rule-predict",
+      "description": "Predict which firewall policy would match a hypothetical packet. This is a local prediction with no API confirmation.",
+      "rationale": "No API simulate endpoint exists; evaluated locally.",
+      "example": "unifi-pp-cli rule-predict --src-zone LAN --dst-zone External --dst-port 443 --protocol tcp --agent",
+      "why_it_matters": "Use before editing rules. Treat indeterminate as unknown; legacy firewall rules are outside the model.",
+      "group": "Understand your network"
+    },
+    {
+      "name": "Device topology tree",
+      "command": "topology",
+      "description": "See gateway, switches and APs as a tree per console, from the last sync.",
+      "rationale": "Computed from parent links in the mirror.",
+      "example": "unifi-pp-cli topology --agent",
+      "why_it_matters": "Use to orient on the physical layout. Uplinks come from per-device detail requests, so sync --no-hydrate leaves the tree flat.",
+      "group": "Understand your network"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Path and capability probe",
+      "command": "reach",
+      "description": "See which transports and products answer on each console. Write status is yes, no or unproven, and a probe alone never reports yes.",
+      "rationale": "Combines every surface and both transports into one per-console verdict.",
+      "example": "unifi-pp-cli reach --agent",
+      "why_it_matters": "Run this first in a session to learn what answers before planning a change. Spends one read per surface per console.",
+      "group": "Safe remote operation"
+    },
+    {
+      "name": "Impact and lockout check",
+      "command": "impact",
+      "description": "Estimate from the last sync what a proposed action would take down and whether it risks your way back in. It never reports safe.",
+      "rationale": "Joins mirrored devices, clients, cameras and WANs against the control path.",
+      "example": "unifi-pp-cli impact device restart gateway --agent",
+      "why_it_matters": "Use before any change that could cut the path needed to undo it. Verdicts are blocks-path, at-risk, no-known-risk or cannot-determine, and it cannot see every cause of path loss.",
+      "group": "Safe remote operation"
+    },
+    {
+      "name": "Journaled change with undo",
+      "command": "change apply",
+      "description": "Send one change to an official Network or Protect path with a journaled before-image, a read-back check and undo. Nothing is sent without --confirm.",
+      "rationale": "Needs a local journal linking before-image, mutation and read-back.",
+      "example": "unifi-pp-cli change apply firewall-policy.json --trial --site 11111111-2222-3333-4444-555555555555 --agent",
+      "why_it_matters": "Use instead of a plain write when the change must be checked and revertible. Docs say cloud keys are read-only today, other cloud writes are unproven beyond one voucher create and delete, and --trial expiry is unverified.",
+      "group": "Safe remote operation"
+    },
+    {
+      "name": "Config drift",
+      "command": "drift",
+      "description": "See field-level config changes between two synced snapshots, marked attributed (in the change journal) or out-of-band.",
+      "rationale": "Needs console-keyed snapshots joined to the change journal.",
+      "example": "unifi-pp-cli drift --agent",
+      "why_it_matters": "Use to answer what changed in config and whether it went through change apply. Needs at least two syncs.",
+      "group": "Local history"
+    },
+    {
+      "name": "What happened since I looked",
+      "command": "digest",
+      "description": "One timeline, built from local syncs, of state changes, ISP dips, drift, newcomers and journaled changes.",
+      "rationale": "Requires a local join across products and snapshots.",
+      "example": "unifi-pp-cli digest --since 7d --agent",
+      "why_it_matters": "Use for a catch-up summary instead of querying each product. A flap between two syncs is missed.",
+      "group": "Local history"
+    },
+    {
+      "name": "Newcomer detection",
+      "command": "newcomer",
+      "description": "List clients, devices and cameras first seen at a sync in a window.",
+      "rationale": "The API has no first-seen field; only local history knows.",
+      "example": "unifi-pp-cli newcomer --since 24h --agent",
+      "why_it_matters": "Use to spot unfamiliar hardware. Randomized MACs can inflate the list, and a visit between syncs is missed.",
+      "group": "Local history"
+    },
+    {
+      "name": "Firewall rule prediction",
+      "command": "rule-predict",
+      "description": "Predict which firewall policy would match a hypothetical packet. This is a local prediction with no API confirmation.",
+      "rationale": "No API simulate endpoint exists; evaluated locally.",
+      "example": "unifi-pp-cli rule-predict --src-zone LAN --dst-zone External --dst-port 443 --protocol tcp --agent",
+      "why_it_matters": "Use before editing rules. Treat indeterminate as unknown; legacy firewall rules are outside the model.",
+      "group": "Understand your network"
+    },
+    {
+      "name": "Device topology tree",
+      "command": "topology",
+      "description": "See gateway, switches and APs as a tree per console, from the last sync.",
+      "rationale": "Computed from parent links in the mirror.",
+      "example": "unifi-pp-cli topology --agent",
+      "why_it_matters": "Use to orient on the physical layout. Uplinks come from per-device detail requests, so sync --no-hydrate leaves the tree flat.",
+      "group": "Understand your network"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "UNIFI_API_KEY"
+  },
+  "narrative": {
+    "display_name": "UniFi",
+    "headline": "Operate UniFi consoles through the cloud connector or your LAN, with a local history, change previews and a change journal.",
+    "value_prop": "One binary for the official UniFi APIs, over the cloud connector or a direct connection to your gateway. A local mirror keeps a snapshot from each sync, and 'impact' estimates what a change would affect before you make it. Reads have run against one test console over the cloud connector; most writes have not.",
+    "auth_narrative": "Cloud: create a key at unifi.ui.com under Settings \u003e API Keys and set UNIFI_API_KEY. Local: create a key in the Network app under Settings \u003e Control Plane \u003e Integrations, set UNIFI_LOCAL_API_KEY, and pass --gateway or set UNIFI_GATEWAY. The keys are separate, and a cloud key is never sent to a gateway. Run 'reach' to see what answers.",
+    "quickstart": [
+      {
+        "command": "unifi-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary runs. Sends no requests."
+      },
+      {
+        "command": "unifi-pp-cli reach --agent",
+        "comment": "See which consoles, products and transports answer. Needs a key."
+      },
+      {
+        "command": "unifi-pp-cli sync",
+        "comment": "Build the local mirror and take a snapshot. History features need it."
+      },
+      {
+        "command": "unifi-pp-cli digest --since 7d --agent",
+        "comment": "Read the timeline. Changes show up once there is more than one sync."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTML body or exit 5",
+        "fix": "A console page means the path missed the API. Check the route with doctor and run reach. Pass --gateway as a bare host: the CLI adds /proxy itself and rejects a path."
+      },
+      {
+        "symptom": "no console selected (exit 10)",
+        "fix": "Several consoles are visible, or none. Choose one with --console or UNIFI_CONSOLE_ID, or use --gateway."
+      },
+      {
+        "symptom": "local gateway transport needs UNIFI_LOCAL_API_KEY (exit 4)",
+        "fix": "Cloud keys are not sent to a gateway. Create a key in the Network app under Settings \u003e Control Plane \u003e Integrations."
+      },
+      {
+        "symptom": "401, 403 or 405 on a write through the connector",
+        "fix": "Docs say cloud keys are read-only today. Try --gateway with a local key; local writes are also untested live."
+      },
+      {
+        "symptom": "403 not the owner of the host",
+        "fix": "Non-organization keys reach only the key owner's consoles; use the owner's key or an organization key."
+      },
+      {
+        "symptom": "408 through the connector",
+        "fix": "The connector limits requests to 25 seconds; narrow the query. A write may still have applied and is not replayed, so read state first."
+      },
+      {
+        "symptom": "429 through the connector",
+        "fix": "The connector documents 100 requests per minute per console. The CLI paces itself per process, so parallel runs can exceed it; wait for Retry-After."
+      },
+      {
+        "symptom": "Response too large through the connector",
+        "fix": "The connector caps responses at 10 MB. Page with --limit and --offset, or use --gateway."
+      },
+      {
+        "symptom": "read-only mode (exit 10)",
+        "fix": "UNIFI_READ_ONLY is set, so writes are refused. Unset it to write; --dry-run still works."
+      },
+      {
+        "symptom": "console is not in UNIFI_CONSOLE_ALLOWLIST (exit 10)",
+        "fix": "Add the console id to the comma-separated list, or target an allowed console."
+      }
+    ],
+    "when_to_use": "Use for operating UniFi consoles over the cloud connector or a local gateway: health, config review, device and guest actions, Protect, and what-changed questions from local snapshots. Run 'impact' before, and prefer 'change apply' for, changes that could affect connectivity. Start with reads: cloud writes are unproven and no route has been tested live.",
+    "anti_triggers": [
+      "UniFi Access or Talk administration: no official API here and no commands cover them",
+      "Blocking a client with an official command: the API offers only guest authorize and unauthorize, so blocking means an unverified raw controller path or a firewall or ACL rule",
+      "Proving a firewall outcome: rule-predict is a prediction with no API confirmation",
+      "Live video streaming beyond handing out RTSPS links",
+      "First-time console setup and account administration"
+    ],
+    "recipes": [
+      {
+        "title": "Check before changing",
+        "command": "unifi-pp-cli impact device restart gateway --agent",
+        "explanation": "Reports affected clients and a control-path verdict from the last sync. Run sync first, or the verdict is cannot-determine."
+      },
+      {
+        "title": "Narrow device output",
+        "command": "unifi-pp-cli network list-devices 11111111-2222-3333-4444-555555555555 --agent --select data.name,data.model,data.state",
+        "explanation": "Keeps large device payloads small for agents. Get the site id from network list-sites."
+      },
+      {
+        "title": "Attribute changes",
+        "command": "unifi-pp-cli drift --agent",
+        "explanation": "Marks each change attributed when the change journal holds it, otherwise out-of-band. Writes made outside change apply count as out-of-band."
+      },
+      {
+        "title": "Test a local route",
+        "command": "unifi-pp-cli reach --gateway 192.168.1.1 --json",
+        "explanation": "Probes the gateway with UNIFI_LOCAL_API_KEY. Works without a cloud key."
+      },
+      {
+        "title": "Preview a journaled change",
+        "command": "unifi-pp-cli change apply --change-json '{\"method\":\"PATCH\",\"path\":\"/network/integration/v1/sites/SITE/firewall/policies/POLICY\",\"body\":{\"enabled\":false}}' --json",
+        "explanation": "Prints the plan and sends nothing. Add --confirm to send it."
+      }
+    ],
+    "trigger_phrases": [
+      "check my unifi network",
+      "what changed on my network",
+      "restart my access point",
+      "what would restarting this unifi device affect",
+      "use unifi",
+      "run unifi"
+    ]
+  },
+  "homepage": "https://ui.com"
+}

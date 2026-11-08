@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-01",
+  "base_run_id": "20261101-155632-9a5a2a2b",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
+  "id": "unifi-dual-transport",
+  "summary": "Console-hosted paths map to the cloud connector or a local gateway at one choke point in the client, with per-transport keys, self-signed TLS only for local literal hosts, a 100 req/min per-console throttle, actionable 408 and 10 MB errors, UNIFI_READ_ONLY, UNIFI_CONSOLE_ALLOWLIST and a JSONL mutation audit.",
+  "reason": "Generated commands call /network/integration, /protect/integration and /innerspace/integration, which do not exist on api.ui.com. The generator has no multi-host routing, and generated client.go has no global request mutator, so the seam has to be in doInternal.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/unifi_transport.go",
+    "internal/client/unifi_audit.go",
+    "internal/config/unifi_config.go",
+    "internal/cli/unifi_target.go",
+    "internal/cli/helpers.go",
+    "internal/cli/doctor.go",
+    "internal/cli/auth.go"
+  ],
+  "call_sites": [
+    "doInternalRaw(",
+    "resolveTarget(",
+    "authHeaderFor(",
+    "httpClientFor(",
+    "connectorThrottle.wait(",
+    "annotateConnectorError(",
+    "cacheTargetSuffix(",
+    "applyUniFiTargetOverride(",
+    "StreamingHTTPClient(httpClient,",
+    "target.Kind != TransportLocal",
+    "localKeySet",
+    "host answered HTTP"
+  ],
+  "validated_outcome": "internal/client/unifi_transport_test.go against httptest only. Connector path shape and key behaviour are unverified until a live key exists."
+}

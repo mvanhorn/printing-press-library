@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "unifi-pp-mcp",
   "display_name": "UniFi",
-  "version": "10.5.67",
-  "description": "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has.",
+  "version": "1.0.0",
+  "description": "Operate UniFi consoles through the cloud connector or your LAN, with a local history, change previews and a change journal.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -15,15 +15,80 @@
       "command": "${__dirname}/bin/unifi-pp-mcp",
       "args": [],
       "env": {
-        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+        "UNIFI_API_KEY": "${user_config.unifi_api_key}",
+        "UNIFI_CONSOLE_ALLOWLIST": "${user_config.unifi_console_allowlist}",
+        "UNIFI_CONSOLE_ID": "${user_config.unifi_console_id}",
+        "UNIFI_GATEWAY": "${user_config.unifi_gateway}",
+        "UNIFI_GATEWAY_HOST": "${user_config.unifi_gateway_host}",
+        "UNIFI_INSECURE_SKIP_VERIFY": "${user_config.unifi_insecure_skip_verify}",
+        "UNIFI_LOCAL_API_KEY": "${user_config.unifi_local_api_key}",
+        "UNIFI_READ_ONLY": "${user_config.unifi_read_only}",
+        "UNIFI_TRANSPORT": "${user_config.unifi_transport}"
       }
     }
   },
   "user_config": {
-    "printing_press_client_profile": {
+    "unifi_api_key": {
       "type": "string",
-      "title": "Client profile",
-      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "title": "UNIFI_API_KEY",
+      "description": "Sets UNIFI_API_KEY for the UniFi MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "unifi_console_allowlist": {
+      "type": "string",
+      "title": "UNIFI_CONSOLE_ALLOWLIST",
+      "description": "Sets UNIFI_CONSOLE_ALLOWLIST for the UniFi MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "unifi_console_id": {
+      "type": "string",
+      "title": "UNIFI_CONSOLE_ID",
+      "description": "Sets UNIFI_CONSOLE_ID for the UniFi MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "unifi_gateway": {
+      "type": "string",
+      "title": "UNIFI_GATEWAY",
+      "description": "Sets UNIFI_GATEWAY for the UniFi MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "unifi_gateway_host": {
+      "type": "string",
+      "title": "UNIFI_GATEWAY_HOST",
+      "description": "Sets UNIFI_GATEWAY_HOST for the UniFi MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "unifi_insecure_skip_verify": {
+      "type": "string",
+      "title": "UNIFI_INSECURE_SKIP_VERIFY",
+      "description": "Sets UNIFI_INSECURE_SKIP_VERIFY for the UniFi MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "unifi_local_api_key": {
+      "type": "string",
+      "title": "UNIFI_LOCAL_API_KEY",
+      "description": "Sets UNIFI_LOCAL_API_KEY for the UniFi MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "unifi_read_only": {
+      "type": "string",
+      "title": "UNIFI_READ_ONLY",
+      "description": "Sets UNIFI_READ_ONLY for the UniFi MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "unifi_transport": {
+      "type": "string",
+      "title": "UNIFI_TRANSPORT",
+      "description": "Sets UNIFI_TRANSPORT for the UniFi MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
       "required": true
     }
   },

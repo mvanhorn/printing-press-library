@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-06",
+  "base_run_id": "20261101-155632-9a5a2a2b",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
+  "id": "unifi-dogfood-examples-resolve-real-ids",
+  "summary": "Get-by-id commands no longer pin spec sample ids in pp:happy-args.",
+  "reason": "Spec sample ids in pp:happy-args are authoritative for the live runner, so every account got 404 even when a real resource existed. Without them the runner resolves an id from the list companion or records a fixture skip when the account has none.",
+  "files": [
+    "internal/cli/hosts_get-by-id.go",
+    "internal/cli/protect_get-camera.go"
+  ],
+  "call_sites": [
+    "example-value"
+  ],
+  "validated_outcome": "hosts get-by-id resolves a real host id in the live matrix."
+}

@@ -1,0 +1,1922 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "UniFi Mobility API",
+    "version": "1.0.0",
+    "contact": {
+      "name": "UniFi Cloud Platform Team"
+    },
+    "description": "Proxy API for UniFi Mobility services exposed through the cloudservice-apis gateway.\nRequests are authenticated at the proxy layer and forwarded to the mobility cloud.\n\n\n## Quick Start\n\n```bash\n# 1. Obtain an API key from the UniFi Cloud Platform with mobility scope\n# 2. List your workspaces\ncurl https://api.ui.com/v1/mobility/workspaces \\\n  -H \"X-API-Key: <your-key>\"\n\n# 3. List devices in a workspace\ncurl https://api.ui.com/v1/mobility/workspaces/<workspaceID>/devices \\\n  -H \"X-API-Key: <your-key>\"\n\n# 4. Get full detail for a device\ncurl https://api.ui.com/v1/mobility/workspaces/<workspaceID>/devices/<deviceID> \\\n  -H \"X-API-Key: <your-key>\"\n```\n\n## Authentication\n\nEvery request must include the API key in the `X-API-Key` header.\nAPI keys carry two layers of access control:\n\n**App scope** — the key must be issued with `mobility` app scope.\nKeys without this scope receive `403 forbidden`.\n\n**Read / write scope** — controls which operations the key can perform:\n\n| Scope | Permitted operations |\n|-------|----------------------|\n| `read:mobility` | All `GET` endpoints |\n| `write:mobility` | All `PUT` endpoints (requires `read:mobility` as well) |\n\n## Request Headers\n\n| Header | Required | Description |\n|--------|----------|-------------|\n| `X-API-Key` | Yes | API key for authentication |\n| `X-Request-ID` | No | Client-supplied trace identifier for end-to-end tracing. |\n\n## Rate Limiting\n\n**100 requests per minute** per API key across all mobility endpoints.\nWhen the limit is exceeded, `429 Too Many Requests` is returned immediately.\n\n## Response Format\n\nAll responses use a **unified format** with `httpStatusCode` and `traceId` as common fields.\n\n### Success — single item\n\n```json\n{\n  \"data\": { ... },\n  \"httpStatusCode\": 200,\n  \"traceId\": \"abc-123\"\n}\n```\n\n### Success — collection (paginated)\n\n```json\n{\n  \"data\": [ ... ],\n  \"total\": 42,\n  \"offset\": 0,\n  \"limit\": 200,\n  \"httpStatusCode\": 200,\n  \"traceId\": \"abc-123\"\n}\n```\n\n### Success — no content (PUT)\n\nHTTP `204` with an empty body.\n\n### Error\n\n```json\n{\n  \"code\": \"upstream_error\",\n  \"httpStatusCode\": 404,\n  \"message\": \"device not found\",\n  \"traceId\": \"abc-123\"\n}\n```\n\n**Error codes:**\n\n| `code` | HTTP | When |\n|--------|------|------|\n| `unauthorized` | 401 | API key is missing, expired, or invalid |\n| `forbidden` | 403 | Key lacks `mobility` app scope or read/write scope |\n| `rate_limit` | 429 | Rate limit exceeded |\n| `upstream_error` | 400, 404, 500 | Validation error, resource not found, or service error |\n| `server_error` | 500 | Unexpected internal error |\n"
+  },
+  "servers": [
+    {
+      "url": "https://api.ui.com",
+      "description": "UniFi API"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Workspaces",
+      "description": "Workspace listing and admin management\nA workspace represents a mobility cloud site (admin account).\n"
+    },
+    {
+      "name": "Devices",
+      "description": "Device listing and detail\nReturns UniFi Mobile Router devices registered in a workspace.\n"
+    },
+    {
+      "name": "Clients",
+      "description": "Clients connected to a device\n"
+    },
+    {
+      "name": "Device Configuration",
+      "description": "Write operations for device settings\nAll write operations require `write:mobility` scope and workspace **Admin** permission.\n"
+    }
+  ],
+  "security": [
+    {
+      "ApiKey": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key with `mobility` app scope."
+      }
+    },
+    "parameters": {
+      "workspaceID": {
+        "name": "workspaceID",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Workspace UUID. Obtain from API call: GET /v1/mobility/workspaces"
+      },
+      "deviceID": {
+        "name": "deviceID",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Device UUID. Obtain from API call: GET /v1/mobility/workspaces/{workspaceID}/devices"
+      },
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 200
+        },
+        "description": "Maximum records per page. Capped at 200."
+      },
+      "offset": {
+        "name": "offset",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "description": "Number of records to skip."
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Standard error response for all error cases.",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Machine-readable error code.",
+            "enum": [
+              "unauthorized",
+              "forbidden",
+              "bad_request",
+              "rate_limit",
+              "upstream_error",
+              "server_error"
+            ]
+          },
+          "httpStatusCode": {
+            "type": "integer",
+            "description": "HTTP status code."
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error description."
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Matches `X-Request-ID` if provided, otherwise auto-generated."
+          }
+        },
+        "required": [
+          "httpStatusCode",
+          "traceId"
+        ]
+      },
+      "WorkspaceSummary": {
+        "type": "object",
+        "description": "A workspace (mobility cloud site) visible to the authenticated user.",
+        "properties": {
+          "workspace_id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          },
+          "workspace_name": {
+            "type": "string",
+            "example": "John's Cloud"
+          },
+          "is_owner": {
+            "type": "boolean",
+            "example": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "PENDING",
+              "INACTIVE",
+              "DECLINED"
+            ],
+            "example": "ACTIVE"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "workspace_name",
+          "is_owner",
+          "status"
+        ]
+      },
+      "AdminPermission": {
+        "type": "object",
+        "description": "Permission levels for the admin. Only mobility permissions are exposed.\nThe `umr` field is omitted if the admin has no role binding.\n",
+        "properties": {
+          "umr": {
+            "type": "string",
+            "description": "Mobile Routing permission level.\n- `ALL` — can view and configure devices (admin)\n- `VIEW_ONLY` — read-only access (viewer)\n- `NONE` — no access\n",
+            "enum": [
+              "ALL",
+              "VIEW_ONLY",
+              "NONE"
+            ],
+            "example": "ALL"
+          }
+        }
+      },
+      "AdminSummary": {
+        "type": "object",
+        "description": "An admin of a workspace, with only mobility permissions exposed.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john@example.com"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "PENDING",
+              "INACTIVE",
+              "DECLINED"
+            ],
+            "example": "ACTIVE"
+          },
+          "is_owner": {
+            "type": "boolean",
+            "example": true
+          },
+          "permissions": {
+            "type": "object",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminPermission"
+              }
+            ],
+            "description": "Mobility permissions for the admin. `null` when the admin has no role bindings (e.g. pending invitation)."
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "status",
+          "is_owner",
+          "permissions"
+        ]
+      },
+      "DeviceSummary": {
+        "type": "object",
+        "description": "Lightweight device representation returned in the device list.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": "string",
+            "example": "Office Router"
+          },
+          "model": {
+            "type": "string",
+            "description": "Hardware model name.\n- `UMR` — UMR Flex EU/US\n- `UMR Industrial` — UMR Industrial EU/US\n- `UMR Ultra` — UMR Ultra EU/US/ROW\n",
+            "enum": [
+              "UMR",
+              "UMR Industrial",
+              "UMR Ultra"
+            ],
+            "example": "UMR"
+          },
+          "state": {
+            "type": "string",
+            "description": "Current device state.\n\n| Value | Description |\n|-------|-------------|\n| `CONNECTED` | Online and communicating normally |\n| `DISCONNECTED` | Lost connection to the cloud |\n| `ADOPTING` | Adoption in progress |\n| `ADOPTING_TIMEOUT` | Adoption timed out |\n| `DOWNLOADING` | Downloading firmware update |\n| `UPGRADING` | Applying firmware update |\n| `RESTARTING` | Rebooting |\n| `FACTORY_RESET` | Performing factory reset |\n| `GETTING_READY` | Initialising after adoption |\n| `RESTORING` | Restoring from backup |\n| `NULL` | Record exists but adoption not started |\n| `DELETING` | Cloud-side deletion in progress |\n",
+            "enum": [
+              "CONNECTED",
+              "DISCONNECTED",
+              "ADOPTING",
+              "ADOPTING_TIMEOUT",
+              "DOWNLOADING",
+              "UPGRADING",
+              "RESTARTING",
+              "FACTORY_RESET",
+              "GETTING_READY",
+              "RESTORING",
+              "NULL",
+              "DELETING"
+            ],
+            "example": "CONNECTED"
+          },
+          "firmware_version": {
+            "type": "string",
+            "example": "3.1.14"
+          },
+          "mac_address": {
+            "type": "string",
+            "description": "Primary MAC address in upper-case colon-separated format.\nEmpty string when not yet initialised.\n",
+            "example": "00:1A:2B:3C:4D:5E"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "model",
+          "state",
+          "firmware_version",
+          "mac_address"
+        ]
+      },
+      "DeviceLocation": {
+        "type": "object",
+        "description": "GPS location. This field is **omitted** (not `null`) when no GPS fix\nis available — check for key presence rather than null check.\n",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "format": "float",
+            "description": "WGS-84 latitude in decimal degrees.",
+            "example": 37.7749
+          },
+          "longitude": {
+            "type": "number",
+            "format": "float",
+            "description": "WGS-84 longitude in decimal degrees.",
+            "example": -122.4194
+          },
+          "last_updated": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp in milliseconds of the last GPS fix.",
+            "example": 1709712000000
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude",
+          "last_updated"
+        ]
+      },
+      "DeviceDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DeviceSummary"
+          },
+          {
+            "type": "object",
+            "description": "Full device detail including WAN, cellular, WiFi, VPN, subscription, and GPS.",
+            "properties": {
+              "wan_source": {
+                "type": "string",
+                "description": "Active WAN interface. Empty when no WAN connected.",
+                "enum": [
+                  "LTE",
+                  "WAN",
+                  "WIFIWAN",
+                  ""
+                ],
+                "example": "LTE"
+              },
+              "wan_ip": {
+                "type": "string",
+                "description": "Public WAN IP. Empty when not connected.",
+                "example": "203.0.113.42"
+              },
+              "enabled_wans": {
+                "type": "array",
+                "description": "Enabled WAN interfaces sorted by priority (index 0 = highest).",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "LTE",
+                    "WAN",
+                    "WIFIWAN"
+                  ]
+                },
+                "example": [
+                  "LTE",
+                  "WAN"
+                ]
+              },
+              "isp": {
+                "type": "string",
+                "example": "AT&T"
+              },
+              "lte_signal_level": {
+                "type": "string",
+                "description": "LTE signal quality derived from RSSI (dBm).\n\n| Value | RSSI range | Description |\n|-------|-----------|-------------|\n| `NO_SIGNAL` | < -111 dBm | No usable signal |\n| `POOR` | -111 to -100 dBm | Weak signal |\n| `FAIR` | -99 to -89 dBm | Moderate signal |\n| `STRONG` | -88 dBm or better | Good signal |\n| `\"\"` | N/A | RSSI not yet reported |\n",
+                "enum": [
+                  "NO_SIGNAL",
+                  "POOR",
+                  "FAIR",
+                  "STRONG",
+                  ""
+                ],
+                "example": "FAIR"
+              },
+              "cellular_data_usage_bytes": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Data consumed in the current billing cycle, in bytes.",
+                "example": 524288000
+              },
+              "cellular_data_limit_bytes": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Data cap in bytes for the current billing cycle.\n`-1` means unlimited. `0` is not a valid value.\n",
+                "example": 5368709120
+              },
+              "memory_usage_percent": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "example": 42
+              },
+              "uptime_seconds": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Seconds since last boot. `0` when state is not `CONNECTED`.",
+                "example": 86400
+              },
+              "client_count": {
+                "type": "integer",
+                "example": 5
+              },
+              "host_address": {
+                "type": "string",
+                "description": "LAN gateway IP. Contains WAN IP in `WANBRIDGE` mode.",
+                "example": "192.168.1.1"
+              },
+              "poe_passthrough": {
+                "type": "boolean",
+                "example": false
+              },
+              "device_mode": {
+                "type": "string",
+                "description": "- `ROUTER` — standard NAT router\n- `WANBRIDGE` — WAN bridge mode\n- `LTEPASS` — LTE passthrough\n",
+                "enum": [
+                  "ROUTER",
+                  "WANBRIDGE",
+                  "LTEPASS"
+                ],
+                "example": "ROUTER"
+              },
+              "wifi_enabled": {
+                "type": "boolean",
+                "example": true
+              },
+              "wifi_ssid": {
+                "type": "string",
+                "example": "UniFi-LTE"
+              },
+              "tx_power_level": {
+                "type": "string",
+                "description": "Empty when Wireless record is not initialised.",
+                "enum": [
+                  "HIGH",
+                  "MEDIUM",
+                  "LOW",
+                  ""
+                ],
+                "example": "HIGH"
+              },
+              "vpn_profile_name": {
+                "type": "string",
+                "description": "Empty when no VPN is configured.",
+                "example": "HQ-VPN"
+              },
+              "vpn_status": {
+                "type": "string",
+                "description": "- `CONNECTING` — tunnel being established\n- `CONNECTED` — tunnel active\n- `DISCONNECTED` — configured but not connected\n- `FAILED` — connection failed\n- `\"\"` — no VPN session\n",
+                "enum": [
+                  "CONNECTING",
+                  "CONNECTED",
+                  "DISCONNECTED",
+                  "FAILED",
+                  ""
+                ],
+                "example": "CONNECTED"
+              },
+              "firewall_rule_names": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "Block-IoT-Outbound"
+                ]
+              },
+              "routing_rule_names": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": []
+              },
+              "ddns_profile_names": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": []
+              },
+              "subscription_plan": {
+                "type": "string",
+                "description": "Active data plan. Empty when no subscription.\n\n| Value | Description |\n|-------|-------------|\n| `FREE_TRIAL` | Free trial |\n| `1GB` | Monthly 1 GB |\n| `5GB` | Monthly 5 GB |\n| `20GB` | Monthly 20 GB |\n| `2GB` | Daily 2 GB (QA/test) |\n| `CLOUD` | Cloud plan (daily/yearly/3-year) |\n| `\"\"` | No subscription |\n",
+                "enum": [
+                  "FREE_TRIAL",
+                  "1GB",
+                  "5GB",
+                  "20GB",
+                  "2GB",
+                  "CLOUD",
+                  ""
+                ],
+                "example": "5GB"
+              },
+              "subscription_status": {
+                "type": "string",
+                "description": "Derived priority: FAILED > PENDING > ACTIVE > INACTIVE.\nA subscription cancelled at period end remains `ACTIVE` until expiry.\n",
+                "enum": [
+                  "ACTIVE",
+                  "INACTIVE",
+                  "PENDING",
+                  "FAILED"
+                ],
+                "example": "ACTIVE"
+              },
+              "location": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DeviceLocation"
+                  }
+                ],
+                "description": "Omitted (not null) when no GPS fix is available."
+              }
+            }
+          }
+        ]
+      },
+      "DeviceClient": {
+        "type": "object",
+        "description": "A client associated with a device.",
+        "properties": {
+          "mac": {
+            "type": "string",
+            "description": "MAC address in upper-case colon-separated format.",
+            "example": "AA:BB:CC:DD:EE:FF"
+          },
+          "name": {
+            "type": "string",
+            "example": "John's iPhone"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "WIRED",
+              "WIRELESS"
+            ],
+            "example": "WIRELESS"
+          },
+          "connection_status": {
+            "type": "string",
+            "description": "- `ONLINE` — actively connected\n- `OFFLINE` — previously connected, no longer seen\n- `BLOCKED` — network access blocked; `is_blocked` will be `true`\n",
+            "enum": [
+              "ONLINE",
+              "OFFLINE",
+              "BLOCKED"
+            ],
+            "example": "ONLINE"
+          },
+          "ip_address": {
+            "type": "string",
+            "description": "Empty when unknown.",
+            "example": "192.168.1.100"
+          },
+          "is_blocked": {
+            "type": "boolean",
+            "example": false
+          },
+          "wifi_experience": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "nullable": true,
+            "description": "WiFi experience score (0-100). **Omitted** for wired clients.\n",
+            "example": 85
+          }
+        },
+        "required": [
+          "mac",
+          "name",
+          "type",
+          "connection_status",
+          "ip_address",
+          "is_blocked"
+        ]
+      },
+      "UpdateDeviceNameReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "description": "New device name (1-32 characters).",
+            "example": "Branch Office Router"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateNetworkReq": {
+        "type": "object",
+        "description": "Partial update — only provided fields are applied.\nWAN, IPv6, and InternetSource are not configurable via this endpoint.\n",
+        "properties": {
+          "host_address": {
+            "type": "string",
+            "format": "ipv4",
+            "nullable": true,
+            "example": "192.168.10.1"
+          },
+          "dhcp_mode": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "dhcp",
+              "none"
+            ],
+            "description": "`dhcp` = enabled, `none` = disabled.",
+            "example": "dhcp"
+          },
+          "dhcp_range_start": {
+            "type": "string",
+            "format": "ipv4",
+            "nullable": true,
+            "example": "192.168.10.100"
+          },
+          "dhcp_range_stop": {
+            "type": "string",
+            "format": "ipv4",
+            "nullable": true,
+            "example": "192.168.10.200"
+          },
+          "dhcp_lease_time": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "description": "Seconds. `0` = infinite.",
+            "example": 86400
+          }
+        }
+      },
+      "UpdateWirelessReq": {
+        "type": "object",
+        "description": "Both fields are required. Channel, TX power, and security protocol are not configurable.",
+        "properties": {
+          "ssid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "example": "MyNetwork"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 63,
+            "description": "WPA2-PSK password.",
+            "example": "securepass123"
+          }
+        },
+        "required": [
+          "ssid",
+          "password"
+        ]
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "description": "Common envelope fields shared by all paginated collection responses.",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "description": "Total number of records matching the query, ignoring pagination."
+          },
+          "offset": {
+            "type": "integer",
+            "description": "Number of records skipped (echoes the `offset` query parameter)."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Page size applied (echoes the `limit` query parameter)."
+          },
+          "httpStatusCode": {
+            "type": "integer",
+            "description": "HTTP status code."
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Matches `X-Request-ID` if provided, otherwise auto-generated."
+          }
+        },
+        "required": [
+          "httpStatusCode",
+          "traceId"
+        ]
+      },
+      "WorkspaceListResponse": {
+        "description": "Paginated list of workspaces.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginationMeta"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WorkspaceSummary"
+                }
+              }
+            },
+            "required": [
+              "data"
+            ]
+          }
+        ]
+      },
+      "AdminListResponse": {
+        "description": "Paginated list of workspace admins.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginationMeta"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AdminSummary"
+                }
+              }
+            },
+            "required": [
+              "data"
+            ]
+          }
+        ]
+      },
+      "DeviceListResponse": {
+        "description": "Paginated list of devices.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginationMeta"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DeviceSummary"
+                }
+              }
+            },
+            "required": [
+              "data"
+            ]
+          }
+        ]
+      },
+      "DeviceClientListResponse": {
+        "description": "Paginated list of device clients.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginationMeta"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DeviceClient"
+                }
+              }
+            },
+            "required": [
+              "data"
+            ]
+          }
+        ]
+      },
+      "DeviceDetailResponse": {
+        "type": "object",
+        "description": "Single device detail response.",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DeviceDetail"
+          },
+          "httpStatusCode": {
+            "type": "integer",
+            "description": "HTTP status code."
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Matches `X-Request-ID` if provided, otherwise auto-generated."
+          }
+        },
+        "required": [
+          "data",
+          "httpStatusCode",
+          "traceId"
+        ]
+      }
+    }
+  },
+  "paths": {
+    "/v1/mobility/workspaces": {
+      "get": {
+        "operationId": "listWorkspaces",
+        "summary": "List workspaces",
+        "description": "Returns all workspaces visible to the authenticated user.\nOnly workspaces with active membership are returned.\n\n**Scope**: `read:mobility`\n",
+        "tags": [
+          "Workspaces"
+        ],
+        "responses": {
+          "200": {
+            "description": "Workspace list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceListResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "workspace_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "workspace_name": "Headquarters",
+                      "is_owner": true,
+                      "status": "ACTIVE"
+                    },
+                    {
+                      "workspace_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                      "workspace_name": "Branch Office",
+                      "is_owner": false,
+                      "status": "ACTIVE"
+                    }
+                  ],
+                  "total": 2,
+                  "offset": 0,
+                  "limit": 0,
+                  "httpStatusCode": 200,
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g. malformed user token).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 400,
+                  "message": "Bad Request",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "httpStatusCode": 401,
+                  "message": "unauthorized",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "API key lacks required scope.\n- Key has no `mobility` app scope\n- Key has no `read:mobility` scope\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "httpStatusCode": 403,
+                  "message": "insufficient permissions",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limit",
+                  "httpStatusCode": 429,
+                  "message": "rate limit exceeded",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "server_error",
+                  "httpStatusCode": 500,
+                  "message": "failed to proxy request",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mobility/workspaces/{workspaceID}/admins": {
+      "get": {
+        "operationId": "listWorkspaceAdmins",
+        "summary": "List workspace admins",
+        "description": "Returns all admins for a workspace with their permission levels.\n\nThe caller must have active membership. Only mobility permissions are exposed.\n\nAdmins are sorted: owner first, then active > pending > inactive > declined.\n\n**Scope**: `read:mobility`\n",
+        "tags": [
+          "Workspaces"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspaceID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Admin list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminListResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "name": "Alice Owner",
+                      "email": "alice@example.com",
+                      "status": "ACTIVE",
+                      "is_owner": true,
+                      "permissions": {
+                        "umr": "ALL"
+                      }
+                    },
+                    {
+                      "name": "Bob Viewer",
+                      "email": "bob@example.com",
+                      "status": "ACTIVE",
+                      "is_owner": false,
+                      "permissions": {
+                        "umr": "VIEW_ONLY"
+                      }
+                    },
+                    {
+                      "name": "Charlie Pending",
+                      "email": "charlie@example.com",
+                      "status": "PENDING",
+                      "is_owner": false,
+                      "permissions": null
+                    }
+                  ],
+                  "total": 3,
+                  "offset": 0,
+                  "limit": 0,
+                  "httpStatusCode": 200,
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g. malformed workspace ID).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 400,
+                  "message": "Bad Request",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "httpStatusCode": 401,
+                  "message": "unauthorized",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "API key lacks required scope, or the caller has no active membership\nin the specified workspace.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "httpStatusCode": 403,
+                  "message": "insufficient permissions",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found or not a standard workspace type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 404,
+                  "message": "access denied: not found",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limit",
+                  "httpStatusCode": 429,
+                  "message": "rate limit exceeded",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mobility/workspaces/{workspaceID}/devices": {
+      "get": {
+        "operationId": "listDevices",
+        "summary": "List devices",
+        "description": "Returns a paginated list of devices in the workspace.\nEach item contains identity and status fields only.\nUse `getDevice` for full detail.\n\n**Scope**: `read:mobility`\n",
+        "tags": [
+          "Devices"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspaceID"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated device list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceListResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "550e8400-e29b-41d4-a716-446655440000",
+                      "name": "Office Router",
+                      "model": "UMR",
+                      "state": "CONNECTED",
+                      "firmware_version": "3.1.14",
+                      "mac_address": "00:1A:2B:3C:4D:5E"
+                    },
+                    {
+                      "id": "661f9511-f3ac-52e5-b827-557766551111",
+                      "name": "Branch Router",
+                      "model": "UMR Ultra",
+                      "state": "DISCONNECTED",
+                      "firmware_version": "3.1.12",
+                      "mac_address": "AA:BB:CC:DD:EE:FF"
+                    }
+                  ],
+                  "total": 2,
+                  "offset": 0,
+                  "limit": 200,
+                  "httpStatusCode": 200,
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 400,
+                  "message": "invalid limit: must be between 1 and 200",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "httpStatusCode": 401,
+                  "message": "unauthorized",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Key lacks required scope, or caller lacks Viewer permission on the workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "httpStatusCode": 403,
+                  "message": "insufficient permissions",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limit",
+                  "httpStatusCode": 429,
+                  "message": "rate limit exceeded",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 500,
+                  "message": "internal server error",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mobility/workspaces/{workspaceID}/devices/{deviceID}": {
+      "get": {
+        "operationId": "getDevice",
+        "summary": "Get device detail",
+        "description": "Returns full detail for a single device, including WAN, cellular,\nWiFi, VPN, firewall rules, subscription, and GPS location.\n\n**Scope**: `read:mobility`\n",
+        "tags": [
+          "Devices"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspaceID"
+          },
+          {
+            "$ref": "#/components/parameters/deviceID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full device detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceDetailResponse"
+                },
+                "example": {
+                  "data": {
+                    "id": "550e8400-e29b-41d4-a716-446655440000",
+                    "name": "Office Router",
+                    "model": "UMR",
+                    "state": "CONNECTED",
+                    "firmware_version": "3.1.14",
+                    "mac_address": "00:1A:2B:3C:4D:5E",
+                    "wan_source": "LTE",
+                    "wan_ip": "203.0.113.42",
+                    "enabled_wans": [
+                      "LTE",
+                      "WAN"
+                    ],
+                    "isp": "AT&T",
+                    "lte_signal_level": "FAIR",
+                    "cellular_data_usage_bytes": 524288000,
+                    "cellular_data_limit_bytes": 5368709120,
+                    "memory_usage_percent": 42,
+                    "uptime_seconds": 86400,
+                    "client_count": 5,
+                    "host_address": "192.168.1.1",
+                    "poe_passthrough": false,
+                    "device_mode": "ROUTER",
+                    "wifi_enabled": true,
+                    "wifi_ssid": "UniFi-LTE",
+                    "tx_power_level": "HIGH",
+                    "vpn_profile_name": "HQ-VPN",
+                    "vpn_status": "CONNECTED",
+                    "firewall_rule_names": [
+                      "Block-IoT-Outbound"
+                    ],
+                    "routing_rule_names": [],
+                    "ddns_profile_names": [],
+                    "subscription_plan": "5GB",
+                    "subscription_status": "ACTIVE",
+                    "location": {
+                      "latitude": 37.7749,
+                      "longitude": -122.4194,
+                      "last_updated": 1709712000000
+                    }
+                  },
+                  "httpStatusCode": 200,
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "httpStatusCode": 401,
+                  "message": "unauthorized",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Key lacks required scope, or caller lacks Viewer permission.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "httpStatusCode": 403,
+                  "message": "insufficient permissions",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device not found. Two scenarios return the same message\n(to avoid leaking device IDs):\n- The `deviceID` does not exist\n- The device exists but does not belong to the specified `workspaceID`\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 404,
+                  "message": "device not found",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limit",
+                  "httpStatusCode": 429,
+                  "message": "rate limit exceeded",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 500,
+                  "message": "internal server error",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateDeviceName",
+        "summary": "Update device name",
+        "description": "Updates the user-assigned display name of a device.\n\n**Scope**: `write:mobility`\n\n**Permission**: workspace **Admin** (Viewers receive 403)\n",
+        "tags": [
+          "Device Configuration"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspaceID"
+          },
+          {
+            "$ref": "#/components/parameters/deviceID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDeviceNameReq"
+              },
+              "example": {
+                "name": "Branch Office Router"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Name updated successfully. No response body."
+          },
+          "400": {
+            "description": "Validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 400,
+                  "message": "name must be between 1 and 32 characters",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "httpStatusCode": 401,
+                  "message": "unauthorized",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Key lacks `write:mobility` scope, or caller lacks Admin permission.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "httpStatusCode": 403,
+                  "message": "insufficient permissions",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device not found. Two scenarios return the same message\n(to avoid leaking device IDs):\n- The `deviceID` does not exist\n- The device exists but does not belong to the specified `workspaceID`\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 404,
+                  "message": "device not found",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limit",
+                  "httpStatusCode": 429,
+                  "message": "rate limit exceeded",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 500,
+                  "message": "internal server error",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mobility/workspaces/{workspaceID}/devices/{deviceID}/clients": {
+      "get": {
+        "operationId": "listDeviceClients",
+        "summary": "List device clients",
+        "description": "Returns a paginated list of all clients associated with a device,\nincluding ONLINE, OFFLINE, and BLOCKED clients.\n\n`wifi_experience` is omitted for wired clients (`type = WIRED`).\n\n**Scope**: `read:mobility`\n",
+        "tags": [
+          "Clients"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspaceID"
+          },
+          {
+            "$ref": "#/components/parameters/deviceID"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated client list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceClientListResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "mac": "AA:BB:CC:DD:EE:FF",
+                      "name": "John's iPhone",
+                      "type": "WIRELESS",
+                      "connection_status": "ONLINE",
+                      "ip_address": "192.168.1.100",
+                      "is_blocked": false,
+                      "wifi_experience": 85
+                    },
+                    {
+                      "mac": "11:22:33:44:55:66",
+                      "name": "NAS",
+                      "type": "WIRED",
+                      "connection_status": "ONLINE",
+                      "ip_address": "192.168.1.50",
+                      "is_blocked": false
+                    }
+                  ],
+                  "total": 2,
+                  "offset": 0,
+                  "limit": 200,
+                  "httpStatusCode": 200,
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters or malformed device ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 400,
+                  "message": "invalid device ID format",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "httpStatusCode": 401,
+                  "message": "unauthorized",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Key lacks required scope, or caller lacks Viewer permission.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "httpStatusCode": 403,
+                  "message": "insufficient permissions",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device not found. Two scenarios return the same message\n(to avoid leaking device IDs):\n- The `deviceID` does not exist\n- The device exists but does not belong to the specified `workspaceID`\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 404,
+                  "message": "device not found",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limit",
+                  "httpStatusCode": 429,
+                  "message": "rate limit exceeded",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 500,
+                  "message": "internal server error",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mobility/workspaces/{workspaceID}/devices/{deviceID}/network": {
+      "put": {
+        "operationId": "updateDeviceNetwork",
+        "summary": "Update LAN / DHCP settings",
+        "description": "Partial update — only provided fields are modified.\nWAN, IPv6, and InternetSource are not configurable.\n\n**Scope**: `write:mobility`\n\n**Permission**: workspace **Admin**\n",
+        "tags": [
+          "Device Configuration"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspaceID"
+          },
+          {
+            "$ref": "#/components/parameters/deviceID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNetworkReq"
+              },
+              "examples": {
+                "updateAll": {
+                  "summary": "Update gateway IP and DHCP range",
+                  "value": {
+                    "host_address": "192.168.10.1",
+                    "dhcp_mode": "dhcp",
+                    "dhcp_range_start": "192.168.10.100",
+                    "dhcp_range_stop": "192.168.10.200",
+                    "dhcp_lease_time": 86400
+                  }
+                },
+                "disableDHCP": {
+                  "summary": "Disable DHCP only",
+                  "value": {
+                    "dhcp_mode": "none"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Network settings updated successfully. No response body."
+          },
+          "400": {
+            "description": "Validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 400,
+                  "message": "host_address is not a valid IPv4 address",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "httpStatusCode": 401,
+                  "message": "unauthorized",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Key lacks `write:mobility` scope, or caller lacks Admin permission.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "httpStatusCode": 403,
+                  "message": "insufficient permissions",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device not found. Two scenarios return the same message\n(to avoid leaking device IDs):\n- The `deviceID` does not exist\n- The device exists but does not belong to the specified `workspaceID`\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 404,
+                  "message": "device not found",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limit",
+                  "httpStatusCode": 429,
+                  "message": "rate limit exceeded",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 500,
+                  "message": "internal server error",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mobility/workspaces/{workspaceID}/devices/{deviceID}/wireless": {
+      "put": {
+        "operationId": "updateDeviceWireless",
+        "summary": "Update WiFi settings",
+        "description": "Replaces the WiFi SSID and password. Both fields are required.\nChannel, TX power, and security protocol are not configurable.\n\n**Scope**: `write:mobility`\n\n**Permission**: workspace **Admin**\n",
+        "tags": [
+          "Device Configuration"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspaceID"
+          },
+          {
+            "$ref": "#/components/parameters/deviceID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWirelessReq"
+              },
+              "example": {
+                "ssid": "MyNetwork",
+                "password": "securepass123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "WiFi settings updated successfully. No response body."
+          },
+          "400": {
+            "description": "Validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 400,
+                  "message": "password must be between 8 and 63 characters",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "httpStatusCode": 401,
+                  "message": "unauthorized",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Key lacks `write:mobility` scope, or caller lacks Admin permission.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "httpStatusCode": 403,
+                  "message": "insufficient permissions",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device not found. Two scenarios return the same message\n(to avoid leaking device IDs):\n- The `deviceID` does not exist\n- The device exists but does not belong to the specified `workspaceID`\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 404,
+                  "message": "device not found",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limit",
+                  "httpStatusCode": 429,
+                  "message": "rate limit exceeded",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "upstream_error",
+                  "httpStatusCode": 500,
+                  "message": "internal server error",
+                  "traceId": "7f3a1c2b-d4e5-4f6a-8b9c-0d1e2f3a4b5c"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

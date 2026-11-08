@@ -8,6 +8,8 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/devices/unifi/internal/cliutil/testenv"
 )
 
 // TestNovelNewcomerHelpWires smoke-tests that the newcomer command
@@ -15,6 +17,7 @@ import (
 // regressions (missing AddCommand, panicking RunE on --help, etc.) before
 // review. Keep this smoke test when adding behavior-specific cases.
 func TestNovelNewcomerHelpWires(t *testing.T) {
+	testenv.Isolate(t)
 	cmd := RootCmd()
 	cmd.SetArgs([]string{"newcomer", "--help"})
 	var out bytes.Buffer

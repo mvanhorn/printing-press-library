@@ -1,0 +1,2628 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "UniFi Carrier / ISP Fabric - Subscriber API",
+    "version": "1.0.0",
+    "description": "The Subscriber API lets an ISP operator's CRM / BSS manage subscribers and read service plans on the UniFi Carrier (ISP) Fabric. Authenticate every request with an ISP API key in the X-API-Key header. A key is scoped by a permission whitelist and, optionally, by subscriber group."
+  },
+  "servers": [
+    {
+      "url": "https://api.ui.com",
+      "description": "UniFi API"
+    }
+  ],
+  "security": [
+    {
+      "apiKeyAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Subscribers",
+      "x-displayName": "Subscribers",
+      "description": "Create, read, update subscribers; attach the gateway host; assign a service plan."
+    },
+    {
+      "name": "Service State",
+      "x-displayName": "Service State",
+      "description": "Suspend and resume a subscriber's service (subscriber-level, idempotent)."
+    },
+    {
+      "name": "Service Plans",
+      "x-displayName": "Service Plans",
+      "description": "Read the org's service plans. Plans are authored in the console; there is no external write endpoint."
+    }
+  ],
+  "paths": {
+    "/v1/carrier/subscribers": {
+      "get": {
+        "tags": [
+          "Subscribers"
+        ],
+        "operationId": "listSubscribers",
+        "x-position": 1,
+        "summary": "List subscribers",
+        "description": "Lists subscribers visible to the key (in-scope subscribers only). Cursor-paginated. Requires scope `read:subscribers`.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page size — how many subscribers to return per page. Alias: pageSize. Must be an integer from 1 to 500. Anything else is rejected with 400 validation_failed naming whichever of the two spellings you sent and the bound it broke: a non-numeric value (abc, 1.5), a value below 1 (0, -1), or a value above 500. Nothing is silently rounded or clamped — if you ask for 1000 you get an error stating the maximum is 500, not a page of 500. Omit the parameter for the default of 50.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "Opaque keyset cursor from a prior response's meta.nextCursor. Alias: nextToken. A cursor is only valid for the same sort it was issued for.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort field, optionally prefixed with \"-\" for descending. When omitted, results are newest-first.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "-createdAt",
+                "name",
+                "-name",
+                "subscriberNumber",
+                "-subscriberNumber"
+              ]
+            }
+          },
+          {
+            "name": "planId",
+            "in": "query",
+            "description": "Filter by assigned service plan. Must be a valid UUID — a malformed value is rejected with 400 validation_failed rather than silently matching nothing. A well-formed id that matches no plan returns 200 with an empty list.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "suspended",
+            "in": "query",
+            "description": "Filter by suspension state.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriberListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "validation_failed",
+                    "message": "request validation failed"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: write_conflict_retryable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "write_conflict_retryable",
+                    "message": "this request collided with a concurrent update to the same subscriber and was rolled back; nothing was changed — retry the identical request"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Subscribers"
+        ],
+        "operationId": "createSubscriber",
+        "x-position": 2,
+        "summary": "Create a subscriber",
+        "description": "Creates a subscriber (identity, optional service address, and optionally a plan; attach a gateway host separately). Always returns `201` — there is no external-reference deduplication. `subscriberNumber` is the only required field. Requires scope `create:subscribers`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriberCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriberResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: service_plan_archived, validation_failed. Branch on error.code — this status carries more than one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_service_plan_archived_or_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "service_plan_archived",
+                    "message": "cannot assign an archived service plan"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible error.code values: organization_not_found, service_plan_not_found. Branch on error.code — this status carries more than one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_organization_not_found_or_service_plan_not_found"
+                },
+                "example": {
+                  "error": {
+                    "code": "organization_not_found",
+                    "message": "organization is not a registered ISP fabric"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: write_conflict_retryable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "write_conflict_retryable",
+                    "message": "this request collided with a concurrent update to the same subscriber and was rolled back; nothing was changed — retry the identical request"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/carrier/subscribers/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/SubscriberId"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Subscribers"
+        ],
+        "operationId": "getSubscriber",
+        "x-position": 3,
+        "summary": "Get a subscriber",
+        "description": "Requires scope `read:subscribers`. Returns 404 for an unknown or out-of-scope subscriber, or 400 if `id` is not a valid UUID.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriberResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "validation_failed",
+                    "message": "request validation failed"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible error.code values: subscriber_not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_subscriber_not_found"
+                },
+                "example": {
+                  "error": {
+                    "code": "subscriber_not_found",
+                    "message": "subscriber not found"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: write_conflict_retryable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "write_conflict_retryable",
+                    "message": "this request collided with a concurrent update to the same subscriber and was rolled back; nothing was changed — retry the identical request"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Subscribers"
+        ],
+        "operationId": "updateSubscriber",
+        "x-position": 4,
+        "summary": "Update a subscriber",
+        "description": "Updates name / email / notes / service address / plan / subscriber number / metadata. An absent field is left unchanged; a JSON `null` clears `email`, `notes`, or `planId` (the nullable-clearable fields). Requires scope `update:subscribers`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriberPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriberResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: service_plan_archived, validation_failed. Branch on error.code — this status carries more than one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_service_plan_archived_or_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "service_plan_archived",
+                    "message": "cannot assign an archived service plan"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible error.code values: service_plan_not_found, subscriber_not_found. Branch on error.code — this status carries more than one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_service_plan_not_found_or_subscriber_not_found"
+                },
+                "example": {
+                  "error": {
+                    "code": "service_plan_not_found",
+                    "message": "service plan not found"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: write_conflict_retryable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "write_conflict_retryable",
+                    "message": "this request collided with a concurrent update to the same subscriber and was rolled back; nothing was changed — retry the identical request"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/carrier/subscribers/{id}/host": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/SubscriberId"
+        }
+      ],
+      "put": {
+        "tags": [
+          "Subscribers"
+        ],
+        "operationId": "attachSubscriberHost",
+        "x-position": 5,
+        "summary": "Attach or re-link the gateway host",
+        "description": "Attaches (or re-links) the subscriber's gateway host. A subscriber has at most one host; supplying a DIFFERENT host replaces the current one in place (RMA re-link).\n\n**Not idempotent.** Re-sending the host this subscriber is already linked to is rejected with `409 gateway_already_attached` — nothing is written. A host linked to a *different* subscriber in the organization is `409 gateway_already_linked`. Read `GET /subscribers/{id}` (field `hostId`) if you need to know the current link before calling; `prevHostId` on a successful response is the host that was replaced (`null` on a fresh attach).\n\nBecause a repeat is an error rather than a no-op, do NOT blindly retry a request that timed out — re-read the subscriber first, or treat `409 gateway_already_attached` as \"already applied\".\n\nRequires scope `update:subscribers`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "hostId"
+                ],
+                "properties": {
+                  "hostId": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "description": "Gateway host identifier."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostLinkResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: host_not_in_organization, validation_failed. Branch on error.code — this status carries more than one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_host_not_in_organization_or_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "host_not_in_organization",
+                    "message": "host has no UniFi Network site in this organization, so a subscriber's service plan could never reach it; attach a gateway running UniFi Network (a storage- or Protect-only console cannot carry a subscriber)"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible error.code values: subscriber_not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_subscriber_not_found"
+                },
+                "example": {
+                  "error": {
+                    "code": "subscriber_not_found",
+                    "message": "subscriber not found"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Possible error.code values: gateway_already_attached, gateway_already_linked. Branch on error.code — this status carries more than one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_gateway_already_attached_or_gateway_already_linked"
+                },
+                "example": {
+                  "error": {
+                    "code": "gateway_already_attached",
+                    "message": "this gateway host is already attached to this subscriber"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: host_directory_unavailable, write_conflict_retryable. Branch on error.code — this status carries more than one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_host_directory_unavailable_or_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "host_directory_unavailable",
+                    "message": "cannot verify gateway host membership right now; retry shortly"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Subscribers"
+        ],
+        "operationId": "detachSubscriberHost",
+        "x-position": 6,
+        "summary": "Detach the gateway host",
+        "description": "Detaches the subscriber's gateway host.\n\n**Not idempotent.** A subscriber with no linked host is rejected with `409 no_attached_host` — nothing is written. On success `prevHostId` is the host that was removed.\n\nBecause a repeat is an error rather than a no-op, do NOT blindly retry a request that timed out — re-read the subscriber first (`GET /subscribers/{id}`, field `hostId`), or treat `409 no_attached_host` as \"already applied\".\n\nRequires scope `update:subscribers`.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostLinkResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "validation_failed",
+                    "message": "request validation failed"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible error.code values: subscriber_not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_subscriber_not_found"
+                },
+                "example": {
+                  "error": {
+                    "code": "subscriber_not_found",
+                    "message": "subscriber not found"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Possible error.code values: no_attached_host.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_no_attached_host"
+                },
+                "example": {
+                  "error": {
+                    "code": "no_attached_host",
+                    "message": "subscriber has no attached gateway host to detach"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: write_conflict_retryable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "write_conflict_retryable",
+                    "message": "this request collided with a concurrent update to the same subscriber and was rolled back; nothing was changed — retry the identical request"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/carrier/subscribers/{id}/plan": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/SubscriberId"
+        }
+      ],
+      "put": {
+        "tags": [
+          "Subscribers"
+        ],
+        "operationId": "assignSubscriberPlan",
+        "x-position": 7,
+        "summary": "Assign a service plan",
+        "description": "Assigns the subscriber's service plan. Assigning an archived plan returns `400 service_plan_archived`; an unknown plan returns `404 service_plan_not_found`. Requires scope `assign:plans`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "planId"
+                ],
+                "properties": {
+                  "planId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriberResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: service_plan_archived, validation_failed. Branch on error.code — this status carries more than one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_service_plan_archived_or_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "service_plan_archived",
+                    "message": "cannot assign an archived service plan"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible error.code values: service_plan_not_found, subscriber_not_found. Branch on error.code — this status carries more than one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_service_plan_not_found_or_subscriber_not_found"
+                },
+                "example": {
+                  "error": {
+                    "code": "service_plan_not_found",
+                    "message": "service plan not found"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: write_conflict_retryable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "write_conflict_retryable",
+                    "message": "this request collided with a concurrent update to the same subscriber and was rolled back; nothing was changed — retry the identical request"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/carrier/subscribers/{id}/suspend": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/SubscriberId"
+        }
+      ],
+      "post": {
+        "tags": [
+          "Service State"
+        ],
+        "operationId": "suspendSubscriber",
+        "x-position": 1,
+        "summary": "Suspend service",
+        "description": "Suspends the subscriber's service (subscriber-level). Idempotent: suspending an already-suspended subscriber is a 200 no-op. Requires scope `suspend:service`.",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "maxLength": 1024
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriberResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "validation_failed",
+                    "message": "request validation failed"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible error.code values: subscriber_not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_subscriber_not_found"
+                },
+                "example": {
+                  "error": {
+                    "code": "subscriber_not_found",
+                    "message": "subscriber not found"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: write_conflict_retryable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "write_conflict_retryable",
+                    "message": "this request collided with a concurrent update to the same subscriber and was rolled back; nothing was changed — retry the identical request"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/carrier/subscribers/{id}/resume": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/SubscriberId"
+        }
+      ],
+      "post": {
+        "tags": [
+          "Service State"
+        ],
+        "operationId": "resumeSubscriber",
+        "x-position": 2,
+        "summary": "Resume service",
+        "description": "Resumes the subscriber's service. Idempotent: resuming a not-suspended subscriber is a 200 no-op. Requires scope `resume:service`. Returns 400 if `id` is not a valid UUID.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriberResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "validation_failed",
+                    "message": "request validation failed"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible error.code values: subscriber_not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_subscriber_not_found"
+                },
+                "example": {
+                  "error": {
+                    "code": "subscriber_not_found",
+                    "message": "subscriber not found"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: write_conflict_retryable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "write_conflict_retryable",
+                    "message": "this request collided with a concurrent update to the same subscriber and was rolled back; nothing was changed — retry the identical request"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/carrier/service-plans": {
+      "get": {
+        "tags": [
+          "Service Plans"
+        ],
+        "operationId": "listServicePlans",
+        "x-position": 1,
+        "summary": "List service plans",
+        "description": "Lists the org's service plans (read-only). Requires scope `read:plans`.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePlanListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "validation_failed",
+                    "message": "request validation failed"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: write_conflict_retryable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "write_conflict_retryable",
+                    "message": "this request collided with a concurrent update to the same subscriber and was rolled back; nothing was changed — retry the identical request"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/carrier/service-plans/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Service Plans"
+        ],
+        "operationId": "getServicePlan",
+        "x-position": 2,
+        "summary": "Get a service plan",
+        "description": "Requires scope `read:plans`. Returns 400 if `id` is not a valid UUID.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePlanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Possible error.code values: validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_validation_failed"
+                },
+                "example": {
+                  "error": {
+                    "code": "validation_failed",
+                    "message": "request validation failed"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Possible error.code values: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_unauthorized"
+                },
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "missing or invalid caller identity"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Possible error.code values: insufficient_scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_insufficient_scope"
+                },
+                "example": {
+                  "error": {
+                    "code": "insufficient_scope",
+                    "message": "the API key is missing the named scope required for this operation"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible error.code values: service_plan_not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_service_plan_not_found"
+                },
+                "example": {
+                  "error": {
+                    "code": "service_plan_not_found",
+                    "message": "service plan not found"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Possible error.code values: too_many_requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_too_many_requests"
+                },
+                "example": {
+                  "error": {
+                    "code": "too_many_requests",
+                    "message": "rate limit exceeded"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Possible error.code values: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_internal_error"
+                },
+                "example": {
+                  "error": {
+                    "code": "internal_error",
+                    "message": "internal server error"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Possible error.code values: write_conflict_retryable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_write_conflict_retryable"
+                },
+                "example": {
+                  "error": {
+                    "code": "write_conflict_retryable",
+                    "message": "this request collided with a concurrent update to the same subscriber and was rolled back; nothing was changed — retry the identical request"
+                  },
+                  "traceId": "8b23d81344dbdcd29f92ddf26c4a2a07"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "ISP API key (type ISP) minted in the Site Manager console."
+      }
+    },
+    "parameters": {
+      "SubscriberId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Subscriber id."
+      }
+    },
+    "schemas": {
+      "Subscriber": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "orgId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subscriberNumber": {
+            "type": "string",
+            "nullable": true,
+            "description": "The operator-supplied external reference.",
+            "example": "SUB-10012"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "serviceAddress": {
+            "type": "string",
+            "maxLength": 1024,
+            "description": "Omitted from the response entirely when not set (never returned as JSON null)."
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "hostId": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending_assignment",
+              "provisioned",
+              "installed",
+              "suspended"
+            ]
+          },
+          "suspended": {
+            "type": "boolean"
+          },
+          "suspendReason": {
+            "type": "string",
+            "description": "Present only while suspended; omitted (not null) otherwise."
+          },
+          "suspendedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Omitted (not null) when the subscriber has never been suspended."
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Omitted (not null) when no metadata is set."
+          },
+          "activatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Omitted (not null) until the subscriber's first host attach."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SubscriberCreate": {
+        "type": "object",
+        "description": "Unknown properties are rejected with `400 validation_failed` — the request body is strictly validated against exactly the fields below.",
+        "additionalProperties": false,
+        "required": [
+          "subscriberNumber"
+        ],
+        "properties": {
+          "subscriberNumber": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "description": "The operator-supplied external reference. Required; 1-32 characters."
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Optional display name for the subscriber (e.g. the customer or account name shown in your CRM). The 128 limit is bytes of UTF-8, so multi-byte characters each count as more than one."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255,
+            "description": "The 255 limit is bytes of UTF-8."
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 4096,
+            "description": "The 4096 limit is bytes of UTF-8, so multi-byte characters each count as more than one."
+          },
+          "serviceAddress": {
+            "type": "string",
+            "maxLength": 1024,
+            "nullable": true,
+            "description": "Free-text service address. The 1024 limit is bytes of UTF-8, so multi-byte characters each count as more than one."
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optionally assign a plan at create time."
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Free-form key/value metadata. The serialized JSON object must not exceed 8192 bytes (8 KiB); a larger object is rejected with 400."
+          }
+        }
+      },
+      "SubscriberPatch": {
+        "type": "object",
+        "description": "All fields optional; an absent field is unchanged. `name`, `email`, `notes`, `serviceAddress`, and `planId` accept JSON `null` to clear. `subscriberNumber` cannot be cleared — `null`, an empty string, or whitespace only is `400 validation_failed`. `metadata` is NOT cleared by `null` (that leaves it unchanged); a supplied object replaces the whole document, so send `{}` to empty it. Unknown properties are rejected with `400 validation_failed`.",
+        "additionalProperties": false,
+        "properties": {
+          "subscriberNumber": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "description": "The operator-supplied external reference. Absent leaves it unchanged. It cannot be cleared: JSON null, an empty string, or whitespace only is rejected with 400 validation_failed naming subscriberNumber. A value is 1-32 characters after trimming."
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Optional display name. Absent leaves it unchanged; JSON null clears it; a value must be non-empty after trimming. The 128 limit is bytes of UTF-8, so multi-byte characters each count as more than one.",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255,
+            "nullable": true,
+            "description": "Absent leaves it unchanged; JSON null clears it. The 255 limit is bytes of UTF-8."
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 4096,
+            "nullable": true,
+            "description": "Absent leaves it unchanged; JSON null clears it. The 4096 limit is bytes of UTF-8, so multi-byte characters each count as more than one."
+          },
+          "serviceAddress": {
+            "type": "string",
+            "maxLength": 1024,
+            "description": "Free-text service address. Absent leaves it unchanged; JSON null clears it; a value replaces it verbatim. The 1024 limit is bytes of UTF-8, so multi-byte characters each count as more than one.",
+            "nullable": true
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Absent leaves the assigned plan unchanged; JSON null clears it."
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Free-form key/value metadata. A supplied object REPLACES the whole document. Absent leaves it unchanged, and so does JSON null - send an empty object to empty it. The serialized JSON must not exceed 8192 bytes (8 KiB); larger is rejected with 400."
+          }
+        }
+      },
+      "ServicePlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "orgId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived"
+            ]
+          },
+          "downloadMbps": {
+            "type": "number",
+            "nullable": true
+          },
+          "uploadMbps": {
+            "type": "number",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Omitted (not null) when no metadata is set."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "archivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Present when the plan is archived; omitted (not null) while active."
+          }
+        }
+      },
+      "Meta": {
+        "type": "object",
+        "properties": {
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SubscriberResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Subscriber"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "HostLinkResponse": {
+        "type": "object",
+        "description": "Attach / detach host response. `prevHostId` is the host that was linked immediately before the call: null on a fresh attach, the replaced host on an RMA re-link, the removed host on detach. It is never the host you just sent — re-attaching an already-attached host is a 409, not a no-op.",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Subscriber"
+          },
+          "prevHostId": {
+            "type": "string",
+            "nullable": true
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "SubscriberListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Subscriber"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "ServicePlanResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ServicePlan"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "ServicePlanListResponse": {
+        "type": "object",
+        "description": "The service-plans list is not paginated — all plans are returned in one response (no meta).",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServicePlan"
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Stable machine-readable code; branch on this."
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description."
+              },
+              "details": {
+                "nullable": true,
+                "description": "Present on validation_failed: one entry per rejected field. Absent on all other error codes. field is the offending request field, message is human-readable, rule is the validation rule that failed (required, uuid, max, unknown_field, ...), and param carries the rule bound when it has one.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "rule": {
+                      "type": "string"
+                    },
+                    "param": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "Error_validation_failed": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "validation_failed"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. validation_failed: the request is wrong, error.details names each rejected field"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_unauthorized": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "unauthorized"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. unauthorized: missing, malformed, unknown, expired or revoked API key"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_insufficient_scope": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "insufficient_scope"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. insufficient_scope: the key lacks the scope this endpoint requires"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_subscriber_not_found": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "subscriber_not_found"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. subscriber_not_found: unknown subscriber id, or out of scope for a group-restricted key"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_no_attached_host": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "no_attached_host"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. no_attached_host: there is no host to detach, nothing was written"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_internal_error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "internal_error"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. internal_error: unexpected server fault, a write may or may not have landed so re-read before retrying"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_write_conflict_retryable": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "write_conflict_retryable"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. write_conflict_retryable: transient, the transaction rolled back and nothing changed, so resend the identical request"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_too_many_requests": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "too_many_requests"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. too_many_requests: rate limited, honour Retry-After, nothing was processed"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_service_plan_not_found": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "service_plan_not_found"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. service_plan_not_found: unknown plan id for this organization"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_service_plan_archived_or_validation_failed": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "service_plan_archived",
+                  "validation_failed"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. service_plan_archived: the plan exists but is archived, pick an active plan; validation_failed: the request is wrong, error.details names each rejected field"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_service_plan_not_found_or_subscriber_not_found": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "service_plan_not_found",
+                  "subscriber_not_found"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. service_plan_not_found: unknown plan id for this organization; subscriber_not_found: unknown subscriber id, or out of scope for a group-restricted key"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_organization_not_found_or_service_plan_not_found": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "organization_not_found",
+                  "service_plan_not_found"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. organization_not_found: your key's organization is not a registered ISP fabric; service_plan_not_found: unknown plan id for this organization"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_host_not_in_organization_or_validation_failed": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "host_not_in_organization",
+                  "validation_failed"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. host_not_in_organization: the host cannot carry a subscriber, attach a gateway running UniFi Network; validation_failed: the request is wrong, error.details names each rejected field"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_gateway_already_attached_or_gateway_already_linked": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "gateway_already_attached",
+                  "gateway_already_linked"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. gateway_already_attached: that host is already on THIS subscriber, nothing was written; gateway_already_linked: that host belongs to ANOTHER subscriber, detach it there first"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      },
+      "Error_host_directory_unavailable_or_write_conflict_retryable": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "host_directory_unavailable",
+                  "write_conflict_retryable"
+                ],
+                "description": "Stable machine-readable code, switch on this and never on the message text. host_directory_unavailable: transient, host membership could not be verified so the attach was refused, retry shortly; write_conflict_retryable: transient, the transaction rolled back and nothing changed, so resend the identical request"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable description. Not stable, do not parse it."
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Present on validation_failed only: one entry per rejected field, each with field, message, rule and an optional param."
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Request trace id. Include it when contacting support."
+          }
+        }
+      }
+    },
+    "responses": {}
+  }
+}

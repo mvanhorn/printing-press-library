@@ -1,24 +1,17 @@
 {
   "schema_version": 2,
+  "applied_at": "2026-11-01",
+  "base_run_id": "20261101-155632-9a5a2a2b",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
   "id": "unifi-console-page-is-not-an-auth-failure",
-  "applied_at": "2026-09-15",
-  "base_run_id": "20260812-163238-8a1e9cdb",
-  "base_printing_press_version": "4.30.1",
-  "summary": "An HTML body from a UniFi OS console is reported as a base_url problem (apiErr, exit 5), not as a failed credential (authErr, exit 4); console login pages are recognised by marker rather than blamed on the key.",
-  "reason": "The console answers any path it does not serve with its own login page instead of a JSON 404, so an HTML body usually means the request missed the API. The old message told the operator to check a key that was correct and returned the auth exit code, sending scripts to re-authenticate. Reproduced on a Cloud Gateway Ultra: a base_url without the /proxy/network prefix yields exactly that page. Follows the base-URL construction added by unifi-tls-skip-verify-for-local-gateway, which made base_url load-bearing for this CLI.",
+  "summary": "An HTML console page is reported as a routing problem (exit 5), not a failed credential (exit 4).",
+  "reason": "Carried from the prior print. The generator absorbed the seam as classifyHTMLPayload, so this now uses the hook and no generated file changes.",
   "files": [
-    "internal/cli/helpers.go",
-    "internal/cli/helpers_test.go"
+    "internal/cli/unifi_target.go"
   ],
   "call_sites": [
-    "isUniFiConsolePage("
+    "classifyConsolePage("
   ],
-  "validated_outcome": "Unit tests cover both classifications; live against a UCG Ultra, a base_url missing /proxy/network now exits 5 with the base_url guidance (previously exit 4 blaming the key), and a correct base_url is unaffected.",
-  "deferred_to_upstream": [
-    {
-      "feature": "Printed CLIs should not report a non-JSON/HTML body as an authentication failure without evidence",
-      "reason": "The generic half of this fix (HTML means the request went somewhere unintended, not that the credential is bad) applies to every printed CLI, but only this CLI can recognise its own console's page. The generator-side improvement belongs in cli-printing-press."
-    }
-  ],
-  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4713"
+  "validated_outcome": "TestConsolePageIsNotAnAuthFailure."
 }
