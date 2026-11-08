@@ -2458,9 +2458,9 @@
       "path": "library/other/ars-sicilia",
       "release": {
         "cli_name": "ars-sicilia-pp-cli",
-        "version": "2026.11.1",
-        "released_at": "2026-11-07T09:50:33Z",
-        "source_commit": "41fb9f83199534141eb680f2856a674ab5422df4"
+        "version": "2026.11.2",
+        "released_at": "2026-11-08T09:54:01Z",
+        "source_commit": "442d1c1d97a91f092dcdfed9eb4bbbda198d725f"
       },
       "printer": "aborruso",
       "printer_name": "aborruso",
@@ -5513,9 +5513,9 @@
       "path": "library/marketing/cloro",
       "release": {
         "cli_name": "cloro-pp-cli",
-        "version": "2026.11.1",
-        "released_at": "2026-11-06T09:57:20Z",
-        "source_commit": "a593d80c0599094889de57622e627d89239aef18"
+        "version": "2026.11.2",
+        "released_at": "2026-11-08T09:54:01Z",
+        "source_commit": "442d1c1d97a91f092dcdfed9eb4bbbda198d725f"
       },
       "printer": "rbatista191",
       "printer_name": "Ricardo Batista",
@@ -28549,6 +28549,12 @@
         "See which garages you book most, with last booked and last price."
       ],
       "path": "library/commerce/spothero",
+      "release": {
+        "cli_name": "spothero-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-08T09:54:01Z",
+        "source_commit": "442d1c1d97a91f092dcdfed9eb4bbbda198d725f"
+      },
       "printer": "amansk",
       "printer_name": "Amandeep Khurana",
       "creator": {
@@ -32370,9 +32376,9 @@
       "path": "library/devices/unifi",
       "release": {
         "cli_name": "unifi-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-01T22:11:32Z",
-        "source_commit": "db9691e322e44805f49c17fe121670231fc6f7a8"
+        "version": "2026.11.1",
+        "released_at": "2026-11-08T09:54:01Z",
+        "source_commit": "442d1c1d97a91f092dcdfed9eb4bbbda198d725f"
       },
       "printer": "phoenix-server",
       "printer_name": "Ricardo Cabral",
