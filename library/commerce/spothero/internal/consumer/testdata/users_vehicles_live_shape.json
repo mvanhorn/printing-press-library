@@ -1,0 +1,11 @@
+{
+  "results": [
+    {
+      "id": 20000001,
+      "license_plate": {"id": 1, "value": "TEST123", "state": "CA"},
+      "info": {"id": 1, "display_description": "Test Make Test Model"},
+      "is_default": true,
+      "user_id": 42
+    }
+  ]
+}

@@ -1,0 +1,223 @@
+{
+  "api_name": "spothero",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [
+    "Public inventory lives on https://api.spothero.com/v2 (search/transient); account APIs on https://spothero.com/api/v1"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-07T20:31:43Z",
+  "novel_features": [
+    {
+      "name": "Best pick",
+      "command": "best",
+      "description": "Get one ranked parking pick plus alternatives for a place and time window.",
+      "rationale": "Ranks live inventory by total price and walking distance with your limits applied, which the site leaves to you.",
+      "example": "spothero-pp-cli best --address \"233 S Wacker Dr, Chicago, IL\" --starts 2027-01-15T09:00 --ends 2027-01-15T12:00 --agent",
+      "why_it_matters": "Reach for this when asked to pick a garage rather than list them.",
+      "group": "Decide faster"
+    },
+    {
+      "name": "Booking preflight",
+      "command": "preflight",
+      "description": "Check session, vehicle, card, overlaps and spend cap before you try to book.",
+      "rationale": "Joins account, reservation and quote data into one read-only verdict.",
+      "example": "spothero-pp-cli preflight --facility-id 2175 --starts 2027-01-15T09:00 --ends 2027-01-15T12:00 --max-total 40 --agent",
+      "why_it_matters": "Run this before asking an owner to approve a booking.",
+      "group": "Book with guardrails"
+    },
+    {
+      "name": "Next pass",
+      "command": "next",
+      "description": "See your soonest upcoming reservation and when it starts.",
+      "rationale": "Selects from your reservations with time math the list view does not do.",
+      "example": "spothero-pp-cli next --agent",
+      "why_it_matters": "Use for what parking do I have next.",
+      "group": "Your reservations"
+    },
+    {
+      "name": "Rebook preview",
+      "command": "rebook",
+      "description": "Re-quote a past reservation's garage for a new window and compare with what you paid.",
+      "rationale": "Joins a past reservation to a fresh quote; it never places anything.",
+      "example": "spothero-pp-cli rebook --starts 2027-01-15T09:00 --ends 2027-01-15T12:00 --agent",
+      "why_it_matters": "Use when the owner wants the same garage again.",
+      "group": "Book with guardrails"
+    },
+    {
+      "name": "Refund view",
+      "command": "refundable",
+      "description": "See refund status across upcoming reservations at once.",
+      "rationale": "Calls eligibility per reservation and joins the results.",
+      "example": "spothero-pp-cli refundable --days 30 --agent",
+      "why_it_matters": "Use before cancelling or when plans change.",
+      "group": "Your reservations"
+    },
+    {
+      "name": "Commute plan",
+      "command": "commute",
+      "description": "Quote a recurring series of parking windows with a total.",
+      "rationale": "Expands weekdays into windows and paces quotes across them; it never places anything.",
+      "example": "spothero-pp-cli commute --facility-id 2175 --days mon,wed --start 09:00 --end 17:00 --weeks 1 --agent",
+      "why_it_matters": "Use to budget a recurring commute.",
+      "group": "Book with guardrails"
+    },
+    {
+      "name": "Regular garages",
+      "command": "regulars",
+      "description": "See which garages you book most, with last booked and last price.",
+      "rationale": "Aggregates reservation history from the local store.",
+      "example": "spothero-pp-cli regulars --agent",
+      "why_it_matters": "Use to resolve my usual garage.",
+      "group": "Your reservations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Best pick",
+      "command": "best",
+      "description": "Get one ranked parking pick plus alternatives for a place and time window.",
+      "rationale": "Ranks live inventory by total price and walking distance with your limits applied, which the site leaves to you.",
+      "example": "spothero-pp-cli best --address \"233 S Wacker Dr, Chicago, IL\" --starts 2027-01-15T09:00 --ends 2027-01-15T12:00 --agent",
+      "why_it_matters": "Reach for this when asked to pick a garage rather than list them.",
+      "group": "Decide faster"
+    },
+    {
+      "name": "Booking preflight",
+      "command": "preflight",
+      "description": "Check session, vehicle, card, overlaps and spend cap before you try to book.",
+      "rationale": "Joins account, reservation and quote data into one read-only verdict.",
+      "example": "spothero-pp-cli preflight --facility-id 2175 --starts 2027-01-15T09:00 --ends 2027-01-15T12:00 --max-total 40 --agent",
+      "why_it_matters": "Run this before asking an owner to approve a booking.",
+      "group": "Book with guardrails"
+    },
+    {
+      "name": "Next pass",
+      "command": "next",
+      "description": "See your soonest upcoming reservation and when it starts.",
+      "rationale": "Selects from your reservations with time math the list view does not do.",
+      "example": "spothero-pp-cli next --agent",
+      "why_it_matters": "Use for what parking do I have next.",
+      "group": "Your reservations"
+    },
+    {
+      "name": "Rebook preview",
+      "command": "rebook",
+      "description": "Re-quote a past reservation's garage for a new window and compare with what you paid.",
+      "rationale": "Joins a past reservation to a fresh quote; it never places anything.",
+      "example": "spothero-pp-cli rebook --starts 2027-01-15T09:00 --ends 2027-01-15T12:00 --agent",
+      "why_it_matters": "Use when the owner wants the same garage again.",
+      "group": "Book with guardrails"
+    },
+    {
+      "name": "Refund view",
+      "command": "refundable",
+      "description": "See refund status across upcoming reservations at once.",
+      "rationale": "Calls eligibility per reservation and joins the results.",
+      "example": "spothero-pp-cli refundable --days 30 --agent",
+      "why_it_matters": "Use before cancelling or when plans change.",
+      "group": "Your reservations"
+    },
+    {
+      "name": "Commute plan",
+      "command": "commute",
+      "description": "Quote a recurring series of parking windows with a total.",
+      "rationale": "Expands weekdays into windows and paces quotes across them; it never places anything.",
+      "example": "spothero-pp-cli commute --facility-id 2175 --days mon,wed --start 09:00 --end 17:00 --weeks 1 --agent",
+      "why_it_matters": "Use to budget a recurring commute.",
+      "group": "Book with guardrails"
+    },
+    {
+      "name": "Regular garages",
+      "command": "regulars",
+      "description": "See which garages you book most, with last booked and last price.",
+      "rationale": "Aggregates reservation history from the local store.",
+      "example": "spothero-pp-cli regulars --agent",
+      "why_it_matters": "Use to resolve my usual garage.",
+      "group": "Your reservations"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SPOTHERO_COOKIES"
+  },
+  "narrative": {
+    "display_name": "SpotHero",
+    "headline": "Find, quote, book and cancel SpotHero parking from the terminal, with spend caps and hard gates.",
+    "value_prop": "SpotHero only offers an API to business partners. This CLI uses the same consumer endpoints as spothero.com, signs in from your Chrome session, and adds what a web checkout lacks for agents: preflight checks, --max-total spend caps, and explicit gates on anything that charges or refunds.",
+    "auth_narrative": "Sign in at spothero.com in Chrome, then run auth login --chrome. The CLI reads the AUTH_TOKEN session cookie directly from your Chrome profile, decrypting it with the Chrome Safe Storage key (macOS may ask once for Keychain access), and only saves it after the API accepts it. No token copying. The session lasts about 30 days. auth status re-checks against the API every time. You can also use --cookies-file or the SPOTHERO_COOKIES env var.",
+    "quickstart": [
+      {
+        "command": "spothero-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI runs"
+      },
+      {
+        "command": "spothero-pp-cli auth login --chrome",
+        "comment": "Import and verify your Chrome session"
+      },
+      {
+        "command": "spothero-pp-cli find --address \"233 S Wacker Dr, Chicago, IL\" --starts 2027-01-15T09:00 --ends 2027-01-15T12:00 --agent",
+        "comment": "Search parking for a window"
+      },
+      {
+        "command": "spothero-pp-cli book preview --facility-id 2175 --starts 2027-01-15T09:00 --ends 2027-01-15T12:00 --agent",
+        "comment": "Quote one garage without charging"
+      },
+      {
+        "command": "spothero-pp-cli reservations list --agent --select rental_id,stall_name,starts,reservation_status",
+        "comment": "See your reservations"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login says the session was rejected",
+        "fix": "Sign in at https://spothero.com in Chrome, wait a minute for Chrome to write cookies to disk, then rerun spothero-pp-cli auth login --chrome"
+      },
+      {
+        "symptom": "auth login --chrome cannot read the Keychain",
+        "fix": "Allow the macOS prompt for Chrome Safe Storage, or use spothero-pp-cli auth login --cookies-file \u003cpath\u003e"
+      },
+      {
+        "symptom": "book place reports an ambiguous result",
+        "fix": "Do not rerun it. Run spothero-pp-cli reservations list --agent and look for the new reservation first"
+      }
+    ],
+    "when_to_use": "Use this CLI to search SpotHero parking, quote a garage, check upcoming reservations and refund status, and, only with the owner's explicit approval for that exact booking or cancellation, to book or cancel.",
+    "anti_triggers": [
+      "Do not use for monthly parking subscriptions; book and cancel cover hourly reservations",
+      "Do not use the partner X-API-Key API with this CLI",
+      "Do not book or cancel from an inferred request; the owner must approve that exact action"
+    ],
+    "recipes": [
+      {
+        "title": "Pick a garage under a cap",
+        "command": "spothero-pp-cli best --address \"233 S Wacker Dr, Chicago, IL\" --starts 2027-01-15T09:00 --ends 2027-01-15T12:00 --max-total 40 --agent",
+        "explanation": "Returns the top pick and alternatives within the cap."
+      },
+      {
+        "title": "Trim reservations to key fields",
+        "command": "spothero-pp-cli reservations list --agent --select rental_id,stall_name,starts,reservation_status",
+        "explanation": "Reservation rows are large; select only what you need."
+      },
+      {
+        "title": "Check before booking",
+        "command": "spothero-pp-cli preflight --facility-id 2175 --starts 2027-01-15T09:00 --ends 2027-01-15T12:00 --max-total 40 --agent",
+        "explanation": "Read-only verdict on session, vehicle, card, overlap and cap."
+      },
+      {
+        "title": "Refund status",
+        "command": "spothero-pp-cli refundable --days 30 --agent",
+        "explanation": "Eligibility across upcoming reservations, read only."
+      }
+    ],
+    "trigger_phrases": [
+      "find parking near",
+      "book parking with spothero",
+      "cancel my spothero reservation",
+      "what parking do I have next",
+      "use spothero",
+      "run spothero"
+    ]
+  },
+  "homepage": "https://spothero.com"
+}

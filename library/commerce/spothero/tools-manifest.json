@@ -1,0 +1,110 @@
+{
+  "api_name": "spothero",
+  "base_url": "https://spothero.com/api/v1",
+  "description": "Find, quote, book and cancel SpotHero parking from the terminal, with spend caps and hard gates.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "cookie",
+    "env_vars": [
+      "SPOTHERO_COOKIES"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SPOTHERO_COOKIES",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": "spothero.com",
+    "cookies": [
+      "AUTH_TOKEN"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Referer",
+      "value": "https://spothero.com/search"
+    },
+    {
+      "name": "Origin",
+      "value": "https://spothero.com"
+    }
+  ],
+  "tools": [
+    {
+      "name": "airports_list",
+      "description": "List airports with IATA codes and time zones. Returns array of Airport.",
+      "method": "GET",
+      "path": "/airports/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "cities_list",
+      "description": "List SpotHero cities with slugs and coordinates. Returns array of City.",
+      "method": "GET",
+      "path": "/cities/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "facilities_get",
+      "description": "Show one facility's details, with no quote. Required: id.",
+      "method": "GET",
+      "path": "/search/transient/{id}",
+      "base_url": "https://api.spothero.com/v2",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Facility id from find results",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Best pick",
+      "command": "best",
+      "description": "Get one ranked parking pick plus alternatives for a place and time window."
+    },
+    {
+      "name": "Booking preflight",
+      "command": "preflight",
+      "description": "Check session, vehicle, card, overlaps and spend cap before you try to book."
+    },
+    {
+      "name": "Next pass",
+      "command": "next",
+      "description": "See your soonest upcoming reservation and when it starts."
+    },
+    {
+      "name": "Rebook preview",
+      "command": "rebook",
+      "description": "Re-quote a past reservation's garage for a new window and compare with what you paid."
+    },
+    {
+      "name": "Refund view",
+      "command": "refundable",
+      "description": "See refund status across upcoming reservations at once."
+    },
+    {
+      "name": "Commute plan",
+      "command": "commute",
+      "description": "Quote a recurring series of parking windows with a total."
+    },
+    {
+      "name": "Regular garages",
+      "command": "regulars",
+      "description": "See which garages you book most, with last booked and last price."
+    }
+  ]
+}

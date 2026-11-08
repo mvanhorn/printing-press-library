@@ -1,0 +1,56 @@
+{
+  "@next": "https://api.spothero.com/v2/search/transient?after=13970",
+  "tracking": {
+    "search_id": "REDACTED"
+  },
+  "results": [
+    {
+      "distance": {
+        "walking_meters": 63,
+        "linear_meters": 59.44
+      },
+      "availability": {
+        "available": true,
+        "available_spaces": 15
+      },
+      "rates": [
+        {
+          "quote": {
+            "meta": {
+              "quote_mac": "REDACTED",
+              "quote_token": "REDACTED"
+            },
+            "total_price": {
+              "currency_code": "USD",
+              "value": 2968
+            },
+            "advertised_price": {
+              "currency_code": "USD",
+              "value": 2800
+            }
+          }
+        }
+      ],
+      "facility": {
+        "common": {
+          "id": "107496",
+          "title": "Example Garage Near Howard",
+          "slug": "example-garage",
+          "status": "on_sales_allowed",
+          "addresses": [
+            {
+              "street_address": "500 Howard Street",
+              "city": "San Francisco",
+              "state": "CA",
+              "postal_code": "94105",
+              "types": ["search"]
+            }
+          ]
+        }
+      },
+      "options": {
+        "commuter_card_eligible": false
+      }
+    }
+  ]
+}

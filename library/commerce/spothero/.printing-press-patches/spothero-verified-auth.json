@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261107-122157-08957e70",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
+  "id": "spothero-verified-auth",
+  "summary": "auth login and auth status check the session with the API; a rejected session is neither saved nor reported as authenticated.",
+  "reason": "The prior CLI reported authenticated:true on cookies that were all empty, because nothing ever asked the API. The generated login and status also only check presence.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "call_sites": [
+    "verifySessionForLogin",
+    "runVerifiedAuthStatus"
+  ],
+  "validated_outcome": "TestAuthLoginRejectedByAPIDoesNotSave, TestAuthStatusReportsAPIRejection, TestAuthLoginEnvSessionIsVerified; live login accepted on 2026-11-07."
+}

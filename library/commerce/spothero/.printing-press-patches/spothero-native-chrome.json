@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261107-122157-08957e70",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
+  "id": "spothero-native-chrome",
+  "summary": "auth login --chrome decrypts Chrome's cookie database natively, with the external tool chain kept as a fallback.",
+  "reason": "Chrome keeps values in encrypted_value. The owner has no pycookiecheat, and asking for manual token copying or a Python package defeats the login.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "call_sites": [
+    "nativeChromeSession"
+  ],
+  "validated_outcome": "TestReadDecryptsEncryptedValueColumn; live login read the session from Chrome Default on 2026-11-07."
+}

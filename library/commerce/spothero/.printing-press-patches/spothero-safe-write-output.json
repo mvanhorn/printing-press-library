@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-07",
+  "base_run_id": "20261107-122157-08957e70",
+  "base_printing_press_version": "4.35.0",
+  "upstream_issue": null,
+  "id": "spothero-safe-write-output",
+  "summary": "book place and cancel print only named response fields.",
+  "reason": "The checkout response carries order_access_key and partner_saved_card_token, which reached stdout during the first real booking.",
+  "files": [
+    "internal/cli/spothero_cmds.go"
+  ],
+  "call_sites": [
+    "safeResult("
+  ],
+  "validated_outcome": "Booking and cancel tests pass; the raw response fields are not printed."
+}

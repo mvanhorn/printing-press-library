@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/spothero-pp-cli
+/spothero-pp-cli.exe
+/spothero-pp-mcp
+/spothero-pp-mcp.exe
+/bin/
+/build/
+/dist/

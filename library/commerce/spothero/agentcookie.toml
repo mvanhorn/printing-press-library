@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "spothero-pp-cli"
+display_name = "SpotHero"
+description = "Find, quote, book and cancel SpotHero parking from the terminal, with spend caps and hard gates."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/spothero-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SPOTHERO_COOKIES = true
