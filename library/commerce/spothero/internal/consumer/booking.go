@@ -275,6 +275,30 @@ func (c *Client) ListReservationsPage(page int) ([]Reservation, error) {
 	return parseReservationsPayload(raw)
 }
 
+func validateWindowOrder(periods []SearchPeriod) error {
+	if len(periods) == 0 {
+		return nil
+	}
+	start, err1 := time.Parse(time.RFC3339, periods[0].Starts)
+	end, err2 := time.Parse(time.RFC3339, periods[0].Ends)
+	if err1 != nil || err2 != nil {
+		return nil
+	}
+	if !end.After(start) {
+		return exitcode.Usagef("--ends must be after --starts")
+	}
+	return nil
+}
+
+// FacilityLocation is the facility's published time zone, or nil when it names none.
+func (c *Client) FacilityLocation(facilityID int) (*time.Location, error) {
+	tz, err := c.facilityTimeZone(facilityID)
+	if err != nil || tz == "" {
+		return nil, err
+	}
+	return time.LoadLocation(tz)
+}
+
 // facilityTimeZone reads the zone from the facility's address. The inventory endpoint
 // answers without a window, so this needs no prior search. Empty means not published.
 func (c *Client) facilityTimeZone(facilityID int) (string, error) {
@@ -313,16 +337,12 @@ func CheckoutSucceeded(result map[string]any) bool {
 // validateWindow reports bad windows in plain words. The inventory API answers these
 // with a raw rpc error that tells the user nothing.
 func validateWindow(periods []SearchPeriod) error {
-	if len(periods) == 0 {
-		return nil
+	if err := validateWindowOrder(periods); err != nil || len(periods) == 0 {
+		return err
 	}
-	start, err1 := time.Parse(time.RFC3339, periods[0].Starts)
-	end, err2 := time.Parse(time.RFC3339, periods[0].Ends)
-	if err1 != nil || err2 != nil {
+	start, err := time.Parse(time.RFC3339, periods[0].Starts)
+	if err != nil {
 		return nil
-	}
-	if !end.After(start) {
-		return exitcode.Usagef("--ends must be after --starts")
 	}
 	if !start.After(time.Now()) {
 		return exitcode.Usagef("--starts is in the past")

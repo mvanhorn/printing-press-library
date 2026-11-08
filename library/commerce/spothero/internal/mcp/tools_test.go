@@ -1130,3 +1130,17 @@ func mcpTextContent(t *testing.T, result *mcplib.CallToolResult) string {
 	}
 	return content.Text
 }
+
+func TestExtractResponsePathDropsQuoteFields(t *testing.T) {
+	raw := json.RawMessage(`{"result":{"facility":{"common":{"id":12345678901234567,"title":"G"}},"rates":[{"quote":{"meta":{"quote_token":"signed"}}}]}}`)
+	got, err := extractResponsePath(raw, "result.facility.common")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(got), "quote_token") || !strings.Contains(string(got), "12345678901234567") {
+		t.Fatalf("got %s", got)
+	}
+	if _, err := extractResponsePath(json.RawMessage(`{"rates":[]}`), "result.facility.common"); err == nil {
+		t.Fatal("a response without the path must not pass through")
+	}
+}

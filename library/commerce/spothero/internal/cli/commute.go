@@ -62,10 +62,6 @@ func newNovelCommuteCmd(flags *rootFlags) *cobra.Command {
 			if weeks < 1 || weeks > 8 {
 				return usageErr(fmt.Errorf("--weeks must be between 1 and 8"))
 			}
-			windows, err := commuteWindows(time.Now(), strings.Split(days, ","), start, end, weeks)
-			if err != nil {
-				return usageErr(err)
-			}
 			c, _, err := consumerClient(flags)
 			if err != nil {
 				return err
@@ -73,6 +69,16 @@ func newNovelCommuteCmd(flags *rootFlags) *cobra.Command {
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			c.Ctx = ctx
+			// Days are chosen on the garage's calendar, since that is the zone they are
+			// quoted in. A failed lookup keeps this machine's calendar: quotes still work.
+			from := time.Now()
+			if loc, err := c.FacilityLocation(facilityID); err == nil && loc != nil {
+				from = from.In(loc)
+			}
+			windows, err := commuteWindows(from, strings.Split(days, ","), start, end, weeks)
+			if err != nil {
+				return usageErr(err)
+			}
 			rows := []map[string]any{}
 			total, unavailable, failed := 0, 0, 0
 			for _, w := range windows {

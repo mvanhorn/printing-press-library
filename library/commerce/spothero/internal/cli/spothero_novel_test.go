@@ -95,3 +95,25 @@ func TestInventoryBaseURLComesFromSpec(t *testing.T) {
 		t.Fatalf("inventoryBaseURL() = %q", got)
 	}
 }
+
+// Text order puts 09:00-08:00 first, but it starts two hours after 10:00-05:00.
+func TestSortReservationsComparesInstants(t *testing.T) {
+	rs := []consumer.Reservation{{Starts: "2027-01-15T09:00:00-08:00"}, {Starts: "2027-01-15T10:00:00-05:00"}}
+	sortReservationsByStart(rs)
+	if rs[0].Starts != "2027-01-15T10:00:00-05:00" {
+		t.Fatalf("soonest = %s", rs[0].Starts)
+	}
+}
+
+// 00:30 Tuesday UTC is still Monday in Chicago, so tomorrow there is the coming Tuesday.
+func TestCommuteUsesGarageCalendar(t *testing.T) {
+	chicago, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		t.Skip(err)
+	}
+	from := time.Date(2027, 1, 12, 0, 30, 0, 0, time.UTC).In(chicago)
+	got, err := commuteWindows(from, []string{"tue"}, "09:00", "17:00", 1)
+	if err != nil || len(got) != 1 || got[0][0] != "2027-01-12T09:00" {
+		t.Fatalf("got %v, %v", got, err)
+	}
+}

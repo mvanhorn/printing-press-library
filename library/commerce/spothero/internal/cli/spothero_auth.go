@@ -78,7 +78,6 @@ func mapConsumerErr(err error) error {
 // verifyCookieHeader asks the API whether a session works. /users/me/ is used
 // because /user/ returns 401 even for a good session.
 func verifyCookieHeader(ctx context.Context, flags *rootFlags, header string) error {
-	_ = ctx
 	sess, err := session.ParseCookieInput(header, "verify")
 	if err != nil {
 		return exitcode.Authf("%v", err)
@@ -92,6 +91,10 @@ func verifyCookieHeader(ctx context.Context, flags *rootFlags, header string) er
 		return err
 	}
 	c.BaseURL = cfg.BaseURL
+	// Bounded so cancellation and a short --timeout also end this check.
+	ctx, cancel := boundCtx(ctx, flags)
+	defer cancel()
+	c.Ctx = ctx
 	me, err := c.GetMe()
 	if err != nil {
 		return err

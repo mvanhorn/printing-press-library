@@ -684,9 +684,20 @@ func upcoming(list []consumer.Reservation, now time.Time) []consumer.Reservation
 	return out
 }
 
+// startsBefore compares instants, because reservations in different cities carry
+// different offsets and their text does not sort by time.
+func startsBefore(a, b string) bool {
+	ta, errA := time.Parse(time.RFC3339, a)
+	tb, errB := time.Parse(time.RFC3339, b)
+	if errA != nil || errB != nil {
+		return a < b
+	}
+	return ta.Before(tb)
+}
+
 func sortReservationsByStart(rs []consumer.Reservation) {
 	for i := 1; i < len(rs); i++ {
-		for j := i; j > 0 && rs[j].Starts < rs[j-1].Starts; j-- {
+		for j := i; j > 0 && startsBefore(rs[j].Starts, rs[j-1].Starts); j-- {
 			rs[j], rs[j-1] = rs[j-1], rs[j]
 		}
 	}

@@ -71,7 +71,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://api.spothero.com/v2/search/transient/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "https://api.spothero.com/v2/search/transient/{id}", true, false, nil, mcpPageConfig{ResponsePath: "result.facility.common"}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reservations_eligibility",
@@ -99,13 +99,16 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("reservations_list",
 			mcplib.WithDescription("List your reservations, most recent first. Optional: page-size (default: 25), page. Returns array of Reservation."),
 			mcplib.WithNumber("page-size", mcplib.Description("Results per page")),
+			// The API pages by number and reports no next page, so a cursor cannot cross
+			// pages. Older reservations are reached by asking for the next page number.
+			mcplib.WithNumber("page", mcplib.Description("Page number, starting at 1. Ask for the next number until results come back empty")),
 			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithSchemaAdditionalProperties(false),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/reservations/", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "page-size", WireName: "page_size", Location: "query", Default: "25"}}, []string{}),
+		makeAPIHandler("GET", "/reservations/", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "page-size", WireName: "page_size", Location: "query", Default: "25"}, {PublicName: "page", WireName: "page", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("users_me",
@@ -189,6 +192,29 @@ type mcpPageConfig struct {
 	CursorInBody         bool
 	ExternalContinuation bool
 	BodyPath             []string
+	// ResponsePath limits the result to one dotted path. A response without it is an
+	// error rather than the whole body, because the rest can hold signed quote tokens.
+	ResponsePath string
+}
+
+func extractResponsePath(data json.RawMessage, path string) (json.RawMessage, error) {
+	var v any
+	dec := json.NewDecoder(strings.NewReader(string(data)))
+	// UseNumber keeps large IDs exact across the round trip.
+	dec.UseNumber()
+	if err := dec.Decode(&v); err != nil {
+		return nil, fmt.Errorf("decoding response: %w", err)
+	}
+	for _, part := range strings.Split(path, ".") {
+		m, ok := v.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("response has no %s", path)
+		}
+		if v, ok = m[part]; !ok {
+			return nil, fmt.Errorf("response has no %s", path)
+		}
+	}
+	return json.Marshal(v)
 }
 
 func formatMCPParamValue(v any) string {
@@ -464,6 +490,12 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				return mcpToolError("rate limited: " + msg), nil
 			default:
 				return mcpToolError(msg), nil
+			}
+		}
+
+		if pageConfig.ResponsePath != "" {
+			if data, err = extractResponsePath(data, pageConfig.ResponsePath); err != nil {
+				return mcpToolError(err.Error()), nil
 			}
 		}
 

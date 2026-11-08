@@ -322,34 +322,44 @@ func (c *Client) SearchPages(q SearchQuery, maxPages int) (*SearchResult, error)
 	if q.Address != "" && params.GooglePlaceID == "" {
 		return nil, exitcode.NotFoundf("could not resolve the address %q; try a fuller address or --lat/--lng", q.Address)
 	}
-	periods, loc, err := periodsToUTC(q.Starts, q.Ends, params)
-	if err != nil {
-		return nil, exitcode.Usagef("%v", err)
-	}
-	if err := validateWindow(periods); err != nil {
-		return nil, err
-	}
 	maxDist := int(params.DistanceLT)
 	if maxDist <= 0 {
 		maxDist = 1609
 	}
-	resp, err := c.searchInventory(params.Latitude, params.Longitude, periods[0].Starts, periods[0].Ends, maxDist, 25)
+	naive := !hasExplicitOffset(q.Starts) || !hasExplicitOffset(q.Ends)
+	_, known := citySlugTimezones[params.CitySlug]
+	zoneUnknown := naive && !known
+	if zoneUnknown {
+		// The slug map covers few of SpotHero's cities, and reading a local time as UTC
+		// gets the hours wrong, so a later-today search could look past. Results name their
+		// own zone, so learn it from a window that is certainly in the future, which also
+		// avoids depending on the requested window having any availability.
+		probeStart := time.Now().Add(24 * time.Hour).UTC()
+		probe, err := c.searchInventory(params.Latitude, params.Longitude, probeStart.Format(time.RFC3339), probeStart.Add(time.Hour).Format(time.RFC3339), maxDist, 25)
+		if err != nil {
+			return nil, err
+		}
+		if tz := firstResultTimeZone(probe.Results); tz != "" {
+			params.TimeZone = tz
+			zoneUnknown = false
+		}
+	}
+	periods, loc, err := periodsToUTC(q.Starts, q.Ends, params)
+	if err != nil {
+		return nil, exitcode.Usagef("%v", err)
+	}
+	// With the zone still unknown the instant is a guess, so only the order can be judged.
+	if zoneUnknown {
+		err = validateWindowOrder(periods)
+	} else {
+		err = validateWindow(periods)
+	}
 	if err != nil {
 		return nil, err
 	}
-	naive := !hasExplicitOffset(q.Starts) || !hasExplicitOffset(q.Ends)
-	if _, known := citySlugTimezones[params.CitySlug]; naive && !known {
-		// The slug map covers few of SpotHero's cities, and reading a local time as UTC
-		// searches the wrong hours. The results name their own zone, so search again in it.
-		if tz := firstResultTimeZone(resp.Results); tz != "" {
-			params.TimeZone = tz
-			if periods, loc, err = periodsToUTC(q.Starts, q.Ends, params); err != nil {
-				return nil, exitcode.Usagef("%v", err)
-			}
-			if resp, err = c.searchInventory(params.Latitude, params.Longitude, periods[0].Starts, periods[0].Ends, maxDist, 25); err != nil {
-				return nil, err
-			}
-		}
+	resp, err := c.searchInventory(params.Latitude, params.Longitude, periods[0].Starts, periods[0].Ends, maxDist, 25)
+	if err != nil {
+		return nil, err
 	}
 	spots, err := parseCraigSearchResults(resp.Results)
 	if err != nil {
