@@ -5529,7 +5529,7 @@
           "stdio",
           "http"
         ],
-        "tool_count": 14,
+        "tool_count": 15,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
@@ -28511,6 +28511,61 @@
       }
     },
     {
+      "name": "spothero",
+      "category": "commerce",
+      "api": "SpotHero",
+      "description": "Find, quote, book and cancel SpotHero parking from the terminal, with spend caps and hard gates.",
+      "homepage": "https://spothero.com",
+      "search_terms": [
+        "spothero",
+        "spothero-pp-cli",
+        "Find, quote, book and cancel SpotHero parking from the terminal, with spend caps and hard gates.",
+        "Best pick",
+        "best",
+        "Get one ranked parking pick plus alternatives for a place and time window.",
+        "Booking preflight",
+        "preflight",
+        "Check session, vehicle, card, overlaps and spend cap before you try to book.",
+        "Next pass",
+        "next",
+        "See your soonest upcoming reservation and when it starts.",
+        "Rebook preview",
+        "rebook",
+        "Re-quote a past reservation's garage for a new window and compare with what you paid.",
+        "Refund view",
+        "refundable",
+        "See refund status across upcoming reservations at once.",
+        "Commute plan",
+        "commute",
+        "Quote a recurring series of parking windows with a total.",
+        "Regular garages",
+        "regulars",
+        "See which garages you book most, with last booked and last price."
+      ],
+      "path": "library/commerce/spothero",
+      "printer": "amansk",
+      "printer_name": "Amandeep Khurana",
+      "creator": {
+        "handle": "amansk",
+        "name": "Amandeep Khurana"
+      },
+      "mcp": {
+        "binary": "spothero-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 3,
+        "auth_type": "cookie",
+        "env_vars": [
+          "SPOTHERO_COOKIES"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "spotify",
       "category": "media-and-entertainment",
       "api": "Spotify Web",
@@ -32276,28 +32331,35 @@
       "category": "devices",
       "api": "UniFi",
       "description": "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has.",
+      "homepage": "https://ui.com",
       "search_terms": [
         "unifi",
         "unifi-pp-cli",
-        "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has.",
-        "Device topology tree",
-        "topology",
-        "See the physical device tree (gateway to switches to APs) built entirely from local mirror data, no live crawl needed.",
-        "Config drift detection",
+        "Operate UniFi consoles through the cloud connector or your LAN, with a local history, change previews and a change journal.",
+        "Path and capability probe",
+        "reach",
+        "See which transports and products answer on each console. Write status is yes, no or unproven, and a probe alone never reports yes.",
+        "Impact and lockout check",
+        "impact",
+        "Estimate from the last sync what a proposed action would take down and whether it risks your way back in. It never reports safe.",
+        "Journaled change with undo",
+        "change apply",
+        "Send one change to an official Network or Protect path with a journaled before-image, a read-back check and undo. Nothing is sent without --confirm.",
+        "Config drift",
         "drift",
-        "Show what changed in site config (networks, firewall, wifi, DNS) since the last sync snapshot.",
+        "See field-level config changes between two synced snapshots, marked attributed (in the change journal) or out-of-band.",
+        "What happened since I looked",
+        "digest",
+        "One timeline, built from local syncs, of state changes, ISP dips, drift, newcomers and journaled changes.",
         "Newcomer detection",
         "newcomer",
-        "List devices and clients first seen since a given sync, for spotting new hardware joining the network.",
-        "Port audit",
-        "port-audit",
-        "Review port utilization and PoE status across every switch on a site in one table.",
-        "Guest network report",
-        "guest report",
-        "Summarize guest network usage: active vouchers and connected guest clients, from local data.",
+        "List clients, devices and cameras first seen at a sync in a window.",
         "Firewall rule prediction",
         "rule-predict",
-        "Predict which firewall policy would match a hypothetical packet before making a live change."
+        "Predict which firewall policy would match a hypothetical packet. This is a local prediction with no API confirmation.",
+        "Device topology tree",
+        "topology",
+        "See gateway, switches and APs as a tree per console, from the last sync."
       ],
       "path": "library/devices/unifi",
       "release": {
@@ -32314,6 +32376,10 @@
       },
       "contributors": [
         {
+          "handle": "amansk",
+          "name": "Amandeep Khurana"
+        },
+        {
           "handle": "cathrynlavery",
           "name": "Cathryn Lavery"
         }
@@ -32324,14 +32390,14 @@
           "stdio",
           "http"
         ],
-        "tool_count": 73,
+        "tool_count": 179,
         "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
-          "PRINTING_PRESS_CLIENT_PROFILE"
+          "UNIFI_API_KEY"
         ],
         "mcp_ready": "full",
-        "spec_format": "openapi3"
+        "spec_format": "internal"
       }
     },
     {
