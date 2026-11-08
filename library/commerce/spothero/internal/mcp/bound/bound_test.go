@@ -1233,3 +1233,29 @@ func nestedPage(t *testing.T, text string) (ids []string, next, pagingCursor str
 	}
 	return ids, next, pagingCursor
 }
+
+// A GET on page 2 too large for one MCP result must keep page 2 in its next cursor.
+func TestGetContinuationKeepsRequestedPage(t *testing.T) {
+	rows := make([]map[string]string, 0, MaxItems+5)
+	for i := 0; i < MaxItems+5; i++ {
+		rows = append(rows, map[string]string{"id": strconv.Itoa(i)})
+	}
+	raw, err := json.Marshal(rows)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := EndpointPageResponse("GET", raw, PageOptions{CursorParam: "page", RequestCursor: "2", ReadOnly: true})
+	var res struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatalf("%v: %.200s", err, out)
+	}
+	if res.NextCursor == "" {
+		t.Fatalf("no next_cursor: %.200s", out)
+	}
+	got, err := UpstreamCursor(res.NextCursor)
+	if err != nil || got != "2" {
+		t.Fatalf("cursor page = %q, %v", got, err)
+	}
+}

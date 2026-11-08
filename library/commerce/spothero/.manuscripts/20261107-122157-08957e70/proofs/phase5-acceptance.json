@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "cookie"
   },
-  "source_fingerprint": "d431f3e4032373a44bc3734441e0e66cdb1afa2b48ea2fcdba5b6e1619fe6b5e",
+  "source_fingerprint": "e63d7587d77bc5c219ae069aae723698f2aa235a2d958c2df84db521866c38da",
   "source_files": {
     "cmd/spothero-pp-cli/main.go": "9df73746b909f8a5c8fb9c07339e02093306b255fe52f8e3d98ea4ff3dc90945",
     "cmd/spothero-pp-mcp/http_auth_test.go": "6b5e504c8f5d5987e58277c6f2fed83eae922683238678d646a433aa7fe70870",
@@ -206,7 +206,7 @@
     "internal/learn/teach_log_test.go": "c294e3bedcbbcac5d2600be1d86292841a5a47cf337660fdf806d9ae41f306ca",
     "internal/learn/teach_test.go": "d256a7fd94f18a206ab01a360721d2c362451c439f71c10c9ccf3f5819341262",
     "internal/mcp/bound/bound.go": "40efd64fa3e7bd5135ef0be9003cc44c5b7ec9b14ee40b3e42ad2a4c0ea27009",
-    "internal/mcp/bound/bound_test.go": "b183ffe5fef06043d05246dd8ae01cc6b669ebd1d8f93a61fe54de5bf53ceb9f",
+    "internal/mcp/bound/bound_test.go": "e1e967815bcf9646d6eabe0e41b1012f785be764421c37fc29be3cc6d1684359",
     "internal/mcp/cobratree/classify.go": "d201b47dd464ecff78969f03c47caf07c0d0e6021643a66bfc06714a8e12ebfd",
     "internal/mcp/cobratree/cli_path.go": "688bf25b557d13bdaedb11c9ee08197ed96dc6983e7303ebbce7e14acea9d4d5",
     "internal/mcp/cobratree/names.go": "7a516196fef1ce192bb37f2448fa54db368b178242ca24022e845077ff0f702c",
@@ -217,7 +217,7 @@
     "internal/mcp/mirror_property_names_test.go": "3a8b7fc42bcbb00d9635acfa1604f7caef435ac33c6df4bb7ca222d6fa089f7b",
     "internal/mcp/platform_gate.go": "110578544f3beb4c65b5fd2d2b786e586f686bcad12841a3a736e4e181c791f3",
     "internal/mcp/platform_gate_test.go": "717bd97607479611e70aeedb36c77fcc101de95fc789c9c7b6298d8fc1421693",
-    "internal/mcp/tools.go": "abe19ac6b74d1bb44e23108b37e93ac81b4b9645a87dd544cea44673f5425354",
+    "internal/mcp/tools.go": "61165c51988fb278e5b4e5896ecf95c29e62410dc48624f0d4e6501b14997684",
     "internal/mcp/tools_test.go": "f0d2fc86de005cb160420b3fbf7fc5e0e7e36599bed8455911c05614871a11ba",
     "internal/platform/conformance_test.go": "27ebc4790e38de9679377814877bbc6f9f3dcaf203d17154757f76a54ea808a4",
     "internal/platform/doctor.go": "8164986c31102cd11b3f478fc45112a0442807e5a018f6166577c41561b67302",

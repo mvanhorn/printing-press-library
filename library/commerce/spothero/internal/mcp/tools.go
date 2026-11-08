@@ -381,6 +381,15 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				requestCursor = s
 			}
 		}
+		// Page-numbered GETs: a chosen page must travel inside the next cursor, or following
+		// that cursor alone would refetch page 1 and apply this page's row offset to it.
+		if strings.EqualFold(method, "GET") && !pageConfig.CursorInBody && pageConfig.CursorParam != "" {
+			if mcpCursor != "" && requestCursor != "" {
+				params[pageConfig.CursorParam] = requestCursor
+			} else if s := params[pageConfig.CursorParam]; s != "" {
+				requestCursor = s
+			}
+		}
 		if !strings.EqualFold(method, "GET") && !pageConfig.CursorInBody && pageConfig.CursorParam != "" {
 			if mcpCursor != "" {
 				if requestCursor != "" {
