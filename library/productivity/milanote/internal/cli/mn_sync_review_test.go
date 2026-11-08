@@ -61,8 +61,45 @@ func TestCardBlockEditReplacesMarkers(t *testing.T) {
 	}
 	repl := milanote.CardBlock("new plain text")
 	got := applyLineEdits(text, []lineEdit{{start: chunks[1].Start, end: chunks[1].End, text: &repl}}, nil)
-	if strings.Contains(got, milanote.CardOpen) || !strings.Contains(got, "new plain text") {
+	if strings.Contains(got, "<!-- card") || !strings.Contains(got, "new plain text") {
 		t.Fatalf("got %q", got)
+	}
+}
+
+func TestCardBlockKeepsLiteralMarkers(t *testing.T) {
+	for _, md := range []string{
+		"<!-- card -->\nhello\n<!-- /card -->",
+		"<!-- card -->\nonly an opener",
+		"only a closer\n<!-- /card -->",
+		"<!-- card -->\n<!-- /card -->\n<!-- card 1 -->\nnested",
+	} {
+		text := "first\n\n---\n\n" + milanote.CardBlock(md) + "\n\n---\n\nlast\n"
+		chunks := milanote.ChunkMarkdown(text)
+		if len(chunks) != 3 || chunks[1].MD != md || chunks[2].MD != "last" {
+			t.Errorf("%q came back as %+v", md, chunks)
+		}
+	}
+	for _, md := range []string{"plain", "## Heading", "- [ ] one\n- [x] two"} {
+		if got := milanote.CardBlock(md); got != md {
+			t.Errorf("%q should not be wrapped, got %q", md, got)
+		}
+	}
+}
+
+func TestSettlePending(t *testing.T) {
+	board := &milanote.BoardPayload{Elements: map[string]*milanote.Element{
+		"landed": {ID: "landed", Location: milanote.CanvasAt("b", 1, 1, 1)},
+		"old":    {ID: "old", Location: milanote.CanvasAt("b", 2, 2, 2)},
+	}}
+	rec := &pairRecord{Items: []pairItem{{ID: "old"}, {ID: "landed", Pending: true}, {ID: "lost", Pending: true}}}
+	if !settlePending(rec, board) {
+		t.Fatal("should report outstanding cards")
+	}
+	if len(rec.Items) != 2 || rec.Items[1].ID != "landed" || rec.Items[1].Pending {
+		t.Fatalf("items = %+v", rec.Items)
+	}
+	if settlePending(rec, board) {
+		t.Fatal("nothing should be outstanding the second time")
 	}
 }
 

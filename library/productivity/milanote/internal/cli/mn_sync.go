@@ -68,10 +68,15 @@ func writeJSONState(path string, v any) error {
 
 // pairItem ties one chunk of a file to one card. Hash is the content both
 // sides had when they last agreed.
+//
+// Pending marks a card whose id was saved before it was sent. The next sync
+// looks for it on the board, so a write that landed without a confirmation is
+// adopted instead of being created a second time.
 type pairItem struct {
-	ID   string `json:"id"`
-	Kind string `json:"kind"`
-	Hash string `json:"hash"`
+	ID      string `json:"id"`
+	Kind    string `json:"kind"`
+	Hash    string `json:"hash"`
+	Pending bool   `json:"pending,omitempty"`
 }
 
 // pairRecord is the memory of one file/board pairing.
@@ -205,6 +210,25 @@ func liveCard(p *milanote.BoardPayload, id string) *milanote.Element {
 	return el
 }
 
+// settlePending confirms the cards an interrupted sync sent, and forgets those
+// that never reached the board. It reports whether any were outstanding.
+func settlePending(rec *pairRecord, p *milanote.BoardPayload) bool {
+	had := false
+	kept := make([]pairItem, 0, len(rec.Items))
+	for _, it := range rec.Items {
+		if it.Pending {
+			had = true
+			if liveCard(p, it.ID) == nil {
+				continue
+			}
+			it.Pending = false
+		}
+		kept = append(kept, it)
+	}
+	rec.Items = kept
+	return had
+}
+
 // matchChunks pairs chunks with remembered cards. Identical content pairs
 // first, wherever it moved to; what is left pairs in document order between
 // the fixed points, which is how an edited paragraph keeps its card.
@@ -314,6 +338,9 @@ func runSync(ctx context.Context, c *milanote.Client, file, boardID string, o sy
 		DryRun: o.dryRun, Actions: []syncAction{}, Conflicts: []syncConflict{}}
 	writer := &lazyWriter{c: c}
 	defer writer.close(ctx)
+	if !starting && settlePending(rec, payload) && len(rec.Items) == 0 {
+		starting = true // nothing from the interrupted first sync reached the board
+	}
 	if starting {
 		res.Paired = true
 		if o.direction == "pull" {
@@ -368,7 +395,7 @@ func firstPush(ctx context.Context, writer *lazyWriter, file, boardID, text stri
 	for i, ch := range chunks {
 		p := plan[i]
 		action := syncAction{Action: "create", Kind: ch.Kind, Text: p.Text, X: p.X, Y: p.Y}
-		id := ""
+		item := pairItem{Kind: ch.Kind, Hash: milanote.HashText(ch.Normalized())}
 		if !o.dryRun {
 			w, err := writer.get(ctx)
 			if err != nil {
@@ -379,18 +406,23 @@ func firstPush(ctx context.Context, writer *lazyWriter, file, boardID, text stri
 				content["width"] = p.W
 			}
 			score += milanote.ScoreStep
-			if id, err = w.Create(ctx, boardID, elType, milanote.CanvasAt(boardID, p.X, p.Y, score), content, ""); err != nil {
-				return mnErr(fmt.Errorf("card %d of %d: %w", i+1, len(chunks), err))
-			}
-		}
-		action.ID = id
-		res.Actions = append(res.Actions, action)
-		rec.Items = append(rec.Items, pairItem{ID: id, Kind: ch.Kind, Hash: milanote.HashText(ch.Normalized())})
-		if !o.dryRun { // a later failure must not lose the cards already made
+			item.ID, item.Pending = w.NewID(), true
+			rec.Items = append(rec.Items, item)
 			if err := savePair(rec); err != nil {
 				return err
 			}
+			if err := w.CreateWithID(ctx, item.ID, boardID, elType, milanote.CanvasAt(boardID, p.X, p.Y, score), content, ""); err != nil {
+				return mnErr(fmt.Errorf("card %d of %d: %w (progress is saved: to continue this layout, run 'mirror' or 'layout md --update' instead of starting over)", i+1, len(chunks), err))
+			}
+			rec.Items[len(rec.Items)-1].Pending = false
+			if err := savePair(rec); err != nil {
+				return err
+			}
+		} else {
+			rec.Items = append(rec.Items, item)
 		}
+		action.ID = item.ID
+		res.Actions = append(res.Actions, action)
 	}
 	return nil
 }
@@ -439,10 +471,24 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 	score := milanote.MaxScore(payload, boardID)
 
 	var created []pairItem
-	createCard := func(ch milanote.Chunk, hash string) error {
+	replaced := map[string]bool{}
+	saveProgress := func() error {
+		progress := *rec
+		progress.Items = make([]pairItem, 0, len(rec.Items)+len(created))
+		for _, it := range rec.Items {
+			if !replaced[it.ID] {
+				progress.Items = append(progress.Items, it)
+			}
+		}
+		progress.Items = append(progress.Items, created...)
+		return savePair(&progress)
+	}
+	// createCard makes a card for ch. replaces names the deleted card it stands
+	// in for, if any, so a retry can't match the old id and make another.
+	createCard := func(ch milanote.Chunk, hash, replaces string) error {
 		h := ch.Height(milanote.CardWidth)
 		act := syncAction{Action: "create", Kind: ch.Kind, Text: preview(ch.MD), X: x, Y: y}
-		id := ""
+		item := pairItem{Kind: ch.Kind, Hash: hash}
 		if !o.dryRun {
 			w, err := writer.get(ctx)
 			if err != nil {
@@ -450,24 +496,28 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 			}
 			elType, content := ch.Element()
 			score += milanote.ScoreStep
-			if id, err = w.Create(ctx, boardID, elType, milanote.CanvasAt(boardID, x, y, score), content, ""); err != nil {
+			item.ID, item.Pending = w.NewID(), true
+			if replaces != "" {
+				replaced[replaces] = true
+			}
+			created = append(created, item)
+			if err := saveProgress(); err != nil {
+				return err
+			}
+			if err := w.CreateWithID(ctx, item.ID, boardID, elType, milanote.CanvasAt(boardID, x, y, score), content, ""); err != nil {
 				return mnErr(err)
 			}
+			item.Pending = false
+			created[len(created)-1].Pending = false
+			if err := saveProgress(); err != nil {
+				return err
+			}
 		}
-		act.ID = id
+		act.ID = item.ID
 		res.Actions = append(res.Actions, act)
 		y += h + o.gutter
-		item := pairItem{ID: id, Kind: ch.Kind, Hash: hash}
 		newItems = append(newItems, item)
-		if o.dryRun {
-			return nil
-		}
-		// Record it now: if a later write fails, a retry must find this card
-		// instead of creating it again.
-		created = append(created, item)
-		progress := *rec
-		progress.Items = append(append([]pairItem{}, rec.Items...), created...)
-		return savePair(&progress)
+		return nil
 	}
 	updateCard := func(el *milanote.Element, ch milanote.Chunk) error {
 		res.note("update", ch.Kind, el.ID, ch.MD)
@@ -488,7 +538,7 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 				res.note("skip-new-in-file", ch.Kind, "", ch.MD)
 				continue
 			}
-			if err := createCard(ch, hashes[i]); err != nil {
+			if err := createCard(ch, hashes[i], ""); err != nil {
 				return err
 			}
 			continue
@@ -503,7 +553,7 @@ func incremental(ctx context.Context, writer *lazyWriter, file, boardID, text st
 				res.Conflicts = append(res.Conflicts, syncConflict{ID: item.ID, Text: preview(ch.MD), Reason: "edited in the file but deleted on the board"})
 				newItems = append(newItems, item)
 			case keepFile && push, !fileChanged && !pull:
-				if err := createCard(ch, hashes[i]); err != nil {
+				if err := createCard(ch, hashes[i], item.ID); err != nil {
 					return err
 				}
 			case pull && !keepFile:

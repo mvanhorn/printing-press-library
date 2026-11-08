@@ -53,7 +53,7 @@
   "auth_context": {
     "type": "cookie"
   },
-  "source_fingerprint": "b3823e0e56cb29757b4309786e5cbc88a789012eb1100b9766079b5e822a55cb",
+  "source_fingerprint": "85d83abea57bc305d2c7f9a49093c60b306dc7a4f6d9ee0bc3ae381263ae78fc",
   "source_files": {
     "cmd/milanote-pp-cli/main.go": "e57af2291fd3c8fcc0743d2c46915a99ad8d34333be8b897da98deba0c5b88f4",
     "cmd/milanote-pp-mcp/http_auth_test.go": "75232ef7ce887ec7f1f6bb35f0937dc8a848dbfb6a11b6f0dc91dcad484d4699",
@@ -114,8 +114,8 @@
     "internal/cli/mn_cards.go": "d46dd7221f684c02d662648e0dff61cefad2fa8b241758b6e5c4b0b6e311f9fe",
     "internal/cli/mn_common.go": "9daad3525d55e5e61d916702420f1970c7ff55bf2c497123956c75517a48773d",
     "internal/cli/mn_elements.go": "c041006fb460f53ac7ef83711993cf031daee59056d121d977d7371266cff9ad",
-    "internal/cli/mn_sync.go": "f5cf9bf26571bf9bca388db5b6f2837e2be75ef92b63ab9a57046b064f56c194",
-    "internal/cli/mn_sync_review_test.go": "830f5480547aefbaa08f610302420610c81a9a7cc609c1826ab650f3f30f0d81",
+    "internal/cli/mn_sync.go": "b02a9e80c6aff05c0499164c8a8da51f1a2358dd099bdc34720f48d6e8d25991",
+    "internal/cli/mn_sync_review_test.go": "c8fd6d8e403f22b940f3820334ee2d87bb6c4d662d756dea872b90126bc2e0c9",
     "internal/cli/mn_sync_test.go": "09cabb24f62db87db8e87c44c4d7bec88704cde129ca1998b804736c89a26afd",
     "internal/cli/outline.go": "d33d2793d729215c38f38202732a305d7fa559cec28efd1e784ded9a1de0a4be",
     "internal/cli/outline_test.go": "73ecc3e21a68da6c4726be41abeb92ba0e8ba19d5975857eb8ab9526ec0417fb",
@@ -263,7 +263,7 @@
     "internal/mcp/tools.go": "81685c73f8291d7cccd3e95008b92d3a3f09b2ee16cacc373207d63904b3e2d8",
     "internal/mcp/tools_test.go": "6e22b7bd9ae2c620d6de0d9b99ecfc2d87095e97309513278c1877a2d2daaf48",
     "internal/milanote/client.go": "477409c80e7290f6f86aca98b5a5897273439b6dc83828237e8d0d385d0ce10c",
-    "internal/milanote/compose.go": "266b71067c7afa99c5591041eb3770e29555a75ab861331434696aac64c4aa0c",
+    "internal/milanote/compose.go": "5672ff7658b1f2cc81b4ae387ee9097fdf8e843badffaaf31908bb47e959829f",
     "internal/milanote/compose_test.go": "adf1d3e65aa5ff47e27c235c27834d8bd07e071fa197d930f3f823287ff2f514",
     "internal/milanote/ids.go": "400d780110daa29ee4b7ed0ceeedba4946e24353bd5a6d519987ea727779987a",
     "internal/milanote/images.go": "8eb4514e524776c61000de691e516611ad91e1e470f9953837ff44518a348e5c",

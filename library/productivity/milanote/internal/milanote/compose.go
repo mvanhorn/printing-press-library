@@ -5,6 +5,7 @@ package milanote
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"math"
 	"regexp"
 	"strings"
@@ -37,20 +38,37 @@ func ChunkMarkdown(md string) []Chunk {
 	return chunkLines(strings.Split(strings.ReplaceAll(md, "\r\n", "\n"), "\n"))
 }
 
-// CardOpen and CardClose mark text that must stay one note, even if it holds
-// headings or rules that would otherwise start new cards.
-const (
-	CardOpen  = "<!-- card -->"
-	CardClose = "<!-- /card -->"
-)
+// A card block is text that must stay one note, even if it holds headings or
+// rules that would otherwise start new cards. Like a Markdown code fence, its
+// markers can carry a number chosen so they never occur in the text itself.
+var reCardOpen = regexp.MustCompile(`^<!-- card( [0-9]+)? -->$`)
+
+func cardClose(open string) string {
+	return "<!-- /" + strings.TrimPrefix(open, "<!-- ")
+}
+
+func cardOpen(n int) string {
+	if n == 0 {
+		return "<!-- card -->"
+	}
+	return fmt.Sprintf("<!-- card %d -->", n)
+}
 
 // CardBlock is the text to write to a file for a card's Markdown so it reads
-// back as exactly one chunk.
+// back as exactly one chunk with the same text.
 func CardBlock(md string) string {
-	if len(ChunkMarkdown(md)) == 1 {
+	if chunks := ChunkMarkdown(md); len(chunks) == 1 && chunks[0].MD == strings.TrimSpace(md) {
 		return md
 	}
-	return CardOpen + "\n" + md + "\n" + CardClose
+	lines := map[string]bool{}
+	for _, l := range strings.Split(md, "\n") {
+		lines[strings.TrimSpace(l)] = true
+	}
+	open := cardOpen(0)
+	for n := 1; lines[open] || lines[cardClose(open)]; n++ {
+		open = cardOpen(n)
+	}
+	return open + "\n" + md + "\n" + cardClose(open)
 }
 
 func chunkLines(lines []string) []Chunk {
@@ -80,10 +98,11 @@ func chunkLines(lines []string) []Chunk {
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
 		trimmed := strings.TrimSpace(line)
-		if trimmed == CardOpen && !inFence {
+		if !inFence && reCardOpen.MatchString(trimmed) {
 			flush(i)
+			closer := cardClose(trimmed)
 			stop := i + 1
-			for stop < len(lines) && strings.TrimSpace(lines[stop]) != CardClose {
+			for stop < len(lines) && strings.TrimSpace(lines[stop]) != closer {
 				stop++
 			}
 			body := strings.TrimSpace(strings.Join(lines[i+1:stop], "\n"))
