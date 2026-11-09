@@ -2389,7 +2389,7 @@ func newReportRevenueCmd(flags *rootFlags) *cobra.Command {
 			filters := []string{"greater-or-equal(datetime," + since + "T00:00:00)", "less-than(datetime," + until + "T23:59:59)"}
 			timezone := "US/Central"
 			if flags.platformSession != nil {
-				if window := flags.platformSession.OutputMetadata().ResolvedWindow; window != nil && window.Clamped {
+				if window := flags.platformSession.OutputMetadata().ResolvedWindow; window != nil {
 					filters = []string{"greater-or-equal(datetime," + window.Start.Format("2006-01-02T15:04:05") + ")", "less-than(datetime," + window.End.Format("2006-01-02T15:04:05") + ")"}
 					timezone = window.Timezone
 				}
