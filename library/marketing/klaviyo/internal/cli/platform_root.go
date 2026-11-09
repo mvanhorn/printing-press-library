@@ -115,6 +115,14 @@ func adoptPlatformCommandWindow(cmd *cobra.Command, flags *rootFlags) error {
 	if err != nil {
 		return fmt.Errorf("resolve command window: %w", err)
 	}
+	// PATCH(review-rz-whole-day-window-clamp): retain only whole local days within the provider maximum.
+	if window.Clamped && window.CompletePeriods {
+		start := time.Date(window.Start.Year(), window.Start.Month(), window.Start.Day(), 0, 0, 0, 0, location)
+		if start.Before(window.Start) {
+			start = start.AddDate(0, 0, 1)
+		}
+		window.Start = start
+	}
 	flags.platformSession.SetResolvedWindow(window)
 	if window.Clamped {
 		_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "warning: requested window clamped: %s\n", window.ClampReason)

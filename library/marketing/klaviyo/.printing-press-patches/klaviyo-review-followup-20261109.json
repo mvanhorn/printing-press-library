@@ -4,7 +4,7 @@
   "applied_at": "2026-11-09",
   "base_run_id": "2026-05-02T18:02:09.219489Z",
   "base_printing_press_version": "3.5.0",
-  "summary": "Fixes from an independent review of the Klaviyo CLI: a bound MCP server cannot redirect receipts or deliveries and no command can write into client-profile, credential or database paths; the MCP SQL tool is read-only and single-statement, blocking ATTACH; typed MCP writes send JSON:API objects; legacy adoption and report budgets were fixed in klaviyo-greptile-review-20261109; sync --since sends real time filters (flows with the matching sort), --dry-run has no side effects and capped syncs keep their cursor; qa-gate --campaign-id and templates audit request valid template fields; analytics output is validated; clamped windows drive the calculation; flow aggregate failures surface as errors; report pages retry a 429.",
+  "summary": "Klaviyo commands keep tenant data isolated through MCP, send only API-accepted requests and filters, report failures and retries honestly, and resolve report windows from the user's explicit dates.",
   "reason": "An independent max-effort review traced tenant-isolation holes reachable through the MCP server, sync options that silently did nothing or changed state, and a qa-gate request Klaviyo rejects with HTTP 400 (confirmed live).",
   "files": [
     "internal/cli/analytics.go",
@@ -23,9 +23,13 @@
     "internal/cli/review_rc_test.go",
     "internal/cli/review_rd_test.go",
     "internal/cli/review_re_test.go",
+    "internal/cli/review_rw_test.go",
+    "internal/cli/review_rx_test.go",
     "internal/cli/sync.go",
     "internal/mcp/review_ra_test.go",
+    "internal/mcp/review_rx_test.go",
     "internal/mcp/tools.go",
+    "internal/platform/ratelimit.go",
     "internal/store/review_ra_test.go",
     "internal/store/store.go"
   ],
