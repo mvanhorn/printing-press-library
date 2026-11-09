@@ -4,33 +4,54 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/conduyt-crm/internal/store"
-	"github.com/spf13/cobra"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
 	"text/tabwriter"
+
+	"github.com/spf13/cobra"
 )
 
-// pp:data-source auto
+// importRowsMaxPerPage is the ceiling GET /imports/{id}/rows enforces on per_page (the route clamps above it).
+const importRowsMaxPerPage = 100
+
+// PATCH(novel1219-imports-blame): the public library entry's hardened blame (strict job-scoped side-effect counters,
+// isComplete/actionRequired checks, full pagination with a progress guard and a metadata-total cross-check, partial
+// results exiting non-zero) ported back over the reprint's simple version, reading the documented error tab
+// (tab=error, per_page at most 100) and grouping only error rows by their full message. --latest and the [jobId]
+// Use line stay from the reprint.
+// pp:data-source live
 func newNovelImportsBlameCmd(flags *rootFlags) *cobra.Command {
-	var limit int
-	var dbPath string
-	cmd := &cobra.Command{Use: "blame <jobId>", Short: "For one import job: who got the SMS, who was skipped and why", Long: "Use this command after an import finished to see per-row delivery outcomes. Do NOT use it to wait for an import to finish; use 'imports watch' instead.", Example: "  conduyt-crm-pp-cli imports blame 3b9e4c2d --json", Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "auto"}, RunE: func(cmd *cobra.Command, args []string) error {
+	var limit, rowsAlias int
+	var latest bool
+	cmd := &cobra.Command{Use: "blame [jobId]", Short: "For one import job: error rows by reason and the job-scoped side-effect counters", Long: "Use this command after an import finished: it reads the job's row counters, every error row (GET /imports/{id}/rows?tab=error, paged to --limit) grouped by reason, and the job-scoped side effects (queued, retryable, exhausted, held, completed). A capped, short or failed read, or any queued, failed or held send, makes the result partial and the exit 5 (3 when the job does not exist, 4 on an auth failure). Do NOT use it to wait for an import to finish; use 'imports watch' instead.", Example: strings.Trim(`
+  conduyt-crm-pp-cli imports blame --latest --json
+  conduyt-crm-pp-cli imports blame 3f2a9c1e-0000-0000-0000-000000000000
+  conduyt-crm-pp-cli imports blame 3f2a9c1e-0000-0000-0000-000000000000 --agent --select row_outcomes,errors_by_reason`, "\n"), Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:typed-exit-codes": "0,2,3,4,5"}, RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 && !latest && !cmd.Flags().Changed("limit") && !cmd.Flags().Changed("rows") {
+			return cmd.Help()
+		}
+		if cmd.Flags().Changed("rows") && !cmd.Flags().Changed("limit") {
+			limit = rowsAlias
+		}
 		if limit <= 0 {
 			_ = cmd.Usage()
 			return usageErr(fmt.Errorf("--limit must be positive"))
 		}
-		if dryRunOK(flags) {
-			return writeDryRun(cmd.OutOrStdout(), flags, "imports blame")
-		}
-		if len(args) == 0 && !cmd.Flags().Changed("limit") && !cmd.Flags().Changed("db") {
-			return cmd.Help()
-		}
-		if len(args) == 0 || strings.TrimSpace(args[0]) == "" {
+		if len(args) > 0 && latest {
 			_ = cmd.Usage()
-			return usageErr(fmt.Errorf("jobId is required"))
+			return usageErr(fmt.Errorf("pass a jobId or --latest, not both"))
+		}
+		if len(args) > 1 {
+			_ = cmd.Usage()
+			return usageErr(fmt.Errorf("imports blame takes one jobId"))
+		}
+		if !latest && (len(args) == 0 || strings.TrimSpace(args[0]) == "") {
+			_ = cmd.Usage()
+			return usageErr(fmt.Errorf("jobId (or --latest) is required"))
+		}
+		if dryRunOK(flags) {
+			return writeDryRun(cmd.OutOrStdout(), flags, "imports blame") // PATCH(gocli1219-live-gate-defects)
 		}
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
@@ -38,35 +59,99 @@ func newNovelImportsBlameCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		jobID := args[0]
-		rows := make([]map[string]any, 0)
+		var jobID string
+		if latest {
+			newest, latestErr := resolveLatestImportJob(ctx, c)
+			if latestErr != nil {
+				return classifyAPIError(cmd.OutOrStdout(), latestErr, flags)
+			}
+			if newest == "" {
+				return printJSONFiltered(cmd.OutOrStdout(), noImportJobYet(), flags)
+			}
+			jobID = newest
+		} else {
+			jobID = args[0]
+		}
 		failures := 0
 		var fetchErr error
 		failureReasons := make([]string, 0)
-		perPage := minInt(200, limit+1)
+
+		// 1) The job and its row counters. A job that does not exist is the API's 404 (exit 3).
+		jobRaw, e := c.Get(ctx, "/imports/"+jobID, nil)
+		if e != nil {
+			return classifyAPIError(cmd.OutOrStdout(), e, flags)
+		}
+		job := map[string]any{}
+		if decodeErr := rejectResponseErrorEnvelope(jobRaw); decodeErr != nil {
+			failures++
+			failureReasons = append(failureReasons, "decoding import job: "+decodeErr.Error())
+		} else {
+			var env map[string]any
+			if decodeErr := json.Unmarshal(jobRaw, &env); decodeErr != nil {
+				failures++
+				failureReasons = append(failureReasons, "decoding import job: "+decodeErr.Error())
+			} else {
+				job = unwrapMap(env)
+			}
+		}
+		outcomes := blameRowOutcomes{Status: strAny(job, "status")}
+		missingCounters := make([]string, 0)
+		for _, spec := range []struct {
+			preferred string
+			legacy    []string
+			target    **int
+		}{
+			{"totalRows", []string{"total_rows"}, &outcomes.Total},
+			{"createdRows", []string{"created_rows"}, &outcomes.Created},
+			{"updatedRows", []string{"updated_rows"}, &outcomes.Updated},
+			{"skippedRows", []string{"skipped_rows"}, &outcomes.Skipped},
+			{"duplicateRows", []string{"duplicate_rows"}, &outcomes.Duplicates},
+			{"errorRows", []string{"error_rows"}, &outcomes.Errors},
+		} {
+			value, counterErr := preferredLegacyCounter(job, spec.preferred, spec.legacy...)
+			if counterErr != nil {
+				missingCounters = append(missingCounters, counterErr.Error())
+				continue
+			}
+			*spec.target = value
+		}
+		if outcomes.Status == "" {
+			missingCounters = append(missingCounters, "status")
+		}
+		if outcomes.Errors == nil {
+			missingCounters = append(missingCounters, "errorRows")
+		}
+		if len(missingCounters) > 0 {
+			sort.Strings(missingCounters)
+			failures++
+			failureReasons = append(failureReasons, "import job missing or invalid fields: "+strings.Join(missingCounters, ", "))
+		}
+
+		// 2) Every error row (the route's error tab), paged to --limit.
+		rows := make([]map[string]any, 0)
+		perPage := minInt(importRowsMaxPerPage, limit+1)
 		var total *int
 		rowTabs := map[string]int(nil)
-		rowsUnavailable := false
-		rowsNote := ""
 		progress := newPaginationProgressGuard()
 		for page := 1; len(rows) <= limit; page++ {
-			data, e := c.Get(ctx, "/imports/"+jobID+"/rows", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage)})
+			data, e := c.Get(ctx, "/imports/"+jobID+"/rows", map[string]string{"tab": "error", "page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage)})
 			if e != nil {
 				fetchErr = e
 				failures++
-				failureReasons = append(failureReasons, fmt.Sprintf("fetching import rows page %d: %v", page, e))
+				failureReasons = append(failureReasons, fmt.Sprintf("fetching import error rows page %d: %v", page, e))
 				break
 			}
 			batch, decodeErr := objectItems(data, false)
 			if decodeErr != nil {
 				failures++
-				failureReasons = append(failureReasons, fmt.Sprintf("decoding import rows page %d: %v", page, decodeErr))
+				failureReasons = append(failureReasons, fmt.Sprintf("decoding import error rows page %d: %v", page, decodeErr))
 				break
 			}
+			ids := make([]string, len(batch))
 			for i, row := range batch {
-				if decodeErr = validateContactIdentity(row, "import", i); decodeErr != nil {
+				if ids[i], decodeErr = importRowIdentity(row, page, i); decodeErr != nil {
 					failures++
-					failureReasons = append(failureReasons, fmt.Sprintf("decoding import rows page %d: %v", page, decodeErr))
+					failureReasons = append(failureReasons, fmt.Sprintf("decoding import error rows page %d: %v", page, decodeErr))
 					break
 				}
 			}
@@ -79,113 +164,55 @@ func newNovelImportsBlameCmd(flags *rootFlags) *cobra.Command {
 			if page == 1 {
 				rowTabs = importRowTabs(data)
 			}
-			ids := make([]string, len(batch))
-			for i := range batch {
-				ids[i] = strAny(batch[i], "contactId", "contact_id", "id")
-			}
 			if guardErr := progress.observe(ids, "", len(batch) == perPage); guardErr != nil {
 				failures++
 				failureReasons = append(failureReasons, guardErr.Error())
 				break
 			}
 			rows = append(rows, batch...)
-			if len(batch) == 0 || len(batch) < perPage {
+			if len(batch) < perPage {
 				break
 			}
 		}
-		partial := failures > 0 || len(rows) > limit || total != nil && *total > limit
+		capped := len(rows) > limit || total != nil && *total > limit
 		if total != nil && *total > len(rows) && len(rows) <= limit {
-			partial = true
-			failureReasons = append(failureReasons, fmt.Sprintf("import rows ended after %d rows but response metadata reports total %d", len(rows), *total))
+			failures++
+			failureReasons = append(failureReasons, fmt.Sprintf("import error rows ended after %d rows but response metadata reports total %d", len(rows), *total))
 		}
-		if len(rows) > limit || total != nil && *total > limit {
-			failureReasons = append(failureReasons, "--limit capped the import rows checked")
+		if capped {
+			failureReasons = append(failureReasons, fmt.Sprintf("--limit %d capped the error rows checked; re-run with a higher --limit", limit))
 		}
 		if len(rows) > limit {
 			rows = rows[:limit]
 		}
-		if total != nil && rowTabs != nil && rowTabs["all"] > *total {
+		rowsUnavailable := false
+		rowsNote := ""
+		if rowTabs != nil && total != nil && rowTabs["error"] > *total {
 			rowsUnavailable = true
-			rowsNote = "row detail was not retained; delivery is read from the side-effect counters"
+			rowsNote = fmt.Sprintf("%d error rows were counted but only %d were itemized by the import; the rest carry no per-row reason", rowTabs["error"], *total)
 		}
-		contacts := map[string]map[string]any{}
-		if dbPath == "" {
-			dbPath = defaultDBPath("conduyt-crm-pp-cli")
-		}
-		if _, e := os.Stat(dbPath); e == nil {
-			db, e := store.OpenWithContext(ctx, dbPath)
-			if e != nil {
-				if fetchErr == nil {
-					fetchErr = e
-				}
-				return fmt.Errorf("opening local mirror: %w", e)
-			}
-			defer db.Close()
-			hintIfUnsynced(cmd, db, "contacts")
-			hintIfStale(cmd, db, "contacts", flags.maxAge)
-			qr, e := db.DB().QueryContext(ctx, `SELECT id,data FROM resources WHERE resource_type='contacts'`)
-			if e != nil {
-				return e
-			}
-			for qr.Next() {
-				var id string
-				var raw []byte
-				if e = qr.Scan(&id, &raw); e != nil {
-					_ = qr.Close()
-					return e
-				}
-				var m map[string]any
-				if decodeErr := json.Unmarshal(raw, &m); decodeErr != nil {
-					failures++
-					failureReasons = append(failureReasons, fmt.Sprintf("decoding mirrored contact %s: %v", id, decodeErr))
-					continue
-				}
-				contacts[id] = m
-			}
-			if e = qr.Err(); e != nil {
+		errorsByReason := map[string]int{}
+		for i, r := range rows {
+			outcome, statusErr := preferredLegacyString(r, "outcome", "status")
+			if statusErr != nil {
 				failures++
-				failureReasons = append(failureReasons, fmt.Sprintf("reading contacts mirror: %v", e))
-			}
-			if e = qr.Close(); e != nil {
-				failures++
-				failureReasons = append(failureReasons, fmt.Sprintf("closing contacts mirror rows: %v", e))
-			}
-		}
-		for _, r := range rows {
-			id := strAny(r, "contactId", "contact_id")
-			if id == "" || contacts[id] != nil {
+				failureReasons = append(failureReasons, fmt.Sprintf("import error row %d outcome: %v", i+1, statusErr))
 				continue
 			}
-			data, e := c.Get(ctx, "/contacts/"+id, nil)
-			if e != nil {
-				if fetchErr == nil {
-					fetchErr = e
-				}
+			if !strings.EqualFold(outcome, "error") {
+				// tab=error must only return error rows; anything else is never counted as an error.
 				failures++
-				failureReasons = append(failureReasons, fmt.Sprintf("fetching contact %s: %v", id, e))
+				failureReasons = append(failureReasons, fmt.Sprintf("import error row %d has outcome %q, not error", i+1, outcome))
 				continue
 			}
-			items, decodeErr := objectItems(data, true) // GET /contacts/{id} legitimately returns one object.
-			if decodeErr != nil {
-				failures++
-				failureReasons = append(failureReasons, "decoding contact "+id+": "+decodeErr.Error())
-				continue
+			reason := strings.TrimSpace(strAny(r, "message", "error", "reason"))
+			if reason == "" {
+				reason = "unknown"
 			}
-			if len(items) > 0 {
-				if strings.TrimSpace(strAny(items[0], "contactId", "contact_id", "id")) == "" {
-					items[0]["id"] = id
-				}
-				if decodeErr = validateContactIdentity(items[0], "contact", 0); decodeErr != nil {
-					failures++
-					failureReasons = append(failureReasons, "decoding contact "+id+": "+decodeErr.Error())
-					continue
-				}
-				contacts[id] = items[0]
-			} else {
-				failures++
-				failureReasons = append(failureReasons, "decoding contact "+id+": response contained no contact")
-			}
+			errorsByReason[reason]++
 		}
+
+		// 3) The job-scoped side effects (what the import's events fired; provider delivery is not in this data).
 		side := blameSideEffects{}
 		sideRaw, e := c.Get(ctx, "/imports/"+jobID+"/side-effects", nil)
 		if e != nil {
@@ -239,9 +266,34 @@ func newNovelImportsBlameCmd(flags *rootFlags) *cobra.Command {
 					failureReasons = append(failureReasons, "import side effects "+isCompleteErr.Error())
 				} else {
 					side.IsComplete = isComplete
-					if !isComplete {
+					// PATCH(novel1219-imports-blame) r2: the all-zero exception holds only after a terminal job read
+					// (a running job may not have enqueued its side effects yet).
+					side.NoSideEffects = !isComplete && len(missing) == 0 && terminalImportStatus(outcomes.Status) && side.Total == 0 && side.Queued == 0 && side.Retryable == 0 && side.Exhausted == 0 && side.Failed == 0 && side.Held == 0
+					if !isComplete && !side.NoSideEffects {
 						failures++
 						failureReasons = append(failureReasons, "import side effects are not complete")
+					}
+				}
+				if len(missing) == 0 {
+					// isComplete counts pending, processing and failed only; held-only is isComplete:true with
+					// actionRequired:true, so every unfinished or unsuccessful counter is checked on its own.
+					// PATCH(novel1219-imports-blame) r3: skippedInactive, pending and processing are read too, and only
+					// completed counts as a successful send.
+					for _, opt := range []struct {
+						key    string
+						target **int
+					}{{"skippedInactive", &side.SkippedInactive}, {"pending", &side.Pending}, {"processing", &side.Processing}} {
+						value, counterErr := nonNegativeCounter(m, opt.key)
+						if counterErr != nil {
+							failures++
+							failureReasons = append(failureReasons, "import side effects "+counterErr.Error())
+							continue
+						}
+						*opt.target = value
+					}
+					for _, problem := range sideEffectProblems(sideEffectCounts{Total: &side.Total, Completed: &side.Completed, SkippedInactive: side.SkippedInactive, Pending: side.Pending, Processing: side.Processing, Queued: &side.Queued, Retryable: &side.Retryable, Exhausted: &side.Exhausted, Failed: &side.Failed, Held: &side.Held, ActionRequired: side.ActionRequired}) {
+						failures++
+						failureReasons = append(failureReasons, "import side effects "+problem)
 					}
 				}
 			} else {
@@ -249,92 +301,105 @@ func newNovelImportsBlameCmd(flags *rootFlags) *cobra.Command {
 				failureReasons = append(failureReasons, fmt.Sprintf("decoding import side effects: %v", decodeErr))
 			}
 		}
-		partial = partial || failures > 0
 		view := blameView{
-			JobID:                     jobID,
-			Rows:                      len(rows),
-			Partial:                   partial,
-			Checked:                   len(rows),
-			Total:                     total,
-			DeliveryCorrelation:       "none",
-			DeliveryCorrelationReason: "GET /reports/sms-delivery returns aggregate totals only (no per-message import, message or contact keys), so delivery is read from the import rows",
-			SkippedByReason:           map[string]int{},
-			SideEffects:               side,
-			RowTabs:                   rowTabs,
-			RowsUnavailable:           rowsUnavailable,
-			RowsNote:                  rowsNote,
-			FetchFailures:             failures,
-			Failures:                  failureReasons,
-		}
-		for i, r := range rows {
-			id := strAny(r, "contactId", "contact_id")
-			rowStatus, statusErr := preferredLegacyString(r, "status", "outcome")
-			if statusErr != nil {
-				failures++
-				view.Partial = true
-				view.FetchFailures = failures
-				view.Failures = append(view.Failures, fmt.Sprintf("import row %d status: %v", i+1, statusErr))
-				continue
-			}
-			status := strings.ToLower(rowStatus)
-			reason := strAny(r, "reason", "error", "message")
-			if status == "delivered" {
-				view.Delivered++
-				continue
-			}
-			if reason == "" {
-				if contacts[id] == nil {
-					reason = "contact_not_found"
-				} else {
-					reason = status
-				}
-			}
-			if reason == "" {
-				reason = "unknown"
-			}
-			view.SkippedByReason[reason]++
+			JobID:                jobID,
+			RowOutcomes:          outcomes,
+			ErrorRows:            len(rows),
+			Partial:              failures > 0 || capped,
+			Checked:              len(rows),
+			Total:                total,
+			SideEffectsCompleted: side.Completed,
+			Note:                 blameProviderNote,
+			ErrorsByReason:       errorsByReason,
+			SideEffects:          side,
+			RowTabs:              rowTabs,
+			RowsUnavailable:      rowsUnavailable,
+			RowsNote:             rowsNote,
+			FetchFailures:        failures,
+			Failures:             failureReasons,
 		}
 		if failures > 0 {
-			fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d fetches failed\n", failures, 1+len(rows))
+			fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d import blame read(s) failed or were incomplete\n", failures)
 		}
 		if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 			if e := printJSONFiltered(cmd.OutOrStdout(), view, flags); e != nil {
 				return e
 			}
-			if view.Partial {
-				if fetchErr != nil {
-					return classifyAPIErrorOnly(fetchErr)
-				}
-				return apiErr(fmt.Errorf("imports blame is incomplete: %s", strings.Join(view.Failures, "; ")))
-			}
-			return nil
+			return blameExit(view, fetchErr)
 		}
 		tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
 		if view.Partial {
-			fmt.Fprintln(tw, "WARNING: result is partial; one or more rows were capped or fetches failed.")
+			fmt.Fprintln(tw, "WARNING: result is partial: "+strings.Join(view.Failures, "; "))
 		}
 		actionRequired := "unknown"
 		if side.ActionRequired != nil {
 			actionRequired = strconv.FormatBool(*side.ActionRequired)
 		}
-		fmt.Fprintf(tw, "JOB\tROWS\tDELIVERED\tQUEUED\tRETRYABLE\tEXHAUSTED\tACTION REQUIRED\n%s\t%d\t%d\t%d\t%d\t%d\t%s\n", view.JobID, view.Rows, view.Delivered, side.Queued, side.Retryable, side.Exhausted, actionRequired)
-		for reason, n := range view.SkippedByReason {
-			fmt.Fprintf(tw, "SKIPPED\t%s\t%d\n", reason, n)
+		fmt.Fprintf(tw, "JOB\tSTATUS\tERROR ROWS\tSIDE EFFECTS COMPLETED\tQUEUED\tRETRYABLE\tEXHAUSTED\tHELD\tACTION REQUIRED\n%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\n", view.JobID, outcomes.Status, view.ErrorRows, view.SideEffectsCompleted, side.Queued, side.Retryable, side.Exhausted, side.Held, actionRequired)
+		reasons := make([]string, 0, len(errorsByReason))
+		for reason := range errorsByReason {
+			reasons = append(reasons, reason)
 		}
+		sort.Strings(reasons)
+		for _, reason := range reasons {
+			fmt.Fprintf(tw, "ERROR\t%s\t%d\n", reason, errorsByReason[reason])
+		}
+		fmt.Fprintf(tw, "NOTE\t%s\n", blameProviderNote)
 		if e := tw.Flush(); e != nil {
 			return e
 		}
-		if view.Partial {
-			if fetchErr != nil {
-				return classifyAPIErrorOnly(fetchErr)
-			}
-			return apiErr(fmt.Errorf("imports blame is incomplete: %s", strings.Join(view.Failures, "; ")))
-		}
-		return nil
+		return blameExit(view, fetchErr)
 	}}
-	cmd.Flags().IntVar(&limit, "limit", 500, "Maximum import rows to inspect")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Local mirror path")
+	cmd.Flags().IntVar(&limit, "limit", 500, "Maximum error rows to inspect")
+	cmd.Flags().IntVar(&rowsAlias, "rows", 500, "Deprecated alias of --limit")
+	_ = cmd.Flags().MarkHidden("rows")
+	cmd.Flags().BoolVar(&latest, "latest", false, "Use the account's most recent import job instead of a jobId")
 	return cmd
+}
+
+// blameProviderNote is printed with every blame result. PATCH(novel1219-imports-blame) r4: a completed side effect
+// confirms the import's event fired, not that a provider delivered a message, and the account-wide
+// /reports/sms-delivery report carries no per-import key, so blame makes no delivery claim.
+const blameProviderNote = "provider delivery is not available from this data; side_effects_completed counts the import's side effects that fired"
+
+func blameExit(view blameView, fetchErr error) error {
+	if !view.Partial {
+		return nil
+	}
+	if fetchErr != nil {
+		return classifyAPIErrorOnly(fetchErr)
+	}
+	return apiErr(fmt.Errorf("imports blame is incomplete: %s", strings.Join(view.Failures, "; ")))
+}
+
+// importRowIdentity is the stable identity of one GET /imports/{id}/rows entry: its source row number (0 for a
+// job-level entry), else a contact identity. A row with neither cannot be paged or counted safely.
+func importRowIdentity(row map[string]any, page, index int) (string, error) {
+	if n, ok := numericInt(row["row"]); ok && n >= 0 {
+		if n == 0 {
+			// PATCH(novel1219-imports-blame) r2: row 0 is a job-level entry (the route emits several, each with an
+			// identifier such as "Updated contacts"), so its identity includes the identifier and message.
+			return "row:0|" + strAny(row, "identifier") + "|" + strAny(row, "message", "error"), nil
+		}
+		return "row:" + strconv.Itoa(n), nil
+	}
+	if id := strings.TrimSpace(strAny(row, "contactId", "contact_id", "id")); id != "" {
+		return id, nil
+	}
+	if phone, ok := normalizePhoneIdentity(strAny(row, "phone", "normalizedPhone")); ok {
+		return "phone:" + phone, nil
+	}
+	return "", fmt.Errorf("import row %d on page %d has no row number or contact identity", index+1, page)
+}
+
+type blameRowOutcomes struct {
+	Status     string `json:"status"`
+	Total      *int   `json:"total"`
+	Created    *int   `json:"created"`
+	Updated    *int   `json:"updated"`
+	Skipped    *int   `json:"skipped"`
+	Duplicates *int   `json:"duplicates"`
+	Errors     *int   `json:"errors"`
 }
 
 type blameSideEffects struct {
@@ -347,23 +412,29 @@ type blameSideEffects struct {
 	Held           int   `json:"held"`
 	ActionRequired *bool `json:"action_required"`
 	IsComplete     bool  `json:"is_complete"`
+	// NoSideEffects: the job recorded none (every counter zero); the route reports isComplete=false for that.
+	NoSideEffects bool `json:"no_side_effects,omitempty"`
+	// Emitted by the route; read strictly when present.
+	SkippedInactive *int `json:"skipped_inactive,omitempty"`
+	Pending         *int `json:"pending,omitempty"`
+	Processing      *int `json:"processing,omitempty"`
 }
 type blameView struct {
-	JobID                     string           `json:"job_id"`
-	Rows                      int              `json:"rows"`
-	Partial                   bool             `json:"partial"`
-	Checked                   int              `json:"checked"`
-	Total                     *int             `json:"total,omitempty"`
-	Delivered                 int              `json:"delivered"`
-	DeliveryCorrelation       string           `json:"delivery_correlation"`
-	DeliveryCorrelationReason string           `json:"delivery_correlation_reason"`
-	SkippedByReason           map[string]int   `json:"skipped_by_reason"`
-	SideEffects               blameSideEffects `json:"side_effects"`
-	RowTabs                   map[string]int   `json:"row_tabs,omitempty"`
-	RowsUnavailable           bool             `json:"rows_unavailable"`
-	RowsNote                  string           `json:"rows_note,omitempty"`
-	FetchFailures             int              `json:"fetch_failures"`
-	Failures                  []string         `json:"failures,omitempty"`
+	JobID                string           `json:"job_id"`
+	RowOutcomes          blameRowOutcomes `json:"row_outcomes"`
+	ErrorRows            int              `json:"error_rows"`
+	Partial              bool             `json:"partial"`
+	Checked              int              `json:"checked"`
+	Total                *int             `json:"total,omitempty"`
+	SideEffectsCompleted int              `json:"side_effects_completed"`
+	Note                 string           `json:"note"`
+	ErrorsByReason       map[string]int   `json:"errors_by_reason"`
+	SideEffects          blameSideEffects `json:"side_effects"`
+	RowTabs              map[string]int   `json:"row_tabs,omitempty"`
+	RowsUnavailable      bool             `json:"rows_unavailable"`
+	RowsNote             string           `json:"rows_note,omitempty"`
+	FetchFailures        int              `json:"fetch_failures"`
+	Failures             []string         `json:"failures,omitempty"`
 }
 
 func importRowTabs(raw json.RawMessage) map[string]int {
@@ -434,31 +505,7 @@ func unwrapMap(m map[string]any) map[string]any {
 		m = d
 	}
 }
-func intAny(m map[string]any, keys ...string) int {
-	for _, k := range keys {
-		switch v := m[k].(type) {
-		case float64:
-			return int(v)
-		case int:
-			return v
-		case json.Number:
-			n, err := strconv.Atoi(v.String())
-			if err == nil {
-				return n
-			}
-			// Non-integral JSON numbers are not valid integer counters; try the next alias.
-		}
-	}
-	return 0
-}
-func boolAny(m map[string]any, keys ...string) bool {
-	for _, k := range keys {
-		if b, ok := m[k].(bool); ok {
-			return b
-		}
-	}
-	return false
-}
+
 func minInt(a, b int) int {
 	if a < b {
 		return a

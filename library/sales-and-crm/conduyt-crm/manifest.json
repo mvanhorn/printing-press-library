@@ -3,7 +3,7 @@
   "name": "conduyt-crm-pp-mcp",
   "display_name": "Conduyt CRM",
   "version": "1.0.0",
-  "description": "Every Conduyt endpoint as a command, plus send-safety, import forensics, report deltas and dialer coverage no other Conduyt surface has.",
+  "description": "Full-coverage Conduyt CLI: every endpoint, plus Kloudi-grade send-safety forensics no other surface has.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -15,23 +15,17 @@
       "command": "${__dirname}/bin/conduyt-crm-pp-mcp",
       "args": [],
       "env": {
-        "CONDUYT_API_KEY": "${user_config.conduyt_api_key}",
-        "CONDUYT_BEARER_AUTH": "${user_config.conduyt_bearer_auth}"
+        "CONDUYT_CRM_BEARER_AUTH": "${user_config.conduyt_crm_bearer_auth}"
       }
     }
   },
   "user_config": {
-    "conduyt_api_key": {
+    "conduyt_crm_bearer_auth": {
       "type": "string",
-      "title": "CONDUYT_API_KEY",
-      "description": "Optional. Sets CONDUYT_API_KEY for the Conduyt CRM MCP server.",
-      "sensitive": true
-    },
-    "conduyt_bearer_auth": {
-      "type": "string",
-      "title": "CONDUYT_BEARER_AUTH",
-      "description": "Optional. Sets CONDUYT_BEARER_AUTH for the Conduyt CRM MCP server.",
-      "sensitive": true
+      "title": "CONDUYT_CRM_BEARER_AUTH",
+      "description": "Sets CONDUYT_CRM_BEARER_AUTH for the Conduyt CRM MCP server.",
+      "sensitive": true,
+      "required": true
     }
   },
   "compatibility": {

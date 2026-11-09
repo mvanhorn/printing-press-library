@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "reprint-637-freeform-json-flags",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Restores the free-form JSON body flags the full reprint dropped as a generator artefact (activities create-activity --metadata, automations update --trigger-conditions, bulk edit-contacts/edit-deals --updates, contacts create --custom-fields, forms create --settings, integrations connect --config/--credentials, scoring-rules create --condition) and the seven typed flags of emails create-template beside --body-json; each sends the parsed JSON under its body key as before and refuses to mix with the generated sub-flags. Prose note: .printing-press-patches/reprint-637-freeform-json-flags.md.",
+  "reason": "4.28.0 prints an object with declared sub-properties as sub-flags only and a oneOf body as --body-json only, so a reprint on the full public document removed flags existing users had while the API still reads the same keys.",
+  "files": [
+    "internal/cli/activities_create-activity.go",
+    "internal/cli/automations_update.go",
+    "internal/cli/bulk_edit-contacts.go",
+    "internal/cli/bulk_edit-deals.go",
+    "internal/cli/contacts_create.go",
+    "internal/cli/forms_create.go",
+    "internal/cli/integrations_connect.go",
+    "internal/cli/scoring-rules_create.go",
+    "internal/cli/emails_create-template.go",
+    "internal/cli/freeform_json_flags_test.go"
+  ],
+  "validated_outcome": "Every restored flag is registered and its JSON lands deep-equal under its body key; malformed JSON names the flag; mixing with a sub-flag sends nothing; create-template typed flags send the pre-reprint body. TestFreeformJSONFlagsLandInTheBodyAsBefore, TestEmailsCreateTemplateTypedFlagsAsBefore.",
+  "upstream_issue": "For the press board (not filed): keep a whole-object JSON flag next to sub-property flags."
+}

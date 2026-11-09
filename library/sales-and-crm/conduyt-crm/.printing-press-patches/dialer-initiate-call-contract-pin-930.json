@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "dialer-initiate-call-contract-pin-930",
+  "applied_at": "2026-11-02",
+  "base_run_id": "20261030-165533",
+  "base_printing_press_version": "4.28.0",
+  "summary": "POST /dialer/call (initiateCall) is pinned by Go tests: the CLI body keys, the MCP execute path body keys and route, and spec.yaml/upstream properties must equal a hard-coded list (to required); a reprint that renames a key or drops the required-to guard fails.",
+  "reason": "The dialer initiate-call command has sent `to` since the #637 reprint (492db12). The small926-r1 side finding named a line (`toNumber` in dialer_initiate-call.go) that does not exist on main; `toNumber` occurs only in unrelated generated commands and types (at e8db03f: internal/cli/calls_create-record.go:96, internal/cli/messages_create.go:179, internal/cli/messages_send-sms.go:104, internal/types/types.go:1346, :2112, :2262). This record exists so the contract pin on POST /dialer/call survives reprints.",
+  "files": [
+    "internal/cli/dialer_initiate_call_contract_test.go",
+    "internal/mcp/dialer_initiate_call_contract_test.go"
+  ],
+  "validated_outcome": "Red when the command body key is renamed to toNumber, when the required-to guard is removed, and when the MCP route/query binding changes; green on main.",
+  "upstream_issue": "To file against mvanhorn/cli-printing-press: none; this is a repo-local contract test."
+}

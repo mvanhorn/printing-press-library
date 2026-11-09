@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "reprint-637-server-dry-run",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "The API dry_run query parameter is the local flag --server-dry-run on all 161 commands that have it (plus calls link call-to-contact and imports repair post-imports-id for their body dry-run); no command registers a local --dry-run (import <resource> uses the global one), so the global --dry-run always prints and sends nothing. email send/send-bulk unchanged (exempt). Prose note: .printing-press-patches/reprint-637-server-dry-run.md. Round 4: feedback --send and --deliver webhook:<url> under the global --dry-run print the POST they would make and send nothing.",
+  "reason": "4.28.0 prints dry_run as a local --dry-run that shadows the global preview, so a requested local preview sent a real request on 153 pre-existing commands after the full reprint.",
+  "files": [
+    "internal/cli/calls_link_call-to-contact.go",
+    "internal/cli/imports_repair_post-imports-id.go",
+    "internal/cli/import.go",
+    "internal/cli/server_dry_run_test.go",
+    "internal/cli/unknown_caller_test.go",
+    "tools-manifest.json",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/feedback.go",
+    "internal/cli/deliver.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "No local --dry-run anywhere in the tree; --server-dry-run bound on every dry_run operation but the two email ones; the global --dry-run on each of them sends zero requests. TestNoLocalDryRunAndServerDryRunIsBound.",
+  "upstream_issue": "For the press board (not filed): never emit a local flag that shadows a persistent root flag."
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "reprint-637-users-invite",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "`users invite` is the POST /users/invite endpoint command (the press name) and carries the cancel/resend children; duplicate AddCommand registrations (contacts duplicate-proposals, users invite) and the generated `create` alias on email post-opt-out-list (it shadowed email send's) are removed. Prose: reprint-637-full-public-api.md, round 4. Reprint gocli1219: 4.34.2 renames the children to `users item-invite ...` and refuses the old paths; this tree keeps `users invite post-users-id-cancel|resend` (the 4.34.2 users_item_invite*.go files are not carried) and TestDeclaredAPISurfaceReachable lists the kept paths.",
+  "reason": "The press names the endpoint and the sub-resource group alike and keeps only the group, so POST /users/invite was unreachable from the CLI; cobra keeps duplicate children silently.",
+  "files": [
+    "internal/cli/users_invite.go",
+    "internal/cli/users.go",
+    "internal/cli/contacts.go",
+    "internal/cli/email_post-opt-out-list.go",
+    "internal/cli/command_tree_test.go"
+  ],
+  "validated_outcome": "943/943 spec operations reachable through exactly one command; no duplicate sibling names or aliases. TestEverySpecOperationHasExactlyOneCommand, TestSiblingCommandNamesAreUnique.",
+  "upstream_issue": "For the press board (not filed): an endpoint whose name equals a sub-resource group must become the group command (or a named child), never vanish."
+}

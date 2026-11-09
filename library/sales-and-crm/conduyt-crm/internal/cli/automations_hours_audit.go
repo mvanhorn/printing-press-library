@@ -1,11 +1,12 @@
 // Copyright 2026 Paul Taramona and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:data-source auto
+// PATCH(novel1219-hours-audit): ported from the public library entry (Greptile PR #2450 round 2 P1).
 package cli
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -108,20 +109,15 @@ func newNovelAutomationsHoursAuditCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				raw, err := paginatedGet(ctx, c, "/automations", map[string]string{"page": "1", "per_page": "50"}, nil, true, "page", "page", "per_page", 50, "", "")
-				var paginationErr *paginationTruncationError
-				if err == nil || errors.As(err, &paginationErr) {
-					items, decodeErr := objectItems(raw, false)
-					if decodeErr != nil {
-						return outputHoursAuditFailure(cmd, flags, view, fmt.Errorf("decoding automations: %w", decodeErr))
-					}
+				// PATCH(novel1219-hours-audit): the reprint's paginatedGet reports truncation on the context instead of
+				// the public entry's typed error, so the pages are walked here with the shared progress guard.
+				items, reported, pageFailures, err := fetchHoursAuditAutomations(ctx, c)
+				if err == nil {
 					flags.agentSource = "live"
 					view.Synced = true
 					total := len(items)
-					if reported, ok := responseTotal(raw); ok {
-						total = reported
-					} else if paginationErr != nil && paginationErr.ReportedTotal > 0 {
-						total = paginationErr.ReportedTotal
+					if reported != nil {
+						total = *reported
 					}
 					view.Total = &total
 					for i, item := range items {
@@ -138,9 +134,9 @@ func newNovelAutomationsHoursAuditCmd(flags *rootFlags) *cobra.Command {
 							return outputHoursAuditFailure(cmd, flags, view, fmt.Errorf("decoding automation %s run window: %w", doc.ID, appendErr))
 						}
 					}
-					if paginationErr != nil {
+					if len(pageFailures) > 0 {
 						view.Partial = true
-						view.Failures = append(view.Failures, paginationErr.Error())
+						view.Failures = append(view.Failures, pageFailures...)
 					}
 					if view.Checked != total {
 						view.Partial = true
@@ -152,7 +148,7 @@ func newNovelAutomationsHoursAuditCmd(flags *rootFlags) *cobra.Command {
 					return outputHoursAudit(cmd, flags, view)
 				}
 				if flags.dataSource == "live" || !isNetworkError(err) {
-					return outputHoursAuditFailure(cmd, flags, view, fmt.Errorf("fetching automations: %w", err))
+					return outputHoursAuditFailure(cmd, flags, view, err)
 				}
 			}
 			path := dbPath
@@ -168,11 +164,14 @@ func newNovelAutomationsHoursAuditCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return outputHoursAuditFailure(cmd, flags, view, fmt.Errorf("opening local mirror: %w", err))
 			}
-			_, syncedAt, syncedCount, err := db.GetSyncState("automations")
+			// PATCH(novel1219-hours-audit): sync state, freshness and attempt completion come from one read through
+			// the shared mirror reader, as for the contacts mirror (novel1219 r3-r5).
+			state, err := readResourceSyncState(ctx, newMirrorReader(db.DB()), "automations")
 			if err != nil {
 				return outputHoursAuditFailure(cmd, flags, view, fmt.Errorf("checking automations sync state: %w", errorsWithClose(err, db.Close())))
 			}
-			view.Synced = !syncedAt.IsZero()
+			syncedCount := state.Total
+			view.Synced = !state.SyncedAt.IsZero()
 			if !view.Synced {
 				view.Hint = "run: conduyt-crm-pp-cli sync --resources automations --db " + path
 				closeErr := db.Close()
@@ -180,7 +179,11 @@ func newNovelAutomationsHoursAuditCmd(flags *rootFlags) *cobra.Command {
 				return outputHoursAuditFailure(cmd, flags, view, cause)
 			}
 			view.Total = &syncedCount
-			if hintIfStale(cmd, db, "automations", flags.maxAge) {
+			if !state.AttemptComplete {
+				view.Partial = true
+				view.Failures = append(view.Failures, "the last automations sync attempt did not finish")
+			}
+			if resourceMirrorOlderThan(cmd, "automations", state.SyncedAt, flags.maxAge) {
 				view.Partial = true
 				view.Failures = append(view.Failures, "local automations mirror is older than --max-age")
 			}
@@ -372,4 +375,138 @@ func outputHoursAuditFailure(cmd *cobra.Command, flags *rootFlags, view hoursAud
 		fmt.Fprintf(cmd.OutOrStdout(), "WARNING: hours audit is incomplete: %v\n", cause)
 	}
 	return classifyAPIErrorOnly(cause)
+}
+
+// fetchHoursAuditAutomations reads every page of GET /automations (per_page 50). A first-page fetch or any decode
+// failure is an error (auto falls back to the mirror only on a network error); a later page that fails, a stalled page
+// sequence, the page cap or a total that changes between pages is a failure that makes the audit partial. PATCH(novel1219-hours-audit)
+func fetchHoursAuditAutomations(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+}) ([]map[string]any, *int, []string, error) {
+	const perPage = 50
+	items := make([]map[string]any, 0)
+	var reported *int
+	var totalPresent, totalValid bool
+	var failures []string
+	progress := newPaginationProgressGuard()
+	seen := make(map[string]struct{})
+	for page := 1; ; page++ {
+		raw, err := c.Get(ctx, "/automations", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage)})
+		if err != nil {
+			if page > 1 { // as in the public entry: a later page that fails leaves a partial live answer
+				failures = append(failures, fmt.Sprintf("fetching automations page %d: %v", page, err))
+				break
+			}
+			return nil, nil, nil, fmt.Errorf("fetching automations: %w", err)
+		}
+		if err := rejectResponseErrorEnvelope(raw); err != nil {
+			return nil, nil, nil, fmt.Errorf("decoding automations page %d: %w", page, err)
+		}
+		pageItems, err := objectItems(raw, false)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("decoding automations page %d: %w", page, err)
+		}
+		// As in the public entry's paginatedGet: the first page fixes the total's state (missing, invalid or a value)
+		// and any later page whose state differs, a total that appears, disappears, turns malformed or changes, is
+		// truncation. PATCH(novel1219-hours-audit) r15
+		n, present, valid := hoursAuditPageTotal(raw)
+		if page == 1 {
+			totalPresent, totalValid = present, valid
+			if present && valid {
+				first := n
+				reported = &first
+			}
+		} else if present != totalPresent || valid != totalValid || (present && valid && reported != nil && n != *reported) {
+			prior := 0
+			if reported != nil {
+				prior = *reported
+			}
+			failures = append(failures, fmt.Sprintf("response metadata total changed from %s to %s", formatHoursAuditTotal(prior, totalPresent, totalValid), formatHoursAuditTotal(n, present, valid)))
+			break
+		}
+		repeated := ""
+		for _, id := range objectPaginationIDs(pageItems) {
+			if id == "" {
+				continue
+			}
+			if _, dup := seen[id]; dup {
+				repeated = id
+				break
+			}
+			seen[id] = struct{}{}
+		}
+		if repeated != "" { // a repeated automation means the pages overlap: the live answer is not a clean set
+			failures = append(failures, fmt.Sprintf("automations page %d repeated automation %s", page, repeated))
+			break
+		}
+		more := len(pageItems) == perPage && (reported == nil || len(items)+len(pageItems) < *reported)
+		if err := progress.observe(objectPaginationIDs(pageItems), "", more); err != nil {
+			failures = append(failures, err.Error())
+			break
+		}
+		items = append(items, pageItems...)
+		if !more {
+			break
+		}
+	}
+	return items, reported, failures, nil
+}
+
+// hoursAuditPageTotal reads a page's total the way the public entry's reportedCollectionTotal does: total,
+// total_count, totalCount, TotalCount, totalResults or Total at the root, or inside meta, pagination, paging or
+// metadata (two levels at most), after hoisting a {data:{data,meta}} envelope. present reports the key exists; valid
+// that it is a non-negative integer. PATCH(novel1219-hours-audit) r15
+func hoursAuditPageTotal(raw json.RawMessage) (n int, present, valid bool) {
+	if hoisted, ok := hoistPaginatedEnvelope(raw); ok {
+		raw = hoisted
+	}
+	var obj map[string]json.RawMessage
+	if json.Unmarshal(raw, &obj) != nil {
+		return 0, false, false
+	}
+	return hoursAuditTotalAtDepth(obj, 0)
+}
+
+func hoursAuditTotalAtDepth(obj map[string]json.RawMessage, depth int) (int, bool, bool) {
+	if obj == nil || depth > 2 {
+		return 0, false, false
+	}
+	for _, key := range []string{"total", "total_count", "totalCount", "TotalCount", "totalResults", "Total"} {
+		raw, ok := obj[key]
+		if !ok {
+			continue
+		}
+		var n json.Number
+		if json.Unmarshal(raw, &n) != nil {
+			return 0, true, false
+		}
+		if v, err := n.Int64(); err == nil && v >= 0 {
+			return int(v), true, true
+		}
+		return 0, true, false
+	}
+	for _, wrap := range []string{"meta", "pagination", "paging", "metadata"} {
+		raw, ok := obj[wrap]
+		if !ok {
+			continue
+		}
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(raw, &inner) != nil {
+			continue
+		}
+		if n, present, valid := hoursAuditTotalAtDepth(inner, depth+1); present {
+			return n, present, valid
+		}
+	}
+	return 0, false, false
+}
+
+func formatHoursAuditTotal(total int, present, valid bool) string {
+	if !present {
+		return "missing"
+	}
+	if !valid {
+		return "invalid"
+	}
+	return strconv.Itoa(total)
 }

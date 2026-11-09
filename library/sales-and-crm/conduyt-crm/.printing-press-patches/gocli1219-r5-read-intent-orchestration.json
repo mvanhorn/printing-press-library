@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "gocli1219-r5-read-intent-orchestration",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Code-orchestration POST/PUT/PATCH calls keep their read intent (Codex gocli1219-r4 P2): codeOrchInvoke dispatches every write-method call through codeOrchSendWrite, which takes the *Query* client methods (PostQueryWithParams, PostQueryWithParamsAndHeaders, the PUT/PATCH siblings, and the multipart Query siblings) when the call is not gated, i.e. reachable through conduyt-crm_read. The intent is !gated: NeedsConfirm comes from the generator's read-command classifier (endpointIsReadCommandShared), the same one that sets the direct CLI's IsReadOnly / mcp:read-only and makes it emit PostQueryWithParams; the resolved-path check can only raise it to gated. So dashboards.run.post-dashboards-id and dialer.get-token reach doInternal with readOnlyIntent=true. Gated calls (mutations by intent) keep Post/PostWithHeaders/PostMultipartWithHeaders and the PUT/PATCH equivalents exactly as before, so the r4 keyed no-reuse rule is untouched. client.go gains PostQueryMultipartWithParamsAndHeaders, mirroring PutQueryMultipartWithParamsAndHeaders, so every dispatched shape has a Query sibling.",
+  "reason": "r4 routed all code-orchestration POSTs through Post/PostWithHeaders, so the two read-only POSTs were verify-mode short-circuited, lost safe retries, used the mutation transport and invalidated the response cache, unlike the direct CLI.",
+  "files": [
+    "internal/mcp/code_orch.go",
+    "internal/client/client.go",
+    "internal/mcp/code_orch_read_intent_r5_test.go"
+  ],
+  "markers": [
+    "gocli1219 r5"
+  ],
+  "validated_outcome": "TestCodeOrchWriteMethodFollowsIntentForEveryEndpoint walks all 974 endpoints (461 POST/PUT/PATCH; 2 read by intent go to Query, 459 to the mutation methods, with and without headers) and cross-checks every one against the direct CLI command's mcp:read-only for the same method and path. TestCodeOrchReadIntentPOSTRunsInVerifyMode, ...RetriesATransientFailure and ...DoesNotInvalidateTheCache (both endpoints through conduyt-crm_read) fail with the r4 routing and pass; TestCodeOrchMutationPOSTKeepsMutationIntent (contacts.create through conduyt-crm_execute: verify short-circuit, no retry, cache evicted) passes on both."
+}

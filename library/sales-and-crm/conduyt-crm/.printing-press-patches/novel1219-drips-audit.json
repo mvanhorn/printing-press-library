@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-drips-audit",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "drips audit groups outbound SMS by contact and the FULL message body; the 80-character head is display only. Round 4 (Codex novel1219-r3): the command carries the runtime pp:data-source=local annotation matching its comment, so root rejects --data-source live before any store access.",
+  "reason": "Greptile round 1 on PR #2450 (P1): grouping by the first 80 characters reported two different messages with a shared introduction as a double send (exit 2). drips audit has no counterpart in the public entry, so this is the reprint's command fixed in place.",
+  "files": [
+    "internal/cli/drips_audit.go",
+    "internal/cli/novel1219_regressions_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-drips-audit)"
+  ],
+  "validated_outcome": "TestNovel1219DripsAuditGroupsByTheFullBody flags only the contact that received the same full body twice. Round 4: TestNovel1219DripsAuditRejectsDataSourceLiveBeforeTheStore."
+}

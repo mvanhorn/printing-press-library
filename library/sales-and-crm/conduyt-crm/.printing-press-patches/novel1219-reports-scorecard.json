@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-reports-scorecard",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "reports scorecard is the public entry's command unchanged: the aligned UTC day/week/month/quarter period containing --as-of (a supplied --range or --from/--to must be exactly one aligned period), targets from GET /reports/targets joined to GET /reports/agent-performance, attainment and pace per user and metric, other-period targets counted under skipped_targets, a --limit cap is partial (exit 5).",
+  "reason": "Greptile round 2 on PR #2450 (P1): the 4.34.2 reprint removed four published commands the public entry serves today (reports compare, reports scorecard, dialer coverage, automations hours-audit). Orchestrator default (Paul's answer pending, draft PR): port them back from the public entry.",
+  "files": [
+    "internal/cli/reports_scorecard.go",
+    "internal/cli/reports_scorecard_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-reports-scorecard)"
+  ],
+  "validated_outcome": "The public entry's reports_scorecard_test.go passes unchanged."
+}

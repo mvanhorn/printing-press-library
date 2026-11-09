@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "nested-required-flags-637",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "A property required INSIDE an optional nested body object is checked only when a flag of that object group was passed (nestedFlagGroupChanged), so bare `settings update` flags, `conduyt-auth logout`, `screen-share delete-session-code <code>` and the other generated commands with optional nested objects are not refused locally; `conduyt-auth logout` keeps running bare (no help guard) and `--marks-drew 0` / `--screen-share-marks-drew 0` are sent.",
+  "reason": "Printing Press 4.28.0 turns every nested `required` into an always-required flag. On the full public document that made `conduyt-auth logout` and `screen-share delete-session-code` unusable without screen-share flags the API does not require, and `settings update` required 19 nested flags.",
+  "files": [
+    "internal/cli/nested_required_flags.go",
+    "internal/cli/nested_required_flags_test.go",
+    "internal/cli/settings_update.go",
+    "internal/cli/conduyt-auth_logout.go",
+    "internal/cli/screen-share_delete-session-code.go",
+    "internal/cli/ai_post-insights.go",
+    "internal/cli/call-flows_post.go",
+    "internal/cli/integrations_put-mailchimp-settings.go"
+  ],
+  "validated_outcome": "Bare delete-session-code and logout send no nested object; one flag of a group without its required sibling is refused before any request; a full group sends drew 0. TestNestedRequiredFlagsOnlyWhenTheObjectIsSent.",
+  "upstream_issue": "To file against mvanhorn/cli-printing-press: a nested required list applies only when its parent object is present; int fields of a nested object are sent when Changed, not when non-zero."
+}

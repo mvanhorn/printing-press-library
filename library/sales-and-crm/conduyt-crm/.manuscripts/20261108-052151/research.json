@@ -1,0 +1,313 @@
+{
+  "api_name": "conduyt-crm",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "conduyt-mcp",
+      "url": "https://github.com/ptaramona/conduyt-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 107,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "conduyt-crm-cli (prior print)",
+      "url": "https://github.com/ptaramona/conduyt-crm-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 418,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-12T00:54:28Z",
+  "novel_features": [
+    {
+      "name": "Send-safety check",
+      "command": "send-check",
+      "description": "Go/no-go verdict on a list, tag, or contact before any SMS or drip: phone present, Twilio-verified line type, Twilio validity, and DNC status in one table (see imports blame for an import's side effects).",
+      "rationale": "Requires joining local contacts, DNC records, and delivery outcomes — no single API call returns the composite verdict.",
+      "example": "conduyt-crm-pp-cli send-check --tag kloudi-july --agent",
+      "why_it_matters": "Run it before acting on any 'text this list' instruction — it is the anti-Kloudi gate.",
+      "group": "Kloudi-grade send safety"
+    },
+    {
+      "name": "Import delivery blame",
+      "command": "imports blame",
+      "description": "For one import job: every error row grouped by reason, plus the job-scoped side effects (queued, retryable, exhausted, held).",
+      "rationale": "Reads an import's error rows and its job-scoped side-effect counters from the API; the app shows each piece on a different screen.",
+      "example": "conduyt-crm-pp-cli imports blame 3f2a9c1e-0000-0000-0000-000000000000 --json",
+      "why_it_matters": "Answers 'which rows of the Tuesday import failed, and are its side effects still queued or held?' in one call after any bulk push.",
+      "group": "Kloudi-grade send safety"
+    },
+    {
+      "name": "Import watcher",
+      "command": "imports watch",
+      "description": "Polls an import job to completion, then renders the row-outcome recap (created/updated/skipped/errors) and, with --verify, checks its job-scoped side effects.",
+      "rationale": "Chains job polling, the launch monitor, and the job-scoped side-effects check into one cron-safe command.",
+      "example": "conduyt-crm-pp-cli imports watch 3f2a9c1e-0000-0000-0000-000000000000 --verify",
+      "why_it_matters": "Drop it into n8n or cron and alert on bad imports instead of discovering them hours later.",
+      "group": "Kloudi-grade send safety"
+    },
+    {
+      "name": "Verification cost estimate",
+      "command": "contacts verify-line-type",
+      "description": "Counts unverified contacts and prints the tenant-paid Twilio cost without spending (--estimate); 'run --until-done' with one scope (--smart-list or --contact-ids) drives the batched verification to done. Requires the account's Phone Line-Type Verification setting (403 'not enabled' otherwise).",
+      "rationale": "Local pre-count over synced contacts; the API cannot answer it without paging the whole tenant.",
+      "example": "conduyt-crm-pp-cli contacts verify-line-type --smart-list 7c1d2e3f-0000-0000-0000-000000000000 --estimate",
+      "why_it_matters": "Know the dollar exposure before spending it; then run 'contacts verify-line-type run --until-done --smart-list <uuid>' (or --contact-ids <uuid,...>) to verify.",
+      "group": "Kloudi-grade send safety"
+    },
+    {
+      "name": "Drip ledger audit",
+      "command": "drips audit",
+      "description": "Flags duplicate sends in a window: any contact who received the same message body more than once, from the local store.",
+      "rationale": "Mechanically enforces the at-most-once SMS protocol via a local cross-table join.",
+      "example": "conduyt-crm-pp-cli drips audit 9b8c7d6e-0000-0000-0000-000000000000 --json",
+      "why_it_matters": "Proves a drip cohort fired exactly once per contact — or names the exceptions.",
+      "group": "Kloudi-grade send safety"
+    },
+    {
+      "name": "Report scorecard",
+      "command": "reports scorecard",
+      "description": "Target versus actual per user and metric with attainment percent and pace to the end of the period.",
+      "rationale": "Joins /reports/targets to /reports/agent-performance for one aligned period; no single route returns attainment and pace.",
+      "example": "conduyt-crm-pp-cli reports scorecard --period month --agent",
+      "why_it_matters": "Pick it when asked who is on pace, off pace, or how far from target a rep is.",
+      "group": "Reports as commands"
+    },
+    {
+      "name": "Report compare",
+      "command": "reports compare",
+      "description": "Any core report called for a window and the equal prior window, with prior, current, delta and delta percent on every numeric value.",
+      "rationale": "Calls the same report twice for equal windows and diffs every comparable numeric value; the app shows one window at a time.",
+      "example": "conduyt-crm-pp-cli reports compare speed-to-lead --range 7d --json",
+      "why_it_matters": "Use it to explain why a number moved week over week without pulling both reports by hand.",
+      "group": "Reports as commands"
+    },
+    {
+      "name": "Automation hours audit",
+      "command": "automations hours-audit",
+      "description": "Every Send SMS, Send Email and Assign step across synced automations, listed with or without an operating-hours window.",
+      "rationale": "Walks every automation graph's action nodes for a run window; the API returns one automation at a time.",
+      "example": "conduyt-crm-pp-cli automations hours-audit --published-only --json",
+      "why_it_matters": "Use it to confirm quiet-hours coverage after a publish or when compliance asks which steps can fire after hours.",
+      "group": "Reports as commands"
+    },
+    {
+      "name": "Dialer coverage",
+      "command": "dialer coverage",
+      "description": "Priorities in dial order with queue depth per priority and the count of available agents; empty priorities are listed under empty_priorities with a warning (exit 0).",
+      "rationale": "Joins the dial order, one queue read per priority and agent status into one account-wide picture.",
+      "example": "conduyt-crm-pp-cli dialer coverage --limit 25 --agent",
+      "why_it_matters": "Run it before the floor starts to see what Smart Dialing will hand out next and where a priority has run dry.",
+      "group": "Dialer operations"
+    },
+    {
+      "name": "Local analytics",
+      "command": "analytics",
+      "description": "GROUP BY over synced entities — segment counts without paging the API (--type/--group-by/--limit).",
+      "rationale": "200k contacts behind 30-60/min rate limits make API-side aggregation impractical; the local store answers instantly.",
+      "example": "conduyt-crm-pp-cli analytics --type contacts --group-by lineType --agent",
+      "why_it_matters": "The fast path for 'how many contacts are X' questions agents ask constantly.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Live event follow",
+      "command": "tail",
+      "description": "Interval polling over a resource that re-emits current results as JSON — watch messages or activities as a blast goes out.",
+      "rationale": "Incremental polling with cursor state; a one-shot GET cannot stream deltas.",
+      "example": "conduyt-crm-pp-cli tail messages --interval 5s --agent",
+      "why_it_matters": "Confirm automation side effects and outbound sends as they happen.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Send-safety check",
+      "command": "send-check",
+      "description": "Go/no-go verdict on a list, tag, or contact before any SMS or drip: phone present, Twilio-verified line type, Twilio validity, and DNC status in one table (see imports blame for an import's side effects).",
+      "rationale": "Requires joining local contacts, DNC records, and delivery outcomes — no single API call returns the composite verdict.",
+      "example": "conduyt-crm-pp-cli send-check --tag kloudi-july --agent",
+      "why_it_matters": "Run it before acting on any 'text this list' instruction — it is the anti-Kloudi gate.",
+      "group": "Kloudi-grade send safety"
+    },
+    {
+      "name": "Import delivery blame",
+      "command": "imports blame",
+      "description": "For one import job: every error row grouped by reason, plus the job-scoped side effects (queued, retryable, exhausted, held).",
+      "rationale": "Reads an import's error rows and its job-scoped side-effect counters from the API; the app shows each piece on a different screen.",
+      "example": "conduyt-crm-pp-cli imports blame 3f2a9c1e-0000-0000-0000-000000000000 --json",
+      "why_it_matters": "Answers 'which rows of the Tuesday import failed, and are its side effects still queued or held?' in one call after any bulk push.",
+      "group": "Kloudi-grade send safety"
+    },
+    {
+      "name": "Import watcher",
+      "command": "imports watch",
+      "description": "Polls an import job to completion, then renders the row-outcome recap (created/updated/skipped/errors) and, with --verify, checks its job-scoped side effects.",
+      "rationale": "Chains job polling, the launch monitor, and the job-scoped side-effects check into one cron-safe command.",
+      "example": "conduyt-crm-pp-cli imports watch 3f2a9c1e-0000-0000-0000-000000000000 --verify",
+      "why_it_matters": "Drop it into n8n or cron and alert on bad imports instead of discovering them hours later.",
+      "group": "Kloudi-grade send safety"
+    },
+    {
+      "name": "Verification cost estimate",
+      "command": "contacts verify-line-type",
+      "description": "Counts unverified contacts and prints the tenant-paid Twilio cost without spending (--estimate); 'run --until-done' with one scope (--smart-list or --contact-ids) drives the batched verification to done. Requires the account's Phone Line-Type Verification setting (403 'not enabled' otherwise).",
+      "rationale": "Local pre-count over synced contacts; the API cannot answer it without paging the whole tenant.",
+      "example": "conduyt-crm-pp-cli contacts verify-line-type --smart-list 7c1d2e3f-0000-0000-0000-000000000000 --estimate",
+      "why_it_matters": "Know the dollar exposure before spending it; then run 'contacts verify-line-type run --until-done --smart-list <uuid>' (or --contact-ids <uuid,...>) to verify.",
+      "group": "Kloudi-grade send safety"
+    },
+    {
+      "name": "Drip ledger audit",
+      "command": "drips audit",
+      "description": "Flags duplicate sends in a window: any contact who received the same message body more than once, from the local store.",
+      "rationale": "Mechanically enforces the at-most-once SMS protocol via a local cross-table join.",
+      "example": "conduyt-crm-pp-cli drips audit 9b8c7d6e-0000-0000-0000-000000000000 --json",
+      "why_it_matters": "Proves a drip cohort fired exactly once per contact — or names the exceptions.",
+      "group": "Kloudi-grade send safety"
+    },
+    {
+      "name": "Report scorecard",
+      "command": "reports scorecard",
+      "description": "Target versus actual per user and metric with attainment percent and pace to the end of the period.",
+      "rationale": "Joins /reports/targets to /reports/agent-performance for one aligned period; no single route returns attainment and pace.",
+      "example": "conduyt-crm-pp-cli reports scorecard --period month --agent",
+      "why_it_matters": "Pick it when asked who is on pace, off pace, or how far from target a rep is.",
+      "group": "Reports as commands"
+    },
+    {
+      "name": "Report compare",
+      "command": "reports compare",
+      "description": "Any core report called for a window and the equal prior window, with prior, current, delta and delta percent on every numeric value.",
+      "rationale": "Calls the same report twice for equal windows and diffs every comparable numeric value; the app shows one window at a time.",
+      "example": "conduyt-crm-pp-cli reports compare speed-to-lead --range 7d --json",
+      "why_it_matters": "Use it to explain why a number moved week over week without pulling both reports by hand.",
+      "group": "Reports as commands"
+    },
+    {
+      "name": "Automation hours audit",
+      "command": "automations hours-audit",
+      "description": "Every Send SMS, Send Email and Assign step across synced automations, listed with or without an operating-hours window.",
+      "rationale": "Walks every automation graph's action nodes for a run window; the API returns one automation at a time.",
+      "example": "conduyt-crm-pp-cli automations hours-audit --published-only --json",
+      "why_it_matters": "Use it to confirm quiet-hours coverage after a publish or when compliance asks which steps can fire after hours.",
+      "group": "Reports as commands"
+    },
+    {
+      "name": "Dialer coverage",
+      "command": "dialer coverage",
+      "description": "Priorities in dial order with queue depth per priority and the count of available agents; empty priorities are listed under empty_priorities with a warning (exit 0).",
+      "rationale": "Joins the dial order, one queue read per priority and agent status into one account-wide picture.",
+      "example": "conduyt-crm-pp-cli dialer coverage --limit 25 --agent",
+      "why_it_matters": "Run it before the floor starts to see what Smart Dialing will hand out next and where a priority has run dry.",
+      "group": "Dialer operations"
+    },
+    {
+      "name": "Local analytics",
+      "command": "analytics",
+      "description": "GROUP BY over synced entities — segment counts without paging the API (--type/--group-by/--limit).",
+      "rationale": "200k contacts behind 30-60/min rate limits make API-side aggregation impractical; the local store answers instantly.",
+      "example": "conduyt-crm-pp-cli analytics --type contacts --group-by lineType --agent",
+      "why_it_matters": "The fast path for 'how many contacts are X' questions agents ask constantly.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Live event follow",
+      "command": "tail",
+      "description": "Interval polling over a resource that re-emits current results as JSON — watch messages or activities as a blast goes out.",
+      "rationale": "Incremental polling with cursor state; a one-shot GET cannot stream deltas.",
+      "example": "conduyt-crm-pp-cli tail messages --interval 5s --agent",
+      "why_it_matters": "Confirm automation side effects and outbound sends as they happen.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Conduyt CRM",
+    "headline": "Full-coverage Conduyt CLI: every endpoint, plus Kloudi-grade send-safety forensics no other surface has.",
+    "value_prop": "Full coverage of the Conduyt CRM API with a local SQLite store, offline search, and agent-native output. On top of the mirror: send-check, imports blame, imports watch, reports scorecard, reports compare, automations hours-audit and dialer coverage — the commands that answer 'is this list safe to text?', 'what did that import actually do?', 'who is on pace?' and 'what will the dialer hand out next?' in one call.",
+    "quickstart": [
+      {
+        "command": "conduyt-crm-pp-cli doctor",
+        "comment": "Verify your cdy_ API key and connectivity first"
+      },
+      {
+        "command": "conduyt-crm-pp-cli sync --full",
+        "comment": "Pull contacts, deals, and imports into the local store"
+      },
+      {
+        "command": "conduyt-crm-pp-cli send-check --tag new-leads",
+        "comment": "The anti-Kloudi gate: is this segment safe to message?"
+      },
+      {
+        "command": "conduyt-crm-pp-cli reports get-sms-delivery --json",
+        "comment": "What the SMS provider did with your drips, and why"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 'scope not permitted' on a command",
+        "fix": "Your cdy_ key lacks that domain scope — an admin grants it in Settings > API Keys (dnc and dialer require explicit scopes)."
+      },
+      {
+        "symptom": "verify-line-type returns 403 'not enabled'",
+        "fix": "Enable Phone Line-Type Verification in Settings > Twilio first (tenant-paid feature, default off)."
+      },
+      {
+        "symptom": "429 rate limit on bulk reads",
+        "fix": "Run 'sync' once and query the local store (search/sql/analytics) instead of paging the API."
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever an agent or operator works Conduyt CRM data: contact and deal CRUD, import safety (preflight, watch, blame), the account-wide SMS delivery report (reports get-sms-delivery), and line-type verification. Prefer the local-store commands (search, sql, analytics, send-check) for read-heavy questions — they avoid rate limits entirely.",
+    "recipes": [
+      {
+        "title": "Kloudi-safe bulk import",
+        "command": "conduyt-crm-pp-cli imports watch \"$JOB\" --verify",
+        "explanation": "Watch an import job to completion, then render the outcome recap and verify the job-scoped side effects, with typed exit codes (preflight the file first via imports post-preflight --stdin)."
+      },
+      {
+        "title": "Blame a bad blast",
+        "command": "conduyt-crm-pp-cli imports blame \"$JOB\" --agent --select row_outcomes,errors_by_reason",
+        "explanation": "Group an import's error rows by reason and read its job-scoped side effects (queued, retryable, exhausted, held)."
+      },
+      {
+        "title": "Segment safety audit",
+        "command": "conduyt-crm-pp-cli send-check --tag q3-cohort --agent --select summary",
+        "explanation": "Bounded agent-shaped go/no-go summary; drill in with --select verdicts.contact_id,verdicts.verdict."
+      },
+      {
+        "title": "Why did speed to lead move?",
+        "command": "conduyt-crm-pp-cli reports compare speed-to-lead --range 7d --agent --select rows.metric,rows.prior,rows.current,rows.delta_pct",
+        "explanation": "The equal prior window is computed for you and every numeric value carries its delta."
+      },
+      {
+        "title": "Who is on pace this month?",
+        "command": "conduyt-crm-pp-cli reports scorecard --period month --agent --select rows.user_id,rows.metric,rows.target,rows.actual,rows.attainment_pct",
+        "explanation": "Targets joined to agent performance, narrowed to the columns an agent needs."
+      },
+      {
+        "title": "What will the dialer hand out next?",
+        "command": "conduyt-crm-pp-cli dialer coverage --agent",
+        "explanation": "Priorities in dial order with queue depth and available agents."
+      }
+    ],
+    "trigger_phrases": [
+      "is this list safe to text",
+      "why did that import fail",
+      "verify phone line types",
+      "check the sms delivery report",
+      "preflight this import",
+      "use conduyt-crm",
+      "run conduyt-crm"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-dialer-coverage",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "dialer coverage is the public entry's command: GET /smart-views/dial-order, one GET /dialer/queue per priority (4 workers, --limit per priority, a capped or failed queue makes the answer partial, exit 5), GET /dialer/agents-status for available agents; empty priorities are listed with a warning (exit 0). Its unmarshalDataList and decodeDialOrder are carried; rejectResponseErrorEnvelope is the shared copy in novel_port_helpers.go (identical body).",
+  "reason": "Greptile round 2 on PR #2450 (P1): the 4.34.2 reprint removed four published commands the public entry serves today (reports compare, reports scorecard, dialer coverage, automations hours-audit). Orchestrator default (Paul's answer pending, draft PR): port them back from the public entry.",
+  "files": [
+    "internal/cli/dialer_coverage.go",
+    "internal/cli/dialer_coverage_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-dialer-coverage)"
+  ],
+  "validated_outcome": "The public entry's dialer_coverage_test.go passes unchanged."
+}

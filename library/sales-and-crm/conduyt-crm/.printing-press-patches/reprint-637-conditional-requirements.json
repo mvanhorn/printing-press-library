@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "reprint-637-conditional-requirements",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Pre-request checks the public document cannot express (it types the inputs optional): `conduyt-auth delete-sessions` needs exactly one of --id <session> or --scope others; `users notifications update-user-preferences` needs --preferences, --sounds-team-chat, or both (unless --stdin). Each is a usage error (exit 2) before any request; bare delete-sessions prints help. Checks live in internal/cli/conditional_requirements.go plus one call per command. Under the global --dry-run a MISSING input is not an error (the preview prints, as for every generated required flag); a passed-but-wrong value still is (r2). An empty or blank --preferences is a usage error (the serializer would drop it and send {}) (r2 P3).",
+  "reason": "The old prints had them as generator-emitted required-flag checks (the earlier spec marked id and preferences required); the 86cb86329 document made id optional beside the new scope and preferences optional beside the new sounds, so the fresh generator dropped them (Codex reprint637-r1 P2). Source: the generator, not a ledger entry.",
+  "files": [
+    "internal/cli/conditional_requirements.go",
+    "internal/cli/conduyt-auth_delete-sessions.go",
+    "internal/cli/users_notifications_update-user-preferences.go",
+    "internal/cli/reprint637_r1_compat_test.go",
+    "internal/cli/reprint637_r2_test.go"
+  ],
+  "validated_outcome": "TestDeleteSessionsNeedsExactlyOneTarget and TestUpdateUserPreferencesNeedsPreferencesOrSounds: refusals send zero requests, the valid forms send the expected query or body; both fail at 401de41. TestConditionalRequirementsLetTheDryRunPreviewPrint: --dry-run with no inputs prints the preview and sends nothing on both commands; --dry-run --scope all is still exit 2. TestEmptyPreferencesIsRefused."
+}

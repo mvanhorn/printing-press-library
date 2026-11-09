@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-hours-audit",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "automations hours-audit is the public entry's command (Send SMS, Send Email and Assign steps with or without a run window; --published-only with summary.unpublished; auto reads live and falls back to the mirror only on a network error). Two changes: (1) the reprint's paginatedGet marks truncation on the context instead of returning the public typed paginationTruncationError, so GET /automations is walked here (per_page 50) with the shared progress guard: a later page that fails, a repeated automation, the page cap or a total that changes between pages makes the live answer partial (exit 5), a first-page network error under auto falls back to the mirror; (2) hardened like the contacts mirror (novel1219 r3-r5): the mirror's sync state, freshness and attempt completion come from one read through the shared mirror reader, and an unfinished last sync attempt makes the local answer partial. Round 15 (Codex novel1219-r14 P2): the page walk tracks the total's state as the public paginatedGet does: page 1 fixes it (missing, invalid or a value, read from the same keys and wrappers as the public reportedCollectionTotal), and a later page whose total disappears, turns malformed or negative, appears where page 1 had none, or changes value is truncation (partial, exit 5, 'response metadata total changed from X to Y').",
+  "reason": "Greptile round 2 on PR #2450 (P1): the 4.34.2 reprint removed four published commands the public entry serves today (reports compare, reports scorecard, dialer coverage, automations hours-audit). Orchestrator default (Paul's answer pending, draft PR): port them back from the public entry.",
+  "files": [
+    "internal/cli/automations_hours_audit.go",
+    "internal/cli/automations_hours_audit_test.go",
+    "internal/cli/novel1219_restored_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-hours-audit)"
+  ],
+  "validated_outcome": "The public entry's automations_hours_audit_test.go passes, minus its three paginatedGet helper tests (that helper is not in the reprint), which TestNovel1219HoursAuditLivePageWalk re-pins against the page walk (full pages, absent totals, a changing total, a repeated automation); TestNovel1219HoursAuditUnfinishedSyncAttemptIsPartial passes. Round 15: TestNovel1219HoursAuditLivePageWalk adds 'disappears on a later page', 'turns malformed', 'negative', and 'appears after a page without one' (red on b339e1c, green after)."
+}

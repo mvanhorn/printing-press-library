@@ -39,7 +39,7 @@ func TestNovelReportsCompareBehavior(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls++
 		q := r.URL.Query()
-		if r.URL.Path != "/reports/funnel" || q.Get("pipelineId") != "p1" || q.Get("assignedTo") != "u1" {
+		if r.URL.Path != "/reports/funnel" || q.Get("pipelineId") != "p1" || q.Has("assignedTo") { // PATCH(novel1219-reports-compare): funnel has no assignee filter
 			t.Errorf("request=%s?%s", r.URL.Path, r.URL.RawQuery)
 		}
 		switch q.Get("from") {
@@ -63,7 +63,7 @@ func TestNovelReportsCompareBehavior(t *testing.T) {
 	flags := &rootFlags{asJSON: true}
 	cmd := newNovelReportsCompareCmd(flags)
 	cmd.SilenceUsage = true
-	cmd.SetArgs([]string{"funnel", "--from", "2026-09-10", "--to", "2026-09-20", "--pipeline", "p1", "--assigned-to", "u1"})
+	cmd.SetArgs([]string{"funnel", "--from", "2026-09-10", "--to", "2026-09-20", "--pipeline", "p1"})
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&bytes.Buffer{})

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "gocli1219-live-gate-fixtures",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "One table (internal/cli/live_gate_fixtures.go, applied at the end of newRootCmd) carries the command metadata the live matrix reads, so generated files stay as printed: pp:typed-exit-codes for documented errors of workspace-off features or by-design answers (chat get-agents 404 ai_teammates_off, scim get-v2-users / sso get-connection / sso get-scim-tokens 404, settings get-project-blue-lines 409 not_configured, conduyt-auth read-sso-signup-consent 410, chat get-agents-me-mcp 405, companies/deals get-export --json refused with 2); pp:happy-args with real inputs (dialer get-inbound-lookup --phone, emails get-sequences-senders --channel=email, imports blame/watch --latest, tail messages, contacts verify-line-type --estimate with pp:preview-happy-path); help examples for drips, users, push unsubscribe and a parseable me put-my-email-signature example.",
+  "reason": "Demo-workspace gaps (triage class b) and placeholder inputs are not CLI defects; the press's own annotations declare them without weakening any check (a declared non-zero exit is recorded as a skip, never a pass).",
+  "files": [
+    "internal/cli/live_gate_fixtures.go",
+    "internal/cli/root.go",
+    "internal/cli/live_gate_defects_test.go"
+  ],
+  "markers": [
+    "PATCH(gocli1219-live-gate-fixtures)"
+  ],
+  "validated_outcome": "TestLiveGateFixturesTargetExistingCommands fails when a listed path is renamed or dropped."
+}

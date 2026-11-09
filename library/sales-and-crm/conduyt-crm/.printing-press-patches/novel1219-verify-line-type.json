@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-verify-line-type",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "contacts verify-line-type is the public entry's split: the bare command is a read-only estimate that uses the contacts mirror only when it is synced, its decoded row count matches the sync total and it is fresher than --max-age, otherwise counts live (GET /contacts, per_page 200, progress guard, 100-page cap, meta.total cross-check), and reports an incomplete count as a partial lower bound with exit 5; the paid loop is 'run --until-done', which validates done/verified/remaining/byLineType on every batch, refuses done with remaining, and stops when remaining fails to decrease. Kept from the reprint: --contact-ids (now on run, exclusive with --smart-list) and the --dry-run object. Round 2 (Codex novel1219-r1 P2): the estimate follows --data-source; a smart-list estimate is always live; under auto a stale, incomplete or unsynced mirror is replaced by a live count (not only flagged), under local it is a partial lower bound (exit 5); every batch must carry byLineType. Round 3 (Codex novel1219-r2): an unfinished sync attempt is not a mirror; a smart-list estimate never suggests a sync (auto counts live with no hint, local says to use live or auto). Round 4 (Codex novel1219-r3): every local read stage funnels into one 'the local mirror is unusable' reason: auto counts live, local is a lower bound (exit 5); nothing counted before the failure is reported under auto. Round 5 (Codex novel1219-r4): the estimate reads sync state and freshness through the mirror reader too; the paid loop follows the route contract (operation postContactsVerifyLineType): exactly one scope, --smart-list a UUID or --contact-ids 1 to 50,000 UUIDs, validated before any request; the body carries only that scope; the run Examples (the first is the live matrix happy path) carry a scope; pp:happy-args stays the single flag --until-done.",
+  "reason": "Greptile round 1 on PR #2450 (P2 x2): the reprint's estimate counted whatever the store held without sync or freshness checks, and its paid loop neither validated batches nor stopped on no progress.",
+  "files": [
+    "internal/cli/contacts_verify_line_type.go",
+    "internal/cli/contacts_verify_line_type_test.go",
+    "internal/cli/novel1219_regressions_test.go",
+    "internal/cli/live_gate_defects_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-verify-line-type)"
+  ],
+  "validated_outcome": "The public entry's contacts_verify_line_type_test.go plus TestNovel1219VerifyLineTypeEstimateNeverTrustsAnUnsyncedMirror, TestNovel1219VerifyLineTypeRunStopsOnAnInvalidOrStalledBatch, TestNovel1219VerifyLineTypeRunSendsContactIDs and TestVerifyLineTypeEstimateUnderDryRunCarriesTheMarker pass. Round 2: TestNovel1219VerifyLineTypeEstimateSourceRules and TestNovel1219VerifyLineTypeRunRequiresByLineType; the public estimate tests that read a stale or mismatched mirror run under --data-source local. Round 3: TestNovel1219InterruptedSyncIsNotAMirror, TestNovel1219SmartListEstimateHintNamesARealAction. Round 4: TestNovel1219EveryLocalReadStageFailureFallsBackLive. Round 5: TestNovel1219VerifyLineTypeRunFollowsTheRouteContract (reads spec.yaml) and the sync-state fault stage."
+}

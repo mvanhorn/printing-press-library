@@ -1,5 +1,6 @@
 // Copyright 2026 Paul Taramona and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:data-source live
+// PATCH(novel1219-reports-scorecard): ported from the public library entry (Greptile PR #2450 round 2 P1).
 package cli
 
 import (

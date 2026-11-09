@@ -14,46 +14,35 @@ import (
 )
 
 func newEmailSendBulkCmd(flags *rootFlags) *cobra.Command {
-	var bodyBody string
-	var bodyBodyHtml string
 	var bodyContactIds string
 	var bodySubject string
+	var bodyText string
+	var bodyHtml string
+	var bodyTemplateId string
+	var bodySubjectEdited bool
+	var bodyReplyTo string
+	var bodySendDomainId string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:   "send-bulk",
 		Short: "Send bulk emails",
-		// TODO: replace placeholder example values before relying on this for live dogfood.
-		Example:     "  conduyt-crm-pp-cli email send-bulk --body example-value",
-		Annotations: map[string]string{"pp:endpoint": "email.send-bulk", "pp:method": "POST", "pp:path": "/email/send-bulk", "pp:requires-input": "true"},
+		Long: `Sends one email to each listed contact. A subject and a body (--html or --text) are required unless --template-id names an
+email template, whose subject and HTML fill what is omitted. With --stdin the JSON object is sent as given, but only the keys
+this endpoint accepts: contactIds, subject, text, html, templateId, subjectEdited, batchDelayMs, replyTo, sendDomainId. Any
+other key is refused locally and nothing is sent.`,
+		Example:     "  conduyt-crm-pp-cli email send-bulk --contact-ids 3f2c1a5e-0000-4000-8000-000000000001,3f2c1a5e-0000-4000-8000-000000000002 --subject \"Update\" --html \"<p>Hello</p>\"",
+		Annotations: map[string]string{"pp:endpoint": "email.send-bulk", "pp:method": "POST", "pp:path": "/email/send-bulk"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			// Machine callers (--json/--agent, which sets asJSON) get a usage
-			// error + exit 2 instead of silent exit-0 help, so an incomplete
-			// invocation is never mistaken for success.
-			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
-				if flags.asJSON {
-					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"error": "requires input",
-						"usage": cmd.CommandPath() + " --help",
-					}, flags); printErr != nil {
-						return printErr
-					}
-					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
-				}
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 {
 				return cmd.Help()
 			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("body") && bodyBody == "" && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "body")
-				}
-				if !cmd.Flags().Changed("contact-ids") && bodyContactIds == "" && !flags.dryRun {
+				if !cmd.Flags().Changed("contact-ids") {
 					return fmt.Errorf("required flag \"%s\" not set", "contact-ids")
-				}
-				if !cmd.Flags().Changed("subject") && bodySubject == "" && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "subject")
 				}
 			}
 			path := "/email/send-bulk"
@@ -64,7 +53,7 @@ func newEmailSendBulkCmd(flags *rootFlags) *cobra.Command {
 			params := map[string]string{}
 			var body any
 			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
+				stdinData, err := io.ReadAll(cmd.InOrStdin())
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
@@ -72,25 +61,56 @@ func newEmailSendBulkCmd(flags *rootFlags) *cobra.Command {
 				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
 					return fmt.Errorf("parsing stdin JSON: %w", err)
 				}
+				// Hand-written (Go CLI #324): only the keys the endpoint declares; see cliutil/email_send_guards.go.
+				if err := cliutil.CheckEmailSendBodyKeys("email.send-bulk", jsonBody); err != nil {
+					return err
+				}
 				body = jsonBody
 			} else {
 				bodyMap := map[string]any{}
 				body = bodyMap
-				if cmd.Flags().Changed("body") || bodyBody != "" {
-					bodyMap["body"] = bodyBody
-				}
-				if cmd.Flags().Changed("body-html") || bodyBodyHtml != "" {
-					bodyMap["bodyHtml"] = bodyBodyHtml
-				}
 				if cmd.Flags().Changed("contact-ids") {
 					parsedContactIds, parseErr := cliutil.ParseStringList(bodyContactIds)
 					if parseErr != nil {
 						return fmt.Errorf("parsing --contact-ids list: %w", parseErr)
 					}
+					for _, id := range parsedContactIds {
+						if err := cliutil.CheckUUID("--contact-ids entry", id); err != nil {
+							return err
+						}
+					}
 					bodyMap["contactIds"] = parsedContactIds
 				}
-				if cmd.Flags().Changed("subject") || bodySubject != "" {
+				if cmd.Flags().Changed("subject") {
 					bodyMap["subject"] = bodySubject
+				}
+				if cmd.Flags().Changed("text") {
+					bodyMap["text"] = bodyText
+				}
+				if cmd.Flags().Changed("html") {
+					bodyMap["html"] = bodyHtml
+				}
+				if cmd.Flags().Changed("template-id") {
+					if err := cliutil.CheckUUID("--template-id", bodyTemplateId); err != nil {
+						return err
+					}
+					bodyMap["templateId"] = bodyTemplateId
+				}
+				if cmd.Flags().Changed("subject-edited") {
+					bodyMap["subjectEdited"] = bodySubjectEdited
+				}
+				if cmd.Flags().Changed("reply-to") {
+					// reprint637: the public send-bulk body now declares the replyTo pattern; refused locally like `email send`
+					if err := cliutil.CheckEmailSendBulkReplyTo(bodyReplyTo); err != nil {
+						return usageErr(err)
+					}
+					bodyMap["replyTo"] = bodyReplyTo
+				}
+				if cmd.Flags().Changed("send-domain-id") {
+					if err := cliutil.CheckEmailSendBulkSendDomainID(bodySendDomainId); err != nil {
+						return usageErr(err)
+					}
+					bodyMap["sendDomainId"] = bodySendDomainId
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -188,20 +208,15 @@ func newEmailSendBulkCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
-				// Mutation-riding reads (POST search, RPC-over-POST lists) return
-				// the same single-key collection envelopes as GET reads. Unwrap
-				// before filtering so rows nest once under the result key and
-				// --select filters rows, not envelope keys; plain created-object
-				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := unwrapSingleKeyArray(data)
+				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered, nil)
+					filtered = compactFields(filtered)
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -217,15 +232,7 @@ func newEmailSendBulkCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				resultKey := "data"
-				if flags.agent {
-					resultKey = "results"
-				}
-				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
-				if err != nil {
-					return err
-				}
-				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -235,13 +242,12 @@ func newEmailSendBulkCmd(flags *rootFlags) *cobra.Command {
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlagsMeta renders the body with live
-			// provenance, then the typed partial-failure exit fires unless
-			// --allow-partial-failure downgrades it. Without this guard a
-			// partial failure would exit 0 for these output modes — the exact
-			// silent-swallow regression the surrounding patch is preventing
-			// for asJSON / piped output.
-			if perr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, nil); perr != nil {
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
 				return perr
 			}
 			if partialFailure != nil && !flags.allowPartialFailure {
@@ -250,10 +256,14 @@ func newEmailSendBulkCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&bodyBody, "body", "", "Body")
-	cmd.Flags().StringVar(&bodyBodyHtml, "body-html", "", "Body html")
-	cmd.Flags().StringVar(&bodyContactIds, "contact-ids", "", "Contact ids")
-	cmd.Flags().StringVar(&bodySubject, "subject", "", "Subject")
+	cmd.Flags().StringVar(&bodyContactIds, "contact-ids", "", "Contact ids (UUIDs), comma-separated or a JSON array")
+	cmd.Flags().StringVar(&bodySubject, "subject", "", "Email subject. Required unless --template-id is given.")
+	cmd.Flags().StringVar(&bodyText, "text", "", "Plain-text body. Falls back to the template's text when --template-id is given.")
+	cmd.Flags().StringVar(&bodyHtml, "html", "", "HTML body. Falls back to the template's HTML when --template-id is given.")
+	cmd.Flags().StringVar(&bodyTemplateId, "template-id", "", "An active email template of this account (UUID); its subject and HTML fill what is omitted")
+	cmd.Flags().BoolVar(&bodySubjectEdited, "subject-edited", false, "With --template-id, true sends --subject verbatim to every recipient; false lets the template's A/B subject pick apply per recipient. Not given: a supplied subject is sent verbatim.")
+	cmd.Flags().StringVar(&bodyReplyTo, "reply-to", "", "Override the Reply-To header")
+	cmd.Flags().StringVar(&bodySendDomainId, "send-domain-id", "", "Send from a specific verified extra sending domain (UUID)")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

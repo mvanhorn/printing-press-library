@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "gocli1219-r2-mutation-transport-and-budgets",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Codex gocli1219-r1 fixes in the 4.34.2 client: a mutation carrying a per-call Idempotency-Key (the spec-declared --idempotency-key flags) is sent through a dedicated HTTP/1 client with keep-alives off (noReuseMutationClient), so Go's transport never resends it on a dead reused connection and the CLI never replays it; a binary (streaming) response wraps the transport already chosen for the call instead of the shared client; the broken-response-body retry checks the provider retry budget (retryWithinBudget) like the network/429/5xx branches; a platform limiter wait that ends on the context returns the stop classification (failCtx) like the adaptive limiter; the cross-origin allowlist is proven on a followed redirect to a public-looking host (test resolver + dialer), the loopback-literal case stays a pure refusal test.",
+  "reason": "Codex gocli1219-r1: P1 transport-level replay of keyed mutations, P2 body-reset retry ignoring the provider budget, P2 streaming mutations falling back to the shared HTTP/2 client, P3 limiter error classification, P3 a test that fabricated its success state.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/redaction_patch.go",
+    "internal/client/retry_r2_test.go",
+    "internal/client/retry_test.go"
+  ],
+  "markers": [
+    "gocli1219 r2"
+  ],
+  "validated_outcome": "TestPerCallKeyedMutationDroppedOnAWarmConnectionIsSentOnce, TestStreamingMutationKeepsTheNoReplayTransport, TestBrokenBodyRetryHonoursThePlatformRetryBudget and TestPlatformLimiterWaitOnARetryKeepsTheLastResponse each fail with their fix reverted and pass with it; TestPublicCrossOriginRedirectCarriesOnlyAllowlistedHeaders asserts the headers the target actually received."
+}

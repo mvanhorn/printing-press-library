@@ -14,6 +14,11 @@ import (
 
 func newUsersInviteCmd(flags *rootFlags) *cobra.Command {
 	var bodyEmail string
+	var bodyExtension string
+	var bodyFirstName string
+	var bodyLastName string
+	var bodyPermissions string
+	var bodyPhone string
 	var bodyRole string
 	var stdinBody bool
 
@@ -22,31 +27,19 @@ func newUsersInviteCmd(flags *rootFlags) *cobra.Command {
 		Aliases:     []string{"create"},
 		Short:       "Invite a team member",
 		Example:     "  conduyt-crm-pp-cli users invite --email user@example.com",
-		Annotations: map[string]string{"pp:endpoint": "users.invite", "pp:method": "POST", "pp:path": "/users/invite", "pp:requires-input": "true"},
+		Annotations: map[string]string{"pp:endpoint": "users.invite", "pp:method": "POST", "pp:path": "/users/invite"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			// Machine callers (--json/--agent, which sets asJSON) get a usage
-			// error + exit 2 instead of silent exit-0 help, so an incomplete
-			// invocation is never mistaken for success.
-			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
-				if flags.asJSON {
-					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"error": "requires input",
-						"usage": cmd.CommandPath() + " --help",
-					}, flags); printErr != nil {
-						return printErr
-					}
-					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
-				}
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
 				return cmd.Help()
 			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("email") && bodyEmail == "" && !flags.dryRun {
+				if !cmd.Flags().Changed("email") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "email")
 				}
-				if !cmd.Flags().Changed("role") && bodyRole == "" && !flags.dryRun {
+				if !cmd.Flags().Changed("role") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "role")
 				}
 			}
@@ -70,10 +63,25 @@ func newUsersInviteCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				bodyMap := map[string]any{}
 				body = bodyMap
-				if cmd.Flags().Changed("email") || bodyEmail != "" {
+				if cmd.Flags().Changed("email") { // PATCH(reprint-637-required-on-changed)
 					bodyMap["email"] = bodyEmail
 				}
-				if cmd.Flags().Changed("role") || bodyRole != "" {
+				if bodyExtension != "" {
+					bodyMap["extension"] = bodyExtension
+				}
+				if bodyFirstName != "" {
+					bodyMap["firstName"] = bodyFirstName
+				}
+				if bodyLastName != "" {
+					bodyMap["lastName"] = bodyLastName
+				}
+				if bodyPermissions != "" {
+					bodyMap["permissions"] = bodyPermissions
+				}
+				if bodyPhone != "" {
+					bodyMap["phone"] = bodyPhone
+				}
+				if cmd.Flags().Changed("role") { // PATCH(reprint-637-required-on-changed)
 					bodyMap["role"] = bodyRole
 				}
 			}
@@ -172,20 +180,15 @@ func newUsersInviteCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
-				// Mutation-riding reads (POST search, RPC-over-POST lists) return
-				// the same single-key collection envelopes as GET reads. Unwrap
-				// before filtering so rows nest once under the result key and
-				// --select filters rows, not envelope keys; plain created-object
-				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := unwrapSingleKeyArray(data)
+				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered, nil)
+					filtered = compactFields(filtered)
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -201,15 +204,7 @@ func newUsersInviteCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				resultKey := "data"
-				if flags.agent {
-					resultKey = "results"
-				}
-				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
-				if err != nil {
-					return err
-				}
-				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -219,13 +214,12 @@ func newUsersInviteCmd(flags *rootFlags) *cobra.Command {
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlagsMeta renders the body with live
-			// provenance, then the typed partial-failure exit fires unless
-			// --allow-partial-failure downgrades it. Without this guard a
-			// partial failure would exit 0 for these output modes — the exact
-			// silent-swallow regression the surrounding patch is preventing
-			// for asJSON / piped output.
-			if perr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, nil); perr != nil {
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
 				return perr
 			}
 			if partialFailure != nil && !flags.allowPartialFailure {
@@ -235,8 +229,19 @@ func newUsersInviteCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&bodyEmail, "email", "", "Email")
+	cmd.Flags().StringVar(&bodyExtension, "extension", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyFirstName, "first-name", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyLastName, "last-name", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyPermissions, "permissions", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyPhone, "phone", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
 	cmd.Flags().StringVar(&bodyRole, "role", "", "Role")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	// PATCH(reprint-637-users-invite): the generator names both the POST /users/invite endpoint and the invite sub-resource group
+	// (cancel, resend) "users invite" and keeps only the group, so the endpoint was unreachable. The endpoint command keeps the
+	// name (the press's own name for it) and carries the two children.
+	cmd.AddCommand(newUsersInvitePostUsersIdCancelCmd(flags))
+	cmd.AddCommand(newUsersInvitePostUsersIdResendCmd(flags))
 
 	return cmd
 }

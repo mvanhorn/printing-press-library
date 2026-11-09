@@ -12,22 +12,60 @@ import (
 )
 
 func newDealsListCmd(flags *rootFlags) *cobra.Command {
+	var flagAssignedTo string
+	var flagAssignedTo2 string
+	var flagBoardColumns string
+	var flagBoardSnapshot bool
+	var flagContactId string
+	var flagCreatedAfter string
+	var flagCreatedBefore string
+	var flagHealth string
+	var flagHealthCheck string
+	var flagHealthCursor string
+	var flagHealthLimit string
+	var flagHealthOffset string
+	var flagHealthRowsOnly string
+	var flagHealthSummary string
+	var flagLatestUpdated bool
+	var flagMaxValue string
+	var flagMinValue string
+	var flagNeedsAction bool
+	var flagOrder string
 	var flagPage string
 	var flagPerPage int
 	var flagPipeline string
-	var flagStage string
-	var flagStatus string
-	var flagAssignedTo string
+	var flagPipelineId string
+	var flagPipelineName string
+	var flagPipelineId2 string
+	var flagPipelineName2 string
+	var flagRowsOnly string
+	var flagSearch string
 	var flagSort string
-	var flagOrder string
+	var flagStage string
+	var flagStageId string
+	var flagStageName string
+	var flagStageId2 string
+	var flagStageName2 string
+	var flagStale bool
+	var flagStatus string
+	var flagSummary string
+	var flagSystemOccupancy bool
+	var flagTagIds string
+	var flagValueMax string
+	var flagValueMin string
+	var flagView string
+	var flagViewId string
+	var flagViewId2 string
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list",
 		Short:       "Returns deals with Kanban-optimized sort order (stage, sortOrder, then requested sort).",
+		Long:        dealsListBoardSnapshotLong, // hand-written (board #116): the snapshot mode, its refusals, the two 503 codes; a reprint must keep it
 		Example:     "  conduyt-crm-pp-cli deals list",
 		Annotations: map[string]string{"pp:endpoint": "deals.list", "pp:method": "GET", "pp:path": "/deals", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// curated contract kept by reprint637 (the public document no longer declares these enums and defaults)
 			if cmd.Flags().Changed("status") {
 				allowedStatus := []string{"open", "won", "lost"}
 				validStatus := false
@@ -67,25 +105,69 @@ func newDealsListCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagOrder, "order", allowedOrder)
 				}
 			}
+			// Hand-written (board #116 for app #111): the board snapshot is its own read (refusals first, live, unpaged, never
+			// cached or written into the store); see deals_board_snapshot.go. A reprint must keep this.
+			if flagBoardSnapshot || cmd.Flags().Changed("board-columns") {
+				return runDealsBoardSnapshot(cmd, flags, flagBoardSnapshot, dealsBoardSnapshotArgs{
+					columns: flagBoardColumns, pipeline: flagPipeline, status: flagStatus, assignedTo: flagAssignedTo,
+					sort: flagSort, order: flagOrder, perPage: flagPerPage,
+				})
+			}
 			path := "/deals"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "deals", path, map[string]string{
-				"page":        formatCLIParamValue(flagPage),
-				"per_page":    formatCLIParamValue(flagPerPage),
-				"pipeline":    formatCLIParamValue(flagPipeline),
-				"stage":       formatCLIParamValue(flagStage),
-				"status":      formatCLIParamValue(flagStatus),
 				"assigned_to": formatCLIParamValue(flagAssignedTo),
-				"sort":        formatCLIParamValue(flagSort),
-				"order":       formatCLIParamValue(flagOrder),
+				"assignedTo":  formatCLIParamValue(flagAssignedTo2),
+				// generated; never reached with a value: the snapshot branch above returns first ("" and "false" are stripped)
+				"board_columns":    formatCLIParamValue(flagBoardColumns),
+				"board_snapshot":   formatCLIParamValue(flagBoardSnapshot),
+				"contact_id":       formatCLIParamValue(flagContactId),
+				"created_after":    formatCLIParamValue(flagCreatedAfter),
+				"created_before":   formatCLIParamValue(flagCreatedBefore),
+				"health":           formatCLIParamValue(flagHealth),
+				"health_check":     formatCLIParamValue(flagHealthCheck),
+				"health_cursor":    formatCLIParamValue(flagHealthCursor),
+				"health_limit":     formatCLIParamValue(flagHealthLimit),
+				"health_offset":    formatCLIParamValue(flagHealthOffset),
+				"health_rows_only": formatCLIParamValue(flagHealthRowsOnly),
+				"health_summary":   formatCLIParamValue(flagHealthSummary),
+				"latest_updated":   formatCLIParamValue(flagLatestUpdated),
+				"maxValue":         formatCLIParamValue(flagMaxValue),
+				"minValue":         formatCLIParamValue(flagMinValue),
+				"needsAction":      formatCLIParamValue(flagNeedsAction),
+				"order":            formatCLIParamValue(flagOrder),
+				"page":             formatCLIParamValue(flagPage),
+				"per_page":         formatCLIParamValue(flagPerPage),
+				"pipeline":         formatCLIParamValue(flagPipeline),
+				"pipeline_id":      formatCLIParamValue(flagPipelineId),
+				"pipeline_name":    formatCLIParamValue(flagPipelineName),
+				"pipelineId":       formatCLIParamValue(flagPipelineId2),
+				"pipelineName":     formatCLIParamValue(flagPipelineName2),
+				"rows_only":        formatCLIParamValue(flagRowsOnly),
+				"search":           formatCLIParamValue(flagSearch),
+				"sort":             formatCLIParamValue(flagSort),
+				"stage":            formatCLIParamValue(flagStage),
+				"stage_id":         formatCLIParamValue(flagStageId),
+				"stage_name":       formatCLIParamValue(flagStageName),
+				"stageId":          formatCLIParamValue(flagStageId2),
+				"stageName":        formatCLIParamValue(flagStageName2),
+				"stale":            formatCLIParamValue(flagStale),
+				"status":           formatCLIParamValue(flagStatus),
+				"summary":          formatCLIParamValue(flagSummary),
+				"system_occupancy": formatCLIParamValue(flagSystemOccupancy),
+				"tag_ids":          formatCLIParamValue(flagTagIds),
+				"value_max":        formatCLIParamValue(flagValueMax),
+				"value_min":        formatCLIParamValue(flagValueMin),
+				"view":             formatCLIParamValue(flagView),
+				"view_id":          formatCLIParamValue(flagViewId),
+				"viewId":           formatCLIParamValue(flagViewId2),
 			}, nil, flagAll, "page", "page", "per_page", 50, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
-			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -93,7 +175,7 @@ func newDealsListCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(outputData, &countItems)
+				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -106,13 +188,9 @@ func newDealsListCmd(flags *rootFlags) *cobra.Command {
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered, nil)
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
-				if wrapErr != nil {
-					return wrapErr
-				}
-				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -121,7 +199,7 @@ func newDealsListCmd(flags *rootFlags) *cobra.Command {
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -131,22 +209,55 @@ func newDealsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			formatData := data
-			if flags.csv || flags.plain {
-				formatData = outputData
-			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagPage, "page", "1", "Page number")
-	cmd.Flags().IntVar(&flagPerPage, "per-page", 50, "Items per page (max 200)")
-	cmd.Flags().StringVar(&flagPipeline, "pipeline", "", "Filter by pipeline ID. Aliases also accepted: pipeline_id, pipelineId.")
-	cmd.Flags().StringVar(&flagStage, "stage", "", "Filter by stage ID. Aliases also accepted: stage_id, stageId.")
-	cmd.Flags().StringVar(&flagStatus, "status", "", "Status (one of: open, won, lost)")
-	cmd.Flags().StringVar(&flagAssignedTo, "assigned-to", "", "Assigned to")
-	cmd.Flags().StringVar(&flagSort, "sort", "createdAt", "Sort (one of: createdAt, updatedAt, title, value)")
+	cmd.Flags().StringVar(&flagAssignedTo, "assigned-to", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagAssignedTo2, "assigned-to-2", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagContactId, "contact-id", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagCreatedAfter, "created-after", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagCreatedBefore, "created-before", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagHealth, "health", "", "One Pipeline health check (high_value_idle, stale, unassigned, needs_action, missing_close_date, missing_contact)")
+	cmd.Flags().StringVar(&flagHealthCheck, "health-check", "", "With health_summary: one check whose deals are added to `deals`, highest value first.")
+	cmd.Flags().StringVar(&flagHealthCursor, "health-cursor", "", "With health_summary and health_check: continue the list after this cursor")
+	cmd.Flags().StringVar(&flagHealthLimit, "health-limit", "", "With health_summary and health_check: deals per page, 1-100 (default 5).")
+	cmd.Flags().StringVar(&flagHealthOffset, "health-offset", "", "With health_summary and health_check: deals to skip (positional paging; default 0).")
+	cmd.Flags().StringVar(&flagHealthRowsOnly, "health-rows-only", "", "With health_summary and health_check")
+	cmd.Flags().StringVar(&flagHealthSummary, "health-summary", "", "true: answer the Pipeline health shape (#/components/schemas/PipelineHealth) for the board's filtered set")
+	cmd.Flags().BoolVar(&flagLatestUpdated, "latest-updated", false, "boolean — true, with contact_id: answer ONLY the one deal of that contact that was updated last (updatedAt, then id)")
+	cmd.Flags().StringVar(&flagMaxValue, "max-value", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagMinValue, "min-value", "", "Query parameter read by this route.")
+	cmd.Flags().BoolVar(&flagNeedsAction, "needs-action", false, "Query parameter read by this route.")
 	cmd.Flags().StringVar(&flagOrder, "order", "desc", "Order (one of: asc, desc)")
+	cmd.Flags().StringVar(&flagPage, "page", "1", "Page number")
+	cmd.Flags().IntVar(&flagPerPage, "per-page", 50, "Items per page (max 1000); with board_snapshot=true it is the default limit of a column that names none.")
+	cmd.Flags().StringVar(&flagPipeline, "pipeline", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagPipelineId, "pipeline-id", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagPipelineName, "pipeline-name", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagPipelineId2, "pipeline-id-2", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagPipelineName2, "pipeline-name-2", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagRowsOnly, "rows-only", "", "true returns the page of deals only: meta carries page, per_page and rows_only: true, and total, total_value, open_total")
+	cmd.Flags().StringVar(&flagSearch, "search", "", "Text search over the deal title, the contact's name and company, and the linked company's name and domain.")
+	cmd.Flags().StringVar(&flagSort, "sort", "createdAt", "Sort (one of: createdAt, updatedAt, title, value)")
+	cmd.Flags().StringVar(&flagStage, "stage", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagStageId, "stage-id", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagStageName, "stage-name", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagStageId2, "stage-id-2", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagStageName2, "stage-name-2", "", "Query parameter read by this route.")
+	cmd.Flags().BoolVar(&flagStale, "stale", false, "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagStatus, "status", "", "Status (one of: open, won, lost)")
+	cmd.Flags().StringVar(&flagSummary, "summary", "", "Query parameter read by this route.")
+	cmd.Flags().BoolVar(&flagSystemOccupancy, "system-occupancy", false, "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagTagIds, "tag-ids", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagValueMax, "value-max", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagValueMin, "value-min", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagView, "view", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagViewId, "view-id", "", "Query parameter read by this route.")
+	cmd.Flags().StringVar(&flagViewId2, "view-id-2", "", "Query parameter read by this route.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
+	// Hand-written help (board #116): the generator cut both descriptions at the first sentence, losing the value format.
+	cmd.Flags().StringVar(&flagBoardColumns, "board-columns", "", "With --board-snapshot: <stageId>[:<limit>],... in answer order; 1-50 live stages of the pipeline, no stage twice, limit 1-1000 (default --per-page), at most 5000 rows in total")
+	cmd.Flags().BoolVar(&flagBoardSnapshot, "board-snapshot", false, "Read every column in --board-columns of --pipeline from ONE database snapshot (a moved deal is in exactly one column); refuses --page, --stage and --all")
 
 	return cmd
 }

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "reprint-637-renamed-command-aliases",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Command names the 11-08 reprint changed keep working: bare `account-exports [--cursor] [--all]` runs `account-exports get` (the pre-reprint GET list command); `contacts dnc get-contacts-id` is an alias of `contacts dnc get-contact-verdicts` (upstream operationId changed), and the MCP code-orchestration id contacts.dnc.get-contacts-id resolves to contacts.dnc.get-contact-verdicts (codeOrchLegacyEndpointIDs).",
+  "reason": "A reprint that follows a renamed operationId or a promoted-to-group resource silently breaks scripts and agents that call the old name (Codex reprint637-r1 P2 x2).",
+  "files": [
+    "internal/cli/account-exports.go",
+    "internal/cli/contacts_dnc_get-contact-verdicts.go",
+    "internal/mcp/code_orch.go",
+    "internal/cli/reprint637_r1_compat_test.go",
+    "internal/mcp/legacy_endpoint_ids_test.go"
+  ],
+  "validated_outcome": "TestBareAccountExportsStillListsThem, TestRenamedDncCommandKeepsItsOldName and TestLegacyEndpointIDsResolveToLiveEndpoints pass; the two CLI tests fail at 401de41. A reprint compares the command tree before and after and adds an alias for every renamed command."
+}

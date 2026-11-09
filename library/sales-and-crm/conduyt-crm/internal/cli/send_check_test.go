@@ -96,8 +96,8 @@ func TestSendCheckVerdicts(t *testing.T) {
 		writeDNCResponse(t, w, r, "dnc")
 	}
 	out, _, err := runNovel(t, []string{"send-check", "--tag", "leads", "--db", dbPath, "--json"}, h)
-	if err != nil {
-		t.Fatal(err)
+	if ExitCode(err) != 2 { // novel1219: a no_go verdict exits 2 (the reprint's gate contract)
+		t.Fatalf("err=%v code=%d, want the no_go exit 2", err, ExitCode(err))
 	}
 	out = compactTestJSON(out)
 	for _, want := range []string{`"checked":5`, `"ok":1`, `"no_phone":1`, `"unverified":1`, `"invalid":1`, `"dnc":1`} {
@@ -264,7 +264,7 @@ func TestSendCheckLocalLimitIsInconclusive(t *testing.T) {
 		wantPartial bool
 	}{
 		{name: "capped before DNC", limit: "2", wantCode: 5, wantPartial: true},
-		{name: "covers DNC", limit: "3", wantDNC: 1},
+		{name: "covers DNC", limit: "3", wantCode: 2, wantDNC: 1}, // novel1219: no_go exits 2
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			testenv.Isolate(t)
@@ -352,8 +352,8 @@ func TestSendCheckStaleMirrorFetchesAudienceLive(t *testing.T) {
 		}
 	}
 	out, _, err := runNovel(t, []string{"send-check", "--tag", "leads", "--db", dbPath, "--json"}, h)
-	if err != nil {
-		t.Fatal(err)
+	if ExitCode(err) != 2 { // novel1219: the live audience is DNC-blocked, a no_go verdict exits 2
+		t.Fatalf("err=%v code=%d", err, ExitCode(err))
 	}
 	var view sendCheckView
 	if err := json.Unmarshal([]byte(out), &view); err != nil {
@@ -521,7 +521,7 @@ func TestSendCheckLiveListLimitIsInconclusive(t *testing.T) {
 		wantPartial bool
 	}{
 		{name: "capped before DNC", limit: "1", wantCode: 5, wantPartial: true},
-		{name: "covers DNC", limit: "2", wantDNC: 1},
+		{name: "covers DNC", limit: "2", wantCode: 2, wantDNC: 1}, // novel1219: no_go exits 2
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			testenv.Isolate(t)
@@ -627,8 +627,8 @@ func TestSendCheckCarriesVoiceBlockedAndUsesSMSBlocked(t *testing.T) {
 		}
 		_, _ = w.Write([]byte(`{"data":{"statuses":{"c":{"dnc":true,"litigator":false,"voiceBlocked":true,"smsBlocked":true}},"requested":1,"checked":1,"missing":0,"truncated":false}}`))
 	})
-	if err != nil {
-		t.Fatal(err)
+	if ExitCode(err) != 2 { // novel1219: no_go exits 2
+		t.Fatalf("err=%v code=%d", err, ExitCode(err))
 	}
 	var view sendCheckView
 	if err := json.Unmarshal([]byte(out), &view); err != nil {

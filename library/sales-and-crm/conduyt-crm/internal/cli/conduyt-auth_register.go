@@ -14,17 +14,33 @@ import (
 
 func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 	var bodyAccountName string
+	var bodyAttributionCyFtCmp string
+	var bodyAttributionCyFtLanding string
+	var bodyAttributionCyFtRef string
+	var bodyAttributionCyFtSrc string
+	var bodyAttributionGbraid string
+	var bodyAttributionGclid string
+	var bodyAttributionLandingPage string
+	var bodyAttributionMsclkid string
+	var bodyAttributionReferrer string
+	var bodyAttributionUtmCampaign string
+	var bodyAttributionUtmContent string
+	var bodyAttributionUtmMedium string
+	var bodyAttributionUtmSource string
+	var bodyAttributionUtmTerm string
+	var bodyAttributionWbraid string
 	var bodyEmail string
 	var bodyFirstName string
 	var bodyLastName string
 	var bodyPassword string
+	var bodySignupFunnelId string
 	var bodyTermsAccepted bool
 	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:   "register",
 		Short: "Creates a new user and account. Rate limited to 3 requests per hour per IP.",
-		// PATCH(register-terms-accepted-601): Long states that --terms-accepted is required; see .printing-press-patches/register-terms-accepted-601.json.
+		// PATCH(register-terms-accepted-601): Long states that --terms-accepted is required; see .printing-press-patches.json.
 		Long:    "Creates a new user and account. Rate limited to 3 requests per hour per IP.\n\nRegistering requires --terms-accepted, your consent to the Terms of Service (https://conduyt.app/terms) and the Privacy Policy (https://conduyt.app/privacy). Without it the CLI refuses locally and sends nothing; the API answers 400 (field termsAccepted) to a request without it. With --stdin the body is passed through untouched, so it must carry \"termsAccepted\": true itself.",
 		Example: "  conduyt-crm-pp-cli conduyt-auth register --account-name example-resource --email you@example.com --password '...' --terms-accepted",
 		// PATCH(register-terms-accepted-601): pflag reads `--terms-accepted false` as --terms-accepted=true plus a stray "false"; refuse every positional so that spelling can never register
@@ -34,38 +50,27 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 			}
 			return nil
 		},
-		Annotations: map[string]string{"pp:endpoint": "conduyt-auth.register", "pp:method": "POST", "pp:path": "/auth/register", "pp:requires-input": "true"},
+		Annotations: map[string]string{"pp:endpoint": "conduyt-auth.register", "pp:method": "POST", "pp:path": "/auth/register"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			// Machine callers (--json/--agent, which sets asJSON) get a usage
-			// error + exit 2 instead of silent exit-0 help, so an incomplete
-			// invocation is never mistaken for success.
-			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
-				if flags.asJSON {
-					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"error": "requires input",
-						"usage": cmd.CommandPath() + " --help",
-					}, flags); printErr != nil {
-						return printErr
-					}
-					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
-				}
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
 				return cmd.Help()
 			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("account-name") && bodyAccountName == "" && !flags.dryRun {
+				if !cmd.Flags().Changed("account-name") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "account-name")
 				}
-				if !cmd.Flags().Changed("email") && bodyEmail == "" && !flags.dryRun {
+				if !cmd.Flags().Changed("email") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "email")
 				}
-				if !cmd.Flags().Changed("password") && bodyPassword == "" && !flags.dryRun {
+				if !cmd.Flags().Changed("password") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "password")
 				}
 				// PATCH(register-terms-accepted-601): refuse locally, never a 400 round trip; --terms-accepted=false is a refusal too
-				if !bodyTermsAccepted && !flags.dryRun {
+				// an explicit --terms-accepted=false is refused under --dry-run too (Codex reprint637-r4 P3)
+				if !bodyTermsAccepted && (!flags.dryRun || cmd.Flags().Changed("terms-accepted")) {
 					return fmt.Errorf("registering requires --terms-accepted: pass it to confirm you accept the Terms of Service (https://conduyt.app/terms) and the Privacy Policy (https://conduyt.app/privacy)")
 				}
 			}
@@ -89,23 +94,77 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				bodyMap := map[string]any{}
 				body = bodyMap
-				if cmd.Flags().Changed("account-name") || bodyAccountName != "" {
+				if cmd.Flags().Changed("account-name") { // PATCH(reprint-637-required-on-changed)
 					bodyMap["accountName"] = bodyAccountName
 				}
-				if cmd.Flags().Changed("email") || bodyEmail != "" {
+				{
+					nestedAttribution := map[string]any{}
+					if bodyAttributionCyFtCmp != "" {
+						nestedAttribution["cy_ft_cmp"] = bodyAttributionCyFtCmp
+					}
+					if bodyAttributionCyFtLanding != "" {
+						nestedAttribution["cy_ft_landing"] = bodyAttributionCyFtLanding
+					}
+					if bodyAttributionCyFtRef != "" {
+						nestedAttribution["cy_ft_ref"] = bodyAttributionCyFtRef
+					}
+					if bodyAttributionCyFtSrc != "" {
+						nestedAttribution["cy_ft_src"] = bodyAttributionCyFtSrc
+					}
+					if bodyAttributionGbraid != "" {
+						nestedAttribution["gbraid"] = bodyAttributionGbraid
+					}
+					if bodyAttributionGclid != "" {
+						nestedAttribution["gclid"] = bodyAttributionGclid
+					}
+					if bodyAttributionLandingPage != "" {
+						nestedAttribution["landing_page"] = bodyAttributionLandingPage
+					}
+					if bodyAttributionMsclkid != "" {
+						nestedAttribution["msclkid"] = bodyAttributionMsclkid
+					}
+					if bodyAttributionReferrer != "" {
+						nestedAttribution["referrer"] = bodyAttributionReferrer
+					}
+					if bodyAttributionUtmCampaign != "" {
+						nestedAttribution["utm_campaign"] = bodyAttributionUtmCampaign
+					}
+					if bodyAttributionUtmContent != "" {
+						nestedAttribution["utm_content"] = bodyAttributionUtmContent
+					}
+					if bodyAttributionUtmMedium != "" {
+						nestedAttribution["utm_medium"] = bodyAttributionUtmMedium
+					}
+					if bodyAttributionUtmSource != "" {
+						nestedAttribution["utm_source"] = bodyAttributionUtmSource
+					}
+					if bodyAttributionUtmTerm != "" {
+						nestedAttribution["utm_term"] = bodyAttributionUtmTerm
+					}
+					if bodyAttributionWbraid != "" {
+						nestedAttribution["wbraid"] = bodyAttributionWbraid
+					}
+					if len(nestedAttribution) > 0 {
+						bodyMap["attribution"] = nestedAttribution
+					}
+				}
+				if cmd.Flags().Changed("email") { // PATCH(reprint-637-required-on-changed)
 					bodyMap["email"] = bodyEmail
 				}
-				if cmd.Flags().Changed("first-name") || bodyFirstName != "" {
+				if bodyFirstName != "" {
 					bodyMap["firstName"] = bodyFirstName
 				}
-				if cmd.Flags().Changed("last-name") || bodyLastName != "" {
+				if bodyLastName != "" {
 					bodyMap["lastName"] = bodyLastName
 				}
-				if cmd.Flags().Changed("password") || bodyPassword != "" {
+				if cmd.Flags().Changed("password") { // PATCH(reprint-637-required-on-changed)
 					bodyMap["password"] = bodyPassword
 				}
+				if bodySignupFunnelId != "" {
+					bodyMap["signupFunnelId"] = bodySignupFunnelId
+				}
 				// PATCH(register-terms-accepted-601): the API requires the const true
-				if bodyTermsAccepted {
+				if cmd.Flags().Changed("terms-accepted") { // PATCH(reprint-637-required-on-changed)
 					bodyMap["termsAccepted"] = true
 				}
 			}
@@ -204,20 +263,15 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
-				// Mutation-riding reads (POST search, RPC-over-POST lists) return
-				// the same single-key collection envelopes as GET reads. Unwrap
-				// before filtering so rows nest once under the result key and
-				// --select filters rows, not envelope keys; plain created-object
-				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := unwrapSingleKeyArray(data)
+				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered, nil)
+					filtered = compactFields(filtered)
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -233,15 +287,7 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				resultKey := "data"
-				if flags.agent {
-					resultKey = "results"
-				}
-				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
-				if err != nil {
-					return err
-				}
-				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -251,13 +297,12 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlagsMeta renders the body with live
-			// provenance, then the typed partial-failure exit fires unless
-			// --allow-partial-failure downgrades it. Without this guard a
-			// partial failure would exit 0 for these output modes — the exact
-			// silent-swallow regression the surrounding patch is preventing
-			// for asJSON / piped output.
-			if perr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, nil); perr != nil {
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
 				return perr
 			}
 			if partialFailure != nil && !flags.allowPartialFailure {
@@ -267,10 +312,26 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&bodyAccountName, "account-name", "", "Account name")
+	cmd.Flags().StringVar(&bodyAttributionCyFtCmp, "attribution-cy-ft-cmp", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionCyFtLanding, "attribution-cy-ft-landing", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionCyFtRef, "attribution-cy-ft-ref", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionCyFtSrc, "attribution-cy-ft-src", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionGbraid, "attribution-gbraid", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionGclid, "attribution-gclid", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionLandingPage, "attribution-landing-page", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionMsclkid, "attribution-msclkid", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionReferrer, "attribution-referrer", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionUtmCampaign, "attribution-utm-campaign", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionUtmContent, "attribution-utm-content", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionUtmMedium, "attribution-utm-medium", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionUtmSource, "attribution-utm-source", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionUtmTerm, "attribution-utm-term", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
+	cmd.Flags().StringVar(&bodyAttributionWbraid, "attribution-wbraid", "", "Read by the handler from the JSON body (the route declares no schema for its type).")
 	cmd.Flags().StringVar(&bodyEmail, "email", "", "Email")
 	cmd.Flags().StringVar(&bodyFirstName, "first-name", "", "First name")
 	cmd.Flags().StringVar(&bodyLastName, "last-name", "", "Last name")
 	cmd.Flags().StringVar(&bodyPassword, "password", "", "Password")
+	cmd.Flags().StringVar(&bodySignupFunnelId, "signup-funnel-id", "", "The sign-up page's anonymous funnel id; signup_succeeded is sent under it. Optional; a malformed value is ignored.")
 	// PATCH(register-terms-accepted-601): required consent flag
 	cmd.Flags().BoolVar(&bodyTermsAccepted, "terms-accepted", false, "Required: accept the Terms of Service (https://conduyt.app/terms) and the Privacy Policy (https://conduyt.app/privacy). Sends termsAccepted true")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")

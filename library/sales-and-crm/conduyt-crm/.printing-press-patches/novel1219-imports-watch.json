@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-imports-watch",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "imports watch is the public entry's hardened version: polls GET /imports/{id} (no cache) and its launch monitor until completed/failed/cancelled, requires every row counter on the terminal job, and with --verify re-reads the finished job and GET /imports/{id}/side-effects; a failed verification fetch, missing or invalid counters, or side effects that are not complete (queued, failed or held sends) make the result partial and exit 5, as do a failed/cancelled import and the --timeout. Kept from the reprint: --latest, the [jobId] Use line, the --dry-run object; --interval and --timeout take a duration or bare seconds. Two deliberate refinements over the public entry, both seen live on the demo workspace: the job's `errors` field is its issue log (an array), so it is no alias of errorRows; and side effects whose every counter is zero (the route answers isComplete=false for total 0) are reported as no_side_effects and verify, while any queued, retryable, exhausted, failed or held send still fails verification. Round 2 (Codex novel1219-r1): --verify rejects every nonzero queued/retryable/exhausted/failed/held counter and actionRequired regardless of isComplete; the overall deadline is --timeout from the command context (the root request timeout stays per request); a job still running when the loop ends (the dogfood poll cap) is partial, exit 5; the all-zero exception needs a terminal status; typed exits 0,2,3,4,5. Round 3 (Codex novel1219-r2): skippedInactive, pending and processing are read (strict when present) and only completed counts as a successful send: every other nonzero counter, actionRequired, and a completed count below total fail verification (sideEffectCounts / sideEffectProblems).",
+  "reason": "Greptile round 1 on PR #2450 (P1): the reprint's --verify recorded a failed delivery-report read and still exited 0, and dropped the job-scoped side-effects check.",
+  "files": [
+    "internal/cli/imports_watch.go",
+    "internal/cli/imports_watch_test.go",
+    "internal/cli/novel1219_regressions_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-imports-watch)"
+  ],
+  "validated_outcome": "The public entry's imports_watch_test.go plus TestNovel1219ImportsWatchVerifyFailsNonZero (fetch failure, queued, failed: exit 5; complete: exit 0) and TestNovel1219ImportsWatchIntervalTakesDurationsAndSeconds pass. TestImportsWatchVerifyIsCompleteExactOutput covers the no-side-effects row; TestNovel1219ImportsWatchIgnoresTheJobsIssueLog pins the issue-log case. Round 2: TestNovel1219HeldSideEffectsNeverVerify, TestNovel1219ImportsWatchTimeoutIsNotCappedByTheRequestTimeout, TestNovel1219ImportsWatchDogfoodCapOnARunningJobIsPartial, TestNovel1219ImportsTypedExitCodesCoverNotFoundAndAuth. Round 3: TestNovel1219OnlyCompletedSideEffectsVerify."
+}

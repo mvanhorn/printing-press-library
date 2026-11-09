@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-helpers",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Hand-authored helpers the four hardened novel commands share, carried in internal/cli/novel_port_helpers.go (pagination progress guard with the 100-page cap, objectPaginationIDs, rejectResponseErrorEnvelope, hoistPaginatedEnvelope) plus the public entry's phone_identity.go (normalizePhoneIdentity: digits only, a leading US 1 dropped, at least 10 digits) and contact_line_type.go (lineType/line_type, then customFields.sms_line_type). The 4.34.2 reprint regenerated helpers.go and dialer_coverage.go without them. Round 3: contactsMirrorAttemptComplete reads sync_state.last_attempt_complete (an interrupted or in-progress sync keeps the old timestamp but clears it). Round 4: one local-read path, mirrorReader (Query/Count over *sql.DB, swappable for fault injection via newMirrorReader) and readMirrorRows (query, scan, iteration and close failures returned as one error). Round 5: readContactsSyncState reads the contacts sync_state row (last_synced_at, total_count, last_attempt_complete) once through the mirror reader, and mirrorOlderThan decides freshness from it (no second sync_state read that could fail silently); contactsMirrorAttemptComplete is replaced. Round 14: readResourceSyncState and resourceMirrorOlderThan generalize the contacts sync-state read and staleness hint so automations hours-audit uses the same one-read rule.",
+  "reason": "The public library entry kept these in generated files; a reprint drops them, and every ported novel command depends on them.",
+  "files": [
+    "internal/cli/novel_port_helpers.go",
+    "internal/cli/phone_identity.go",
+    "internal/cli/phone_identity_test.go",
+    "internal/cli/contact_line_type.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-helpers)"
+  ],
+  "validated_outcome": "TestNormalizePhoneIdentity, TestPaginationProgressGuardRejectsRepeatedCursor, TestObjectItemsRejectsUnexpectedValidObjects and TestContactLineTypeAliasesAndFallback pass. Round 3: TestNovel1219InterruptedSyncIsNotAMirror. Round 4: TestNovel1219EveryLocalReadStageFailureFallsBackLive. Round 5: TestNovel1219FreshnessComesFromTheOneSyncStateRead and the sync-state stage of TestNovel1219EveryLocalReadStageFailureFallsBackLive."
+}

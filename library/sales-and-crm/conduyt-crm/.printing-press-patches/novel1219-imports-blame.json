@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-imports-blame",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "imports blame is the public entry's hardened version re-pinned to the real GET /imports/{id}/rows contract: the job's row counters (strict preferred/legacy aliases), every error row via tab=error at per_page min(100, --limit+1) with a progress guard and a meta.total cross-check, only outcome=error rows grouped by their full message (any other row is a failure, never an error), tabs.error above the itemized total noted as rows_unavailable, and the job-scoped side effects (queued, retryableFailed, exhaustedFailed, total, completed, failed, held, actionRequired, isComplete) read strictly; a capped, short, failed or malformed read is partial and exits 5 (or the typed class of the failed fetch). No account-wide /reports/sms-delivery read. Kept from the reprint: --latest, the [jobId] Use line, --rows as a hidden alias of --limit, the --dry-run object. Side effects whose every counter is zero are reported as no_side_effects, not as an unfinished job (the route answers isComplete=false for total 0). Round 2 (Codex novel1219-r1): any queued, retryable, exhausted, failed or held send and actionRequired make the result partial regardless of isComplete (held-only is isComplete:true); the all-zero exception applies only to a terminal job; job-level error entries (row 0 with an identifier) are accepted; typed exits 0,2,3,4,5. Round 3 (Codex novel1219-r2): the same side-effect classification as watch (skippedInactive, pending, processing read; only completed is success); the Short no longer claims SMS delivery. Round 4 (Codex novel1219-r3): the output makes no delivery claim: side_effects_completed (JSON) / SIDE EFFECTS COMPLETED (table) and the note 'provider delivery is not available from this data' replace delivered and delivery_correlation.",
+  "reason": "Greptile round 1 on PR #2450 (P1): the reprint sent status=error (the route reads tab) and per_page=200 (the route allows 100), so ordinary rows were counted as errors with no reason.",
+  "files": [
+    "internal/cli/imports_blame.go",
+    "internal/cli/imports_blame_test.go",
+    "internal/cli/live_gate_defects_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-imports-blame)"
+  ],
+  "validated_outcome": "imports_blame_test.go (the public entry's cases on the real rows shape) including TestImportsBlameUsesTheRoutesPageSizeAndErrorTab and TestImportsBlameGroupsOnlyErrorRows, TestNovel1219ImportsBlameReadsTheErrorTabWithASupportedPageSize and TestImportsLatestResolvesTheNewestJob pass. TestImportsBlameNoRecordedSideEffectsIsComplete pins the zero-counter case and keeps a held send failing. Round 2: TestNovel1219HeldSideEffectsNeverVerify, TestNovel1219ImportsBlameZeroSideEffectsOnARunningJobIsPartial, TestNovel1219ImportsBlameAcceptsRowZeroErrors, TestNovel1219ImportsTypedExitCodesCoverNotFoundAndAuth. Round 3: TestNovel1219OnlyCompletedSideEffectsVerify, TestNovel1219NoSMSDeliveryClaimsForImportCommands. Round 4: TestNovel1219ImportsBlameRenderedOutputMakesNoDeliveryClaim, TestNovel1219NovelCommandHelpNeverClaimsDelivery."
+}

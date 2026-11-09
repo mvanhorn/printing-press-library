@@ -20,7 +20,7 @@ func newIntegrationsPostSlackSettingsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "post-slack-settings",
 		Short: "Create / invoke integrations slack settings",
-		// PATCH(slack-settings-typed-body-578): Long states the keep / clear / 400 semantics; see .printing-press-patches/slack-settings-typed-body-578.json.
+		// PATCH(slack-settings-typed-body-578): Long states the keep / clear / 400 semantics; see .printing-press-patches.json.
 		Long: `Create / invoke integrations slack settings.
 
 Each field is optional and a field you leave out keeps its stored value:
@@ -161,20 +161,15 @@ Each field is optional and a field you leave out keeps its stored value:
 						}
 					}
 				}
-				// Mutation-riding reads (POST search, RPC-over-POST lists) return
-				// the same single-key collection envelopes as GET reads. Unwrap
-				// before filtering so rows nest once under the result key and
-				// --select filters rows, not envelope keys; plain created-object
-				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := unwrapSingleKeyArray(data)
+				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered, nil)
+					filtered = compactFields(filtered)
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -190,15 +185,7 @@ Each field is optional and a field you leave out keeps its stored value:
 				if err != nil {
 					return err
 				}
-				resultKey := "data"
-				if flags.agent {
-					resultKey = "results"
-				}
-				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
-				if err != nil {
-					return err
-				}
-				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -208,13 +195,12 @@ Each field is optional and a field you leave out keeps its stored value:
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlagsMeta renders the body with live
-			// provenance, then the typed partial-failure exit fires unless
-			// --allow-partial-failure downgrades it. Without this guard a
-			// partial failure would exit 0 for these output modes — the exact
-			// silent-swallow regression the surrounding patch is preventing
-			// for asJSON / piped output.
-			if perr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, nil); perr != nil {
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
 				return perr
 			}
 			if partialFailure != nil && !flags.allowPartialFailure {

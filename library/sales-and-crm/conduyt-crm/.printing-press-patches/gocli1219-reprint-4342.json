@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "gocli1219-reprint-4342",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Reprint under Printing Press 4.34.2 by a 3-way merge of the 4.34.2 print onto the tree (method and every conflict decision in the lane logs: gen.sh, merge.sh, unguard.py, decisions.json). Carried on top of the print: MCP explicit empty array/scalar query values reach the API as name= (codeOrchSplitQuery); renamed endpoint ids resolve before both code-orchestration lookups; the novel-feature command-mirror context names each CLI command and its MCP tool (registeredCommandMirrorCapabilities, the 4.34.2 template's novel-features branch); `feedback` keeps its own --dry-run preview instead of the generic short-circuit; the error-path --deliver goes through finishDelivery (masked, previewed under --dry-run).",
+  "reason": "The 4.34.2 print changes generator contracts the hand patches and their tests were written against (read/execute MCP split, retainCLIQueryParams, required flags enforced under a user's --dry-run, client rewrite).",
+  "files": [
+    "internal/mcp/code_orch.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/code_orch_confirm_helper_test.go",
+    "internal/cli/feedback.go",
+    "internal/cli/root.go",
+    "internal/cli/root_test.go",
+    "internal/client/client.go",
+    "internal/client/redaction_patch.go"
+  ],
+  "validated_outcome": "go build, go vet and go test -count=1 ./... green; every earlier patch test passes (MCP guard tests through codeOrchTestInvoke; tests that pinned 4.28.0 generator defaults re-pinned to the 4.34.2 contract, each marked gocli1219)."
+}
