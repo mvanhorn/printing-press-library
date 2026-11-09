@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "milanote",
+  "cli_name": "milanote-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-09T09:56:59Z",
+  "source_commit": "9d0d5bbe651cb195c8e76cf7ec762ff06a3e7dfc",
+  "printing_press_version": "4.35.3",
+  "run_id": "20261108-014809-96d727c4",
+  "changes": [
+    {
+      "title": "feat(milanote): add milanote",
+      "pr": 2448,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2448",
+      "commit": "9d0d5bbe651cb195c8e76cf7ec762ff06a3e7dfc"
+    }
+  ]
+}

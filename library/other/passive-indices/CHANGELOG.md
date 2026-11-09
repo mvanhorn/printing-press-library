@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-09
+
+- fix(passive-indices): retry niftyindices HTML pages, report them as upstream errors (#2451).
+
 ## 2026.10.1 - 2026-10-01
 
 - fix(passive-indices): validate benchmarks and clarify tracking rankings (#2146).
