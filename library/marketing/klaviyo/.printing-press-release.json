@@ -2,16 +2,16 @@
   "schema_version": 1,
   "slug": "klaviyo",
   "cli_name": "klaviyo-pp-cli",
-  "version": "2026.11.1",
-  "released_at": "2026-11-03T22:20:33Z",
-  "source_commit": "9bb6e281aa0cc329d1d72b9bcd7ffa4002c88458",
+  "version": "2026.11.2",
+  "released_at": "2026-11-09T20:34:01Z",
+  "source_commit": "93a2a19768d13f12351b97daf075535ff0a5d2f0",
   "printing_press_version": "3.5.0",
   "changes": [
     {
-      "title": "fix(verify-skill): sync verifier from cli-printing-press and fix klaviyo recipe",
-      "pr": 2414,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2414",
-      "commit": "9bb6e281aa0cc329d1d72b9bcd7ffa4002c88458"
+      "title": "fix(klaviyo): bring the maintained Klaviyo CLI up to date",
+      "pr": 2454,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2454",
+      "commit": "93a2a19768d13f12351b97daf075535ff0a5d2f0"
     }
   ]
 }

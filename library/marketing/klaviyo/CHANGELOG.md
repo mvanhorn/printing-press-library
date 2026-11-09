@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.2 - 2026-11-09
+
+- fix(klaviyo): bring the maintained Klaviyo CLI up to date (#2454).
+
 ## 2026.11.1 - 2026-11-03
 
 - fix(verify-skill): sync verifier from cli-printing-press and fix klaviyo recipe (#2414).
