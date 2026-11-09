@@ -13,6 +13,7 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,10 +26,11 @@ import (
 )
 
 const (
-	baseURL     = "https://www.niftyindices.com"
-	userAgent   = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-	dateLayout  = "02-Jan-2006"
-	minStartYYY = "01-Jan-2000"
+	baseURL       = "https://www.niftyindices.com"
+	sectorBaseURL = "https://liveindexsa.niftyindices.com"
+	userAgent     = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+	dateLayout    = "02-Jan-2006"
+	minStartYYY   = "01-Jan-2000"
 )
 
 // Client calls niftyindices.com's historical PageMethods. All three
@@ -37,6 +39,8 @@ type Client struct {
 	httpClient *http.Client
 	limiter    *cliutil.AdaptiveLimiter
 	rateLimit  float64
+	base       string
+	sectorBase string
 }
 
 // New returns a Client paced at ratePerSec requests/second (0 disables pacing).
@@ -49,6 +53,8 @@ func New(timeout time.Duration, ratePerSec float64) *Client {
 		httpClient: &http.Client{Timeout: timeout},
 		limiter:    limiter,
 		rateLimit:  ratePerSec,
+		base:       baseURL,
+		sectorBase: sectorBaseURL,
 	}
 }
 
@@ -107,6 +113,58 @@ func (c *Client) onResult(status int) {
 	}
 }
 
+// fetch sends the request built by newReq, paced by the limiter. niftyindices
+// intermittently answers CSV and JSON endpoints with an HTML page (HTTP 200).
+// That is treated as a transient upstream error: the fetch is retried with
+// jittered exponential backoff, and fails with *cliutil.UpstreamHTMLError when
+// every attempt got a page. 429 is returned at once as a RateLimitError.
+func (c *Client) fetch(ctx context.Context, newReq func() (*http.Request, error), expected string) (int, []byte, error) {
+	var reqURL string
+	for attempt := 0; attempt < cliutil.UpstreamHTMLMaxAttempts; attempt++ {
+		req, err := newReq()
+		if err != nil {
+			return 0, nil, err
+		}
+		reqURL = req.URL.String()
+		c.wait()
+		resp, err := c.httpClient.Do(req)
+		if err != nil {
+			return 0, nil, err
+		}
+		body, readErr := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		c.onResult(resp.StatusCode)
+		if resp.StatusCode == http.StatusTooManyRequests {
+			return resp.StatusCode, nil, &cliutil.RateLimitError{URL: reqURL}
+		}
+		if readErr != nil {
+			return resp.StatusCode, nil, readErr
+		}
+		isHTML := resp.StatusCode >= 200 && resp.StatusCode < 300 && cliutil.LooksLikeHTML(resp.Header.Get("Content-Type"), body)
+		if !isHTML {
+			return resp.StatusCode, body, nil
+		}
+		if attempt == cliutil.UpstreamHTMLMaxAttempts-1 {
+			break
+		}
+		if err := cliutil.SleepContext(ctx, cliutil.UpstreamHTMLBackoff(attempt)); err != nil {
+			return 0, nil, err
+		}
+	}
+	return 0, nil, &cliutil.UpstreamHTMLError{URL: reqURL, Expected: expected, Attempts: cliutil.UpstreamHTMLMaxAttempts}
+}
+
+// wrapFetchErr adds context to transport errors and leaves the typed rate
+// limit and upstream-HTML errors untouched so callers can classify them.
+func wrapFetchErr(what string, err error) error {
+	var rl *cliutil.RateLimitError
+	var he *cliutil.UpstreamHTMLError
+	if errors.As(err, &rl) || errors.As(err, &he) {
+		return err
+	}
+	return fmt.Errorf("%s: %w", what, err)
+}
+
 // cinfoBody builds the {"cinfo": "{...}"} request body the /BackPage/
 // PageMethods expect: cinfo's VALUE is itself a JSON-encoded string.
 func cinfoBody(indexName string, from, to time.Time) ([]byte, error) {
@@ -129,32 +187,22 @@ func (c *Client) postBackPage(ctx context.Context, method string, indexName stri
 	if err != nil {
 		return nil, err
 	}
-	url := baseURL + "/BackPage/" + method
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	url := c.base + "/BackPage/" + method
+	status, data, err := c.fetch(ctx, func() (*http.Request, error) {
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+		if err != nil {
+			return nil, fmt.Errorf("building request for %s: %w", method, err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("User-Agent", userAgent)
+		req.Header.Set("Referer", c.base+"/reports/historical-data")
+		return req, nil
+	}, "JSON")
 	if err != nil {
-		return nil, fmt.Errorf("building request for %s: %w", method, err)
+		return nil, wrapFetchErr("calling "+method, err)
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", userAgent)
-	req.Header.Set("Referer", baseURL+"/reports/historical-data")
-
-	c.wait()
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("calling %s: %w", method, err)
-	}
-	defer resp.Body.Close()
-	c.onResult(resp.StatusCode)
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading %s response: %w", method, err)
-	}
-	if resp.StatusCode == http.StatusTooManyRequests {
-		return nil, &cliutil.RateLimitError{URL: url}
-	}
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("%s returned HTTP %d: %s", method, resp.StatusCode, truncate(string(data), 300))
+	if status < 200 || status >= 300 {
+		return nil, fmt.Errorf("%s returned HTTP %d: %s", method, status, truncate(string(data), 300))
 	}
 	return data, nil
 }
@@ -277,39 +325,23 @@ func (c *Client) Valuation(ctx context.Context, indexName string, from, to time.
 
 // Constituents fetches the constituent CSV for the given index slug (e.g. "nifty50").
 func (c *Client) Constituents(ctx context.Context, slug string) ([]ConstituentRow, error) {
-	url := fmt.Sprintf("%s/IndexConstituent/ind_%slist.csv", baseURL, slug)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	url := fmt.Sprintf("%s/IndexConstituent/ind_%slist.csv", c.base, slug)
+	status, body, err := c.fetch(ctx, func() (*http.Request, error) {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			return nil, fmt.Errorf("building constituents request: %w", err)
+		}
+		req.Header.Set("User-Agent", userAgent)
+		return req, nil
+	}, "CSV")
 	if err != nil {
-		return nil, fmt.Errorf("building constituents request: %w", err)
+		return nil, wrapFetchErr("fetching constituents", err)
 	}
-	req.Header.Set("User-Agent", userAgent)
-
-	c.wait()
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("fetching constituents: %w", err)
-	}
-	defer resp.Body.Close()
-	c.onResult(resp.StatusCode)
-
-	if resp.StatusCode == http.StatusTooManyRequests {
-		return nil, &cliutil.RateLimitError{URL: url}
-	}
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("constituents fetch returned HTTP %d: %s", resp.StatusCode, truncate(string(body), 300))
+	if status < 200 || status >= 300 {
+		return nil, fmt.Errorf("constituents fetch returned HTTP %d: %s", status, truncate(string(body), 300))
 	}
 
-	// niftyindices serves an unknown slug as a soft-404: HTTP 200 with an
-	// HTML error page (Content-Type text/html) instead of the octet-stream
-	// CSV a real slug returns. Detect it before handing the body to the CSV
-	// reader, which otherwise fails with a cryptic "bare \" in
-	// non-quoted-field" that gives no hint the slug itself is wrong.
-	if ct := resp.Header.Get("Content-Type"); strings.Contains(strings.ToLower(ct), "text/html") {
-		return nil, fmt.Errorf("no constituent list published for slug %q (the index name may be misspelled, or this index does not publish a constituent CSV)", slug)
-	}
-
-	r := csv.NewReader(resp.Body)
+	r := csv.NewReader(bytes.NewReader(body))
 	records, err := r.ReadAll()
 	if err != nil {
 		return nil, fmt.Errorf("parsing constituents CSV: %w", err)
@@ -363,30 +395,20 @@ var sectorWeightLabelRe = regexp.MustCompile(`^(.*?)\s+([\d.]+)%$`)
 // parsed as JS-object-literal-ish text, not handed directly to
 // encoding/json.
 func (c *Client) SectorWeights(ctx context.Context, indexName string) ([]SectorGroup, error) {
-	reqURL := fmt.Sprintf("https://liveindexsa.niftyindices.com/jsonfiles/Sector/SectorialIndexData%s_Sector.js", url.PathEscape(indexName))
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
+	reqURL := fmt.Sprintf("%s/jsonfiles/Sector/SectorialIndexData%s_Sector.js", c.sectorBase, url.PathEscape(indexName))
+	status, body, err := c.fetch(ctx, func() (*http.Request, error) {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
+		if err != nil {
+			return nil, fmt.Errorf("building sector-weights request: %w", err)
+		}
+		req.Header.Set("User-Agent", userAgent)
+		return req, nil
+	}, "sector-weights feed")
 	if err != nil {
-		return nil, fmt.Errorf("building sector-weights request: %w", err)
+		return nil, wrapFetchErr("fetching sector weights", err)
 	}
-	req.Header.Set("User-Agent", userAgent)
-
-	c.wait()
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("fetching sector weights: %w", err)
-	}
-	defer resp.Body.Close()
-	c.onResult(resp.StatusCode)
-
-	if resp.StatusCode == http.StatusTooManyRequests {
-		return nil, &cliutil.RateLimitError{URL: reqURL}
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading sector-weights response: %w", err)
-	}
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("sector-weights fetch returned HTTP %d: %s", resp.StatusCode, truncate(string(body), 300))
+	if status < 200 || status >= 300 {
+		return nil, fmt.Errorf("sector-weights fetch returned HTTP %d: %s", status, truncate(string(body), 300))
 	}
 
 	wire, err := parseSectorWeightsJSONP(body)

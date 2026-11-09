@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "passive-indices-niftyindices-html-retry",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20260709-233621-d673b83a",
+  "base_printing_press_version": "4.28.0",
+  "summary": "fix(passive-indices): retry niftyindices HTML answers on CSV/JSON endpoints; report them as an upstream error, not an auth error",
+  "reason": "From a server host niftyindices answers about 27% of constituent CSV requests with an HTTP 200 HTML page. The CLI did not retry and reported it as 'not authenticated or session expired', although these endpoints need no auth.",
+  "files": [
+    "internal/cliutil/upstream_html.go",
+    "internal/client/client.go",
+    "internal/niftyindices/client.go",
+    "internal/cli/helpers.go",
+    "README.md"
+  ],
+  "validated_outcome": "go test ./... passes; retry, exhaustion, HTML detection and exit code 9 covered with httptest servers."
+}
