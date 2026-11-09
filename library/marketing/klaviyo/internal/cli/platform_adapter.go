@@ -138,6 +138,15 @@ func bindKlaviyoPlatformClient(c *client.Client, session *platform.Session) erro
 	if err := c.SetPlatformEndpointBudget(platform.EndpointBudget{Class: "GET /api/accounts", Steady: 15, Interval: time.Minute, Burst: 1, MaxAttempts: 4, RetryBudget: time.Minute}); err != nil {
 		return err
 	}
+	// PATCH(review-rb-report-budgets): reports have a pinned steady ceiling of 2/minute, below the wildcard.
+	for _, endpoint := range []string{
+		"campaign-values-reports", "flow-values-reports", "flow-series-reports",
+		"form-values-reports", "form-series-reports", "segment-values-reports", "segment-series-reports",
+	} {
+		if err := c.SetPlatformEndpointBudget(platform.EndpointBudget{Class: "POST /api/" + endpoint, Steady: 2, Interval: time.Minute, Burst: 1, MaxAttempts: 4, RetryBudget: time.Minute}); err != nil {
+			return err
+		}
+	}
 	return c.SetPlatformEndpointBudget(platform.EndpointBudget{Class: "GET /api/profiles", Steady: 15, Interval: time.Minute, Burst: 1, MaxAttempts: 4, RetryBudget: time.Minute})
 }
 
@@ -200,12 +209,14 @@ func prepareKlaviyoLegacyMigration(flags *rootFlags, _ *platformSourceFlags, inp
 }
 
 func inspectKlaviyoLegacyDatabase(ctx context.Context, db *sql.DB, session *platform.Session) (platform.LegacyDatabaseEvidence, error) {
-	rows, err := db.QueryContext(ctx, `SELECT data FROM resources WHERE resource_type IN ('account', 'accounts') ORDER BY id LIMIT 2`)
+	// PATCH(review-rb-legacy-evidence): adoption requires a complete scan with no ignored identity rows.
+	rows, err := db.QueryContext(ctx, `SELECT data FROM resources WHERE resource_type IN ('account', 'accounts') ORDER BY id`)
 	if err != nil {
-		return platform.LegacyDatabaseEvidence{Method: "klaviyo-account-row", Reason: "legacy Klaviyo database has no bounded account identity evidence"}, nil
+		return platform.LegacyDatabaseEvidence{Method: "klaviyo-account-row", Reason: "legacy Klaviyo database account identity evidence could not be scanned"}, nil
 	}
 	defer rows.Close()
-	identities := map[string]struct{}{}
+	evidence := platform.LegacyDatabaseEvidence{Method: "klaviyo-account-row", Reason: "legacy Klaviyo account identity did not match the verified profile"}
+	matched := false
 	for rows.Next() {
 		var raw []byte
 		if err := rows.Scan(&raw); err != nil {
@@ -219,21 +230,29 @@ func inspectKlaviyoLegacyDatabase(ctx context.Context, db *sql.DB, session *plat
 				} `json:"contact_information"`
 			} `json:"attributes"`
 		}
-		if json.Unmarshal(raw, &item) != nil {
-			continue
+		if json.Unmarshal(raw, &item) != nil || strings.TrimSpace(item.ID) == "" {
+			evidence.Reason = "legacy Klaviyo account identity evidence was malformed or incomplete"
+			return evidence, nil
 		}
 		accountID := strings.TrimSpace(item.ID)
-		orgName := strings.TrimSpace(item.Attributes.ContactInformation.OrganizationName)
-		if accountID != "" && orgName != "" {
-			identities[accountID+"\x00"+orgName] = struct{}{}
+		if accountID != session.ExpectedIdentity["account_id"] {
+			return evidence, nil
 		}
+		orgName := strings.TrimSpace(item.Attributes.ContactInformation.OrganizationName)
+		if orgName == "" {
+			evidence.Reason = "legacy Klaviyo account identity evidence was malformed or incomplete"
+			return evidence, nil
+		}
+		if orgName != session.ExpectedIdentity["org_name"] {
+			return evidence, nil
+		}
+		matched = true
 	}
 	if err := rows.Err(); err != nil {
 		return platform.LegacyDatabaseEvidence{}, err
 	}
-	want := session.ExpectedIdentity["account_id"] + "\x00" + session.ExpectedIdentity["org_name"]
-	_, matched := identities[want]
-	return platform.LegacyDatabaseEvidence{Verified: matched && len(identities) == 1, Method: "klaviyo-account-row", Reason: "legacy Klaviyo account identity did not match the verified profile"}, nil
+	evidence.Verified = matched
+	return evidence, nil
 }
 
 func klaviyoResourceHealth(_ context.Context, session *platform.Session) ([]platform.ResourceHealth, error) {
