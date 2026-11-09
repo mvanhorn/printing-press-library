@@ -4,6 +4,7 @@
 package cliutil
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"net/http"
@@ -41,19 +42,35 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 }
 
 func (l *AdaptiveLimiter) Wait() {
+	_ = l.WaitContext(context.Background())
+}
+
+// WaitContext blocks until the adaptive pacing slot is available or the
+// invocation is canceled. Canceled waits do not advance the limiter clock.
+func (l *AdaptiveLimiter) WaitContext(ctx context.Context) error {
 	if l == nil {
-		return
+		return nil
+	}
+	if ctx == nil {
+		ctx = context.Background()
 	}
 	l.mu.Lock()
 	delay := time.Duration(float64(time.Second) / l.rate)
 	elapsed := time.Since(l.lastRequest)
 	l.mu.Unlock()
 	if elapsed < delay {
-		time.Sleep(delay - elapsed)
+		timer := time.NewTimer(delay - elapsed)
+		defer timer.Stop()
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-timer.C:
+		}
 	}
 	l.mu.Lock()
 	l.lastRequest = time.Now()
 	l.mu.Unlock()
+	return nil
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {

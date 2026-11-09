@@ -278,6 +278,10 @@ func paginatedGet(c interface {
 
 	// Fetch all pages
 	var allItems []json.RawMessage
+	seenCursors := map[string]bool{}
+	if cursor := clean[cursorParam]; cursor != "" {
+		seenCursors[cursor] = true
+	}
 	page := 0
 	for {
 		page++
@@ -316,6 +320,10 @@ func paginatedGet(c interface {
 					if tokenRaw, ok := obj[nextCursorPath]; ok {
 						var token string
 						if json.Unmarshal(tokenRaw, &token) == nil && token != "" {
+							if seenCursors[token] {
+								return nil, fmt.Errorf("pagination cursor %q repeated for %s", token, path)
+							}
+							seenCursors[token] = true
 							clean[cursorParam] = token
 							continue
 						}
@@ -327,7 +335,30 @@ func paginatedGet(c interface {
 					if moreRaw, ok := obj[hasMoreField]; ok {
 						var more bool
 						if json.Unmarshal(moreRaw, &more) == nil && more {
-							continue
+							return nil, fmt.Errorf("response indicates more pages after page %d but provides no next cursor", page)
+						}
+					}
+				}
+
+				// JSON:API pagination carries the next cursor in links.next.
+				// Generated Klaviyo commands use page[cursor] but do not set a
+				// top-level nextCursorPath, so without this fallback --all stops
+				// after the first page even when the response advertises another.
+				if cursorParam != "" {
+					if linksRaw, ok := obj["links"]; ok {
+						var links map[string]json.RawMessage
+						if json.Unmarshal(linksRaw, &links) == nil {
+							var nextLink string
+							if json.Unmarshal(links["next"], &nextLink) == nil {
+								if nextCursor := cursorFromNextLink(nextLink, cursorParam); nextCursor != "" {
+									if seenCursors[nextCursor] {
+										return nil, fmt.Errorf("pagination cursor %q repeated for %s", nextCursor, path)
+									}
+									seenCursors[nextCursor] = true
+									clean[cursorParam] = nextCursor
+									continue
+								}
+							}
 						}
 					}
 				}
@@ -347,6 +378,17 @@ func paginatedGet(c interface {
 	}
 	result, _ := json.Marshal(allItems)
 	return json.RawMessage(result), nil
+}
+
+func cursorFromNextLink(nextLink, cursorParam string) string {
+	if nextLink == "" || cursorParam == "" {
+		return ""
+	}
+	parsed, err := url.Parse(nextLink)
+	if err != nil {
+		return ""
+	}
+	return parsed.Query().Get(cursorParam)
 }
 
 // printJSONFiltered marshals a Go-typed value through the same output
@@ -472,6 +514,11 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	} else if flags.compact {
 		data = compactFields(data)
 	}
+	var err error
+	data, err = applyPlatformOutputMetadata(w, data, flags)
+	if err != nil {
+		return err
+	}
 	// --quiet: suppress all output, exit code communicates result
 	if flags.quiet {
 		return nil
@@ -536,6 +583,7 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		"id": true, "name": true, "title": true, "identifier": true,
 		"status": true, "state": true, "type": true, "priority": true,
 		"url": true, "email": true, "key": true,
+		"created": true, "updated": true,
 		"created_at": true, "updated_at": true, "createdAt": true, "updatedAt": true,
 	}
 
@@ -546,6 +594,15 @@ func compactListFields(items []map[string]any) json.RawMessage {
 			if keepFields[k] {
 				compact[k] = v
 			}
+		}
+		if attributes, ok := item["attributes"].(map[string]any); ok {
+			kept := map[string]any{}
+			for k, v := range attributes {
+				if keepFields[k] {
+					kept[k] = v
+				}
+			}
+			compact["attributes"] = kept
 		}
 		filtered = append(filtered, compact)
 	}
@@ -1184,8 +1241,69 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	return json.Marshal(envelope)
 }
 
-// defaultDBPath returns the canonical path for the local SQLite database.
-func defaultDBPath(name string) string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", name, "data.db")
+// defaultDBPath returns an XDG-compliant, account-scoped path for the local
+// SQLite database. A key fingerprint is deliberately part of the path so two
+// Klaviyo tenants can never write into the same implicit store.
+func (f *rootFlags) defaultDBPath(name string) (string, error) {
+	if f != nil && f.platformSession != nil {
+		return f.platformSession.Paths.DataFile, nil
+	}
+	cfg, err := loadEffectiveKlaviyoConfig(f.configPath)
+	if err != nil {
+		return "", configErr(err)
+	}
+	return defaultDBPathForFingerprint(name, client.AccountFingerprint(cfg))
+}
+
+func defaultDBPathForClient(name string, c *client.Client) (string, error) {
+	if c == nil {
+		return "", fmt.Errorf("cannot resolve account-scoped database without a Klaviyo client")
+	}
+	if session := c.PlatformSession(); session != nil {
+		return session.Paths.DataFile, nil
+	}
+	return defaultDBPathForFingerprint(name, client.AccountFingerprint(c.Config))
+}
+
+func defaultDBPathForFingerprint(name, fingerprint string) (string, error) {
+	if fingerprint == "" || fingerprint == "unconfigured" {
+		return "", fmt.Errorf("cannot resolve account-scoped database without Klaviyo credentials; configure an account or pass --db explicitly")
+	}
+	dataRoot := strings.TrimSpace(os.Getenv("XDG_DATA_HOME"))
+	if dataRoot == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("resolving home directory: %w", err)
+		}
+		dataRoot = filepath.Join(home, ".local", "share")
+	}
+	accountPath := filepath.Join(dataRoot, name, "accounts", fingerprint, "data.db")
+	if _, err := os.Stat(accountPath); err == nil {
+		return accountPath, nil
+	} else if !os.IsNotExist(err) {
+		return "", fmt.Errorf("checking account-scoped database: %w", err)
+	}
+
+	// Older releases wrote every tenant to one unscoped database. Its tenant
+	// cannot be inferred safely from the rows, so silently adopting or copying
+	// it would recreate the cross-tenant poisoning this path prevents. Refuse
+	// with both paths visible so the operator can verify and migrate it
+	// explicitly, or start a clean account-scoped sync.
+	legacyCandidates := []string{filepath.Join(dataRoot, name, "data.db")}
+	if home, err := os.UserHomeDir(); err == nil {
+		legacyCandidates = append(legacyCandidates, filepath.Join(home, ".local", "share", name, "data.db"))
+	}
+	seen := map[string]bool{}
+	for _, legacyPath := range legacyCandidates {
+		if seen[legacyPath] {
+			continue
+		}
+		seen[legacyPath] = true
+		if _, err := os.Stat(legacyPath); err == nil {
+			return "", fmt.Errorf("legacy unscoped Klaviyo database found at %s; refusing automatic use because its tenant identity is unknown. Verify the tenant and pass --db %s explicitly, or sync into the account-scoped path %s", legacyPath, legacyPath, accountPath)
+		} else if !os.IsNotExist(err) {
+			return "", fmt.Errorf("checking legacy database %s: %w", legacyPath, err)
+		}
+	}
+	return accountPath, nil
 }

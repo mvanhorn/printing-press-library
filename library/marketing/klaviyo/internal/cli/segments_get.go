@@ -21,6 +21,7 @@ func newSegmentsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagPageSize int
 	var flagSort string
 	var flagAll bool
+	var flagWithCounts bool
 
 	cmd := &cobra.Command{
 		Use:         "get",
@@ -61,6 +62,12 @@ func newSegmentsGetCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err)
 			}
+			if flagWithCounts && !flags.dryRun {
+				data, err = enrichSegmentProfileCounts(cmd.Context(), c, data)
+				if err != nil {
+					return err
+				}
+			}
 			// Print provenance to stderr for human-facing output
 			{
 				var countItems []json.RawMessage
@@ -75,7 +82,11 @@ func newSegmentsGetCmd(flags *rootFlags) *cobra.Command {
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					if flagWithCounts {
+						filtered = compactSegmentProfileCounts(filtered)
+					} else {
+						filtered = compactFields(filtered)
+					}
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -108,6 +119,7 @@ func newSegmentsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagPageSize, "page-size", 10, "Default: 10. Min: 1. Max: 10.")
 	cmd.Flags().StringVar(&flagSort, "sort", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sorting (one of: created, -created, id, -id, name, -name, updated, -updated)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
+	cmd.Flags().BoolVar(&flagWithCounts, "with-counts", false, "Enrich each segment with profile_count (paced at the endpoint's 15 requests/minute limit)")
 
 	return cmd
 }

@@ -14,6 +14,9 @@ import (
 func newFlowValuesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagFieldsFlowValuesReport string
 	var flagPageCursor string
+	var statistics []string
+	var timeframe string
+	var conversionMetricID string
 
 	cmd := &cobra.Command{
 		Use:         "flow-values-reports",
@@ -27,13 +30,19 @@ func newFlowValuesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/api/flow-values-reports"
+			path := "/api/flow-values-reports/"
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			data, _, err := c.Post(path, body)
+			body, _, err := buildKlaviyoReportBody(c, klaviyoReportRequest{
+				Type: "flow-values-report", Statistics: statistics,
+				Timeframe: map[string]any{"key": timeframe}, ConversionMetricID: conversionMetricID,
+			}, flags.dryRun)
+			if err != nil {
+				return err
+			}
+			data, _, err := postKlaviyoReport(c, path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err)
@@ -88,6 +97,9 @@ func newFlowValuesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagFieldsFlowValuesReport, "fields-flow-values-report", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sparse-fieldsets")
 	cmd.Flags().StringVar(&flagPageCursor, "page-cursor", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#pagination")
+	cmd.Flags().StringSliceVar(&statistics, "statistics", campaignReportDefaultStatistics, "Statistics to include in the report")
+	cmd.Flags().StringVar(&timeframe, "timeframe", "last_30_days", "Klaviyo predefined reporting timeframe")
+	cmd.Flags().StringVar(&conversionMetricID, "conversion-metric-id", "", "Conversion metric ID (default: auto-resolve Shopify Placed Order)")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

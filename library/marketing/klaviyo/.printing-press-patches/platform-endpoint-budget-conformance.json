@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "platform-endpoint-budget-conformance",
+  "applied_at": "2026-07-20",
+  "base_run_id": "",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Require declared exact or wildcard endpoint budgets and fail closed when no declared policy matches.",
+  "reason": "Gate C0 must never invent pacing or retry policy for an undeclared endpoint class; the checked-in provenance inventory distinguishes published constraints from conservative internal fallbacks, exact overrides take precedence, and long provider Retry-After values remain authoritative.",
+  "files": [
+    "internal/cli/platform_adapter.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go",
+    "internal/client/platform_budget_test.go",
+    "internal/client/platform_rate_limit_test.go",
+    "internal/platform/ratelimit.go"
+  ],
+  "validated_outcome": "Exact-first lookup, wildcard cloning, typed missing-budget errors, bounded safe retries, and uncapped provider Retry-After behavior are covered by deterministic client tests, and the fleet verifier prevents adapter and provenance-inventory drift."
+}

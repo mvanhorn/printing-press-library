@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -16,6 +17,7 @@ func newCampaignMessageAssignTemplatePromotedCmd(flags *rootFlags) *cobra.Comman
 	var bodyDataID string
 	var bodyDataRelationshipsTemplate string
 	var bodyDataType string
+	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "campaign-message-assign-template",
@@ -23,14 +25,33 @@ func newCampaignMessageAssignTemplatePromotedCmd(flags *rootFlags) *cobra.Comman
 		Long:        "Shortcut for 'campaign-message-assign-template assign-template-to-campaign-message'. Creates a non-reusable version of the template and assigns it to the message.<br><br>*Rate limits*:<br>Burst:...",
 		Example:     "  klaviyo-pp-cli campaign-message-assign-template",
 		Annotations: map[string]string{"pp:endpoint": "campaign-message-assign-template.assign-template-to-campaign-message"},
+		Args:        cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("data-id") && bodyDataID == "" && !flags.dryRun {
+			var stdinPayload map[string]any
+			if stdinBody {
+				for _, name := range []string{"data-id", "data-type", "data-relationships-template"} {
+					if cmd.Flags().Changed(name) {
+						return fmt.Errorf("--stdin cannot be combined with --%s", name)
+					}
+				}
+				var err error
+				stdinPayload, err = readShortcutBody(cmd)
+				if err != nil {
+					return err
+				}
+				for _, name := range []string{"data.id", "data.type", "data.relationships.template.data.id"} {
+					if stringFromMapPath(stdinPayload, name) == "" {
+						return fmt.Errorf("stdin request requires %s", name)
+					}
+				}
+			}
+			if !stdinBody && !cmd.Flags().Changed("data-id") && bodyDataID == "" && !flags.dryRun {
 				return fmt.Errorf("required flag %q not set", "data-id")
 			}
-			if !cmd.Flags().Changed("data-relationships-template") && bodyDataRelationshipsTemplate == "" && !flags.dryRun {
+			if !stdinBody && !cmd.Flags().Changed("data-relationships-template") && bodyDataRelationshipsTemplate == "" && !flags.dryRun {
 				return fmt.Errorf("required flag %q not set", "data-relationships-template")
 			}
-			if !cmd.Flags().Changed("data-type") && bodyDataType == "" && !flags.dryRun {
+			if !stdinBody && !cmd.Flags().Changed("data-type") && bodyDataType == "" && !flags.dryRun {
 				return fmt.Errorf("required flag %q not set", "data-type")
 			}
 			c, err := flags.newClient()
@@ -39,6 +60,9 @@ func newCampaignMessageAssignTemplatePromotedCmd(flags *rootFlags) *cobra.Comman
 			}
 
 			path := "/api/campaign-message-assign-template"
+			if cmd.Flags().Changed("fields-campaign-message") {
+				path += "?" + url.Values{"fields[campaign-message]": {flagFieldsCampaignMessage}}.Encode()
+			}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
@@ -65,6 +89,15 @@ func newCampaignMessageAssignTemplatePromotedCmd(flags *rootFlags) *cobra.Comman
 			}
 			if cmd.Flags().Changed("data-type") || bodyDataType != "" {
 				bodyMap["type"] = bodyDataType
+			}
+			if stdinBody {
+				body = stdinPayload
+			}
+			if !flags.dryRun {
+				templateID := stringFromMapPath(body, "data.relationships.template.data.id")
+				if err := requireTemplateCompliance(c, templateID); err != nil {
+					return err
+				}
 			}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
@@ -123,6 +156,7 @@ func newCampaignMessageAssignTemplatePromotedCmd(flags *rootFlags) *cobra.Comman
 	cmd.Flags().StringVar(&bodyDataID, "data-id", "", "The message ID to assign")
 	cmd.Flags().StringVar(&bodyDataRelationshipsTemplate, "data-relationships-template", "", "Template relationship object")
 	cmd.Flags().StringVar(&bodyDataType, "data-type", "", "Type")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON request body from stdin instead of body flags")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

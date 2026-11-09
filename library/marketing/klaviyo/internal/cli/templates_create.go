@@ -45,6 +45,7 @@ func newTemplatesCreateCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 			}
+			warning := warnTemplateCompliance(cmd, templateHTMLFromBody(body))
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
 				return classifyAPIError(err)
@@ -91,6 +92,9 @@ func newTemplatesCreateCmd(flags *rootFlags) *cobra.Command {
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,
+				}
+				if warning != "" {
+					envelope["warnings"] = []string{warning}
 				}
 				if flags.dryRun {
 					envelope["dry_run"] = true

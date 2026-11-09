@@ -8,10 +8,15 @@ import (
 	"os"
 
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/cli"
 	mcptools "github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/mcp"
 )
 
 func main() {
+	if err := cli.BindMCPServerProfile(); err != nil {
+		fmt.Fprintf(os.Stderr, "MCP client-profile bind failed: %v\n", err)
+		os.Exit(1)
+	}
 	s := server.NewMCPServer(
 		"Klaviyo",
 		"1.0.0",

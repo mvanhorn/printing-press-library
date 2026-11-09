@@ -18,6 +18,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/platform"
 	_ "modernc.org/sqlite"
 )
 
@@ -59,11 +60,33 @@ func Open(dbPath string) (*Store, error) {
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
 // instead of waiting out the full migrationLockTimeout.
 func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+	return openWithContext(ctx, dbPath, nil)
+}
+
+func OpenVerifiedWithContext(ctx context.Context, dbPath string, session *platform.Session) (*Store, error) {
+	if session == nil || session.GateOutcome != platform.GateVerified {
+		return nil, fmt.Errorf("verified client profile session is required")
+	}
+	return openWithContext(ctx, dbPath, session)
+}
+
+func openWithContext(ctx context.Context, dbPath string, session *platform.Session) (*Store, error) {
+	isNew := false
+	if session != nil {
+		_, statErr := os.Stat(dbPath)
+		isNew = os.IsNotExist(statErr)
+		if statErr != nil && !isNew {
+			return nil, statErr
+		}
+	}
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
+	if err := rejectNewerSchemaBeforeWAL(ctx, dbPath); err != nil {
+		return nil, err
+	}
 
-	db, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
+	db, err := sql.Open("sqlite", dbPath+"?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
 	if err != nil {
 		return nil, fmt.Errorf("opening database: %w", err)
 	}
@@ -74,12 +97,100 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	db.SetMaxOpenConns(2)
 
 	s := &Store{db: db, path: dbPath}
+	if session != nil {
+		if isNew {
+			err = platform.InitializeTenantMetadata(ctx, db, session, "new-profile-store")
+		} else {
+			err = platform.VerifyTenantMetadata(ctx, db, session)
+		}
+		if err != nil {
+			db.Close()
+			return nil, fmt.Errorf("verifying database tenant metadata: %w", err)
+		}
+	}
 	if err := s.migrate(ctx); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("running migrations: %w", err)
 	}
 
 	return s, nil
+}
+
+func rejectNewerSchemaBeforeWAL(ctx context.Context, dbPath string) error {
+	info, err := os.Stat(dbPath)
+	if os.IsNotExist(err) || (err == nil && info.Size() == 0) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("stating database for schema preflight: %w", err)
+	}
+	probe, err := sql.Open("sqlite", "file:"+filepath.ToSlash(dbPath)+"?mode=ro&_pragma=busy_timeout(1000)")
+	if err != nil {
+		return nil
+	}
+	defer probe.Close()
+	probe.SetMaxOpenConns(1)
+	var current int
+	if err := probe.QueryRowContext(ctx, `PRAGMA user_version`).Scan(&current); err != nil {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		return nil
+	}
+	if current > StoreSchemaVersion {
+		return fmt.Errorf("database schema version %d is newer than supported version %d; upgrade the CLI binary or open an older database", current, StoreSchemaVersion)
+	}
+	return nil
+}
+
+// InspectResourceHealth opens an existing store read-only after the live gate
+// and reports aggregate-only per-resource freshness.
+func InspectResourceHealth(dbPath string, session *platform.Session) ([]platform.ResourceHealth, error) {
+	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+		return []platform.ResourceHealth{}, nil
+	} else if err != nil {
+		return nil, err
+	}
+	db, err := sql.Open("sqlite", "file:"+filepath.ToSlash(dbPath)+"?mode=ro")
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+	if err := platform.VerifyTenantMetadataReadOnly(context.Background(), db, session); err != nil {
+		return nil, fmt.Errorf("verifying database tenant metadata: %w", err)
+	}
+	rows, err := db.Query(`SELECT resource_type, COUNT(*), MAX(updated_at), MAX(synced_at) FROM resources GROUP BY resource_type ORDER BY resource_type`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	result := []platform.ResourceHealth{}
+	for rows.Next() {
+		var name string
+		var count int64
+		var newestRaw, syncedRaw sql.NullString
+		if err := rows.Scan(&name, &count, &newestRaw, &syncedRaw); err != nil {
+			return nil, err
+		}
+		health := platform.ResourceHealth{Name: name, Rows: count, Freshness: "unknown"}
+		if newestRaw.Valid {
+			if parsed, err := time.Parse(time.RFC3339, newestRaw.String); err == nil {
+				health.NewestRowAt = &parsed
+			}
+		}
+		if syncedRaw.Valid {
+			if parsed, err := time.Parse(time.RFC3339, syncedRaw.String); err == nil {
+				health.LastSyncedAt = &parsed
+				if time.Since(parsed) > 24*time.Hour {
+					health.Freshness = "stale"
+				} else {
+					health.Freshness = "fresh"
+				}
+			}
+		}
+		result = append(result, health)
+	}
+	return result, rows.Err()
 }
 
 func (s *Store) Close() error {
@@ -344,9 +455,17 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 }
 
 func (s *Store) migrate(ctx context.Context) error {
-	conn, err := s.db.Conn(ctx)
-	if err != nil {
-		return fmt.Errorf("acquiring migration connection: %w", err)
+	deadline := time.Now().Add(migrationLockTimeout)
+	var conn *sql.Conn
+	if err := retryOnBusy(ctx, deadline, "acquiring migration connection", func() error {
+		c, err := s.db.Conn(ctx)
+		if err != nil {
+			return err
+		}
+		conn = c
+		return nil
+	}); err != nil {
+		return err
 	}
 	defer conn.Close()
 
@@ -354,7 +473,6 @@ func (s *Store) migrate(ctx context.Context) error {
 	// opening a newer-schema DB rejects immediately. WAL readers don't
 	// normally block on writers, but the fresh-DB WAL-init race can BUSY
 	// a SELECT — share the lock's deadline so total budget stays bounded.
-	deadline := time.Now().Add(migrationLockTimeout)
 	var current int
 	if err := retryOnBusy(ctx, deadline, "reading schema version", func() error {
 		return conn.QueryRowContext(ctx, `PRAGMA user_version`).Scan(&current)

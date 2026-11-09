@@ -6,12 +6,14 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
 func newProfileImportPromotedCmd(flags *rootFlags) *cobra.Command {
+	var stdinBody bool
 	var flagAdditionalFieldsProfile string
 	var flagFieldsProfile string
 
@@ -19,20 +21,39 @@ func newProfileImportPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "profile-import",
 		Short:       "Given a set of profile attributes and optionally an ID, create or update a profile. Returns 201 if a new profile was...",
 		Long:        "Shortcut for 'profile-import create-or-update-profile'. Given a set of profile attributes and optionally an ID, create or update a profile. Returns 201 if a new profile was...",
-		Example:     "  klaviyo-pp-cli profile-import",
+		Example:     "  echo '{\"data\":{\"type\":\"profile\",\"attributes\":{\"email\":\"person@example.com\",\"first_name\":\"Alex\"}}}' | klaviyo-pp-cli profile-import --stdin",
 		Annotations: map[string]string{"pp:endpoint": "profile-import.create-or-update-profile"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			body := map[string]any{}
+			if stdinBody {
+				var err error
+				body, err = readShortcutBodyOfType(cmd, "profile")
+				if err != nil {
+					return err
+				}
+			} else if !flags.dryRun {
+				return usageErr(fmt.Errorf("profile-import needs a request body: pipe the JSON:API body to --stdin"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/api/profile-import"
+			query := url.Values{}
+			if cmd.Flags().Changed("additional-fields-profile") {
+				query.Set("additional-fields[profile]", flagAdditionalFieldsProfile)
+			}
+			if cmd.Flags().Changed("fields-profile") {
+				query.Set("fields[profile]", flagFieldsProfile)
+			}
+			if len(query) > 0 {
+				path += "?" + query.Encode()
+			}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -88,6 +109,8 @@ func newProfileImportPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagAdditionalFieldsProfile, "additional-fields-profile", "", "Request additional fields not included by default in the response. Supported values: 'subscriptions',...")
 	cmd.Flags().StringVar(&flagFieldsProfile, "fields-profile", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sparse-fieldsets")
+
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON:API request body from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

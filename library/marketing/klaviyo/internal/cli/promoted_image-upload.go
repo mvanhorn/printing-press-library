@@ -6,7 +6,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -24,30 +26,35 @@ func newImageUploadPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  klaviyo-pp-cli image-upload",
 		Annotations: map[string]string{"pp:endpoint": "image-upload.upload-image-from-file"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("file") && !flags.dryRun {
+			if bodyFile == "" {
 				return fmt.Errorf("required flag \"%s\" not set", "file")
 			}
+			file, err := os.Open(bodyFile)
+			if err != nil {
+				return fmt.Errorf("open image file %q: %w", bodyFile, err)
+			}
+			defer file.Close()
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/api/image-upload"
+			if flagFieldsImage != "" {
+				path += "?" + (url.Values{"fields[image]": {flagFieldsImage}}).Encode()
+			}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			if bodyFile != "" {
-				body["file"] = bodyFile
-			}
-			if bodyHidden != false {
-				body["hidden"] = bodyHidden
+			fields := map[string]string{}
+			if cmd.Flags().Changed("hidden") {
+				fields["hidden"] = strconv.FormatBool(bodyHidden)
 			}
 			if bodyName != "" {
-				body["name"] = bodyName
+				fields["name"] = bodyName
 			}
-			data, _, err := c.Post(path, body)
+			data, _, err := c.PostMultipart(path, file, fields, nil)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err)

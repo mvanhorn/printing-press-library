@@ -14,6 +14,10 @@ import (
 func newFlowSeriesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagFieldsFlowSeriesReport string
 	var flagPageCursor string
+	var statistics []string
+	var timeframe string
+	var interval string
+	var conversionMetricID string
 
 	cmd := &cobra.Command{
 		Use:         "flow-series-reports",
@@ -22,18 +26,36 @@ func newFlowSeriesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  klaviyo-pp-cli flow-series-reports",
 		Annotations: map[string]string{"pp:endpoint": "flow-series-reports.query-flow-series"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/api/flow-series-reports/"
+			request := klaviyoReportRequest{
+				Type: "flow-series-report", Statistics: statistics,
+				Timeframe: map[string]any{"key": timeframe}, Interval: interval,
+				ConversionMetricID: conversionMetricID,
+			}
+			if dryRunOK(flags) {
+				body, _, err := buildKlaviyoReportBody(nil, request, true)
+				if err != nil {
+					return err
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"dry_run": true,
+					"request": map[string]any{"method": "POST", "path": path, "body": body},
+				}, flags)
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/api/flow-series-reports"
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			data, _, err := c.Post(path, body)
+			body, _, err := buildKlaviyoReportBody(c, request, false)
+			if err != nil {
+				return err
+			}
+			data, _, err := postKlaviyoReport(c, path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err)
@@ -88,6 +110,10 @@ func newFlowSeriesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagFieldsFlowSeriesReport, "fields-flow-series-report", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sparse-fieldsets")
 	cmd.Flags().StringVar(&flagPageCursor, "page-cursor", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#pagination")
+	cmd.Flags().StringSliceVar(&statistics, "statistics", campaignReportDefaultStatistics, "Statistics to include in the report")
+	cmd.Flags().StringVar(&timeframe, "timeframe", "last_30_days", "Klaviyo predefined reporting timeframe")
+	cmd.Flags().StringVar(&interval, "interval", "weekly", "Series aggregation interval: hourly, daily, weekly, or monthly")
+	cmd.Flags().StringVar(&conversionMetricID, "conversion-metric-id", "", "Conversion metric ID (default: auto-resolve Shopify Placed Order)")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

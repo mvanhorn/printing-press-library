@@ -1,9 +1,12 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -71,6 +74,7 @@ func TestNovelCommandsRegistered(t *testing.T) {
 		{"report", "products"},
 		{"report", "product-affinity"},
 		{"report", "consent"},
+		{"report", "targeting"},
 		{"lists", "audit"},
 		{"templates", "audit"},
 		{"tags", "audit"},
@@ -83,52 +87,367 @@ func TestNovelCommandsRegistered(t *testing.T) {
 	}
 }
 
-func TestUnsubscribeCompliance(t *testing.T) {
-	tests := []struct {
-		name       string
-		html       string
-		wantStatus string
-	}{
-		{name: "full link tag", html: `<p>{% unsubscribe %}</p>`, wantStatus: "pass"},
-		{name: "custom full link tag", html: `<p>{% unsubscribe 'Stop these emails' %}</p>`, wantStatus: "pass"},
-		{name: "URL tag in href", html: `<a href="{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "pass"},
-		{name: "URL tag in single-quoted href", html: `<a href='{% unsubscribe_link %}'>Unsubscribe</a>`, wantStatus: "pass"},
-		{name: "URL tag in data href", html: `<a data-href="{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "fail"},
-		{name: "URL tag in aria label", html: `<a aria-label="href={% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "fail"},
-		{name: "full link tag in href", html: `<a href="{% unsubscribe %}">Unsubscribe</a>`, wantStatus: "fail"},
-		{name: "custom full link tag in href", html: `<a href="{% unsubscribe 'Stop' %}">Unsubscribe</a>`, wantStatus: "fail"},
-		{name: "URL tag outside href", html: `<p>{% unsubscribe_link %}</p>`, wantStatus: "fail"},
-		{name: "full link tag in comment", html: `<!-- {% unsubscribe %} -->`, wantStatus: "fail"},
-		{name: "URL tag in non-rendered template", html: `<template><a href="{% unsubscribe_link %}">Unsubscribe</a></template>`, wantStatus: "fail"},
-		{name: "hidden and visible tags", html: `<!-- {% unsubscribe %} --><a href="{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "pass"},
-		{name: "missing tag", html: `<p>Hello</p>`, wantStatus: "fail"},
-		{name: "missing HTML evidence", wantStatus: "warn"},
+func TestPaginatedGetFollowsJSONAPINextLink(t *testing.T) {
+	c := &fakePaginatedClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"flow-1"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=next-page"}}`),
+		rawJSON(`{"data":[{"id":"flow-2"}],"links":{"next":null}}`),
+	}}
+
+	got, err := paginatedGet(c, "/api/flows", map[string]string{"page[size]": "50"}, nil, true, "page[cursor]", "", "")
+	if err != nil {
+		t.Fatalf("paginatedGet() error = %v", err)
+	}
+	var items []map[string]any
+	if err := json.Unmarshal(got, &items); err != nil {
+		t.Fatalf("unmarshal paginated result: %v", err)
+	}
+	if len(items) != 2 || items[0]["id"] != "flow-1" || items[1]["id"] != "flow-2" {
+		t.Fatalf("items = %#v", items)
+	}
+	if len(c.params) != 2 || c.params[1]["page[cursor]"] != "next-page" {
+		t.Fatalf("request params = %#v", c.params)
+	}
+}
+
+func TestPaginatedGetRejectsCursorCycles(t *testing.T) {
+	c := &fakePaginatedClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"flow-1"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=A"}}`),
+		rawJSON(`{"data":[{"id":"flow-2"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=B"}}`),
+		rawJSON(`{"data":[{"id":"flow-3"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=A"}}`),
+	}}
+
+	if _, err := paginatedGet(c, "/api/flows", map[string]string{"page[size]": "50"}, nil, true, "page[cursor]", "", ""); err == nil || !strings.Contains(err.Error(), "cursor") {
+		t.Fatalf("expected cursor-cycle error, got %v", err)
+	}
+	if len(c.params) != 3 {
+		t.Fatalf("request params = %#v", c.params)
+	}
+}
+
+func TestAuditFetchersUseValidKlaviyoParametersAndAllPages(t *testing.T) {
+	formsClient := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"form-1"}],"links":{"next":"https://example.test/api/forms?page%5Bcursor%5D=forms-2"}}`),
+		rawJSON(`{"data":[{"id":"form-2"}],"links":{}}`),
+	}}
+	forms, err := fetchReportForms(formsClient)
+	if err != nil {
+		t.Fatalf("fetchReportForms() error = %v", err)
+	}
+	if len(forms) != 2 {
+		t.Fatalf("forms = %#v", forms)
+	}
+	if got := formsClient.requests[0].params["fields[form]"]; got != "name,status,created_at,updated_at" {
+		t.Fatalf("forms fields = %q", got)
+	}
+	if got := formsClient.requests[1].params["page[cursor]"]; got != "forms-2" {
+		t.Fatalf("forms second-page cursor = %q", got)
 	}
 
+	templatesClient := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"template-1"}],"links":{}}`),
+	}}
+	if _, err := fetchTemplateAuditItems(templatesClient); err != nil {
+		t.Fatalf("fetchTemplateAuditItems() error = %v", err)
+	}
+	if got := templatesClient.requests[0].params["page[size]"]; got != "10" {
+		t.Fatalf("template page size = %q, want 10", got)
+	}
+	if got := templatesClient.requests[0].params["fields[template]"]; got != "name,updated" {
+		t.Fatalf("template fields = %q", got)
+	}
+}
+
+func TestListGrowthUsesCurrentKlaviyoMetricNames(t *testing.T) {
+	want := []string{"Subscribed to List", "Unsubscribed from List", "Unsubscribed from Email Marketing"}
+	if fmt.Sprint(listGrowthMetricNames) != fmt.Sprint(want) {
+		t.Fatalf("listGrowthMetricNames = %#v, want %#v", listGrowthMetricNames, want)
+	}
+	rows := []map[string]any{
+		{"metric": "Subscribed to List", "count": 120},
+		{"metric": "Unsubscribed from List", "count": 25},
+		{"metric": "Unsubscribed from Email Marketing", "count": 10},
+	}
+	report := buildListGrowthReport(rows, "90d")
+	if got := report["net_list_growth"]; got != 95 {
+		t.Fatalf("net list growth = %v, want 95", got)
+	}
+	if report["derived_metrics_complete"] != true {
+		t.Fatalf("report = %#v", report)
+	}
+}
+
+func TestListGrowthDoesNotDeriveFromMissingMetrics(t *testing.T) {
+	rows := []map[string]any{
+		{"metric": "Subscribed to List", "count": 120},
+		{"metric": "Unsubscribed from List", "error": "metric not found"},
+		{"metric": "Unsubscribed from Email Marketing", "count": 10},
+	}
+	report := buildListGrowthReport(rows, "90d")
+	if report["net_list_growth"] != nil || report["list_unsubscriptions"] != nil {
+		t.Fatalf("missing metric produced derived counts: %#v", report)
+	}
+	if report["derived_metrics_complete"] != false || report["warning"] == nil {
+		t.Fatalf("missing metric should be explicit: %#v", report)
+	}
+}
+
+func TestSubjectLineAnalysisProducesNonEmptyOutput(t *testing.T) {
+	since := time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)
+	until := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+	c := &fakeCouponPoolClient{
+		responses: []json.RawMessage{
+			rawJSON(`{"data":[{"id":"received-email","attributes":{"name":"Received Email","integration":{"name":"Klaviyo"}}}],"links":{}}`),
+			rawJSON(`{"data":[{"id":"campaign-1","attributes":{"name":"Campaign One","status":"Sent","send_time":"2026-06-15T12:00:00Z"},"relationships":{"campaign-messages":{"data":[{"id":"message-1"}]} }},{"id":"campaign-draft","attributes":{"name":"Draft Campaign","status":"Draft","send_time":"2026-06-16T12:00:00Z"},"relationships":{"campaign-messages":{"data":[{"id":"message-draft"}]}}}],"included":[{"id":"message-1","attributes":{"definition":{"content":{"subject":"A useful subject"}}}},{"id":"message-draft","attributes":{"definition":{"content":{"subject":"Not sent"}}}}],"links":{}}`),
+		},
+		postResponses: []json.RawMessage{rawJSON(`{"data":{"attributes":{"results":[{"groupings":{"campaign_id":"campaign-1"},"statistics":{"delivered":1000,"opens_unique":642,"open_rate":0.642,"clicks_unique":15,"click_rate":0.015}}]}}}`)},
+	}
+	result, err := subjectLineAnalysis(c, since, until, "campaign")
+	if err != nil {
+		t.Fatalf("subjectLineAnalysis() error = %v", err)
+	}
+	var out bytes.Buffer
+	if err := printJSONFiltered(&out, result, &rootFlags{asJSON: true, compact: true}); err != nil {
+		t.Fatalf("printJSONFiltered() error = %v", err)
+	}
+	if out.Len() == 0 {
+		t.Fatal("subject-line analysis produced empty stdout")
+	}
+	var decoded map[string]any
+	if err := json.Unmarshal(out.Bytes(), &decoded); err != nil {
+		t.Fatalf("subject-line output is not JSON: %v", err)
+	}
+	if _, ok := decoded["total_emails_analyzed"]; !ok {
+		t.Fatalf("subject-line output = %#v", decoded)
+	}
+	if decoded["total_emails_analyzed"] != float64(1) {
+		t.Fatalf("subject-line output = %#v", decoded)
+	}
+	top := result["top_subjects"].([]map[string]any)
+	if len(top) != 1 || top[0]["open_rate"] != 0.642 || top[0]["click_rate"] != 0.015 {
+		t.Fatalf("subject-line rates = %#v", top)
+	}
+	if len(c.posts) != 1 || c.posts[0].path != "/api/campaign-values-reports/" {
+		t.Fatalf("report requests = %#v", c.posts)
+	}
+	if got := anyPath(c.posts[0].body, "data.attributes.timeframe.start"); got != since.Format(time.RFC3339) {
+		t.Fatalf("report timeframe start = %#v", got)
+	}
+	if got := anyPath(c.posts[0].body, "data.attributes.conversion_metric_id"); got != "received-email" {
+		t.Fatalf("report conversion metric = %#v", got)
+	}
+	if len(c.requests) != 2 || !strings.Contains(c.requests[1].params["filter"], `any(id,["campaign-1"])`) {
+		t.Fatalf("campaign requests = %#v", c.requests)
+	}
+}
+
+func TestSubjectRowsPreservesLowNonzeroClickRates(t *testing.T) {
+	rows := subjectRows([]subjectEmail{{
+		Subject:    "Low-volume click",
+		Source:     "Campaign",
+		SourceType: "campaign",
+		OpenRate:   0.0248,
+		ClickRate:  0.00009,
+	}}, 1)
+	if len(rows) != 1 || rows[0]["open_rate"] != 0.0248 || rows[0]["click_rate"] != 0.0001 {
+		t.Fatalf("subject rows = %#v", rows)
+	}
+}
+
+func TestClampKlaviyoAnalyticsWindowKeepsRequestsInsideOneYear(t *testing.T) {
+	loc, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		t.Fatal(err)
+	}
+	until := time.Date(2026, 7, 19, 18, 0, 0, 0, loc)
+	requested365 := until.AddDate(0, 0, -365)
+	clamped, changed := clampKlaviyoAnalyticsWindow(requested365, until)
+	if !changed {
+		t.Fatal("365-day calendar window was not clamped")
+	}
+	if got := until.Sub(clamped); got != klaviyoAnalyticsMaxWindow {
+		t.Fatalf("clamped duration = %s, want %s", got, klaviyoAnalyticsMaxWindow)
+	}
+
+	requested360 := until.AddDate(0, 0, -360)
+	unchanged, changed := clampKlaviyoAnalyticsWindow(requested360, until)
+	if changed || !unchanged.Equal(requested360) {
+		t.Fatalf("360-day window changed: start=%s clamped=%v", unchanged, changed)
+	}
+}
+
+func TestCollectReferencedTemplateIDsUsesIncludedResources(t *testing.T) {
+	c := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"flow-1"}],"included":[{"id":"action-1","attributes":{"definition":{"data":{"message":{"template_id":"flow-template"}}}}}],"links":{}}`),
+		rawJSON(`{"data":[{"id":"campaign-1"}],"included":[{"id":"message-1","relationships":{"template":{"data":{"id":"campaign-template"}}}}],"links":{}}`),
+	}}
+	refs, err := collectReferencedTemplateIDs(c)
+	if err != nil {
+		t.Fatalf("collectReferencedTemplateIDs() error = %v", err)
+	}
+	if !refs["flow-template"] || !refs["campaign-template"] || len(refs) != 2 {
+		t.Fatalf("refs = %#v", refs)
+	}
+	if len(c.requests) != 2 || c.requests[0].params["include"] != "flow-actions" || c.requests[1].params["include"] != "campaign-messages" {
+		t.Fatalf("requests = %#v", c.requests)
+	}
+	if got := c.requests[1].params["fields[campaign-message]"]; got != "definition,template" {
+		t.Fatalf("campaign message fields = %q", got)
+	}
+}
+
+func TestCollectSubjectMessagesPreservesFlowSubjectFallbacks(t *testing.T) {
+	tests := []struct {
+		name  string
+		value any
+		want  string
+	}{
+		{
+			name:  "message subject",
+			value: map[string]any{"data": map[string]any{"message": map[string]any{"subject": "Direct subject"}}},
+			want:  "Direct subject",
+		},
+		{
+			name:  "message definition content subject",
+			value: map[string]any{"data": map[string]any{"message": map[string]any{"definition": map[string]any{"content": map[string]any{"subject": "Nested subject"}}}}},
+			want:  "Nested subject",
+		},
+		{
+			name:  "message name",
+			value: map[string]any{"data": map[string]any{"message": map[string]any{"name": "Named message"}}},
+			want:  "Named message",
+		},
+	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotStatus, _ := unsubscribeCompliance(tt.html)
-			if gotStatus != tt.wantStatus {
-				t.Fatalf("status = %q, want %q", gotStatus, tt.wantStatus)
+			messages := collectSubjectMessages(tt.value)
+			if len(messages) != 1 || messages[0].Subject != tt.want {
+				t.Fatalf("collectSubjectMessages() = %#v, want %q", messages, tt.want)
 			}
 		})
 	}
 }
 
-func TestCampaignDeployRejectsBrokenUnsubscribeTag(t *testing.T) {
-	cmd := newCampaignsDeployCmd(&rootFlags{})
-	cmd.SetArgs([]string{
-		"--template-html", `<a href="{% unsubscribe %}">Unsubscribe</a>`,
-		"--campaign-name", "Compliance test",
-		"--list-id", "list-1",
-		"--subject", "Compliance test",
-		"--from-email", "sender@example.com",
-		"--from-label", "Sender",
-	})
+func TestCollectSubjectEmailsUsesIncludedFlowMessageIDs(t *testing.T) {
+	c := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"flow-1","attributes":{"name":"Welcome","status":"live"},"relationships":{"flow-actions":{"data":[{"id":"action-1"}]}}}],"included":[{"id":"action-1","attributes":{"definition":{"data":{"message":{"id":"message-1","subject_line":"Welcome home"}}}}}],"links":{}}`),
+	}}
+	emails, err := collectSubjectEmails(c, "flow", time.Time{}, time.Time{}, nil)
+	if err != nil {
+		t.Fatalf("collectSubjectEmails() error = %v", err)
+	}
+	if len(emails) != 1 || emails[0].ID != "message-1" || emails[0].Subject != "Welcome home" || emails[0].Source != "Welcome" {
+		t.Fatalf("emails = %#v", emails)
+	}
+}
 
-	err := cmd.Execute()
-	if err == nil || !strings.Contains(err.Error(), "campaign compliance preflight failed") {
-		t.Fatalf("error = %v, want compliance preflight failure", err)
+func TestCollectSubjectEmailsUsesCampaignForwardRelationship(t *testing.T) {
+	since := time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)
+	until := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+	c := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"campaign-1","attributes":{"name":"Launch","status":"Sent","send_time":"2026-06-15T12:00:00Z"},"relationships":{"campaign-messages":{"data":[{"id":"message-1"}]}}}],"included":[{"id":"message-1","attributes":{"definition":{"content":{"subject":"New collection"}}}}],"links":{}}`),
+	}}
+	emails, err := collectSubjectEmails(c, "campaign", since, until, []string{"campaign-1"})
+	if err != nil {
+		t.Fatalf("collectSubjectEmails() error = %v", err)
+	}
+	if len(emails) != 1 || emails[0].ID != "message-1" || emails[0].Subject != "New collection" || emails[0].Source != "Launch" {
+		t.Fatalf("emails = %#v", emails)
+	}
+}
+
+func TestSegmentVelocityUsesProfileCountAdditionalFieldAndPacing(t *testing.T) {
+	originalWait := waitForProfileCountRequest
+	var waits []time.Duration
+	waitForProfileCountRequest = func(_ context.Context, wait time.Duration) error {
+		waits = append(waits, wait)
+		return nil
+	}
+	t.Cleanup(func() { waitForProfileCountRequest = originalWait })
+
+	db, err := store.OpenWithContext(context.Background(), filepath.Join(t.TempDir(), "segment-velocity.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	first := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":{"id":"segment-1","attributes":{"name":"Engaged","profile_count":100}}}`),
+		rawJSON(`{"data":{"id":"segment-2","attributes":{"name":"Customers","profile_count":200}}}`),
+	}}
+	if _, err := segmentVelocity(context.Background(), first, db, []string{"segment-1", "segment-2"}, "90d", "daily"); err != nil {
+		t.Fatalf("first segmentVelocity() error = %v", err)
+	}
+	if len(first.requests) != 2 {
+		t.Fatalf("requests = %#v", first.requests)
+	}
+	for _, request := range first.requests {
+		if !strings.HasSuffix(request.path, "/") || request.params["additional-fields[segment]"] != "profile_count" || request.params["fields[segment]"] != "" {
+			t.Fatalf("profile-count request = %#v", request)
+		}
+	}
+	if len(waits) != 1 || waits[0] != profileCountRequestSpacing {
+		t.Fatalf("pacing waits = %#v", waits)
+	}
+
+	yesterday := segmentSnapshotDate(time.Now().AddDate(0, 0, -1), "daily")
+	if _, err := db.DB().Exec(`UPDATE segment_snapshots SET snapshot_date = ?`, yesterday); err != nil {
+		t.Fatal(err)
+	}
+	second := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":{"id":"segment-1","attributes":{"name":"Engaged","profile_count":120}}}`),
+		rawJSON(`{"data":{"id":"segment-2","attributes":{"name":"Customers","profile_count":180}}}`),
+	}}
+	result, err := segmentVelocity(context.Background(), second, db, []string{"segment-1", "segment-2"}, "90d", "daily")
+	if err != nil {
+		t.Fatalf("second segmentVelocity() error = %v", err)
+	}
+	rows := result["segments"].([]map[string]any)
+	if len(rows) != 2 || rows[0]["current_size"] != 120 || rows[0]["change"] != 20 || rows[0]["direction"] != "growing" {
+		t.Fatalf("velocity rows = %#v", rows)
+	}
+	if rows[1]["current_size"] != 180 || rows[1]["change"] != -20 || rows[1]["direction"] != "shrinking" {
+		t.Fatalf("velocity rows = %#v", rows)
+	}
+	if len(waits) != 2 || waits[1] != profileCountRequestSpacing {
+		t.Fatalf("pacing waits after second run = %#v", waits)
+	}
+}
+
+func TestFetchAllJSONAPIWithIncludedRejectsRepeatedCursor(t *testing.T) {
+	c := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"flow-1"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=repeat"}}`),
+		rawJSON(`{"data":[{"id":"flow-2"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=repeat"}}`),
+	}}
+	if _, _, err := fetchAllJSONAPIWithIncluded(c, "/api/flows", map[string]string{"page[size]": "50"}); err == nil || !strings.Contains(err.Error(), "cursor") {
+		t.Fatalf("expected repeated-cursor error, got %v", err)
+	}
+	if len(c.requests) != 2 {
+		t.Fatalf("requests = %#v", c.requests)
+	}
+}
+
+func TestDeliverabilityReportIncludesDenominatorCoverage(t *testing.T) {
+	c := &fakeCouponPoolClient{
+		responses: []json.RawMessage{
+			metricListResponse("received", "Received Email"),
+			metricListResponse("bounced", "Bounced Email"),
+		},
+		postResponses: []json.RawMessage{
+			metricAggregateResponse("gmail.com", 7000),
+			metricAggregateResponse("gmail.com", 70),
+			metricAggregateResponse("", 1800000),
+		},
+	}
+	report, err := buildDeliverabilityReport(c, time.Now().AddDate(0, 0, -30), time.Now())
+	if err != nil {
+		t.Fatalf("buildDeliverabilityReport() error = %v", err)
+	}
+	coverage := report["coverage"].(map[string]any)
+	if coverage["account_received"] != 1800000 || coverage["domain_attributed_received"] != 7000 {
+		t.Fatalf("coverage = %#v", coverage)
+	}
+	if coverage["complete"] != false || coverage["warning"] == nil {
+		t.Fatalf("sparse coverage should be explicit: %#v", coverage)
 	}
 }
 
@@ -314,9 +633,14 @@ func TestFetchMetricEventsDoesNotRequestUnusedSideloads(t *testing.T) {
 	}
 }
 
-func TestListQualityScoreRequestsListProfileCounts(t *testing.T) {
+func TestListQualityScoreUsesSupportedListCollectionFields(t *testing.T) {
+	originalWait := waitForProfileCountRequest
+	waitForProfileCountRequest = func(_ context.Context, _ time.Duration) error { return nil }
+	t.Cleanup(func() { waitForProfileCountRequest = originalWait })
+
 	client := &fakeCouponPoolClient{responses: []json.RawMessage{
-		rawJSON(`{"data":[{"id":"list-1","attributes":{"name":"Main","profile_count":100}}],"links":{}}`),
+		rawJSON(`{"data":[{"id":"list-1","attributes":{"name":"Main"}}],"links":{}}`),
+		rawJSON(`{"data":{"id":"list-1","attributes":{"name":"Main","profile_count":100}}}`),
 		rawJSON(`{"data":[],"links":{}}`),
 		rawJSON(`{"data":[],"links":{}}`),
 		rawJSON(`{"data":[],"links":{}}`),
@@ -326,7 +650,7 @@ func TestListQualityScoreRequestsListProfileCounts(t *testing.T) {
 		rawJSON(`{"data":[],"links":{}}`),
 		rawJSON(`{"data":[],"links":{}}`),
 	}}
-	result, err := listQualityScore(client, time.Date(2026, 5, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 5, 2, 0, 0, 0, 0, time.UTC))
+	result, err := listQualityScore(context.Background(), client, time.Date(2026, 5, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 5, 2, 0, 0, 0, 0, time.UTC))
 	if err != nil {
 		t.Fatalf("listQualityScore() error = %v", err)
 	}
@@ -335,8 +659,106 @@ func TestListQualityScoreRequestsListProfileCounts(t *testing.T) {
 		t.Fatalf("list quality rows = %#v", lists)
 	}
 	fields := client.requests[0].params["fields[list]"]
-	if !strings.Contains(fields, "profile_count") || !strings.Contains(fields, "profiles_count") {
-		t.Fatalf("fields[list] = %q, want profile count fields", fields)
+	if fields != "name,created,updated" {
+		t.Fatalf("fields[list] = %q, want only fields supported by GET /api/lists", fields)
+	}
+	if got := client.requests[1]; got.path != "/api/lists/list-1/" || got.params["additional-fields[list]"] != "profile_count" {
+		t.Fatalf("list profile-count request = %#v", got)
+	}
+}
+
+func TestEnrichSegmentProfileCountsUsesPacedPerItemRequests(t *testing.T) {
+	originalWait := waitForProfileCountRequest
+	var waits []time.Duration
+	waitForProfileCountRequest = func(_ context.Context, wait time.Duration) error {
+		waits = append(waits, wait)
+		return nil
+	}
+	t.Cleanup(func() { waitForProfileCountRequest = originalWait })
+
+	client := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":{"id":"segment-1","attributes":{"profile_count":12}}}`),
+		rawJSON(`{"data":{"id":"segment-2","attributes":{"profile_count":34}}}`),
+	}}
+	data, err := enrichSegmentProfileCounts(context.Background(), client, rawJSON(`[{"id":"segment-1","attributes":{"name":"One"}},{"id":"segment-2","attributes":{"name":"Two"}}]`))
+	if err != nil {
+		t.Fatalf("enrichSegmentProfileCounts() error = %v", err)
+	}
+	var segments []map[string]any
+	if err := json.Unmarshal(data, &segments); err != nil {
+		t.Fatal(err)
+	}
+	if got := anyInt(segments[0]["attributes"].(map[string]any)["profile_count"]); got != 12 {
+		t.Fatalf("first profile_count = %d", got)
+	}
+	if got := anyInt(segments[1]["attributes"].(map[string]any)["profile_count"]); got != 34 {
+		t.Fatalf("second profile_count = %d", got)
+	}
+	if len(waits) != 1 || waits[0] != profileCountRequestSpacing {
+		t.Fatalf("pacing waits = %#v", waits)
+	}
+	for _, request := range client.requests {
+		if !strings.HasSuffix(request.path, "/") || request.params["additional-fields[segment]"] != "profile_count" {
+			t.Fatalf("profile-count request = %#v", request)
+		}
+	}
+}
+
+func TestEnrichSegmentProfileCountsPreservesJSONAPIEnvelope(t *testing.T) {
+	client := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":{"id":"segment-1","attributes":{"profile_count":12}}}`),
+	}}
+	data, err := enrichSegmentProfileCounts(context.Background(), client, rawJSON(`{"data":[{"id":"segment-1","attributes":{"name":"One"}}],"links":{"next":null}}`))
+	if err != nil {
+		t.Fatalf("enrichSegmentProfileCounts() error = %v", err)
+	}
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		t.Fatal(err)
+	}
+	var segments []map[string]any
+	if err := json.Unmarshal(envelope["data"], &segments); err != nil {
+		t.Fatal(err)
+	}
+	if got := anyInt(segments[0]["attributes"].(map[string]any)["profile_count"]); got != 12 {
+		t.Fatalf("profile_count = %d", got)
+	}
+	if string(envelope["links"]) != `{"next":null}` {
+		t.Fatalf("links = %s", envelope["links"])
+	}
+}
+
+func TestCompactSegmentProfileCountsPreservesAgentArrayShape(t *testing.T) {
+	t.Parallel()
+	cases := map[string]json.RawMessage{
+		"jsonapi envelope": rawJSON(`{"data":[{"id":"segment-1","type":"segment","attributes":{"name":"One","profile_count":12}}],"links":{"next":null}}`),
+		"bare array":       rawJSON(`[{"id":"segment-1","type":"segment","attributes":{"name":"One","profile_count":12}}]`),
+	}
+	for name, data := range cases {
+		data := data
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			var segments []map[string]any
+			if err := json.Unmarshal(compactSegmentProfileCounts(data), &segments); err != nil {
+				t.Fatalf("compact result is not an array: %v", err)
+			}
+			if len(segments) != 1 {
+				t.Fatalf("segments = %#v", segments)
+			}
+			if segments[0]["id"] != "segment-1" || segments[0]["type"] != "segment" {
+				t.Fatalf("compact identity = %#v", segments[0])
+			}
+			if got := anyInt(segments[0]["profile_count"]); got != 12 {
+				t.Fatalf("profile_count = %d", got)
+			}
+			attrs, ok := segments[0]["attributes"].(map[string]any)
+			if !ok || attrs["name"] != "One" {
+				t.Fatalf("compact item missing segment name: %#v", segments[0])
+			}
+			if _, ok := attrs["profile_count"]; ok {
+				t.Fatalf("compact item duplicated profile_count in attributes: %#v", segments[0])
+			}
+		})
 	}
 }
 
@@ -882,12 +1304,34 @@ type fakeCouponPoolClient struct {
 	responses     []json.RawMessage
 	postResponses []json.RawMessage
 	requests      []fakeCouponPoolRequest
+	posts         []fakeCouponPoolPost
 	deletes       []string
+}
+
+type fakePaginatedClient struct {
+	responses []json.RawMessage
+	params    []map[string]string
+}
+
+func (f *fakePaginatedClient) GetWithHeaders(_ string, params map[string]string, _ map[string]string) (json.RawMessage, error) {
+	copied := map[string]string{}
+	for k, v := range params {
+		copied[k] = v
+	}
+	f.params = append(f.params, copied)
+	resp := f.responses[0]
+	f.responses = f.responses[1:]
+	return resp, nil
 }
 
 type fakeCouponPoolRequest struct {
 	path   string
 	params map[string]string
+}
+
+type fakeCouponPoolPost struct {
+	path string
+	body any
 }
 
 func (f *fakeCouponPoolClient) Get(path string, params map[string]string) (json.RawMessage, error) {
@@ -904,7 +1348,8 @@ func (f *fakeCouponPoolClient) Get(path string, params map[string]string) (json.
 	return resp, nil
 }
 
-func (f *fakeCouponPoolClient) Post(_ string, _ any) (json.RawMessage, int, error) {
+func (f *fakeCouponPoolClient) Post(path string, body any) (json.RawMessage, int, error) {
+	f.posts = append(f.posts, fakeCouponPoolPost{path: path, body: body})
 	if len(f.postResponses) > 0 {
 		resp := f.postResponses[0]
 		f.postResponses = f.postResponses[1:]
@@ -926,6 +1371,18 @@ func rawJSON(s string) json.RawMessage {
 	return json.RawMessage(s)
 }
 
+func metricListResponse(id, name string) json.RawMessage {
+	return rawJSON(fmt.Sprintf(`{"data":[{"id":%q,"attributes":{"name":%q}}],"links":{}}`, id, name))
+}
+
+func metricAggregateResponse(dimension string, count float64) json.RawMessage {
+	dimensions := "[]"
+	if dimension != "" {
+		dimensions = fmt.Sprintf(`[%q]`, dimension)
+	}
+	return rawJSON(fmt.Sprintf(`{"data":{"attributes":{"data":[{"dimensions":%s,"measurements":{"count":[%v]}}]}}}`, dimensions, count))
+}
+
 func containsString(values []string, target string) bool {
 	for _, value := range values {
 		if value == target {
@@ -933,4 +1390,141 @@ func containsString(values []string, target string) bool {
 		}
 	}
 	return false
+}
+func TestUnsubscribeCompliance(t *testing.T) {
+	tests := []struct {
+		name       string
+		html       string
+		wantStatus string
+	}{
+		{name: "full link tag", html: `<p>{% unsubscribe %}</p>`, wantStatus: "pass"},
+		{name: "custom full link tag", html: `<p>{% unsubscribe 'Stop these emails' %}</p>`, wantStatus: "pass"},
+		{name: "URL tag in href", html: `<a href="{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "pass"},
+		{name: "URL tag in single-quoted href", html: `<a href='{% unsubscribe_link %}'>Unsubscribe</a>`, wantStatus: "pass"},
+		{name: "correct two-link footer", html: `<a href="{% unsubscribe_link %}">Unsubscribe</a><a href="{% manage_preferences_link %}">Manage Preferences</a>`, wantStatus: "pass"},
+		{name: "compact Klaviyo tags", html: `<a href="{%unsubscribe_link%}">Unsubscribe</a><a href="{%manage_preferences_link%}">Manage Preferences</a>`, wantStatus: "pass"},
+		{name: "nested preference property", html: `<p>{{ person.preferences }}</p><a href="{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "nested unsubscribe URL", html: `<a href="{{ subscriber.unsubscribe_url }}{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "Kit-only footer", html: `<a href="{{ unsubscribe_url }}">Unsubscribe</a><a href="{{ manage_preferences_url }}">Manage Preferences</a>`, wantStatus: "fail"},
+		{name: "mixed footer", html: `<a href="{% unsubscribe_link %}">Unsubscribe</a><a href="{{ manage_preferences_url }}">Manage Preferences</a>`, wantStatus: "fail"},
+		{name: "Kit tag hidden in comment", html: `<!-- {{ unsubscribe_url }} --><a href="{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "preferences tag outside href", html: `<a href="{% unsubscribe_link %}">Unsubscribe</a><p>{% manage_preferences_link %}</p>`, wantStatus: "fail"},
+		{name: "preferences tag on non-anchor", html: `<a href="{% unsubscribe_link %}">Unsubscribe</a><div href="{% manage_preferences_link %}">Manage Preferences</div>`, wantStatus: "fail"},
+		{name: "wrong tag for preferences anchor", html: `<a href="{% unsubscribe_link %}">Unsubscribe</a><a href="{% unsubscribe_link %}">Manage Preferences</a>`, wantStatus: "fail"},
+		{name: "URL tag in data href", html: `<a data-href="{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "URL tag in aria label", html: `<a aria-label="href={% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "full link tag in href", html: `<a href="{% unsubscribe %}">Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "full link tag in unquoted href", html: `<a href={% unsubscribe %}>Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "full link tag in unrelated attribute", html: `<a title="{% unsubscribe %}" href="#">Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "hidden full link tag", html: `<div style="display:none">{% unsubscribe %}</div>`, wantStatus: "fail"},
+		{name: "hidden attribute full link tag", html: `<div hidden>{% unsubscribe %}</div>`, wantStatus: "fail"},
+		{name: "custom full link tag in href", html: `<a href="{% unsubscribe 'Stop' %}">Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "URL tag outside href", html: `<p>{% unsubscribe_link %}</p>`, wantStatus: "fail"},
+		{name: "full link tag in comment", html: `<!-- {% unsubscribe %} -->`, wantStatus: "fail"},
+		{name: "URL tag in non-rendered template", html: `<template><a href="{% unsubscribe_link %}">Unsubscribe</a></template>`, wantStatus: "fail"},
+		{name: "hidden and visible tags", html: `<!-- {% unsubscribe %} --><a href="{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "pass"},
+		{name: "missing tag", html: `<p>Hello</p>`, wantStatus: "fail"},
+		{name: "missing HTML evidence", wantStatus: "warn"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotStatus, _ := unsubscribeCompliance(tt.html)
+			if gotStatus != tt.wantStatus {
+				t.Fatalf("status = %q, want %q", gotStatus, tt.wantStatus)
+			}
+		})
+	}
+}
+
+func TestQAGateUsesAssignedCampaignTemplate(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/api/campaigns/campaign-1":
+			fmt.Fprint(w, `{"data":{"id":"campaign-1","type":"campaign"}}`)
+		case "/api/campaigns/campaign-1/campaign-messages":
+			fmt.Fprint(w, `{"data":[{"id":"message-1","type":"campaign-message"}]}`)
+		case "/api/campaign-messages/message-1/template":
+			fmt.Fprint(w, `{"data":{"id":"template-1","type":"template","attributes":{"html":"<p>No unsubscribe link</p>"}}}`)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("KLAVIYO_BASE_URL", server.URL)
+	t.Setenv("KLAVIYO_API_KEY", "test-key")
+	previousRegistration := registeredPlatformSource
+	t.Cleanup(func() { registeredPlatformSource = previousRegistration })
+	registeredPlatformSource = nil
+	var output bytes.Buffer
+	cmd := newPlanQAGateCmd(&rootFlags{asJSON: true})
+	cmd.SetOut(&output)
+	cmd.SetArgs([]string{"--campaign-id", "campaign-1"})
+	if err := cmd.Execute(); err == nil {
+		t.Fatal("expected failed QA verdict to return an error")
+	}
+	var result map[string]any
+	if err := json.Unmarshal(output.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if result["verdict"] != "fail" {
+		t.Fatalf("verdict = %v, want fail", result["verdict"])
+	}
+}
+
+func TestQAGateWithoutAssignedTemplateReturnsChecklist(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/api/campaigns/campaign-1":
+			fmt.Fprint(w, `{"data":{"id":"campaign-1","type":"campaign"}}`)
+		case "/api/campaigns/campaign-1/campaign-messages":
+			fmt.Fprint(w, `{"data":[{"id":"message-1","type":"campaign-message"}]}`)
+		case "/api/campaign-messages/message-1/template":
+			http.Error(w, `{"errors":[{"detail":"not found"}]}`, http.StatusNotFound)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("KLAVIYO_BASE_URL", server.URL)
+	t.Setenv("KLAVIYO_API_KEY", "test-key")
+	previousRegistration := registeredPlatformSource
+	t.Cleanup(func() { registeredPlatformSource = previousRegistration })
+	registeredPlatformSource = nil
+	var output bytes.Buffer
+	cmd := newPlanQAGateCmd(&rootFlags{asJSON: true})
+	cmd.SetOut(&output)
+	cmd.SetArgs([]string{"--campaign-id", "campaign-1"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	var result map[string]any
+	if err := json.Unmarshal(output.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if result["verdict"] != "warn" {
+		t.Fatalf("verdict = %v, want warn", result["verdict"])
+	}
+	if result["evidence"].(map[string]any)["template_status"] != "not_assigned" {
+		t.Fatalf("evidence = %v", result["evidence"])
+	}
+}
+
+func TestCampaignDeployRejectsBrokenUnsubscribeTag(t *testing.T) {
+	cmd := newCampaignsDeployCmd(&rootFlags{})
+	cmd.SetArgs([]string{
+		"--template-html", `<a href="{% unsubscribe %}">Unsubscribe</a>`,
+		"--campaign-name", "Compliance test",
+		"--list-id", "list-1",
+		"--subject", "Compliance test",
+		"--from-email", "sender@example.com",
+		"--from-label", "Sender",
+	})
+
+	err := cmd.Execute()
+	if err == nil || !strings.Contains(err.Error(), "campaign compliance preflight failed") {
+		t.Fatalf("error = %v, want compliance preflight failure", err)
+	}
 }

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "sync-descriptors-and-account-switching",
+  "applied_at": "2026-07-08",
+  "base_run_id": "",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Klaviyo sync must use per-endpoint pagination, filter, and syncability descriptors, and auth must support named account config selection.",
+  "reason": "Klaviyo rejects generic sync query params such as page[size]=100 and since on endpoints that do not document them, while campaigns and coupon-codes require resource-specific filters. Operators also need to switch among multiple Klaviyo private keys without rewriting the default config or environment.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_accounts_test.go",
+    "internal/cli/auth.go",
+    "internal/cli/auth_accounts.go",
+    "internal/cli/root.go",
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "go test ./... and go build ./cmd/klaviyo-pp-cli pass for the Klaviyo module. Focused tests cover page-size suppression and caps, required-filter fanout/skip behavior, default /client exclusion, fanout sync_state reporting, named account switching precedence, and missing named-account errors. Live read-only sync with --agent completed with 37057 records across 41 resources, errored=0; the only warnings were Advanced KDP permission-gated webhook resources. doctor --agent reported a fresh cache with rows for campaigns, coupon-codes, profiles, flows, lists, metrics, events, and segments."
+}

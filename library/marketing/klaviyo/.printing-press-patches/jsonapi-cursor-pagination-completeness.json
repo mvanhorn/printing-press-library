@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "jsonapi-cursor-pagination-completeness",
+  "applied_at": "2026-07-27",
+  "base_run_id": "",
+  "base_printing_press_version": "3.5.0",
+  "summary": "has_more=true responses that provide no next cursor must fail loudly instead of re-requesting the same page forever; explicit --page-cursor transmission is regression-tested.",
+  "reason": "Upstream main independently added JSON:API links.next walking and cursor seeding; the surviving hand-fix is the has_more-without-cursor infinite-loop guard (previously `continue` re-fetched the same page). Tests cover explicit initial cursor transmission and the has_more guard; links.next walking is covered by upstream novel_klaviyo_test.go.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/pagination_test.go"
+  ],
+  "validated_outcome": "go test ./... passes for the Klaviyo module; regressions verify explicit page[cursor] transmission and the has_more-without-cursor error."
+}

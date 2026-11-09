@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-campaign-body-and-unsubscribe-safety",
+  "applied_at": "2026-09-30",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Preserve nested campaign request bodies, require usable unsubscribe links, and raise the Go security floor.",
+  "reason": "The public campaign body and unsubscribe fixes must ship with the private account lock; Go 1.26.6 addresses reachable standard-library vulnerabilities.",
+  "files": [
+    "go.mod",
+    "internal/cli/campaigns_create.go",
+    "internal/cli/klaviyo_body_contract_test.go",
+    "internal/cli/novel_klaviyo.go",
+    "internal/cli/novel_klaviyo_test.go",
+    "internal/cli/promoted_campaign-message-assign-template.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Go tests and vet pass; campaign writes preserve nested JSON, deploy rejects broken opt-out HTML, QA examines assigned templates, and govulncheck reports no reachable vulnerabilities.",
+  "upstream_commits": ["2fdc6c776", "5bb1f7fc0"]
+}

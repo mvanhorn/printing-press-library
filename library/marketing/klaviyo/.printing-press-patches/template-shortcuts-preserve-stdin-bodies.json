@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "template-shortcuts-preserve-stdin-bodies",
+  "applied_at": "2026-11-02",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Template shortcuts preserve stdin bodies and sparse-field query flags, reject malformed or conflicting input, and client profile mutations preview without writing when dry-run is set.",
+  "reason": "Promoted shortcuts must not discard the body that their POST endpoints require. Stdin assignment must retain the same template-compliance check as flag-based assignment.",
+  "files": [
+    "internal/cli/promoted_template-render.go",
+    "internal/cli/promoted_campaign-message-assign-template.go",
+    "internal/cli/shortcut_body.go",
+    "internal/cli/platform_client.go"
+  ],
+  "validated_outcome": "Synthetic HTTP tests compare exact stdin JSON bodies, retain the existing assignment compliance read, and reject empty, malformed and mixed input; full tests, build and vet pass."
+}

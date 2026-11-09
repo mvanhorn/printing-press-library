@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-list-residuals",
+  "applied_at": "2026-07-19",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Preserve paced per-item profile-count enrichment for list-quality scoring and opt-in segment listings.",
+  "reason": "Klaviyo's list and segment collection endpoints reject profile_count as a sparse field, while their per-item additional-field variants are limited to a 1/s burst and 15/m steady rate; collection-only scoring silently produced all-zero list sizes and segment listings had no safe count helper.",
+  "files": [
+    "internal/cli/profile_count_enrichment.go",
+    "internal/cli/segments_get.go",
+    "internal/cli/novel_computed_analytics.go",
+    "internal/cli/novel_klaviyo_test.go"
+  ],
+  "validated_outcome": "a production account live checks returned populated per-item segment counts with paced requests and list-quality-score no longer returned an all-zero size column."
+}

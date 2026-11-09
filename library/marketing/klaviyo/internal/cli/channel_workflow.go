@@ -47,9 +47,12 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("klaviyo-pp-cli")
+				dbPath, err = defaultDBPathForClient("klaviyo-pp-cli", c)
+				if err != nil {
+					return err
+				}
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.OpenVerifiedWithContext(cmd.Context(), dbPath, c.PlatformSession())
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
@@ -157,9 +160,13 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
   klaviyo-pp-cli workflow status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("klaviyo-pp-cli")
+				var err error
+				dbPath, err = flags.defaultDBPath("klaviyo-pp-cli")
+				if err != nil {
+					return err
+				}
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.OpenVerifiedWithContext(cmd.Context(), dbPath, flags.platformSession)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}

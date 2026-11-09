@@ -12,14 +12,25 @@ import (
 )
 
 func newDataSourceRecordBulkCreateJobsPromotedCmd(flags *rootFlags) *cobra.Command {
+	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "data-source-record-bulk-create-jobs",
 		Short:       "Create a bulk data source record import job to create a batch of records. Accepts up to 500 records per request. The...",
 		Long:        "Shortcut for 'data-source-record-bulk-create-jobs bulk-create-data-source-records'. Create a bulk data source record import job to create a batch of records. Accepts up to 500 records per request. The...",
-		Example:     "  klaviyo-pp-cli data-source-record-bulk-create-jobs",
+		Example:     "  echo '{\"data\":{\"type\":\"data-source-record-bulk-create-job\",\"attributes\":{\"data-source-records\":{\"data\":[{\"type\":\"data-source-record\",\"attributes\":{\"record\":{\"email\":\"person@example.com\"}}}]}},\"relationships\":{\"data-source\":{\"data\":{\"type\":\"data-source\",\"id\":\"source-1\"}}}}}' | klaviyo-pp-cli data-source-record-bulk-create-jobs --stdin",
 		Annotations: map[string]string{"pp:endpoint": "data-source-record-bulk-create-jobs.bulk-create-data-source-records"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			body := map[string]any{}
+			if stdinBody {
+				var err error
+				body, err = readShortcutBodyOfType(cmd, "data-source-record-bulk-create-job")
+				if err != nil {
+					return err
+				}
+			} else if !flags.dryRun {
+				return usageErr(fmt.Errorf("data-source-record-bulk-create-jobs needs a request body: pipe the JSON:API body to --stdin"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -30,7 +41,6 @@ func newDataSourceRecordBulkCreateJobsPromotedCmd(flags *rootFlags) *cobra.Comma
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -84,6 +94,8 @@ func newDataSourceRecordBulkCreateJobsPromotedCmd(flags *rootFlags) *cobra.Comma
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON:API request body from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

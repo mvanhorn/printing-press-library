@@ -6,32 +6,50 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
 func newProfileMergePromotedCmd(flags *rootFlags) *cobra.Command {
+	var stdinBody bool
 	var flagFieldsProfile string
 
 	cmd := &cobra.Command{
 		Use:         "profile-merge",
 		Short:       "Merge a given related profile into a profile with the given profile ID. The profile provided under `relationships`...",
 		Long:        "Shortcut for 'profile-merge merge-profiles'. Merge a given related profile into a profile with the given profile ID. The profile provided under `relationships`...",
-		Example:     "  klaviyo-pp-cli profile-merge",
+		Example:     "  echo '{\"data\":{\"type\":\"profile-merge\",\"id\":\"profile-1\",\"relationships\":{\"profiles\":{\"data\":[{\"id\":\"profile-2\",\"type\":\"profile\"}]}}}}' | klaviyo-pp-cli profile-merge --stdin",
 		Annotations: map[string]string{"pp:endpoint": "profile-merge.merge-profiles"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			body := map[string]any{}
+			if stdinBody {
+				var err error
+				body, err = readShortcutBodyOfType(cmd, "profile-merge")
+				if err != nil {
+					return err
+				}
+			} else if !flags.dryRun {
+				return usageErr(fmt.Errorf("profile-merge needs a request body: pipe the JSON:API body to --stdin"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/api/profile-merge"
+			query := url.Values{}
+			if cmd.Flags().Changed("fields-profile") {
+				query.Set("fields[profile]", flagFieldsProfile)
+			}
+			if len(query) > 0 {
+				path += "?" + query.Encode()
+			}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -86,6 +104,8 @@ func newProfileMergePromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagFieldsProfile, "fields-profile", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sparse-fieldsets")
+
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON:API request body from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

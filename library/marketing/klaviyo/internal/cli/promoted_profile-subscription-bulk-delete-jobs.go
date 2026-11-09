@@ -12,14 +12,25 @@ import (
 )
 
 func newProfileSubscriptionBulkDeleteJobsPromotedCmd(flags *rootFlags) *cobra.Command {
+	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "profile-subscription-bulk-delete-jobs",
 		Short:       "> 🚧 > > Profiles not in the specified list will be globally unsubscribed. Always verify profile list membership...",
-		Long:        "Shortcut for 'profile-subscription-bulk-delete-jobs bulk-unsubscribe-profiles'. > 🚧 > > Profiles not in the specified list will be globally unsubscribed. Always verify profile list membership...",
-		Example:     "  klaviyo-pp-cli profile-subscription-bulk-delete-jobs",
+		Long:        "Shortcut for 'profile-subscription-bulk-delete-jobs bulk-unsubscribe-profiles'. > 🚧 > > Profiles not in the specified list will be globally unsubscribed. Always verify profile list membership... Without a list relationship this globally unsubscribes the profiles. Read each profile back afterwards; a 202 only means the job was accepted.",
+		Example:     "  echo '{\"data\":{\"type\":\"profile-subscription-bulk-delete-job\",\"attributes\":{\"profiles\":{\"data\":[{\"type\":\"profile\",\"attributes\":{\"email\":\"person@example.com\",\"subscriptions\":{\"email\":{\"marketing\":{\"consent\":\"UNSUBSCRIBED\"}}}}}]}},\"relationships\":{\"list\":{\"data\":{\"type\":\"list\",\"id\":\"list-1\"}}}}}' | klaviyo-pp-cli profile-subscription-bulk-delete-jobs --stdin",
 		Annotations: map[string]string{"pp:endpoint": "profile-subscription-bulk-delete-jobs.bulk-unsubscribe-profiles"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			body := map[string]any{}
+			if stdinBody {
+				var err error
+				body, err = readShortcutBodyOfType(cmd, "profile-subscription-bulk-delete-job")
+				if err != nil {
+					return err
+				}
+			} else if !flags.dryRun {
+				return usageErr(fmt.Errorf("profile-subscription-bulk-delete-jobs needs a request body: pipe the JSON:API body to --stdin"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -30,7 +41,6 @@ func newProfileSubscriptionBulkDeleteJobsPromotedCmd(flags *rootFlags) *cobra.Co
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -84,6 +94,8 @@ func newProfileSubscriptionBulkDeleteJobsPromotedCmd(flags *rootFlags) *cobra.Co
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON:API request body from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

@@ -13,6 +13,9 @@ import (
 
 func newFormSeriesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagFieldsFormSeriesReport string
+	var statistics []string
+	var timeframe string
+	var interval string
 
 	cmd := &cobra.Command{
 		Use:         "form-series-reports",
@@ -26,13 +29,19 @@ func newFormSeriesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/api/form-series-reports"
+			path := "/api/form-series-reports/"
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			data, _, err := c.Post(path, body)
+			body, _, err := buildKlaviyoReportBody(c, klaviyoReportRequest{
+				Type: "form-series-report", Statistics: statistics,
+				Timeframe: map[string]any{"key": timeframe}, Interval: interval,
+			}, flags.dryRun)
+			if err != nil {
+				return err
+			}
+			data, _, err := postKlaviyoReport(c, path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err)
@@ -86,6 +95,9 @@ func newFormSeriesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagFieldsFormSeriesReport, "fields-form-series-report", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sparse-fieldsets")
+	cmd.Flags().StringSliceVar(&statistics, "statistics", formReportDefaultStatistics, "Statistics to include in the report")
+	cmd.Flags().StringVar(&timeframe, "timeframe", "last_30_days", "Klaviyo predefined reporting timeframe")
+	cmd.Flags().StringVar(&interval, "interval", "weekly", "Series aggregation interval: hourly, daily, weekly, or monthly")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

@@ -6,11 +6,14 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
 // DeliverSink describes where command output should be routed when
@@ -18,6 +21,37 @@ import (
 type DeliverSink struct {
 	Scheme string
 	Target string
+}
+
+func configureDelivery(cmd *cobra.Command, flags *rootFlags) error {
+	if flags == nil || flags.deliverSpec == "" {
+		return nil
+	}
+	sink, err := ParseDeliverSink(flags.deliverSpec)
+	if err != nil {
+		return err
+	}
+	flags.deliverSink = sink
+	if sink.Scheme != "stdout" && sink.Scheme != "" {
+		flags.deliverBuf = &bytes.Buffer{}
+		// Preserve the writer installed by receipt setup. Using os.Stdout here
+		// bypasses the receipt capture because platform pre-run executes first.
+		cmd.SetOut(io.MultiWriter(cmd.OutOrStdout(), flags.deliverBuf))
+	}
+	return nil
+}
+
+func finalizeDelivery(flags *rootFlags) error {
+	if flags == nil || flags.deliverBuf == nil {
+		return nil
+	}
+	if err := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); err != nil {
+		return err
+	}
+	if flags.receiptWriter != nil && flags.deliverSink.Scheme == "file" {
+		return flags.receiptWriter.RecordFileOutput("delivered_file", flags.deliverSink.Target)
+	}
+	return nil
 }
 
 // ParseDeliverSink parses a --deliver value. Supported schemes:

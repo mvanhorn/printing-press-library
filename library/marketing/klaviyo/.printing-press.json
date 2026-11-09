@@ -26,7 +26,15 @@
   "api_version": "2026-04-15",
   "auth_type": "api_key",
   "auth_env_vars": [
-    "KLAVIYO_API_KEY"
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
   ],
   "novel_features": [
     {
@@ -73,6 +81,11 @@
       "name": "QA Gate",
       "command": "plan qa-gate",
       "description": "Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, compliance, and deliverability flags."
+    },
+    {
+      "name": "Targeting Report",
+      "command": "report targeting",
+      "description": "Join campaign audience segments to sends, attributed revenue, exclusions, last-mailed dates, and a never-mailed segment list."
     }
   ],
   "catalog_description": "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation."

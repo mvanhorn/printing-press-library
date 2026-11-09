@@ -45,7 +45,7 @@ func newFlowCannibalizationCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "window": window, "last": last, "source": "local_store", "planned_steps": []string{"read_received_email_events", "group_by_profile", "detect_flow_pairs", "rank_collisions"}}, flags)
 			}
-			rows, err := readNovelLocalRows(cmd.Context(), dbPath, "events", 50000)
+			rows, err := readNovelLocalRows(cmd.Context(), flags, dbPath, "events", 50000)
 			if err != nil {
 				return err
 			}
@@ -80,7 +80,7 @@ func newSendFatigueCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "threshold": threshold, "window": window, "last": last, "source": "local_store", "planned_steps": []string{"read_received_and_opened_events", "count_rolling_profile_sends", "rank_fatigued_profiles"}}, flags)
 			}
-			rows, err := readNovelLocalRows(cmd.Context(), dbPath, "events", 75000)
+			rows, err := readNovelLocalRows(cmd.Context(), flags, dbPath, "events", 75000)
 			if err != nil {
 				return err
 			}
@@ -145,9 +145,15 @@ func newOptimalSendTimeCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			requestedSince := since
+			since, windowClamped := clampKlaviyoAnalyticsWindow(since, until)
 			result, err := optimalSendTime(c, since, until, timezoneName, metric)
 			if err != nil {
 				return err
+			}
+			result["window"] = map[string]any{
+				"requested_last": last, "requested_start": requestedSince.Format(time.RFC3339),
+				"start": since.Format(time.RFC3339), "end": until.Format(time.RFC3339), "clamped": windowClamped,
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
@@ -212,9 +218,12 @@ func newSegmentVelocityCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"segments": []map[string]any{}, "message": "No matching segments found."}, flags)
 			}
 			if dbPath == "" {
-				dbPath = defaultDBPath("klaviyo-pp-cli")
+				dbPath, err = defaultDBPathForClient("klaviyo-pp-cli", c)
+				if err != nil {
+					return err
+				}
 			}
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := store.OpenVerifiedWithContext(cmd.Context(), dbPath, c.PlatformSession())
 			if err != nil {
 				return err
 			}
@@ -304,7 +313,7 @@ func newListQualityScoreCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			result, err := listQualityScore(c, since, until)
+			result, err := listQualityScore(cmd.Context(), c, since, until)
 			if err != nil {
 				return err
 			}
@@ -325,7 +334,7 @@ func newContentFatigueCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "last": last, "min_emails": minEmails, "source": "local_store", "planned_steps": []string{"read_received_and_opened_events", "split_profile_history", "detect_decline_categories"}}, flags)
 			}
-			rows, err := readNovelLocalRows(cmd.Context(), dbPath, "events", 100000)
+			rows, err := readNovelLocalRows(cmd.Context(), flags, dbPath, "events", 100000)
 			if err != nil {
 				return err
 			}
@@ -345,8 +354,8 @@ func newContentFatigueCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-func readNovelLocalRows(ctx context.Context, dbPath, resourceType string, limit int) ([]resourceRow, error) {
-	db, err := openNovelStore(ctx, dbPath)
+func readNovelLocalRows(ctx context.Context, flags *rootFlags, dbPath, resourceType string, limit int) ([]resourceRow, error) {
+	db, err := openNovelStore(ctx, flags, dbPath)
 	if err != nil {
 		return nil, err
 	}
@@ -550,42 +559,72 @@ func maxEventsInWindow(events []novelEmailEvent, window time.Duration) int {
 }
 
 type subjectEmail struct {
-	ID, Subject, Source, SourceType string
-	OpenRate, ClickRate             float64
+	ID, Subject, Source, SourceType, CampaignID string
+	OpenRate, ClickRate                         float64
 }
 
+type subjectMessage struct {
+	ID, Subject string
+}
+
+type subjectEngagement struct {
+	OpenRate, ClickRate float64
+}
+
+// Metric aggregate filters are normalized to whole-day boundaries, so a
+// 364-day lookback becomes at most 364d23h59m59s on the wire. A sub-day safety
+// margin would be discarded by metricAggregateBody and still exceed Klaviyo's
+// one-year cap.
+const klaviyoAnalyticsMaxWindow = 364 * 24 * time.Hour
+
 func subjectLineAnalysis(c flowClient, since, until time.Time, source string) (map[string]any, error) {
-	emails, err := collectSubjectEmails(c, source)
+	since, windowClamped := clampKlaviyoAnalyticsWindow(since, until)
+	source = strings.ToLower(source)
+	if source != "all" && source != "flow" && source != "campaign" {
+		return nil, usageErr(fmt.Errorf("--source must be flow, campaign, or all"))
+	}
+
+	campaignRates := map[string]subjectEngagement{}
+	var campaignIDs []string
+	if source == "all" || source == "campaign" {
+		var err error
+		campaignRates, err = campaignSubjectEngagement(c, since, until)
+		if err != nil {
+			return nil, err
+		}
+		campaignIDs = make([]string, 0, len(campaignRates))
+		for id := range campaignRates {
+			campaignIDs = append(campaignIDs, id)
+		}
+		sort.Strings(campaignIDs)
+	}
+
+	emails, err := collectSubjectEmails(c, source, since, until, campaignIDs)
 	if err != nil {
 		return nil, err
 	}
-	receivedID, err := resolveMetricID(c, "Received Email")
-	if err != nil {
-		return nil, err
-	}
-	openedID, err := resolveMetricID(c, "Opened Email")
-	if err != nil {
-		return nil, err
-	}
-	clickedID, err := resolveMetricID(c, "Clicked Email")
-	if err != nil {
-		return nil, err
-	}
-	received := keyedMetricValues(topAggregateRows(c, receivedID, "$message", "count", since, until, 0), "count")
-	opened := keyedMetricValues(topAggregateRows(c, openedID, "$message", "count", since, until, 0), "count")
-	clicked := keyedMetricValues(topAggregateRows(c, clickedID, "$message", "count", since, until, 0), "count")
-	mergeMetricMap(received, keyedMetricValues(topAggregateRows(c, receivedID, "Campaign Name", "count", since, until, 0), "count"))
-	mergeMetricMap(opened, keyedMetricValues(topAggregateRows(c, openedID, "Campaign Name", "count", since, until, 0), "count"))
-	mergeMetricMap(clicked, keyedMetricValues(topAggregateRows(c, clickedID, "Campaign Name", "count", since, until, 0), "count"))
-	mergeMetricMap(received, keyedMetricValues(topAggregateRows(c, receivedID, "$flow", "count", since, until, 0), "count"))
-	mergeMetricMap(opened, keyedMetricValues(topAggregateRows(c, openedID, "$flow", "count", since, until, 0), "count"))
-	mergeMetricMap(clicked, keyedMetricValues(topAggregateRows(c, clickedID, "$flow", "count", since, until, 0), "count"))
+	rated := make([]subjectEmail, 0, len(emails))
 	for i := range emails {
-		keys := []string{emails[i].ID, emails[i].Source, emails[i].Subject}
-		sent := firstMetricValue(received, keys...)
-		if sent > 0 {
-			emails[i].OpenRate = clamp01(firstMetricValue(opened, keys...) / sent)
-			emails[i].ClickRate = clamp01(firstMetricValue(clicked, keys...) / sent)
+		if emails[i].SourceType == "campaign" {
+			rates, ok := campaignRates[emails[i].CampaignID]
+			if !ok {
+				continue
+			}
+			emails[i].OpenRate = rates.OpenRate
+			emails[i].ClickRate = rates.ClickRate
+		}
+		rated = append(rated, emails[i])
+	}
+	emails = rated
+	if source == "all" || source == "flow" {
+		if err := applyFlowSubjectEngagement(c, emails, since, until); err != nil {
+			return nil, err
+		}
+	}
+	analyzedCampaigns := map[string]bool{}
+	for _, email := range emails {
+		if email.CampaignID != "" {
+			analyzedCampaigns[email.CampaignID] = true
 		}
 	}
 	patterns := subjectPatterns(emails)
@@ -593,58 +632,263 @@ func subjectLineAnalysis(c flowClient, since, until time.Time, source string) (m
 	top := subjectRows(emails, 5)
 	bottomEmails := append([]subjectEmail(nil), emails...)
 	sort.Slice(bottomEmails, func(i, j int) bool { return bottomEmails[i].OpenRate < bottomEmails[j].OpenRate })
-	return map[string]any{"total_emails_analyzed": len(emails), "patterns": patterns, "top_subjects": top, "bottom_subjects": subjectRows(bottomEmails, 5)}, nil
+	return map[string]any{
+		"total_emails_analyzed": len(emails), "campaigns_analyzed": len(analyzedCampaigns),
+		"patterns": patterns, "top_subjects": top, "bottom_subjects": subjectRows(bottomEmails, 5),
+		"window": map[string]any{"start": since.Format(time.RFC3339), "end": until.Format(time.RFC3339), "clamped": windowClamped},
+	}, nil
 }
 
-func collectSubjectEmails(c flowClient, source string) ([]subjectEmail, error) {
-	source = strings.ToLower(source)
+func clampKlaviyoAnalyticsWindow(since, until time.Time) (time.Time, bool) {
+	if until.Sub(since) <= klaviyoAnalyticsMaxWindow {
+		return since, false
+	}
+	return until.Add(-klaviyoAnalyticsMaxWindow), true
+}
+
+func campaignSubjectEngagement(c flowClient, since, until time.Time) (map[string]subjectEngagement, error) {
+	// The Reporting API requires a conversion metric even when only delivery
+	// and engagement statistics are requested. Received Email is native to
+	// every account with campaign sends and avoids imposing a Shopify-specific
+	// dependency on subject-line analysis.
+	receivedMetricID, err := resolveMetricID(c, "Received Email")
+	if err != nil {
+		return nil, err
+	}
+	body, _, err := buildKlaviyoReportBody(c, klaviyoReportRequest{
+		Type: "campaign-values-report",
+		Statistics: []string{
+			"delivered", "opens_unique", "open_rate", "clicks_unique", "click_rate",
+		},
+		Timeframe:          map[string]any{"start": since.Format(time.RFC3339), "end": until.Format(time.RFC3339)},
+		ConversionMetricID: receivedMetricID,
+	}, false)
+	if err != nil {
+		return nil, err
+	}
+	raw, _, err := postKlaviyoReport(c, "/api/campaign-values-reports/", body)
+	if err != nil {
+		return nil, classifyAPIError(err)
+	}
+	rows, err := klaviyoReportRows(raw)
+	if err != nil {
+		return nil, err
+	}
+	type aggregate struct {
+		delivered, opens, clicks, openRate, clickRate float64
+	}
+	aggregates := map[string]*aggregate{}
+	for _, row := range rows {
+		id := stringFromMapPath(row, "groupings.campaign_id")
+		if id == "" {
+			continue
+		}
+		if aggregates[id] == nil {
+			aggregates[id] = &aggregate{}
+		}
+		agg := aggregates[id]
+		agg.delivered += anyFloat(anyPath(row, "statistics.delivered"))
+		agg.opens += anyFloat(anyPath(row, "statistics.opens_unique"))
+		agg.clicks += anyFloat(anyPath(row, "statistics.clicks_unique"))
+		agg.openRate = anyFloat(anyPath(row, "statistics.open_rate"))
+		agg.clickRate = anyFloat(anyPath(row, "statistics.click_rate"))
+	}
+	out := make(map[string]subjectEngagement, len(aggregates))
+	for id, agg := range aggregates {
+		openRate, clickRate := agg.openRate, agg.clickRate
+		if agg.delivered > 0 {
+			openRate = agg.opens / agg.delivered
+			clickRate = agg.clicks / agg.delivered
+		}
+		out[id] = subjectEngagement{OpenRate: clamp01(openRate), ClickRate: clamp01(clickRate)}
+	}
+	return out, nil
+}
+
+func applyFlowSubjectEngagement(c flowClient, emails []subjectEmail, since, until time.Time) error {
+	receivedID, err := resolveMetricID(c, "Received Email")
+	if err != nil {
+		return err
+	}
+	openedID, err := resolveMetricID(c, "Opened Email")
+	if err != nil {
+		return err
+	}
+	clickedID, err := resolveMetricID(c, "Clicked Email")
+	if err != nil {
+		return err
+	}
+	received, opened, clicked := map[string]float64{}, map[string]float64{}, map[string]float64{}
+	for _, dimension := range []string{"$message", "$flow"} {
+		mergeMetricMap(received, keyedMetricValues(topAggregateRows(c, receivedID, dimension, "count", since, until, 0), "count"))
+		mergeMetricMap(opened, keyedMetricValues(topAggregateRows(c, openedID, dimension, "count", since, until, 0), "count"))
+		mergeMetricMap(clicked, keyedMetricValues(topAggregateRows(c, clickedID, dimension, "count", since, until, 0), "count"))
+	}
+	for i := range emails {
+		if emails[i].SourceType != "flow" {
+			continue
+		}
+		keys := []string{emails[i].ID, emails[i].Source, emails[i].Subject}
+		sent := firstMetricValue(received, keys...)
+		if sent > 0 {
+			emails[i].OpenRate = clamp01(firstMetricValue(opened, keys...) / sent)
+			emails[i].ClickRate = clamp01(firstMetricValue(clicked, keys...) / sent)
+		}
+	}
+	return nil
+}
+
+func collectSubjectEmails(c flowClient, source string, since, until time.Time, campaignIDs []string) ([]subjectEmail, error) {
 	var out []subjectEmail
 	if source == "all" || source == "flow" {
-		flows, err := fetchAllJSONAPI(c, "/api/flows", map[string]string{"fields[flow]": "name,status", "page[size]": "50"}, 0)
+		flows, actions, err := fetchAllJSONAPIWithIncluded(c, "/api/flows", map[string]string{
+			"fields[flow]":        "name,status",
+			"fields[flow-action]": "definition",
+			"include":             "flow-actions",
+			"page[size]":          "50",
+		})
 		if err != nil {
 			return nil, err
 		}
+		flowNames := map[string]string{}
+		flowNamesByActionID := map[string]string{}
 		for _, flow := range flows {
 			if status := strings.ToLower(stringFromMapPath(flow, "attributes.status")); status != "" && status != "live" {
 				continue
 			}
-			flowID := fmt.Sprint(flow["id"])
-			def, name, err := fetchAndTransformFlow(c, flowID, true)
-			if err != nil {
+			name := stringFromMapPath(flow, "attributes.name")
+			flowNames[fmt.Sprint(flow["id"])] = name
+			for _, actionID := range relationshipIDs(flow, "flow-actions") {
+				flowNamesByActionID[actionID] = name
+			}
+		}
+		for _, action := range actions {
+			messages := collectSubjectMessages(action)
+			if len(messages) == 0 {
 				continue
 			}
-			for _, action := range mapSlice(def["actions"]) {
-				if fmt.Sprint(action["type"]) != "send-email" {
-					continue
+			flowID := relationshipID(action, "flow")
+			name, live := flowNames[flowID]
+			if flowID != "" && !live {
+				continue
+			}
+			if !live {
+				name, live = flowNamesByActionID[fmt.Sprint(action["id"])]
+			}
+			if !live {
+				return nil, fmt.Errorf("included flow action %s cannot be associated with a flow", action["id"])
+			}
+			for i, message := range messages {
+				id := message.ID
+				if id == "" {
+					id = fmt.Sprintf("%s:%d", action["id"], i)
 				}
-				msg, _ := anyPath(action, "data.message").(map[string]any)
-				subject := firstNonEmptyString(fmt.Sprint(msg["subject"]), fmt.Sprint(anyPath(action, "data.message.content.subject")), fmt.Sprint(anyPath(action, "data.message.definition.content.subject")), fmt.Sprint(msg["name"]))
-				if subject == "" || subject == "<nil>" {
-					continue
-				}
-				out = append(out, subjectEmail{ID: fmt.Sprint(action["id"]), Subject: subject, Source: name, SourceType: "flow"})
+				out = append(out, subjectEmail{ID: id, Subject: message.Subject, Source: name, SourceType: "flow"})
 			}
 		}
 	}
 	if source == "all" || source == "campaign" {
-		campaigns, err := fetchAllJSONAPI(c, "/api/campaigns", map[string]string{"filter": `equals(messages.channel,'email')`, "fields[campaign]": "name,status,send_time", "page[size]": "50"}, 200)
+		campaigns, messages, err := fetchSubjectCampaigns(c, campaignIDs)
 		if err != nil {
 			return nil, err
 		}
+		campaignNames := map[string]string{}
+		campaignIDsByMessageID := map[string]string{}
 		for _, campaign := range campaigns {
-			campaignID := fmt.Sprint(campaign["id"])
-			name := stringFromMapPath(campaign, "attributes.name")
-			messages, err := fetchAllJSONAPI(c, "/api/campaigns/"+url.PathEscape(campaignID)+"/campaign-messages", map[string]string{}, 0)
-			if err != nil {
+			id := fmt.Sprint(campaign["id"])
+			for _, messageID := range relationshipIDs(campaign, "campaign-messages") {
+				campaignIDsByMessageID[messageID] = id
+			}
+			if !strings.EqualFold(stringFromMapPath(campaign, "attributes.status"), "sent") {
 				continue
 			}
-			for _, msg := range messages {
-				subject := firstNonEmptyString(stringFromMapPath(msg, "attributes.subject"), stringFromMapPath(msg, "attributes.definition.content.subject"), stringFromMapPath(msg, "attributes.definition.label"), stringFromMapPath(msg, "attributes.label"), name)
-				out = append(out, subjectEmail{ID: fmt.Sprint(msg["id"]), Subject: subject, Source: name, SourceType: "campaign"})
+			sentAt := parseDate(stringFromMapPath(campaign, "attributes.send_time"))
+			if sentAt.IsZero() || sentAt.Before(since) || sentAt.After(until) {
+				continue
+			}
+			name := stringFromMapPath(campaign, "attributes.name")
+			campaignNames[id] = name
+		}
+		for _, msg := range messages {
+			campaignID := relationshipID(msg, "campaign")
+			if campaignID == "" {
+				campaignID = campaignIDsByMessageID[fmt.Sprint(msg["id"])]
+			}
+			if campaignID == "" {
+				return nil, fmt.Errorf("included campaign message %s cannot be associated with a campaign", msg["id"])
+			}
+			name, eligible := campaignNames[campaignID]
+			if !eligible {
+				continue
+			}
+			subject := firstNonEmptyString(stringFromMapPath(msg, "attributes.definition.content.subject"), stringFromMapPath(msg, "attributes.definition.label"), name)
+			if subject != "" {
+				out = append(out, subjectEmail{ID: fmt.Sprint(msg["id"]), Subject: subject, Source: name, SourceType: "campaign", CampaignID: campaignID})
 			}
 		}
 	}
 	return out, nil
+}
+
+func fetchSubjectCampaigns(c flowClient, campaignIDs []string) ([]map[string]any, []map[string]any, error) {
+	var campaigns, messages []map[string]any
+	for start := 0; start < len(campaignIDs); start += 100 {
+		end := minInt(start+100, len(campaignIDs))
+		encodedIDs, err := json.Marshal(campaignIDs[start:end])
+		if err != nil {
+			return nil, nil, err
+		}
+		batchCampaigns, batchMessages, err := fetchAllJSONAPIWithIncluded(c, "/api/campaigns", map[string]string{
+			"filter":                   fmt.Sprintf(`and(equals(messages.channel,"email"),any(id,%s))`, encodedIDs),
+			"fields[campaign]":         "name,status,send_time",
+			"fields[campaign-message]": "definition",
+			"include":                  "campaign-messages",
+		})
+		if err != nil {
+			return nil, nil, err
+		}
+		campaigns = append(campaigns, batchCampaigns...)
+		messages = append(messages, batchMessages...)
+	}
+	return campaigns, messages, nil
+}
+
+func collectSubjectMessages(value any) []subjectMessage {
+	var out []subjectMessage
+	var walk func(any, string)
+	walk = func(current any, key string) {
+		switch v := current.(type) {
+		case map[string]any:
+			subject := ""
+			if value, ok := v["subject_line"].(string); ok {
+				subject = value
+			}
+			if subject == "" && (key == "message" || key == "content") {
+				if value, ok := v["subject"].(string); ok {
+					subject = value
+				}
+			}
+			if subject == "" && key == "message" {
+				if value, ok := v["name"].(string); ok {
+					subject = value
+				}
+			}
+			if subject = strings.TrimSpace(subject); subject != "" {
+				id, _ := v["id"].(string)
+				out = append(out, subjectMessage{ID: id, Subject: subject})
+				return
+			}
+			for childKey, child := range v {
+				walk(child, childKey)
+			}
+		case []any:
+			for _, child := range v {
+				walk(child, key)
+			}
+		}
+	}
+	walk(value, "")
+	return out
 }
 
 func subjectPatterns(emails []subjectEmail) []map[string]any {
@@ -713,7 +957,7 @@ func hasCuriosityGap(subject string) bool {
 func subjectRows(emails []subjectEmail, limit int) []map[string]any {
 	rows := []map[string]any{}
 	for _, email := range emails {
-		rows = append(rows, map[string]any{"subject": email.Subject, "open_rate": round3(email.OpenRate), "click_rate": round3(email.ClickRate), "source": email.Source, "source_type": email.SourceType})
+		rows = append(rows, map[string]any{"subject": email.Subject, "open_rate": round4(email.OpenRate), "click_rate": round4(email.ClickRate), "source": email.Source, "source_type": email.SourceType})
 		if len(rows) == limit {
 			break
 		}
@@ -791,24 +1035,26 @@ func optimalSendTime(c flowClient, since, until time.Time, timezoneName, metric 
 }
 
 func revenuePerEmail(c flowClient, since, until time.Time, by, period string) (map[string]any, error) {
-	placedID, err := resolveMetricID(c, "Placed Order")
-	if err != nil {
-		return nil, err
-	}
-	receivedID, err := resolveMetricID(c, "Received Email")
-	if err != nil {
-		return nil, err
-	}
 	result := map[string]any{"period": period, "flows": []map[string]any{}, "campaigns": []map[string]any{}}
 	if by == "all" || by == "flow" {
+		placedID, err := resolveMetricID(c, "Placed Order")
+		if err != nil {
+			return nil, err
+		}
+		receivedID, err := resolveMetricID(c, "Received Email")
+		if err != nil {
+			return nil, err
+		}
 		revenue := keyedMetricValues(topAggregateRows(c, placedID, "$attributed_flow", "sum_value", since, until, 0), "sum_value")
 		sends := keyedMetricValues(topAggregateRows(c, receivedID, "$flow", "count", since, until, 0), "count")
 		result["flows"] = revenuePerEmailRows(revenue, sends, "flow_id")
 	}
 	if by == "all" || by == "campaign" {
-		revenue := keyedMetricValues(topAggregateRows(c, placedID, "Campaign Name", "sum_value", since, until, 0), "sum_value")
-		sends := keyedMetricValues(topAggregateRows(c, receivedID, "Campaign Name", "count", since, until, 0), "count")
-		result["campaigns"] = revenuePerEmailRows(revenue, sends, "campaign_id")
+		campaigns, err := campaignRevenuePerEmailRows(c, since, until)
+		if err != nil {
+			return nil, err
+		}
+		result["campaigns"] = campaigns
 	}
 	result["insight"] = revenuePerEmailInsight(result)
 	return result, nil
@@ -841,14 +1087,23 @@ func revenuePerEmailRows(revenue, sends map[string]float64, idField string) []ma
 }
 
 func segmentIDsByTag(c flowClient, tag string) ([]string, error) {
-	segments, err := fetchAllJSONAPI(c, "/api/segments", map[string]string{"fields[segment]": "name,tags,profile_count", "page[size]": "50"}, 0)
+	segments, included, err := fetchAllJSONAPIWithIncluded(c, "/api/segments", map[string]string{"include": "tags", "fields[tag]": "name", "page[size]": "10"})
 	if err != nil {
 		return nil, err
 	}
+	matchingTags := map[string]bool{}
+	for _, item := range included {
+		if item["type"] == "tag" && strings.Contains(strings.ToLower(stringFromMapPath(item, "attributes.name")), strings.ToLower(tag)) {
+			matchingTags[fmt.Sprint(item["id"])] = true
+		}
+	}
 	var ids []string
 	for _, segment := range segments {
-		if strings.Contains(strings.ToLower(fmt.Sprint(segment)), strings.ToLower(tag)) {
-			ids = append(ids, fmt.Sprint(segment["id"]))
+		for _, tagID := range relationshipIDs(segment, "tags") {
+			if matchingTags[tagID] {
+				ids = append(ids, fmt.Sprint(segment["id"]))
+				break
+			}
 		}
 	}
 	return ids, nil
@@ -865,13 +1120,22 @@ func segmentVelocity(ctx context.Context, c flowClient, db *store.Store, ids []s
 	snapshotDate := segmentSnapshotDate(time.Now(), interval)
 	minSnapshotDate := segmentSnapshotDate(sinceTime, interval)
 	var results []map[string]any
-	for _, id := range ids {
-		resp, err := c.Get("/api/segments/"+url.PathEscape(id), map[string]string{"fields[segment]": "name,profile_count,profile_count_estimate"})
+	for i, id := range ids {
+		if i > 0 {
+			if err := waitForProfileCountRequest(ctx, profileCountRequestSpacing); err != nil {
+				return nil, err
+			}
+		}
+		resp, err := c.Get("/api/segments/"+url.PathEscape(id)+"/", map[string]string{"additional-fields[segment]": "profile_count"})
 		if err != nil {
 			return nil, classifyAPIError(err)
 		}
 		name := firstString(resp, "data.attributes.name")
-		count := anyInt(firstJSONValue(resp, "data.attributes.profile_count", "data.attributes.profile_count_estimate", "data.attributes.profiles_count"))
+		profileCount := firstJSONValue(resp, "data.attributes.profile_count")
+		if profileCount == nil {
+			return nil, fmt.Errorf("segment %s response did not include profile_count", id)
+		}
+		count := anyInt(profileCount)
 		if _, err := db.DB().ExecContext(ctx, `INSERT OR REPLACE INTO segment_snapshots(segment_id, snapshot_date, name, count) VALUES (?, ?, ?, ?)`, id, snapshotDate, name, count); err != nil {
 			return nil, err
 		}
@@ -1039,9 +1303,16 @@ func campaignEventMatches(event novelEmailEvent, campaignID, campaignName string
 	return false
 }
 
-func listQualityScore(c flowClient, since, until time.Time) (map[string]any, error) {
-	lists, err := fetchAllJSONAPI(c, "/api/lists", map[string]string{"fields[list]": "name,created,updated,profile_count,profiles_count,profile_count_estimate", "page[size]": "10"}, 0)
+func listQualityScore(ctx context.Context, c flowClient, since, until time.Time) (map[string]any, error) {
+	// The list collection only permits name, created, updated, opt_in_process,
+	// and id in fields[list]. Profile counts are available only from the
+	// rate-limited single-list additional field, so do not send unsupported
+	// collection fields that make the entire command fail with HTTP 400.
+	lists, err := fetchAllJSONAPI(c, "/api/lists", map[string]string{"fields[list]": "name,created,updated", "page[size]": "10"}, 0)
 	if err != nil {
+		return nil, err
+	}
+	if err := enrichProfileCounts(ctx, c, lists, "lists", "list"); err != nil {
 		return nil, err
 	}
 	metrics := map[string]string{"received": "Received Email", "opened": "Opened Email", "clicked": "Clicked Email", "bounced": "Bounced Email", "unsub": "Unsubscribed Email", "spam": "Marked Email as Spam", "orders": "Placed Order", "subscribed": "Subscribed to List"}

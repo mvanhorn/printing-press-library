@@ -12,14 +12,25 @@ import (
 )
 
 func newDataPrivacyDeletionJobsPromotedCmd(flags *rootFlags) *cobra.Command {
+	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "data-privacy-deletion-jobs",
 		Short:       "Request a deletion for the profiles corresponding to one of the following identifiers: `email`, `phone_number`, or...",
-		Long:        "Shortcut for 'data-privacy-deletion-jobs request-profile-deletion'. Request a deletion for the profiles corresponding to one of the following identifiers: `email`, `phone_number`, or...",
-		Example:     "  klaviyo-pp-cli data-privacy-deletion-jobs",
+		Long:        "Shortcut for 'data-privacy-deletion-jobs request-profile-deletion'. Request a deletion for the profiles corresponding to one of the following identifiers: `email`, `phone_number`, or... Permanently deletes the profile and its data. Cannot be undone.",
+		Example:     "  echo '{\"data\":{\"type\":\"data-privacy-deletion-job\",\"attributes\":{\"profile\":{\"data\":{\"type\":\"profile\",\"attributes\":{\"email\":\"person@example.com\"}}}}}}' | klaviyo-pp-cli data-privacy-deletion-jobs --stdin",
 		Annotations: map[string]string{"pp:endpoint": "data-privacy-deletion-jobs.request-profile-deletion"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			body := map[string]any{}
+			if stdinBody {
+				var err error
+				body, err = readShortcutBodyOfType(cmd, "data-privacy-deletion-job")
+				if err != nil {
+					return err
+				}
+			} else if !flags.dryRun {
+				return usageErr(fmt.Errorf("data-privacy-deletion-jobs needs a request body: pipe the JSON:API body to --stdin"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -30,7 +41,6 @@ func newDataPrivacyDeletionJobsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -84,6 +94,8 @@ func newDataPrivacyDeletionJobsPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON:API request body from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

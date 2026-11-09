@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -69,16 +68,38 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 		Use:   "doctor",
 		Short: "Check CLI health",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if flags.platformSession != nil {
+				report, err := platformDoctorV2Report(cmd.Context(), flags.platformSession)
+				if err != nil {
+					return err
+				}
+				if err := flags.printJSON(cmd, report); err != nil {
+					return err
+				}
+				if flags.platformGateError != nil {
+					return flags.platformGateError
+				}
+				if failOn == "error" && report.Status != "ok" {
+					return fmt.Errorf("doctor: --fail-on=error triggered")
+				}
+				if failOn == "stale" && report.Status != "ok" {
+					return fmt.Errorf("doctor: --fail-on=stale triggered")
+				}
+				return nil
+			}
 			report := map[string]any{}
 
 			// Check config
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := loadEffectiveKlaviyoConfig(flags.configPath)
 			if err != nil {
 				report["config"] = fmt.Sprintf("error: %s", err)
 			} else {
 				report["config"] = "ok"
 				report["config_path"] = cfg.Path
 				report["base_url"] = cfg.BaseURL
+				if account, _ := currentKlaviyoAccountName(); account != "" && flags.configPath == "" && os.Getenv("KLAVIYO_CONFIG") == "" {
+					report["account"] = account
+				}
 			}
 
 			// Check auth
@@ -197,7 +218,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Surfaces rows + last_synced_at per resource, schema version,
 			// and a fresh/stale/unknown verdict so agents can introspect
 			// whether to trust the cached data before issuing queries.
-			report["cache"] = collectCacheReport(cmd.Context(), "")
+			report["cache"] = collectCacheReport(cmd.Context(), flags, "")
 
 			report["version"] = version
 
@@ -315,9 +336,14 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 // staleAfterSpec is the CLI's configured threshold (e.g. "6h"); empty means
 // use the runtime default. The default is deliberately conservative (6h)
 // because the alternative is no freshness story at all.
-func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {
+func collectCacheReport(ctx context.Context, flags *rootFlags, staleAfterSpec string) map[string]any {
 	report := map[string]any{}
-	dbPath := defaultDBPath("klaviyo-pp-cli")
+	dbPath, pathErr := flags.defaultDBPath("klaviyo-pp-cli")
+	if pathErr != nil {
+		report["status"] = "unknown"
+		report["error"] = pathErr.Error()
+		return report
+	}
 	report["db_path"] = dbPath
 
 	fi, err := os.Stat(dbPath)
@@ -333,7 +359,7 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	}
 	report["db_bytes"] = fi.Size()
 
-	s, err := store.OpenWithContext(ctx, dbPath)
+	s, err := store.OpenVerifiedWithContext(ctx, dbPath, flags.platformSession)
 	if err != nil {
 		report["status"] = "error"
 		report["error"] = err.Error()
