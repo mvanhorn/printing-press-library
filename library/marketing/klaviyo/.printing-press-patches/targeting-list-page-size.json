@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "targeting-list-page-size",
+  "applied_at": "2026-07-19",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "The targeting report paginates lists at Klaviyo's endpoint-specific maximum of 10 rows.",
+  "reason": "Klaviyo rejects page[size]=100 for /api/lists, so the targeting report failed before it could resolve the account's 137 lists.",
+  "files": [
+    "internal/cli/klaviyo_reports.go",
+    "internal/cli/klaviyo_reports_test.go"
+  ],
+  "validated_outcome": "The a second production account targeting report resolves and paginates all list audiences without an HTTP 400 response."
+}

@@ -7,8 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -19,11 +17,13 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
+	installFreshTenantGate(s)
 	s.AddTool(
 		mcplib.NewTool("accounts_get",
 			mcplib.WithDescription("Retrieve the account(s) associated with a given private API key. This will return 1 account object within the array. You can use this to retrieve account-specific data (contact information, timezone, currency, Public API key, etc.) or test if a Private API Key belongs to the correct account prior to performing subsequent actions with the API.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `15/m` **Scopes:** `accounts:read`. Optional: fields[account]. Returns array of AccountResponseObjectResource."),
@@ -3429,16 +3429,29 @@ func RegisterTools(s *server.MCPServer) {
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
 func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
-	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
+	return func(ctx context.Context, req mcplib.CallToolRequest) (result *mcplib.CallToolResult, resultErr error) {
+		var session *platform.Session
+		var arguments map[string]any
+		defer func() {
+			if result != nil {
+				result = finalizeMCPResult(session, arguments, result)
+			}
+		}()
+		c, verifiedSession, err := newMCPClient(ctx)
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
+		session = verifiedSession
+		defer session.ZeroCredentials()
 
 		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
 		// non-map payloads; GetArguments() returns the map[string]any shape
 		// we rely on here (or an empty map when the payload is something else).
-		args := req.GetArguments()
+		arguments = req.GetArguments()
+		args := arguments
+		if err := cli.AdoptMCPOutputSemantics(session, arguments); err != nil {
+			return mcplib.NewToolResultError(err.Error()), nil
+		}
 
 		// Build path by substituting positional params
 		path := pathTemplate
@@ -3533,13 +3546,10 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 	}
 }
 
-func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "klaviyo-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
-	if err != nil {
-		return nil, fmt.Errorf("loading config: %w", err)
-	}
+func newMCPClient(ctx context.Context) (*client.Client, *platform.Session, error) {
+	// Client-profile binding is authoritative for MCP. Construct a blank
+	// provider config so no legacy credential file or environment is read.
+	cfg := &config.Config{BaseURL: "https://a.klaviyo.com"}
 	c := client.New(cfg, 30*time.Second, 0)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a DELETE/PATCH
@@ -3547,19 +3557,18 @@ func newMCPClient() (*client.Client, error) {
 	// to the cache TTL. Skip the cache for the MCP path; the interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	session, err := cli.BindMCPClient(ctx, c)
+	if err != nil {
+		return nil, nil, err
+	}
+	return c, session, nil
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "klaviyo-pp-cli", "data.db")
-}
-
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
-
-func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	args := req.GetArguments()
+func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (result *mcplib.CallToolResult, resultErr error) {
+	arguments := req.GetArguments()
+	var session *platform.Session
+	defer func() { result = finalizeMCPResult(session, arguments, result) }()
+	args := arguments
 	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
@@ -3570,7 +3579,13 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.OpenWithContext(ctx, dbPath())
+	c, verifiedSession, err := newMCPClient(ctx)
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	session = verifiedSession
+	defer session.ZeroCredentials()
+	db, err := store.OpenVerifiedWithContext(ctx, c.PlatformSession().Paths.DataFile, c.PlatformSession())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -3585,8 +3600,11 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
-func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	args := req.GetArguments()
+func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (result *mcplib.CallToolResult, resultErr error) {
+	arguments := req.GetArguments()
+	var session *platform.Session
+	defer func() { result = finalizeMCPResult(session, arguments, result) }()
+	args := arguments
 	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
@@ -3600,7 +3618,13 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.OpenWithContext(ctx, dbPath())
+	c, verifiedSession, err := newMCPClient(ctx)
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	session = verifiedSession
+	defer session.ZeroCredentials()
+	db, err := store.OpenVerifiedWithContext(ctx, c.PlatformSession().Paths.DataFile, c.PlatformSession())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -3632,7 +3656,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
-func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+func handleContext(invocationCtx context.Context, request mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "klaviyo",
 		"description": "The Klaviyo REST API. Please visit https://developers.klaviyo.com for more details.",
@@ -4139,7 +4163,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return finalizeMCPResult(platform.SessionFromContext(invocationCtx), request.GetArguments(), mcplib.NewToolResultText(string(data))), nil
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP

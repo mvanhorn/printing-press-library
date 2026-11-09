@@ -29,6 +29,13 @@ func newCampaignsCreateCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  klaviyo-pp-cli campaigns create",
 		Annotations: map[string]string{"pp:endpoint": "campaigns.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if stdinBody {
+				for _, name := range []string{"data-attributes-audiences", "data-attributes-campaign-messages", "data-attributes-name", "data-attributes-send-options", "data-attributes-send-strategy", "data-attributes-tracking-options", "data-type"} {
+					if cmd.Flags().Changed(name) {
+						return fmt.Errorf("--stdin cannot be combined with --%s; put all campaign fields in the stdin JSON body", name)
+					}
+				}
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("data-attributes-audiences") && bodyDataAttributesAudiences == "" && !flags.dryRun {
 					return fmt.Errorf("required flag %q not set", "data-attributes-audiences")

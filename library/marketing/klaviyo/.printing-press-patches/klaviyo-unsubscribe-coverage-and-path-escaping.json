@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-unsubscribe-coverage-and-path-escaping",
+  "applied_at": "2026-09-30",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Close unsubscribe checks on all campaign paths and percent-encode generated path parameters.",
+  "reason": "Kit opt-out tags rendered dead links, direct campaign paths bypassed preflight, and raw resource IDs could alter API paths.",
+  "files": [
+    "internal/cli/novel_klaviyo.go",
+    "internal/cli/novel_klaviyo_test.go",
+    "internal/cli/unsubscribe_guard.go",
+    "internal/cli/unsubscribe_guard_test.go",
+    "internal/cli/promoted_campaign-message-assign-template.go",
+    "internal/cli/campaign-send-jobs_send-campaign.go",
+    "internal/cli/templates_create.go",
+    "internal/cli/templates_update.go",
+    "internal/cli/promoted_template-clone.go",
+    "internal/cli/klaviyo_body_contract_test.go",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "Kit-only and mixed footers fail; campaign writes stop before POST; template writes warn in stderr and JSON; QA fail verdicts return nonzero; path IDs are escaped.",
+  "upstream_commit": "81f5764ed"
+}

@@ -47,12 +47,15 @@ func isNetworkError(err error) bool {
 
 // openStoreForRead opens the local SQLite store for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
-func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
-	dbPath := defaultDBPath(cliName)
+func openStoreForRead(ctx context.Context, c *client.Client, cliName string) (*store.Store, error) {
+	dbPath, err := defaultDBPathForClient(cliName, c)
+	if err != nil {
+		return nil, err
+	}
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
-	return store.OpenWithContext(ctx, dbPath)
+	return store.OpenVerifiedWithContext(ctx, dbPath, c.PlatformSession())
 }
 
 // localProvenance builds a DataProvenance for local data reads.
@@ -94,7 +97,7 @@ func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
 func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		data, prov, err := resolveLocal(ctx, resourceType, isList, path, params, "user_requested")
+		data, prov, err := resolveLocal(ctx, c, resourceType, isList, path, params, "user_requested")
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
@@ -107,7 +110,7 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 	default: // "auto"
 		data, err := c.GetWithHeaders(path, params, headers)
 		if err == nil {
-			writeThroughCache(ctx, resourceType, data)
+			writeThroughCache(ctx, c, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -115,7 +118,7 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 			return nil, DataProvenance{}, err
 		}
 		// Network error — try local fallback
-		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, isList, path, params, "api_unreachable")
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, c, resourceType, isList, path, params, "api_unreachable")
 		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'klaviyo-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
@@ -130,7 +133,7 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		data, prov, err := resolveLocal(ctx, resourceType, true, path, params, "user_requested")
+		data, prov, err := resolveLocal(ctx, c, resourceType, true, path, params, "user_requested")
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
@@ -143,13 +146,13 @@ func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlag
 	default: // "auto"
 		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err == nil {
-			writeThroughCache(ctx, resourceType, data)
+			writeThroughCache(ctx, c, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
 			return nil, DataProvenance{}, err
 		}
-		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, true, path, params, "api_unreachable")
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, c, resourceType, true, path, params, "api_unreachable")
 		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'klaviyo-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
@@ -160,8 +163,12 @@ func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlag
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
-func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
-	db, err := store.OpenWithContext(ctx, defaultDBPath("klaviyo-pp-cli"))
+func writeThroughCache(ctx context.Context, c *client.Client, resourceType string, data json.RawMessage) {
+	dbPath, err := defaultDBPathForClient("klaviyo-pp-cli", c)
+	if err != nil {
+		return
+	}
+	db, err := store.OpenVerifiedWithContext(ctx, dbPath, c.PlatformSession())
 	if err != nil {
 		return
 	}
@@ -213,8 +220,8 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 // Note: local reads return ALL synced data for the resource type. Endpoint-specific
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
-func resolveLocal(ctx context.Context, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
-	db, err := openStoreForRead(ctx, "klaviyo-pp-cli")
+func resolveLocal(ctx context.Context, c *client.Client, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
+	db, err := openStoreForRead(ctx, c, "klaviyo-pp-cli")
 	if err != nil {
 		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'klaviyo-pp-cli sync' first.", err)
 	}

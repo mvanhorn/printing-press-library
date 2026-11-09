@@ -121,10 +121,14 @@ In local mode: searches locally synced data only.`,
 
 			// Local FTS search
 			if dbPath == "" {
-				dbPath = defaultDBPath("klaviyo-pp-cli")
+				var err error
+				dbPath, err = flags.defaultDBPath("klaviyo-pp-cli")
+				if err != nil {
+					return err
+				}
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := store.OpenVerifiedWithContext(cmd.Context(), dbPath, flags.platformSession)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'klaviyo-pp-cli sync' first to populate the local database.", err)
 			}

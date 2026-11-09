@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -13,6 +14,7 @@ import (
 
 func newTemplateClonePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagFieldsTemplate string
+	var templateID, cloneName string
 
 	cmd := &cobra.Command{
 		Use:         "template-clone",
@@ -31,7 +33,16 @@ func newTemplateClonePromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
+			source, err := c.Get("/api/templates/"+url.PathEscape(templateID), map[string]string{"fields[template]": "html"})
+			if err != nil {
+				return classifyAPIError(err)
+			}
+			warning := warnTemplateCompliance(cmd, firstString(source, "data.attributes.html"))
+			attributes := map[string]any{}
+			if cloneName != "" {
+				attributes["name"] = cloneName
+			}
+			body := map[string]any{"data": map[string]any{"type": "template", "id": templateID, "attributes": attributes}}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -68,6 +79,10 @@ func newTemplateClonePromotedCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = addJSONWarning(wrapped, warning)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
@@ -86,6 +101,9 @@ func newTemplateClonePromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagFieldsTemplate, "fields-template", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sparse-fieldsets")
+	cmd.Flags().StringVar(&templateID, "template-id", "", "Source template ID to clone")
+	cmd.Flags().StringVar(&cloneName, "name", "", "Optional name for the cloned template")
+	_ = cmd.MarkFlagRequired("template-id")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

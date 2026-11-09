@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "live-analytics-correctness",
+  "applied_at": "2026-07-19",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Preserve required flow report bodies, sent-campaign subject rates, paced per-segment profile counts, and API-safe one-year analytics windows.",
+  "reason": "Empty flow-series POSTs failed, draft and unjoined campaign data produced zero engagement, invalid segment fieldsets blocked snapshots, and calendar-year lookbacks exceeded Klaviyo's normalized metric window.",
+  "files": [
+    "internal/cli/klaviyo_reports.go",
+    "internal/cli/klaviyo_reports_test.go",
+    "internal/cli/promoted_flow-series-reports.go",
+    "internal/cli/novel_computed_analytics.go",
+    "internal/cli/novel_klaviyo_test.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "a production account before/after checks and tenant-gated a second production account checks passed for all four commands; the a second production account report regression suite retained 143 campaign rows and 1554703.98 in attributed conversion value."
+}

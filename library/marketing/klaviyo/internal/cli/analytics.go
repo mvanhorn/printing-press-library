@@ -35,10 +35,14 @@ Data must be synced first with the sync command.`,
   klaviyo-pp-cli analytics --type messages --group-by channel_id --limit 10 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("klaviyo-pp-cli")
+				var err error
+				dbPath, err = flags.defaultDBPath("klaviyo-pp-cli")
+				if err != nil {
+					return err
+				}
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := store.OpenVerifiedWithContext(cmd.Context(), dbPath, flags.platformSession)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'klaviyo-pp-cli sync' first.", err)
 			}
@@ -50,6 +54,11 @@ Data must be synced first with the sync command.`,
 				if err != nil {
 					return fmt.Errorf("getting status: %w", err)
 				}
+				var total int64
+				for _, count := range status {
+					total += int64(count)
+				}
+				declareLocalAnalytics(cmd, flags, total, total)
 				if flags.asJSON {
 					enc := json.NewEncoder(os.Stdout)
 					enc.SetIndent("", "  ")
@@ -64,13 +73,14 @@ Data must be synced first with the sync command.`,
 			}
 
 			if groupBy != "" {
-				return runGroupBy(db, resourceType, groupBy, limit, flags)
+				return runGroupBy(cmd, db, resourceType, groupBy, limit, flags)
 			}
 
 			count, err := db.Count(resourceType)
 			if err != nil {
 				return fmt.Errorf("counting: %w", err)
 			}
+			declareLocalAnalytics(cmd, flags, int64(count), int64(count))
 
 			if flags.asJSON {
 				result := map[string]any{"resource_type": resourceType, "count": count}
@@ -92,7 +102,7 @@ Data must be synced first with the sync command.`,
 	return cmd
 }
 
-func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
+func runGroupBy(cmd *cobra.Command, db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
 	items, err := db.List(resourceType, 0)
 	if err != nil {
 		return err
@@ -120,6 +130,7 @@ func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *r
 	if limit > 0 && len(sorted) > limit {
 		sorted = sorted[:limit]
 	}
+	declareLocalAnalytics(cmd, flags, int64(len(items)), int64(len(sorted)))
 
 	if flags.asJSON {
 		enc := json.NewEncoder(os.Stdout)
@@ -133,4 +144,12 @@ func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *r
 		fmt.Printf("%s\t%d\n", kv.Key, kv.Count)
 	}
 	return nil
+}
+
+func declareLocalAnalytics(cmd *cobra.Command, flags *rootFlags, inputRows, matchedRows int64) {
+	recordCount := float64(inputRows)
+	declareReviewedPlatformAnalytics(cmd, flags,
+		map[string]int64{"selected_local_resource": inputRows},
+		map[string]int64{}, map[string]int64{}, matchedRows, nil,
+		map[string]*float64{"record_count": &recordCount})
 }

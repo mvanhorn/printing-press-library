@@ -12,14 +12,25 @@ import (
 )
 
 func newBackInStockSubscriptionsPromotedCmd(flags *rootFlags) *cobra.Command {
+	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "back-in-stock-subscriptions",
 		Short:       "Subscribe a profile to receive back in stock notifications. Check out [our Back in Stock API...",
 		Long:        "Shortcut for 'back-in-stock-subscriptions create'. Subscribe a profile to receive back in stock notifications. Check out [our Back in Stock API...",
-		Example:     "  klaviyo-pp-cli back-in-stock-subscriptions",
+		Example:     "  echo '{\"data\":{\"type\":\"back-in-stock-subscription\",\"attributes\":{\"channels\":[\"EMAIL\"],\"profile\":{\"data\":{\"attributes\":{\"email\":\"person@example.com\"},\"type\":\"profile\"}}},\"relationships\":{\"variant\":{\"data\":{\"id\":\"$custom:::$default:::variant-1\",\"type\":\"catalog-variant\"}}}}}' | klaviyo-pp-cli back-in-stock-subscriptions --stdin",
 		Annotations: map[string]string{"pp:endpoint": "back-in-stock-subscriptions.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			body := map[string]any{}
+			if stdinBody {
+				var err error
+				body, err = readShortcutBodyOfType(cmd, "back-in-stock-subscription")
+				if err != nil {
+					return err
+				}
+			} else if !flags.dryRun {
+				return usageErr(fmt.Errorf("back-in-stock-subscriptions needs a request body: pipe the JSON:API body to --stdin"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -30,7 +41,6 @@ func newBackInStockSubscriptionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -84,6 +94,8 @@ func newBackInStockSubscriptionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON:API request body from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

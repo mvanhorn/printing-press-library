@@ -12,14 +12,25 @@ import (
 )
 
 func newConversationMessagesPromotedCmd(flags *rootFlags) *cobra.Command {
+	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "conversation-messages",
 		Short:       "Send an outbound message to a conversation. Requires OAuth authentication and account-level enablement. To request...",
 		Long:        "Shortcut for 'conversation-messages create'. Send an outbound message to a conversation. Requires OAuth authentication and account-level enablement. To request...",
-		Example:     "  klaviyo-pp-cli conversation-messages",
+		Example:     "  echo '{\"data\":{\"type\":\"conversation-message\",\"attributes\":{\"body\":\"Thanks for reaching out.\"},\"relationships\":{\"conversation\":{\"data\":{\"id\":\"conversation-1\",\"type\":\"conversation\"}}}}}' | klaviyo-pp-cli conversation-messages --stdin",
 		Annotations: map[string]string{"pp:endpoint": "conversation-messages.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			body := map[string]any{}
+			if stdinBody {
+				var err error
+				body, err = readShortcutBodyOfType(cmd, "conversation-message")
+				if err != nil {
+					return err
+				}
+			} else if !flags.dryRun {
+				return usageErr(fmt.Errorf("conversation-messages needs a request body: pipe the JSON:API body to --stdin"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -30,7 +41,6 @@ func newConversationMessagesPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -84,6 +94,8 @@ func newConversationMessagesPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON:API request body from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

@@ -38,7 +38,17 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		if isMCPReadOnly(cmd) {
 			options = append(options, mcplib.WithReadOnlyHintAnnotation(true), mcplib.WithDestructiveHintAnnotation(false))
 		}
-		s.AddTool(mcplib.NewTool(toolName, options...), shellOutToCLI(cliPath, path))
+		tool := mcplib.NewTool(toolName, options...)
+		if tool.Meta == nil {
+			tool.Meta = &mcplib.Meta{}
+		}
+		if tool.Meta.AdditionalFields == nil {
+			tool.Meta.AdditionalFields = map[string]any{}
+		}
+		// The companion CLI owns the one live gate for mirrored commands.
+		// The parent MCP process must not double-probe the provider.
+		tool.Meta.AdditionalFields["pp:tenant-gate"] = "child-cli"
+		s.AddTool(tool, shellOutToCLI(cliPath, path))
 	})
 }
 

@@ -24,5 +24,16 @@ func newClientCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newClientGetReviewValuesReportsCmd(flags))
 	cmd.AddCommand(newClientGetReviewsCmd(flags))
 	cmd.AddCommand(newClientUnregisterPushTokenCmd(flags))
+	// Keep profile-management children visible in the static Cobra graph even
+	// though this API also owns a provider resource named `client`.
+	cmd.AddCommand(newPlatformClientAddCmd(flags))
+	cmd.AddCommand(newPlatformClientSourceSetCmd(flags))
+	cmd.AddCommand(newPlatformClientListCmd(flags))
+	cmd.AddCommand(newPlatformClientShowCmd(flags))
+	cmd.AddCommand(newPlatformClientValidateCmd(flags))
+	cmd.AddCommand(newPlatformClientSetDefaultCmd(flags))
+	cmd.AddCommand(newPlatformClientMigrateCmd(flags))
+	cmd.AddCommand(newPlatformClientDeleteCmd(flags))
+	cmd.AddCommand(newPlatformClientCacheCmd(flags))
 	return cmd
 }

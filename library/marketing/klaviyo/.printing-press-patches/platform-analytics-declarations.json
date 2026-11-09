@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "platform-analytics-declarations",
+  "applied_at": "2026-07-20",
+  "base_run_id": "",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Declare every reviewed computed analytics command with required inputs, join evidence, freshness, remediation, and exact business metrics.",
+  "reason": "Prevents empty, stale, unjoined, or metric-free command output from being treated as decision-grade analytics during fleet activation.",
+  "files": [
+    "internal/cli/analytics.go",
+    "internal/cli/klaviyo_reports.go",
+    "internal/cli/novel_segments_reports.go",
+    "internal/cli/platform_analytics_specs.go",
+    "internal/cli/platform_analytics_specs_test.go"
+  ],
+  "validated_outcome": "Reviewed command inventory matches platformAnalyticsSpecs and strict platform output conformance tests pass."
+}

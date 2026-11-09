@@ -5,6 +5,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -13,23 +14,132 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/config"
 	"io"
 	"math"
+	"mime"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/platform"
 )
 
 type Client struct {
-	BaseURL    string
-	Config     *config.Config
-	HTTPClient *http.Client
-	DryRun     bool
-	NoCache    bool
-	cacheDir   string
-	limiter    *cliutil.AdaptiveLimiter
+	BaseURL           string
+	Config            *config.Config
+	HTTPClient        *http.Client
+	DryRun            bool
+	NoCache           bool
+	cacheDir          string
+	limiter           *cliutil.AdaptiveLimiter
+	platformSession   *platform.Session
+	platformLimiterMu sync.Mutex
+	platformLimiters  map[string]*platform.EndpointLimiter
+	platformBudgets   map[string]platform.EndpointBudget
+}
+
+func (c *Client) BindPlatformSession(session *platform.Session) error {
+	if session == nil || session.GateOutcome != platform.GateVerified {
+		return fmt.Errorf("verified tenant gate required")
+	}
+	c.platformSession = session
+	c.cacheDir = session.Paths.CacheDir
+	c.platformLimiters = map[string]*platform.EndpointLimiter{}
+	c.platformBudgets = map[string]platform.EndpointBudget{}
+	return nil
+}
+
+func (c *Client) PlatformSession() *platform.Session { return c.platformSession }
+
+func (c *Client) SetPlatformEndpointBudget(budget platform.EndpointBudget) error {
+	if c == nil || c.platformSession == nil {
+		return fmt.Errorf("configure platform endpoint budget: verified session required")
+	}
+	if err := budget.Validate(); err != nil {
+		return err
+	}
+	c.platformLimiterMu.Lock()
+	defer c.platformLimiterMu.Unlock()
+	c.platformBudgets[budget.Class] = budget
+	delete(c.platformLimiters, budget.Class)
+	return nil
+}
+
+func (c *Client) platformBudgetLocked(class string) (platform.EndpointBudget, error) {
+	if budget, ok := c.platformBudgets[class]; ok {
+		return budget, nil
+	}
+	if budget, ok := c.platformBudgets["*"]; ok {
+		budget.Class = class
+		return budget, nil
+	}
+	return platform.EndpointBudget{}, &platform.MissingEndpointBudgetError{EndpointClass: class}
+}
+
+func (c *Client) platformRetryPolicy(method, path string) (platform.EndpointBudget, error) {
+	class := safeEndpointClass(method, path)
+	if c == nil {
+		return platform.EndpointBudget{Class: class}, nil
+	}
+	c.platformLimiterMu.Lock()
+	defer c.platformLimiterMu.Unlock()
+	if c.platformSession == nil && len(c.platformBudgets) == 0 {
+		return platform.EndpointBudget{Class: class}, nil
+	}
+	return c.platformBudgetLocked(class)
+}
+
+func (c *Client) waitForPlatformBudget(method, path string) error {
+	if c.platformSession == nil {
+		return nil
+	}
+	class := safeEndpointClass(method, path)
+	c.platformLimiterMu.Lock()
+	limiter := c.platformLimiters[class]
+	if limiter == nil {
+		budget, err := c.platformBudgetLocked(class)
+		if err != nil {
+			c.platformLimiterMu.Unlock()
+			return err
+		}
+		limiter, err = platform.NewEndpointLimiter(c.platformSession, budget)
+		if err != nil {
+			c.platformLimiterMu.Unlock()
+			return err
+		}
+		c.platformLimiters[class] = limiter
+	}
+	c.platformLimiterMu.Unlock()
+	started := time.Now()
+	err := limiter.Wait(c.platformSession.Context())
+	c.platformSession.RecordRateLimitWait(time.Since(started))
+	return err
+}
+
+func (c *Client) requestContext() context.Context {
+	if c.platformSession != nil {
+		return c.platformSession.Context()
+	}
+	return context.Background()
+}
+
+func (c *Client) waitForRetry(delay time.Duration) error {
+	if delay <= 0 {
+		return nil
+	}
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+	select {
+	case <-timer.C:
+		return nil
+	case <-c.requestContext().Done():
+		return c.requestContext().Err()
+	}
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -49,8 +159,12 @@ func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
 }
 
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
-	homeDir, _ := os.UserHomeDir()
-	cacheDir := filepath.Join(homeDir, ".cache", "klaviyo-pp-cli")
+	cacheRoot, err := os.UserCacheDir()
+	if err != nil || cacheRoot == "" {
+		homeDir, _ := os.UserHomeDir()
+		cacheRoot = filepath.Join(homeDir, ".cache")
+	}
+	cacheDir := filepath.Join(cacheRoot, "klaviyo-pp-cli", "accounts", AccountFingerprint(cfg))
 	httpClient := newHTTPClient(timeout, nil)
 	return &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
@@ -59,6 +173,17 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		cacheDir:   cacheDir,
 		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
 	}
+}
+
+// AccountFingerprint returns a non-secret stable identifier for tenant-scoped
+// local data. Rotating a key intentionally creates a fresh namespace rather
+// than risking writes into a store created under another account.
+func AccountFingerprint(cfg *config.Config) string {
+	if cfg == nil || cfg.AuthHeader() == "" {
+		return "unconfigured"
+	}
+	sum := sha256.Sum256([]byte(strings.TrimSpace(cfg.BaseURL) + "\x00" + cfg.AuthHeader()))
+	return hex.EncodeToString(sum[:6])
 }
 
 // RateLimit returns the current effective rate limit in req/s. Returns 0 if disabled.
@@ -73,13 +198,13 @@ func (c *Client) Get(path string, params map[string]string) (json.RawMessage, er
 func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
 	// Check cache for GET requests
 	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
-		if cached, ok := c.readCache(path, params); ok {
+		if cached, ok := c.readCache(path, params, headers); ok {
 			return cached, nil
 		}
 	}
 	result, _, err := c.do("GET", path, params, nil, headers)
 	if err == nil && !c.NoCache && !c.DryRun && c.cacheDir != "" {
-		c.writeCache(path, params, result)
+		c.writeCache(path, params, headers, result)
 	}
 	return result, err
 }
@@ -90,18 +215,53 @@ func (c *Client) ProbeGet(path string) (int, error) {
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
-	key := path
-	for k, v := range params {
-		key += k + "=" + v
+	return c.cacheKeyFor("GET", path, params, nil, nil)
+}
+
+func (c *Client) cacheKeyFor(method, path string, params map[string]string, headers map[string]string, body []byte) string {
+	key := "legacy|" + path
+	if c.platformSession != nil {
+		expected, _ := json.Marshal(c.platformSession.ExpectedIdentity)
+		observed, _ := json.Marshal(c.platformSession.ObservedIdentity)
+		key = strings.Join([]string{"schema=2", "cli=klaviyo", "source=" + c.platformSession.Source, "profile=" + c.platformSession.ProfileName, "expected=" + string(expected), "observed=" + string(observed), "credential=" + c.platformSession.CredentialFingerprint, "api_version=2026-04-15", "method=" + strings.ToUpper(method), "endpoint=" + path}, "|")
 	}
+	query := url.Values{}
+	for k, v := range params {
+		query.Set(k, v)
+	}
+	key += "|query=" + query.Encode()
+	if len(body) > 0 {
+		sum := sha256.Sum256(body)
+		key += "|body=" + hex.EncodeToString(sum[:])
+	}
+	key += "|representation=" + canonicalCacheHeaders(headers)
 	h := sha256.Sum256([]byte(key))
+	if c.platformSession != nil {
+		return hex.EncodeToString(h[:])
+	}
 	return hex.EncodeToString(h[:8])
 }
 
-func (c *Client) readCache(path string, params map[string]string) (json.RawMessage, bool) {
-	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
+func canonicalCacheHeaders(headers map[string]string) string {
+	values := make([]string, 0, len(headers))
+	for name, value := range headers {
+		lower := strings.ToLower(strings.TrimSpace(name))
+		if lower == "authorization" || lower == "cookie" {
+			continue
+		}
+		values = append(values, lower+"="+strings.TrimSpace(value))
+	}
+	sort.Strings(values)
+	return strings.Join(values, "&")
+}
+
+func (c *Client) readCache(path string, params map[string]string, headers map[string]string) (json.RawMessage, bool) {
+	cacheFile := filepath.Join(c.cacheResourceDir(path), c.cacheKeyFor("GET", path, params, headers, nil)+".json")
 	info, err := os.Stat(cacheFile)
 	if err != nil || time.Since(info.ModTime()) > 5*time.Minute {
+		return nil, false
+	}
+	if c.platformSession != nil && !c.platformCacheMetadataMatches(cacheFile) {
 		return nil, false
 	}
 	data, err := os.ReadFile(cacheFile)
@@ -111,20 +271,110 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 	return json.RawMessage(data), true
 }
 
-func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
-	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+func (c *Client) writeCache(path string, params map[string]string, headers map[string]string, data json.RawMessage) {
+	resourceDir := c.cacheResourceDir(path)
+	_ = os.MkdirAll(resourceDir, 0o700)
+	cacheFile := filepath.Join(resourceDir, c.cacheKeyFor("GET", path, params, headers, nil)+".json")
+	_ = os.WriteFile(cacheFile, []byte(data), 0o600)
+	if c.platformSession != nil {
+		c.writePlatformCacheMetadata(cacheFile)
+	}
 }
 
-// invalidateCache wholesale-removes the cache directory after a successful
-// non-GET request. Best-effort — ignores RemoveAll error per the design
-// pattern at https://github.com/mvanhorn/cli-printing-press/blob/main/docs/solutions/design-patterns/http-client-cache-invalidate-on-mutation-2026-05-05.md
-func (c *Client) invalidateCache() {
+type platformCacheMetadata struct {
+	FetchedAt             time.Time         `json:"fetched_at"`
+	ExpiresAt             time.Time         `json:"expires_at"`
+	Profile               string            `json:"client_profile"`
+	Source                string            `json:"source"`
+	ExpectedIdentity      map[string]string `json:"expected_identity"`
+	ObservedIdentity      map[string]string `json:"observed_identity"`
+	CredentialFingerprint string            `json:"credential_fingerprint"`
+}
+
+func (c *Client) platformCacheMetadataMatches(cacheFile string) bool {
+	data, err := os.ReadFile(filepath.Clean(cacheFile + ".platform.json"))
+	if err != nil {
+		return false
+	}
+	var metadata platformCacheMetadata
+	if err := json.Unmarshal(data, &metadata); err != nil || time.Now().After(metadata.ExpiresAt) {
+		return false
+	}
+	session := c.platformSession
+	return session != nil && metadata.Profile == session.ProfileName && metadata.Source == session.Source &&
+		metadata.CredentialFingerprint == session.CredentialFingerprint &&
+		canonicalStringMap(metadata.ExpectedIdentity) == canonicalStringMap(session.ExpectedIdentity) &&
+		canonicalStringMap(metadata.ObservedIdentity) == canonicalStringMap(session.ObservedIdentity)
+}
+
+func (c *Client) writePlatformCacheMetadata(cacheFile string) {
+	now := time.Now().UTC()
+	metadata := platformCacheMetadata{
+		FetchedAt: now, ExpiresAt: now.Add(5 * time.Minute), Profile: c.platformSession.ProfileName,
+		Source: c.platformSession.Source, ExpectedIdentity: c.platformSession.ExpectedIdentity,
+		ObservedIdentity: c.platformSession.ObservedIdentity, CredentialFingerprint: c.platformSession.CredentialFingerprint,
+	}
+	if data, err := json.Marshal(metadata); err == nil {
+		_ = os.WriteFile(cacheFile+".platform.json", data, 0o600)
+	}
+}
+
+func canonicalStringMap(values map[string]string) string {
+	data, _ := json.Marshal(values)
+	return string(data)
+}
+
+func cacheResourceTag(path string) string {
+	path = strings.SplitN(path, "?", 2)[0]
+	for _, raw := range strings.Split(strings.Trim(path, "/"), "/") {
+		segment := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(raw), ".json"))
+		if segment == "" || segment == "api" || segment == "admin" || numericVersionSegment(segment) {
+			continue
+		}
+		var safe strings.Builder
+		for _, r := range segment {
+			if r >= 'a' && r <= 'z' || r >= '0' && r <= '9' || r == '-' || r == '_' {
+				safe.WriteRune(r)
+			}
+		}
+		if safe.Len() > 0 {
+			return safe.String()
+		}
+	}
+	return "root"
+}
+
+func numericVersionSegment(segment string) bool {
+	segment = strings.TrimPrefix(segment, "v")
+	if segment == "" {
+		return false
+	}
+	for _, r := range segment {
+		if (r < '0' || r > '9') && r != '-' && r != '.' {
+			return false
+		}
+	}
+	return true
+}
+
+func (c *Client) cacheResourceDir(path string) string {
+	return filepath.Join(c.cacheDir, "resources", cacheResourceTag(path))
+}
+
+// invalidateCacheResource evicts only the resource affected by a successful
+// mutation. Other resources in this verified profile namespace remain warm.
+func (c *Client) invalidateCacheResource(path string) {
 	if c.cacheDir == "" {
 		return
 	}
-	_ = os.RemoveAll(c.cacheDir)
+	_ = os.RemoveAll(c.cacheResourceDir(path))
+}
+
+func (c *Client) invalidateCacheAfterMutation(path string) {
+	if c.cacheDir == "" {
+		return
+	}
+	_ = os.RemoveAll(filepath.Join(c.cacheDir, "resources"))
 }
 
 func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
@@ -133,6 +383,68 @@ func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
 
 func (c *Client) PostWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
 	return c.do("POST", path, nil, body, headers)
+}
+
+// PostMultipart uploads a file and optional form fields through the shared request path.
+// Dry runs inspect metadata only; live requests buffer the body once for safe replay.
+func (c *Client) PostMultipart(path string, file *os.File, fields map[string]string, headers map[string]string) (json.RawMessage, int, error) {
+	info, err := file.Stat()
+	if err != nil {
+		return nil, 0, fmt.Errorf("stat upload file: %w", err)
+	}
+	if info.IsDir() {
+		return nil, 0, fmt.Errorf("upload file %q is a directory", file.Name())
+	}
+	if !info.Mode().IsRegular() {
+		return nil, 0, fmt.Errorf("upload file %q is not a regular file", file.Name())
+	}
+	requestHeaders := make(map[string]string, len(headers)+1)
+	for k, v := range headers {
+		if !strings.EqualFold(k, "Content-Type") {
+			requestHeaders[k] = v
+		}
+	}
+	filename := filepath.Base(file.Name())
+	if c.DryRun {
+		preview := map[string]any{"file": map[string]any{"path": file.Name(), "filename": filename, "size": info.Size()}}
+		for k, v := range fields {
+			preview[k] = v
+		}
+		requestHeaders["Content-Type"] = "multipart/form-data"
+		return c.do(http.MethodPost, path, nil, preview, requestHeaders)
+	}
+
+	contentType := mime.TypeByExtension(strings.ToLower(filepath.Ext(filename)))
+	if contentType == "" {
+		var sample [512]byte
+		n, err := file.ReadAt(sample[:], 0)
+		if err != nil && err != io.EOF {
+			return nil, 0, fmt.Errorf("reading upload file: %w", err)
+		}
+		contentType = http.DetectContentType(sample[:n])
+	}
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	part, err := writer.CreatePart(textproto.MIMEHeader{
+		"Content-Disposition": {mime.FormatMediaType("form-data", map[string]string{"name": "file", "filename": filename})},
+		"Content-Type":        {contentType},
+	})
+	if err != nil {
+		return nil, 0, fmt.Errorf("creating multipart file field: %w", err)
+	}
+	if _, err := io.Copy(part, file); err != nil {
+		return nil, 0, fmt.Errorf("reading upload file: %w", err)
+	}
+	for k, v := range fields {
+		if err := writer.WriteField(k, v); err != nil {
+			return nil, 0, fmt.Errorf("writing multipart field %q: %w", k, err)
+		}
+	}
+	if err := writer.Close(); err != nil {
+		return nil, 0, fmt.Errorf("closing multipart body: %w", err)
+	}
+	requestHeaders["Content-Type"] = writer.FormDataContentType()
+	return c.doBytes(http.MethodPost, path, nil, body.Bytes(), requestHeaders)
 }
 
 func (c *Client) Delete(path string) (json.RawMessage, int, error) {
@@ -162,12 +474,6 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
-	// Keep authentication and rate-limit recovery available; only ambiguous
-	// transport/server failures must not replay an unprotected write.
-	canRetryAmbiguousFailure := method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
-
-	targetURL := c.BaseURL + path
-
 	var bodyBytes []byte
 	if body != nil {
 		b, err := json.Marshal(body)
@@ -176,6 +482,11 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		}
 		bodyBytes = b
 	}
+	return c.doBytes(method, path, params, bodyBytes, headerOverrides)
+}
+
+func (c *Client) doBytes(method, path string, params map[string]string, bodyBytes []byte, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	targetURL := c.BaseURL + path
 
 	// Resolve auth material before the dry-run branch so --dry-run can preview
 	// exactly what would be sent. Uses only cached credentials; a token that
@@ -191,18 +502,44 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
 	}
 
-	const maxRetries = 3
+	maxRetries := 3
+	retryPolicy, err := c.platformRetryPolicy(method, path)
+	if err != nil {
+		return nil, 0, err
+	}
+	if retryPolicy.MaxAttempts > 0 && maxRetries > retryPolicy.MaxAttempts-1 {
+		maxRetries = retryPolicy.MaxAttempts - 1
+	}
+	retryStarted := time.Now()
+	retryWithinBudget := func(wait time.Duration) bool {
+		return retryPolicy.RetryBudget == 0 || time.Since(retryStarted)+wait <= retryPolicy.RetryBudget
+	}
+	idempotencyKey := requestIdempotencyKey(headerOverrides)
+	canRetry := platform.CanRetryRequest(method, idempotencyKey)
+	// Keep bounded recovery for legacy clients and stricter tenant retry policies.
+	canRetryRateLimit := retryPolicy.MaxAttempts == 0 || canRetry
+	// Unprotected writes, including multipart uploads, may already have committed.
+	canRetryAmbiguousFailure := method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions || idempotencyKey != ""
 	var lastErr error
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if err := c.waitForPlatformBudget(method, path); err != nil {
+			return nil, 0, err
+		}
 		// Proactive rate limiting — wait before sending
-		c.limiter.Wait()
+		adaptiveStarted := time.Now()
+		if err := c.limiter.WaitContext(c.requestContext()); err != nil {
+			return nil, 0, err
+		}
+		if c.platformSession != nil {
+			c.platformSession.RecordRateLimitWait(time.Since(adaptiveStarted))
+		}
 		var bodyReader io.Reader
 		if bodyBytes != nil {
-			bodyReader = strings.NewReader(string(bodyBytes))
+			bodyReader = bytes.NewReader(bodyBytes)
 		}
 
-		req, err := http.NewRequest(method, targetURL, bodyReader)
+		req, err := http.NewRequestWithContext(c.requestContext(), method, targetURL, bodyReader)
 		if err != nil {
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}
@@ -230,13 +567,20 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		}
 		req.Header.Set("User-Agent", "klaviyo-pp-cli/2026-04-15")
 
+		if c.platformSession != nil {
+			c.platformSession.RecordRateLimitRequest()
+		}
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
-			if !canRetryAmbiguousFailure {
-				return nil, 0, lastErr
+			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+			if attempt < maxRetries && canRetryAmbiguousFailure && retryWithinBudget(wait) {
+				if err := c.waitForRetry(wait); err != nil {
+					return nil, 0, err
+				}
+				continue
 			}
-			continue
+			return nil, 0, lastErr
 		}
 
 		respBody, err := io.ReadAll(resp.Body)
@@ -253,7 +597,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			// is structurally redundant (dry-run short-circuits before the retry
 			// loop) but defends against future refactors.
 			if method != http.MethodGet && !c.DryRun {
-				c.invalidateCache()
+				c.invalidateCacheAfterMutation(path)
 			}
 			return json.RawMessage(respBody), resp.StatusCode, nil
 		}
@@ -266,20 +610,36 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		}
 
 		// Rate limited - adjust adaptive limiter and retry
-		if resp.StatusCode == 429 && attempt < maxRetries {
+		if resp.StatusCode == http.StatusTooManyRequests {
 			c.limiter.OnRateLimit()
-			wait := cliutil.RetryAfter(resp)
-			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			time.Sleep(wait)
-			lastErr = apiErr
-			continue
+			wait := platform.RetryAfterDelay(resp.Header.Get("Retry-After"), attempt, time.Now().UTC(), nil)
+			if attempt < maxRetries && canRetryRateLimit && retryWithinBudget(wait) {
+				if c.platformSession != nil {
+					c.platformSession.RecordRateLimitRetry(wait)
+				}
+				fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
+				if err := c.waitForRetry(wait); err != nil {
+					return nil, 0, err
+				}
+				lastErr = apiErr
+				continue
+			}
+			if c.platformSession != nil {
+				c.platformSession.RecordRateLimitExhausted()
+			}
+			return nil, resp.StatusCode, &platform.RateLimitedError{EndpointClass: safeEndpointClass(method, path), Attempts: attempt + 1, RetryAfter: wait, RequestID: resp.Header.Get("X-Request-ID"), Cause: apiErr}
 		}
 
 		// Server error - retry with backoff
 		if resp.StatusCode >= 500 && attempt < maxRetries && canRetryAmbiguousFailure {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+			if !retryWithinBudget(wait) {
+				return nil, resp.StatusCode, apiErr
+			}
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
-			time.Sleep(wait)
+			if err := c.waitForRetry(wait); err != nil {
+				return nil, 0, err
+			}
 			lastErr = apiErr
 			continue
 		}
@@ -289,6 +649,26 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	}
 
 	return nil, 0, lastErr
+}
+
+func requestIdempotencyKey(headers map[string]string) string {
+	for name, value := range headers {
+		if strings.EqualFold(name, "Idempotency-Key") || strings.EqualFold(name, "X-Idempotency-Key") {
+			return strings.TrimSpace(value)
+		}
+	}
+	return ""
+}
+
+func safeEndpointClass(method, path string) string {
+	if i := strings.IndexAny(path, "?#"); i >= 0 {
+		path = path[:i]
+	}
+	parts := strings.Split(strings.Trim(path, "/"), "/")
+	if len(parts) > 2 {
+		parts = parts[:2]
+	}
+	return strings.ToUpper(method) + " /" + strings.Join(parts, "/")
 }
 
 // dryRun prints the outgoing request exactly as the live path would send it,
@@ -315,6 +695,9 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		}
 	}
 	_ = queryPrinted
+	if contentType := headerOverrides["Content-Type"]; contentType != "" {
+		fmt.Fprintf(os.Stderr, "  Content-Type: %s\n", contentType)
+	}
 	if body != nil {
 		var pretty json.RawMessage
 		if json.Unmarshal(body, &pretty) == nil {

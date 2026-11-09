@@ -28,6 +28,34 @@ type syncResult struct {
 	Duration time.Duration
 }
 
+const defaultKlaviyoSyncPageSize = 100
+
+// syncResourceDescriptor is the Klaviyo-specific sync contract projected from
+// the archived OpenAPI spec. It prevents sync from applying generic parameters
+// to endpoints that reject them.
+type syncResourceDescriptor struct {
+	Path             string
+	Syncable         bool
+	Paginated        bool
+	CursorParam      string
+	PageSizeParam    string
+	MaxPageSize      int
+	IncrementalParam string
+	RequiredFilters  []syncRequiredFilter
+}
+
+type syncRequiredFilter struct {
+	Param          string
+	Values         []string
+	ParentResource string
+	Field          string
+}
+
+type syncSkip struct {
+	Reason  string
+	Message string
+}
+
 func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var resources []string
 	var full bool
@@ -83,10 +111,13 @@ Exit codes & warnings:
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("klaviyo-pp-cli")
+				dbPath, err = defaultDBPathForClient("klaviyo-pp-cli", c)
+				if err != nil {
+					return err
+				}
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := store.OpenVerifiedWithContext(cmd.Context(), dbPath, c.PlatformSession())
 			if err != nil {
 				return fmt.Errorf("opening local database: %w", err)
 			}
@@ -146,7 +177,7 @@ Exit codes & warnings:
 			work := make(chan string, len(resources))
 			results := make(chan syncResult, len(resources))
 
-			var wg sync.WaitGroup
+			var wg, batch sync.WaitGroup
 			for i := 0; i < concurrency; i++ {
 				wg.Add(1)
 				go func() {
@@ -154,13 +185,30 @@ Exit codes & warnings:
 					for resource := range work {
 						res := syncResource(c, db, resource, sinceTS, full, maxPages)
 						results <- res
+						batch.Done()
 					}
 				}()
 			}
 
-			// Enqueue all resources
+			// PATCH(greptile-g3): filter builders must see completed parent syncs.
+			// shortcut: filters currently have one dependency level; use topological batches if nested parents are added.
+			batches := [2][]string{}
 			for _, resource := range resources {
-				work <- resource
+				phase := 0
+				desc, _ := syncDescriptorForResource(resource)
+				for _, filter := range desc.RequiredFilters {
+					if filter.ParentResource != "" {
+						phase = 1
+					}
+				}
+				batches[phase] = append(batches[phase], resource)
+			}
+			for _, resources := range batches {
+				batch.Add(len(resources))
+				for _, resource := range resources {
+					work <- resource
+				}
+				batch.Wait()
 			}
 			close(work)
 
@@ -272,24 +320,80 @@ func syncResource(c interface {
 		fmt.Fprintf(os.Stderr, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
 	}
 
-	path := syncResourcePath(resource)
-	var totalCount int
+	desc, ok := syncDescriptorForResource(resource)
+	if !ok {
+		err := fmt.Errorf("unknown sync resource %q", resource)
+		if !humanFriendly {
+			fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+		}
+		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
+	}
+	if !desc.Syncable {
+		return syncSkippedResult(resource, started, "non_syncable", fmt.Sprintf("%s is not syncable with private-key API sync", resource))
+	}
 
+	filterSets, skip := syncRequiredFilterParamSets(db, desc)
+	if skip != nil {
+		return syncSkippedResult(resource, started, skip.Reason, skip.Message)
+	}
+
+	useCheckpoint := len(filterSets) == 1
+	var totalCount int
+	for _, baseParams := range filterSets {
+		count, warn, err := syncResourcePageSet(c, db, resource, desc, baseParams, sinceTS, full, maxPages, useCheckpoint)
+		if warn != nil {
+			if !humanFriendly {
+				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
+					resource, warn.Status, warn.Reason, strings.ReplaceAll(warn.Message, `"`, `\"`))
+			}
+			return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, warn.Reason), Duration: time.Since(started)}
+		}
+		if err != nil {
+			if !humanFriendly {
+				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+			}
+			return syncResult{Resource: resource, Count: totalCount, Err: err, Duration: time.Since(started)}
+		}
+		totalCount += count
+	}
+	if !useCheckpoint {
+		_ = db.SaveSyncState(resource, "", totalCount)
+	}
+
+	if !humanFriendly {
+		fmt.Fprintf(os.Stderr, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
+	}
+
+	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
+}
+
+func syncResourcePageSet(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, resource string, desc syncResourceDescriptor, baseParams map[string]string, sinceTS string, full bool, maxPages int, useCheckpoint bool) (int, *accessWarning, error) {
 	// Resume cursor from sync_state (unless --full cleared it)
-	existingCursor, lastSynced, _, _ := db.GetSyncState(resource)
+	var existingCursor string
+	var lastSynced time.Time
+	if useCheckpoint {
+		existingCursor, lastSynced, _, _ = db.GetSyncState(resource)
+	}
 
 	// Determine the since param value:
 	// 1. Explicit --since flag takes priority
 	// 2. Otherwise use last_synced_at from sync_state for incremental sync
-	sinceParam := determineSinceParam()
-	effectiveSince := sinceTS
-	if effectiveSince == "" && !lastSynced.IsZero() && !full {
-		effectiveSince = lastSynced.Format(time.RFC3339)
+	sinceParam := desc.IncrementalParam
+	effectiveSince := ""
+	if sinceParam != "" {
+		effectiveSince = sinceTS
+		if effectiveSince == "" && !lastSynced.IsZero() && !full {
+			effectiveSince = lastSynced.Format(time.RFC3339)
+		}
 	}
 
 	cursor := existingCursor
-	pageSize := determinePaginationDefaults()
+	pageSize := determinePaginationDefaults(resource)
 
+	var totalCount int
 	var progressCount int64
 	pagesFetched := 0
 	lastNextCursor := ""
@@ -306,34 +410,29 @@ func syncResource(c interface {
 	anomalyEmitted := false
 
 	for {
-		params := map[string]string{}
+		params := cloneSyncParams(baseParams)
 
-		// Set page size
-		params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+		// Set page size only on endpoints that declare page[size].
+		if desc.Paginated && pageSize.limitParam != "" && pageSize.limit > 0 {
+			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+		}
 
-		// Set cursor for resume
-		if cursor != "" {
+		// Set cursor for resume.
+		if desc.Paginated && cursor != "" && pageSize.cursorParam != "" {
 			params[pageSize.cursorParam] = cursor
 		}
 
-		// Set since filter
+		// Set since filter only on endpoints that document an incremental param.
 		if effectiveSince != "" {
 			params[sinceParam] = effectiveSince
 		}
 
-		data, err := c.Get(path, params)
+		data, err := c.Get(desc.Path, params)
 		if err != nil {
 			if w, ok := isSyncAccessWarning(err); ok {
-				if !humanFriendly {
-					fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
-						resource, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
-				}
-				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
+				return totalCount, w, nil
 			}
-			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
-			}
-			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
+			return totalCount, nil, fmt.Errorf("fetching %s: %w", resource, err)
 		}
 
 		// Try to extract items from the response.
@@ -341,12 +440,12 @@ func syncResource(c interface {
 		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam)
 
 		if len(items) == 0 {
+			if responseIsEmptyList(data) {
+				break
+			}
 			// Single object response - try to store as-is
 			if err := upsertSingleObject(db, resource, data); err != nil {
-				if !humanFriendly {
-					fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
-				}
-				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
+				return totalCount, nil, err
 			}
 			totalCount++
 			break
@@ -365,10 +464,7 @@ func syncResource(c interface {
 		// probe when extraction succeeded but rows still didn't land.
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
-			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
-			}
-			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
+			return totalCount, nil, fmt.Errorf("upserting batch for %s: %w", resource, err)
 		}
 
 		consumedTotal += len(items)
@@ -418,10 +514,12 @@ func syncResource(c interface {
 			}
 		}
 
-		// Save cursor after each page for resumability
-		if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
-			// Non-fatal: log and continue
-			fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
+		// Save cursor after each page for resumability.
+		if useCheckpoint {
+			if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
+				// Non-fatal: log and continue
+				fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
+			}
 		}
 
 		pagesFetched++
@@ -452,8 +550,13 @@ func syncResource(c interface {
 		}
 		lastNextCursor = nextCursor
 
-		// Determine if there are more pages
-		if !hasMore || len(items) < pageSize.limit || nextCursor == "" {
+		// Determine if there are more pages. Cursor-only endpoints do not
+		// declare a page-size field, so they cannot use len(items) as a stop
+		// signal.
+		if !desc.Paginated || !hasMore || nextCursor == "" {
+			break
+		}
+		if pageSize.limitParam != "" && pageSize.limit > 0 && len(items) < pageSize.limit {
 			break
 		}
 
@@ -461,7 +564,9 @@ func syncResource(c interface {
 	}
 
 	// Final sync state: clear cursor (sync is complete), update count
-	_ = db.SaveSyncState(resource, "", totalCount)
+	if useCheckpoint {
+		_ = db.SaveSyncState(resource, "", totalCount)
+	}
 
 	// F4b symptom probe: if items were consumed and successfully
 	// extracted (extractFailures < consumed) but nothing landed in
@@ -478,11 +583,69 @@ func syncResource(c interface {
 		}
 	}
 
-	if !humanFriendly {
-		fmt.Fprintf(os.Stderr, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
-	}
+	return totalCount, nil, nil
+}
 
-	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
+func syncSkippedResult(resource string, started time.Time, reason, message string) syncResult {
+	if !humanFriendly {
+		fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","reason":"%s","message":"%s"}`+"\n",
+			resource, reason, strings.ReplaceAll(message, `"`, `\"`))
+	}
+	return syncResult{Resource: resource, Warn: fmt.Errorf("skipped %s: %s", resource, message), Duration: time.Since(started)}
+}
+
+func cloneSyncParams(in map[string]string) map[string]string {
+	out := make(map[string]string, len(in))
+	for k, v := range in {
+		out[k] = v
+	}
+	return out
+}
+
+func syncRequiredFilterParamSets(db *store.Store, desc syncResourceDescriptor) ([]map[string]string, *syncSkip) {
+	sets := []map[string]string{{}}
+	for _, filter := range desc.RequiredFilters {
+		switch {
+		case len(filter.Values) > 0:
+			var next []map[string]string
+			for _, current := range sets {
+				for _, value := range filter.Values {
+					params := cloneSyncParams(current)
+					params[filter.Param] = value
+					next = append(next, params)
+				}
+			}
+			sets = next
+		case filter.ParentResource != "" && filter.Field != "":
+			ids, err := db.ListIDs(filter.ParentResource)
+			if err != nil {
+				return nil, &syncSkip{
+					Reason:  "parent_lookup_failed",
+					Message: fmt.Sprintf("could not read parent %s IDs for required %s filter: %v", filter.ParentResource, filter.Field, err),
+				}
+			}
+			if len(ids) == 0 {
+				return nil, &syncSkip{
+					Reason:  "missing_parent_resource",
+					Message: fmt.Sprintf("requires synced %s rows before the %s filter can be built", filter.ParentResource, filter.Field),
+				}
+			}
+			var next []map[string]string
+			for _, current := range sets {
+				for _, id := range ids {
+					params := cloneSyncParams(current)
+					params[filter.Param] = klaviyoEqualsFilter(filter.Field, id)
+					next = append(next, params)
+				}
+			}
+			sets = next
+		}
+	}
+	return sets, nil
+}
+
+func klaviyoEqualsFilter(field, value string) string {
+	return fmt.Sprintf("equals(%s,'%s')", field, strings.ReplaceAll(value, `'`, `\'`))
 }
 
 // paginationDefaults holds the resolved pagination parameter names and page size.
@@ -494,17 +657,122 @@ type paginationDefaults struct {
 
 // determinePaginationDefaults returns the pagination parameter names to use.
 // Values are detected from the API spec by the profiler at generation time.
-func determinePaginationDefaults() paginationDefaults {
+func determinePaginationDefaults(resource string) paginationDefaults {
+	desc, ok := syncDescriptorForResource(resource)
+	if !ok {
+		return paginationDefaults{cursorParam: "page[cursor]", limitParam: "page[size]", limit: defaultKlaviyoSyncPageSize}
+	}
+	limit := desc.MaxPageSize
+	if limit <= 0 {
+		limit = defaultKlaviyoSyncPageSize
+	}
 	return paginationDefaults{
-		cursorParam: "page[cursor]",
-		limitParam:  "page[size]",
-		limit:       100,
+		cursorParam: desc.CursorParam,
+		limitParam:  desc.PageSizeParam,
+		limit:       limit,
 	}
 }
 
-// determineSinceParam returns the query parameter name for incremental sync filtering.
-func determineSinceParam() string {
-	return "since"
+var klaviyoCampaignChannelFilters = []string{
+	"equals(messages.channel,'email')",
+	"equals(messages.channel,'sms')",
+	"equals(messages.channel,'mobile_push')",
+}
+
+var klaviyoSyncDescriptors = map[string]syncResourceDescriptor{
+	"accounts": {
+		Path:     "/api/accounts",
+		Syncable: true,
+	},
+	"campaigns": {
+		Path:          "/api/campaigns",
+		Syncable:      true,
+		Paginated:     true,
+		CursorParam:   "page[cursor]",
+		PageSizeParam: "page[size]",
+		MaxPageSize:   100,
+		RequiredFilters: []syncRequiredFilter{{
+			Param:  "filter",
+			Values: klaviyoCampaignChannelFilters,
+		}},
+	},
+	"catalog-categories":                cursorSizedKlaviyoDescriptor("/api/catalog-categories", 100),
+	"catalog-category-bulk-create-jobs": cursorOnlyKlaviyoDescriptor("/api/catalog-category-bulk-create-jobs"),
+	"catalog-category-bulk-delete-jobs": cursorOnlyKlaviyoDescriptor("/api/catalog-category-bulk-delete-jobs"),
+	"catalog-category-bulk-update-jobs": cursorOnlyKlaviyoDescriptor("/api/catalog-category-bulk-update-jobs"),
+	"catalog-item-bulk-create-jobs":     cursorOnlyKlaviyoDescriptor("/api/catalog-item-bulk-create-jobs"),
+	"catalog-item-bulk-delete-jobs":     cursorOnlyKlaviyoDescriptor("/api/catalog-item-bulk-delete-jobs"),
+	"catalog-item-bulk-update-jobs":     cursorOnlyKlaviyoDescriptor("/api/catalog-item-bulk-update-jobs"),
+	"catalog-items":                     cursorSizedKlaviyoDescriptor("/api/catalog-items", 100),
+	"catalog-variant-bulk-create-jobs":  cursorOnlyKlaviyoDescriptor("/api/catalog-variant-bulk-create-jobs"),
+	"catalog-variant-bulk-delete-jobs":  cursorOnlyKlaviyoDescriptor("/api/catalog-variant-bulk-delete-jobs"),
+	"catalog-variant-bulk-update-jobs":  cursorOnlyKlaviyoDescriptor("/api/catalog-variant-bulk-update-jobs"),
+	"catalog-variants":                  cursorSizedKlaviyoDescriptor("/api/catalog-variants", 100),
+	"client":                            {Path: "/client/reviews", Paginated: true, CursorParam: "page[cursor]", PageSizeParam: "page[size]", MaxPageSize: 100},
+	"coupon-code-bulk-create-jobs":      cursorOnlyKlaviyoDescriptor("/api/coupon-code-bulk-create-jobs"),
+	"coupon-codes": {
+		Path:          "/api/coupon-codes",
+		Syncable:      true,
+		Paginated:     true,
+		CursorParam:   "page[cursor]",
+		PageSizeParam: "page[size]",
+		MaxPageSize:   100,
+		RequiredFilters: []syncRequiredFilter{{
+			Param:          "filter",
+			ParentResource: "coupons",
+			Field:          "coupon.id",
+		}},
+	},
+	"coupons":                              cursorSizedKlaviyoDescriptor("/api/coupons", 100),
+	"custom-metrics":                       {Path: "/api/custom-metrics", Syncable: true},
+	"data-sources":                         cursorSizedKlaviyoDescriptor("/api/data-sources", 100),
+	"events":                               cursorSizedKlaviyoDescriptor("/api/events", 100),
+	"flows":                                cursorSizedKlaviyoDescriptor("/api/flows", 50),
+	"forms":                                cursorSizedKlaviyoDescriptor("/api/forms", 100),
+	"images":                               cursorSizedKlaviyoDescriptor("/api/images", 100),
+	"lists":                                cursorSizedKlaviyoDescriptor("/api/lists", 10),
+	"mapped-metrics":                       {Path: "/api/mapped-metrics", Syncable: true},
+	"metrics":                              cursorOnlyKlaviyoDescriptor("/api/metrics"),
+	"profile-bulk-import-jobs":             cursorSizedKlaviyoDescriptor("/api/profile-bulk-import-jobs", 100),
+	"profile-suppression-bulk-create-jobs": cursorOnlyKlaviyoDescriptor("/api/profile-suppression-bulk-create-jobs"),
+	"profile-suppression-bulk-delete-jobs": cursorOnlyKlaviyoDescriptor("/api/profile-suppression-bulk-delete-jobs"),
+	"profiles":                             cursorSizedKlaviyoDescriptor("/api/profiles", 100),
+	"push-tokens":                          cursorSizedKlaviyoDescriptor("/api/push-tokens", 100),
+	"reviews":                              cursorSizedKlaviyoDescriptor("/api/reviews", 100),
+	"segments":                             cursorSizedKlaviyoDescriptor("/api/segments", 10),
+	"tag-groups":                           cursorSizedKlaviyoDescriptor("/api/tag-groups", 25),
+	"tags":                                 cursorSizedKlaviyoDescriptor("/api/tags", 50),
+	"template-universal-content":           cursorSizedKlaviyoDescriptor("/api/template-universal-content", 100),
+	"templates":                            cursorSizedKlaviyoDescriptor("/api/templates", 10),
+	"tracking-settings":                    cursorSizedKlaviyoDescriptor("/api/tracking-settings", 1),
+	"web-feeds":                            cursorSizedKlaviyoDescriptor("/api/web-feeds", 20),
+	"webhook-topics":                       {Path: "/api/webhook-topics", Syncable: true},
+	"webhooks":                             {Path: "/api/webhooks", Syncable: true},
+}
+
+func cursorSizedKlaviyoDescriptor(path string, maxPageSize int) syncResourceDescriptor {
+	return syncResourceDescriptor{
+		Path:          path,
+		Syncable:      true,
+		Paginated:     true,
+		CursorParam:   "page[cursor]",
+		PageSizeParam: "page[size]",
+		MaxPageSize:   maxPageSize,
+	}
+}
+
+func cursorOnlyKlaviyoDescriptor(path string) syncResourceDescriptor {
+	return syncResourceDescriptor{
+		Path:        path,
+		Syncable:    true,
+		Paginated:   true,
+		CursorParam: "page[cursor]",
+	}
+}
+
+func syncDescriptorForResource(resource string) (syncResourceDescriptor, bool) {
+	desc, ok := klaviyoSyncDescriptors[resource]
+	return desc, ok
 }
 
 // extractPageItems attempts to extract an array of items and pagination cursor from a response.
@@ -557,6 +825,29 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 	}
 
 	return nil, "", false
+}
+
+func responseIsEmptyList(data json.RawMessage) bool {
+	var items []json.RawMessage
+	if err := json.Unmarshal(data, &items); err == nil {
+		return len(items) == 0
+	}
+
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return false
+	}
+	itemKeys := []string{"data", "results", "items", "records", "nodes", "entries"}
+	for _, key := range itemKeys {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		if err := json.Unmarshal(raw, &items); err == nil {
+			return len(items) == 0
+		}
+	}
+	return false
 }
 
 // extractPaginationFromEnvelope extracts cursor and has_more from a response envelope.
@@ -920,7 +1211,6 @@ func defaultSyncResources() []string {
 		"catalog-variant-bulk-delete-jobs",
 		"catalog-variant-bulk-update-jobs",
 		"catalog-variants",
-		"client",
 		"coupon-code-bulk-create-jobs",
 		"coupon-codes",
 		"coupons",

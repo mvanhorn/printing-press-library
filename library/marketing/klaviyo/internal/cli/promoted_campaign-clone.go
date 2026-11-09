@@ -6,32 +6,50 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
 func newCampaignClonePromotedCmd(flags *rootFlags) *cobra.Command {
+	var stdinBody bool
 	var flagFieldsCampaign string
 
 	cmd := &cobra.Command{
 		Use:         "campaign-clone",
 		Short:       "Clones an existing campaign, returning a new campaign based on the original with a new ID and name.<br><br>*Rate...",
 		Long:        "Shortcut for 'campaign-clone create'. Clones an existing campaign, returning a new campaign based on the original with a new ID and name.<br><br>*Rate...",
-		Example:     "  klaviyo-pp-cli campaign-clone",
+		Example:     "  echo '{\"data\":{\"type\":\"campaign\",\"id\":\"campaign-1\",\"attributes\":{\"new_name\":\"Spring campaign copy\"}}}' | klaviyo-pp-cli campaign-clone --stdin",
 		Annotations: map[string]string{"pp:endpoint": "campaign-clone.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			body := map[string]any{}
+			if stdinBody {
+				var err error
+				body, err = readShortcutBodyOfType(cmd, "campaign")
+				if err != nil {
+					return err
+				}
+			} else if !flags.dryRun {
+				return usageErr(fmt.Errorf("campaign-clone needs a request body: pipe the JSON:API body to --stdin"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/api/campaign-clone"
+			query := url.Values{}
+			if cmd.Flags().Changed("fields-campaign") {
+				query.Set("fields[campaign]", flagFieldsCampaign)
+			}
+			if len(query) > 0 {
+				path += "?" + query.Encode()
+			}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -86,6 +104,8 @@ func newCampaignClonePromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagFieldsCampaign, "fields-campaign", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sparse-fieldsets")
+
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON:API request body from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

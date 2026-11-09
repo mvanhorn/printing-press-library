@@ -5,6 +5,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -16,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -260,7 +262,7 @@ func newFlowDecayCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "source": "local_store"}, flags)
 			}
-			db, err := openNovelStore(cmd.Context(), dbPath)
+			db, err := openNovelStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return err
 			}
@@ -295,7 +297,7 @@ func newCohortCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "source": "local_store"}, flags)
 			}
-			db, err := openNovelStore(cmd.Context(), dbPath)
+			db, err := openNovelStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return err
 			}
@@ -330,7 +332,7 @@ func newAttributionCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "source": "local_store"}, flags)
 			}
-			db, err := openNovelStore(cmd.Context(), dbPath)
+			db, err := openNovelStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return err
 			}
@@ -364,7 +366,7 @@ func newDedupCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "source": "local_store"}, flags)
 			}
-			db, err := openNovelStore(cmd.Context(), dbPath)
+			db, err := openNovelStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return err
 			}
@@ -403,7 +405,7 @@ func newReconcileCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "source": "local_store"}, flags)
 			}
-			db, err := openNovelStore(cmd.Context(), dbPath)
+			db, err := openNovelStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return err
 			}
@@ -472,9 +474,10 @@ func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 	var timezone string
 
 	cmd := &cobra.Command{
-		Use:         "qa-gate",
-		Short:       "Run a launch-readiness checklist for a Klaviyo campaign",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:          "qa-gate",
+		Short:        "Run a launch-readiness checklist for a Klaviyo campaign",
+		SilenceUsage: true,
+		Annotations:  map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "planned_checks": qaChecks()}, flags)
@@ -487,6 +490,7 @@ func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 				}
 				htmlBody = string(b)
 			}
+			result := qaGate(htmlBody, offer, timezone)
 			evidence := map[string]any{}
 			if campaignID != "" {
 				c, err := flags.newClient()
@@ -498,17 +502,62 @@ func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 					return classifyAPIError(err)
 				}
 				evidence["campaign"] = mustJSONAny(campaignResp)
-				if htmlBody == "" {
-					msgResp, err := c.Get("/api/campaigns/"+campaignID+"/campaign-messages", nil)
-					if err == nil {
-						evidence["campaign_messages"] = mustJSONAny(msgResp)
+				msgResp, err := fetchCampaignMessages(c, campaignID)
+				if err != nil {
+					return err
+				}
+				evidence["campaign_messages"] = mustJSONAny(msgResp)
+				templates := map[string]any{}
+				findings := []map[string]any{}
+				if htmlPath != "" {
+					findings = append(findings, result["findings"].([]map[string]any)...)
+				}
+				// PATCH(greptile-review-g5): evaluate each email separately so a valid footer cannot hide another's failure.
+				for _, message := range mapSlice(anyPath(mustJSONAny(msgResp), "data")) {
+					messageID := stringFromMapPath(message, "id")
+					if messageID == "" {
+						return fmt.Errorf("campaign compliance preflight failed: campaign message ID is missing")
+					}
+					channel := stringFromMapPath(message, "attributes.definition.channel")
+					switch channel {
+					case "sms", "push", "whatsapp", "mobile_push":
+						continue
+					case "email", "":
+					default:
+						return fmt.Errorf("campaign compliance preflight failed: campaign message %s has unsupported channel %q", messageID, channel)
+					}
+					templateResp, err := c.Get("/api/campaign-messages/"+url.PathEscape(messageID)+"/template", map[string]string{"fields[template]": "definition,html"})
+					if err != nil {
+						var apiErr *client.APIError
+						if !errors.As(err, &apiErr) || apiErr.StatusCode != 404 {
+							return classifyAPIError(err)
+						}
+						evidence["template_status"] = "not_assigned"
+					} else {
+						evidence["template"] = mustJSONAny(templateResp)
+						templates[messageID] = mustJSONAny(templateResp)
+					}
+					messageHTML := firstString(templateResp, "data.attributes.html", "data.attributes.definition.html")
+					for _, finding := range qaGate(messageHTML, offer, timezone)["findings"].([]map[string]any) {
+						finding["message_id"] = messageID
+						findings = append(findings, finding)
 					}
 				}
+				evidence["templates"] = templates
+				if len(findings) > 0 {
+					result["findings"] = findings
+					result["verdict"] = qaVerdict(findings)
+				}
 			}
-			result := qaGate(htmlBody, offer, timezone)
 			result["campaign_id"] = campaignID
 			result["evidence"] = evidence
-			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+			if err := printJSONFiltered(cmd.OutOrStdout(), result, flags); err != nil {
+				return err
+			}
+			if result["verdict"] == "fail" {
+				return fmt.Errorf("campaign QA failed; see findings above")
+			}
+			return nil
 		},
 	}
 	cmd.Flags().StringVar(&campaignID, "campaign-id", "", "Campaign ID to fetch for API evidence")
@@ -518,11 +567,15 @@ func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-func openNovelStore(ctx context.Context, dbPath string) (*store.Store, error) {
+func openNovelStore(ctx context.Context, flags *rootFlags, dbPath string) (*store.Store, error) {
 	if dbPath != "" {
-		return store.OpenWithContext(ctx, dbPath)
+		return store.OpenVerifiedWithContext(ctx, dbPath, flags.platformSession)
 	}
-	return openStoreForRead(ctx, "klaviyo-pp-cli")
+	c, err := flags.newClient()
+	if err != nil {
+		return nil, err
+	}
+	return openStoreForRead(ctx, c, "klaviyo-pp-cli")
 }
 
 type resourceRow struct {
@@ -746,6 +799,8 @@ func qaGate(htmlBody, offer, timezone string) map[string]any {
 		add("links", "warn", "No HTML supplied; link validation needs --html or campaign template evidence.")
 	} else if strings.Contains(htmlBody, "http://") || strings.Contains(htmlBody, "https://") {
 		add("links", "pass", "HTML contains absolute links.")
+	} else if unsubscribeURLTagPattern.MatchString(htmlBody) || unsubscribeFullTagPattern.MatchString(htmlBody) {
+		add("links", "pass", "HTML contains a Klaviyo unsubscribe link.")
 	} else {
 		add("links", "fail", "No absolute links found.")
 	}
@@ -772,6 +827,10 @@ func qaGate(htmlBody, offer, timezone string) map[string]any {
 	add("unsubscribe", complianceStatus, complianceDetail)
 	add("compliance", "warn", "Confirm sender identity and physical address in Klaviyo preview.")
 	add("deliverability", "warn", "Confirm inbox preview, image weight, and spam-risk terms before launch.")
+	return map[string]any{"verdict": qaVerdict(findings), "findings": findings}
+}
+
+func qaVerdict(findings []map[string]any) string {
 	verdict := "pass"
 	for _, f := range findings {
 		if f["status"] == "fail" {
@@ -782,13 +841,19 @@ func qaGate(htmlBody, offer, timezone string) map[string]any {
 			verdict = "warn"
 		}
 	}
-	return map[string]any{"verdict": verdict, "findings": findings}
+	return verdict
 }
 
 var (
 	unsubscribeFullTagPattern = regexp.MustCompile(`(?is)\{%\s*unsubscribe(?:\s+(?:'[^']*'|"[^"]*"))?\s*%\}`)
 	unsubscribeURLTagPattern  = regexp.MustCompile(`(?is)\{%\s*unsubscribe_link\s*%\}`)
-	hrefBeforeTagPattern      = regexp.MustCompile(`(?is)(?:^|\s)href\s*=\s*(?:"[^"]*$|'[^']*$)`)
+	manageURLTagPattern       = regexp.MustCompile(`(?is)\{%\s*manage_preferences_link\s*%\}`)
+	kitVariablePattern        = regexp.MustCompile(`(?is)\{\{\s*([a-z_][a-z_0-9]*(?:\.[a-z_][a-z_0-9]*)*)[^}]*\}\}`)
+	anchorPattern             = regexp.MustCompile(`(?is)<a\b([^>]*)>(.*?)</a\s*>`)
+	anchorOpenPattern         = regexp.MustCompile(`(?i)^a(?:\s|$)`)
+	hrefAttributePattern      = regexp.MustCompile(`(?is)(?:^|\s)href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))`)
+	hrefBeforeTagPattern      = regexp.MustCompile(`(?is)(?:^|\s)href\s*=\s*(?:"[^"]*$|'[^']*$|[^\s>"']*$)`)
+	hiddenElementPattern      = regexp.MustCompile(`(?is)<[a-z][\w:-]*\b[^>]*(?:\s+hidden\b|aria-hidden\s*=\s*["']?true|style\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden))[^>]*>.*?</[a-z][\w:-]*\s*>`)
 	nonRenderedHTMLPatterns   = []*regexp.Regexp{
 		regexp.MustCompile(`(?is)<!--.*?-->`),
 		regexp.MustCompile(`(?is)<head\b[^>]*>.*?</head\s*>`),
@@ -803,17 +868,53 @@ func unsubscribeCompliance(htmlBody string) (string, string) {
 		return "warn", "No HTML supplied; unsubscribe-link validation needs --html or template evidence."
 	}
 
+	for _, kitTag := range kitVariablePattern.FindAllStringSubmatch(htmlBody, -1) {
+		name := strings.ToLower(kitTag[1])
+		if !strings.Contains(name, "unsubscribe") && !strings.Contains(name, "preferences") {
+			continue
+		}
+		if strings.Contains(name, "preferences") {
+			return "fail", "Kit preferences tag " + kitTag[0] + " does not work in Klaviyo; use {% manage_preferences_link %} in the Manage Preferences anchor href."
+		}
+		return "fail", "Kit unsubscribe tag " + kitTag[0] + " does not work in Klaviyo; use {% unsubscribe_link %} in the Unsubscribe anchor href or {% unsubscribe %} as text."
+	}
 	renderedHTML := renderedHTMLSource(htmlBody)
 	fullTags := unsubscribeFullTagPattern.FindAllStringIndex(renderedHTML, -1)
 	urlTags := unsubscribeURLTagPattern.FindAllStringIndex(renderedHTML, -1)
+	manageTags := manageURLTagPattern.FindAllStringIndex(renderedHTML, -1)
 	for _, match := range fullTags {
-		if tagInsideHref(renderedHTML, match[0]) {
+		if tagInsideOpenElement(renderedHTML, match[0]) {
 			return "fail", "The {% unsubscribe %} tag renders a complete link and cannot be used in href; use {% unsubscribe_link %} as the URL instead."
 		}
 	}
 	for _, match := range urlTags {
 		if !tagInsideHref(renderedHTML, match[0]) {
 			return "fail", "The {% unsubscribe_link %} tag must be used as an href URL."
+		}
+	}
+	for _, match := range manageTags {
+		if !tagInsideHref(renderedHTML, match[0]) {
+			return "fail", "The {% manage_preferences_link %} tag must be used as an href URL."
+		}
+	}
+	for _, anchor := range anchorPattern.FindAllStringSubmatch(renderedHTML, -1) {
+		label := strings.ToLower(strings.Join(strings.Fields(stripTags(anchor[2])), " "))
+		if label != "unsubscribe" && label != "manage preferences" {
+			continue
+		}
+		attribute := hrefAttributePattern.FindStringSubmatch(anchor[1])
+		href := ""
+		if len(attribute) == 4 {
+			href = attribute[1] + attribute[2] + attribute[3]
+		}
+		want := "{% unsubscribe_link %}"
+		pattern := unsubscribeURLTagPattern
+		if label == "manage preferences" {
+			want = "{% manage_preferences_link %}"
+			pattern = manageURLTagPattern
+		}
+		if !pattern.MatchString(href) {
+			return "fail", "The " + anchor[2] + " anchor needs " + want + " in its href."
 		}
 	}
 	if len(fullTags) == 0 && len(urlTags) == 0 {
@@ -826,7 +927,16 @@ func renderedHTMLSource(htmlBody string) string {
 	for _, pattern := range nonRenderedHTMLPatterns {
 		htmlBody = pattern.ReplaceAllString(htmlBody, "")
 	}
+	htmlBody = hiddenElementPattern.ReplaceAllString(htmlBody, "")
 	return htmlBody
+}
+
+func tagInsideOpenElement(htmlBody string, tagStart int) bool {
+	if tagStart <= 0 || tagStart > len(htmlBody) {
+		return false
+	}
+	prefix := htmlBody[:tagStart]
+	return strings.LastIndex(prefix, "<") > strings.LastIndex(prefix, ">")
 }
 
 func tagInsideHref(htmlBody string, tagStart int) bool {
@@ -839,7 +949,11 @@ func tagInsideHref(htmlBody string, tagStart int) bool {
 	if openTag < 0 || openTag < closeTag {
 		return false
 	}
-	return hrefBeforeTagPattern.MatchString(prefix[openTag+1:])
+	openElement := strings.TrimSpace(prefix[openTag+1:])
+	if !anchorOpenPattern.MatchString(openElement) {
+		return false
+	}
+	return hrefBeforeTagPattern.MatchString(openElement)
 }
 
 func qaChecks() []string {
@@ -2424,6 +2538,7 @@ func newReportCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newReportProductsCmd(flags))
 	cmd.AddCommand(newReportProductAffinityCmd(flags))
 	cmd.AddCommand(newReportConsentCmd(flags))
+	cmd.AddCommand(newReportTargetingCmd(flags))
 	return cmd
 }
 

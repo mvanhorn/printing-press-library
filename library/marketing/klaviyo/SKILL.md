@@ -41,6 +41,8 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 Use this CLI when an agent needs to inspect or operate Klaviyo without the web UI, especially for profiles, events, campaigns, flows, segments, templates, metrics, and compound growth workflows.
 
+Default local databases and response caches are scoped by a non-secret API-key fingerprint and honor XDG paths. Use an explicit `--db` only when intentionally selecting a tenant-specific store.
+
 ## Unique Capabilities
 
 These capabilities aren't available in any other tool for this API.
@@ -84,7 +86,30 @@ These capabilities aren't available in any other tool for this API.
   klaviyo-pp-cli attribution --metric "Placed Order" --group-by flow --since 2026-01-01 --json
   ```
 
+### Reporting
+
+- **`campaign-values-reports`** — Query campaign performance with the required statistics, timeframe, and conversion metric request attributes. The conversion metric defaults to the account's Shopify Placed Order metric.
+
+  ```bash
+  klaviyo-pp-cli campaign-values-reports --timeframe last_12_months --statistics recipients,opens,clicks,conversion_value --agent
+  ```
+- **`report targeting`** — Resolve campaign audiences against both segments and lists, then join sends, attributed revenue, last-mailed dates, exclusions, and distinct never-mailed collections.
+
+  ```bash
+  klaviyo-pp-cli report targeting --timeframe last_12_months --agent
+  ```
+
 ### Data hygiene
+- **`list-quality-score`** — Score every list using API-valid collection fields plus paced per-list `profile_count` enrichment.
+
+  ```bash
+  klaviyo-pp-cli list-quality-score --json --no-cache
+  ```
+- **`segments get --with-counts`** — Enrich returned segments with current profile counts. The `list` alias has the same behavior. Add `--all` for every page; count requests are paced at Klaviyo's 1/s burst and 15/m steady limit and honor `Retry-After`.
+
+  ```bash
+  klaviyo-pp-cli segments get --all --with-counts --json --no-cache
+  ```
 - **`dedup`** — Find profiles that appear duplicated by email, phone, or cross-channel collisions in the local profile mirror.
 
   _Agents can flag customer records that split behavior and revenue history across identities._
@@ -470,7 +495,7 @@ These capabilities aren't available in any other tool for this API.
 
 - `klaviyo-pp-cli segments create` — Create a segment.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `15/m`<br>Daily: `100/d` **Scopes:** `segments:write`
 - `klaviyo-pp-cli segments delete` — Delete a segment with the given segment ID.<br><br>*Rate limits*:<br>Burst: `3/s`<br>Steady: `60/m` **Scopes:**...
-- `klaviyo-pp-cli segments get` — Get all segments in an account. Filter to request a subset of all segments. Segments can be filtered by `name`,...
+- `klaviyo-pp-cli segments get` — Get all segments in an account. Add `--with-counts` for paced per-item `profile_count` enrichment and `--all` for every page.
 - `klaviyo-pp-cli segments get-id` — Get a segment with the given segment ID.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`<br><br>Rate...
 - `klaviyo-pp-cli segments update` — Update a segment with the given segment ID.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `15/m`<br>Daily:...
 
@@ -492,11 +517,11 @@ These capabilities aren't available in any other tool for this API.
 
 **template-clone** — Manage template clone
 
-- `klaviyo-pp-cli template-clone` — Create a clone of a template with the given template ID. If there are 1,000 or more templates in an account, cloning...
+- `klaviyo-pp-cli --agent template-clone --template-id TEMPLATE_ID [--name NAME]` — Clone a template. Reads source HTML to include any unsubscribe warning in stderr and JSON.
 
 **template-render** — Manage template render
 
-- `klaviyo-pp-cli template-render` — Render a template with the given template ID and context attribute. Returns the AMP, HTML, and plain text versions...
+- `klaviyo-pp-cli template-render --stdin < request.json` — Render a template from its JSON request body. A bodyless invocation fails before any request. `campaign-message-assign-template --stdin` also accepts a complete JSON body; use either stdin or its body flags, never both. Assignment retains the unsubscribe compliance check.
 
 **template-universal-content** — Manage template universal content
 
@@ -577,13 +602,43 @@ Locate the Placed Order metric before attribution or cohort work.
 klaviyo-pp-cli plan qa-gate --campaign-id CAMPAIGN_ID --html ./email.html --json
 ```
 
-Review offer, link, unsubscribe, compliance, date, and deliverability findings before launch. A missing or broken unsubscribe tag fails the gate, and `campaigns deploy` enforces the same check before creating a template. Use `{% unsubscribe %}` as standalone text or `{% unsubscribe_link %}` inside `href`.
+Review offer, link, unsubscribe, compliance, date, and deliverability findings before launch. Missing or broken unsubscribe tags fail the gate. A fail verdict exits nonzero after printing JSON. With `--campaign-id` and no `--html`, the command fetches the assigned template HTML. Use `{% unsubscribe %}` as standalone text or `{% unsubscribe_link %}` inside the `Unsubscribe` anchor's `href`; use `{% manage_preferences_link %}` inside the `Manage Preferences` anchor's `href`. Kit `{{ unsubscribe_url }}` and `{{ manage_preferences_url }}` tags fail even when mixed with a valid Klaviyo link. `campaigns deploy`, `campaign-message-assign-template`, and `campaign-send-jobs send-campaign` block before writing when the check fails. `templates create`, `templates update`, and `template-clone` allow the write with a stderr and JSON warning for flow and transactional templates.
+
+## ⚠️ Pitfall: Configuration Conflict — Client Profile vs Env Var
+
+If a client profile is selected and `KLAVIYO_API_KEY` is present without an
+`env:KLAVIYO_API_KEY` reference in that profile, the CLI refuses with:
+```
+Error: configuration conflict: KLAVIYO_API_KEY cannot override a selected client profile
+```
+Unset an unrelated legacy key, or explicitly bind it to the selected profile:
+```bash
+klaviyo-pp-cli client source set acme --credential-ref env:KLAVIYO_API_KEY --expected-account-id 'trusted-account-id' --expected-org-name 'Acme'
+klaviyo-pp-cli --client-profile acme campaigns get --agent
+```
+Provider data commands are tenant-gated, so omitting the client profile is not
+a supported workaround. If the key exists only as a legacy environment value,
+bind an exact credential reference with `client source set` (or create the
+profile with `client add`) before running data commands.
+
+Run `klaviyo-pp-cli client list --agent` to see which profiles are configured.
 
 ## Auth Setup
 
-Set KLAVIYO_API_KEY to a private Klaviyo API key. Requests send Authorization: Klaviyo-API-Key <token> and use the revision pinned by the generated OpenAPI spec.
+Use a tenant-gated client profile for every data command:
 
-Run `klaviyo-pp-cli doctor` to verify setup.
+```bash
+klaviyo-pp-cli client add acme --credential-ref 'op://Example/Klaviyo/private-api-key' --expected-account-id 'trusted-account-id' --expected-org-name 'Acme'
+klaviyo-pp-cli client validate acme
+klaviyo-pp-cli --client-profile acme whoami --no-cache
+```
+
+On hosts without 1Password, use `--credential-ref env:KLAVIYO_API_KEY` with the
+same expected identity flags. `--username-ref` and named
+`--additional-credential-ref` values also accept `env:NAME`. The variable must be
+set and non-empty at use time; every reference still runs the live tenant gate.
+Profiles, receipts, and command output retain references or safe metadata only.
+Keep raw values out of run profiles, receipts, logs, and argv.
 
 ## Agent Mode
 

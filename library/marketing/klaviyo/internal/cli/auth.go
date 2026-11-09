@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -20,6 +19,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
+	cmd.AddCommand(newAuthAccountsCmd(flags))
 
 	return cmd
 }
@@ -30,7 +30,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Show authentication status",
 		Example: "  klaviyo-pp-cli auth status",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := loadEffectiveKlaviyoConfig(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}
@@ -49,6 +49,9 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, green("Authenticated"))
 			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
+			if account, _ := currentKlaviyoAccountName(); account != "" && flags.configPath == "" && os.Getenv("KLAVIYO_CONFIG") == "" {
+				fmt.Fprintf(w, "  Account: %s\n", account)
+			}
 			return nil
 		},
 	}
@@ -61,7 +64,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 		Example: "  klaviyo-pp-cli auth set-token sk_live_abc123",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := loadEffectiveKlaviyoConfig(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}
@@ -94,7 +97,7 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Clear stored credentials",
 		Example: "  klaviyo-pp-cli auth logout",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := loadEffectiveKlaviyoConfig(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}

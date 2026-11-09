@@ -12,14 +12,25 @@ import (
 )
 
 func newEventBulkCreateJobsPromotedCmd(flags *rootFlags) *cobra.Command {
+	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "event-bulk-create-jobs",
 		Short:       "Create a batch of events for one or more profiles. Note that this endpoint allows you to create new profiles or...",
 		Long:        "Shortcut for 'event-bulk-create-jobs bulk-create-events'. Create a batch of events for one or more profiles. Note that this endpoint allows you to create new profiles or...",
-		Example:     "  klaviyo-pp-cli event-bulk-create-jobs",
+		Example:     "  echo '{\"data\":{\"type\":\"event-bulk-create-job\",\"attributes\":{\"events-bulk-create\":{\"data\":[{\"type\":\"event-bulk-create\",\"attributes\":{\"profile\":{\"data\":{\"type\":\"profile\",\"attributes\":{\"email\":\"person@example.com\"}}},\"events\":{\"data\":[{\"type\":\"event\",\"attributes\":{\"properties\":{\"item\":\"Notebook\"},\"metric\":{\"data\":{\"type\":\"metric\",\"attributes\":{\"name\":\"Purchased\"}}}}}]}}}]}}}}' | klaviyo-pp-cli event-bulk-create-jobs --stdin",
 		Annotations: map[string]string{"pp:endpoint": "event-bulk-create-jobs.bulk-create-events"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			body := map[string]any{}
+			if stdinBody {
+				var err error
+				body, err = readShortcutBodyOfType(cmd, "event-bulk-create-job")
+				if err != nil {
+					return err
+				}
+			} else if !flags.dryRun {
+				return usageErr(fmt.Errorf("event-bulk-create-jobs needs a request body: pipe the JSON:API body to --stdin"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -30,7 +41,6 @@ func newEventBulkCreateJobsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -84,6 +94,8 @@ func newEventBulkCreateJobsPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON:API request body from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

@@ -5,7 +5,6 @@ package cli
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -15,30 +14,41 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/platform"
 	"github.com/spf13/cobra"
 )
 
 var version = "2026.11.1"
 
 type rootFlags struct {
-	asJSON        bool
-	compact       bool
-	csv           bool
-	plain         bool
-	quiet         bool
-	dryRun        bool
-	noCache       bool
-	noInput       bool
-	yes           bool
-	agent         bool
-	selectFields  string
-	configPath    string
-	profileName   string
-	deliverSpec   string
-	timeout       time.Duration
-	rateLimit     float64
-	dataSource    string
-	freshnessMeta any
+	asJSON                  bool
+	compact                 bool
+	csv                     bool
+	plain                   bool
+	quiet                   bool
+	dryRun                  bool
+	noCache                 bool
+	noInput                 bool
+	yes                     bool
+	agent                   bool
+	selectFields            string
+	configPath              string
+	profileName             string
+	deliverSpec             string
+	timeout                 time.Duration
+	rateLimit               float64
+	dataSource              string
+	freshnessMeta           any
+	clientProfileName       string
+	platformSession         *platform.Session
+	platformGateError       error
+	platformAnalytics       *platform.AnalyticsDeclaration
+	platformMetadataWriter  io.Writer
+	platformMetadataEmitted bool
+	receiptEnabled          bool
+	receiptFile             string
+	auditDir                string
+	receiptWriter           *platform.ReceiptWriter
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -54,9 +64,17 @@ func RootCmd() *cobra.Command {
 }
 
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
-func Execute() error {
+func Execute() (retErr error) {
 	var flags rootFlags
 	rootCmd := newRootCmd(&flags)
+	defer func() {
+		commandSucceeded := retErr == nil
+		finalizePlatformInvocation(&flags, &retErr)
+		// Cobra has already printed command errors, but cannot see deferred failures.
+		if commandSucceeded && retErr != nil {
+			fmt.Fprintf(rootCmd.ErrOrStderr(), "Error: %v\n", retErr)
+		}
+	}()
 
 	err := rootCmd.Execute()
 	if err != nil && strings.Contains(err.Error(), "unknown flag") {
@@ -65,12 +83,13 @@ func Execute() error {
 		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
 			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
 			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				fmt.Fprintf(rootCmd.ErrOrStderr(), "hint: did you mean --%s?\n", suggestion)
 				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
 			}
 		}
 	}
 	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+		if derr := finalizeDelivery(&flags); derr != nil {
 			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
 			return derr
 		}
@@ -112,6 +131,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
+	rootCmd.PersistentFlags().StringVar(&flags.clientProfileName, "client-profile", "", "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)")
+	rootCmd.PersistentFlags().BoolVar(&flags.receiptEnabled, "receipt", false, "Write an atomic private run receipt")
+	rootCmd.PersistentFlags().StringVar(&flags.receiptFile, "receipt-file", "", "Override the run receipt destination")
+	rootCmd.PersistentFlags().StringVar(&flags.auditDir, "audit-dir", "", "Aggregate the receipt and index under this audit directory")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
 	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
 	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (for agents and scripts)")
@@ -119,21 +142,21 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
-	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'klaviyo-pp-cli profile list')")
+	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved run profile; this does not select a client")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
+	if strings.TrimSpace(os.Getenv(mcpBoundProfileEnv)) != "" {
+		if flag := rootCmd.PersistentFlags().Lookup("client-profile"); flag != nil {
+			flag.Hidden = true
+		}
+	}
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		if flags.deliverSpec != "" {
-			sink, err := ParseDeliverSink(flags.deliverSpec)
-			if err != nil {
-				return err
-			}
-			flags.deliverSink = sink
-			if sink.Scheme != "stdout" && sink.Scheme != "" {
-				flags.deliverBuf = &bytes.Buffer{}
-				cmd.SetOut(io.MultiWriter(os.Stdout, flags.deliverBuf))
-			}
+		if err := enforceMCPBoundProfile(cmd, flags); err != nil {
+			return err
+		}
+		if err := configureDelivery(cmd, flags); err != nil {
+			return err
 		}
 		if flags.profileName != "" {
 			profile, err := GetProfile(flags.profileName)
@@ -166,6 +189,29 @@ See README.md or the bundled SKILL.md for recipes.`,
 			}
 			if !cmd.Flags().Changed("no-color") {
 				noColor = true
+			}
+		}
+		if platformCommandNeedsGate(cmd) {
+			if err := preparePlatformSession(flags); err != nil {
+				return err
+			}
+			cmd.SetContext(platform.ContextWithSession(cmd.Context(), flags.platformSession))
+			if err := validatePlatformLegacyInputs(cmd, flags); err != nil {
+				return err
+			}
+			if err := initializePlatformReceipt(cmd, flags); err != nil {
+				return err
+			}
+			if err := adoptPlatformCommandWindow(cmd, flags); err != nil {
+				return err
+			}
+			flags.platformMetadataWriter = cmd.ErrOrStderr()
+			if err := verifyPlatformSession(cmd.Context(), flags); err != nil {
+				if platformCommandIsDoctor(cmd) {
+					flags.platformGateError = err
+				} else {
+					return err
+				}
 			}
 		}
 		switch flags.dataSource {
@@ -282,6 +328,11 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newTemplateClonePromotedCmd(flags))
 	rootCmd.AddCommand(newTemplateRenderPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
+	if registeredPlatformSource != nil {
+		attachPlatformClientCommands(rootCmd, flags)
+		rootCmd.AddCommand(newPlatformWhoamiCmd(flags))
+	}
+	wrapPlatformCommandOutputs(rootCmd, flags)
 
 	return rootCmd
 }
@@ -295,20 +346,29 @@ func ExitCode(err error) int {
 }
 
 func (f *rootFlags) newClient() (*client.Client, error) {
-	cfg, err := config.Load(f.configPath)
-	if err != nil {
-		return nil, configErr(err)
+	var cfg *config.Config
+	if f.platformSession != nil {
+		// The verified client profile is authoritative. Do not read legacy
+		// config files or environment credentials after the tenant gate.
+		cfg = &config.Config{BaseURL: "https://a.klaviyo.com"}
+	} else {
+		var err error
+		cfg, err = loadEffectiveKlaviyoConfig(f.configPath)
+		if err != nil {
+			return nil, configErr(err)
+		}
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+	if err := bindPlatformClient(c, f); err != nil {
+		return nil, err
+	}
 	return c, nil
 }
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
-	enc := json.NewEncoder(w.OutOrStdout())
-	enc.SetIndent("", "  ")
-	return enc.Encode(v)
+	return printJSONFiltered(w.OutOrStdout(), v, f)
 }
 
 func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]string) error {

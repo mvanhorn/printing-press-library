@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -13,6 +14,7 @@ import (
 
 func newTemplateRenderPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagFieldsTemplate string
+	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "template-render",
@@ -20,18 +22,28 @@ func newTemplateRenderPromotedCmd(flags *rootFlags) *cobra.Command {
 		Long:        "Shortcut for 'template-render render-template'. Render a template with the given template ID and context attribute. Returns the AMP, HTML, and plain text versions...",
 		Example:     "  klaviyo-pp-cli template-render",
 		Annotations: map[string]string{"pp:endpoint": "template-render.render-template"},
+		Args:        cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				return usageErr(fmt.Errorf("template-render requires --stdin with the JSON request body"))
+			}
+			body, err := readShortcutBody(cmd)
+			if err != nil {
+				return err
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/api/template-render"
+			if cmd.Flags().Changed("fields-template") {
+				path += "?" + url.Values{"fields[template]": {flagFieldsTemplate}}.Encode()
+			}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -86,6 +98,7 @@ func newTemplateRenderPromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagFieldsTemplate, "fields-template", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sparse-fieldsets")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read the JSON request body from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

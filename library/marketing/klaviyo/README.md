@@ -4,9 +4,36 @@
 
 This printed CLI wraps Klaviyo's JSON:API surface for profiles, events, campaigns, flows, segments, metrics, templates, and related marketing resources. It adds a local SQLite mirror plus compound commands for campaign deployment, flow decay, attribution, deduplication, reconciliation, and growth planning.
 
+Implicit local stores and response caches are scoped by a non-secret API-key fingerprint and honor `XDG_DATA_HOME` / `XDG_CACHE_HOME`, so data from separate Klaviyo accounts cannot share a default database or cache namespace.
+
 Learn more at [Klaviyo](https://developers.klaviyo.com).
 
+`template-render --stdin` reads its JSON request body from stdin. Use
+`campaign-message-assign-template --stdin` for a complete JSON body, or its
+existing named body flags. Mixing stdin with body flags fails before a template request;
+template assignment still checks the selected template's unsubscribe links.
+
 Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+## Campaign unsubscribe safety
+
+Use `{% unsubscribe %}` as a standalone link or put `{% unsubscribe_link %}` in the
+`Unsubscribe` anchor's `href`. Put `{% manage_preferences_link %}` in the
+`Manage Preferences` anchor's `href`. Kit tags such as `{{ unsubscribe_url }}`
+and `{{ manage_preferences_url }}` render dead links in Klaviyo and fail the check.
+
+`campaigns deploy`, `campaign-message-assign-template`, and
+`campaign-send-jobs send-campaign` check template HTML before writing or sending.
+The send preflight checks every email message and its assigned template. `templates create`,
+`templates update`, and `template-clone` allow flow and transactional templates
+without an unsubscribe link, but print a warning on stderr and include it in
+JSON output. `plan qa-gate` reads the campaign's assigned template when given
+`--campaign-id` without `--html`; a fail verdict exits nonzero after printing
+the JSON findings.
+
+Use `klaviyo-pp-cli --agent template-clone --template-id TEMPLATE_ID [--name NAME]` to
+clone a template. The command reads the source HTML for its unsubscribe warning
+and sends the source ID in the clone request.
 
 ## Install
 
@@ -92,7 +119,8 @@ To install:
 
 1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/klaviyo-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `KLAVIYO_API_KEY` when Claude Desktop prompts you.
+3. Set `PRINTING_PRESS_CLIENT_PROFILE` to the already configured client profile
+   (for example, `acme`) when Claude Desktop prompts you.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
@@ -113,7 +141,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
     "klaviyo": {
       "command": "klaviyo-pp-mcp",
       "env": {
-        "KLAVIYO_API_KEY": "<your-key>"
+        "PRINTING_PRESS_CLIENT_PROFILE": "acme"
       }
     }
   }
@@ -124,13 +152,32 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Set KLAVIYO_API_KEY to a private Klaviyo API key. Requests send Authorization: Klaviyo-API-Key <token> and use the revision pinned by the generated OpenAPI spec.
+Data commands require a tenant-gated client profile. Profiles store only an
+exact `op://` or `env:NAME` credential reference plus trusted non-secret identity assertions;
+credential bytes remain in memory.
+
+```bash
+klaviyo-pp-cli client add acme --credential-ref 'op://Example/Klaviyo/private-api-key' --expected-account-id 'trusted-account-id' --expected-org-name 'Acme'
+klaviyo-pp-cli client validate acme
+klaviyo-pp-cli --client-profile acme whoami --no-cache
+```
+
+Selection order is `--client-profile`, `PRINTING_PRESS_CLIENT_PROFILE`, then
+the shared default set by `client set-default`. Legacy Klaviyo credentials,
+config, and DB overrides cannot replace a selected profile.
+
+On hosts without 1Password, use `--credential-ref env:KLAVIYO_API_KEY` with the
+same expected identity assertions. The variable must be set and non-empty when
+running data commands. `--username-ref` and named `--additional-credential-ref`
+values also accept `env:NAME`; profiles and `client show` retain references only.
 
 ## Quick Start
 
 ```bash
-# Check that KLAVIYO_API_KEY is present and accepted.
-klaviyo-pp-cli auth doctor
+# Select and live-verify the tenant before any data command.
+export PRINTING_PRESS_CLIENT_PROFILE=acme
+klaviyo-pp-cli client validate acme
+klaviyo-pp-cli whoami --no-cache
 
 # Fetch one profile and keep the response small for agents.
 klaviyo-pp-cli profiles get --page-size 1 --json --select data.id,data.email
@@ -186,7 +233,34 @@ These capabilities aren't available in any other tool for this API.
   klaviyo-pp-cli attribution --metric "Placed Order" --group-by flow --since 2026-01-01 --json
   ```
 
+### Reporting
+
+- **`campaign-values-reports`** — Query campaign performance with a complete JSON:API report body. `--conversion-metric-id` defaults to the account's Shopify Placed Order metric.
+
+  ```bash
+  klaviyo-pp-cli campaign-values-reports --timeframe last_12_months --statistics recipients,opens,clicks,conversion_value --agent
+  ```
+- **`report targeting`** — Resolve included and excluded campaign audience IDs against both segments and lists, join sends, attributed revenue, and last-mailed dates, and return distinct never-mailed segment and list collections.
+
+  ```bash
+  klaviyo-pp-cli report targeting --timeframe last_12_months --agent
+  ```
+
 ### Data hygiene
+- **`list-quality-score`** — Score every list using API-valid collection fields plus paced per-list `profile_count` enrichment.
+
+  _The count enrichment observes Klaviyo's 1/s burst and 15/m steady limit and the HTTP client honors `Retry-After`; large accounts can take several minutes._
+
+  ```bash
+  klaviyo-pp-cli list-quality-score --json --no-cache
+  ```
+- **`segments get --with-counts`** — Enrich a segment page with current `profile_count` values through the per-item endpoint. The `list` alias has the same behavior.
+
+  _Use `--all` when every page is required. The enrichment is deliberately paced at the additional-field endpoint's 15/m steady limit._
+
+  ```bash
+  klaviyo-pp-cli segments get --all --with-counts --json --no-cache
+  ```
 - **`dedup`** — Find profiles that appear duplicated by email, phone, or cross-channel collisions in the local profile mirror.
 
   _Agents can flag customer records that split behavior and revenue history across identities._
@@ -1497,6 +1571,8 @@ segments
 
 Filter to request a subset of all segments. Segments can be filtered by `name`, `created`, and `updated` fields.
 
+Add `--with-counts` to enrich each returned segment with `profile_count`. Because Klaviyo rate-limits that additional field to 1 request/second burst and 15 requests/minute steady, the CLI spaces per-item requests and honors `Retry-After`. Add `--all` separately to fetch and enrich every page.
+
 Returns a maximum of 10 results per page.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`
 
 **Scopes:**
@@ -1811,22 +1887,22 @@ Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/klaviyo-pp-cli/config.toml`
-
-Environment variables:
-- `KLAVIYO_API_KEY`
+Shared client profiles live under the XDG config root. The only supported MCP
+selector is `PRINTING_PRESS_CLIENT_PROFILE`; credential bytes resolve in memory
+from the profile's exact 1Password reference or named environment variable.
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**
-- Run `klaviyo-pp-cli doctor` to check credentials
-- Verify the environment variable is set: `echo $KLAVIYO_API_KEY`
+- Run `klaviyo-pp-cli client validate <profile>` and then
+  `klaviyo-pp-cli --client-profile <profile> doctor --no-cache`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
 ### API-specific
 
-- **401 or 403 from every endpoint** — Confirm KLAVIYO_API_KEY contains a private API key value, not the literal placeholder token.
+- **401 or 403 from every endpoint** — Confirm the profile points to the exact
+  private-key field and that the key can read the account identity endpoint.
 - **Empty local search results** — Run sync for the relevant resources first, such as sync metrics, sync profiles, or sync events.
 
 ---

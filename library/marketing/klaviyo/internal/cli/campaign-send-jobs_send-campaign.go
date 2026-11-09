@@ -45,6 +45,11 @@ func newCampaignSendJobsSendCampaignCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 			}
+			if !flags.dryRun {
+				if err := requireCampaignCompliance(c, stringFromMapPath(body, "data.id")); err != nil {
+					return err
+				}
+			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
 				return classifyAPIError(err)

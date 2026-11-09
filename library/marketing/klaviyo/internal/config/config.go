@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -37,8 +38,11 @@ func Load(configPath string) (*Config, error) {
 		path = os.Getenv("KLAVIYO_CONFIG")
 	}
 	if path == "" {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, ".config", "klaviyo-pp-cli", "config.toml")
+		root, rootErr := RootDir()
+		if rootErr != nil {
+			return nil, rootErr
+		}
+		path = filepath.Join(root, "klaviyo-pp-cli", "config.toml")
 	}
 	cfg.Path = path
 
@@ -61,6 +65,28 @@ func Load(configPath string) (*Config, error) {
 		cfg.BaseURL = v
 	}
 	return cfg, nil
+}
+
+// RootDir returns the stable configuration base used by earlier releases
+// while honoring XDG_CONFIG_HOME. os.UserConfigDir points at
+// ~/Library/Application Support on macOS, which would abandon existing
+// ~/.config/klaviyo-pp-cli credentials and named-account selections.
+func RootDir() (string, error) {
+	if root := strings.TrimSpace(os.Getenv("XDG_CONFIG_HOME")); root != "" {
+		return root, nil
+	}
+	if runtime.GOOS == "windows" {
+		root, err := os.UserConfigDir()
+		if err != nil {
+			return "", fmt.Errorf("resolving config dir: %w", err)
+		}
+		return root, nil
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("resolving home directory: %w", err)
+	}
+	return filepath.Join(home, ".config"), nil
 }
 
 func (c *Config) AuthHeader() string {
