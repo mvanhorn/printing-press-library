@@ -29,8 +29,10 @@ func TestReviewRWHistoricalRevenueWindows(t *testing.T) {
 	}{
 		{"full leap year fits", "2024-01-01", "2024-12-31", 366, "2024-01-01T00:00:00", "2024-12-31T23:59:59", false},
 		{"historical range fits provider limit", "2024-01-01", "2024-11-30", 364, "2024-01-01T00:00:00", "2024-11-30T23:59:59", false},
-		{"full leap year exceeds provider limit", "2024-01-01", "2024-12-31", 364, "2024-01-02T23:59:59", "2024-12-31T23:59:59", true},
-		{"multiple years keep historical end", "2022-01-01", "2024-12-31", 364, "2024-01-02T23:59:59", "2024-12-31T23:59:59", true},
+		{"exact provider limit fits", "2024-01-03", "2024-12-31", 364, "2024-01-03T00:00:00", "2024-12-31T23:59:59", false},
+		{"full leap year exceeds provider limit", "2024-01-01", "2024-12-31", 364, "2024-01-03T00:00:00", "2024-12-31T23:59:59", true},
+		{"two years keep historical end", "2023-01-01", "2024-12-31", 364, "2024-01-03T00:00:00", "2024-12-31T23:59:59", true},
+		{"clamp spans daylight saving transition", "2022-01-01", "2024-03-10", 2, "2024-03-09T00:00:00", "2024-03-10T23:59:59", true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			requests := []string{}
@@ -63,8 +65,13 @@ func TestReviewRWHistoricalRevenueWindows(t *testing.T) {
 					http.NotFound(w, r)
 				}
 			})
-			registeredPlatformSource.WindowMaximumDays = tt.maximumDays
-			registeredPlatformSource.WindowMaximumName = "fixture_provider_maximum"
+			source := registeredPlatformSource
+			previousDays, previousName := source.WindowMaximumDays, source.WindowMaximumName
+			t.Cleanup(func() {
+				source.WindowMaximumDays, source.WindowMaximumName = previousDays, previousName
+			})
+			source.WindowMaximumDays = tt.maximumDays
+			source.WindowMaximumName = "fixture_provider_maximum"
 			var output, diagnostics bytes.Buffer
 			root.SetOut(&output)
 			root.SetErr(&diagnostics)
@@ -89,6 +96,12 @@ func TestReviewRWHistoricalRevenueWindows(t *testing.T) {
 			if window.Start.Format("2006-01-02T15:04:05") != tt.wantStart || window.End.Format("2006-01-02T15:04:05") != tt.wantEnd || window.Timezone != "US/Central" || window.Clamped != tt.wantClamp || !window.StartInclusive || !window.EndExclusive || !window.CompletePeriods {
 				t.Fatalf("resolved window = %+v", window)
 			}
+			if recorded.Start.Location().String() != "US/Central" || recorded.End.Location().String() != "US/Central" {
+				t.Fatalf("resolved window lost request location: %+v", recorded)
+			}
+			if tt.wantClamp && !recorded.Start.AddDate(0, 0, tt.maximumDays).Equal(recorded.End.Add(time.Second)) {
+				t.Fatalf("clamped window = %+v; want exactly %d whole calendar days", recorded, tt.maximumDays)
+			}
 			if window.Requested.Start == nil || window.Requested.End == nil || window.Requested.Start.Format("2006-01-02T15:04:05") != tt.since+"T00:00:00" || window.Requested.End.Format("2006-01-02T15:04:05") != tt.until+"T23:59:59" || window.Requested.Days != 0 {
 				t.Fatalf("original explicit request = %+v", window.Requested)
 			}
@@ -101,6 +114,39 @@ func TestReviewRWHistoricalRevenueWindows(t *testing.T) {
 				t.Fatalf("clamp metadata = %+v; stderr = %q", window, diagnostics.String())
 			}
 		})
+	}
+}
+
+func TestReviewRZWholeDayWindowClamp(t *testing.T) {
+	previous := registeredPlatformSource
+	registration := *previous
+	registration.WindowMaximumDays = 364
+	registration.WindowMaximumName = "fixture_provider_maximum"
+	registeredPlatformSource = &registration
+	t.Cleanup(func() { registeredPlatformSource = previous })
+
+	flags := &rootFlags{platformSession: platformCommandTestSession(t)}
+	cmd := newReportRevenueCmd(flags)
+	var diagnostics bytes.Buffer
+	cmd.SetErr(&diagnostics)
+	if err := cmd.ParseFlags([]string{"--since", "2023-01-01", "--until", "2024-12-31"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := adoptPlatformCommandWindow(cmd, flags); err != nil {
+		t.Fatal(err)
+	}
+	location, err := time.LoadLocation("US/Central")
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantStart := time.Date(2024, time.January, 3, 0, 0, 0, 0, location)
+	wantEnd := time.Date(2024, time.December, 31, 23, 59, 59, 0, location)
+	window := flags.platformSession.OutputMetadata().ResolvedWindow
+	if window == nil || !window.Start.Equal(wantStart) || !window.End.Equal(wantEnd) || !window.Clamped || !window.CompletePeriods || !window.Start.AddDate(0, 0, 364).Equal(window.End.Add(time.Second)) {
+		t.Fatalf("clamped window = %+v; want 364 whole days from %s through %s", window, wantStart, wantEnd)
+	}
+	if want := "warning: requested window clamped: requested_window_exceeds_provider_maximum\n"; diagnostics.String() != want {
+		t.Fatalf("stderr = %q; want %q", diagnostics.String(), want)
 	}
 }
 
