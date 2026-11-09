@@ -26862,9 +26862,9 @@
       "path": "library/developer-tools/sec-edgar",
       "release": {
         "cli_name": "sec-edgar-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "b815f4cc4ec8054b6fec93c9f9a2e7f2220153ff"
+        "version": "2026.11.1",
+        "released_at": "2026-11-09T09:56:01Z",
+        "source_commit": "628589a65e0e85845e64b3fdf3493fcc6fdf3efc"
       },
       "printer": "ChrisDrit",
       "printer_name": "Chris Drit",
