@@ -2,16 +2,16 @@
   "schema_version": 1,
   "slug": "klaviyo",
   "cli_name": "klaviyo-pp-cli",
-  "version": "2026.11.2",
-  "released_at": "2026-11-09T20:34:01Z",
-  "source_commit": "93a2a19768d13f12351b97daf075535ff0a5d2f0",
+  "version": "2026.11.3",
+  "released_at": "2026-11-09T21:31:47Z",
+  "source_commit": "545262f8db9ac589f38769afe0e7466b391a0654",
   "printing_press_version": "3.5.0",
   "changes": [
     {
-      "title": "fix(klaviyo): bring the maintained Klaviyo CLI up to date",
-      "pr": 2454,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2454",
-      "commit": "93a2a19768d13f12351b97daf075535ff0a5d2f0"
+      "title": "fix(klaviyo): MCP tenant isolation, sync options, qa-gate fields and report retries",
+      "pr": 2455,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2455",
+      "commit": "545262f8db9ac589f38769afe0e7466b391a0654"
     }
   ]
 }
