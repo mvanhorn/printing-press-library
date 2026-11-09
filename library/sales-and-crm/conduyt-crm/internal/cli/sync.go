@@ -641,6 +641,7 @@ func syncResource(ctx context.Context, c interface {
 	flatReconcilable := resourceIsFlatReconcilable(reconcileMode)
 	outcome := partitionOutcome{}
 	var seenIDs []string
+	pageVisits := syncPageVisits{} // PATCH(novel1219-activities-list-page-number)
 
 	for {
 		params := map[string]string{}
@@ -655,6 +656,13 @@ func syncResource(ctx context.Context, c interface {
 				params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
 			}
 			cursor = seedSyncPageCursor(params, pageSize, cursor)
+			if err := pageVisits.visit(pageSize, cursor); err != nil {
+				err = fmt.Errorf("syncing %s: %w", resource, err)
+				if !humanFriendly {
+					fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", err))
+				}
+				return syncResult{Resource: resource, Count: totalCount, Err: err, Duration: time.Since(started)}
+			}
 		}
 
 		// Set since filter
@@ -729,6 +737,9 @@ func syncResource(ctx context.Context, c interface {
 				}
 			}
 		}
+
+		var pageTokenProvedMore bool
+		nextCursor, hasMore, pageTokenProvedMore = normalizePageContinuation(pageSize, cursor, nextCursor, hasMore)
 
 		// Page-int paginator fallback: when the API paginates by integer
 		// ?page=N and emits no body cursor, treat a full page as a signal
@@ -907,7 +918,7 @@ func syncResource(ctx context.Context, c interface {
 		// sync_error output in the same stream.
 		if maxPages > 0 && pagesFetched >= maxPages {
 			truncatedByCap := resourceSupportsPagination(resource) && hasMore
-			truncatedByCap = truncatedByCap && !shortPageEndsPagination(pageSize.cursorType, fetchedThisPage, pageSize.limit)
+			truncatedByCap = truncatedByCap && (pageTokenProvedMore || !shortPageEndsPagination(pageSize.cursorType, fetchedThisPage, pageSize.limit))
 			capResumed := false
 			if truncatedByCap {
 				capExitCursor = nextCursor
@@ -945,7 +956,7 @@ func syncResource(ctx context.Context, c interface {
 			} else if paginationEndUnprovable(resourceSupportsPagination(resource), nextCursor, fetchedThisPage, capPageLimit, data, responsePathForResource(resource, path)...) {
 				outcome.reason = "cursor_unavailable"
 			} else if !hasMore ||
-				shortPageEndsPagination(pageSize.cursorType, fetchedThisPage, capPageLimit) {
+				(!pageTokenProvedMore && shortPageEndsPagination(pageSize.cursorType, fetchedThisPage, capPageLimit)) {
 				outcome.complete = true
 			} else {
 				outcome.reason = "max_pages_cap"
@@ -959,7 +970,7 @@ func syncResource(ctx context.Context, c interface {
 		// guard so cap-hit takes precedence; checked BEFORE the natural-end
 		// check below because the natural-end check would not catch a sticky
 		// non-empty cursor on its own.
-		if nextCursor != "" && nextCursor == lastNextCursor {
+		if nextCursor != "" && nextCursor == lastNextCursor && !syncPageIsProvenShortEnd(pageSize, pageTokenProvedMore, fetchedThisPage) {
 			// Abnormal: a non-advancing cursor means we cannot prove the partition
 			// was fully enumerated — leave outcome.complete=false (reconcile SKIPS).
 			outcome.reason = "stuck_cursor"
@@ -981,7 +992,7 @@ func syncResource(ctx context.Context, c interface {
 			outcome.reason = "cursor_unavailable"
 			break
 		}
-		if !hasMore || shortPageEndsPagination(pageSize.cursorType, fetchedThisPage, pageSize.limit) {
+		if !hasMore || (!pageTokenProvedMore && shortPageEndsPagination(pageSize.cursorType, fetchedThisPage, pageSize.limit)) {
 			outcome.complete = true
 			break
 		}
@@ -1969,6 +1980,13 @@ func seedSyncPageCursor(params map[string]string, pageSize paginationDefaults, c
 	if pageSize.cursorParam == "" {
 		return cursor
 	}
+	// PATCH(novel1219-activities-list-page-number): a checkpoint written by an earlier build (r16 cursor paging, or
+	// the r17 page paging that stored meta.next_cursor) can hold an opaque cursor for a resource that now pages by
+	// number. Sending it would be page=<cursor> (a 500 on GET /activities), so the walk restarts at the first page.
+	// Every flat and dependent request, and the required-param preflight, seed through here.
+	if pageSize.cursorType == "page" && cursor != "" && !isSyncPageNumber(cursor) {
+		cursor = ""
+	}
 	if cursor == "" {
 		cursor = pageSize.initialCursor
 	}
@@ -1976,6 +1994,71 @@ func seedSyncPageCursor(params map[string]string, pageSize paginationDefaults, c
 		params[pageSize.cursorParam] = cursor
 	}
 	return cursor
+}
+
+// normalizePageContinuation is the one page-numbered continuation rule shared by the flat sync loop and the
+// dependent (per-parent) loop. A non-numeric body continuation (GET /activities returns an opaque meta.next_cursor)
+// proves a next page and is replaced by the next page number, because it is never sent as page= (a 500). A numeric
+// continuation proves a next page only when it advances past the page just fetched; one that points back or at the
+// same page proves nothing, and if the walk follows it anyway syncPageVisits ends the walk with an error.
+// provedMore lets the short-page end checks skip a page that carried a real continuation.
+// PATCH(novel1219-activities-list-page-number)
+func normalizePageContinuation(pageSize paginationDefaults, cursor, nextCursor string, hasMore bool) (string, bool, bool) {
+	if pageSize.cursorType != "page" || nextCursor == "" {
+		return nextCursor, hasMore, false
+	}
+	if !isSyncPageNumber(nextCursor) {
+		return nextSyncPageNumber(cursor), true, true
+	}
+	if n, _ := strconv.Atoi(nextCursor); n > syncCurrentPage(pageSize, cursor) {
+		return nextCursor, true, true
+	}
+	return nextCursor, hasMore, false
+}
+
+// syncPageIsProvenShortEnd reports a page-numbered page that is a proven natural end: short, and its continuation (if
+// any) proved nothing because it did not advance (normalizePageContinuation). The sticky-cursor detectors in the flat
+// and dependent loops skip such a page, so a short last page that repeats the previous next ("2" after "2") completes
+// normally (reconcile and watermark run) instead of stopping as stuck_cursor. Other paginators are unchanged.
+// PATCH(novel1219-activities-list-page-number)
+func syncPageIsProvenShortEnd(pageSize paginationDefaults, provedMore bool, fetched int) bool {
+	return pageSize.cursorType == "page" && !provedMore && shortPageEndsPagination(pageSize.cursorType, fetched, pageSize.limit)
+}
+
+// syncCurrentPage is the page number a page-numbered request just asked for: the cursor, else the declared first
+// page, else the implicit page one. PATCH(novel1219-activities-list-page-number)
+func syncCurrentPage(pageSize paginationDefaults, cursor string) int {
+	for _, v := range []string{cursor, pageSize.initialCursor} {
+		if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+			return n
+		}
+	}
+	return 1
+}
+
+// syncPageVisits is the per-walk set of page numbers a page-numbered sync has requested, shared by the flat and the
+// dependent loops. Requesting a page twice in one walk means the API's continuation went backwards or in a circle;
+// the walk ends with an error instead of looping (--max-pages is unlimited by default).
+// PATCH(novel1219-activities-list-page-number)
+type syncPageVisits map[int]bool
+
+func (v syncPageVisits) visit(pageSize paginationDefaults, cursor string) error {
+	if pageSize.cursorType != "page" {
+		return nil
+	}
+	page := syncCurrentPage(pageSize, cursor)
+	if v[page] {
+		return fmt.Errorf("page-numbered pagination asked for page %d twice in one walk: the API's continuation went backwards, so sync stopped instead of looping", page)
+	}
+	v[page] = true
+	return nil
+}
+
+// isSyncPageNumber reports whether a page-numbered cursor is a usable page number (a non-negative integer; 0 is a
+// zero-based first page). PATCH(novel1219-activities-list-page-number)
+func isSyncPageNumber(cursor string) bool {
+	n, err := strconv.Atoi(cursor)
+	return err == nil && n >= 0
 }
 
 // nextSyncPageNumber advances a page-number cursor by one. An empty cursor
@@ -4235,6 +4318,7 @@ func syncOneParent(
 
 	outcome := partitionOutcome{scopeVal: parentID}
 	var seenIDs []string
+	pageVisits := syncPageVisits{} // PATCH(novel1219-activities-list-page-number)
 
 	for {
 		params := map[string]string{}
@@ -4248,6 +4332,16 @@ func syncOneParent(
 				params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
 			}
 			cursor = seedSyncPageCursor(params, pageSize, cursor)
+			if err := pageVisits.visit(pageSize, cursor); err != nil {
+				outcome.reason = "page_revisited"
+				rep.failure = fmt.Errorf("%s parent %s: %w", dep.Name, parentID, err)
+				if humanFriendly {
+					fmt.Fprintf(os.Stderr, "\n  %s: %v\n", dep.Name, rep.failure)
+				} else {
+					fmt.Fprintln(syncEvents, syncErrorJSON(dep.Name, parentID, rep.failure))
+				}
+				break
+			}
 		}
 		if depSinceTS != "" {
 			params[depSinceParam] = depSinceTS
@@ -4316,6 +4410,9 @@ func syncOneParent(
 			}
 			break
 		}
+
+		var pageTokenProvedMore bool
+		nextCursor, hasMore, pageTokenProvedMore = normalizePageContinuation(pageSize, cursor, nextCursor, hasMore)
 
 		// Page-int paginator fallback: mirrors syncResource so dependent
 		// resources on integer ?page=N APIs also advance past page 1.
@@ -4460,7 +4557,7 @@ func syncOneParent(
 		// Sticky-cursor detector: see syncResource for rationale. Same shape
 		// here so dependent-resource page loops cannot burn the budget on a
 		// non-advancing next cursor.
-		if nextCursor != "" && nextCursor == lastNextCursor {
+		if nextCursor != "" && nextCursor == lastNextCursor && !syncPageIsProvenShortEnd(pageSize, pageTokenProvedMore, len(items)) {
 			outcome.reason = "stuck_cursor"
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages for parent %s; aborting to prevent budget waste.\n", dep.Name, parentID)
@@ -4478,7 +4575,7 @@ func syncOneParent(
 			outcome.reason = "cursor_unavailable"
 			break
 		}
-		if !hasMore || shortPageEndsPagination(pageSize.cursorType, len(items), pageSize.limit) {
+		if !hasMore || (!pageTokenProvedMore && shortPageEndsPagination(pageSize.cursorType, len(items), pageSize.limit)) {
 			outcome.complete = true
 			break
 		}

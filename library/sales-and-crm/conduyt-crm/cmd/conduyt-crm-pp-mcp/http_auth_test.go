@@ -472,7 +472,9 @@ func TestMCPHTTPDeclaredOversizeBodyIsRefused(t *testing.T) {
 	srv := httptest.NewServer(handler)
 	t.Cleanup(srv.Close)
 
-	status, err := mcpHTTPRawStatus(t, srv, "POST /mcp HTTP/1.1\r\nHost: 127.0.0.1\r\nAuthorization: Bearer secret\r\nContent-Type: application/json\r\nContent-Length: "+strconv.FormatInt(mcpHTTPMaxBodyBytes+1, 10)+"\r\n\r\n")
+	// PATCH(novel1219-mcp-http-upload-cap): a declared length is refused before any read only above the tools/call
+	// ceiling; between the 4 MiB bound and that ceiling the body is read and refused unless it is a tools/call.
+	status, err := mcpHTTPRawStatus(t, srv, "POST /mcp HTTP/1.1\r\nHost: 127.0.0.1\r\nAuthorization: Bearer secret\r\nContent-Type: application/json\r\nContent-Length: "+strconv.FormatInt(mcpHTTPMaxToolCallBodyBytes+1, 10)+"\r\n\r\n")
 	if err != nil {
 		t.Fatalf("read status: %v", err)
 	}

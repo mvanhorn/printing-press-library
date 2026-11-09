@@ -247,6 +247,12 @@ const mcpUploadRootEnvVar = "CONDUYT_CRM_MCP_UPLOAD_ROOT"
 // uploads.
 const mcpMaxUploadBytes = 100 << 20 // 100 MiB
 
+// MaxUploadBase64Bytes is the longest base64 payload one MCP file param may carry: the padded base64 length of
+// mcpMaxUploadBytes plus slack for newlines and padding in a wrapped payload. The HTTP transport sizes its tools/call
+// body cap from it, so a maximum supported upload is never refused before it reaches the tool.
+// PATCH(novel1219-mcp-http-upload-cap)
+const MaxUploadBase64Bytes = (mcpMaxUploadBytes+2)/3*4 + 4096
+
 // resolveMCPMultipartFile converts an MCP-supplied binary multipart value into
 // a local temp file that this process owns, returning its path plus a cleanup
 // func the caller must defer. In the default (base64) mode the value is decoded
@@ -274,7 +280,7 @@ func resolveMCPMultipartFile(field, filenameHint string, v any) (string, func(),
 		// force the server to allocate the decoded bytes just to reject them.
 		// EncodedLen(max) is the ceiling of base64 characters for max decoded
 		// bytes; the slack covers newlines and padding in a wrapped payload.
-		if len(trimmed) > base64.StdEncoding.EncodedLen(mcpMaxUploadBytes)+4096 {
+		if len(trimmed) > MaxUploadBase64Bytes {
 			return "", nil, fmt.Errorf("multipart file parameter %q base64 payload is too large (exceeds the %d-byte decoded MCP upload limit)", field, mcpMaxUploadBytes)
 		}
 		data, err := base64.StdEncoding.DecodeString(trimmed)

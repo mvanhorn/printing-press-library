@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/subtle"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -49,6 +50,11 @@ const (
 	mcpHTTPTokenMinLength   = 32
 	mcpHTTPMaxBodyBytes     = 4 << 20
 	mcpHTTPBodyReadDeadline = 30 * time.Second
+
+	// PATCH(novel1219-mcp-http-upload-cap): the MCP tools accept one file param of up to 100 MiB as base64 (about
+	// 134 MiB of text). A single JSON-RPC tools/call may therefore carry that payload plus a normal request's worth
+	// of envelope; every other request (initialize, tools/list, notifications, batches) keeps the 4 MiB bound.
+	mcpHTTPMaxToolCallBodyBytes = mcptools.MaxUploadBase64Bytes + mcpHTTPMaxBodyBytes
 )
 
 const httpAllowedOriginsEnvVar = "CONDUYT_CRM_MCP_HTTP_ALLOWED_ORIGINS"
@@ -197,10 +203,16 @@ func requireBearerAuth(expected string, next http.Handler) http.Handler {
 }
 
 func requireBearerAuthWithOrigins(expected string, allowed map[string]struct{}, next http.Handler) http.Handler {
-	return requireBearerAuthWithLimits(expected, allowed, next, mcpHTTPMaxBodyBytes, mcpHTTPBodyReadDeadline)
+	return requireBearerAuthWithBodyLimits(expected, allowed, next, mcpHTTPMaxBodyBytes, mcpHTTPMaxToolCallBodyBytes, mcpHTTPBodyReadDeadline)
 }
 
 func requireBearerAuthWithLimits(expected string, allowed map[string]struct{}, next http.Handler, maxBytes int64, readTimeout time.Duration) http.Handler {
+	return requireBearerAuthWithBodyLimits(expected, allowed, next, maxBytes, maxBytes, readTimeout)
+}
+
+// requireBearerAuthWithBodyLimits bounds every POST body at maxBytes, except a single JSON-RPC tools/call, which may
+// run to toolCallMaxBytes so a maximum supported MCP upload reaches the tool (PATCH(novel1219-mcp-http-upload-cap)).
+func requireBearerAuthWithBodyLimits(expected string, allowed map[string]struct{}, next http.Handler, maxBytes, toolCallMaxBytes int64, readTimeout time.Duration) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !requestOriginPermitted(r, allowed) {
 			http.Error(w, "forbidden origin", http.StatusForbidden)
@@ -211,18 +223,22 @@ func requireBearerAuthWithLimits(expected string, allowed map[string]struct{}, n
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-		if err := bufferMCPRequestBody(w, r, maxBytes, readTimeout); err != nil {
+		if err := bufferMCPRequestBody(w, r, maxBytes, toolCallMaxBytes, readTimeout); err != nil {
 			return
 		}
 		next.ServeHTTP(w, r)
 	})
 }
 
-func bufferMCPRequestBody(w http.ResponseWriter, r *http.Request, maxBytes int64, readTimeout time.Duration) error {
+func bufferMCPRequestBody(w http.ResponseWriter, r *http.Request, maxBytes, toolCallMaxBytes int64, readTimeout time.Duration) error {
 	if r.Method != http.MethodPost || r.Body == nil {
 		return nil
 	}
-	if r.ContentLength > maxBytes {
+	ceiling := maxBytes
+	if toolCallMaxBytes > ceiling {
+		ceiling = toolCallMaxBytes
+	}
+	if r.ContentLength > ceiling {
 		rejectMCPHTTPRequest(w, http.StatusRequestEntityTooLarge, "request body too large")
 		return fmt.Errorf("request body too large")
 	}
@@ -233,7 +249,7 @@ func bufferMCPRequestBody(w http.ResponseWriter, r *http.Request, maxBytes int64
 			deadlineSet = true
 		}
 	}
-	limited := http.MaxBytesReader(nil, r.Body, maxBytes)
+	limited := http.MaxBytesReader(nil, r.Body, ceiling)
 	body, err := io.ReadAll(limited)
 	_ = limited.Close()
 	if err != nil {
@@ -252,12 +268,25 @@ func bufferMCPRequestBody(w http.ResponseWriter, r *http.Request, maxBytes int64
 	if deadlineSet {
 		_ = rc.SetReadDeadline(time.Time{})
 	}
+	if int64(len(body)) > maxBytes && !isMCPToolCallBody(body) {
+		rejectMCPHTTPRequest(w, http.StatusRequestEntityTooLarge, "request body too large")
+		return fmt.Errorf("request body too large")
+	}
 	r.Body = io.NopCloser(bytes.NewReader(body))
 	r.ContentLength = int64(len(body))
 	r.GetBody = func() (io.ReadCloser, error) {
 		return io.NopCloser(bytes.NewReader(body)), nil
 	}
 	return nil
+}
+
+// isMCPToolCallBody reports whether body is one JSON-RPC request whose method is tools/call; a batch (JSON array)
+// or any other method is not (PATCH(novel1219-mcp-http-upload-cap)).
+func isMCPToolCallBody(body []byte) bool {
+	var msg struct {
+		Method string `json:"method"`
+	}
+	return json.Unmarshal(body, &msg) == nil && msg.Method == "tools/call"
 }
 
 func isMCPBodyReadTimeout(err error) bool {

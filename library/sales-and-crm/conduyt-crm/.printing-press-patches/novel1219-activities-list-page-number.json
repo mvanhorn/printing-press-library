@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-activities-list-page-number",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "activities list --all follows meta.next_cursor through cursor and falls back to numeric pages only when no next_cursor key is returned; MCP activities.list pages through cursor via data.meta.next_cursor; a page-numbered sync never sends a body cursor as page=. A stored non-numeric checkpoint for a page-numbered sync restarts at page one; a discarded body token still advances the page-numbered walk on a short page; auto --all keeps write-through and local fallback. Round 20: one shared rule (normalizePageContinuation) for the flat and dependent sync loops: any non-empty page-type continuation proves a next page; only a non-numeric one is rewritten to the next page number. The stored-checkpoint guard lives in seedSyncPageCursor, which every flat and dependent request seeds through. Round 21: a numeric continuation proves more only when it advances past the page just fetched, and a per-walk set of visited pages (syncPageVisits, shared by both loops) ends a walk that asks for a page twice with an error. Round 22: the flat and dependent sticky-cursor detectors skip a page-numbered page that is a proven short end (syncPageIsProvenShortEnd), so a short last page repeating the previous numeric next completes normally.",
+  "reason": "GET /activities (app/api/v1/activities/route.ts) answers {\"data\":{\"data\":[...],\"meta\":{page,per_page,total,total_capped,next_cursor}}}, takes a keyset cursor and a numeric page, and parses page as an integer, so a keyset string in page= is a 500 (Prisma skip NaN; 9 such 500s on the demo workspace on 2026-11-09). The generated --all and MCP page configs read a cursor at a path the response does not have (Greptile PR #2450 thread 4514458610, P1): --all found no top-level array and returned 0 rows; and the r17 page-numbered sync picked meta.next_cursor up by name and sent it as page=. Codex novel1219-r18: an r17 checkpoint resumed page=<keyset> until --full; the discarded token let a short page end the walk as complete; a short keyset page without next_cursor returned as complete; auto --all skipped write-through and network fallback.",
+  "files": [
+    "internal/cli/activities_list.go",
+    "internal/cli/novel1219_activities_walk.go",
+    "internal/cli/sync.go",
+    "internal/mcp/code_orch.go",
+    "internal/cli/novel1219_activities_list_page_walk_test.go",
+    "internal/mcp/novel1219_activities_list_page_walk_test.go",
+    "internal/cli/novel1219_r19_activities_test.go",
+    "internal/cli/novel1219_r20_page_continuation_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-activities-list-page-number)"
+  ],
+  "validated_outcome": "Fixtures use the live response shape. TestNovel1219ActivitiesListAllFollowsNextCursor (page one, then cursor=<next_cursor> with no page; three rows in order), TestNovel1219ActivitiesListAllFallsBackToPageNumbersWithoutNextCursor (no next_cursor key: page=2), TestNovel1219ActivitiesSyncWalksNumberedPagesPastAnOpaqueNextCursor (53 records, never page=<cursor>), TestNovel1219MCPActivitiesListFollowsNextCursor (an agent following cursor_param with data.meta.next_cursor reads both pages; page never carries a cursor). Live demo workspace: activities list --all --per-page 5 returns 345 of meta.total 345; sync --resources activities --full stores 345. Round 19 (all red on 13d0741): TestNovel1219SyncResumesAnR17CheckpointByPageNumber, TestNovel1219SyncShortPageWithTokenAdvancesByNumber, TestNovel1219ActivitiesWalkRefusesAShortCursorPageWithoutNextCursor, TestNovel1219ActivitiesListAllAutoWritesThroughAndFallsBackLocal. Round 20 (red on d4132aa): TestNovel1219DependentFullPageWithOpaqueTokenAdvancesByNumber, TestNovel1219DependentShortPageWithOpaqueTokenAdvancesByNumber, TestNovel1219DependentShortPageWithNumericTokenAdvances, TestNovel1219SyncShortPageWithNumericTokenAdvances; TestNovel1219NormalizePageContinuation pins the rule. Round 21 (red on ed4ddd6, where the A/B alternation looped): TestNovel1219DependentBackwardNumericTokenOnShortPageEnds, TestNovel1219DependentRevisitedPageEndsWithAnError, TestNovel1219SyncBackwardNumericTokenOnShortPageEnds, TestNovel1219SyncRevisitedPageEndsWithAnError, and the new backward and same-page cases in TestNovel1219NormalizePageContinuation. Round 22 (red on c7e6633 as stuck_cursor): TestNovel1219SyncShortPageRepeatingItsNextCompletes (51 records, last_attempt_complete 1, no stuck_pagination) and TestNovel1219DependentShortPageRepeatingItsNextCompletes."
+}
