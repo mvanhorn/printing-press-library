@@ -16764,9 +16764,9 @@
       "path": "library/marketing/klaviyo",
       "release": {
         "cli_name": "klaviyo-pp-cli",
-        "version": "2026.11.1",
-        "released_at": "2026-11-03T22:20:33Z",
-        "source_commit": "03f9fe01478705d6558f97e75571f05cd40d630a"
+        "version": "2026.11.2",
+        "released_at": "2026-11-09T20:34:01Z",
+        "source_commit": "55260dd0a81d3e0dbf68a75128127675f24c1116"
       },
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",
