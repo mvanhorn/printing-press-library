@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -3461,8 +3462,9 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			}
 		}
 
-		// Collect non-positional params as query params
+		// Keep path/query arguments outside the JSON:API request object.
 		params := make(map[string]string)
+		body := make(map[string]any)
 		for k, v := range args {
 			isPositional := false
 			for _, p := range positionalParams {
@@ -3472,8 +3474,19 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 				}
 			}
 			if !isPositional {
-				params[k] = fmt.Sprintf("%v", v)
+				if method == "GET" || strings.HasPrefix(k, "fields[") || k == "include" {
+					params[k] = fmt.Sprintf("%v", v)
+				} else {
+					body[k] = v
+				}
 			}
+		}
+		if method != "GET" && len(params) > 0 {
+			query := url.Values{}
+			for key, value := range params {
+				query.Set(key, value)
+			}
+			path += "?" + query.Encode()
 		}
 
 		var data json.RawMessage
@@ -3481,13 +3494,10 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(args)
 			data, _, err = c.Post(path, body)
 		case "PUT":
-			body, _ := json.Marshal(args)
 			data, _, err = c.Put(path, body)
 		case "PATCH":
-			body, _ := json.Marshal(args)
 			data, _, err = c.Patch(path, body)
 		case "DELETE":
 			data, _, err = c.Delete(path)
@@ -3610,21 +3620,13 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (result *mcplib.
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
-	// Block write operations
-	upper := strings.ToUpper(strings.TrimSpace(query))
-	for _, prefix := range []string{"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"} {
-		if strings.HasPrefix(upper, prefix) {
-			return mcplib.NewToolResultError("only SELECT queries are allowed"), nil
-		}
-	}
-
 	c, verifiedSession, err := newMCPClient(ctx)
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 	session = verifiedSession
 	defer session.ZeroCredentials()
-	db, err := store.OpenVerifiedWithContext(ctx, c.PlatformSession().Paths.DataFile, c.PlatformSession())
+	db, err := store.OpenVerifiedReadOnlyWithContext(ctx, c.PlatformSession().Paths.DataFile, c.PlatformSession())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -3636,7 +3638,10 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (result *mcplib.
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -3644,12 +3649,17 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (result *mcplib.
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
+	}
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
 	}
 
 	data, _ := json.MarshalIndent(results, "", "  ")

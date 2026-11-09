@@ -104,7 +104,7 @@ func adoptPlatformCommandWindow(cmd *cobra.Command, flags *rootFlags) error {
 		return nil
 	}
 	policy := platform.WindowPolicy{Now: func() time.Time { return now }, EndExclusive: endExclusive}
-	if registeredPlatformSource != nil && registeredPlatformSource.WindowMaximumDays > 0 {
+	if platformCommandUsesMetricAggregates(cmd) && registeredPlatformSource != nil && registeredPlatformSource.WindowMaximumDays > 0 {
 		policy.MaximumDays = registeredPlatformSource.WindowMaximumDays
 		policy.ProviderMaximumName = registeredPlatformSource.WindowMaximumName
 	}
@@ -117,6 +117,31 @@ func adoptPlatformCommandWindow(cmd *cobra.Command, flags *rootFlags) error {
 		_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "warning: requested window clamped: %s\n", window.ClampReason)
 	}
 	return nil
+}
+
+func platformCommandUsesMetricAggregates(cmd *cobra.Command) bool {
+	switch cmd.Name() {
+	case "subject-line-analysis":
+		flag := cmd.Flags().Lookup("source")
+		return flag == nil || !strings.EqualFold(flag.Value.String(), "campaign")
+	case "revenue-per-email":
+		flag := cmd.Flags().Lookup("by")
+		return flag == nil || !strings.EqualFold(flag.Value.String(), "campaign")
+	case "report", "revenue", "open-rates", "unsubscribes", "spam-complaints", "list-growth", "deliverability", "domain-reputation", "products",
+		"optimal-send-time", "flow-path-analysis", "list-quality-score":
+		return true
+	default:
+		return false
+	}
+}
+
+func platformCalculationWindow(flags *rootFlags, since, until time.Time) (time.Time, time.Time) {
+	if flags != nil && flags.platformSession != nil {
+		if window := flags.platformSession.OutputMetadata().ResolvedWindow; window != nil {
+			return window.Start, window.End
+		}
+	}
+	return since, until
 }
 
 // These commands use --window for bucketing and --last for event history.
@@ -194,8 +219,8 @@ func platformWindowRequestFromFlags(cmd *cobra.Command, now time.Time, location 
 	return platform.WindowRequest{}, false, false
 }
 
-// AdoptMCPOutputSemantics resolves the same provider-aware window contract for
-// typed MCP arguments that adoptPlatformCommandWindow applies to Cobra flags.
+// AdoptMCPOutputSemantics resolves the requested window for typed MCP arguments.
+// Endpoint-specific limits require command context and are applied by the CLI.
 // It is safe to call more than once for one invocation; the latest resolved
 // value replaces the prior window rather than accumulating state.
 func AdoptMCPOutputSemantics(session *platform.Session, arguments map[string]any) error {
@@ -224,10 +249,6 @@ func AdoptMCPOutputSemantics(session *platform.Session, arguments map[string]any
 		return nil
 	}
 	policy := platform.WindowPolicy{Now: func() time.Time { return now }, EndExclusive: endExclusive}
-	if registeredPlatformSource != nil && registeredPlatformSource.WindowMaximumDays > 0 {
-		policy.MaximumDays = registeredPlatformSource.WindowMaximumDays
-		policy.ProviderMaximumName = registeredPlatformSource.WindowMaximumName
-	}
 	window, err := platform.ResolveWindow(request, policy)
 	if err != nil {
 		return fmt.Errorf("resolve MCP window: %w", err)

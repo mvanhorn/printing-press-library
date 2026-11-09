@@ -191,7 +191,7 @@ func newCampaignsImageSwapCmd(flags *rootFlags) *cobra.Command {
 				messageID = firstJSONAPIID(resp)
 			}
 			if templateID == "" && messageID != "" {
-				resp, err := c.Get("/api/campaign-messages/"+messageID+"/template", map[string]string{"fields[template]": "definition,html"})
+				resp, err := c.Get("/api/campaign-messages/"+messageID+"/template", map[string]string{"fields[template]": "html"})
 				if err != nil {
 					return classifyAPIError(err)
 				}
@@ -526,7 +526,7 @@ func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 					default:
 						return fmt.Errorf("campaign compliance preflight failed: campaign message %s has unsupported channel %q", messageID, channel)
 					}
-					templateResp, err := c.Get("/api/campaign-messages/"+url.PathEscape(messageID)+"/template", map[string]string{"fields[template]": "definition,html"})
+					templateResp, err := c.Get("/api/campaign-messages/"+url.PathEscape(messageID)+"/template", map[string]string{"fields[template]": "html"})
 					if err != nil {
 						var apiErr *client.APIError
 						if !errors.As(err, &apiErr) || apiErr.StatusCode != 404 {
@@ -2386,6 +2386,14 @@ func newReportRevenueCmd(flags *rootFlags) *cobra.Command {
 			if until == "" {
 				until = time.Now().Format("2006-01-02")
 			}
+			filters := []string{"greater-or-equal(datetime," + since + "T00:00:00)", "less-than(datetime," + until + "T23:59:59)"}
+			timezone := "US/Central"
+			if flags.platformSession != nil {
+				if window := flags.platformSession.OutputMetadata().ResolvedWindow; window != nil && window.Clamped {
+					filters = []string{"greater-or-equal(datetime," + window.Start.Format("2006-01-02T15:04:05") + ")", "less-than(datetime," + window.End.Format("2006-01-02T15:04:05") + ")"}
+					timezone = window.Timezone
+				}
+			}
 			body := map[string]any{
 				"data": map[string]any{
 					"type": "metric-aggregate",
@@ -2395,8 +2403,8 @@ func newReportRevenueCmd(flags *rootFlags) *cobra.Command {
 						"interval":     "month",
 						"page_size":    500,
 						"by":           []string{attrField},
-						"filter":       []string{"greater-or-equal(datetime," + since + "T00:00:00)", "less-than(datetime," + until + "T23:59:59)"},
-						"timezone":     "US/Central",
+						"filter":       filters,
+						"timezone":     timezone,
 					},
 				},
 			}

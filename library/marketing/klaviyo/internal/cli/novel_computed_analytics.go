@@ -60,6 +60,7 @@ func newFlowCannibalizationCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(err)
 			}
+			since, _ = platformCalculationWindow(flags, since, time.Now())
 			return printJSONFiltered(cmd.OutOrStdout(), flowCannibalization(rows, windowDur, window, since, "last "+last), flags)
 		},
 	}
@@ -95,6 +96,7 @@ func newSendFatigueCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(err)
 			}
+			since, _ = platformCalculationWindow(flags, since, time.Now())
 			return printJSONFiltered(cmd.OutOrStdout(), sendFatigue(rows, threshold, windowDur, window, since), flags)
 		},
 	}
@@ -345,6 +347,7 @@ func newContentFatigueCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(err)
 			}
+			since, _ = platformCalculationWindow(flags, since, time.Now())
 			return printJSONFiltered(cmd.OutOrStdout(), contentFatigue(rows, since, minEmails), flags)
 		},
 	}
@@ -363,7 +366,23 @@ func readNovelLocalRows(ctx context.Context, flags *rootFlags, dbPath, resourceT
 		return nil, nil
 	}
 	defer db.Close()
-	return readResourceRows(ctx, db, resourceType, limit)
+	rows, err := readResourceRows(ctx, db, resourceType, limit)
+	if err != nil {
+		return nil, err
+	}
+	if flags != nil && flags.platformSession != nil {
+		if window := flags.platformSession.OutputMetadata().ResolvedWindow; window != nil {
+			selected := rows[:0]
+			for _, row := range rows {
+				at := eventFromRow(row).Time
+				if !at.Before(window.Start) && (at.Before(window.End) || (!window.EndExclusive && at.Equal(window.End))) {
+					selected = append(selected, row)
+				}
+			}
+			rows = selected
+		}
+	}
+	return rows, nil
 }
 
 func localDataRequiredResult() map[string]any {
@@ -578,10 +597,13 @@ type subjectEngagement struct {
 const klaviyoAnalyticsMaxWindow = 364 * 24 * time.Hour
 
 func subjectLineAnalysis(c flowClient, since, until time.Time, source string) (map[string]any, error) {
-	since, windowClamped := clampKlaviyoAnalyticsWindow(since, until)
 	source = strings.ToLower(source)
 	if source != "all" && source != "flow" && source != "campaign" {
 		return nil, usageErr(fmt.Errorf("--source must be flow, campaign, or all"))
+	}
+	windowClamped := false
+	if source != "campaign" {
+		since, windowClamped = clampKlaviyoAnalyticsWindow(since, until)
 	}
 
 	campaignRates := map[string]subjectEngagement{}
@@ -720,9 +742,16 @@ func applyFlowSubjectEngagement(c flowClient, emails []subjectEmail, since, unti
 	}
 	received, opened, clicked := map[string]float64{}, map[string]float64{}, map[string]float64{}
 	for _, dimension := range []string{"$message", "$flow"} {
-		mergeMetricMap(received, keyedMetricValues(topAggregateRows(c, receivedID, dimension, "count", since, until, 0), "count"))
-		mergeMetricMap(opened, keyedMetricValues(topAggregateRows(c, openedID, dimension, "count", since, until, 0), "count"))
-		mergeMetricMap(clicked, keyedMetricValues(topAggregateRows(c, clickedID, dimension, "count", since, until, 0), "count"))
+		for _, metric := range []struct {
+			id     string
+			values map[string]float64
+		}{{receivedID, received}, {openedID, opened}, {clickedID, clicked}} {
+			rows, err := topAggregateRows(c, metric.id, dimension, "count", since, until, 0)
+			if err != nil {
+				return err
+			}
+			mergeMetricMap(metric.values, keyedMetricValues(rows, "count"))
+		}
 	}
 	for i := range emails {
 		if emails[i].SourceType != "flow" {
@@ -1045,8 +1074,16 @@ func revenuePerEmail(c flowClient, since, until time.Time, by, period string) (m
 		if err != nil {
 			return nil, err
 		}
-		revenue := keyedMetricValues(topAggregateRows(c, placedID, "$attributed_flow", "sum_value", since, until, 0), "sum_value")
-		sends := keyedMetricValues(topAggregateRows(c, receivedID, "$flow", "count", since, until, 0), "count")
+		revenueRows, err := topAggregateRows(c, placedID, "$attributed_flow", "sum_value", since, until, 0)
+		if err != nil {
+			return nil, err
+		}
+		sendRows, err := topAggregateRows(c, receivedID, "$flow", "count", since, until, 0)
+		if err != nil {
+			return nil, err
+		}
+		revenue := keyedMetricValues(revenueRows, "sum_value")
+		sends := keyedMetricValues(sendRows, "count")
 		result["flows"] = revenuePerEmailRows(revenue, sends, "flow_id")
 	}
 	if by == "all" || by == "campaign" {
@@ -1323,7 +1360,11 @@ func listQualityScore(ctx context.Context, c flowClient, since, until time.Time)
 			values[key] = map[string]float64{}
 			continue
 		}
-		values[key] = keyedMetricValues(topAggregateRows(c, id, "List ID", "count", since, until, 0), "count")
+		rows, err := topAggregateRows(c, id, "List ID", "count", since, until, 0)
+		if err != nil {
+			return nil, err
+		}
+		values[key] = keyedMetricValues(rows, "count")
 	}
 	var rows []map[string]any
 	for _, list := range lists {
@@ -1468,7 +1509,11 @@ func messageStats(c flowClient, since, until time.Time) (map[string]map[string]f
 		if err != nil {
 			continue
 		}
-		for k, v := range keyedMetricValues(topAggregateRows(c, id, "$message", "count", since, until, 0), "count") {
+		rows, err := topAggregateRows(c, id, "$message", "count", since, until, 0)
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range keyedMetricValues(rows, "count") {
 			if out[k] == nil {
 				out[k] = map[string]float64{}
 			}
@@ -1476,7 +1521,11 @@ func messageStats(c flowClient, since, until time.Time) (map[string]map[string]f
 		}
 	}
 	if placedID, err := resolveMetricID(c, "Placed Order"); err == nil {
-		for k, v := range keyedMetricValues(topAggregateRows(c, placedID, "$message", "sum_value", since, until, 0), "sum_value") {
+		rows, err := topAggregateRows(c, placedID, "$message", "sum_value", since, until, 0)
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range keyedMetricValues(rows, "sum_value") {
 			if out[k] == nil {
 				out[k] = map[string]float64{}
 			}

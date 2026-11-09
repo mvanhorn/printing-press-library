@@ -44,6 +44,7 @@ func (a platformCLIAdapter) ProbeIdentity(context.Context, platform.ResolvedCred
 func (platformCLIAdapter) EndpointClass() string { return "GET /identity" }
 
 func TestPlatformCLIConformanceSurfaceAndGate(t *testing.T) {
+	t.Setenv(mcpBoundProfileEnv, "")
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	t.Setenv("XDG_DATA_HOME", t.TempDir())
 	t.Setenv("XDG_CACHE_HOME", t.TempDir())
