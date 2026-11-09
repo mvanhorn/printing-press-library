@@ -93,11 +93,18 @@ type limiterLedger struct {
 func (l *EndpointLimiter) Wait(ctx context.Context) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if err := os.MkdirAll(filepath.Dir(l.path), 0o700); err != nil {
 		return err
 	}
 	release, err := acquireLedgerLock(ctx, l.path+".lock")
 	if err != nil {
+		return err
+	}
+	if err := ctx.Err(); err != nil {
+		release()
 		return err
 	}
 	now := l.now().UTC()
@@ -115,6 +122,7 @@ func (l *EndpointLimiter) Wait(ctx context.Context) error {
 		ledger.Tokens = math.Min(capacity, ledger.Tokens+float64(elapsed)*refillPerNanosecond)
 		ledger.UpdatedAt = now
 	}
+	previous := ledger
 	wait := time.Duration(0)
 	if ledger.Tokens >= 1 {
 		ledger.Tokens--
@@ -138,7 +146,31 @@ func (l *EndpointLimiter) Wait(ctx context.Context) error {
 		return err
 	}
 	if wait > 0 {
-		return l.sleep(ctx, wait)
+		if err := l.sleep(ctx, wait); err != nil {
+			// PATCH(greptile-review-g5): undo only the latest reservation; later callers may depend on it.
+			cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), time.Second)
+			defer cancel()
+			release, lockErr := acquireLedgerLock(cleanupCtx, l.path+".lock")
+			if lockErr != nil {
+				return errors.Join(err, fmt.Errorf("release canceled rate-limit reservation: %w", lockErr))
+			}
+			defer release()
+			data, readErr := os.ReadFile(filepath.Clean(l.path))
+			var current limiterLedger
+			if readErr == nil {
+				readErr = json.Unmarshal(data, &current)
+			}
+			if readErr == nil && current.Tokens == ledger.Tokens && current.UpdatedAt.Equal(ledger.UpdatedAt) {
+				data, readErr = json.Marshal(previous)
+				if readErr == nil {
+					readErr = writePrivateFile(l.path, data)
+				}
+			}
+			if readErr != nil {
+				return errors.Join(err, fmt.Errorf("release canceled rate-limit reservation: %w", readErr))
+			}
+			return err
+		}
 	}
 	return nil
 }

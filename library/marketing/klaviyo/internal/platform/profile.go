@@ -584,20 +584,25 @@ func loadOrCreateFingerprintKey() ([]byte, error) {
 	if _, err := rand.Read(key); err != nil {
 		return nil, err
 	}
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
-	if errors.Is(err, os.ErrExist) {
-		return readFingerprintKey(path)
-	}
+	// PATCH(greptile-review-g5): publish a complete key without replacing the winning writer.
+	file, err := os.CreateTemp(root, ".cache-key-*")
 	if err != nil {
 		return nil, err
 	}
+	defer os.Remove(file.Name())
+	defer file.Close()
 	if _, err := file.Write(key); err != nil {
-		_ = file.Close()
-		_ = os.Remove(path)
+		return nil, err
+	}
+	if err := file.Sync(); err != nil {
 		return nil, err
 	}
 	if err := file.Close(); err != nil {
-		_ = os.Remove(path)
+		return nil, err
+	}
+	if err := os.Link(file.Name(), path); errors.Is(err, os.ErrExist) {
+		return readFingerprintKey(path)
+	} else if err != nil {
 		return nil, err
 	}
 	return key, nil

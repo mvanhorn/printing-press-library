@@ -490,6 +490,7 @@ func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 				}
 				htmlBody = string(b)
 			}
+			result := qaGate(htmlBody, offer, timezone)
 			evidence := map[string]any{}
 			if campaignID != "" {
 				c, err := flags.newClient()
@@ -501,29 +502,53 @@ func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 					return classifyAPIError(err)
 				}
 				evidence["campaign"] = mustJSONAny(campaignResp)
-				if htmlBody == "" {
-					msgResp, err := c.Get("/api/campaigns/"+campaignID+"/campaign-messages", nil)
-					if err != nil {
-						return classifyAPIError(err)
+				msgResp, err := fetchCampaignMessages(c, campaignID)
+				if err != nil {
+					return err
+				}
+				evidence["campaign_messages"] = mustJSONAny(msgResp)
+				templates := map[string]any{}
+				findings := []map[string]any{}
+				if htmlPath != "" {
+					findings = append(findings, result["findings"].([]map[string]any)...)
+				}
+				// PATCH(greptile-review-g5): evaluate each email separately so a valid footer cannot hide another's failure.
+				for _, message := range mapSlice(anyPath(mustJSONAny(msgResp), "data")) {
+					messageID := stringFromMapPath(message, "id")
+					if messageID == "" {
+						return fmt.Errorf("campaign compliance preflight failed: campaign message ID is missing")
 					}
-					evidence["campaign_messages"] = mustJSONAny(msgResp)
-					messageID := firstJSONAPIID(msgResp)
-					if messageID != "" {
-						templateResp, err := c.Get("/api/campaign-messages/"+url.PathEscape(messageID)+"/template", map[string]string{"fields[template]": "definition,html"})
-						if err != nil {
-							var apiErr *client.APIError
-							if !errors.As(err, &apiErr) || apiErr.StatusCode != 404 {
-								return classifyAPIError(err)
-							}
-							evidence["template_status"] = "not_assigned"
-						} else {
-							evidence["template"] = mustJSONAny(templateResp)
-							htmlBody = firstString(templateResp, "data.attributes.html", "data.attributes.definition.html")
+					channel := stringFromMapPath(message, "attributes.definition.channel")
+					switch channel {
+					case "sms", "push", "whatsapp", "mobile_push":
+						continue
+					case "email", "":
+					default:
+						return fmt.Errorf("campaign compliance preflight failed: campaign message %s has unsupported channel %q", messageID, channel)
+					}
+					templateResp, err := c.Get("/api/campaign-messages/"+url.PathEscape(messageID)+"/template", map[string]string{"fields[template]": "definition,html"})
+					if err != nil {
+						var apiErr *client.APIError
+						if !errors.As(err, &apiErr) || apiErr.StatusCode != 404 {
+							return classifyAPIError(err)
 						}
+						evidence["template_status"] = "not_assigned"
+					} else {
+						evidence["template"] = mustJSONAny(templateResp)
+						templates[messageID] = mustJSONAny(templateResp)
+					}
+					messageHTML := firstString(templateResp, "data.attributes.html", "data.attributes.definition.html")
+					for _, finding := range qaGate(messageHTML, offer, timezone)["findings"].([]map[string]any) {
+						finding["message_id"] = messageID
+						findings = append(findings, finding)
 					}
 				}
+				evidence["templates"] = templates
+				if len(findings) > 0 {
+					result["findings"] = findings
+					result["verdict"] = qaVerdict(findings)
+				}
 			}
-			result := qaGate(htmlBody, offer, timezone)
 			result["campaign_id"] = campaignID
 			result["evidence"] = evidence
 			if err := printJSONFiltered(cmd.OutOrStdout(), result, flags); err != nil {
@@ -802,6 +827,10 @@ func qaGate(htmlBody, offer, timezone string) map[string]any {
 	add("unsubscribe", complianceStatus, complianceDetail)
 	add("compliance", "warn", "Confirm sender identity and physical address in Klaviyo preview.")
 	add("deliverability", "warn", "Confirm inbox preview, image weight, and spam-risk terms before launch.")
+	return map[string]any{"verdict": qaVerdict(findings), "findings": findings}
+}
+
+func qaVerdict(findings []map[string]any) string {
 	verdict := "pass"
 	for _, f := range findings {
 		if f["status"] == "fail" {
@@ -812,7 +841,7 @@ func qaGate(htmlBody, offer, timezone string) map[string]any {
 			verdict = "warn"
 		}
 	}
-	return map[string]any{"verdict": verdict, "findings": findings}
+	return verdict
 }
 
 var (

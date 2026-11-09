@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"sort"
 	"strings"
 	"time"
@@ -106,13 +107,74 @@ type reportHeadersClient interface {
 }
 
 func postKlaviyoReport(c flowClient, path string, body any) (json.RawMessage, int, error) {
-	if hc, ok := c.(reportHeadersClient); ok {
-		return hc.PostWithHeaders(path, body, map[string]string{
-			"Accept":       "application/vnd.api+json",
-			"Content-Type": "application/vnd.api+json",
-		})
+	// PATCH(greptile-review-g5): reporting pagination repeats the POST body on every cursor.
+	endpoint := path
+	seen := map[string]bool{}
+	if initial, err := url.Parse(path); err == nil {
+		seen[initial.Query().Get("page_cursor")] = true
 	}
-	return c.Post(path, body)
+	var combined map[string]any
+	var results []json.RawMessage
+	for {
+		var raw json.RawMessage
+		var status int
+		var err error
+		if hc, ok := c.(reportHeadersClient); ok {
+			raw, status, err = hc.PostWithHeaders(endpoint, body, map[string]string{
+				"Accept":       "application/vnd.api+json",
+				"Content-Type": "application/vnd.api+json",
+			})
+		} else {
+			raw, status, err = c.Post(endpoint, body)
+		}
+		if err != nil {
+			return nil, status, err
+		}
+		var page struct {
+			Data struct {
+				Attributes struct {
+					Results []json.RawMessage `json:"results"`
+				} `json:"attributes"`
+			} `json:"data"`
+			Links struct {
+				Next string `json:"next"`
+			} `json:"links"`
+		}
+		if err := json.Unmarshal(raw, &page); err != nil {
+			return nil, status, fmt.Errorf("parsing Klaviyo report response: %w", err)
+		}
+		if combined == nil && page.Links.Next == "" {
+			return raw, status, nil
+		}
+		if page.Data.Attributes.Results == nil {
+			return nil, status, fmt.Errorf("Klaviyo report response did not contain data.attributes.results")
+		}
+		if combined == nil {
+			if err := json.Unmarshal(raw, &combined); err != nil {
+				return nil, status, err
+			}
+		}
+		results = append(results, page.Data.Attributes.Results...)
+		if page.Links.Next == "" {
+			if results == nil {
+				results = []json.RawMessage{}
+			}
+			combined["data"].(map[string]any)["attributes"].(map[string]any)["results"] = results
+			combined["links"].(map[string]any)["next"] = nil
+			merged, err := json.Marshal(combined)
+			return merged, status, err
+		}
+		next, err := url.Parse(page.Links.Next)
+		if err != nil || strings.TrimSuffix(next.Path, "/") != strings.TrimSuffix(strings.SplitN(path, "?", 2)[0], "/") || next.Query().Get("page_cursor") == "" {
+			return nil, status, fmt.Errorf("Klaviyo report pagination returned an invalid next link")
+		}
+		cursor := next.Query().Get("page_cursor")
+		if seen[cursor] {
+			return nil, status, fmt.Errorf("Klaviyo report pagination repeated page_cursor %q", cursor)
+		}
+		seen[cursor] = true
+		endpoint = next.RequestURI()
+	}
 }
 
 func klaviyoReportRows(raw json.RawMessage) ([]map[string]any, error) {
