@@ -3,13 +3,16 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"sort"
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/platform"
 	"github.com/spf13/cobra"
 )
 
@@ -106,8 +109,18 @@ type reportHeadersClient interface {
 	PostWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error)
 }
 
+var waitForKlaviyoReportRetry = waitForIdentityProbeRetry
+
 func postKlaviyoReport(c flowClient, path string, body any) (json.RawMessage, int, error) {
 	// PATCH(greptile-review-g5): reporting pagination repeats the POST body on every cursor.
+	ctx := context.Background()
+	var session *platform.Session
+	if sc, ok := c.(interface{ PlatformSession() *platform.Session }); ok {
+		session = sc.PlatformSession()
+		if session != nil {
+			ctx = session.Context()
+		}
+	}
 	endpoint := path
 	seen := map[string]bool{}
 	if initial, err := url.Parse(path); err == nil {
@@ -119,16 +132,32 @@ func postKlaviyoReport(c flowClient, path string, body any) (json.RawMessage, in
 		var raw json.RawMessage
 		var status int
 		var err error
-		if hc, ok := c.(reportHeadersClient); ok {
-			raw, status, err = hc.PostWithHeaders(endpoint, body, map[string]string{
-				"Accept":       "application/vnd.api+json",
-				"Content-Type": "application/vnd.api+json",
-			})
-		} else {
-			raw, status, err = c.Post(endpoint, body)
-		}
-		if err != nil {
-			return nil, status, err
+		previousExhausted := session.RateLimitMetadata().Exhausted
+		// PATCH(review-re-report-rate-limit-retries): read-only report POSTs can safely retry a 429.
+		for retries := 0; ; retries++ {
+			if hc, ok := c.(reportHeadersClient); ok {
+				raw, status, err = hc.PostWithHeaders(endpoint, body, map[string]string{
+					"Accept":       "application/vnd.api+json",
+					"Content-Type": "application/vnd.api+json",
+				})
+			} else {
+				raw, status, err = c.Post(endpoint, body)
+			}
+			if err == nil {
+				if retries > 0 {
+					session.RestoreRateLimitExhausted(previousExhausted)
+				}
+				break
+			}
+			var limited *platform.RateLimitedError
+			if retries == 3 || !errors.As(err, &limited) {
+				return nil, status, err
+			}
+			wait := min(limited.RetryAfter, time.Minute)
+			session.RecordRateLimitRetry(wait)
+			if err := waitForKlaviyoReportRetry(ctx, wait); err != nil {
+				return nil, status, err
+			}
 		}
 		var page struct {
 			Data struct {

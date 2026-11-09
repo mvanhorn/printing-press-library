@@ -290,7 +290,7 @@ func TestCollectReferencedTemplateIDsUsesIncludedResources(t *testing.T) {
 	if len(c.requests) != 2 || c.requests[0].params["include"] != "flow-actions" || c.requests[1].params["include"] != "campaign-messages" {
 		t.Fatalf("requests = %#v", c.requests)
 	}
-	if got := c.requests[1].params["fields[campaign-message]"]; got != "definition,template" {
+	if got := c.requests[1].params["fields[campaign-message]"]; got != "definition" {
 		t.Fatalf("campaign message fields = %q", got)
 	}
 }

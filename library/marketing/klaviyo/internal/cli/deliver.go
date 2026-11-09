@@ -24,12 +24,20 @@ type DeliverSink struct {
 }
 
 func configureDelivery(cmd *cobra.Command, flags *rootFlags) error {
+	if err := validateMCPDestinations(cmd, flags); err != nil {
+		return err
+	}
 	if flags == nil || flags.deliverSpec == "" {
 		return nil
 	}
 	sink, err := ParseDeliverSink(flags.deliverSpec)
 	if err != nil {
 		return err
+	}
+	if sink.Scheme == "file" {
+		if err := validateOutputDestination(sink.Target, flags); err != nil {
+			return err
+		}
 	}
 	flags.deliverSink = sink
 	if sink.Scheme != "stdout" && sink.Scheme != "" {
@@ -44,6 +52,11 @@ func configureDelivery(cmd *cobra.Command, flags *rootFlags) error {
 func finalizeDelivery(flags *rootFlags) error {
 	if flags == nil || flags.deliverBuf == nil {
 		return nil
+	}
+	if flags.deliverSink.Scheme == "file" {
+		if err := validateOutputDestination(flags.deliverSink.Target, flags); err != nil {
+			return err
+		}
 	}
 	if err := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); err != nil {
 		return err
@@ -92,6 +105,9 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 // is a no-op because the buffer has already been streamed to stdout via
 // the MultiWriter set up in root.go.
 func Deliver(sink DeliverSink, body []byte, compact bool) error {
+	if strings.TrimSpace(os.Getenv(mcpBoundProfileEnv)) != "" && (sink.Scheme == "file" || sink.Scheme == "webhook") {
+		return fmt.Errorf("MCP tools may not use --deliver file: or webhook:")
+	}
 	switch sink.Scheme {
 	case "", "stdout":
 		return nil
@@ -105,6 +121,10 @@ func Deliver(sink DeliverSink, body []byte, compact bool) error {
 }
 
 func deliverFile(path string, body []byte) error {
+	path = filepath.Clean(path)
+	if err := validateOutputDestination(path, nil); err != nil {
+		return err
+	}
 	// Atomic write: tmp + rename. Protects agents from seeing a partial
 	// file if the process is interrupted mid-write.
 	dir := filepath.Dir(path)
@@ -113,11 +133,19 @@ func deliverFile(path string, body []byte) error {
 			return fmt.Errorf("creating deliver dir: %w", err)
 		}
 	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, body, 0o600); err != nil {
+	tmp, err := os.CreateTemp(dir, ".deliver-*")
+	if err != nil {
+		return fmt.Errorf("creating deliver tmp: %w", err)
+	}
+	defer os.Remove(tmp.Name())
+	if _, err := tmp.Write(body); err != nil {
+		_ = tmp.Close()
 		return fmt.Errorf("writing deliver tmp: %w", err)
 	}
-	if err := os.Rename(tmp, path); err != nil {
+	if err := tmp.Close(); err != nil {
+		return fmt.Errorf("closing deliver tmp: %w", err)
+	}
+	if err := os.Rename(tmp.Name(), path); err != nil {
 		return fmt.Errorf("replacing deliver file: %w", err)
 	}
 	return nil

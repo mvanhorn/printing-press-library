@@ -6,7 +6,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/store"
@@ -58,16 +57,18 @@ Data must be synced first with the sync command.`,
 				for _, count := range status {
 					total += int64(count)
 				}
-				declareLocalAnalytics(cmd, flags, total, total)
+				if err := declareLocalAnalytics(cmd, flags, total, total); err != nil {
+					return err
+				}
 				if flags.asJSON {
-					enc := json.NewEncoder(os.Stdout)
+					enc := json.NewEncoder(cmd.OutOrStdout())
 					enc.SetIndent("", "  ")
 					return enc.Encode(status)
 				}
-				fmt.Println("Resource Type\tCount")
-				fmt.Println("-------------\t-----")
+				fmt.Fprintln(cmd.OutOrStdout(), "Resource Type\tCount")
+				fmt.Fprintln(cmd.OutOrStdout(), "-------------\t-----")
 				for rt, count := range status {
-					fmt.Printf("%s\t%d\n", rt, count)
+					fmt.Fprintf(cmd.OutOrStdout(), "%s\t%d\n", rt, count)
 				}
 				return nil
 			}
@@ -80,16 +81,18 @@ Data must be synced first with the sync command.`,
 			if err != nil {
 				return fmt.Errorf("counting: %w", err)
 			}
-			declareLocalAnalytics(cmd, flags, int64(count), int64(count))
+			if err := declareLocalAnalytics(cmd, flags, int64(count), int64(count)); err != nil {
+				return err
+			}
 
 			if flags.asJSON {
 				result := map[string]any{"resource_type": resourceType, "count": count}
-				enc := json.NewEncoder(os.Stdout)
+				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
 				return enc.Encode(result)
 			}
 
-			fmt.Printf("%s: %d records\n", resourceType, count)
+			fmt.Fprintf(cmd.OutOrStdout(), "%s: %d records\n", resourceType, count)
 			return nil
 		},
 	}
@@ -130,26 +133,29 @@ func runGroupBy(cmd *cobra.Command, db *store.Store, resourceType, field string,
 	if limit > 0 && len(sorted) > limit {
 		sorted = sorted[:limit]
 	}
-	declareLocalAnalytics(cmd, flags, int64(len(items)), int64(len(sorted)))
+	if err := declareLocalAnalytics(cmd, flags, int64(len(items)), int64(len(sorted))); err != nil {
+		return err
+	}
 
 	if flags.asJSON {
-		enc := json.NewEncoder(os.Stdout)
+		enc := json.NewEncoder(cmd.OutOrStdout())
 		enc.SetIndent("", "  ")
 		return enc.Encode(sorted)
 	}
 
-	fmt.Printf("%s\tCount\n", field)
-	fmt.Println("---\t-----")
+	fmt.Fprintf(cmd.OutOrStdout(), "%s\tCount\n", field)
+	fmt.Fprintln(cmd.OutOrStdout(), "---\t-----")
 	for _, kv := range sorted {
-		fmt.Printf("%s\t%d\n", kv.Key, kv.Count)
+		fmt.Fprintf(cmd.OutOrStdout(), "%s\t%d\n", kv.Key, kv.Count)
 	}
 	return nil
 }
 
-func declareLocalAnalytics(cmd *cobra.Command, flags *rootFlags, inputRows, matchedRows int64) {
+func declareLocalAnalytics(cmd *cobra.Command, flags *rootFlags, inputRows, matchedRows int64) error {
 	recordCount := float64(inputRows)
 	declareReviewedPlatformAnalytics(cmd, flags,
 		map[string]int64{"selected_local_resource": inputRows},
 		map[string]int64{}, map[string]int64{}, matchedRows, nil,
 		map[string]*float64{"record_count": &recordCount})
+	return validatePlatformAnalytics(flags)
 }

@@ -200,9 +200,9 @@ func TestG5QAGateChecksEveryEmailAndPage(t *testing.T) {
 					fmt.Fprint(w, `{"data":[{"id":"message-1","attributes":{"definition":{"channel":"email"}}},{"id":"sms-1","attributes":{"definition":{"channel":"sms"}}}],"links":{"next":"/api/campaigns/campaign-1/campaign-messages?page[cursor]=next"}}`)
 				case "/api/campaigns/campaign-1/campaign-messages?page[cursor]=next":
 					fmt.Fprint(w, `{"data":[{"id":"message-2","attributes":{"definition":{"channel":"email"}}},{"id":"message-3","attributes":{"definition":{"channel":"email"}}}],"links":{"next":null}}`)
-				case "/api/campaign-messages/message-1/template?fields%5Btemplate%5D=definition%2Chtml", "/api/campaign-messages/message-3/template?fields%5Btemplate%5D=definition%2Chtml":
+				case "/api/campaign-messages/message-1/template?fields%5Btemplate%5D=html", "/api/campaign-messages/message-3/template?fields%5Btemplate%5D=html":
 					fmt.Fprint(w, `{"data":{"id":"valid","attributes":{"html":"<a href=\"{% unsubscribe_link %}\">Unsubscribe</a>"}}}`)
-				case "/api/campaign-messages/message-2/template?fields%5Btemplate%5D=definition%2Chtml":
+				case "/api/campaign-messages/message-2/template?fields%5Btemplate%5D=html":
 					fmt.Fprint(w, `{"data":{"id":"broken","attributes":{"html":"<a href=\"{% unsubscribe %}\">Unsubscribe</a>"}}}`)
 				default:
 					t.Errorf("unexpected request %s", r.URL.RequestURI())
@@ -252,7 +252,7 @@ func TestG5QAGateChecksEveryEmailAndPage(t *testing.T) {
 			if result.Verdict != "fail" || !reflect.DeepEqual(checked, map[string]string{"message-1": "pass", "message-2": "fail", "message-3": "pass"}) {
 				t.Fatalf("campaign findings = %s", &output)
 			}
-			wantPaths := []string{"/api/campaigns/campaign-1", "/api/campaigns/campaign-1/campaign-messages", "/api/campaigns/campaign-1/campaign-messages?page[cursor]=next", "/api/campaign-messages/message-1/template?fields%5Btemplate%5D=definition%2Chtml", "/api/campaign-messages/message-2/template?fields%5Btemplate%5D=definition%2Chtml", "/api/campaign-messages/message-3/template?fields%5Btemplate%5D=definition%2Chtml"}
+			wantPaths := []string{"/api/campaigns/campaign-1", "/api/campaigns/campaign-1/campaign-messages", "/api/campaigns/campaign-1/campaign-messages?page[cursor]=next", "/api/campaign-messages/message-1/template?fields%5Btemplate%5D=html", "/api/campaign-messages/message-2/template?fields%5Btemplate%5D=html", "/api/campaign-messages/message-3/template?fields%5Btemplate%5D=html"}
 			if !reflect.DeepEqual(paths, wantPaths) {
 				t.Fatalf("requests = %v, want %v", paths, wantPaths)
 			}

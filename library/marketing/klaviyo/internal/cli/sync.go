@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"regexp"
@@ -15,6 +16,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -34,14 +36,16 @@ const defaultKlaviyoSyncPageSize = 100
 // the archived OpenAPI spec. It prevents sync from applying generic parameters
 // to endpoints that reject them.
 type syncResourceDescriptor struct {
-	Path             string
-	Syncable         bool
-	Paginated        bool
-	CursorParam      string
-	PageSizeParam    string
-	MaxPageSize      int
-	IncrementalParam string
-	RequiredFilters  []syncRequiredFilter
+	Path              string
+	Syncable          bool
+	Paginated         bool
+	CursorParam       string
+	PageSizeParam     string
+	MaxPageSize       int
+	IncrementalParam  string
+	IncrementalFilter string
+	IncrementalSort   string
+	RequiredFilters   []syncRequiredFilter
 }
 
 type syncRequiredFilter struct {
@@ -70,8 +74,11 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 		Use:   "sync",
 		Short: "Sync API data to local SQLite for offline search and analysis",
 		Long: `Sync data from the API into a local SQLite database. Supports resumable
-incremental sync (only fetches new data since last sync) and full resync.
+sync, incremental time filters with --since, and full resync.
 Once synced, use the 'search' command for instant full-text search.
+
+With --since, explicitly selected resources must support an incremental time
+filter. When syncing all resources, unsupported resources are warned and skipped.
 
 Exit codes & warnings:
   Resources the API denies access to (HTTP 403, or HTTP 400 with an
@@ -104,6 +111,68 @@ Exit codes & warnings:
   # Latest-only: refresh head of each resource, no historical backfill
   klaviyo-pp-cli sync --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			allResources := len(resources) == 0
+			if allResources {
+				resources = defaultSyncResources()
+			}
+
+			sinceTS := ""
+			var skipped []string
+			if since != "" {
+				ts, err := parseSinceDuration(since)
+				if err != nil {
+					return fmt.Errorf("invalid --since value %q: %w", since, err)
+				}
+				sinceTS = ts.Format(time.RFC3339)
+				var incremental []string
+				for _, resource := range resources {
+					desc, ok := syncDescriptorForResource(resource)
+					if !ok {
+						return fmt.Errorf("unknown sync resource %q", resource)
+					}
+					if desc.IncrementalParam == "" {
+						if !allResources {
+							return fmt.Errorf("--since is not supported for resource %q: endpoint has no incremental time filter", resource)
+						}
+						skipped = append(skipped, resource)
+						continue
+					}
+					incremental = append(incremental, resource)
+				}
+				resources = incremental
+			}
+			if latestOnly && since == "" {
+				maxPages = 1
+			}
+
+			// PATCH(review-rc): previews must not open or migrate the writable store.
+			if flags.dryRun {
+				filters := make(map[string][]string, len(resources))
+				for _, resource := range resources {
+					desc, ok := syncDescriptorForResource(resource)
+					if !ok {
+						return fmt.Errorf("unknown sync resource %q", resource)
+					}
+					filters[resource] = []string{}
+					for _, required := range desc.RequiredFilters {
+						for _, value := range required.Values {
+							filters[resource] = append(filters[resource], syncSinceFilter(desc, sinceTS, value))
+						}
+						if required.ParentResource != "" {
+							filters[resource] = append(filters[resource], fmt.Sprintf("equals(%s,<synced %s ID>)", required.Field, required.ParentResource))
+						}
+					}
+					if len(filters[resource]) == 0 && sinceTS != "" {
+						filters[resource] = append(filters[resource], syncSinceFilter(desc, sinceTS, ""))
+					}
+				}
+				return flags.printJSON(cmd, map[string]any{
+					"dry_run": true, "resources": resources, "filters": filters, "since": sinceTS,
+					"full": full, "latest_only": latestOnly && since == "", "max_pages": maxPages,
+					"skipped_resources": skipped,
+				})
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -123,13 +192,16 @@ Exit codes & warnings:
 			}
 			defer db.Close()
 
-			// If no specific resources, sync top-level resources
-			if len(resources) == 0 {
-				resources = defaultSyncResources()
+			for _, resource := range skipped {
+				message := "--since is not supported: endpoint has no incremental time filter"
+				syncSkippedResult(resource, time.Now(), "incremental_unsupported", message)
+				if humanFriendly {
+					fmt.Fprintf(os.Stderr, "  %s: skipped: %s\n", resource, message)
+				}
 			}
 
-			// --full: clear all sync cursors before starting
-			if full {
+			// Filtered runs must not alter the unfiltered resume checkpoint.
+			if full && sinceTS == "" {
 				for _, resource := range resources {
 					_ = db.SaveSyncState(resource, "", 0)
 				}
@@ -143,7 +215,6 @@ Exit codes & warnings:
 			// and we don't short-circuit historical context they asked for.
 			if latestOnly {
 				if since == "" {
-					maxPages = 1
 					// Clear the cursor so we start from the head each time;
 					// the goal of --latest-only is "refresh the top" not
 					// "resume from wherever I left off".
@@ -156,16 +227,6 @@ Exit codes & warnings:
 				} else if humanFriendly {
 					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
 				}
-			}
-
-			// Resolve --since into an RFC3339 timestamp
-			sinceTS := ""
-			if since != "" {
-				ts, err := parseSinceDuration(since)
-				if err != nil {
-					return fmt.Errorf("invalid --since value %q: %w", since, err)
-				}
-				sinceTS = ts.Format(time.RFC3339)
 			}
 
 			// Worker pool: produce resources, N workers consume
@@ -183,7 +244,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(c, db, resource, sinceTS, full, maxPages)
+						res := syncResource(c, db, resource, sinceTS, full, maxPages, cmd.ErrOrStderr())
 						results <- res
 						batch.Done()
 					}
@@ -221,7 +282,7 @@ Exit codes & warnings:
 			var totalSynced int
 			var errCount int
 			var criticalErrCount int
-			var warnCount int
+			warnCount := len(skipped)
 			var successCount int
 			for res := range results {
 				if res.Err != nil {
@@ -313,8 +374,12 @@ Exit codes & warnings:
 func syncResource(c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
+}, db *store.Store, resource, sinceTS string, full bool, maxPages int, warningWriters ...io.Writer) syncResult {
 	started := time.Now()
+	var warningWriter io.Writer = os.Stderr
+	if len(warningWriters) > 0 {
+		warningWriter = warningWriters[0]
+	}
 
 	if !humanFriendly {
 		fmt.Fprintf(os.Stderr, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
@@ -337,10 +402,10 @@ func syncResource(c interface {
 		return syncSkippedResult(resource, started, skip.Reason, skip.Message)
 	}
 
-	useCheckpoint := len(filterSets) == 1
+	useCheckpoint := sinceTS == "" && len(filterSets) == 1
 	var totalCount int
 	for _, baseParams := range filterSets {
-		count, warn, err := syncResourcePageSet(c, db, resource, desc, baseParams, sinceTS, full, maxPages, useCheckpoint)
+		count, warn, err := syncResourcePageSet(c, db, resource, desc, baseParams, sinceTS, full, maxPages, useCheckpoint, warningWriter)
 		if warn != nil {
 			if !humanFriendly {
 				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
@@ -356,7 +421,7 @@ func syncResource(c interface {
 		}
 		totalCount += count
 	}
-	if !useCheckpoint {
+	if sinceTS == "" && !useCheckpoint {
 		_ = db.SaveSyncState(resource, "", totalCount)
 	}
 
@@ -370,33 +435,27 @@ func syncResource(c interface {
 func syncResourcePageSet(c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, resource string, desc syncResourceDescriptor, baseParams map[string]string, sinceTS string, full bool, maxPages int, useCheckpoint bool) (int, *accessWarning, error) {
+}, db *store.Store, resource string, desc syncResourceDescriptor, baseParams map[string]string, sinceTS string, full bool, maxPages int, useCheckpoint bool, warningWriter io.Writer) (int, *accessWarning, error) {
 	// Resume cursor from sync_state (unless --full cleared it)
 	var existingCursor string
-	var lastSynced time.Time
 	if useCheckpoint {
-		existingCursor, lastSynced, _, _ = db.GetSyncState(resource)
+		existingCursor, _, _, _ = db.GetSyncState(resource)
 	}
 
-	// Determine the since param value:
-	// 1. Explicit --since flag takes priority
-	// 2. Otherwise use last_synced_at from sync_state for incremental sync
+	// Checkpoints timestamp every page, not a completed incremental watermark.
 	sinceParam := desc.IncrementalParam
-	effectiveSince := ""
-	if sinceParam != "" {
-		effectiveSince = sinceTS
-		if effectiveSince == "" && !lastSynced.IsZero() && !full {
-			effectiveSince = lastSynced.Format(time.RFC3339)
-		}
-	}
 
 	cursor := existingCursor
+	if sinceTS != "" || full {
+		cursor = ""
+	}
 	pageSize := determinePaginationDefaults(resource)
 
 	var totalCount int
 	var progressCount int64
 	pagesFetched := 0
 	lastNextCursor := ""
+	completed := false
 	// extractFailureTotal accumulates per-item primary-key extraction
 	// misses across pages within this resource sync. Resource-level
 	// concurrency is 1 (one goroutine per resource via the work channel)
@@ -423,8 +482,11 @@ func syncResourcePageSet(c interface {
 		}
 
 		// Set since filter only on endpoints that document an incremental param.
-		if effectiveSince != "" {
-			params[sinceParam] = effectiveSince
+		if sinceTS != "" && sinceParam != "" {
+			params[sinceParam] = syncSinceFilter(desc, sinceTS, params[sinceParam])
+			if desc.IncrementalSort != "" {
+				params["sort"] = desc.IncrementalSort
+			}
 		}
 
 		data, err := c.Get(desc.Path, params)
@@ -439,8 +501,9 @@ func syncResourcePageSet(c interface {
 		// Strategy: try array first, then common wrapper keys.
 		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam)
 
-		if len(items) == 0 {
+		if len(items) == 0 && (!desc.Paginated || !hasMore || nextCursor == "") {
 			if responseIsEmptyList(data) {
+				completed = true
 				break
 			}
 			// Single object response - try to store as-is
@@ -448,6 +511,7 @@ func syncResourcePageSet(c interface {
 				return totalCount, nil, err
 			}
 			totalCount++
+			completed = true
 			break
 		}
 
@@ -524,22 +588,37 @@ func syncResourcePageSet(c interface {
 
 		pagesFetched++
 
+		// A next link, even on a short page, means the sync is not complete.
+		if !desc.Paginated || !hasMore || nextCursor == "" {
+			completed = true
+			break
+		}
+
 		// Enforce page ceiling to prevent runaway syncs on large-catalog APIs
 		if maxPages > 0 && pagesFetched >= maxPages {
+			resumeCursor := nextCursor
+			checkpointNotice := ""
+			if sinceTS != "" {
+				resumeCursor = ""
+				checkpointNotice = " --since cursor is not persisted; the saved unfiltered checkpoint is unchanged."
+			}
+			if bound, ok := c.(interface{ PlatformSession() *platform.Session }); ok {
+				bound.PlatformSession().MarkOutputTruncated(platform.TruncationReason{
+					Kind: "max_pages", Configured: maxPages, Observed: pagesFetched,
+					MoreAvailable: true, ResumeCursor: resumeCursor,
+				})
+			}
 			if humanFriendly {
-				fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
+				fmt.Fprintf(warningWriter, "\n  %s: reached --max-pages limit (%d pages, %d items)%s\n", resource, maxPages, totalCount, checkpointNotice)
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
+				fmt.Fprintf(warningWriter, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify.%s"}`+"\n", resource, maxPages, checkpointNotice)
 			}
 			break
 		}
 
 		// Sticky-cursor detector: if the API echoes the same next cursor across
 		// consecutive pages without advancing, abort to prevent burning the
-		// --max-pages budget on a non-terminating loop. Checked AFTER the cap
-		// guard so cap-hit takes precedence; checked BEFORE the natural-end
-		// check below because the natural-end check would not catch a sticky
-		// non-empty cursor on its own.
+		// --max-pages budget on a non-terminating loop.
 		if nextCursor != "" && nextCursor == lastNextCursor {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
@@ -550,21 +629,11 @@ func syncResourcePageSet(c interface {
 		}
 		lastNextCursor = nextCursor
 
-		// Determine if there are more pages. Cursor-only endpoints do not
-		// declare a page-size field, so they cannot use len(items) as a stop
-		// signal.
-		if !desc.Paginated || !hasMore || nextCursor == "" {
-			break
-		}
-		if pageSize.limitParam != "" && pageSize.limit > 0 && len(items) < pageSize.limit {
-			break
-		}
-
 		cursor = nextCursor
 	}
 
-	// Final sync state: clear cursor (sync is complete), update count
-	if useCheckpoint {
+	// PATCH(review-rc): capped or stuck pagination must retain the saved cursor.
+	if useCheckpoint && completed {
 		_ = db.SaveSyncState(resource, "", totalCount)
 	}
 
@@ -772,7 +841,37 @@ func cursorOnlyKlaviyoDescriptor(path string) syncResourceDescriptor {
 
 func syncDescriptorForResource(resource string) (syncResourceDescriptor, bool) {
 	desc, ok := klaviyoSyncDescriptors[resource]
+	// These fields/operators are documented by the archived 2026-04-15 spec.
+	switch resource {
+	case "events":
+		desc.IncrementalFilter = "greater-or-equal(datetime,%s)"
+	case "profiles", "lists", "segments":
+		desc.IncrementalFilter = "greater-than(updated,%s)"
+	case "campaigns", "forms", "images":
+		desc.IncrementalFilter = "greater-or-equal(updated_at,%s)"
+	case "flows":
+		desc.IncrementalFilter = "greater-or-equal(updated,%s)"
+		desc.IncrementalSort = "updated"
+	case "templates", "template-universal-content", "web-feeds":
+		desc.IncrementalFilter = "greater-or-equal(updated,%s)"
+	case "reviews":
+		desc.IncrementalFilter = "greater-or-equal(created,%s)"
+	}
+	if desc.IncrementalFilter != "" {
+		desc.IncrementalParam = "filter"
+	}
 	return desc, ok
+}
+
+func syncSinceFilter(desc syncResourceDescriptor, sinceTS, filter string) string {
+	if sinceTS == "" || desc.IncrementalParam == "" {
+		return filter
+	}
+	incremental := fmt.Sprintf(desc.IncrementalFilter, sinceTS)
+	if filter != "" {
+		return "and(" + filter + "," + incremental + ")"
+	}
+	return incremental
 }
 
 // extractPageItems attempts to extract an array of items and pagination cursor from a response.
@@ -797,7 +896,7 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 	itemKeys := []string{"data", "results", "items", "records", "nodes", "entries"}
 	for _, key := range itemKeys {
 		if raw, ok := envelope[key]; ok {
-			if err := json.Unmarshal(raw, &items); err == nil && len(items) > 0 {
+			if err := json.Unmarshal(raw, &items); err == nil {
 				nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
 				return items, nextCursor, hasMore
 			}

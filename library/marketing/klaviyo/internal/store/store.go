@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -44,8 +45,9 @@ type Store struct {
 	// is 1 (one goroutine per resource via len(resources)-sized work channel)
 	// — read-then-write sequences (e.g., GetSyncCursor → SaveSyncState) are
 	// race-free by construction within a resource.
-	writeMu sync.Mutex
-	path    string
+	writeMu  sync.Mutex
+	path     string
+	readOnly bool
 }
 
 // Open opens or creates the SQLite store at dbPath using the background
@@ -4941,10 +4943,119 @@ func (s *Store) ClearSyncCursors() error {
 	return err
 }
 
-// Query executes a raw SQL query and returns the rows.
-// Used by workflow commands that need custom queries against the local store.
+// OpenVerifiedReadOnlyWithContext never creates, migrates, or updates tenant metadata.
+func OpenVerifiedReadOnlyWithContext(ctx context.Context, dbPath string, session *platform.Session) (*Store, error) {
+	if session == nil || session.GateOutcome != platform.GateVerified {
+		return nil, fmt.Errorf("verified client profile session is required")
+	}
+	s, err := openReadOnlyStore(dbPath)
+	if err != nil {
+		return nil, err
+	}
+	if err := platform.VerifyTenantMetadataReadOnly(ctx, s.db, session); err != nil {
+		s.Close()
+		return nil, fmt.Errorf("verifying database tenant metadata: %w", err)
+	}
+	return s, nil
+}
+
+func openReadOnlyStore(dbPath string) (*Store, error) {
+	absolute, err := filepath.Abs(dbPath)
+	if err != nil {
+		return nil, err
+	}
+	uri := &url.URL{Scheme: "file", Path: filepath.ToSlash(absolute), RawQuery: "mode=ro&_pragma=query_only(ON)&_pragma=busy_timeout(5000)"}
+	db, err := sql.Open("sqlite", uri.String())
+	if err != nil {
+		return nil, err
+	}
+	db.SetMaxOpenConns(1)
+	return &Store{db: db, path: absolute, readOnly: true}, nil
+}
+
+// Query uses a dedicated read-only connection; prefix checks alone cannot guard WITH writes.
 func (s *Store) Query(query string, args ...any) (*sql.Rows, error) {
-	return s.db.Query(query, args...)
+	if err := validateReadOnlyQuery(query); err != nil {
+		return nil, err
+	}
+	if s.readOnly {
+		return s.db.Query(query, args...)
+	}
+	reader, err := openReadOnlyStore(s.path)
+	if err != nil {
+		return nil, err
+	}
+	// Closing the pool leaves an active Rows connection alive until Rows.Close.
+	defer reader.Close()
+	return reader.db.Query(query, args...)
+}
+
+func validateReadOnlyQuery(query string) error {
+	first, ended := true, false
+	for i := 0; i < len(query); {
+		switch {
+		case strings.ContainsRune(" \t\r\n\f", rune(query[i])):
+			i++
+			continue
+		case strings.HasPrefix(query[i:], "--"):
+			if end := strings.IndexByte(query[i:], '\n'); end >= 0 {
+				i += end + 1
+				continue
+			}
+			i = len(query)
+			continue
+		case strings.HasPrefix(query[i:], "/*"):
+			end := strings.Index(query[i+2:], "*/")
+			if end < 0 {
+				return fmt.Errorf("unterminated SQL comment")
+			}
+			i += end + 4
+			continue
+		}
+		if ended {
+			return fmt.Errorf("only one SQL statement is allowed")
+		}
+		if first {
+			start := i
+			for i < len(query) && ((query[i] >= 'a' && query[i] <= 'z') || (query[i] >= 'A' && query[i] <= 'Z')) {
+				i++
+			}
+			keyword := strings.ToUpper(query[start:i])
+			if keyword != "SELECT" && keyword != "WITH" {
+				return fmt.Errorf("only SELECT or WITH queries are allowed")
+			}
+			first = false
+			continue
+		}
+		switch query[i] {
+		case ';':
+			ended = true
+		case '\'', '"', '`', '[':
+			quote := query[i]
+			if quote == '[' {
+				quote = ']'
+			}
+			i++
+			for {
+				if i == len(query) {
+					return fmt.Errorf("unterminated SQL quote")
+				}
+				if query[i] == quote {
+					if quote != ']' && i+1 < len(query) && query[i+1] == quote {
+						i += 2
+						continue
+					}
+					break
+				}
+				i++
+			}
+		}
+		i++
+	}
+	if first {
+		return fmt.Errorf("only SELECT or WITH queries are allowed")
+	}
+	return nil
 }
 
 func (s *Store) Count(resourceType string) (int, error) {

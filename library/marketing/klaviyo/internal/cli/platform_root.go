@@ -88,6 +88,9 @@ func adoptPlatformCommandWindow(cmd *cobra.Command, flags *rootFlags) error {
 		return nil
 	}
 	timezone := "UTC"
+	if cmd.Name() == "revenue" {
+		timezone = "US/Central"
+	}
 	for _, name := range []string{"timezone", "time-zone", "tz"} {
 		if flag := cmd.Flags().Lookup(name); flag != nil && strings.TrimSpace(flag.Value.String()) != "" {
 			timezone = strings.TrimSpace(flag.Value.String())
@@ -104,7 +107,7 @@ func adoptPlatformCommandWindow(cmd *cobra.Command, flags *rootFlags) error {
 		return nil
 	}
 	policy := platform.WindowPolicy{Now: func() time.Time { return now }, EndExclusive: endExclusive}
-	if registeredPlatformSource != nil && registeredPlatformSource.WindowMaximumDays > 0 {
+	if platformCommandUsesMetricAggregates(cmd) && registeredPlatformSource != nil && registeredPlatformSource.WindowMaximumDays > 0 {
 		policy.MaximumDays = registeredPlatformSource.WindowMaximumDays
 		policy.ProviderMaximumName = registeredPlatformSource.WindowMaximumName
 	}
@@ -119,6 +122,31 @@ func adoptPlatformCommandWindow(cmd *cobra.Command, flags *rootFlags) error {
 	return nil
 }
 
+func platformCommandUsesMetricAggregates(cmd *cobra.Command) bool {
+	switch cmd.Name() {
+	case "subject-line-analysis":
+		flag := cmd.Flags().Lookup("source")
+		return flag == nil || !strings.EqualFold(flag.Value.String(), "campaign")
+	case "revenue-per-email":
+		flag := cmd.Flags().Lookup("by")
+		return flag == nil || !strings.EqualFold(flag.Value.String(), "campaign")
+	case "report", "revenue", "open-rates", "unsubscribes", "spam-complaints", "list-growth", "deliverability", "domain-reputation", "products",
+		"optimal-send-time", "flow-path-analysis", "list-quality-score":
+		return true
+	default:
+		return false
+	}
+}
+
+func platformCalculationWindow(flags *rootFlags, since, until time.Time) (time.Time, time.Time) {
+	if flags != nil && flags.platformSession != nil {
+		if window := flags.platformSession.OutputMetadata().ResolvedWindow; window != nil {
+			return window.Start, window.End
+		}
+	}
+	return since, until
+}
+
 // These commands use --window for bucketing and --last for event history.
 var platformCommandLookbackFlags = map[string]string{
 	"send-fatigue":         "last",
@@ -126,7 +154,8 @@ var platformCommandLookbackFlags = map[string]string{
 }
 
 func platformWindowRequestFromFlags(cmd *cobra.Command, now time.Time, location *time.Location, timezone string) (platform.WindowRequest, bool, bool) {
-	for _, pair := range [][2]string{{"start", "end"}, {"start-date", "end-date"}, {"date-from", "date-to"}, {"from", "to"}, {"after", "before"}} {
+	// PATCH(review-rw-historical-revenue-windows): resolve explicit dates before lookbacks so clamping retains the requested end.
+	for _, pair := range [][2]string{{"since", "until"}, {"start", "end"}, {"start-date", "end-date"}, {"date-from", "date-to"}, {"from", "to"}, {"after", "before"}} {
 		startFlag, endFlag := cmd.Flags().Lookup(pair[0]), cmd.Flags().Lookup(pair[1])
 		if startFlag == nil || endFlag == nil {
 			continue
@@ -142,6 +171,9 @@ func platformWindowRequestFromFlags(cmd *cobra.Command, now time.Time, location 
 		}
 		if endDateOnly {
 			end = end.AddDate(0, 0, 1)
+			if pair[0] == "since" {
+				end = end.Add(-time.Second)
+			}
 		}
 		return platform.WindowRequest{Start: &start, End: &end, Timezone: timezone, CompletePeriods: startDateOnly && endDateOnly}, endDateOnly, true
 	}
@@ -194,8 +226,8 @@ func platformWindowRequestFromFlags(cmd *cobra.Command, now time.Time, location 
 	return platform.WindowRequest{}, false, false
 }
 
-// AdoptMCPOutputSemantics resolves the same provider-aware window contract for
-// typed MCP arguments that adoptPlatformCommandWindow applies to Cobra flags.
+// AdoptMCPOutputSemantics resolves the requested window for typed MCP arguments.
+// Endpoint-specific limits require command context and are applied by the CLI.
 // It is safe to call more than once for one invocation; the latest resolved
 // value replaces the prior window rather than accumulating state.
 func AdoptMCPOutputSemantics(session *platform.Session, arguments map[string]any) error {
@@ -224,10 +256,6 @@ func AdoptMCPOutputSemantics(session *platform.Session, arguments map[string]any
 		return nil
 	}
 	policy := platform.WindowPolicy{Now: func() time.Time { return now }, EndExclusive: endExclusive}
-	if registeredPlatformSource != nil && registeredPlatformSource.WindowMaximumDays > 0 {
-		policy.MaximumDays = registeredPlatformSource.WindowMaximumDays
-		policy.ProviderMaximumName = registeredPlatformSource.WindowMaximumName
-	}
 	window, err := platform.ResolveWindow(request, policy)
 	if err != nil {
 		return fmt.Errorf("resolve MCP window: %w", err)
@@ -237,7 +265,7 @@ func AdoptMCPOutputSemantics(session *platform.Session, arguments map[string]any
 }
 
 func platformWindowRequestFromValues(values map[string]string, now time.Time, location *time.Location, timezone string) (platform.WindowRequest, bool, bool) {
-	for _, pair := range [][2]string{{"start", "end"}, {"startdate", "enddate"}, {"datefrom", "dateto"}, {"from", "to"}, {"after", "before"}} {
+	for _, pair := range [][2]string{{"since", "until"}, {"start", "end"}, {"startdate", "enddate"}, {"datefrom", "dateto"}, {"from", "to"}, {"after", "before"}} {
 		startRaw, endRaw := values[pair[0]], values[pair[1]]
 		if startRaw == "" || endRaw == "" {
 			continue
@@ -249,6 +277,9 @@ func platformWindowRequestFromValues(values map[string]string, now time.Time, lo
 		}
 		if endDateOnly {
 			end = end.AddDate(0, 0, 1)
+			if pair[0] == "since" {
+				end = end.Add(-time.Second)
+			}
 		}
 		return platform.WindowRequest{Start: &start, End: &end, Timezone: timezone, CompletePeriods: startDateOnly && endDateOnly}, endDateOnly, true
 	}

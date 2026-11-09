@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -14,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -1150,7 +1152,8 @@ func newReportDeliverabilityCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			report, err := buildDeliverabilityReport(c, time.Now().AddDate(0, 0, -days), time.Now())
+			since, until := platformCalculationWindow(flags, time.Now().AddDate(0, 0, -days), time.Now())
+			report, err := buildDeliverabilityReport(c, since, until)
 			if err != nil {
 				return err
 			}
@@ -1374,19 +1377,19 @@ func collectMessageTemplates(c flowClient, scope string) ([]map[string]any, erro
 		}
 		for _, flow := range flows {
 			flowID := fmt.Sprint(flow["id"])
-			actions, err := fetchAllJSONAPI(c, "/api/flows/"+url.PathEscape(flowID)+"/flow-actions", map[string]string{"fields[flow-action]": "name,type", "page[size]": "50"}, 0)
+			actions, err := fetchAllJSONAPI(c, "/api/flows/"+url.PathEscape(flowID)+"/flow-actions", map[string]string{"fields[flow-action]": "id", "page[size]": "50"}, 0)
 			if err != nil {
 				return nil, err
 			}
 			for _, action := range actions {
 				actionID := fmt.Sprint(action["id"])
-				messages, err := fetchAllJSONAPI(c, "/api/flow-actions/"+url.PathEscape(actionID)+"/flow-messages", map[string]string{"fields[flow-message]": "name", "page[size]": "50"}, 0)
+				messages, err := fetchAllJSONAPI(c, "/api/flow-actions/"+url.PathEscape(actionID)+"/flow-messages", map[string]string{"fields[flow-message]": "id", "page[size]": "50"}, 0)
 				if err != nil {
 					return nil, err
 				}
 				for _, msg := range messages {
 					msgID := fmt.Sprint(msg["id"])
-					tmpl, err := c.Get("/api/flow-messages/"+url.PathEscape(msgID)+"/template", map[string]string{"fields[template]": "name,html,definition"})
+					tmpl, err := c.Get("/api/flow-messages/"+url.PathEscape(msgID)+"/template", map[string]string{"fields[template]": "name,html"})
 					if err != nil {
 						continue
 					}
@@ -1407,13 +1410,13 @@ func collectMessageTemplates(c flowClient, scope string) ([]map[string]any, erro
 		}
 		for _, campaign := range campaigns {
 			campaignID := fmt.Sprint(campaign["id"])
-			messages, err := fetchAllJSONAPI(c, "/api/campaigns/"+url.PathEscape(campaignID)+"/campaign-messages", map[string]string{"fields[campaign-message]": "name", "page[size]": "50"}, 0)
+			messages, err := fetchAllJSONAPI(c, "/api/campaigns/"+url.PathEscape(campaignID)+"/campaign-messages", map[string]string{"fields[campaign-message]": "id", "page[size]": "50"}, 0)
 			if err != nil {
 				return nil, err
 			}
 			for _, msg := range messages {
 				msgID := fmt.Sprint(msg["id"])
-				tmpl, err := c.Get("/api/campaign-messages/"+url.PathEscape(msgID)+"/template", map[string]string{"fields[template]": "name,html,definition"})
+				tmpl, err := c.Get("/api/campaign-messages/"+url.PathEscape(msgID)+"/template", map[string]string{"fields[template]": "name,html"})
 				if err != nil {
 					continue
 				}
@@ -2399,7 +2402,7 @@ func collectReferencedTemplateIDs(c flowClient) (map[string]bool, error) {
 
 	_, campaignMessages, err := fetchAllJSONAPIWithIncluded(c, "/api/campaigns", map[string]string{
 		"fields[campaign]":         "name,status",
-		"fields[campaign-message]": "definition,template",
+		"fields[campaign-message]": "definition",
 		"filter":                   `equals(messages.channel,"email")`,
 		"include":                  "campaign-messages",
 		"page[size]":               "100",
@@ -2408,11 +2411,30 @@ func collectReferencedTemplateIDs(c flowClient) (map[string]bool, error) {
 		return nil, err
 	}
 	for _, message := range campaignMessages {
-		if id := relationshipID(message, "template"); id != "" {
+		id := relationshipID(message, "template")
+		if id != "" {
 			refs[id] = true
 		}
-		for _, id := range collectStringsByKey(message, "template_id") {
-			refs[id] = true
+		definitionIDs := collectStringsByKey(message, "template_id")
+		for _, templateID := range definitionIDs {
+			refs[templateID] = true
+		}
+		if id == "" && len(definitionIDs) == 0 {
+			messageID := stringFromMapPath(message, "id")
+			if messageID == "" {
+				return nil, fmt.Errorf("template audit: campaign message ID is missing")
+			}
+			template, err := c.Get("/api/campaign-messages/"+url.PathEscape(messageID)+"/template", map[string]string{"fields[template]": "id"})
+			if err != nil {
+				var apiErr *client.APIError
+				if errors.As(err, &apiErr) && apiErr.StatusCode == 404 {
+					continue
+				}
+				return nil, err
+			}
+			if templateID := jsonAPIID(template); templateID != "" {
+				refs[templateID] = true
+			}
 		}
 	}
 	return refs, nil
@@ -2485,8 +2507,14 @@ func newReportDashboardCmd(flags *rootFlags) *cobra.Command {
 			if resp, _, err := c.Post("/api/metric-aggregates", metricAggregateBody(placedID, []string{"sum_value"}, nil, now.AddDate(0, 0, -30), now)); err == nil {
 				totalRevenue = sumMeasurement(resp, "sum_value")
 			}
-			flows := topAggregateRows(c, placedID, "$attributed_flow", "sum_value", now.AddDate(0, 0, -30), now, 5)
-			campaigns := topAggregateRows(c, placedID, "Campaign Name", "sum_value", now.AddDate(0, 0, -30), now, 5)
+			flows, err := topAggregateRows(c, placedID, "$attributed_flow", "sum_value", now.AddDate(0, 0, -30), now, 5)
+			if err != nil {
+				return err
+			}
+			campaigns, err := topAggregateRows(c, placedID, "Campaign Name", "sum_value", now.AddDate(0, 0, -30), now, 5)
+			if err != nil {
+				return err
+			}
 			profileStats, _ := buildProfilesStats(c, now, 1000)
 			deliverability, _ := buildDeliverabilityReport(c, now.AddDate(0, 0, -30), now)
 			coupons, _ := checkCouponPools(c, 100, "", now)
@@ -2556,7 +2584,10 @@ func newReportMetricRankCmd(flags *rootFlags, use, short, metricName, defaultBy 
 			if err != nil {
 				return err
 			}
-			rows := topAggregateRows(c, metricID, attributionDimension(by), "count", since, until, 100)
+			rows, err := topAggregateRows(c, metricID, attributionDimension(by), "count", since, until, 100)
+			if err != nil {
+				return err
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"metric": metricName, "by": by, "last": last, "rows": rows}, flags)
 		},
 	}
@@ -2654,7 +2685,10 @@ func newReportDomainReputationCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows := domainReputationRows(c, since, until)
+			rows, err := domainReputationRows(c, since, until)
+			if err != nil {
+				return err
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"last": last, "rows": rows}, flags)
 		},
 	}
@@ -2699,7 +2733,10 @@ func newReportFlowComparisonCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows := topAggregateRows(c, placedID, "$attributed_flow", "sum_value", time.Now().AddDate(0, 0, -90), time.Now(), 100)
+			rows, err := topAggregateRows(c, placedID, "$attributed_flow", "sum_value", time.Now().AddDate(0, 0, -90), time.Now(), 100)
+			if err != nil {
+				return err
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"window_days": 90, "rows": rows}, flags)
 		},
 	}
@@ -2808,7 +2845,10 @@ func newReportProductsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows := topAggregateRows(c, metricID, "ProductName", "sum_value", since, until, 100)
+			rows, err := topAggregateRows(c, metricID, "ProductName", "sum_value", since, until, 100)
+			if err != nil {
+				return err
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"last": last, "rows": rows}, flags)
 		},
 	}
@@ -3094,10 +3134,10 @@ func metricRows(raw json.RawMessage) []metricRow {
 	return rows
 }
 
-func topAggregateRows(c flowClient, metricID, dimension, measurement string, since, until time.Time, limit int) []map[string]any {
+func topAggregateRows(c flowClient, metricID, dimension, measurement string, since, until time.Time, limit int) ([]map[string]any, error) {
 	resp, _, err := c.Post("/api/metric-aggregates", metricAggregateBody(metricID, []string{measurement, "count"}, []string{dimension}, since, until))
 	if err != nil {
-		return []map[string]any{{"error": err.Error(), "dimension": dimension}}
+		return nil, err
 	}
 	var rows []map[string]any
 	for _, r := range metricRows(resp) {
@@ -3111,7 +3151,7 @@ func topAggregateRows(c flowClient, metricID, dimension, measurement string, sin
 	if limit > 0 && len(rows) > limit {
 		rows = rows[:limit]
 	}
-	return rows
+	return rows, nil
 }
 
 func engagementRateRows(c flowClient, dimension string, since, until time.Time) ([]map[string]any, error) {
@@ -3127,9 +3167,20 @@ func engagementRateRows(c flowClient, dimension string, since, until time.Time) 
 	if err != nil {
 		return nil, err
 	}
-	received := topAggregateRows(c, receivedID, dimension, "count", since, until, 0)
-	opened := keyedMetricValues(topAggregateRows(c, openedID, dimension, "count", since, until, 0), "count")
-	clicked := keyedMetricValues(topAggregateRows(c, clickedID, dimension, "count", since, until, 0), "count")
+	received, err := topAggregateRows(c, receivedID, dimension, "count", since, until, 0)
+	if err != nil {
+		return nil, err
+	}
+	openRows, err := topAggregateRows(c, openedID, dimension, "count", since, until, 0)
+	if err != nil {
+		return nil, err
+	}
+	clickRows, err := topAggregateRows(c, clickedID, dimension, "count", since, until, 0)
+	if err != nil {
+		return nil, err
+	}
+	opened := keyedMetricValues(openRows, "count")
+	clicked := keyedMetricValues(clickRows, "count")
 	for _, row := range received {
 		name := fmt.Sprint(row["name"])
 		delivered := anyFloat(row["count"])
@@ -3145,7 +3196,7 @@ func engagementRateRows(c flowClient, dimension string, since, until time.Time) 
 	return received, nil
 }
 
-func domainReputationRows(c flowClient, since, until time.Time) []map[string]any {
+func domainReputationRows(c flowClient, since, until time.Time) ([]map[string]any, error) {
 	metrics := map[string]string{"received": "Received Email", "bounced": "Bounced Email", "opened": "Opened Email", "spam": "Marked Email as Spam"}
 	values := map[string]map[string]float64{}
 	for key, name := range metrics {
@@ -3153,7 +3204,11 @@ func domainReputationRows(c flowClient, since, until time.Time) []map[string]any
 		if err != nil {
 			continue
 		}
-		values[key] = keyedMetricValues(topAggregateRows(c, id, "Email Domain", "count", since, until, 0), "count")
+		rows, err := topAggregateRows(c, id, "Email Domain", "count", since, until, 0)
+		if err != nil {
+			return nil, err
+		}
+		values[key] = keyedMetricValues(rows, "count")
 	}
 	domains := map[string]bool{}
 	for _, m := range values {
@@ -3175,7 +3230,7 @@ func domainReputationRows(c flowClient, since, until time.Time) []map[string]any
 		rows = append(rows, row)
 	}
 	sort.Slice(rows, func(i, j int) bool { return anyFloat(rows[i]["bounce_rate"]) > anyFloat(rows[j]["bounce_rate"]) })
-	return rows
+	return rows, nil
 }
 
 func metricTotalsByName(c flowClient, metricNames []string, since, until time.Time) []map[string]any {
@@ -3252,7 +3307,8 @@ func clientAndWindow(flags *rootFlags, last string) (flowClient, time.Time, time
 		return nil, time.Time{}, time.Time{}, err
 	}
 	until := time.Now()
-	return c, until.AddDate(0, 0, -days), until, nil
+	since, until := platformCalculationWindow(flags, until.AddDate(0, 0, -days), until)
+	return c, since, until, nil
 }
 
 func attributionDimension(by string) string {

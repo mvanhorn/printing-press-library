@@ -79,7 +79,7 @@ func TestFixPassQAGateFailVerdictPrintsOnce(t *testing.T) {
 			fmt.Fprint(w, `{"data":{"id":"campaign-1","type":"campaign"}}`)
 		case "/api/campaigns/campaign-1/campaign-messages":
 			fmt.Fprint(w, `{"data":[{"id":"message-1","type":"campaign-message"}]}`)
-		case "/api/campaign-messages/message-1/template?fields%5Btemplate%5D=definition%2Chtml":
+		case "/api/campaign-messages/message-1/template?fields%5Btemplate%5D=html":
 			fmt.Fprint(w, `{"data":{"id":"template-1","type":"template","attributes":{"html":"<p>No unsubscribe link</p>"}}}`)
 		default:
 			t.Errorf("unexpected request URI %q", r.URL.RequestURI())
