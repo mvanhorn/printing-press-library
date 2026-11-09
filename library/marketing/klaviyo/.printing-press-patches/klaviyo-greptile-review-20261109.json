@@ -4,7 +4,7 @@
   "applied_at": "2026-11-09",
   "base_run_id": "2026-05-02T18:02:09.219489Z",
   "base_printing_press_version": "3.5.0",
-  "summary": "Fixes for the Greptile review of the maintained Klaviyo CLI: MCP cannot manage client profiles; receipt finalization errors are printed and probe retries are counted; analytics declarations match each report's real output and are checked before display filters; SMS, push and WhatsApp campaigns pass the send preflight; first-time store creation and legacy migration are race-safe and never delete another opener's database; gated commands keep terminal tables; receipts use each command's real lookback flag and capture delivered stdout; sync runs parent resources before dependents; auth accounts writes honor --dry-run.",
+  "summary": "Fixes for the Greptile review of the maintained Klaviyo CLI: MCP cannot manage client profiles; receipt finalization errors are printed and probe retries are counted; analytics declarations match each report's real output and are checked before display filters; SMS, push and WhatsApp campaigns pass the send preflight; first-time store creation and legacy migration are race-safe and never delete another opener's database; gated commands keep terminal tables; receipts use each command's real lookback flag and capture delivered stdout; sync runs parent resources before dependents; auth accounts writes honor --dry-run. Reports follow links.next and merge every page; plan qa-gate --campaign-id checks every email message; the cache fingerprint key is published complete with a no-replace link; a canceled rate-limit wait gives back its reservation.",
   "reason": "Greptile's review of mvanhorn/printing-press-library#2454 found these defects in the tenant-gated platform layer and analytics wrapper. Several blocked real work: SMS-only campaigns could not be sent, valid reports were rejected as all-null, and a bound MCP server could be re-pointed at another account.",
   "files": [
     "internal/cli/platform_client.go",
@@ -25,7 +25,13 @@
     "internal/cli/greptile_review_g3_test.go",
     "internal/cli/greptile_review_g4_test.go",
     "internal/store/tenant_init_race_test.go",
-    "internal/platform/migration_race_test.go"
+    "internal/platform/migration_race_test.go",
+    "internal/cli/klaviyo_reports.go",
+    "internal/cli/novel_klaviyo.go",
+    "internal/platform/profile.go",
+    "internal/platform/ratelimit.go",
+    "internal/cli/greptile_review_g5_test.go",
+    "internal/platform/greptile_review_g5_test.go"
   ],
   "validated_outcome": "Regression tests for each finding fail before and pass after; go build, go vet and go test ./... pass for the CLI."
 }
