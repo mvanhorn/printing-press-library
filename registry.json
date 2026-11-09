@@ -16756,7 +16756,10 @@
         "Turn a growth brief into a structured Klaviyo campaign, flow, segment, and experiment strategy.",
         "QA Gate",
         "plan qa-gate",
-        "Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, compliance, and deliverability flags."
+        "Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, compliance, and deliverability flags.",
+        "Targeting Report",
+        "report targeting",
+        "Join campaign audience segments to sends, attributed revenue, exclusions, last-mailed dates, and a never-mailed segment list."
       ],
       "path": "library/marketing/klaviyo",
       "release": {
@@ -16780,7 +16783,7 @@
         "public_tool_count": 11,
         "auth_type": "api_key",
         "env_vars": [
-          "KLAVIYO_API_KEY"
+          "PRINTING_PRESS_CLIENT_PROFILE"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
