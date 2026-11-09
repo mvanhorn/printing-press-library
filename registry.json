@@ -18438,6 +18438,72 @@
       }
     },
     {
+      "name": "milanote",
+      "category": "productivity",
+      "api": "Milanote",
+      "description": "Treat a Milanote board like an addressable canvas: native headings, lists and checkboxes, laid out on an even grid, and read back as Markdown.",
+      "search_terms": [
+        "milanote",
+        "milanote-pp-cli",
+        "Treat a Milanote board like an addressable canvas: native headings, lists and checkboxes, laid out on an even grid, and read back as Markdown.",
+        "Markdown to laid-out board",
+        "layout md",
+        "Turn a Markdown file into native heading cards, rich-text notes, bullet lists and checkbox lists in evenly spaced columns.",
+        "Board tree to Markdown outline",
+        "outline",
+        "Get a board and its sub-boards back as Markdown in canvas reading order, with headings, lists and checkboxes intact.",
+        "Even-grid re-space with undo",
+        "layout grid",
+        "Re-space a board's cards (or empty its Unsorted panel) onto an even grid with equal gutters, and undo it if you don't like it.",
+        "Storyboard and moodboard image grid",
+        "images grid",
+        "Upload a folder of frames as an evenly spaced, numbered grid with optional captions.",
+        "Open tasks across all boards",
+        "todos open",
+        "List every unchecked checkbox across your boards with where it lives, ready to tick off.",
+        "Layout lint",
+        "layout check",
+        "Report off-grid cards, uneven gutters, overlaps, cards stuck in Unsorted, and text that should be a heading or list.",
+        "Two-way Markdown sync",
+        "mirror",
+        "Pair a Markdown file with a board so edits on either side flow to the other.",
+        "Board snapshots and diff",
+        "snapshot diff",
+        "Save a board's state and later see exactly which cards were added, moved, edited or ticked.",
+        "Board templates",
+        "template apply",
+        "Save a board's structure as a small YAML kit and stamp out fresh copies.",
+        "CSV to card grid",
+        "layout csv",
+        "Turn spreadsheet rows such as a shot list into a numbered, evenly spaced grid of cards.",
+        "One-command login from Chrome",
+        "chrome-login",
+        "Pull the Milanote login from a running Chrome in one step."
+      ],
+      "path": "library/productivity/milanote",
+      "printer": "beausterling",
+      "printer_name": "Beau Sterling",
+      "creator": {
+        "handle": "beausterling",
+        "name": "Beau Sterling"
+      },
+      "mcp": {
+        "binary": "milanote-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 10,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [
+          "MILANOTE_SESSION_TOKEN"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "mixlayer",
       "category": "ai",
       "api": "Mixlayer",
@@ -26806,6 +26872,12 @@
         "handle": "ChrisDrit",
         "name": "Chris Drit"
       },
+      "contributors": [
+        {
+          "handle": "Alexi5000",
+          "name": "Alex Cinovoj"
+        }
+      ],
       "mcp": {
         "binary": "sec-edgar-pp-mcp",
         "transports": [
