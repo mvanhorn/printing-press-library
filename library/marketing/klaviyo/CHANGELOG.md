@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.4 - 2026-11-09
+
+- fix(klaviyo): clamp explicit windows on whole days (#2456).
+
 ## 2026.11.3 - 2026-11-09
 
 - fix(klaviyo): MCP tenant isolation, sync options, qa-gate fields and report retries (#2455).

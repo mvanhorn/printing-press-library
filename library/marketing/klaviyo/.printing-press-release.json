@@ -2,16 +2,16 @@
   "schema_version": 1,
   "slug": "klaviyo",
   "cli_name": "klaviyo-pp-cli",
-  "version": "2026.11.3",
-  "released_at": "2026-11-09T21:31:47Z",
-  "source_commit": "545262f8db9ac589f38769afe0e7466b391a0654",
+  "version": "2026.11.4",
+  "released_at": "2026-11-09T21:45:44Z",
+  "source_commit": "79c3c568343be7963637e226a65261ee3dbf84d9",
   "printing_press_version": "3.5.0",
   "changes": [
     {
-      "title": "fix(klaviyo): MCP tenant isolation, sync options, qa-gate fields and report retries",
-      "pr": 2455,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2455",
-      "commit": "545262f8db9ac589f38769afe0e7466b391a0654"
+      "title": "fix(klaviyo): clamp explicit windows on whole days",
+      "pr": 2456,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2456",
+      "commit": "79c3c568343be7963637e226a65261ee3dbf84d9"
     }
   ]
 }
