@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "cik-flexint-string-and-number",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "XBRL CIK fields accept both numeric and zero-padded string forms via a flexInt type.",
+  "reason": "SEC's companyfacts and frames endpoints do not always return `cik` as a number: some filers return a zero-padded string (e.g. {\"cik\":\"0001181412\"}). The generated int fields rejected those payloads, so facts statement and frame-based commands failed with `json: cannot unmarshal string into Go struct field ...cik of type int`. A reprint must preserve acceptance of both forms; non-numeric strings (including \"\" and \"null\") must error rather than decode as zero.",
+  "files": [
+    "internal/cli/sec_helpers.go",
+    "internal/cli/sec_absorbed.go",
+    "internal/cli/sec_transcendence.go",
+    "internal/cli/facts_cik_test.go"
+  ],
+  "validated_outcome": "facts statement succeeds for string-CIK and number-CIK filers; regression tests cover both forms, null, and invalid strings."
+}

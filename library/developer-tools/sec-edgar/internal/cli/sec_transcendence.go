@@ -650,7 +650,7 @@ type frameUnit struct {
 	PTS         int    `json:"pts"`
 	Data        []struct {
 		Accn       string  `json:"accn"`
-		CIK        int     `json:"cik"`
+		CIK        flexInt `json:"cik"`
 		EntityName string  `json:"entityName"`
 		Loc        string  `json:"loc"`
 		End        string  `json:"end"`
@@ -799,7 +799,7 @@ func percentile(sorted []float64, p float64) float64 {
 // ---------- cross-section (one concept, N companies, last N periods) ----------
 
 type companyConceptResp struct {
-	CIK        int                          `json:"cik"`
+	CIK        flexInt                      `json:"cik"`
 	EntityName string                       `json:"entityName"`
 	Taxonomy   string                       `json:"taxonomy"`
 	Tag        string                       `json:"tag"`
