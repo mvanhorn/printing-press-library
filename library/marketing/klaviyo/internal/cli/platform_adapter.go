@@ -54,8 +54,13 @@ func (a klaviyoIdentityAdapter) ProbeIdentity(ctx context.Context, credentials p
 	}
 	req.Header.Set("Authorization", "Klaviyo-API-Key "+strings.TrimSpace(string(credentials["credential"])))
 	req.Header.Set("revision", "2026-04-15")
+	session := platform.SessionFromContext(ctx)
 	var resp *http.Response
 	for attempt := 0; attempt < 4; attempt++ {
+		// The platform gate records the initial request; the adapter owns retries.
+		if attempt > 0 {
+			session.RecordRateLimitRequest()
+		}
 		resp, err = a.httpClient.Do(req)
 		if err != nil {
 			return platform.ObservedIdentity{}, klaviyoProbeFailure(ctx, 0, err)
@@ -73,6 +78,7 @@ func (a klaviyoIdentityAdapter) ProbeIdentity(ctx context.Context, credentials p
 			}
 		}
 		wait := min(platform.RetryAfterDelay(retryAfter, attempt, now, nil), 30*time.Second)
+		session.RecordRateLimitRetry(wait)
 		if err := waitForIdentityProbeRetry(ctx, wait); err != nil {
 			return platform.ObservedIdentity{}, klaviyoProbeFailure(ctx, 0, err)
 		}

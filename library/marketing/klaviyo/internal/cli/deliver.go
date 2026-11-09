@@ -34,8 +34,8 @@ func configureDelivery(cmd *cobra.Command, flags *rootFlags) error {
 	flags.deliverSink = sink
 	if sink.Scheme != "stdout" && sink.Scheme != "" {
 		flags.deliverBuf = &bytes.Buffer{}
-		// Preserve the writer installed by receipt setup. Using os.Stdout here
-		// bypasses the receipt capture because platform pre-run executes first.
+		// Compose with the command's writer so delivery and receipt capture
+		// retain each other's output regardless of setup order.
 		cmd.SetOut(io.MultiWriter(cmd.OutOrStdout(), flags.deliverBuf))
 	}
 	return nil

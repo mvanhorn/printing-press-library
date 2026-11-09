@@ -435,26 +435,37 @@ var (
 // InitializeTenantMetadata is for a newly-created, empty profile database and
 // must run before domain schema creation.
 func InitializeTenantMetadata(ctx context.Context, db *sql.DB, session *Session, provenance string) error {
-	metadata, err := metadataForSession(session, provenance)
-	if err != nil {
-		return err
-	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
-	if _, err := tx.ExecContext(ctx, tenantMetadataDDL); err != nil {
+	if err := InitializeTenantMetadataOn(ctx, tx, session, provenance); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+// InitializeTenantMetadataOn creates ownership metadata using the caller's
+// transaction or locked connection. The caller must commit or roll back.
+func InitializeTenantMetadataOn(ctx context.Context, exec interface {
+	ExecContext(context.Context, string, ...any) (sql.Result, error)
+}, session *Session, provenance string) error {
+	metadata, err := metadataForSession(session, provenance)
+	if err != nil {
+		return err
+	}
+	if _, err := exec.ExecContext(ctx, tenantMetadataDDL); err != nil {
 		return fmt.Errorf("create tenant metadata: %w", err)
 	}
-	if _, err := tx.ExecContext(ctx, `INSERT INTO pp_tenant_metadata
+	if _, err := exec.ExecContext(ctx, `INSERT INTO pp_tenant_metadata
     (id, schema_version, client_profile, source_slug, expected_identity, observed_identity, credential_fingerprint, last_gate_at, migration_provenance)
     VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)`, metadata.SchemaVersion, metadata.ProfileName, metadata.Source,
 		metadata.ExpectedIdentityJSON, metadata.ObservedIdentityJSON, metadata.CredentialFingerprint,
 		metadata.LastGateAt.Format(time.RFC3339Nano), metadata.MigrationProvenance); err != nil {
 		return fmt.Errorf("initialize tenant metadata: %w", err)
 	}
-	return tx.Commit()
+	return nil
 }
 
 // VerifyTenantMetadata refuses a database owned by another profile/source or

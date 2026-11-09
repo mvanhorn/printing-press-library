@@ -67,7 +67,14 @@ func RootCmd() *cobra.Command {
 func Execute() (retErr error) {
 	var flags rootFlags
 	rootCmd := newRootCmd(&flags)
-	defer finalizePlatformInvocation(&flags, &retErr)
+	defer func() {
+		commandSucceeded := retErr == nil
+		finalizePlatformInvocation(&flags, &retErr)
+		// Cobra has already printed command errors, but cannot see deferred failures.
+		if commandSucceeded && retErr != nil {
+			fmt.Fprintf(rootCmd.ErrOrStderr(), "Error: %v\n", retErr)
+		}
+	}()
 
 	err := rootCmd.Execute()
 	if err != nil && strings.Contains(err.Error(), "unknown flag") {

@@ -71,14 +71,6 @@ func OpenVerifiedWithContext(ctx context.Context, dbPath string, session *platfo
 }
 
 func openWithContext(ctx context.Context, dbPath string, session *platform.Session) (*Store, error) {
-	isNew := false
-	if session != nil {
-		_, statErr := os.Stat(dbPath)
-		isNew = os.IsNotExist(statErr)
-		if statErr != nil && !isNew {
-			return nil, statErr
-		}
-	}
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
@@ -98,12 +90,7 @@ func openWithContext(ctx context.Context, dbPath string, session *platform.Sessi
 
 	s := &Store{db: db, path: dbPath}
 	if session != nil {
-		if isNew {
-			err = platform.InitializeTenantMetadata(ctx, db, session, "new-profile-store")
-		} else {
-			err = platform.VerifyTenantMetadata(ctx, db, session)
-		}
-		if err != nil {
+		if err := s.ensureTenantMetadata(ctx, session); err != nil {
 			db.Close()
 			return nil, fmt.Errorf("verifying database tenant metadata: %w", err)
 		}
@@ -114,6 +101,39 @@ func openWithContext(ctx context.Context, dbPath string, session *platform.Sessi
 	}
 
 	return s, nil
+}
+
+func (s *Store) ensureTenantMetadata(ctx context.Context, session *platform.Session) error {
+	deadline := time.Now().Add(migrationLockTimeout)
+	var conn *sql.Conn
+	if err := retryOnBusy(ctx, deadline, "acquiring tenant metadata connection", func() error {
+		var err error
+		conn, err = s.db.Conn(ctx)
+		return err
+	}); err != nil {
+		return err
+	}
+	defer conn.Close()
+	// Decide ownership under the SQLite write lock, after any competing opener commits.
+	if err := withMigrationLock(ctx, conn, deadline, func() error {
+		var tables, metadataTables int
+		if err := conn.QueryRowContext(ctx, `SELECT COUNT(*), COALESCE(SUM(name = 'pp_tenant_metadata' AND type = 'table'), 0)
+			FROM sqlite_master WHERE name NOT GLOB 'sqlite_*'`).Scan(&tables, &metadataTables); err != nil {
+			return err
+		}
+		if metadataTables != 0 {
+			return nil
+		}
+		if tables != 0 {
+			return platform.ErrTenantMetadataMissing
+		}
+		return platform.InitializeTenantMetadataOn(ctx, conn, session, "new-profile-store")
+	}); err != nil {
+		return err
+	}
+	return retryOnBusy(ctx, deadline, "verifying tenant metadata", func() error {
+		return platform.VerifyTenantMetadata(ctx, s.db, session)
+	})
 }
 
 func rejectNewerSchemaBeforeWAL(ctx context.Context, dbPath string) error {

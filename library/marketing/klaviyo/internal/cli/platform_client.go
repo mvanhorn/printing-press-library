@@ -38,6 +38,7 @@ type platformSourceRegistration struct {
 var registeredPlatformSource *platformSourceRegistration
 
 const mcpBoundProfileEnv = "PRINTING_PRESS_MCP_BOUND_PROFILE"
+const platformClientManagementAnnotation = "pp:client-profile-management"
 
 func registerPlatformSource(registration platformSourceRegistration) {
 	registration.Source = strings.ToLower(strings.TrimSpace(registration.Source))
@@ -95,7 +96,7 @@ func verifyPlatformSession(ctx context.Context, flags *rootFlags) error {
 	if flags.platformSession.GateOutcome == platform.GateVerified {
 		return nil
 	}
-	return platform.VerifyPreparedProfileSource(ctx, flags.platformSession, platformResolverFactory(), registeredPlatformSource.Adapter)
+	return platform.VerifyPreparedProfileSource(platform.ContextWithSession(ctx, flags.platformSession), flags.platformSession, platformResolverFactory(), registeredPlatformSource.Adapter)
 }
 
 // A profile-bound environment credential is an explicit source, not a legacy override.
@@ -245,7 +246,7 @@ func VerifyMCPInvocation(ctx context.Context) (*platform.Session, error) {
 	if err := validateRegisteredPlatformSourceProfile(session.SourceProfile); err != nil {
 		return nil, err
 	}
-	if err := platform.VerifyPreparedProfileSource(ctx, session, platformResolverFactory(), registeredPlatformSource.Adapter); err != nil {
+	if err := platform.VerifyPreparedProfileSource(platform.ContextWithSession(ctx, session), session, platformResolverFactory(), registeredPlatformSource.Adapter); err != nil {
 		return nil, err
 	}
 	return session, nil
@@ -282,6 +283,11 @@ func enforceMCPBoundProfile(cmd *cobra.Command, flags *rootFlags) error {
 	if bound == "" {
 		return nil
 	}
+	for command := cmd; command != nil; command = command.Parent() {
+		if command.Annotations[platformClientManagementAnnotation] == "true" {
+			return errors.New("MCP tools may not manage client profiles")
+		}
+	}
 	if cmd.Flags().Changed("client-profile") && flags.clientProfileName != "" && flags.clientProfileName != bound {
 		return errors.New("MCP tool arguments may not switch the server-bound client profile")
 	}
@@ -311,6 +317,10 @@ func newPlatformClientCmd(flags *rootFlags) *cobra.Command {
 		newPlatformClientDeleteCmd(flags),
 		newPlatformClientCacheCmd(flags),
 	)
+	// Keep profile controls out of MCP without hiding the provider's client endpoints.
+	for _, child := range command.Commands() {
+		child.Annotations = map[string]string{"mcp:hidden": "true", platformClientManagementAnnotation: "true"}
+	}
 
 	return command
 }
@@ -331,6 +341,13 @@ func attachPlatformClientCommands(root *cobra.Command, flags *rootFlags) {
 		// contract; the endpoint remains available under its canonical name.
 		for _, existing := range child.Commands() {
 			existingNames[existing.Name()] = true
+			if managementNames[existing.Name()] {
+				if existing.Annotations == nil {
+					existing.Annotations = map[string]string{}
+				}
+				existing.Annotations["mcp:hidden"] = "true"
+				existing.Annotations[platformClientManagementAnnotation] = "true"
+			}
 			aliases := existing.Aliases[:0]
 			for _, alias := range existing.Aliases {
 				if !managementNames[alias] {
@@ -532,7 +549,7 @@ func newPlatformClientValidateCmd(flags *rootFlags) *cobra.Command {
 		if err := validateRegisteredPlatformSourceProfile(session.SourceProfile); err != nil {
 			return err
 		}
-		if err := platform.VerifyPreparedProfileSource(cmd.Context(), session, platformResolverFactory(), registeredPlatformSource.Adapter); err != nil {
+		if err := platform.VerifyPreparedProfileSource(platform.ContextWithSession(cmd.Context(), session), session, platformResolverFactory(), registeredPlatformSource.Adapter); err != nil {
 			return err
 		}
 		defer session.ZeroCredentials()
@@ -610,7 +627,7 @@ func newPlatformClientMigrateCmd(flags *rootFlags) *cobra.Command {
 		if err := platform.ValidateLegacyMigrationPaths(session, &legacy); err != nil {
 			return err
 		}
-		if err := platform.VerifyPreparedProfileSource(cmd.Context(), session, platformResolverFactory(), registeredPlatformSource.Adapter); err != nil {
+		if err := platform.VerifyPreparedProfileSource(platform.ContextWithSession(cmd.Context(), session), session, platformResolverFactory(), registeredPlatformSource.Adapter); err != nil {
 			return err
 		}
 		if !alreadyMigrated {
@@ -741,8 +758,13 @@ func initializePlatformReceipt(cmd *cobra.Command, flags *rootFlags) error {
 		return err
 	}
 	flags.receiptWriter = writer
-	cmd.Root().SetOut(writer.CaptureWriter("stdout", stdoutDestination))
-	cmd.Root().SetErr(writer.CaptureWriter("stderr", stderrDestination))
+	stdoutCapture := writer.CaptureWriter("stdout", stdoutDestination)
+	stderrCapture := writer.CaptureWriter("stderr", stderrDestination)
+	cmd.Root().SetOut(stdoutCapture)
+	cmd.Root().SetErr(stderrCapture)
+	// PATCH(greptile-g3): delivery may already have installed a child-local writer.
+	cmd.SetOut(stdoutCapture)
+	cmd.SetErr(stderrCapture)
 	return nil
 }
 

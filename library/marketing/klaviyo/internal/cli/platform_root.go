@@ -119,6 +119,12 @@ func adoptPlatformCommandWindow(cmd *cobra.Command, flags *rootFlags) error {
 	return nil
 }
 
+// These commands use --window for bucketing and --last for event history.
+var platformCommandLookbackFlags = map[string]string{
+	"send-fatigue":         "last",
+	"flow-cannibalization": "last",
+}
+
 func platformWindowRequestFromFlags(cmd *cobra.Command, now time.Time, location *time.Location, timezone string) (platform.WindowRequest, bool, bool) {
 	for _, pair := range [][2]string{{"start", "end"}, {"start-date", "end-date"}, {"date-from", "date-to"}, {"from", "to"}, {"after", "before"}} {
 		startFlag, endFlag := cmd.Flags().Lookup(pair[0]), cmd.Flags().Lookup(pair[1])
@@ -147,7 +153,11 @@ func platformWindowRequestFromFlags(cmd *cobra.Command, now time.Time, location 
 			}
 		}
 	}
-	for _, name := range []string{"since", "window", "lookback", "last"} {
+	lookbackFlags := []string{"since", "lookback", "last"}
+	if name, ok := platformCommandLookbackFlags[cmd.Name()]; ok {
+		lookbackFlags = []string{name}
+	}
+	for _, name := range lookbackFlags {
 		flag := cmd.Flags().Lookup(name)
 		if flag == nil {
 			continue
@@ -310,10 +320,22 @@ func parsePlatformLookback(raw string) (time.Duration, int, bool) {
 
 const platformOutputCaptureLimit = 64 << 20
 
-type platformOutputCapture struct {
-	buffer   bytes.Buffer
-	overflow bool
+type platformTerminalWriter struct {
+	io.Writer
+	terminal bool
 }
+
+func (w platformTerminalWriter) IsTerminal() bool { return w.terminal }
+
+type platformOutputCapture struct {
+	buffer            bytes.Buffer
+	overflow          bool
+	terminal          bool
+	command           *cobra.Command
+	analyticsObserved bool
+}
+
+func (c *platformOutputCapture) IsTerminal() bool { return c.terminal }
 
 func (c *platformOutputCapture) Write(p []byte) (int, error) {
 	if c.overflow || c.buffer.Len()+len(p) > platformOutputCaptureLimit {
@@ -324,6 +346,19 @@ func (c *platformOutputCapture) Write(p []byte) (int, error) {
 }
 
 func wrapPlatformCommandOutputs(root *cobra.Command, flags *rootFlags) {
+	previous := root.PersistentPreRunE
+	root.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		terminal := isTerminal(cmd.OutOrStdout())
+		if previous != nil {
+			if err := previous(cmd, args); err != nil {
+				return err
+			}
+		}
+		if terminal && !isTerminal(cmd.OutOrStdout()) {
+			cmd.SetOut(platformTerminalWriter{Writer: cmd.OutOrStdout(), terminal: terminal})
+		}
+		return nil
+	}
 	for _, command := range root.Commands() {
 		wrapPlatformCommandOutput(command, flags)
 	}
@@ -348,7 +383,7 @@ func wrapPlatformCommandOutput(command *cobra.Command, flags *rootFlags) {
 			return nil
 		}
 		originalOut := cmd.OutOrStdout()
-		capture := &platformOutputCapture{}
+		capture := &platformOutputCapture{terminal: isTerminal(originalOut), command: cmd}
 		cmd.SetOut(capture)
 		var runErr error
 		if originalRunE != nil {
@@ -377,7 +412,7 @@ func wrapPlatformCommandOutput(command *cobra.Command, flags *rootFlags) {
 		}
 		observePlatformCommandOutput(cmd, trimmed, flags)
 		payload := append([]byte(nil), raw...)
-		if runErr == nil {
+		if runErr == nil && !capture.analyticsObserved {
 			autoDeclarePlatformAnalytics(cmd, trimmed, flags)
 		}
 		if json.Valid(trimmed) {

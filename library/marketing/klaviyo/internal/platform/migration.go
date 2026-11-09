@@ -277,7 +277,7 @@ func AdoptVerifiedLegacyDatabase(ctx context.Context, session *Session, state *L
 	}
 	state.Database.VerifiedForCleanup = true
 
-	if _, err := os.Lstat(targetPath); err == nil {
+	verifyExistingDestination := func() error {
 		target, openErr := sql.Open("sqlite", readOnlySQLiteDSN(targetPath))
 		if openErr != nil {
 			return fmt.Errorf("open existing migration destination: %w", openErr)
@@ -291,24 +291,34 @@ func AdoptVerifiedLegacyDatabase(ctx context.Context, session *Session, state *L
 		state.Database.Destination = targetPath
 		state.Status = "adopted"
 		return nil
+	}
+	if _, err := os.Lstat(targetPath); err == nil {
+		return verifyExistingDestination()
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("inspect migration destination: %w", err)
 	}
 	if err := os.MkdirAll(filepath.Dir(targetPath), 0o700); err != nil {
 		return fmt.Errorf("create migration destination directory: %w", err)
 	}
-	quotedTarget := strings.ReplaceAll(targetPath, "'", "''")
+	// PATCH(greptile-g3): finish a private copy before publishing without replacement.
+	temporary, err := os.CreateTemp(filepath.Dir(targetPath), ".legacy-migration-*.db")
+	if err != nil {
+		return fmt.Errorf("create migration temporary file: %w", err)
+	}
+	temporaryPath := temporary.Name()
+	defer os.Remove(temporaryPath)
+	if err := temporary.Close(); err != nil {
+		return fmt.Errorf("close migration temporary file: %w", err)
+	}
+	quotedTarget := strings.ReplaceAll(temporaryPath, "'", "''")
 	if _, err := source.ExecContext(ctx, "VACUUM INTO '"+quotedTarget+"'"); err != nil {
-		_ = os.Remove(targetPath)
 		return fmt.Errorf("copy verified legacy database: %w", err)
 	}
-	if err := os.Chmod(targetPath, 0o600); err != nil {
-		_ = os.Remove(targetPath)
+	if err := os.Chmod(temporaryPath, 0o600); err != nil {
 		return fmt.Errorf("secure migrated database: %w", err)
 	}
-	target, err := sql.Open("sqlite", targetPath)
+	target, err := sql.Open("sqlite", temporaryPath)
 	if err != nil {
-		_ = os.Remove(targetPath)
 		return fmt.Errorf("open migrated database: %w", err)
 	}
 	provenance := "client-migrate:" + evidenceMethod
@@ -322,11 +332,16 @@ func AdoptVerifiedLegacyDatabase(ctx context.Context, session *Session, state *L
 	}
 	if err != nil {
 		_ = target.Close()
-		_ = os.Remove(targetPath)
 		return fmt.Errorf("verify migrated database: %w", err)
 	}
 	if err := target.Close(); err != nil {
 		return fmt.Errorf("close migrated database: %w", err)
+	}
+	if err := os.Link(temporaryPath, targetPath); err != nil {
+		if errors.Is(err, os.ErrExist) {
+			return verifyExistingDestination()
+		}
+		return fmt.Errorf("publish migrated database: %w", err)
 	}
 	state.Database.Status = "adopted"
 	state.Database.Copied = true

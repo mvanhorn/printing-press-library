@@ -58,6 +58,9 @@ func newAuthAccountsAddCmd(flags *rootFlags) *cobra.Command {
 			if err := validateKlaviyoAccountName(name); err != nil {
 				return err
 			}
+			if flags.dryRun {
+				return previewKlaviyoAccountChange(cmd, flags, name, "add", use)
+			}
 			cfgPath, err := klaviyoAccountConfigPath(name)
 			if err != nil {
 				return err
@@ -108,6 +111,9 @@ func newAuthAccountsUseCmd(flags *rootFlags) *cobra.Command {
 			name := args[0]
 			if err := validateKlaviyoAccountName(name); err != nil {
 				return err
+			}
+			if flags.dryRun {
+				return previewKlaviyoAccountChange(cmd, flags, name, "use", true)
 			}
 			if _, err := os.Stat(mustKlaviyoAccountConfigPath(name)); err != nil {
 				if os.IsNotExist(err) {
@@ -224,6 +230,9 @@ func newAuthAccountsDeleteCmd(flags *rootFlags) *cobra.Command {
 			if err := validateKlaviyoAccountName(name); err != nil {
 				return err
 			}
+			if flags.dryRun {
+				return previewKlaviyoAccountChange(cmd, flags, name, "delete", false)
+			}
 			path := mustKlaviyoAccountConfigPath(name)
 			if _, err := os.Stat(path); err != nil {
 				if os.IsNotExist(err) {
@@ -252,6 +261,47 @@ func newAuthAccountsDeleteCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+// PATCH(greptile-g3): inspect preview paths without creating config directories.
+func previewKlaviyoAccountChange(cmd *cobra.Command, flags *rootFlags, name, action string, selectAccount bool) error {
+	root, err := config.RootDir()
+	if err != nil {
+		return fmt.Errorf("resolving config dir: %w", err)
+	}
+	root = filepath.Join(root, "klaviyo-pp-cli")
+	_, err = os.Stat(filepath.Join(root, "accounts", name+".toml"))
+	exists := err == nil
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	if action != "add" && !exists {
+		return fmt.Errorf("account %q not found", name)
+	}
+	preview := map[string]any{"dry_run": true, "action": action, "account": name}
+	var detail string
+	switch action {
+	case "add":
+		preview["replace_account"] = exists
+		preview["select_account"] = selectAccount
+		detail = fmt.Sprintf("replace account: %t, select account: %t", exists, selectAccount)
+	case "use":
+		preview["select_account"] = selectAccount
+		detail = fmt.Sprintf("select account: %t", selectAccount)
+	case "delete":
+		data, err := os.ReadFile(filepath.Join(root, "active-account"))
+		if err != nil && !os.IsNotExist(err) {
+			return err
+		}
+		clearsSelection := strings.TrimSpace(string(data)) == name
+		preview["clears_selection"] = clearsSelection
+		detail = fmt.Sprintf("clear selection: %t", clearsSelection)
+	}
+	if flags.asJSON {
+		return flags.printJSON(cmd, preview)
+	}
+	_, err = fmt.Fprintf(cmd.OutOrStdout(), "dry run: would %s account %q (%s)\n", action, name, detail)
+	return err
 }
 
 func loadEffectiveKlaviyoConfig(configPath string) (*config.Config, error) {

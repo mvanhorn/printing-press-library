@@ -48,6 +48,9 @@ func colorEnabled() bool {
 }
 
 func isTerminal(w io.Writer) bool {
+	if terminal, ok := w.(interface{ IsTerminal() bool }); ok {
+		return terminal.IsTerminal()
+	}
 	if f, ok := w.(*os.File); ok {
 		fi, err := f.Stat()
 		if err != nil {
@@ -504,6 +507,11 @@ func camelToKebab(s string) string {
 
 // printOutputWithFlags routes output through the right format based on flags.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
+	// PATCH(analytics-before-display-filters): Preserve metrics and dry-run markers before filtering.
+	if capture, ok := w.(*platformOutputCapture); ok {
+		autoDeclarePlatformAnalytics(capture.command, data, flags)
+		capture.analyticsObserved = true
+	}
 	// --select wins over --compact when both are set: an explicit field list
 	// is the user's authoritative request, so the high-gravity allow-list
 	// must not strip those fields out before --select can pick them. When

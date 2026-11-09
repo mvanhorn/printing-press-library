@@ -177,7 +177,7 @@ Exit codes & warnings:
 			work := make(chan string, len(resources))
 			results := make(chan syncResult, len(resources))
 
-			var wg sync.WaitGroup
+			var wg, batch sync.WaitGroup
 			for i := 0; i < concurrency; i++ {
 				wg.Add(1)
 				go func() {
@@ -185,13 +185,30 @@ Exit codes & warnings:
 					for resource := range work {
 						res := syncResource(c, db, resource, sinceTS, full, maxPages)
 						results <- res
+						batch.Done()
 					}
 				}()
 			}
 
-			// Enqueue all resources
+			// PATCH(greptile-g3): filter builders must see completed parent syncs.
+			// shortcut: filters currently have one dependency level; use topological batches if nested parents are added.
+			batches := [2][]string{}
 			for _, resource := range resources {
-				work <- resource
+				phase := 0
+				desc, _ := syncDescriptorForResource(resource)
+				for _, filter := range desc.RequiredFilters {
+					if filter.ParentResource != "" {
+						phase = 1
+					}
+				}
+				batches[phase] = append(batches[phase], resource)
+			}
+			for _, resources := range batches {
+				batch.Add(len(resources))
+				for _, resource := range resources {
+					work <- resource
+				}
+				batch.Wait()
 			}
 			close(work)
 

@@ -63,13 +63,23 @@ func requireCampaignCompliance(c templateReader, campaignID string) error {
 		if err := json.Unmarshal(resp, &page); err != nil {
 			return fmt.Errorf("campaign compliance preflight failed: invalid campaign messages: %w", err)
 		}
+		if page.Data == nil {
+			return fmt.Errorf("campaign compliance preflight failed: campaign message data is missing")
+		}
 		for _, message := range page.Data {
 			if message.ID == "" {
 				return fmt.Errorf("campaign compliance preflight failed: campaign message ID is missing")
 			}
 			channel := message.Attributes.Definition.Channel
-			if channel != "" && channel != "email" {
+			switch channel {
+			case "sms", "push", "whatsapp", "mobile_push":
+				checked++
 				continue
+			case "email":
+			case "":
+				return fmt.Errorf("campaign compliance preflight failed: campaign message %s channel is missing", message.ID)
+			default:
+				return fmt.Errorf("campaign compliance preflight failed: campaign message %s has unsupported channel %q", message.ID, channel)
 			}
 			checked++
 			template, err := c.Get("/api/campaign-messages/"+url.PathEscape(message.ID)+"/template", map[string]string{"fields[template]": "html"})
@@ -98,7 +108,7 @@ func requireCampaignCompliance(c templateReader, campaignID string) error {
 		query = nil
 	}
 	if checked == 0 {
-		return fmt.Errorf("campaign compliance preflight failed: campaign has no email message")
+		return fmt.Errorf("campaign compliance preflight failed: campaign has no readable message")
 	}
 	return nil
 }
