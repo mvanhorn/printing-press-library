@@ -4,7 +4,7 @@
   "applied_at": "2026-11-09",
   "base_run_id": "2026-05-02T18:02:09.219489Z",
   "base_printing_press_version": "3.5.0",
-  "summary": "Fixes from an independent review of the Klaviyo CLI: a bound MCP server cannot redirect receipts or deliveries and no command can write into client-profile, credential or database paths; the MCP SQL tool is read-only and single-statement, blocking ATTACH; typed MCP writes send JSON:API objects; legacy adoption and report budgets were fixed in klaviyo-greptile-review-20261109; sync --since sends real time filters (flows with the matching sort), --dry-run has no side effects and capped syncs keep their cursor; qa-gate --campaign-id and templates audit request valid template fields; analytics output is validated; clamped windows drive the calculation; flow aggregate failures surface as errors; report pages retry a 429. Explicit since/until ranges stay on the requested dates and clamp on whole days; MCP report tools send page cursors and filters in the query; flow-path-analysis surfaces aggregate errors; report retries are recorded and a recovered 429 does not mark the run exhausted.",
+  "summary": "Klaviyo commands keep tenant data isolated through MCP, send only API-accepted requests and filters, report failures and retries honestly, and resolve report windows from the user's explicit dates.",
   "reason": "An independent max-effort review traced tenant-isolation holes reachable through the MCP server, sync options that silently did nothing or changed state, and a qa-gate request Klaviyo rejects with HTTP 400 (confirmed live).",
   "files": [
     "internal/cli/analytics.go",
