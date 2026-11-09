@@ -112,6 +112,10 @@ func apiErr(err error) error       { return &cliError{code: 5, err: err} }
 func configErr(err error) error    { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
+// upstreamHTMLErr marks an upstream that kept answering a data endpoint with
+// an HTML page. Exit code 9 keeps it apart from auth (4) and API (5) errors.
+func upstreamHTMLErr(err error) error { return &cliError{code: 9, err: err} }
+
 // dryRunOK reports whether the command should short-circuit without doing any
 // real work because --dry-run was set. The verify pipeline probes hand-written
 // commands with --dry-run; commands that put validation in cobra's `Args:` or
@@ -392,6 +396,11 @@ func classifyAPIError(err error, flags *rootFlags) error {
 	var typed *cliError
 	if errors.As(err, &typed) {
 		return err
+	}
+
+	var htmlErr *cliutil.UpstreamHTMLError
+	if errors.As(err, &htmlErr) {
+		return upstreamHTMLErr(err)
 	}
 
 	msg := err.Error()

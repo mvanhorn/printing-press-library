@@ -6,14 +6,17 @@ package client
 import (
 	"bytes"
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 	"unicode/utf8"
 
+	"github.com/mvanhorn/printing-press-library/library/other/passive-indices/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/passive-indices/internal/config"
 )
 
@@ -128,5 +131,60 @@ func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
 	}
 	if _, err := c.GetWithHeadersValues(context.Background(), "/titles", params, nil); err != nil {
 		t.Fatalf("GetWithHeadersValues returned error: %v", err)
+	}
+}
+
+func TestGetRetriesNiftyindicesHTMLThenSucceeds(t *testing.T) {
+	base, max := cliutil.UpstreamHTMLBackoffBase, cliutil.UpstreamHTMLBackoffMax
+	cliutil.UpstreamHTMLBackoffBase, cliutil.UpstreamHTMLBackoffMax = time.Millisecond, 4*time.Millisecond
+	t.Cleanup(func() { cliutil.UpstreamHTMLBackoffBase, cliutil.UpstreamHTMLBackoffMax = base, max })
+
+	run := func(htmlFirst int) (int32, error, string) {
+		var hits atomic.Int32
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if int(hits.Add(1)) <= htmlFirst {
+				w.Header().Set("Content-Type", "text/html")
+				_, _ = w.Write([]byte("<html>try again</html>"))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"ok":true}`))
+		}))
+		defer server.Close()
+		u, _ := url.Parse(server.URL)
+		prev := upstreamHTMLHostSuffixes
+		upstreamHTMLHostSuffixes = []string{u.Hostname()}
+		defer func() { upstreamHTMLHostSuffixes = prev }()
+
+		c := New(&config.Config{BaseURL: server.URL}, 5*time.Second, 0)
+		c.HTTPClient = server.Client()
+		c.NoCache = true
+		data, err := c.Get(context.Background(), "/x", nil)
+		return hits.Load(), err, string(data)
+	}
+
+	if hits, err, body := run(2); err != nil || hits != 3 || body != `{"ok":true}` {
+		t.Fatalf("recovering: hits=%d err=%v body=%q", hits, err, body)
+	}
+	hits, err, _ := run(1000)
+	var he *cliutil.UpstreamHTMLError
+	if !errors.As(err, &he) || hits != int32(cliutil.UpstreamHTMLMaxAttempts) {
+		t.Fatalf("exhausted: hits=%d err=%v", hits, err)
+	}
+}
+
+func TestGetLeavesHTMLFromOtherHostsAlone(t *testing.T) {
+	var hits atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
+		w.Header().Set("Content-Type", "text/html")
+		_, _ = w.Write([]byte("<html>login</html>"))
+	}))
+	defer server.Close()
+	c := New(&config.Config{BaseURL: server.URL}, 5*time.Second, 0)
+	c.HTTPClient = server.Client()
+	c.NoCache = true
+	if _, err := c.Get(context.Background(), "/x", nil); err != nil || hits.Load() != 1 {
+		t.Fatalf("hits=%d err=%v", hits.Load(), err)
 	}
 }

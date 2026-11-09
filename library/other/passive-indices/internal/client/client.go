@@ -481,6 +481,24 @@ func verifyShortCircuitEnvelope(method, path string) json.RawMessage {
 	return json.RawMessage(body)
 }
 
+// upstreamHTMLHostSuffixes lists the hosts whose HTML answers to data
+// endpoints are retried.
+var upstreamHTMLHostSuffixes = []string{"niftyindices.com"}
+
+func isUpstreamHTMLHost(rawURL string) bool {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return false
+	}
+	host := strings.ToLower(u.Hostname())
+	for _, suffix := range upstreamHTMLHostSuffixes {
+		if host == suffix || strings.HasSuffix(host, "."+suffix) {
+			return true
+		}
+	}
+	return false
+}
+
 func sleepContext(ctx context.Context, wait time.Duration) error {
 	timer := time.NewTimer(wait)
 	defer timer.Stop()
@@ -574,6 +592,12 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 	maxRetries := clientMaxRetries()
 	var lastErr error
+	htmlAttempts := 0
+	maxHTMLAttempts := cliutil.UpstreamHTMLMaxAttempts
+	if cliutil.IsVerifyEnv() || cliutil.IsDogfoodEnv() {
+		maxHTMLAttempts = 1
+	}
+	retryHTML := canRetryAmbiguousFailure && method == http.MethodGet && isUpstreamHTMLHost(targetURL)
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		// Proactive rate limiting — wait before sending
@@ -681,6 +705,23 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			c.limiter.OnSuccess()
 			if method != http.MethodGet && !c.DryRun {
 				c.invalidateCache()
+			}
+			// niftyindices intermittently answers a CSV/JSON endpoint with an
+			// HTML page (HTTP 200). Retry it like a transient upstream error and
+			// fail with a precise error, not as an authentication problem.
+			if retryHTML && cliutil.LooksLikeHTML(resp.Header.Get("Content-Type"), respBody) {
+				htmlAttempts++
+				lastErr = &cliutil.UpstreamHTMLError{URL: c.displayURL(path, authHeader), Expected: "CSV or JSON payload", Attempts: htmlAttempts}
+				if htmlAttempts >= maxHTMLAttempts {
+					return nil, resp.StatusCode, lastErr
+				}
+				wait := cliutil.UpstreamHTMLBackoff(htmlAttempts - 1)
+				fmt.Fprintf(os.Stderr, "niftyindices returned an HTML page, retrying in %s (attempt %d/%d)\n", wait.Round(time.Millisecond), htmlAttempts, maxHTMLAttempts)
+				if err := sleepContext(ctx, wait); err != nil {
+					return nil, 0, err
+				}
+				attempt-- // HTML retries have their own budget; keep the 429/5xx budget intact
+				continue
 			}
 			// Non-textual bodies (PDF, zip, image, octet-stream) must not be
 			// run through the JSON sanitizer or returned as raw json.RawMessage
