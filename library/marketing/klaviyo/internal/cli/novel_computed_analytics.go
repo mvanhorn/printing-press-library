@@ -1242,7 +1242,10 @@ func flowPathAnalysis(c flowClient, flowID string, since, until time.Time) (map[
 	if err != nil {
 		return nil, err
 	}
-	stats, _ := messageStats(c, since, until)
+	stats, err := messageStats(c, since, until)
+	if err != nil {
+		return nil, err
+	}
 	actions := mapSlice(def["actions"])
 	actionByID := map[string]map[string]any{}
 	for _, action := range actions {

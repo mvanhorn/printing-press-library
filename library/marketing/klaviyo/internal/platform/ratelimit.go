@@ -258,6 +258,15 @@ func (s *Session) RecordRateLimitExhausted() {
 	s.rateLimit.mu.Unlock()
 }
 
+func (s *Session) RestoreRateLimitExhausted(prev bool) {
+	if s == nil || s.rateLimit == nil {
+		return
+	}
+	s.rateLimit.mu.Lock()
+	s.rateLimit.metadata.Exhausted = prev
+	s.rateLimit.mu.Unlock()
+}
+
 func (s *Session) RateLimitMetadata() RateLimitMetadata {
 	if s == nil || s.rateLimit == nil {
 		return RateLimitMetadata{}

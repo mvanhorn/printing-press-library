@@ -3474,7 +3474,7 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 				}
 			}
 			if !isPositional {
-				if method == "GET" || strings.HasPrefix(k, "fields[") || k == "include" {
+				if method == "GET" || k == "page_cursor" || strings.HasPrefix(k, "page[") || strings.HasPrefix(k, "fields[") || k == "include" || k == "filter" || k == "sort" {
 					params[k] = fmt.Sprintf("%v", v)
 				} else {
 					body[k] = v

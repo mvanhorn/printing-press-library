@@ -114,8 +114,10 @@ var waitForKlaviyoReportRetry = waitForIdentityProbeRetry
 func postKlaviyoReport(c flowClient, path string, body any) (json.RawMessage, int, error) {
 	// PATCH(greptile-review-g5): reporting pagination repeats the POST body on every cursor.
 	ctx := context.Background()
+	var session *platform.Session
 	if sc, ok := c.(interface{ PlatformSession() *platform.Session }); ok {
-		if session := sc.PlatformSession(); session != nil {
+		session = sc.PlatformSession()
+		if session != nil {
 			ctx = session.Context()
 		}
 	}
@@ -130,6 +132,7 @@ func postKlaviyoReport(c flowClient, path string, body any) (json.RawMessage, in
 		var raw json.RawMessage
 		var status int
 		var err error
+		previousExhausted := session.RateLimitMetadata().Exhausted
 		// PATCH(review-re-report-rate-limit-retries): read-only report POSTs can safely retry a 429.
 		for retries := 0; ; retries++ {
 			if hc, ok := c.(reportHeadersClient); ok {
@@ -141,13 +144,18 @@ func postKlaviyoReport(c flowClient, path string, body any) (json.RawMessage, in
 				raw, status, err = c.Post(endpoint, body)
 			}
 			if err == nil {
+				if retries > 0 {
+					session.RestoreRateLimitExhausted(previousExhausted)
+				}
 				break
 			}
 			var limited *platform.RateLimitedError
 			if retries == 3 || !errors.As(err, &limited) {
 				return nil, status, err
 			}
-			if err := waitForKlaviyoReportRetry(ctx, min(limited.RetryAfter, time.Minute)); err != nil {
+			wait := min(limited.RetryAfter, time.Minute)
+			session.RecordRateLimitRetry(wait)
+			if err := waitForKlaviyoReportRetry(ctx, wait); err != nil {
 				return nil, status, err
 			}
 		}
