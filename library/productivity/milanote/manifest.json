@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "milanote-pp-mcp",
+  "display_name": "Milanote",
+  "version": "0.1.0",
+  "description": "Treat a Milanote board like an addressable canvas: native headings, lists and checkboxes, laid out on an even grid, and read back as Markdown.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/milanote-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/milanote-pp-mcp",
+      "args": [],
+      "env": {
+        "MILANOTE_SESSION_TOKEN": "${user_config.milanote_session_token}"
+      }
+    }
+  },
+  "user_config": {
+    "milanote_session_token": {
+      "type": "string",
+      "title": "MILANOTE_SESSION_TOKEN",
+      "description": "Optional. Sets MILANOTE_SESSION_TOKEN for the Milanote MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

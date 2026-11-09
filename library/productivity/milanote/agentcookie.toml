@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "milanote-pp-cli"
+display_name = "Milanote"
+description = "Treat a Milanote board like an addressable canvas: native headings, lists and checkboxes, laid out on an even grid, and read back as Markdown."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/milanote-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+MILANOTE_SESSION_TOKEN = true

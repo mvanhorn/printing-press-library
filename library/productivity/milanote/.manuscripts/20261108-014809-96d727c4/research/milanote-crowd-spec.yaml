@@ -1,0 +1,539 @@
+name: milanote
+description: Discovered API spec for milanote (crowd-sniff)
+version: 0.1.0
+base_url: https://app.milanote.com
+spec_source: community
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/milanote-pp-cli/config.toml
+resources:
+    admin:
+        description: Operations on grants
+        endpoints:
+            create_grants:
+                method: POST
+                path: /api/admin/grants
+                description: POST /api/admin/grants
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    backup:
+        description: Operations on backup
+        endpoints:
+            list_backup:
+                method: GET
+                path: /api/backup
+                description: GET /api/backup
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    board-lock:
+        description: Operations on board-lock
+        endpoints:
+            create_board_lock:
+                method: POST
+                path: /api/board-lock
+                description: POST /api/board-lock
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    builds:
+        description: Operations on builds
+        endpoints:
+            list_builds:
+                method: GET
+                path: /api/builds
+                description: GET /api/builds
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    canvas:
+        description: Operations on canvas
+        endpoints:
+            list_canvas:
+                method: GET
+                path: /api/canvas
+                description: GET /api/canvas
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    cask:
+        description: Operations on mimestream.json
+        endpoints:
+            list_flux_app.json:
+                method: GET
+                path: /api/cask/flux-app.json
+                description: GET /api/cask/flux-app.json
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_gitkraken.json:
+                method: GET
+                path: /api/cask/gitkraken.json
+                description: GET /api/cask/gitkraken.json
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_godot.json:
+                method: GET
+                path: /api/cask/godot.json
+                description: GET /api/cask/godot.json
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_makemkv.json:
+                method: GET
+                path: /api/cask/makemkv.json
+                description: GET /api/cask/makemkv.json
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_milanote.json:
+                method: GET
+                path: /api/cask/milanote.json
+                description: GET /api/cask/milanote.json
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_mimestream.json:
+                method: GET
+                path: /api/cask/mimestream.json
+                description: GET /api/cask/mimestream.json
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    chat:
+        description: Operations on dm
+        endpoints:
+            list_dm:
+                method: GET
+                path: /api/chat/dm
+                description: GET /api/chat/dm
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    diagnostic-agents:
+        description: Operations on diagnostic-agents
+        endpoints:
+            list_diagnostic_agents:
+                method: GET
+                path: /api/diagnostic-agents
+                description: GET /api/diagnostic-agents
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    health:
+        description: Operations on health
+        endpoints:
+            list_health:
+                method: GET
+                path: /api/v1/health
+                description: GET /api/v1/health
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    item:
+        description: Operations on item
+        endpoints:
+            create_item:
+                method: POST
+                path: /api/item
+                description: POST /api/item
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    messages:
+        description: Operations on factoids
+        endpoints:
+            list_factoids:
+                method: GET
+                path: /api/messages/factoids
+                description: GET /api/messages/factoids
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    milanote:
+        description: Operations on milanote
+        endpoints:
+            list_milanote:
+                method: GET
+                path: /api/v1/milanote
+                description: GET /api/v1/milanote
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    performance-agents:
+        description: Operations on performance-agents
+        endpoints:
+            list_performance_agents:
+                method: GET
+                path: /api/performance-agents
+                description: GET /api/performance-agents
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    production:
+        description: Operations on milanote-media
+        endpoints:
+            list_milanote_media:
+                method: GET
+                path: /api/production/team-boards/milanote-media
+                description: GET /api/production/team-boards/milanote-media
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    projects.py:
+        description: Operations on projects.py
+        endpoints:
+            list_projects.py:
+                method: GET
+                path: /api/projects.py
+                description: GET /api/projects.py
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    root:
+        description: Operations on root
+        endpoints:
+            list_root:
+                method: GET
+                path: /api/root
+                description: GET /api/root
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    state:
+        description: Operations on state
+        endpoints:
+            list_state:
+                method: GET
+                path: /api/state
+                description: GET /api/state
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    studio-agents:
+        description: Operations on run
+        endpoints:
+            create_brief:
+                method: POST
+                path: /api/studio-agents/brief
+                description: POST /api/studio-agents/brief
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            create_run:
+                method: POST
+                path: /api/studio-agents/run
+                description: POST /api/studio-agents/run
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            get_runs:
+                method: GET
+                path: /api/studio-agents/runs/{id}
+                description: GET /api/studio-agents/runs/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_roles:
+                method: GET
+                path: /api/studio-agents/roles
+                description: GET /api/studio-agents/roles
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_skills:
+                method: GET
+                path: /api/studio-agents/skills
+                description: GET /api/studio-agents/skills
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_studio_agents:
+                method: GET
+                path: /api/studio-agents
+                description: GET /api/studio-agents
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    team:
+        description: Operations on activity
+        endpoints:
+            list_activity:
+                method: GET
+                path: /api/team/activity
+                description: GET /api/team/activity
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    team-tools:
+        description: Operations on team-tools
+        endpoints:
+            create_team_tools:
+                method: POST
+                path: /api/team-tools
+                description: POST /api/team-tools
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_team_tools:
+                method: GET
+                path: /api/team-tools
+                description: GET /api/team-tools
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    terminal:
+        description: Operations on sync
+        endpoints:
+            list_sync:
+                method: GET
+                path: /api/terminal/sync
+                description: GET /api/terminal/sync
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+            list_terminal:
+                method: GET
+                path: /api/terminal
+                description: GET /api/terminal
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    unfurl:
+        description: Operations on unfurl
+        endpoints:
+            list_unfurl:
+                method: GET
+                path: /api/unfurl
+                description: GET /api/unfurl
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    upload:
+        description: Operations on upload
+        endpoints:
+            create_upload:
+                method: POST
+                path: /api/upload
+                description: POST /api/upload
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+types: {}
