@@ -47,8 +47,8 @@ func TestReviewREReportPageRetries(t *testing.T) {
 			wantWaits: []time.Duration{time.Second, time.Second, time.Second}, wantError: rateLimitError,
 		},
 		{
-			name: "wait is capped at sixty seconds", secondFailures: 1, retryAfter: "120",
-			wantPaths: []string{first, second, second}, wantWaits: []time.Duration{time.Minute},
+			name: "full Retry-After prevents premature retries", secondFailures: 1, retryAfter: "120",
+			wantPaths: []string{first, second, second}, wantWaits: []time.Duration{2 * time.Minute},
 		},
 		{
 			name: "retry allowance resets for each page", firstFailures: 3, secondFailures: 3,

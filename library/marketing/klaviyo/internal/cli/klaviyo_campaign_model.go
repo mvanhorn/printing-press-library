@@ -64,9 +64,14 @@ func campaignObject(c templateReader, endpoint string) (map[string]any, error) {
 
 // Follow complete relationship URLs; never infer completion from a short page.
 func campaignCollection(c templateReader, endpoint string, params map[string]string) ([]map[string]any, error) {
+	items, _, err := campaignCollectionWithIncluded(c, endpoint, params)
+	return items, err
+}
+
+func campaignCollectionWithIncluded(c templateReader, endpoint string, params map[string]string) ([]map[string]any, []map[string]any, error) {
 	base, err := url.Parse(endpoint)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	messageList := strings.TrimRight(base.Path, "/") == "/api/campaign-messages" || strings.TrimRight(base.Path, "/") == "/api/campaigns"
 	if messageList {
@@ -79,48 +84,55 @@ func campaignCollection(c templateReader, endpoint string, params map[string]str
 		params = copied
 	}
 	filter := params["filter"]
+	include := params["include"]
 	seen := map[string]bool{}
 	items := []map[string]any{}
+	var included []map[string]any
 	for {
 		key := reportPathWithParams(endpoint, params)
 		if seen[key] {
-			return nil, fmt.Errorf("repeated campaign page: %s", endpoint)
+			return nil, nil, fmt.Errorf("repeated campaign page: %s", endpoint)
 		}
 		seen[key] = true
 		raw, err := c.Get(klaviyoRequestContext(c), endpoint, params)
 		if err != nil {
-			return nil, classifyAPIErrorOnly(err)
+			return nil, nil, classifyAPIErrorOnly(err)
 		}
 		var page struct {
-			Data  []map[string]any `json:"data"`
-			Links struct {
+			Data     []map[string]any `json:"data"`
+			Included []map[string]any `json:"included"`
+			Links    struct {
 				Next string `json:"next"`
 			} `json:"links"`
 		}
 		if err := json.Unmarshal(raw, &page); err != nil {
-			return nil, fmt.Errorf("%s: %w", endpoint, err)
+			return nil, nil, fmt.Errorf("%s: %w", endpoint, err)
 		}
 		if page.Data == nil {
-			return nil, fmt.Errorf("%s: campaign collection data is missing", endpoint)
+			return nil, nil, fmt.Errorf("%s: campaign collection data is missing", endpoint)
 		}
 		for _, item := range page.Data {
 			if stringFromMapPath(item, "id") == "" {
-				return nil, fmt.Errorf("%s: resource ID is missing", endpoint)
+				return nil, nil, fmt.Errorf("%s: resource ID is missing", endpoint)
 			}
 		}
 		items = append(items, page.Data...)
+		included = append(included, page.Included...)
 		if page.Links.Next == "" {
-			return items, nil
+			return items, included, nil
 		}
 		next, err := url.Parse(page.Links.Next)
 		if err != nil || strings.TrimRight(next.Path, "/") != strings.TrimRight(base.Path, "/") || next.Fragment != "" {
-			return nil, fmt.Errorf("invalid next campaign page: %q", page.Links.Next)
+			return nil, nil, fmt.Errorf("invalid next campaign page: %q", page.Links.Next)
 		}
 		if messageList {
 			query := next.Query()
 			query.Set("page[size]", "100")
 			if filter != "" && query.Get("filter") == "" {
 				query.Set("filter", filter)
+			}
+			if include != "" && query.Get("include") == "" {
+				query.Set("include", include)
 			}
 			next.RawQuery = query.Encode()
 		}
@@ -172,6 +184,10 @@ func resolveCampaign(c templateReader, id string) (*campaignModel, error) {
 }
 
 func resolveCampaignMessage(c templateReader, data map[string]any) (campaignModelMessage, error) {
+	return resolveCampaignMessageWithVariations(c, data, nil)
+}
+
+func resolveCampaignMessageWithVariations(c templateReader, data map[string]any, variations []map[string]any) (campaignModelMessage, error) {
 	m := campaignModelMessage{ID: stringFromMapPath(data, "id"), Data: data, CampaignID: relationshipID(data, "campaign")}
 	if m.ID == "" {
 		return m, fmt.Errorf("campaign message ID is missing")
@@ -191,9 +207,11 @@ func resolveCampaignMessage(c templateReader, data map[string]any) (campaignMode
 	if m.Audience == nil {
 		return m, fmt.Errorf("message %s audience definition is missing", m.ID)
 	}
-	variations, err := campaignCollection(c, base+"/campaign-variations", nil)
-	if err != nil {
-		return m, err
+	if variations == nil {
+		variations, err = campaignCollection(c, base+"/campaign-variations", nil)
+		if err != nil {
+			return m, err
+		}
 	}
 	if len(variations) == 0 {
 		return m, fmt.Errorf("message %s has no readable variations", m.ID)
@@ -211,9 +229,11 @@ func resolveCampaignMessage(c templateReader, data map[string]any) (campaignMode
 
 // A reader belongs to one operation; mutation verification gets a fresh reader.
 type campaignMessageReader struct {
-	client   templateReader
-	mu       sync.Mutex
-	messages map[string]*campaignMessageResult
+	client            templateReader
+	mu                sync.Mutex
+	messages          map[string]*campaignMessageResult
+	includeVariations bool
+	variations        map[string]map[string]any
 }
 
 type campaignMessageResult struct {
@@ -236,7 +256,17 @@ func (r *campaignMessageReader) resolve(data map[string]any) (campaignModelMessa
 	}
 	r.messages[id] = result
 	r.mu.Unlock()
-	result.message, result.err = resolveCampaignMessage(r.client, data)
+	// Partial compound data must fall back to the complete variation collection.
+	var variations []map[string]any
+	for _, variationID := range relationshipIDs(data, "campaign-variations") {
+		variation, ok := r.variations[variationID]
+		if !ok {
+			variations = nil
+			break
+		}
+		variations = append(variations, variation)
+	}
+	result.message, result.err = resolveCampaignMessageWithVariations(r.client, data, variations)
 	close(result.done)
 	return result.message, result.err
 }
@@ -247,12 +277,29 @@ func campaignMessageRows(c templateReader, params map[string]string) ([]map[stri
 }
 
 func (r *campaignMessageReader) rows(params map[string]string) ([]map[string]any, error) {
-	data, err := campaignCollection(r.client, "/api/campaign-messages", params)
+	if r.includeVariations {
+		params["include"] = "campaign-variations"
+	}
+	data, included, err := campaignCollectionWithIncluded(r.client, "/api/campaign-messages", params)
 	if err != nil {
 		return nil, err
 	}
+	if r.includeVariations {
+		r.variations = map[string]map[string]any{}
+		for _, item := range included {
+			if item["type"] == "campaign-variation" {
+				r.variations[stringFromMapPath(item, "id")] = item
+			}
+		}
+	}
 	rows := []map[string]any{}
+	seen := map[string]bool{}
 	for _, item := range data {
+		id := stringFromMapPath(item, "id")
+		if seen[id] {
+			continue
+		}
+		seen[id] = true
 		m, err := r.resolve(item)
 		if err != nil {
 			return nil, err
@@ -263,15 +310,19 @@ func (r *campaignMessageReader) rows(params map[string]string) ([]map[string]any
 }
 
 func campaignMessageRowsByID(c templateReader, ids []string) ([]map[string]any, error) {
+	reader := campaignMessageReader{client: c}
+	return reader.rowsByID(ids)
+}
+
+func (r *campaignMessageReader) rowsByID(ids []string) ([]map[string]any, error) {
 	ids = uniqueStrings(nonEmptyStrings(ids))
 	rows := []map[string]any{}
-	reader := campaignMessageReader{client: c}
 	for start := 0; start < len(ids); start += 100 {
 		encoded, err := json.Marshal(ids[start:min(start+100, len(ids))])
 		if err != nil {
 			return nil, err
 		}
-		batch, err := reader.rows(map[string]string{"filter": fmt.Sprintf("any(id,%s)", encoded)})
+		batch, err := r.rows(map[string]string{"filter": fmt.Sprintf("any(id,%s)", encoded)})
 		if err != nil {
 			return nil, err
 		}

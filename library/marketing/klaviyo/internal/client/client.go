@@ -2644,6 +2644,10 @@ func safeEndpointClass(method, path string) string {
 		path = path[:i]
 	}
 	parts := strings.Split(strings.Trim(path, "/"), "/")
+	// Tag reads have a lower ceiling than other campaign-message GETs.
+	if strings.EqualFold(method, http.MethodGet) && len(parts) >= 4 && parts[0] == "api" && parts[1] == "campaign-messages" && parts[len(parts)-1] == "tags" {
+		return "GET /api/campaign-messages/tags"
+	}
 	if len(parts) > 2 {
 		parts = parts[:2]
 	}
