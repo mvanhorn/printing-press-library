@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "klaviyo",
   "cli_name": "klaviyo-pp-cli",
-  "version": "2026.11.5",
-  "released_at": "2026-11-10T01:34:47Z",
-  "source_commit": "8a33d5e6531df9a782b4daa1c524e38a331f67f2",
+  "version": "2026.11.6",
+  "released_at": "2026-11-10T02:15:50Z",
+  "source_commit": "3e9b4be102c140f561c84c1028919a74d90fd792",
   "printing_press_version": "4.35.4",
   "run_id": "20261110-011500-4505b426",
   "changes": [
     {
-      "title": "feat(klaviyo): move to Klaviyo API 2026-10-15 and add test-send, send-budget, brand QA, flow insert-step and form publishing",
-      "pr": 2457,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2457",
-      "commit": "8a33d5e6531df9a782b4daa1c524e38a331f67f2"
+      "title": "fix(klaviyo): report targeting joins report rows to campaign audiences again",
+      "pr": 2458,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2458",
+      "commit": "3e9b4be102c140f561c84c1028919a74d90fd792"
     }
   ]
 }
