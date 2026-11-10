@@ -16756,10 +16756,25 @@
         "Turn a growth brief into a structured Klaviyo campaign, flow, segment, and experiment strategy.",
         "QA Gate",
         "plan qa-gate",
-        "Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, compliance, and deliverability flags.",
+        "Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, compliance and deliverability; with --brand, also check colors, logos and the footer against the Klaviyo brand kit.",
         "Targeting Report",
         "report targeting",
-        "Join campaign audience segments to sends, attributed revenue, exclusions, last-mailed dates, and a never-mailed segment list."
+        "Join campaign audience segments to sends, attributed revenue, exclusions, last-mailed dates, and a never-mailed segment list.",
+        "Send Budget",
+        "send-budget",
+        "Show this billing period's email sends against the plan cap, add recipient estimates for every scheduled campaign, and say whether the period goes over and by how much.",
+        "Flow Insert Step",
+        "flows insert-step",
+        "Preview a flow before and after adding one step after an existing action, then insert it with --apply and confirm the placement from a re-read.",
+        "Form Publish",
+        "forms publish",
+        "Show the draft-versus-live changes and the last 30 days of views and submits for a signup form, then publish the draft with --apply.",
+        "Form Unpublish",
+        "forms unpublish",
+        "Show a live form's last 30 days of numbers, then take it down with --apply and confirm it is no longer live.",
+        "Campaign Test Send",
+        "campaigns test-send",
+        "Run the campaign QA gate and, only when it passes, email a preview of each email variation to up to five team addresses."
       ],
       "path": "library/marketing/klaviyo",
       "release": {
@@ -16777,10 +16792,11 @@
       "mcp": {
         "binary": "klaviyo-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
-        "tool_count": 308,
-        "public_tool_count": 11,
+        "tool_count": 92,
+        "public_tool_count": 92,
         "auth_type": "api_key",
         "env_vars": [
           "PRINTING_PRESS_CLIENT_PROFILE"
