@@ -137,7 +137,7 @@ func TestRXReportRetriesRecordSessionAndReceiptTelemetry(t *testing.T) {
 			initiallyExhausted bool
 		}{
 			{"recovered", 1, "2", 2 * time.Second, false},
-			{"wait-capped", 1, "120", time.Minute, false},
+			{"full-retry-after", 1, "120", 2 * time.Minute, false},
 			{"exhausted", 4, "2", 2 * time.Second, false},
 			{"previously-exhausted", 1, "2", 2 * time.Second, true},
 		} {

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "targeting-preserves-typed-message-joins",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261110-011500-4505b426",
+  "base_printing_press_version": "4.35.4",
+  "summary": "Targeting must preserve message-keyed audience attribution through the typed analytics declaration, resolve each distinct message audience once, batch variations with message collections, and avoid profile-count enrichment it does not use.",
+  "reason": "The 2026-10-15 message-to-audience join already produced results, but converting its []map[string]any through an incompatible slice helper erased matched rows and metrics before validation. Per-message variation reads and an overly conservative message budget added minutes; compound data must be complete before replacing a paginated variation read, and report retries must honor the full Retry-After.",
+  "files": [
+    "internal/cli/klaviyo_reports.go",
+    "internal/cli/klaviyo_campaign_model.go",
+    "internal/cli/platform_adapter.go",
+    "internal/cli/klaviyo_targeting_regression_test.go",
+    "internal/cli/review_re_test.go",
+    "internal/cli/review_rx_test.go",
+    "internal/client/client.go",
+    "internal/client/endpoint_class_test.go"
+  ],
+  "validated_outcome": "The full command reproduces the original zero-match rejection before the fix. With 39 message-keyed report rows and 51 audience assignments, two report pages, and one segment/list page each, requests fall from 84 to 45: one batched message lookup, 39 audience reads, and zero variation or profile-count reads. Segment sends/revenue and list/segment exclusions are asserted; duplicate rows do not inflate assignments. Partial compound variations fall back to complete relationship pagination. Message reads retain the published 150/minute ceiling, tag reads retain their lower fallback, reports retain 2/minute, and profile-count pacing remains 15/minute. Real-account verification is recorded separately from fixture evidence."
+}

@@ -138,6 +138,10 @@ func bindKlaviyoPlatformClient(c *client.Client, session *platform.Session) erro
 	if err := c.SetPlatformEndpointBudget(platform.EndpointBudget{Class: "GET /api/accounts", Steady: 15, Interval: time.Minute, Burst: 1, MaxAttempts: 4, RetryBudget: time.Minute}); err != nil {
 		return err
 	}
+	// Message, audience and variation GETs allow 150/m; lower-limit tag GETs use the fallback class.
+	if err := c.SetPlatformEndpointBudget(platform.EndpointBudget{Class: "GET /api/campaign-messages", Steady: 150, Interval: time.Minute, Burst: 1, MaxAttempts: 4, RetryBudget: time.Minute}); err != nil {
+		return err
+	}
 	// PATCH(review-rb-report-budgets): reports have a pinned steady ceiling of 2/minute, below the wildcard.
 	for _, endpoint := range []string{
 		"campaign-values-reports", "flow-values-reports", "flow-series-reports",

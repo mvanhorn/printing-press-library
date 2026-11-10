@@ -36,6 +36,25 @@ func TestSafeEndpointClassIgnoresQueryAndFragment(t *testing.T) {
 	}
 }
 
+func TestSafeEndpointClassSeparatesCampaignMessageTagLimits(t *testing.T) {
+	for _, endpoint := range []string{
+		"/api/campaign-messages/message-a/tags/",
+		"/api/campaign-messages/message-b/relationships/tags?fields[tag]=name#ignored",
+	} {
+		if got := safeEndpointClass("get", endpoint); got != "GET /api/campaign-messages/tags" {
+			t.Fatalf("tag class = %q, want separate lower budget", got)
+		}
+	}
+	for _, endpoint := range []string{
+		"/api/campaign-messages", "/api/campaign-messages/message-a",
+		"/api/campaign-messages/message-a/campaign-audience", "/api/campaign-messages/message-a/campaign-variations",
+	} {
+		if got := safeEndpointClass("GET", endpoint); got != "GET /api/campaign-messages" {
+			t.Fatalf("message class = %q", got)
+		}
+	}
+}
+
 func TestEndpointClassSharesBudgetAndPreservesRequestQuery(t *testing.T) {
 	paths := []string{
 		"/api/campaign-message-assign-template?fields%5Bcampaign-message%5D=id",

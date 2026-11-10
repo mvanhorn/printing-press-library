@@ -167,7 +167,7 @@ func postKlaviyoReport(c flowClient, path string, body any, extraHeaders ...map[
 			if retries == 3 || !errors.As(err, &limited) {
 				return nil, status, err
 			}
-			wait := min(limited.RetryAfter, time.Minute)
+			wait := limited.RetryAfter
 			session.RecordRateLimitRetry(wait)
 			if err := waitForKlaviyoReportRetry(ctx, wait); err != nil {
 				return nil, status, err
@@ -319,11 +319,10 @@ func newReportTargetingCmd(flags *rootFlags) *cobra.Command {
 			}
 			result["timeframe"] = timeframe
 			result["conversion_metric_id"] = metricID
-			audiences := anySlice(result["audiences"])
+			audiences := result["audiences"].([]map[string]any)
 			attributedRevenue, totalSends := 0.0, 0.0
 			var newest time.Time
-			for _, item := range audiences {
-				row, _ := item.(map[string]any)
+			for _, row := range audiences {
 				attributedRevenue += anyFloat(row["attributed_revenue"])
 				totalSends += anyFloat(row["total_sends"])
 				if parsed := parseDate(fmt.Sprint(row["last_mailed_at"])); parsed.After(newest) {
@@ -550,7 +549,8 @@ func fetchTargetingCampaigns(c flowClient, reportRows []map[string]any) ([]map[s
 	for _, row := range reportRows {
 		ids = append(ids, campaignReportMessageID(row))
 	}
-	rows, err := campaignMessageRowsByID(c, ids)
+	reader := campaignMessageReader{client: c, includeVariations: true}
+	rows, err := reader.rowsByID(ids)
 	if err != nil {
 		return nil, err
 	}
