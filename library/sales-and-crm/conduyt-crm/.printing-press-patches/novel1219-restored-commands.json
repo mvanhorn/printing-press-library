@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-restored-commands",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "The four restored commands attach to their generated parent groups (reports, dialer, automations) through the novel-command hook in a hand-authored file, so a reprint that regenerates reports.go, dialer.go and automations.go keeps them; README, SKILL, research.json, root.go and which.go list them again (recipes select rows.* fields the views have).",
+  "reason": "Greptile round 2 on PR #2450 (P1): the 4.34.2 reprint removed four published commands the public entry serves today (reports compare, reports scorecard, dialer coverage, automations hours-audit). Orchestrator default (Paul's answer pending, draft PR): port them back from the public entry.",
+  "files": [
+    "internal/cli/novel1219_restored_commands.go",
+    "internal/cli/novel1219_restored_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-restored-commands)"
+  ],
+  "validated_outcome": "TestNovel1219RestoredCommandsAreServed: each of the four resolves under its parent with its RunE and annotations; the FULL live gate covers all four."
+}

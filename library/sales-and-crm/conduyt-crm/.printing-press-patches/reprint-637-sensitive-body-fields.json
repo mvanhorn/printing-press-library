@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "reprint-637-sensitive-body-fields",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Operation-scoped secret body fields (sensitiveBodyFields in internal/client/client.go, like sensitivePathParams): PUT /chat/agents/{id}/webhook `paste` (the pasted webhook URL plus crsr_ key) and `address` (the webhook URL) are masked in the dry-run preview, and their values, every whitespace piece and the query values of a URL piece join the error-body mask set. `address` stays readable on every other path.",
+  "reason": "isSensitiveName reads `paste` and `address` as ordinary names, so `--dry-run --paste` and an echoed 400 body printed the Grok Bot webhook credentials (Codex reprint637-r1 P1).",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/sensitive_body_fields_test.go"
+  ],
+  "validated_outcome": "TestWebhookPasteIsMaskedInTheDryRunPreview and TestWebhookPasteEchoedInAnErrorBodyIsMasked fail with the two call sites removed and pass with them; TestAddressStaysReadableOffTheWebhookPath. A reprint must keep the two `// PATCH(reprint-637-sensitive-body-fields)` call sites and extend the map when a new operation carries a credential under an ordinary name."
+}

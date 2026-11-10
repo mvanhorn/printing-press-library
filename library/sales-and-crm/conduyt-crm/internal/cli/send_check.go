@@ -3,7 +3,6 @@ package cli
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/conduyt-crm/internal/store"
 	"github.com/spf13/cobra"
@@ -12,14 +11,24 @@ import (
 	"text/tabwriter"
 )
 
+// PATCH(novel1219-send-check): the public library entry's hardened send-check ported back over the reprint's simple
+// version: smart-list members through GET /contacts?smartListId (the /smart-lists/{id}/contacts route is add/remove
+// only), full pagination of lists and repeatable tags with a progress guard and a metadata-total cross-check, DNC
+// verdicts from the contact-specific GET /contacts/dnc-status (chunks of 500, truncated/missing answers make the
+// result inconclusive) instead of a one-page /dnc list matched on the last 7 digits, phone identity through
+// normalizePhoneIdentity, and a synced, fresh local mirror read before --limit. The reprint's gate contract stays:
+// a no_go verdict exits 2.
 // pp:data-source auto
 func newNovelSendCheckCmd(flags *rootFlags) *cobra.Command {
 	var list, contact, dbPath string
 	var tags []string
 	var limit int
-	cmd := &cobra.Command{Use: "send-check", Short: "A go/no-go verdict for a send list before any SMS or drip", Long: "Use this command for a go/no-go verdict on exactly one smart list, tag, or contact. Local mirror filters are applied before --limit; live list reads paginate up to --limit, while repeatable live tags are merged and de-duplicated before --limit. Do NOT use it to count unverified numbers or their Twilio cost; use 'contacts verify-line-type --estimate' instead. Exits 4 when DNC access is unauthorized and 5 when the DNC API cannot answer.", Example: "  conduyt-crm-pp-cli send-check --list 8f2c1a7e --agent", Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "auto"}, RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "send-check", Short: "A go/no-go verdict for a send list before any SMS or drip", Long: "Use this command for a go/no-go verdict on exactly one smart list, tag, or contact: per contact, phone present and mappable, Twilio-verified line type, Twilio validity, and the contact's SMS DNC status from GET /contacts/dnc-status. Local mirror filters are applied before --limit; live list reads paginate up to --limit, while repeatable live tags are merged and de-duplicated before --limit. An empty scope is a clean 0-checked answer. Exits 0 on go (or an empty scope), 2 on no_go or a usage error, 3 when --contact does not exist, 4 when DNC access is unauthorized (needs the 'communications' view scope), and 5 when the result is inconclusive (a capped, short or failed audience read, or a DNC answer that is missing, truncated or omits a contact). Do NOT use it to count unverified numbers or their Twilio cost; use 'contacts verify-line-type --estimate' instead.", Example: strings.Trim(`
+  conduyt-crm-pp-cli send-check --tag new-leads
+  conduyt-crm-pp-cli send-check --contact 9e778307-e575-420b-b02c-dc9cc564febd --json
+  conduyt-crm-pp-cli send-check --list 7c1d2e3f-0000-0000-0000-000000000000 --agent --select summary`, "\n"), Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "auto", "pp:typed-exit-codes": "0,2,3,4,5"}, RunE: func(cmd *cobra.Command, args []string) error {
 		if dryRunOK(flags) {
-			return writeDryRun(cmd.OutOrStdout(), flags, "send-check")
+			return writeDryRun(cmd.OutOrStdout(), flags, "send-check") // PATCH(gocli1219-live-gate-defects): --dry-run --json answers a dry_run object
 		}
 		set := 0
 		if list != "" {
@@ -51,75 +60,23 @@ func newNovelSendCheckCmd(flags *rootFlags) *cobra.Command {
 		if dbPath == "" {
 			dbPath = defaultDBPath("conduyt-crm-pp-cli")
 		}
+		// PATCH(novel1219-send-check) r2: the audience source follows --data-source, and a scope the mirror cannot
+		// resolve is never an empty audience. Smart-list membership is not in synced contacts, so --list is always
+		// live; a tag or contact is read locally only from a synced, fresh mirror that returns rows (tags match the
+		// tag objects the contacts route serializes, by name or id). Under --data-source local an unresolvable or
+		// unusable mirror is an inconclusive answer (exit 5), never an empty one.
 		useLocal := false
-		if _, err := os.Stat(dbPath); err == nil {
-			db, e := store.OpenWithContext(ctx, dbPath)
-			if e != nil {
-				return fmt.Errorf("opening local mirror: %w", e)
-			}
-			defer db.Close()
-			_, syncedAt, _, stateErr := db.GetSyncState("contacts")
-			count, countErr := db.Count("contacts")
-			if stateErr != nil || countErr != nil {
-				return fmt.Errorf("checking contacts mirror state: %w", errors.Join(stateErr, countErr))
-			}
-			useLocal = !syncedAt.IsZero() && count > 0
-			if useLocal && hintIfStale(cmd, db, "contacts", flags.maxAge) {
-				useLocal = false
-			}
-			query, queryArgs, expressible := sendLocalQuery(list, contact, tags, limit)
-			if !expressible {
-				useLocal = false
-			}
-			var qr interface {
-				Next() bool
-				Scan(...any) error
-				Err() error
-				Close() error
-			}
-			if useLocal {
-				qr, e = db.DB().QueryContext(ctx, query, queryArgs...)
-			}
-			if e != nil {
-				return fmt.Errorf("reading contacts mirror: %w", e)
-			}
-			for useLocal && qr.Next() {
-				var id string
-				var raw []byte
-				if e = qr.Scan(&id, &raw); e != nil {
-					_ = qr.Close()
-					return e
-				}
-				var m map[string]any
-				if decodeErr := json.Unmarshal(raw, &m); decodeErr != nil {
-					partial = true
-					failures = append(failures, fmt.Sprintf("decoding mirrored contact %s: %v", id, decodeErr))
-					continue
-				}
-				rows = append(rows, decodeSendContact(m, id))
-			}
-			if useLocal {
-				if rowsErr := qr.Err(); rowsErr != nil {
-					partial = true
-					failures = append(failures, fmt.Sprintf("reading contacts mirror: %v", rowsErr))
-				}
-				e = qr.Close()
-			}
+		if flags.dataSource != "live" {
+			local, e := sendCheckLocalAudience(cmd, flags, dbPath, list, contact, tags, limit)
 			if e != nil {
 				return e
 			}
-			if useLocal && len(rows) > limit {
-				partial = true
-				countQuery, countArgs, _ := sendLocalCountQuery(list, contact, tags)
-				var n int
-				if e = db.DB().QueryRowContext(ctx, countQuery, countArgs...).Scan(&n); e != nil {
-					return fmt.Errorf("counting contacts mirror audience: %w", e)
-				}
-				total = &n
-				rows = rows[:limit]
+			if local.usable {
+				useLocal = true
+				rows, partial, failures, total = local.rows, local.partial, local.failures, local.total
+			} else if flags.dataSource == "local" {
+				return writeSendCheckAudienceFailure(cmd, flags, fmt.Errorf("the local mirror cannot resolve this audience (%s); re-run with --data-source live or auto", local.reason))
 			}
-		} else if !os.IsNotExist(err) {
-			return fmt.Errorf("checking local mirror: %w", err)
 		}
 		if useLocal {
 			flags.agentSource = "local"
@@ -309,10 +266,7 @@ func newNovelSendCheckCmd(flags *rootFlags) *cobra.Command {
 			if err := printJSONFiltered(cmd.OutOrStdout(), out, flags); err != nil {
 				return err
 			}
-			if out.Partial {
-				return apiErr(fmt.Errorf("send-check is inconclusive: %s", sendCheckPartialReason(out.Failures, limit, out.Summary.Checked)))
-			}
-			return nil
+			return sendCheckExit(out, limit)
 		}
 		tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
 		if out.Partial {
@@ -326,10 +280,7 @@ func newNovelSendCheckCmd(flags *rootFlags) *cobra.Command {
 		if err := tw.Flush(); err != nil {
 			return err
 		}
-		if out.Partial {
-			return apiErr(fmt.Errorf("send-check is inconclusive: %s", sendCheckPartialReason(out.Failures, limit, out.Summary.Checked)))
-		}
-		return nil
+		return sendCheckExit(out, limit)
 	}}
 	cmd.Flags().StringVar(&list, "list", "", "Smart list ID")
 	cmd.Flags().StringSliceVar(&tags, "tag", nil, "Contact tag (repeatable)")
@@ -337,6 +288,18 @@ func newNovelSendCheckCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&limit, "limit", 200, "Maximum contacts to check")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Local mirror path")
 	return cmd
+}
+
+// sendCheckExit is the gate contract: inconclusive exits 5, no_go exits 2 (the reprint's "safe to gate a pipeline on"
+// promise), go exits 0. The verdict JSON is printed before either error.
+func sendCheckExit(out sendCheckView, limit int) error {
+	if out.Partial {
+		return apiErr(fmt.Errorf("send-check is inconclusive: %s", sendCheckPartialReason(out.Failures, limit, out.Summary.Checked)))
+	}
+	if out.Verdict == "no_go" {
+		return &cliError{code: 2, err: fmt.Errorf("send-check verdict no_go: %d of %d contacts are not ok", out.Summary.Checked-out.Summary.OK, out.Summary.Checked)}
+	}
+	return nil
 }
 
 func sendContactIDs(rows []sendContact) []string {
@@ -415,14 +378,18 @@ func sendLocalFilter(list, contact string, tags []string) (string, []any, bool) 
 	case contact != "":
 		return `id = ?`, []any{contact}, true
 	case list != "":
-		return `(json_extract(data, '$.smartListId') = ? OR json_extract(data, '$.smart_list_id') = ? OR EXISTS (SELECT 1 FROM json_each(data, '$.smartListIds') WHERE value = ?))`, []any{list, list, list}, true
+		// Smart-list membership (static or dynamic) is resolved by the API only.
+		return "", nil, false
 	case len(tags) > 0:
+		// The contacts route serializes tags as objects ({id, name, ...}); a plain string tag is accepted too.
 		placeholders := strings.TrimSuffix(strings.Repeat("?,", len(tags)), ",")
-		args := make([]any, 0, len(tags))
-		for _, tag := range tags {
-			args = append(args, tag)
+		args := make([]any, 0, 3*len(tags))
+		for range 3 {
+			for _, tag := range tags {
+				args = append(args, tag)
+			}
 		}
-		return `EXISTS (SELECT 1 FROM json_each(data, '$.tags') WHERE value IN (` + placeholders + `))`, args, true
+		return `EXISTS (SELECT 1 FROM json_each(data, '$.tags') WHERE (json_each.type = 'text' AND json_each.value IN (` + placeholders + `)) OR (json_each.type = 'object' AND (json_extract(json_each.value, '$.name') IN (` + placeholders + `) OR json_extract(json_each.value, '$.id') IN (` + placeholders + `))))`, args, true
 	default:
 		return "", nil, false
 	}
@@ -550,4 +517,103 @@ func sendResponseTotal(raw json.RawMessage) (int, bool) {
 func mapAny(value any) map[string]any {
 	m, _ := value.(map[string]any)
 	return m
+}
+
+type sendLocalResult struct {
+	usable   bool
+	reason   string
+	rows     []sendContact
+	partial  bool
+	failures []string
+	total    *int
+}
+
+// sendCheckLocalAudience reads the audience from the local mirror when it can answer it: a synced, fresh contacts
+// mirror, a scope it can express (never a smart list), and at least one matching row. Anything else is not usable,
+// with the reason, so auto falls back live and local reports it as inconclusive.
+func sendCheckLocalAudience(cmd *cobra.Command, flags *rootFlags, dbPath, list, contact string, tags []string, limit int) (sendLocalResult, error) {
+	ctx := cmd.Context()
+	out := sendLocalResult{failures: make([]string, 0)}
+	query, queryArgs, expressible := sendLocalQuery(list, contact, tags, limit)
+	if !expressible {
+		out.reason = "smart-list membership is not stored in synced contacts"
+		return out, nil
+	}
+	if _, err := os.Stat(dbPath); err != nil {
+		if os.IsNotExist(err) {
+			out.reason = "no local mirror at " + dbPath
+		} else {
+			out.reason = "the local mirror cannot be read: " + err.Error()
+		}
+		return out, nil
+	}
+	// PATCH(novel1219-send-check) r4: every local read stage (open, sync state, count, query, scan, iteration,
+	// close, the capped count) funnels into one "mirror unusable" result: auto then reads live, local exits 5.
+	unusable := func(stage string, err error) (sendLocalResult, error) {
+		return sendLocalResult{failures: make([]string, 0), reason: "the local mirror is unusable (" + stage + ": " + err.Error() + ")"}, nil
+	}
+	db, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		return unusable("opening", err)
+	}
+	defer db.Close()
+	reader := newMirrorReader(db.DB())
+	// PATCH(novel1219-send-check) r5: the sync state (timestamp, total, attempt completeness) is read once through
+	// the mirror reader, and freshness is decided from it; no check re-reads sync_state outside the unusable path.
+	state, err := readContactsSyncState(ctx, reader)
+	if err != nil {
+		return unusable("reading sync state", err)
+	}
+	syncedAt, syncTotal, attemptComplete := state.SyncedAt, state.Total, state.AttemptComplete
+	count, err := reader.Count(ctx, `SELECT COUNT(*) FROM resources WHERE resource_type = 'contacts'`)
+	if err != nil {
+		return unusable("counting contacts", err)
+	}
+	if syncedAt.IsZero() || count == 0 {
+		out.reason = "contacts were never synced"
+		return out, nil
+	}
+	// PATCH(novel1219-send-check) r3: a mirror counts only when its last sync attempt finished and its row count
+	// reconciles with the synced total; an interrupted, aborted or in-progress attempt is not a mirror.
+	if !attemptComplete {
+		out.reason = "the last contacts sync attempt did not finish"
+		return out, nil
+	}
+	if count != syncTotal {
+		out.reason = fmt.Sprintf("the contacts mirror holds %d rows but its last sync reported %d", count, syncTotal)
+		return out, nil
+	}
+	if mirrorOlderThan(cmd, syncedAt, flags.maxAge) {
+		out.reason = "the contacts mirror is older than --max-age"
+		return out, nil
+	}
+	rows, err := readMirrorRows(ctx, reader, query, queryArgs...)
+	if err != nil {
+		return unusable("reading the audience", err)
+	}
+	for _, row := range rows {
+		var m map[string]any
+		if decodeErr := json.Unmarshal(row.Data, &m); decodeErr != nil {
+			return unusable("decoding mirrored contact "+row.ID, decodeErr)
+		}
+		out.rows = append(out.rows, decodeSendContact(m, row.ID))
+	}
+	if len(out.rows) == 0 {
+		// Zero local matches cannot prove an empty audience (a tag added after the sync, an unsynced contact).
+		out.reason = "the mirror holds no contact in this scope"
+		return out, nil
+	}
+	if len(out.rows) > limit {
+		// A deliberate --limit cap: the local answer stands, partial, with the full audience size.
+		countQuery, countArgs, _ := sendLocalCountQuery(list, contact, tags)
+		n, err := reader.Count(ctx, countQuery, countArgs...)
+		if err != nil {
+			return unusable("counting the capped audience", err)
+		}
+		out.partial = true
+		out.total = &n
+		out.rows = out.rows[:limit]
+	}
+	out.usable = true
+	return out, nil
 }

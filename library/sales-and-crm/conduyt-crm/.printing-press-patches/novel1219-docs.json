@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-docs",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "README.md, SKILL.md, research.json, root.go and which.go describe the ported commands: blame groups error rows and reads the job-scoped side effects, watch --verify checks those side effects (no SMS delivery report), and the paid line-type loop is 'contacts verify-line-type run --until-done'; the blame recipe selects row_outcomes,errors_by_reason and the send-check recipe drills into verdicts.contact_id,verdicts.verdict. Round 3 (Codex novel1219-r2 P3): the remaining delivery claims are gone ('who actually got the SMS', 'get its texts', the blame Short, the research rationales and trigger phrase). Round 4: 'delivery side effects' is now 'side effects' in README, SKILL, research.json, which.go and root.go. Round 5: the paid-loop guidance names its required scope ('contacts verify-line-type run --until-done --smart-list <uuid>' or --contact-ids). Round 14: README, SKILL, research.json, root.go and which.go list reports scorecard, reports compare, automations hours-audit and dialer coverage again (the public entry's text; recipes select rows.* fields, and the scorecard recipe uses --period month since a rolling 30d window is refused).",
+  "reason": "Codex novel1219-r1 P3: public guidance still described the reprint's removed behaviour.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    ".manuscripts/20261108-052151/research.json",
+    "internal/cli/which.go",
+    "internal/cli/root.go",
+    "internal/cli/imports_blame.go"
+  ],
+  "markers": [
+    "contacts verify-line-type run --until-done"
+  ],
+  "validated_outcome": "verify-skill passes; the recipes name flags and fields the commands have. Round 3: TestNovel1219NoSMSDeliveryClaimsForImportCommands. Round 4: TestNovel1219NovelCommandHelpNeverClaimsDelivery. Round 5: verify-skill passes."
+}

@@ -9,19 +9,16 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/conduyt-crm/internal/cliutil/testenv"
 )
 
-// PATCH(slack-settings-typed-body-578): POST /integrations/slack/settings distinguishes an omitted notifyEvents (keep the stored list) from an
-// explicit [] (clear every alert group) from a non-array (400, the API owns that rule), and an omitted channel keeps the stored destination.
-// The CLI must therefore send exactly the fields the user passed, and an explicit empty list must reach the wire as [] and not be dropped.
+// POST /integrations/slack/settings (app main 00749249c, small563): an omitted notifyEvents keeps the stored list, an explicit [] clears every
+// event, a non-array or null is a 400 (the API owns that rule), and an omitted channel keeps the stored destination. The CLI must therefore send
+// exactly the fields the user passed, and an explicit empty list must reach the wire as [] and not be dropped.
 func runSlackSettings(t *testing.T, stdin string, args ...string) (body map[string]any, hits int, err error) {
 	t.Helper()
-	testenv.Isolate(t)
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		hits++
-		if r.Method != http.MethodPost || r.URL.Path != "/integrations/slack/settings" {
+		if r.Method != "POST" || r.URL.Path != "/api/v1/integrations/slack/settings" {
 			t.Errorf("unexpected request %s %s", r.Method, r.URL.Path)
 		}
 		raw, _ := io.ReadAll(r.Body)
@@ -33,10 +30,10 @@ func runSlackSettings(t *testing.T, stdin string, args ...string) (body map[stri
 		_, _ = w.Write([]byte(`{"data":{"success":true}}`))
 	}))
 	defer srv.Close()
-	t.Setenv("CONDUYT_CRM_BASE_URL", srv.URL)
+	t.Setenv("CONDUYT_CRM_BASE_URL", srv.URL+"/api/v1")
 	t.Setenv("CONDUYT_CRM_BEARER_AUTH", "test-token")
+	t.Setenv("CONDUYT_CRM_CONFIG", filepath.Join(t.TempDir(), "config.toml"))
 	cmd := newIntegrationsPostSlackSettingsCmd(&rootFlags{noCache: true})
-	cmd.SilenceUsage = true
 	cmd.SetOut(io.Discard)
 	cmd.SetErr(io.Discard)
 	cmd.SetIn(strings.NewReader(stdin))
@@ -61,32 +58,28 @@ func TestSlackSettingsBodyIsExactlyTheFlagsPassed(t *testing.T) {
 		{"both", []string{"--channel", "C123", "--notify-events", "a"}, `{"channel":"C123","notifyEvents":["a"]}`},
 	}
 	for _, c := range cases {
-		t.Run(c.name, func(t *testing.T) {
-			body, hits, err := runSlackSettings(t, "", c.args...)
-			if err != nil || hits != 1 {
-				t.Fatalf("err=%v hits=%d", err, hits)
-			}
-			got, _ := json.Marshal(body)
-			if string(got) != c.want {
-				t.Errorf("body = %s, want %s", got, c.want)
-			}
-		})
+		body, hits, err := runSlackSettings(t, "", c.args...)
+		if err != nil || hits != 1 {
+			t.Fatalf("%s: err=%v hits=%d", c.name, err, hits)
+		}
+		got, _ := json.Marshal(body)
+		if string(got) != c.want {
+			t.Errorf("%s: body = %s, want %s", c.name, got, c.want)
+		}
 	}
 }
 
 func TestSlackSettingsStdinStillPassesThroughUntouched(t *testing.T) {
 	// a non-array notifyEvents must reach the API unchanged so the API can answer 400; the CLI does not rewrite it
 	for _, in := range []string{`{"notifyEvents":[]}`, `{"channel":"x"}`, `{"notifyEvents":"a"}`, `{"notifyEvents":null}`} {
-		t.Run(in, func(t *testing.T) {
-			body, hits, err := runSlackSettings(t, in, "--stdin")
-			if err != nil || hits != 1 {
-				t.Fatalf("err=%v hits=%d", err, hits)
-			}
-			got, _ := json.Marshal(body)
-			if string(got) != in {
-				t.Errorf("stdin %s became %s", in, got)
-			}
-		})
+		body, hits, err := runSlackSettings(t, in, "--stdin")
+		if err != nil || hits != 1 {
+			t.Fatalf("%s: err=%v hits=%d", in, err, hits)
+		}
+		got, _ := json.Marshal(body)
+		if string(got) != in {
+			t.Errorf("stdin %s became %s", in, got)
+		}
 	}
 }
 
@@ -104,13 +97,13 @@ func TestSlackSettingsHelpStatesTheThreeSemantics(t *testing.T) {
 	if cmd.Flags().Lookup("channel") == nil || cmd.Flags().Lookup("stdin") == nil {
 		t.Error("--channel or --stdin missing")
 	}
+	raw, err := readRepoFile("tools-manifest.json")
+	if err != nil || !strings.Contains(raw, `"name": "notifyEvents"`) {
+		t.Errorf("tools-manifest.json lacks notifyEvents (err=%v)", err)
+	}
 }
 
-func readRepoFile(t *testing.T, rel string) string {
-	t.Helper()
+func readRepoFile(rel string) (string, error) {
 	b, err := os.ReadFile(filepath.Join("..", "..", rel))
-	if err != nil {
-		t.Fatal(err)
-	}
-	return string(b)
+	return string(b), err
 }

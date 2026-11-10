@@ -6,10 +6,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -142,72 +140,10 @@ func TestNovelAutomationsHoursAuditLiveTruncationIsPartial(t *testing.T) {
 	}
 }
 
-func TestPaginatedGetMissingCursorAndPageCapAreTyped(t *testing.T) {
-	t.Run("missing cursor", func(t *testing.T) {
-		_, err := paginatedGet(context.Background(), paginationClientFunc(func(context.Context, string, map[string]string, map[string]string) (json.RawMessage, error) {
-			return json.RawMessage(`{"data":[{"id":"a"}],"has_more":true}`), nil
-		}), "/things", nil, nil, true, "cursor", "cursor", "limit", 0, "next_cursor", "has_more")
-		var typed *paginationTruncationError
-		if !errors.As(err, &typed) || !strings.Contains(err.Error(), "omits the next cursor") {
-			t.Fatalf("err=%v", err)
-		}
-	})
-	t.Run("page cap", func(t *testing.T) {
-		calls := 0
-		_, err := paginatedGet(context.Background(), paginationClientFunc(func(context.Context, string, map[string]string, map[string]string) (json.RawMessage, error) {
-			calls++
-			return json.RawMessage(`[{"id":"` + strconv.Itoa(calls) + `"}]`), nil
-		}), "/things", map[string]string{"page": "1", "per_page": "1"}, nil, true, "page", "page", "per_page", 1, "", "")
-		var typed *paginationTruncationError
-		if !errors.As(err, &typed) || calls != paginationMaxPages {
-			t.Fatalf("err=%v calls=%d", err, calls)
-		}
-	})
-}
-
-func TestPaginatedGetReportedTotalsMustRemainConsistent(t *testing.T) {
-	for _, tc := range []struct {
-		name       string
-		secondMeta string
-		want       string
-	}{
-		{"drifting total", `"total":1,`, "total changed from 2 to 1"},
-		{"zero total", `"total":0,`, "total changed from 2 to 0"},
-		{"missing total", "", "total changed from 2 to missing"},
-		{"malformed total", `"total":"many",`, "total changed from 2 to invalid"},
-		{"consistent total", `"total":2,`, ""},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			calls := 0
-			_, err := paginatedGet(context.Background(), paginationClientFunc(func(context.Context, string, map[string]string, map[string]string) (json.RawMessage, error) {
-				calls++
-				if calls == 1 {
-					return json.RawMessage(`{"data":[{"id":"a"},{"id":"b"}],"meta":{"total":2,"has_more":true}}`), nil
-				}
-				return json.RawMessage(fmt.Sprintf(`{"data":[],"meta":{%s"has_more":false}}`, tc.secondMeta)), nil
-			}), "/things", map[string]string{"page": "1", "per_page": "2"}, nil, true, "page", "page", "per_page", 2, "", "meta.has_more")
-			var typed *paginationTruncationError
-			if (tc.want != "") != errors.As(err, &typed) || (tc.want != "" && !strings.Contains(err.Error(), tc.want)) || (tc.want == "" && err != nil) {
-				t.Fatalf("err=%v calls=%d", err, calls)
-			}
-		})
-	}
-}
-
-func TestPaginatedGetAbsentTotalsUseFetchedCount(t *testing.T) {
-	calls := 0
-	data, err := paginatedGet(context.Background(), paginationClientFunc(func(context.Context, string, map[string]string, map[string]string) (json.RawMessage, error) {
-		calls++
-		if calls == 1 {
-			return json.RawMessage(`{"data":[{"id":"a"},{"id":"b"}],"meta":{"has_more":true}}`), nil
-		}
-		return json.RawMessage(`{"data":[],"meta":{"has_more":false}}`), nil
-	}), "/things", map[string]string{"page": "1", "per_page": "2"}, nil, true, "page", "page", "per_page", 2, "", "meta.has_more")
-	var items []json.RawMessage
-	if err != nil || json.Unmarshal(data, &items) != nil || len(items) != 2 {
-		t.Fatalf("err=%v data=%s calls=%d", err, data, calls)
-	}
-}
+// The public entry's TestPaginatedGetMissingCursorAndPageCapAreTyped, TestPaginatedGetReportedTotalsMustRemainConsistent
+// and TestPaginatedGetAbsentTotalsUseFetchedCount tested its helpers.go paginatedGet typed error, which the 4.34.2
+// reprint does not have; the same cases are pinned against fetchHoursAuditAutomations in novel1219_restored_test.go.
+// PATCH(novel1219-hours-audit)
 
 func TestNovelAutomationsHoursAuditBehavior(t *testing.T) {
 	testenv.Isolate(t)

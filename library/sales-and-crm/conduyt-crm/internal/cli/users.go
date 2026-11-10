@@ -11,21 +11,23 @@ func newUsersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "users",
 		Short:       "Team member management and invitations",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:parent-group": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersGetCmd(flags))
 	cmd.AddCommand(newUsersGetMeCmd(flags))
+	cmd.AddCommand(newUsersGetMeTourCmd(flags))
 	cmd.AddCommand(newUsersInviteCmd(flags))
 	cmd.AddCommand(newUsersListCmd(flags))
 	cmd.AddCommand(newUsersPatchMeCmd(flags))
 	cmd.AddCommand(newUsersPostCmd(flags))
+	cmd.AddCommand(newUsersPostMeTourCmd(flags))
 	cmd.AddCommand(newUsersRemoveCmd(flags))
 	cmd.AddCommand(newUsersUpdateCmd(flags))
 	cmd.AddCommand(newUsersAvatarCmd(flags))
 	cmd.AddCommand(newUsersDeactivateCmd(flags))
-	cmd.AddCommand(newUsersItemInviteCmd(flags))
 	cmd.AddCommand(newUsersNotificationsCmd(flags))
 	cmd.AddCommand(newUsersReactivateCmd(flags))
 	cmd.AddCommand(newUsersResetPasswordCmd(flags))

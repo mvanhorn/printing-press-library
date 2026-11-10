@@ -1,9 +1,9 @@
 // Copyright 2026 Paul Taramona and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:data-source live
+// PATCH(novel1219-dialer-coverage): ported from the public library entry (Greptile PR #2450 round 2 P1).
 package cli
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -278,36 +278,4 @@ func unmarshalDataList(raw json.RawMessage, dst any) error {
 		raw = envelope.Data
 	}
 	return json.Unmarshal(raw, dst)
-}
-
-func rejectResponseErrorEnvelope(raw json.RawMessage) error {
-	var envelope map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &envelope); err != nil {
-		return nil
-	}
-	// Any non-null error value marks an error envelope, regardless of its JSON
-	// type. A non-empty string or object message does the same at the response
-	// root and in data envelopes; null and empty-string messages remain valid.
-	for depth := 0; envelope != nil; depth++ {
-		if value, ok := envelope["error"]; ok && string(bytes.TrimSpace(value)) != "null" {
-			return fmt.Errorf("unexpected error envelope")
-		}
-		if value, ok := envelope["message"]; ok {
-			var text string
-			if json.Unmarshal(value, &text) == nil && text != "" {
-				return fmt.Errorf("unexpected message envelope: %s", text)
-			}
-			var detail map[string]json.RawMessage
-			if json.Unmarshal(value, &detail) == nil && detail != nil {
-				return fmt.Errorf("unexpected message envelope")
-			}
-		}
-		data, ok := envelope["data"]
-		var nested map[string]json.RawMessage
-		if !ok || json.Unmarshal(data, &nested) != nil {
-			break
-		}
-		envelope = nested
-	}
-	return nil
 }

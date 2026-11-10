@@ -8,11 +8,15 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
 
 func newConduytAuthLogoutCmd(flags *rootFlags) *cobra.Command {
+	var bodyScreenShareCode string
+	var bodyScreenShareMarksDrew int
+	var bodyScreenShareMarksPointed string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -21,7 +25,18 @@ func newConduytAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  conduyt-crm-pp-cli conduyt-auth logout",
 		Annotations: map[string]string{"pp:endpoint": "conduyt-auth.logout", "pp:method": "POST", "pp:path": "/auth/logout"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// PATCH(nested-required-flags-637): no bare-invocation help guard: every input is optional (the screen-share
+			// object included), so a bare `conduyt-auth logout` logs out, as it did before the reprint.
 			if !stdinBody {
+				if !cmd.Flags().Changed("screen-share-code") && nestedFlagGroupChanged(cmd, "screen-share") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "screen-share-code")
+				}
+				if !cmd.Flags().Changed("screen-share-marks-drew") && nestedFlagGroupChanged(cmd, "screen-share-marks") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "screen-share-marks-drew")
+				}
+				if !cmd.Flags().Changed("screen-share-marks-pointed") && nestedFlagGroupChanged(cmd, "screen-share-marks") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "screen-share-marks-pointed")
+				}
 			}
 			path := "/auth/logout"
 			c, err := flags.newClient()
@@ -43,6 +58,31 @@ func newConduytAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				bodyMap := map[string]any{}
 				body = bodyMap
+				{
+					nestedScreenShare := map[string]any{}
+					if cmd.Flags().Changed("screen-share-code") { // PATCH(reprint-637-required-on-changed)
+						nestedScreenShare["code"] = bodyScreenShareCode
+					}
+					{
+						nestedScreenShareMarks := map[string]any{}
+						if cmd.Flags().Changed("screen-share-marks-drew") || bodyScreenShareMarksDrew != 0 { // PATCH(nested-required-flags-637): 0 is a valid count
+							nestedScreenShareMarks["drew"] = bodyScreenShareMarksDrew
+						}
+						if cmd.Flags().Changed("screen-share-marks-pointed") { // PATCH(reprint-637-required-on-changed)
+							parsedScreenShareMarksPointed, err := strconv.ParseBool(bodyScreenShareMarksPointed)
+							if err != nil {
+								return fmt.Errorf("parsing --screen-share-marks-pointed as bool: %w", err)
+							}
+							nestedScreenShareMarks["pointed"] = parsedScreenShareMarksPointed
+						}
+						if len(nestedScreenShareMarks) > 0 {
+							nestedScreenShare["marks"] = nestedScreenShareMarks
+						}
+					}
+					if len(nestedScreenShare) > 0 {
+						bodyMap["screenShare"] = nestedScreenShare
+					}
+				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
@@ -139,20 +179,15 @@ func newConduytAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
-				// Mutation-riding reads (POST search, RPC-over-POST lists) return
-				// the same single-key collection envelopes as GET reads. Unwrap
-				// before filtering so rows nest once under the result key and
-				// --select filters rows, not envelope keys; plain created-object
-				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := unwrapSingleKeyArray(data)
+				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered, nil)
+					filtered = compactFields(filtered)
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -168,15 +203,7 @@ func newConduytAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				resultKey := "data"
-				if flags.agent {
-					resultKey = "results"
-				}
-				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
-				if err != nil {
-					return err
-				}
-				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -186,13 +213,12 @@ func newConduytAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlagsMeta renders the body with live
-			// provenance, then the typed partial-failure exit fires unless
-			// --allow-partial-failure downgrades it. Without this guard a
-			// partial failure would exit 0 for these output modes — the exact
-			// silent-swallow regression the surrounding patch is preventing
-			// for asJSON / piped output.
-			if perr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, nil); perr != nil {
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
 				return perr
 			}
 			if partialFailure != nil && !flags.allowPartialFailure {
@@ -201,6 +227,9 @@ func newConduytAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().StringVar(&bodyScreenShareCode, "screen-share-code", "", "Code")
+	cmd.Flags().IntVar(&bodyScreenShareMarksDrew, "screen-share-marks-drew", 0, "Drew")
+	cmd.Flags().StringVar(&bodyScreenShareMarksPointed, "screen-share-marks-pointed", "", "Pointed")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

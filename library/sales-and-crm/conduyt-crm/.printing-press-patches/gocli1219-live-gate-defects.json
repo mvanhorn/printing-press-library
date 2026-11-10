@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "gocli1219-live-gate-defects",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Real defects the 11-08 publish live gate found (triage: gocli1219-logs/triage.md class a): send-check answers an empty tag/smart-list scope as a clean 0-checked result (exit 0; an unknown --contact is still the API 404); drips audit refuses a non-UUID or second positional (usage error); imports blame/watch take --latest (the account's newest import job; no job is an exit-0 answer); every novel command answers --dry-run --json with the {dry_run, action, would} object; the three text-response endpoints (contacts export, contacts get-import-template, activity) answer --dry-run with it instead of the bare client sentinel; contacts verify-line-type --estimate carries dry_run/action under --dry-run; local-data purge names its action; tail reports an empty page as one {event: empty} line.",
+  "reason": "The live dogfood matrix (and agents) read --dry-run --json as a contract and an empty stdout or a not-found exit on an empty scope as a failure; the novel commands and three 4.34.2 framework paths broke it.",
+  "files": [
+    "internal/cli/send_check.go",
+    "internal/cli/drips_audit.go",
+    "internal/cli/imports_blame.go",
+    "internal/cli/imports_watch.go",
+    "internal/cli/imports_latest.go",
+    "internal/cli/contacts_verify_line_type.go",
+    "internal/cli/contacts_export.go",
+    "internal/cli/contacts_get-import-template.go",
+    "internal/cli/promoted_activity.go",
+    "internal/cli/local_data.go",
+    "internal/cli/tail.go",
+    "internal/cli/live_gate_defects_test.go"
+  ],
+  "markers": [
+    "PATCH(gocli1219-live-gate-defects)"
+  ],
+  "validated_outcome": "TestSendCheckEmptyScopeIsACleanAnswer, TestSendCheckUnknownContactIsStillNotFound, TestDripsAuditRefusesAJunkCampaignID, TestNovelDryRunJSONIsADryRunObject, TestImportsLatestResolvesTheNewestJob, TestVerifyLineTypeEstimateUnderDryRunCarriesTheMarker, TestTailEmptyPageEmitsOneEvent, TestLocalDataPurgeDryRunNamesItsAction; the FULL live gate against the demo workspace passes."
+}

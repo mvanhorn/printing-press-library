@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "gocli1219-r3-keyed-streaming-proof",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Proof that a keyed BINARY (streaming) mutation keeps the keep-alive-free HTTP/1 transport (Codex gocli1219-r2 P3): TestKeyedStreamingMutationClientHasKeepAlivesOffAndIsHTTP1 pins the policy attemptHTTPClient hands the streaming read (keyed: DisableKeepAlives, HTTP/1 only; unkeyed: the HTTP/1-only mutation transport; wrapper: refused, no client); TestKeyedStreamingMutationDroppedAfterAWarmCallIsSentOnceOnAFreshConnection shows end to end that a keyed streaming /drop after a warm keyed call is one hit on a fresh connection.",
+  "reason": "The r2 streaming test asserted HTTP/1.1 only, which the ordinary keep-alive mutation transport also satisfies.",
+  "files": [
+    "internal/client/retry_r3_streaming_test.go"
+  ],
+  "markers": [
+    "gocli1219 round 3"
+  ],
+  "validated_outcome": "The policy test fails with keep-alives left on in the keyed transport and fails when the streaming branch wraps the shared client; StreamingHTTPClient clones the transport per call, so the warm/drop test alone cannot tell a pooled policy apart (noted in the test)."
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-reports-compare",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "reports compare is the public entry's command (equal prior window, prior/current/delta/delta_pct on every comparable numeric value, one-sided dimension members listed as non_comparable, one-sided fixed metrics fail closed with exit 5). Hardened: a filter the chosen report does not have is a usage error before any request (--pipeline only for funnel; --assigned-to only for speed-to-lead and appointments, sent as assignedTo, and call-performance, sent as userId per spec.yaml); the public entry sent assignedTo and pipelineId to every report, so a report without that filter silently answered for the whole account.",
+  "reason": "Greptile round 2 on PR #2450 (P1): the 4.34.2 reprint removed four published commands the public entry serves today (reports compare, reports scorecard, dialer coverage, automations hours-audit). Orchestrator default (Paul's answer pending, draft PR): port them back from the public entry.",
+  "files": [
+    "internal/cli/reports_compare.go",
+    "internal/cli/reports_compare_test.go",
+    "internal/cli/novel1219_restored_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-reports-compare)"
+  ],
+  "validated_outcome": "The public entry's reports_compare_test.go passes (TestNovelReportsCompareBehavior re-pinned: the funnel request carries no assignedTo); TestNovel1219ReportsCompareRefusesAFilterTheReportDoesNotHave and TestNovel1219ReportsCompareSendsEachReportsAssigneeParameter pass."
+}

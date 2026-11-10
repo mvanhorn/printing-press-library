@@ -8,39 +8,67 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/conduyt-crm/internal/cliutil"
 	"github.com/spf13/cobra"
 	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
 )
 
+// PATCH(novel1219-imports-watch): the public library entry's hardened watch (terminal-state polling with the launch
+// monitor, strict row counters, --verify re-reading the finished job and its job-scoped side effects and failing
+// non-zero when verification cannot finish) ported back over the reprint's simple version; --latest and the
+// [jobId] Use line stay from the reprint, and --interval/--timeout take a duration or bare seconds.
 // pp:data-source live
 func newNovelImportsWatchCmd(flags *rootFlags) *cobra.Command {
-	var verify bool
-	var interval, watchTimeout time.Duration
-	cmd := &cobra.Command{Use: "watch <jobId>", Short: "Blocks until an import job reaches a terminal state", Long: "Use this command to block until an import job completes. Do NOT use it for a finished job's per-row outcomes; use 'imports blame' instead.", Example: "  conduyt-crm-pp-cli imports watch 3b9e4c2d --verify --interval 10s", Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:typed-exit-codes": "0,2,5"}, RunE: func(cmd *cobra.Command, args []string) error {
-		if dryRunOK(flags) {
-			return writeDryRun(cmd.OutOrStdout(), flags, "imports watch")
-		}
-		if len(args) == 0 && !cmd.Flags().Changed("verify") && !cmd.Flags().Changed("interval") && !cmd.Flags().Changed("timeout") {
+	var verify, latest bool
+	interval, watchTimeout := secondsOrDuration(10*time.Second), secondsOrDuration(30*time.Minute)
+	cmd := &cobra.Command{Use: "watch [jobId]", Short: "Blocks until an import job reaches a terminal state", Long: "Use this command to block until an import job completes, then print the row-outcome recap. With --verify it re-reads the finished job and its job-scoped side effects (GET /imports/{id}/side-effects): queued, failed or held sends, or a verification fetch that fails, make the result partial and the exit non-zero. Do NOT use it for a finished job's per-row outcomes; use 'imports blame' instead. Exits 0 when complete (and verified with --verify), 2 on a usage error, 3 when the job does not exist, 4 on an auth failure, 5 when the import failed or was cancelled, timed out, is still running, or the result is incomplete.", Example: strings.Trim(`
+  conduyt-crm-pp-cli imports watch --latest --verify
+  conduyt-crm-pp-cli imports watch 3f2a9c1e-0000-0000-0000-000000000000 --verify
+  conduyt-crm-pp-cli imports watch 3f2a9c1e-0000-0000-0000-000000000000 --interval 10s --json`, "\n"), Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:typed-exit-codes": "0,2,3,4,5"}, RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 && !latest && !cmd.Flags().Changed("verify") && !cmd.Flags().Changed("interval") && !cmd.Flags().Changed("timeout") {
 			return cmd.Help()
 		}
-		if len(args) == 0 || strings.TrimSpace(args[0]) == "" {
+		if len(args) > 0 && latest {
 			_ = cmd.Usage()
-			return usageErr(fmt.Errorf("jobId is required"))
+			return usageErr(fmt.Errorf("pass a jobId or --latest, not both"))
+		}
+		if len(args) > 1 {
+			_ = cmd.Usage()
+			return usageErr(fmt.Errorf("imports watch takes one jobId"))
+		}
+		if !latest && (len(args) == 0 || strings.TrimSpace(args[0]) == "") {
+			_ = cmd.Usage()
+			return usageErr(fmt.Errorf("jobId (or --latest) is required"))
 		}
 		if interval <= 0 || watchTimeout <= 0 {
 			_ = cmd.Usage()
 			return usageErr(fmt.Errorf("--interval and --timeout must be positive"))
 		}
-		base, cancel := boundCtx(cmd.Context(), flags)
-		defer cancel()
-		ctx, stop := context.WithTimeout(base, watchTimeout)
+		if dryRunOK(flags) {
+			return writeDryRun(cmd.OutOrStdout(), flags, "imports watch") // PATCH(gocli1219-live-gate-defects)
+		}
+		// PATCH(novel1219-imports-watch) r2: the overall deadline is --timeout from the command context; the root
+		// request timeout stays per request in the client, so it never caps the watch.
+		ctx, stop := context.WithTimeout(cmd.Context(), time.Duration(watchTimeout))
 		defer stop()
 		c, err := flags.newClient()
 		if err != nil {
 			return err
 		}
-		jobID := args[0]
+		var jobID string
+		if latest {
+			newest, latestErr := resolveLatestImportJob(ctx, c)
+			if latestErr != nil {
+				return classifyAPIError(cmd.OutOrStdout(), latestErr, flags)
+			}
+			if newest == "" {
+				return printJSONFiltered(cmd.OutOrStdout(), noImportJobYet(), flags)
+			}
+			jobID = newest
+		} else {
+			jobID = args[0]
+		}
 		job := map[string]any{}
 		monitor := map[string]any{}
 		monitorFailure := ""
@@ -85,7 +113,7 @@ func newNovelImportsWatchCmd(flags *rootFlags) *cobra.Command {
 			if status == "completed" || status == "failed" || status == "cancelled" || cliutil.IsDogfoodEnv() && polls >= 3 {
 				break
 			}
-			timer := time.NewTimer(interval)
+			timer := time.NewTimer(time.Duration(interval))
 			select {
 			case <-ctx.Done():
 				timer.Stop()
@@ -94,12 +122,18 @@ func newNovelImportsWatchCmd(flags *rootFlags) *cobra.Command {
 			}
 		}
 		view := watchView{JobID: jobID, Status: strAny(job, "status"), Stage: strAny(monitor, "stage"), FailureType: strAny(monitor, "failureType", "failure_type"), Failures: []string{}}
+		if !terminalImportStatus(view.Status) {
+			// The dogfood poll cap ends the loop early; a job that is still running is never a successful watch.
+			view.Partial = true
+			view.Failures = append(view.Failures, fmt.Sprintf("import is still %s after %d polls", view.Status, polls))
+		}
 		missingCounters := make([]string, 0, 4)
 		for name, spec := range map[string][]string{
 			"created": {"createdRows", "created_rows", "created"},
 			"updated": {"updatedRows", "updated_rows", "updated"},
 			"skipped": {"skippedRows", "skipped_rows", "skipped"},
-			"errors":  {"errorRows", "error_rows", "errors"},
+			// The job's `errors` field is its issue log (an array), never a counter, so it is no alias of errorRows.
+			"errors": {"errorRows", "error_rows"},
 		} {
 			parsed, counterErr := preferredLegacyCounter(job, spec[0], spec[1:]...)
 			if parsed == nil {
@@ -188,9 +222,30 @@ func newNovelImportsWatchCmd(flags *rootFlags) *cobra.Command {
 		return nil
 	}}
 	cmd.Flags().BoolVar(&verify, "verify", false, "Re-read the finished import and its job-scoped side effects")
-	cmd.Flags().DurationVar(&interval, "interval", 10*time.Second, "Poll interval")
-	cmd.Flags().DurationVar(&watchTimeout, "timeout", 30*time.Minute, "Maximum time to wait")
+	cmd.Flags().Var(&interval, "interval", "Poll interval (a duration such as 10s, or bare seconds)")
+	cmd.Flags().Var(&watchTimeout, "timeout", "Maximum time to wait (a duration such as 30m, or bare seconds)")
+	cmd.Flags().BoolVar(&latest, "latest", false, "Use the account's most recent import job instead of a jobId")
 	return cmd
+}
+
+// secondsOrDuration is a duration flag that also accepts bare seconds ("10" == "10s"): the public entry took
+// durations, the reprint took integer seconds, and both spellings keep working.
+type secondsOrDuration time.Duration
+
+func (d *secondsOrDuration) String() string { return time.Duration(*d).String() }
+func (d *secondsOrDuration) Type() string   { return "duration" }
+func (d *secondsOrDuration) Set(value string) error {
+	value = strings.TrimSpace(value)
+	if n, err := strconv.Atoi(value); err == nil {
+		*d = secondsOrDuration(time.Duration(n) * time.Second)
+		return nil
+	}
+	parsed, err := time.ParseDuration(value)
+	if err != nil {
+		return fmt.Errorf("expected a duration such as 10s or bare seconds: %w", err)
+	}
+	*d = secondsOrDuration(parsed)
+	return nil
 }
 
 func outputWatchFailure(cmd *cobra.Command, flags *rootFlags, view watchView, cause error) error {
@@ -243,6 +298,54 @@ type watchSideEffects struct {
 	Held           *int  `json:"held"`
 	ActionRequired *bool `json:"action_required"`
 	IsComplete     bool  `json:"is_complete"`
+	NoSideEffects  bool  `json:"no_side_effects,omitempty"`
+	// Emitted by the route; read strictly when present (a negative or non-integer value is invalid).
+	SkippedInactive *int `json:"skipped_inactive,omitempty"`
+	Pending         *int `json:"pending,omitempty"`
+	Processing      *int `json:"processing,omitempty"`
+}
+
+// noJobSideEffects reports a job that recorded no side effects at all: every counter present and zero. The route
+// answers isComplete=false for total 0 (its "complete" means "all recorded work drained"), so a job with nothing
+// to fire is not an unfinished one; any queued, retryable, exhausted, failed or held send still is.
+// sideEffectCounts is the job-scoped side-effect summary GET /imports/{id}/side-effects emits. The route counts
+// queue rows by status into total = pending + processing + completed + skippedInactive + failed (held rows are
+// counted apart and excluded from total), queued = pending + processing, failed = retryableFailed + exhaustedFailed.
+type sideEffectCounts struct {
+	Total, Completed, SkippedInactive, Pending, Processing, Queued, Retryable, Exhausted, Failed, Held *int
+	ActionRequired                                                                                     *bool
+}
+
+// sideEffectProblems names everything that keeps an import's side effects from being confirmed successful sends.
+// Only `completed` is a confirmed success: every other nonzero counter (skippedInactive, pending, processing,
+// queued, retryableFailed, exhaustedFailed, failed, held) and actionRequired=true is a problem, and a completed
+// count below total (a status the route adds later) is one too. A counter that is absent was reported already.
+func sideEffectProblems(c sideEffectCounts) []string {
+	problems := make([]string, 0)
+	for _, n := range []struct {
+		name string
+		n    *int
+	}{{"skipped inactive", c.SkippedInactive}, {"pending", c.Pending}, {"processing", c.Processing}, {"queued", c.Queued}, {"retryable failed", c.Retryable}, {"exhausted failed", c.Exhausted}, {"failed", c.Failed}, {"held", c.Held}} {
+		if n.n != nil && *n.n > 0 {
+			problems = append(problems, fmt.Sprintf("%d %s sends", *n.n, n.name))
+		}
+	}
+	if c.ActionRequired != nil && *c.ActionRequired {
+		problems = append(problems, "action required")
+	}
+	if c.Total != nil && c.Completed != nil && *c.Completed != *c.Total {
+		problems = append(problems, fmt.Sprintf("%d of %d side effects completed", *c.Completed, *c.Total))
+	}
+	return problems
+}
+
+func noJobSideEffects(counters ...*int) bool {
+	for _, n := range counters {
+		if n == nil || *n != 0 {
+			return false
+		}
+	}
+	return true
 }
 
 type importGetter interface {
@@ -276,7 +379,7 @@ func verifyImportJob(ctx context.Context, c importGetter, jobID string) (*watchV
 				{&verification.Created, "createdRows", []string{"created_rows", "created"}},
 				{&verification.Updated, "updatedRows", []string{"updated_rows", "updated"}},
 				{&verification.Skipped, "skippedRows", []string{"skipped_rows", "skipped"}},
-				{&verification.Errors, "errorRows", []string{"error_rows", "errors"}},
+				{&verification.Errors, "errorRows", []string{"error_rows"}},
 				{&verification.Processed, "processedRows", []string{"processed_rows", "processed"}},
 			}
 			for _, spec := range rowCounts {
@@ -346,7 +449,8 @@ func verifyImportJob(ctx context.Context, c importGetter, jobID string) (*watchV
 				missing = append(missing, strings.TrimPrefix(isCompleteErr.Error(), "missing "))
 			} else {
 				verification.SideEffects.IsComplete = isComplete
-				if !isComplete {
+				verification.SideEffects.NoSideEffects = !isComplete && terminalImportStatus(verification.Status) && noJobSideEffects(verification.SideEffects.Total, verification.SideEffects.Queued, verification.SideEffects.Retryable, verification.SideEffects.Exhausted, verification.SideEffects.Failed, verification.SideEffects.Held)
+				if !isComplete && !verification.SideEffects.NoSideEffects {
 					missing = append(missing, "side effects are not complete")
 				}
 			}
@@ -354,6 +458,23 @@ func verifyImportJob(ctx context.Context, c importGetter, jobID string) (*watchV
 				verification.SideEffects.ActionRequired = &actionRequired
 				verification.ActionRequired = &actionRequired
 			}
+			// PATCH(novel1219-imports-watch) r2: isComplete counts pending, processing and failed only (held-only is
+			// isComplete:true with actionRequired:true), so every counter is checked on its own.
+			// PATCH(novel1219-imports-watch) r3: skippedInactive, pending and processing are read too, and only
+			// completed counts as a successful send.
+			for _, opt := range []struct {
+				key    string
+				target **int
+			}{{"skippedInactive", &verification.SideEffects.SkippedInactive}, {"pending", &verification.SideEffects.Pending}, {"processing", &verification.SideEffects.Processing}} {
+				value, counterErr := nonNegativeCounter(side, opt.key)
+				if counterErr != nil {
+					missing = append(missing, counterErr.Error())
+					continue
+				}
+				*opt.target = value
+			}
+			se := verification.SideEffects
+			missing = append(missing, sideEffectProblems(sideEffectCounts{Total: se.Total, Completed: se.Completed, SkippedInactive: se.SkippedInactive, Pending: se.Pending, Processing: se.Processing, Queued: se.Queued, Retryable: se.Retryable, Exhausted: se.Exhausted, Failed: se.Failed, Held: se.Held, ActionRequired: se.ActionRequired})...)
 		}
 	}
 	verification.Verified = len(missing) == 0
@@ -597,20 +718,4 @@ func strAny(m map[string]any, keys ...string) string {
 		}
 	}
 	return ""
-}
-func anyStrings(v any) []string {
-	out := make([]string, 0)
-	switch x := v.(type) {
-	case []any:
-		for _, e := range x {
-			if s, ok := e.(string); ok {
-				out = append(out, s)
-			} else if m, ok := e.(map[string]any); ok {
-				out = append(out, strAny(m, "id", "name"))
-			}
-		}
-	case []string:
-		out = append(out, x...)
-	}
-	return out
 }

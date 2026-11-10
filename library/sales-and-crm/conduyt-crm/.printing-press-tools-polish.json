@@ -1,27 +1,18 @@
 {
-  "timestamp": "2026-09-17T09:30:09.901416Z",
+  "timestamp": "2026-07-12T01:46:36.366008Z",
   "cli_dir": "\u003ccli-dir\u003e/conduyt-crm-pp-cli",
   "findings": [
     {
       "kind": "thin-short",
       "command": "list",
-      "file": "platform_client.go",
-      "line": 517,
-      "evidence": "List client profiles",
-      "status": "accepted",
-      "note": "Generated framework file (DO NOT EDIT header); 'List client profiles' is brief but precise: the command has no filters, prints the saved tenant-gated client profiles, and agents reach it only via the profile grouper. A generator-template default is the durable fix."
-    },
-    {
-      "kind": "thin-short",
-      "command": "list",
       "file": "teach.go",
-      "line": 847,
+      "line": 692,
       "evidence": "List recorded learnings",
       "status": "accepted",
-      "note": "Generated learn-loop framework file (DO NOT EDIT header); 'List recorded learnings' names the exact read (the local teach/recall store) and the command takes no discriminating flags beyond output format. Longer text belongs in the generator template, not a hand edit."
+      "note": "DO-NOT-EDIT generated file (teach.go, self-learning surface); Short is brief but precise for a local-store read; richer default belongs in the generator template — retro candidate"
     }
   ],
   "progress": {
-    "last_processed_finding_id": "thin-short:list:teach.go:847"
+    "last_processed_finding_id": "thin-short:list:teach.go:692"
   }
 }

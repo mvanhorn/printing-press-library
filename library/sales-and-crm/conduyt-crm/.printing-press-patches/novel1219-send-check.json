@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-send-check",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "send-check is the public entry's hardened version: exactly one of --list/--tag/--contact (no scope prints help; --limit must be positive); a synced, fresh contacts mirror is read with the scope filter applied before --limit, else the audience is read live: --list through GET /contacts?smartListId (the /smart-lists/{id}/contacts route is add/remove only), repeatable --tag merged and de-duplicated, both paged at per_page 200 with a progress guard and a meta.total cross-check; DNC verdicts come from GET /contacts/dnc-status in chunks of 500 (smsBlocked = dnc, voiceBlocked carried), and a truncated answer, an omitted contact, an unmappable phone identity, a capped --limit or a failed read make the verdict inconclusive (exit 5); an empty scope is a clean 0-checked answer. Kept from the reprint: the --dry-run object (PATCH(gocli1219-live-gate-defects)) and the gate contract, a no_go verdict exits 2. Round 2 (Codex novel1219-r1 P1): the audience source follows --data-source and an unresolvable local scope is never an empty audience: --list is always live (smart-list membership is not in synced contacts), a tag matches the tag objects the contacts route serializes (by name or id, or a plain string), the mirror answers only when synced, fresh and returning rows; under auto anything else is read live, under local it is inconclusive (exit 5). Round 3 (Codex novel1219-r2): the mirror counts only when its last sync attempt finished and its row count equals the synced total; a local read with any decode, iteration or query failure is not an answer (auto reads live, local is inconclusive); a deliberate --limit cap stays local. Round 4 (Codex novel1219-r3): every local read stage (open, sync state, row count, attempt state, query, scan, iteration, close, the capped-audience count) funnels into one 'the local mirror is unusable' result: auto reads live, local is inconclusive (exit 5). Round 5 (Codex novel1219-r4): the sync state and freshness come from one read through the mirror reader; a failing sync_state read is 'mirror unusable', never 'not stale'.",
+  "reason": "Greptile round 1 on PR #2450 (P1 x3): the reprint read the add/remove-only smart-list members route, read one page of a tag, and matched one page of /dnc on the last 7 digits.",
+  "files": [
+    "internal/cli/send_check.go",
+    "internal/cli/send_check_test.go",
+    "internal/cli/novel1219_regressions_test.go"
+  ],
+  "markers": [
+    "PATCH(novel1219-send-check)"
+  ],
+  "validated_outcome": "The public entry's send_check_test.go (no_go cases re-pinned to exit 2) plus TestNovel1219SendCheckListReadsMembersThroughTheContactsRoute, TestNovel1219SendCheckTagPaginatesPastPageOne, TestNovel1219SendCheckLimitLeavingContactsUncheckedIsInconclusive, TestNovel1219SendCheckRefusesALastSevenDigitMatch and TestNovel1219SendCheckIncompleteDNCAnswerIsInconclusive pass. Round 2: TestNovel1219SendCheckDataSourceLiveSkipsTheMirror, TestNovel1219SendCheckListIsAlwaysLive, TestNovel1219SendCheckLocalTagMatchesTagObjects, TestNovel1219SendCheckUnresolvedLocalTagIsNeverEmpty. Round 3: TestNovel1219InterruptedSyncIsNotAMirror, TestNovel1219SendCheckUnreconciledMirrorFallsBackLive, TestNovel1219SendCheckPartialLocalReadFallsBackLive. Round 4: TestNovel1219EveryLocalReadStageFailureFallsBackLive (query, scan, iterate, close, count-capped). Round 5: TestNovel1219FreshnessComesFromTheOneSyncStateRead; sync-state fault stage."
+}

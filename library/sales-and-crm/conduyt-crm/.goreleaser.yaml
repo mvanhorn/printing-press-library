@@ -8,6 +8,8 @@ builds:
     binary: conduyt-crm-pp-cli
     env:
       - CGO_ENABLED=0
+    flags:
+      - -trimpath
     ldflags:
       - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/conduyt-crm/internal/cli.version={{ .Version }}
     targets:
@@ -22,8 +24,10 @@ builds:
     binary: conduyt-crm-pp-mcp
     env:
       - CGO_ENABLED=0
+    flags:
+      - -trimpath
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -44,8 +48,8 @@ brews:
     repository:
       owner: ptaramona
       name: homebrew-tap
-    homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every Conduyt endpoint as a command, plus send-safety, import forensics, report deltas and dialer coverage no other Conduyt surface has."
+    homepage: "https://conduyt-crm-pp-cli"
+    description: "Full-coverage Conduyt CLI: every endpoint, plus Kloudi-grade send-safety forensics no other surface has."
     install: |
       bin.install "conduyt-crm-pp-cli"
       bin.install "conduyt-crm-pp-mcp"

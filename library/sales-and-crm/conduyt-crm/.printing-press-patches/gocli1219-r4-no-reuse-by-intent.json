@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "gocli1219-r4-no-reuse-by-intent",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "The no-reuse transport decision keys off the call's intent, not its HTTP method (Codex gocli1219-r3 P1): attemptHTTPClient sends every call that is not replay-safe through the keep-alive-free HTTP/1 client when it carries a per-call key (any method; mutationCarriesCallKey is method-independent) or when its wire method is one Go's transport resends on its own (GET, HEAD, OPTIONS, TRACE: goTransportReplaysMethod), so a keyed or unkeyed state-changing GET (GetMutatingWithHeaders, doMutation) never reaches a reusable connection. The other method-based replay decisions now read the intent too: the config-level key-header strip, the CLI-generated key, and the cross-origin redirect refusal (a mutating GET is never sent to another origin).",
+  "reason": "r3 decided the keyed no-reuse client and the key strip by isReadMethod, so a keyed mutating GET stayed on the pooled HTTP/1 mutation client where Go may resend a GET on a dead reused connection.",
+  "files": [
+    "internal/client/redaction_patch.go",
+    "internal/client/client.go",
+    "internal/client/retry_r4_test.go"
+  ],
+  "markers": [
+    "gocli1219 r4"
+  ],
+  "validated_outcome": "TestKeyedMutatingGETDroppedAfterAWarmCallIsSentOnce (one keyed /drop hit, fresh connection) and TestNoReuseClientIsChosenByIntentForEveryMethod (GET/HEAD/OPTIONS/TRACE/POST/PUT/PATCH/DELETE, keyed and streaming; unkeyed replayable methods) fail on the r3 code and pass; TestMutatingGETIsNeverRedirectedCrossOrigin pins the redirect rule."
+}

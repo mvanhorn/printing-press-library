@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/conduyt-crm-pp-cli
+/conduyt-crm-pp-cli.exe
+/conduyt-crm-pp-mcp
+/conduyt-crm-pp-mcp.exe
+/bin/
+/build/
+/dist/

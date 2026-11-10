@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "retry-policy",
+  "applied_at": "2026-11-08",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Retry loop honours Retry-After on 429/503 (cap 30 s, up to 50% jitter), replays only GET/HEAD or CLI-keyed allowlisted mutations, bounds every call with a 120 s budget, and prints one gate_busy line. Reprint gocli1219: internal/client/client.go is the 4.34.2 file, which absorbed the bounded retry budget, the limiter Wait(ctx) and the redirect guards; the call sites are re-applied there (whole-call --call-budget with its stop classification, replay only reads (PUT/DELETE included, keyed or not, are never resent), Retry-After on 429/503 from the header or the busy body, one gate_busy line, no refill-and-continue after the last attempt, HTTP/1-only client for unreplayable mutations, config-level and empty key headers never on a mutation, a mutation never redirected cross-origin, a non-replay-safe 307/308 refused). A per-call Idempotency-Key from a spec-declared --idempotency-key flag (new in 4.34.2) is sent but not replayed.",
+  "reason": "The generated loop retried every method on 5xx and network errors after a fixed 1/2/4 s and ignored Retry-After, which replays mutations and amplifies the API's gate_busy queue (Codex found it 2026-10-14).",
+  "files": [
+    "internal/client/retry.go",
+    "internal/cliutil/ratelimit.go",
+    "internal/cliutil/ratelimit_waitctx_test.go",
+    "internal/cli/root.go",
+    "internal/client/client_test.go",
+    "internal/client/client.go",
+    "internal/client/retry_test.go",
+    "internal/client/redaction_patch.go"
+  ],
+  "validated_outcome": "Unkeyed POST gets exactly one request on 429, 5xx, a dropped connection, a body reset and a 307; a warm-connection POST with a user Idempotency-Key header is still sent once with the header stripped.",
+  "upstream_issue": "To file against mvanhorn/cli-printing-press: never retry non-idempotent verbs on 429/5xx/network errors, honour Retry-After on 5xx, offer a per-call budget."
+}

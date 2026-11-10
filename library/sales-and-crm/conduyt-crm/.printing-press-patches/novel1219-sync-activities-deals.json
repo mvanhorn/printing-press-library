@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-sync-activities-deals",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Activities sync and list read GET /activities by page number; deals sync sends no created_after lower bound and pages in full every run.",
+  "reason": "GET /activities returns PaginationMeta (page, per_page, total, has_more) with no next cursor, so the generated cursor setting stopped sync after page one with cursor_unavailable. Deals expose only created_after/created_before, no last-changed filter, so an incremental created_after sync never re-read a deal whose stage or value changed (Greptile PR #2450 round 3, both P1).",
+  "files": ["internal/cli/sync.go", "internal/cli/resource_paths.go", "internal/cli/novel1219_sync_paging_test.go"],
+  "markers": ["PATCH(novel1219-sync-activities-deals)"],
+  "validated_outcome": "TestNovel1219ActivitiesSyncAndListPageByNumber and TestNovel1219DealsSyncHasNoCreatedAfterLowerBound; the FULL live gate covers activities list and sync."
+}

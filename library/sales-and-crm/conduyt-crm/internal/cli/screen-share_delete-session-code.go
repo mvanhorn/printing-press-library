@@ -6,12 +6,18 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
+	"strconv"
 
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/conduyt-crm/internal/client"
 	"github.com/spf13/cobra"
 )
 
 func newScreenShareDeleteSessionCodeCmd(flags *rootFlags) *cobra.Command {
+	var bodyMarksDrew int
+	var bodyMarksPointed string
+	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:     "delete-session-code <code>",
@@ -21,20 +27,22 @@ func newScreenShareDeleteSessionCodeCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  conduyt-crm-pp-cli screen-share delete-session-code example-value",
 		Annotations: map[string]string{"pp:endpoint": "screen-share.delete-session-code", "pp:method": "DELETE", "pp:path": "/screen-share/session/{code}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if len(args) == 0 {
-				// A missing required positional is a usage error in every output
-				// mode (matches command_promoted.go.tmpl). Machine callers
-				// (--json/--agent) also get a JSON error envelope on stdout;
-				// usageErr sets exit 2.
-				if flags.asJSON {
-					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"error": "missing required argument",
-						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <code>"),
-					}, flags); printErr != nil {
-						return printErr
-					}
+				return cmd.Help()
+			}
+			if !stdinBody {
+				if !cmd.Flags().Changed("marks-drew") && nestedFlagGroupChanged(cmd, "marks") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "marks-drew")
 				}
-				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <code>"))
+				if !cmd.Flags().Changed("marks-pointed") && nestedFlagGroupChanged(cmd, "marks") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "marks-pointed")
+				}
 			}
 			path := "/screen-share/session/{code}"
 			if len(args) < 1 || args[0] == "" {
@@ -45,8 +53,38 @@ func newScreenShareDeleteSessionCodeCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			params := map[string]string{}
-			data, statusCode, err := c.DeleteWithParams(cmd.Context(), path, params)
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				{
+					nestedMarks := map[string]any{}
+					if cmd.Flags().Changed("marks-drew") || bodyMarksDrew != 0 { // PATCH(nested-required-flags-637): 0 is a valid count
+						nestedMarks["drew"] = bodyMarksDrew
+					}
+					if cmd.Flags().Changed("marks-pointed") { // PATCH(reprint-637-required-on-changed)
+						parsedMarksPointed, err := strconv.ParseBool(bodyMarksPointed)
+						if err != nil {
+							return fmt.Errorf("parsing --marks-pointed as bool: %w", err)
+						}
+						nestedMarks["pointed"] = parsedMarksPointed
+					}
+					if len(nestedMarks) > 0 {
+						bodyMap["marks"] = nestedMarks
+					}
+				}
+			}
+			data, statusCode, err := c.DeleteWithBody(cmd.Context(), path, body)
 			if err != nil {
 				return classifyDeleteError(cmd.OutOrStdout(), err, flags)
 			}
@@ -106,7 +144,7 @@ func newScreenShareDeleteSessionCodeCmd(flags *rootFlags) *cobra.Command {
 				envelope := map[string]any{
 					"action":   "delete",
 					"resource": "screen-share",
-					"path":     path,
+					"path":     client.MaskPath(path), // PATCH(redirect-and-redaction-policy): the path carries a secret code
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
@@ -138,20 +176,15 @@ func newScreenShareDeleteSessionCodeCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
-				// Mutation-riding reads (POST search, RPC-over-POST lists) return
-				// the same single-key collection envelopes as GET reads. Unwrap
-				// before filtering so rows nest once under the result key and
-				// --select filters rows, not envelope keys; plain created-object
-				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := unwrapSingleKeyArray(data)
+				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered, nil)
+					filtered = compactFields(filtered)
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -167,15 +200,7 @@ func newScreenShareDeleteSessionCodeCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				resultKey := "data"
-				if flags.agent {
-					resultKey = "results"
-				}
-				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
-				if err != nil {
-					return err
-				}
-				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -185,13 +210,12 @@ func newScreenShareDeleteSessionCodeCmd(flags *rootFlags) *cobra.Command {
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlagsMeta renders the body with live
-			// provenance, then the typed partial-failure exit fires unless
-			// --allow-partial-failure downgrades it. Without this guard a
-			// partial failure would exit 0 for these output modes — the exact
-			// silent-swallow regression the surrounding patch is preventing
-			// for asJSON / piped output.
-			if perr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, nil); perr != nil {
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
 				return perr
 			}
 			if partialFailure != nil && !flags.allowPartialFailure {
@@ -200,6 +224,9 @@ func newScreenShareDeleteSessionCodeCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().IntVar(&bodyMarksDrew, "marks-drew", 0, "Drew")
+	cmd.Flags().StringVar(&bodyMarksPointed, "marks-pointed", "", "Pointed")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
 }

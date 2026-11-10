@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "novel1219-mcp-http-upload-cap",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261108-052151",
+  "base_printing_press_version": "4.34.2",
+  "summary": "The MCP HTTP transport lets one JSON-RPC tools/call body run to a maximum supported upload (base64 of 100 MiB plus 4096 slack, plus a 4 MiB envelope); every other request keeps the 4 MiB bound.",
+  "reason": "The MCP tools accept a multipart file of up to 100 MiB as base64 (about 134 MiB of text), but the generated HTTP wrapper capped every request body at 4 MiB, so any upload over about 3 MiB was refused 413 before reaching the tool (Greptile PR #2450 thread 4514749152, P1). Scoping the larger cap to a single tools/call keeps initialize, tools/list, notifications and batches at 4 MiB.",
+  "files": ["cmd/conduyt-crm-pp-mcp/main.go", "internal/mcp/tools.go", "cmd/conduyt-crm-pp-mcp/http_auth_test.go", "cmd/conduyt-crm-pp-mcp/novel1219_upload_body_cap_test.go"],
+  "markers": ["PATCH(novel1219-mcp-http-upload-cap)"],
+  "validated_outcome": "TestNovel1219MCPHTTPMaxSupportedUploadPasses (a tools/call carrying base64 of 100 MiB passes the production limits; red on the 4 MiB cap), TestNovel1219MCPHTTPToolCallCapCoversMaxUpload, TestNovel1219MCPHTTPNonToolCallKeepsTheGeneralBound (tools/list at 4 MiB + 1 is 413), TestNovel1219MCPHTTPBodyLimitEdges (tools/call at and one over its cap; tools/list at and one over the general cap; initialize, batch and malformed bodies over the general cap refused) and TestMCPHTTPDeclaredOversizeBodyIsRefused (declared length one over the tools/call cap refused before any read)."
+}

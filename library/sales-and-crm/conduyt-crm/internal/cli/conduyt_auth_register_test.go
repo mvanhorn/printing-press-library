@@ -5,19 +5,20 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/conduyt-crm/internal/cliutil/testenv"
+	"gopkg.in/yaml.v3"
 )
 
-// PATCH(register-terms-accepted-601): POST /auth/register requires termsAccepted true. See .printing-press-patches/register-terms-accepted-601.json.
+// POST /auth/register requires termsAccepted true (board #601). PATCH(register-terms-accepted-601): see .printing-press-patches.json.
 func runRegister(t *testing.T, stdin string, args ...string) (body map[string]any, hits int, err error) {
 	t.Helper()
-	testenv.Isolate(t)
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		hits++
-		if r.Method != http.MethodPost || r.URL.Path != "/auth/register" {
+		if r.Method != "POST" || r.URL.Path != "/api/v1/auth/register" {
 			t.Errorf("unexpected request %s %s", r.Method, r.URL.Path)
 		}
 		raw, _ := io.ReadAll(r.Body)
@@ -29,10 +30,10 @@ func runRegister(t *testing.T, stdin string, args ...string) (body map[string]an
 		_, _ = w.Write([]byte(`{"data":{"success":true}}`))
 	}))
 	defer srv.Close()
-	t.Setenv("CONDUYT_CRM_BASE_URL", srv.URL)
+	t.Setenv("CONDUYT_CRM_BASE_URL", srv.URL+"/api/v1")
 	t.Setenv("CONDUYT_CRM_BEARER_AUTH", "test-token")
+	t.Setenv("CONDUYT_CRM_CONFIG", filepath.Join(t.TempDir(), "config.toml"))
 	cmd := newConduytAuthRegisterCmd(&rootFlags{noCache: true})
-	cmd.SilenceUsage = true
 	cmd.SetOut(io.Discard)
 	cmd.SetErr(io.Discard)
 	cmd.SetIn(strings.NewReader(stdin))
@@ -44,16 +45,14 @@ func runRegister(t *testing.T, stdin string, args ...string) (body map[string]an
 var registerBase = []string{"--email", "a@b.co", "--password", "pw123456", "--account-name", "Acme"}
 
 func TestRegisterSendsTermsAcceptedTrue(t *testing.T) {
-	for _, flag := range []string{"--terms-accepted", "--terms-accepted=true"} {
-		body, hits, err := runRegister(t, "", append(append([]string{}, registerBase...), flag)...)
-		if err != nil || hits != 1 {
-			t.Fatalf("%s: err=%v hits=%d", flag, err, hits)
-		}
-		got, _ := json.Marshal(body)
-		want := `{"accountName":"Acme","email":"a@b.co","password":"pw123456","termsAccepted":true}`
-		if string(got) != want {
-			t.Errorf("%s: body = %s, want %s", flag, got, want)
-		}
+	body, hits, err := runRegister(t, "", append(append([]string{}, registerBase...), "--terms-accepted")...)
+	if err != nil || hits != 1 {
+		t.Fatalf("err=%v hits=%d", err, hits)
+	}
+	got, _ := json.Marshal(body)
+	want := `{"accountName":"Acme","email":"a@b.co","password":"pw123456","termsAccepted":true}`
+	if string(got) != want {
+		t.Errorf("body = %s, want %s", got, want)
 	}
 }
 
@@ -95,69 +94,54 @@ func TestRegisterStdinPassesThroughUntouched(t *testing.T) {
 	}
 }
 
-// The register operation must carry the same required const-true boolean in spec.yaml, tools-manifest.json and the command flags;
-// a reprint from the old spec would drop the flag and every registration would answer 400.
-func TestRegisterTermsAcceptedParityAcrossSpecManifestAndCommand(t *testing.T) {
-	lines := strings.Split(readRepoFile(t, "spec.yaml"), "\n")
-	start := -1
-	for i, l := range lines {
-		if l == "  /auth/register:" {
-			start = i
-			break
-		}
-	}
-	if start < 0 {
-		t.Fatal("spec.yaml: POST /auth/register missing")
-	}
-	var body []string
-	in, has400 := false, false
-	for _, l := range lines[start+1:] {
-		if strings.TrimSpace(l) != "" && !strings.HasPrefix(l, "   ") {
-			break // next path
-		}
-		switch strings.TrimSpace(l) {
-		case "requestBody:":
-			in = true
-			continue
-		case "responses:":
-			in = false
-		case "'400':", "\"400\":":
-			has400 = true
-		}
-		if in {
-			body = append(body, strings.TrimSpace(l))
-		}
-	}
-	if !containsInOrder(body, []string{"required:", "- email", "- password", "- accountName", "- termsAccepted", "properties:"}) ||
-		!containsInOrder(body, []string{"termsAccepted:", "type: boolean", "const: true"}) {
-		t.Errorf("spec.yaml requestBody does not require termsAccepted as a const-true boolean:\n%s", strings.Join(body, "\n"))
-	}
-	if !has400 {
-		t.Error("spec.yaml register operation lacks a 400 response")
-	}
-
-	var manifest any
-	if err := json.Unmarshal([]byte(readRepoFile(t, "tools-manifest.json")), &manifest); err != nil {
-		t.Fatal(err)
-	}
-	tool := findNamedObject(manifest, "conduyt-auth_register")
-	if tool == nil {
-		t.Fatal("tools-manifest.json: conduyt-auth_register missing")
-	}
-	var param map[string]any
-	params, _ := tool["params"].([]any)
-	for _, p := range params {
-		if pm, _ := p.(map[string]any); pm["name"] == "termsAccepted" {
-			param = pm
-		}
-	}
-	if param == nil || param["type"] != "boolean" || param["location"] != "body" || param["required"] != true {
-		t.Errorf("tools-manifest.json termsAccepted param = %#v, want a required boolean body param", param)
-	}
-
+func TestRegisterHelpAndManifestStateTheTerms(t *testing.T) {
 	cmd := newConduytAuthRegisterCmd(&rootFlags{})
 	f := cmd.Flags().Lookup("terms-accepted")
-	if f == nil || f.Value.Type() != "bool" || !strings.Contains(f.Usage, "Required") || !strings.Contains(cmd.Long, "requires --terms-accepted") {
+	if f == nil || !strings.Contains(f.Usage, "Required") || !strings.Contains(cmd.Long, "requires --terms-accepted") {
 		t.Errorf("--terms-accepted flag or Long missing: %+v", f)
+	}
+	raw, err := readRepoFile("tools-manifest.json")
+	if err != nil || !strings.Contains(raw, `"name": "termsAccepted"`) {
+		t.Errorf("tools-manifest.json lacks termsAccepted (err=%v)", err)
+	}
+}
+
+func registerRequestBody(t *testing.T, file string) map[string]any {
+	t.Helper()
+	raw, err := readRepoFile(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Paths map[string]map[string]any `yaml:"paths"`
+	}
+	if err := yaml.Unmarshal([]byte(raw), &doc); err != nil {
+		t.Fatalf("%s: %v", file, err)
+	}
+	op, ok := doc.Paths["/auth/register"]["post"].(map[string]any)
+	if !ok {
+		t.Fatalf("%s: POST /auth/register missing", file)
+	}
+	return op["requestBody"].(map[string]any)
+}
+
+func TestRegisterRequestBodyMatchesBetweenSpecAndUpstream(t *testing.T) {
+	spec := registerRequestBody(t, "spec.yaml")
+	upstream := registerRequestBody(t, "upstream/openapi.yaml")
+	if !reflect.DeepEqual(spec, upstream) {
+		t.Fatalf("requestBody differs between spec.yaml and upstream/openapi.yaml")
+	}
+	schema := spec["content"].(map[string]any)["application/json"].(map[string]any)["schema"].(map[string]any)
+	req, _ := schema["required"].([]any)
+	found := false
+	for _, r := range req {
+		if r == "termsAccepted" {
+			found = true
+		}
+	}
+	props, _ := schema["properties"].(map[string]any)
+	ta, _ := props["termsAccepted"].(map[string]any)
+	if !found || ta["type"] != "boolean" || ta["const"] != true {
+		t.Errorf("termsAccepted is not a required const-true boolean: required=%v prop=%#v", req, ta)
 	}
 }

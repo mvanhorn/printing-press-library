@@ -69,8 +69,9 @@ func TestVerifyImportJobPreferredAndLegacySideEffectCounters(t *testing.T) {
 		verified   bool
 		wantReason string
 	}{
-		{"legacy only", `"retryable":1,"exhausted":2`, true, ""},
-		{"preferred only", `"retryableFailed":1,"exhaustedFailed":2`, true, ""},
+		// novel1219 r2: the aliases parse, and a nonzero retryable or exhausted counter never verifies.
+		{"legacy only", `"retryable":1,"exhausted":2`, false, "1 retryable failed sends, 2 exhausted failed sends"},
+		{"preferred only", `"retryableFailed":1,"exhaustedFailed":2`, false, "1 retryable failed sends, 2 exhausted failed sends"},
 		{"invalid preferred with valid legacy", `"retryableFailed":"bad","retryable":1,"exhaustedFailed":2`, false, "invalid retryableFailed"},
 		{"conflicting dual keys", `"retryableFailed":1,"retryable":2,"exhaustedFailed":2`, false, "conflicting retryableFailed=1 and retryable=2"},
 		{"null preferred", `"retryableFailed":null,"retryable":1,"exhaustedFailed":2`, false, "invalid retryableFailed"},
@@ -151,10 +152,10 @@ func TestImportsWatchVerifyStrictActionRequiredAliases(t *testing.T) {
 	}{
 		{"invalid preferred with valid legacy", `"actionRequired":"bad","action_required":true`, false, "invalid actionRequired", ""},
 		{"conflicting dual keys", `"actionRequired":false,"action_required":true`, false, "conflicting actionRequired=false and action_required=true", ""},
-		{"legacy only true", `"action_required":true`, true, "", `"action_required":true`},
+		{"legacy only true", `"action_required":true`, false, "action required", ""}, // novel1219 r2: actionRequired never verifies
 		{"legacy only false", `"action_required":false`, true, "", `"action_required":false`},
 		{"absent is optional and remains unknown", ``, true, "", `"action_required":null`},
-		{"preferred true", `"actionRequired":true`, true, "", `"action_required":true`},
+		{"preferred true", `"actionRequired":true`, false, "action required", ""},
 		{"preferred false", `"actionRequired":false`, true, "", `"action_required":false`},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -209,11 +210,14 @@ func TestImportsWatchVerifyIsCompleteExactOutput(t *testing.T) {
 		wantVerified   bool
 		wantIsComplete bool
 		wantOutput     string
+		counters       string // novel1219: side-effect counters; "" = all zero
 	}{
-		{"true", `"isComplete":true`, 0, true, true, `{"job_id":"job","status":"completed","stage":"done","created":0,"updated":0,"skipped":0,"errors":0,"verification":{"verified":true,"status":"completed","created":0,"updated":0,"skipped":0,"errors":0,"side_effects":{"queued":0,"retryable":0,"exhausted":0,"total":0,"completed":0,"failed":0,"held":0,"action_required":null,"is_complete":true},"action_required":null},"fetch_failures":0,"partial":false}`},
-		{"false", `"isComplete":false`, 5, false, false, `{"job_id":"job","status":"completed","stage":"done","created":0,"updated":0,"skipped":0,"errors":0,"verification":{"verified":false,"reason":"missing side effects are not complete","status":"completed","created":0,"updated":0,"skipped":0,"errors":0,"side_effects":{"queued":0,"retryable":0,"exhausted":0,"total":0,"completed":0,"failed":0,"held":0,"action_required":null,"is_complete":false},"action_required":null},"fetch_failures":0,"partial":true,"failures":["missing side effects are not complete"]}`},
-		{"absent", ``, 5, false, false, `{"job_id":"job","status":"completed","stage":"done","created":0,"updated":0,"skipped":0,"errors":0,"verification":{"verified":false,"reason":"missing or invalid isComplete","status":"completed","created":0,"updated":0,"skipped":0,"errors":0,"side_effects":{"queued":0,"retryable":0,"exhausted":0,"total":0,"completed":0,"failed":0,"held":0,"action_required":null,"is_complete":false},"action_required":null},"fetch_failures":0,"partial":true,"failures":["missing or invalid isComplete"]}`},
-		{"malformed", `"isComplete":"false"`, 5, false, false, `{"job_id":"job","status":"completed","stage":"done","created":0,"updated":0,"skipped":0,"errors":0,"verification":{"verified":false,"reason":"missing or invalid isComplete","status":"completed","created":0,"updated":0,"skipped":0,"errors":0,"side_effects":{"queued":0,"retryable":0,"exhausted":0,"total":0,"completed":0,"failed":0,"held":0,"action_required":null,"is_complete":false},"action_required":null},"fetch_failures":0,"partial":true,"failures":["missing or invalid isComplete"]}`},
+		{"true", `"isComplete":true`, 0, true, true, `{"job_id":"job","status":"completed","stage":"done","created":0,"updated":0,"skipped":0,"errors":0,"verification":{"verified":true,"status":"completed","created":0,"updated":0,"skipped":0,"errors":0,"side_effects":{"queued":0,"retryable":0,"exhausted":0,"total":0,"completed":0,"failed":0,"held":0,"action_required":null,"is_complete":true},"action_required":null},"fetch_failures":0,"partial":false}`, ""},
+		// novel1219: an unfinished job has recorded work still queued; all-zero counters are "no side effects" below.
+		{"false", `"isComplete":false`, 5, false, false, `{"job_id":"job","status":"completed","stage":"done","created":0,"updated":0,"skipped":0,"errors":0,"verification":{"verified":false,"reason":"missing side effects are not complete, 1 queued sends, 0 of 1 side effects completed","status":"completed","created":0,"updated":0,"skipped":0,"errors":0,"side_effects":{"queued":1,"retryable":0,"exhausted":0,"total":1,"completed":0,"failed":0,"held":0,"action_required":null,"is_complete":false},"action_required":null},"fetch_failures":0,"partial":true,"failures":["missing side effects are not complete, 1 queued sends, 0 of 1 side effects completed"]}`, `"queued":1,"retryableFailed":0,"exhaustedFailed":0,"total":1,"completed":0,"failed":0,"held":0`},
+		{"no side effects", `"isComplete":false`, 0, true, false, `{"job_id":"job","status":"completed","stage":"done","created":0,"updated":0,"skipped":0,"errors":0,"verification":{"verified":true,"status":"completed","created":0,"updated":0,"skipped":0,"errors":0,"side_effects":{"queued":0,"retryable":0,"exhausted":0,"total":0,"completed":0,"failed":0,"held":0,"action_required":null,"is_complete":false,"no_side_effects":true},"action_required":null},"fetch_failures":0,"partial":false}`, ""},
+		{"absent", ``, 5, false, false, `{"job_id":"job","status":"completed","stage":"done","created":0,"updated":0,"skipped":0,"errors":0,"verification":{"verified":false,"reason":"missing or invalid isComplete","status":"completed","created":0,"updated":0,"skipped":0,"errors":0,"side_effects":{"queued":0,"retryable":0,"exhausted":0,"total":0,"completed":0,"failed":0,"held":0,"action_required":null,"is_complete":false},"action_required":null},"fetch_failures":0,"partial":true,"failures":["missing or invalid isComplete"]}`, ""},
+		{"malformed", `"isComplete":"false"`, 5, false, false, `{"job_id":"job","status":"completed","stage":"done","created":0,"updated":0,"skipped":0,"errors":0,"verification":{"verified":false,"reason":"missing or invalid isComplete","status":"completed","created":0,"updated":0,"skipped":0,"errors":0,"side_effects":{"queued":0,"retryable":0,"exhausted":0,"total":0,"completed":0,"failed":0,"held":0,"action_required":null,"is_complete":false},"action_required":null},"fetch_failures":0,"partial":true,"failures":["missing or invalid isComplete"]}`, ""},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			testenv.Isolate(t)
@@ -228,7 +232,11 @@ func TestImportsWatchVerifyIsCompleteExactOutput(t *testing.T) {
 					if tc.field != "" {
 						comma = ","
 					}
-					_, _ = w.Write([]byte(`{"data":{"queued":0,"retryableFailed":0,"exhaustedFailed":0,"total":0,"completed":0,"failed":0,"held":0` + comma + tc.field + `}}`))
+					counters := tc.counters
+					if counters == "" {
+						counters = `"queued":0,"retryableFailed":0,"exhaustedFailed":0,"total":0,"completed":0,"failed":0,"held":0`
+					}
+					_, _ = w.Write([]byte(`{"data":{` + counters + comma + tc.field + `}}`))
 				}
 			})
 			if tc.wantCode == 0 && err != nil || tc.wantCode != 0 && ExitCode(err) != tc.wantCode {
@@ -336,11 +344,11 @@ func TestImportsWatchPollsToCompleted(t *testing.T) {
 		}
 	}
 	out, _, err := runNovel(t, []string{"imports", "watch", "job", "--interval", "1ms", "--timeout", "5s", "--verify", "--json"}, h)
-	if err != nil {
-		t.Fatal(err)
+	if ExitCode(err) != 5 { // novel1219 r2: queued, failed and held sends never verify
+		t.Fatalf("err=%v code=%d", err, ExitCode(err))
 	}
 	out = compactTestJSON(out)
-	for _, want := range []string{`"status":"completed"`, `"stage":"delivery"`, `"created":4`, `"updated":2`, `"skipped":1`, `"errors":0`, `"verification":{"verified":true`, `"queued":2`, `"retryable":1`, `"exhausted":3`, `"action_required":true`} {
+	for _, want := range []string{`"status":"completed"`, `"stage":"delivery"`, `"created":4`, `"updated":2`, `"skipped":1`, `"errors":0`, `"verification":{"verified":false`, "1 held sends", `"queued":2`, `"retryable":1`, `"exhausted":3`, `"action_required":true`} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("missing %s in %s", want, out)
 		}

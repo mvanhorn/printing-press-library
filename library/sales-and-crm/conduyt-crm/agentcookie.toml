@@ -3,7 +3,7 @@
 schema_version = 2
 name = "conduyt-crm-pp-cli"
 display_name = "Conduyt CRM"
-description = "Every Conduyt endpoint as a command, plus send-safety, import forensics, report deltas and dialer coverage no other Conduyt surface has."
+description = "The official Conduyt CLI: every endpoint, plus Kloudi-grade send-safety forensics no other surface has."
 project_kind = "cli"
 
 [secrets.file]
@@ -13,5 +13,4 @@ path = "~/.config/conduyt-crm-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-CONDUYT_API_KEY = true
-CONDUYT_BEARER_AUTH = true
+CONDUYT_CRM_BEARER_AUTH = true

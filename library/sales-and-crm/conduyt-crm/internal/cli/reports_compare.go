@@ -1,5 +1,6 @@
 // Copyright 2026 Paul Taramona and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:data-source live
+// PATCH(novel1219-reports-compare): ported from the public library entry (Greptile PR #2450 round 2 P1).
 package cli
 
 import (
@@ -16,6 +17,11 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+// compareAssigneeParam names the query parameter each report filters an assignee by (spec.yaml): call-performance
+// takes userId; funnel, attribution and sms-delivery take none. PATCH(novel1219-reports-compare): the public entry sent
+// assignedTo to every report, so a report without that filter silently answered for everyone.
+var compareAssigneeParam = map[string]string{"speed-to-lead": "assignedTo", "appointments": "assignedTo", "call-performance": "userId"}
 
 var comparableReports = map[string]string{"speed-to-lead": "/reports/speed-to-lead", "funnel": "/reports/funnel", "appointments": "/reports/appointments", "call-performance": "/reports/call-performance", "attribution": "/reports/attribution", "sms-delivery": "/reports/sms-delivery"}
 
@@ -57,7 +63,7 @@ func newNovelReportsCompareCmd(flags *rootFlags) *cobra.Command {
 		Use: "compare <report>", Short: "Compare any core report with its equal prior window.",
 		Long:        "Use this command for the change in a report between two equal periods. One-sided indexed dimension members are listed as non-comparable without making the comparison partial; one-sided fixed metrics still fail closed. Do NOT use it for target attainment; use 'reports scorecard' instead.",
 		Example:     "  conduyt-crm-pp-cli reports compare speed-to-lead --range 7d --json\n  conduyt-crm-pp-cli reports compare speed-to-lead --range 7d --assigned-to <userId> --json",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:happy-args": "<report>=speed-to-lead;--range=7d"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:happy-args": "report=speed-to-lead;--range=7d"}, // PATCH(novel1219-reports-compare): the 4.34.2 dogfood keys a positional by its bare name,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "reports compare")
@@ -78,6 +84,15 @@ func newNovelReportsCompareCmd(flags *rootFlags) *cobra.Command {
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("--pipeline is required for funnel"))
 			}
+			if args[0] != "funnel" && flagPipeline != "" {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("--pipeline applies only to funnel; %s has no pipeline filter", args[0]))
+			}
+			assigneeParam, assigneeOK := compareAssigneeParam[args[0]]
+			if flagAssignedTo != "" && !assigneeOK {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("--assigned-to is not supported for %s (supported: call-performance, appointments, speed-to-lead)", args[0]))
+			}
 			from, to, err := reportWindow(flagRange, flagFrom, flagTo, time.Now().UTC())
 			if err != nil {
 				_ = cmd.Usage()
@@ -96,7 +111,7 @@ func newNovelReportsCompareCmd(flags *rootFlags) *cobra.Command {
 				base["pipelineId"] = flagPipeline
 			}
 			if flagAssignedTo != "" {
-				base["assignedTo"] = flagAssignedTo
+				base[assigneeParam] = flagAssignedTo
 			}
 			fetch := func(start, end time.Time) (any, error) {
 				params := map[string]string{"from": start.Format(time.RFC3339), "to": end.Format(time.RFC3339)}
