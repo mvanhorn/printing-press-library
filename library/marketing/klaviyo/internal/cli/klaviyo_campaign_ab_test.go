@@ -509,6 +509,26 @@ func TestCampaignABResultsOnlyInfersCompletedRolloutWithUniqueRecipientLeader(t 
 	}
 }
 
+func TestCampaignABResultsDoesNotInferWinnerWithNullWaitHours(t *testing.T) {
+	f := newCampaignABFixture(t)
+	f.status, f.sendTime = "sent", "2026-11-02T12:00:00Z"
+	f.settings = map[string]any{"winner_metric": "clicks_unique", "winner_percentage": 80, "winner_wait_hours": nil}
+	f.variations = append(f.variations, modelVariationFixture("variation-b", "acme-template", "email"))
+	f.rows = []map[string]any{campaignABReportRow("variation-a", 1000, 0, 0, 0, 0), campaignABReportRow("variation-b", 500, 0, 0, 0, 0)}
+	previousNow := klaviyoWindowNow
+	klaviyoWindowNow = func() time.Time { return time.Date(2026, 11, 2, 12, 0, 0, 0, time.UTC) }
+	t.Cleanup(func() { klaviyoWindowNow = previousNow })
+	campaignFixtureClient(t, f)
+	out, err := executeCampaignAB(t, newCampaignsABTestResultsCmd(&rootFlags{asJSON: true, rateLimit: 10000}), "--campaign-id", modelMessageID)
+	var result campaignABResults
+	if decodeErr := json.Unmarshal(out, &result); err != nil || decodeErr != nil {
+		t.Fatalf("error=%v output=%s", err, out)
+	}
+	if result.KlaviyoWinnerInferred != nil || bytes.Contains(out, []byte(`"klaviyo_winner_inferred"`)) || !strings.Contains(strings.Join(result.Notes, " "), "wait time is unknown") {
+		t.Fatalf("expected no inferred winner and an unknown wait time note: %s", out)
+	}
+}
+
 func TestCampaignABZTestFixedNumbers(t *testing.T) {
 	// Hand calculation: pooled=.1, SE=sqrt(.1*.9*(1/1000+1/1000))=.0134164,
 	// z=(.12-.08)/SE=2.981424; two-sided 2*(1-Phi(z))=.0028691 -> .0029.

@@ -210,8 +210,13 @@ func populateCampaignABResults(result *campaignABResults, rows []map[string]any,
 		result.Notes = append(result.Notes, "No Klaviyo rollout winner: winner_percentage is zero.")
 		return nil
 	}
+	waitHours := anyFloat(settings["winner_wait_hours"])
+	if waitHours < 1 {
+		result.Notes = append(result.Notes, "Winner wait time is unknown; the Klaviyo rollout winner cannot be inferred.")
+		return nil
+	}
 	sent, err := time.Parse(time.RFC3339, message.SendTime)
-	wait := time.Duration(anyFloat(settings["winner_wait_hours"]) * float64(time.Hour))
+	wait := time.Duration(waitHours * float64(time.Hour))
 	if message.Status != "sent" || err != nil || klaviyoWindowNow().Before(sent.Add(wait)) {
 		result.Notes = append(result.Notes, "A/B test is still running; the Klaviyo rollout winner is not yet inferred.")
 		return nil
