@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.7 - 2026-11-10
+
+- feat(klaviyo): add campaigns ab-test create and results (#2459).
+
 ## 2026.11.6 - 2026-11-10
 
 - fix(klaviyo): report targeting joins report rows to campaign audiences again (#2458).
