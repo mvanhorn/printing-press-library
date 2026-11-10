@@ -8,7 +8,7 @@
     "type": "api_key"
   },
   "skip_reason": "external_credentials_unavailable",
-  "source_fingerprint": "498a4ddeaad5b51bfe73d7096418d27e11470ead86593bc3befb5e098a2c9e6d",
+  "source_fingerprint": "6b32ac3786be764a16d48765d8bd1bbb21edade6a7477eb35c40a5300287ea1e",
   "source_files": {
     "cmd/klaviyo-pp-cli/main.go": "c5f7f72fe5b2766f82591e66590f40a7c87b6ed8f6d9667baaa5923db8598ca0",
     "cmd/klaviyo-pp-mcp/http_auth_test.go": "f3fc26d3c5884a90aea4ef378975bf6e8cbd1d9be4080b9d9002f35974e13b94",
@@ -349,8 +349,8 @@
     "internal/cli/klaviyo_brand_qa.go": "4c6e07940ac40dbaf0241e7abdfc8049f7734352a53f34dcb36410eb97ec95f1",
     "internal/cli/klaviyo_brand_qa_test.go": "9bea60275e0763273f8084f49c26bec71d4addc921a9d54b89ea947461ff411e",
     "internal/cli/klaviyo_campaign_ab.go": "2dc119f2e65a3d6f015e46848d43fdee3c696574494227d3e45aff57e8ff2b4b",
-    "internal/cli/klaviyo_campaign_ab_results.go": "1369346430a4f1dab78b7e1908ddd4b478c6c1465e174a521bd4ec69fc231b7e",
-    "internal/cli/klaviyo_campaign_ab_test.go": "1e2f3130d34218e20086b7e410edad993957d58568febf91aaeb61be590bcd18",
+    "internal/cli/klaviyo_campaign_ab_results.go": "6eff14df1e8cf6b909fff36974496025d13c9ba99a072923a48e05be1e49d244",
+    "internal/cli/klaviyo_campaign_ab_test.go": "166cec461db836da3cc5071315e1acdf87de877f08c46d5ba8bd36a2cc8ca2ff",
     "internal/cli/klaviyo_campaign_body.go": "0b25167d6c45caeda8fd96d6899a47d65b6aa0343037adaae51fe39350baaa58",
     "internal/cli/klaviyo_campaign_commands.go": "cf9f5a86307ef863724ef7aabf29b9f48d6fa95b853ee214158c2a0a5a64e56d",
     "internal/cli/klaviyo_campaign_create.go": "9858544b7e4be9dead53e954384954aa5aa2f02c7494e23a4e6c4e7074a7b2b3",
