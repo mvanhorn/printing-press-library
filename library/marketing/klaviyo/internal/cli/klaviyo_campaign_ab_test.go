@@ -28,6 +28,8 @@ type campaignABFixture struct {
 	settings               any
 	variations             []map[string]any
 	rows                   []map[string]any
+	metrics                []map[string]any
+	metricReads            int
 	writes                 []campaignABRequest
 	reads                  int
 	createAttempts         int
@@ -79,6 +81,11 @@ func (f *campaignABFixture) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			w.Write(modelCollectionFixture(f.variations...))
 		case "/api/metrics":
+			f.metricReads++
+			if f.metrics != nil {
+				w.Write(modelCollectionFixture(f.metrics...))
+				break
+			}
 			fmt.Fprint(w, `{"data":[{"id":"acme-order-metric","attributes":{"name":"Placed Order","integration":{"name":"Shopify"}}}],"links":{"next":null}}`)
 		default:
 			w.WriteHeader(http.StatusNotFound)
@@ -577,12 +584,12 @@ func TestCampaignABResultsReportJoinAndInferredWinner(t *testing.T) {
 			if result.Timeframe.Start.Format(time.RFC3339) != "2026-10-31T00:00:00-05:00" || result.Timeframe.End.Format(time.RFC3339) != "2026-11-09T12:00:00-06:00" {
 				t.Fatalf("window=%+v", result.Timeframe)
 			}
-			if result.Variations[0].RevenuePerRecipient != 300.0/25558 {
+			if result.Variations[0].RevenuePerRecipient == nil || *result.Variations[0].RevenuePerRecipient != 300.0/25558 {
 				t.Fatalf("revenue/recipient=%v", result.Variations[0])
 			}
 			if missing {
 				zero := result.Variations[1]
-				if zero.Recipients != 0 || zero.OpensUnique != 0 || zero.OpenRate != 0 || zero.ClicksUnique != 0 || zero.ClickRate != 0 || zero.Orders != 0 || zero.Revenue != 0 || zero.RevenuePerRecipient != 0 || result.PValues[0].PValue != 1 {
+				if zero.Recipients != 0 || zero.OpensUnique != 0 || zero.OpenRate != 0 || zero.ClicksUnique != 0 || zero.ClickRate != 0 || zero.Orders == nil || *zero.Orders != 0 || zero.Revenue == nil || *zero.Revenue != 0 || zero.RevenuePerRecipient == nil || *zero.RevenuePerRecipient != 0 || result.PValues[0].PValue != 1 {
 					t.Fatalf("missing variation=%+v p=%v", zero, result.PValues)
 				}
 			} else if math.Round(result.PValues[0].PValue*1e4)/1e4 != .9603 {
@@ -681,5 +688,164 @@ func TestCampaignABResultsLabelsSurviveReorderedVariations(t *testing.T) {
 		if result.Variations[i].VariationID != id || result.Variations[i].Label != string(rune('A'+i)) {
 			t.Fatalf("labels=%+v", result.Variations)
 		}
+	}
+}
+
+func TestCampaignABResultsConversionMetricOverride(t *testing.T) {
+	for _, metric := range []string{"clicks", "opens", "orders"} {
+		for _, dryRun := range []bool{false, true} {
+			t.Run(fmt.Sprintf("%s/dry-run=%t", metric, dryRun), func(t *testing.T) {
+				f := newCampaignABFixture(t)
+				f.status, f.sendTime = "sent", "2026-11-02T12:00:00Z"
+				f.settings = map[string]any{"winner_metric": "placed_orders_unique", "winner_percentage": 0}
+				f.variations = append(f.variations, modelVariationFixture("variation-b", "acme-template", "email"))
+				f.rows = []map[string]any{campaignABReportRow("variation-a", 1000, 120, 200, 120, 600), campaignABReportRow("variation-b", 1000, 80, 100, 80, 400)}
+				campaignFixtureClient(t, f)
+				out, err := executeCampaignAB(t, newCampaignsABTestResultsCmd(&rootFlags{asJSON: true, dryRun: dryRun, rateLimit: 10000}),
+					"--campaign-id", modelMessageID, "--metric", metric, "--conversion-metric-id", " acme-custom-order-metric ")
+				if err != nil || f.metricReads != 0 {
+					t.Fatalf("error=%v metric reads=%d output=%s", err, f.metricReads, out)
+				}
+				var body map[string]any
+				if dryRun {
+					var preview map[string]any
+					if err := json.Unmarshal(out, &preview); err != nil {
+						t.Fatal(err)
+					}
+					if preview["dry_run"] != true || len(f.writes) != 0 {
+						t.Fatalf("output=%s writes=%v", out, f.writes)
+					}
+					body = preview["report_body"].(map[string]any)
+				} else {
+					if len(f.writes) != 1 {
+						t.Fatalf("reports=%v", f.writes)
+					}
+					body = f.writes[0].body
+					var result campaignABResults
+					if err := json.Unmarshal(out, &result); err != nil {
+						t.Fatal(err)
+					}
+					v := result.Variations[0]
+					if result.Metric != metric || v.Orders == nil || *v.Orders != 120 || v.Revenue == nil || *v.Revenue != 600 || v.RevenuePerRecipient == nil || *v.RevenuePerRecipient != .6 {
+						t.Fatalf("result=%s", out)
+					}
+					human, err := executeCampaignAB(t, &cobra.Command{RunE: func(cmd *cobra.Command, _ []string) error {
+						return printCampaignABResults(cmd, &rootFlags{}, result)
+					}})
+					if err != nil || !strings.Contains(strings.Join(strings.Fields(string(human)), " "), "120 600.00 0.6000") {
+						t.Fatalf("error=%v human output=%s", err, human)
+					}
+				}
+				if anyPath(body, "data.attributes.conversion_metric_id") != "acme-custom-order-metric" {
+					t.Fatalf("report body=%v", body)
+				}
+			})
+		}
+	}
+}
+
+func TestCampaignABResultsEngagementFallback(t *testing.T) {
+	for _, tc := range []struct {
+		name, metric, winnerMetric string
+		ambiguous, missingRow      bool
+	}{
+		{name: "explicit clicks", metric: "clicks", winnerMetric: "placed_orders_unique"},
+		{name: "explicit opens", metric: "opens", winnerMetric: "placed_orders_unique"},
+		{name: "winner clicks", winnerMetric: "clicks_unique"},
+		{name: "winner opens", winnerMetric: "opens_unique"},
+		{name: "ambiguous orders and missing variation", winnerMetric: "clicks_unique", ambiguous: true, missingRow: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			f := newCampaignABFixture(t)
+			f.status, f.sendTime = "sent", "2026-11-02T12:00:00Z"
+			f.settings = map[string]any{"winner_metric": tc.winnerMetric, "winner_percentage": 0}
+			f.variations = append(f.variations, modelVariationFixture("variation-b", "acme-template", "email"))
+			f.metrics = []map[string]any{{"id": "acme-received-metric", "attributes": map[string]any{"name": "Received Email"}}}
+			if tc.ambiguous {
+				for _, id := range []string{"custom-orders-a", "custom-orders-b"} {
+					f.metrics = append(f.metrics, map[string]any{"id": id, "attributes": map[string]any{"name": "Placed Order"}})
+				}
+			}
+			f.rows = []map[string]any{campaignABReportRow("variation-a", 1000, 120, 200, 900, 9000)}
+			if !tc.missingRow {
+				f.rows = append(f.rows, campaignABReportRow("variation-b", 1000, 80, 100, 800, 8000))
+			}
+			campaignFixtureClient(t, f)
+			args := []string{"--campaign-id", modelMessageID}
+			if tc.metric != "" {
+				args = append(args, "--metric", tc.metric)
+			}
+			out, err := executeCampaignAB(t, newCampaignsABTestResultsCmd(&rootFlags{asJSON: true, rateLimit: 10000}), args...)
+			var result campaignABResults
+			if decodeErr := json.Unmarshal(out, &result); err != nil || decodeErr != nil {
+				t.Fatalf("error=%v output=%s", err, out)
+			}
+			if len(f.writes) != 1 || len(result.Variations) != 2 {
+				t.Fatalf("reports=%v output=%s", f.writes, out)
+			}
+			attrs := anyPath(f.writes[0].body, "data.attributes")
+			wantStats := []any{"recipients", "opens_unique", "open_rate", "clicks_unique", "click_rate"}
+			if anyPath(attrs, "conversion_metric_id") != "acme-received-metric" || !reflect.DeepEqual(anyPath(attrs, "statistics"), wantStats) {
+				t.Fatalf("report attributes=%v", attrs)
+			}
+			wantMetric := tc.metric
+			if wantMetric == "" {
+				wantMetric = "clicks"
+				if tc.winnerMetric == "opens_unique" {
+					wantMetric = "opens"
+				}
+			}
+			wantVerdict := "clear_winner"
+			if tc.missingRow {
+				wantVerdict = "no_clear_winner"
+			}
+			if result.Metric != wantMetric || result.Verdict != wantVerdict || result.Leader != "variation-a" || len(result.PValues) != 1 || result.Variations[0].Recipients != 1000 || result.Variations[0].ClicksUnique != 120 || result.Variations[0].OpensUnique != 200 {
+				t.Fatalf("result=%s", out)
+			}
+			var payload map[string]any
+			if err := json.Unmarshal(out, &payload); err != nil {
+				t.Fatal(err)
+			}
+			for _, variation := range mapSlice(payload["variations"]) {
+				for _, field := range []string{"orders", "revenue", "revenue_per_recipient"} {
+					if value, exists := variation[field]; !exists || value != nil {
+						t.Fatalf("%s must be present and null: %s", field, out)
+					}
+				}
+			}
+			if !strings.Contains(strings.Join(result.Notes, " "), "Orders, revenue and revenue per recipient are unavailable") {
+				t.Fatalf("missing conversion note: %s", out)
+			}
+			var human bytes.Buffer
+			cmd := &cobra.Command{}
+			cmd.SetOut(&human)
+			if err := printCampaignABResults(cmd, &rootFlags{}, result); err != nil || strings.Count(human.String(), "unavailable") != 7 {
+				t.Fatalf("error=%v human output=%s", err, human.String())
+			}
+		})
+	}
+}
+
+func TestCampaignABResultsOrdersRequireConversionMetric(t *testing.T) {
+	for _, explicit := range []bool{false, true} {
+		t.Run(fmt.Sprintf("explicit=%t", explicit), func(t *testing.T) {
+			f := newCampaignABFixture(t)
+			f.status, f.sendTime = "sent", "2026-11-02T12:00:00Z"
+			f.settings = map[string]any{"winner_metric": "placed_orders_unique"}
+			if explicit {
+				f.settings = map[string]any{"winner_metric": "clicks_unique"}
+			}
+			f.variations = append(f.variations, modelVariationFixture("variation-b", "acme-template", "email"))
+			f.metrics = []map[string]any{{"id": "acme-received-metric", "attributes": map[string]any{"name": "Received Email"}}}
+			campaignFixtureClient(t, f)
+			args := []string{"--campaign-id", modelMessageID}
+			if explicit {
+				args = append(args, "--metric", "orders")
+			}
+			out, err := executeCampaignAB(t, newCampaignsABTestResultsCmd(&rootFlags{asJSON: true, rateLimit: 10000}), args...)
+			if err == nil || !strings.Contains(err.Error(), "--conversion-metric-id") || len(f.writes) != 0 || f.metricReads != 1 || len(out) != 0 {
+				t.Fatalf("error=%v output=%s reports=%v metric reads=%d", err, out, f.writes, f.metricReads)
+			}
+		})
 	}
 }

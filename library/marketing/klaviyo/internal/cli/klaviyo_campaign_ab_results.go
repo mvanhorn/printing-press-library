@@ -13,17 +13,17 @@ import (
 )
 
 type campaignABVariationResult struct {
-	VariationID         string  `json:"variation_id"`
-	Label               string  `json:"label"`
-	Subject             string  `json:"subject"`
-	Recipients          float64 `json:"recipients"`
-	OpensUnique         float64 `json:"opens_unique"`
-	OpenRate            float64 `json:"open_rate"`
-	ClicksUnique        float64 `json:"clicks_unique"`
-	ClickRate           float64 `json:"click_rate"`
-	Orders              float64 `json:"orders"`
-	Revenue             float64 `json:"revenue"`
-	RevenuePerRecipient float64 `json:"revenue_per_recipient"`
+	VariationID         string   `json:"variation_id"`
+	Label               string   `json:"label"`
+	Subject             string   `json:"subject"`
+	Recipients          float64  `json:"recipients"`
+	OpensUnique         float64  `json:"opens_unique"`
+	OpenRate            float64  `json:"open_rate"`
+	ClicksUnique        float64  `json:"clicks_unique"`
+	ClickRate           float64  `json:"click_rate"`
+	Orders              *float64 `json:"orders"`
+	Revenue             *float64 `json:"revenue"`
+	RevenuePerRecipient *float64 `json:"revenue_per_recipient"`
 }
 
 type campaignABComparison struct {
@@ -52,7 +52,7 @@ type campaignABResults struct {
 }
 
 func newCampaignsABTestResultsCmd(flags *rootFlags) *cobra.Command {
-	var campaignID, metric string
+	var campaignID, metric, conversionMetricID string
 	cmd := &cobra.Command{
 		Use: "results", Short: "Compare per-variation email rates with two-proportion z-tests",
 		Args: cobra.NoArgs, SilenceUsage: true, Annotations: map[string]string{"mcp:read-only": "true"},
@@ -92,7 +92,10 @@ func newCampaignsABTestResultsCmd(flags *rootFlags) *cobra.Command {
 				Variations: []campaignABVariationResult{}, PValues: []campaignABComparison{}, Notes: []string{}}
 			for _, v := range m.Variations {
 				if v.Channel == "email" {
-					result.Variations = append(result.Variations, campaignABVariationResult{VariationID: v.ID, Label: string(rune('A' + len(result.Variations))), Subject: v.Subject})
+					result.Variations = append(result.Variations, campaignABVariationResult{
+						VariationID: v.ID, Label: string(rune('A' + len(result.Variations))), Subject: v.Subject,
+						Orders: new(float64), Revenue: new(float64), RevenuePerRecipient: new(float64),
+					})
 				}
 			}
 			if len(result.Variations) < 2 {
@@ -116,11 +119,24 @@ func newCampaignsABTestResultsCmd(flags *rootFlags) *cobra.Command {
 			if window.Clamped {
 				result.Notes = append(result.Notes, "Reporting timeframe was capped to the provider limit; older events are excluded.")
 			}
-			body, _, err := buildKlaviyoReportBody(c, klaviyoReportRequest{
-				Type:       "campaign-values-report",
-				Statistics: []string{"recipients", "opens_unique", "open_rate", "clicks_unique", "click_rate", "conversion_uniques", "conversion_value", "conversion_rate"},
-				Timeframe:  map[string]any{"start": window.Start.Format("2006-01-02T15:04:05Z07:00"), "end": window.End.Format("2006-01-02T15:04:05Z07:00")},
-			}, dryRunOK(flags))
+			req := klaviyoReportRequest{
+				Type:               "campaign-values-report",
+				Statistics:         []string{"recipients", "opens_unique", "open_rate", "clicks_unique", "click_rate", "conversion_uniques", "conversion_value", "conversion_rate"},
+				Timeframe:          map[string]any{"start": window.Start.Format("2006-01-02T15:04:05Z07:00"), "end": window.End.Format("2006-01-02T15:04:05Z07:00")},
+				ConversionMetricID: conversionMetricID,
+			}
+			body, _, err := buildKlaviyoReportBody(c, req, dryRunOK(flags))
+			conversionsAvailable := true
+			if err != nil && strings.TrimSpace(conversionMetricID) == "" && metric != "orders" {
+				req.ConversionMetricID, err = resolveMetricID(c, "Received Email")
+				if err != nil {
+					return err
+				}
+				req.Statistics = []string{"recipients", "opens_unique", "open_rate", "clicks_unique", "click_rate"}
+				body, _, err = buildKlaviyoReportBody(c, req, false)
+				conversionsAvailable = false
+				result.Notes = append(result.Notes, "Placed Order conversion metric could not be resolved; using Received Email for engagement reporting. Orders, revenue and revenue per recipient are unavailable; pass --conversion-metric-id to specify an order metric.")
+			}
 			if err != nil {
 				return err
 			}
@@ -141,11 +157,18 @@ func newCampaignsABTestResultsCmd(flags *rootFlags) *cobra.Command {
 			if err := populateCampaignABResults(&result, rows, m); err != nil {
 				return err
 			}
+			if !conversionsAvailable {
+				for i := range result.Variations {
+					v := &result.Variations[i]
+					v.Orders, v.Revenue, v.RevenuePerRecipient = nil, nil, nil
+				}
+			}
 			return printCampaignABResults(cmd, flags, result)
 		},
 	}
 	cmd.Flags().StringVar(&campaignID, "campaign-id", "", "Campaign container or message ID")
 	cmd.Flags().StringVar(&metric, "metric", "", "Compare clicks, opens or orders (default: test winner metric, else clicks)")
+	cmd.Flags().StringVar(&conversionMetricID, "conversion-metric-id", "", "Conversion metric ID (default: auto-resolve Shopify Placed Order)")
 	return cmd
 }
 
@@ -170,9 +193,10 @@ func populateCampaignABResults(result *campaignABResults, rows []map[string]any,
 		v.OpenRate = anyFloat(anyPath(row, "statistics.open_rate"))
 		v.ClicksUnique = anyFloat(anyPath(row, "statistics.clicks_unique"))
 		v.ClickRate = anyFloat(anyPath(row, "statistics.click_rate"))
-		v.Orders = anyFloat(anyPath(row, "statistics.conversion_uniques"))
-		v.Revenue = anyFloat(anyPath(row, "statistics.conversion_value"))
-		v.RevenuePerRecipient = rate(v.Revenue, v.Recipients)
+		orders := anyFloat(anyPath(row, "statistics.conversion_uniques"))
+		revenue := anyFloat(anyPath(row, "statistics.conversion_value"))
+		revenuePerRecipient := rate(revenue, v.Recipients)
+		v.Orders, v.Revenue, v.RevenuePerRecipient = &orders, &revenue, &revenuePerRecipient
 		events := v.metricEvents(result.Metric)
 		if v.Recipients < 0 || events < 0 || events > v.Recipients || math.Trunc(events) != events || math.Trunc(v.Recipients) != v.Recipients {
 			return fmt.Errorf("variation %s has invalid metric uniques or recipient counts for a two-proportion z-test", v.VariationID)
@@ -237,7 +261,7 @@ func (v campaignABVariationResult) metricEvents(metric string) float64 {
 	case "opens":
 		return v.OpensUnique
 	case "orders":
-		return v.Orders
+		return *v.Orders
 	default:
 		return v.ClicksUnique
 	}
@@ -268,8 +292,14 @@ func printCampaignABResults(cmd *cobra.Command, flags *rootFlags, result campaig
 	fmt.Fprintf(&out, "Message %s: %s (%s); leader: %s\n", result.MessageID, result.Verdict, result.Metric, result.Leader)
 	table := tabwriter.NewWriter(&out, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(table, "Label\tSubject\tRecipients\tUnique opens\tOpen rate\tUnique clicks\tClick rate\tOrders\tRevenue\tRevenue/recipient")
+	formatConversion := func(value *float64, format string) string {
+		if value == nil {
+			return "unavailable"
+		}
+		return fmt.Sprintf(format, *value)
+	}
 	for _, v := range result.Variations {
-		fmt.Fprintf(table, "%s\t%q\t%.0f\t%.0f\t%.4f\t%.0f\t%.4f\t%.0f\t%.2f\t%.4f\n", v.Label, v.Subject, v.Recipients, v.OpensUnique, v.OpenRate, v.ClicksUnique, v.ClickRate, v.Orders, v.Revenue, v.RevenuePerRecipient)
+		fmt.Fprintf(table, "%s\t%q\t%.0f\t%.0f\t%.4f\t%.0f\t%.4f\t%s\t%s\t%s\n", v.Label, v.Subject, v.Recipients, v.OpensUnique, v.OpenRate, v.ClicksUnique, v.ClickRate, formatConversion(v.Orders, "%.0f"), formatConversion(v.Revenue, "%.2f"), formatConversion(v.RevenuePerRecipient, "%.4f"))
 	}
 	if err := table.Flush(); err != nil {
 		return err

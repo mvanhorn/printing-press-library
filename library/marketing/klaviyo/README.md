@@ -248,11 +248,11 @@ These capabilities aren't available in any other tool for this API.
     --winner-metric clicks --test-percent 20 --wait-hours 4 --dry-run --json
   ```
 
-- **`campaigns ab-test results`** - Read recipient counts, unique opens and clicks, rates, orders, revenue and revenue per recipient for each email variation. Unsent messages return `too_early` without querying reports. Missing variation rows produce zeros.
+- **`campaigns ab-test results`** - Read recipient counts, unique opens and clicks, rates, orders, revenue and revenue per recipient for each email variation. Unsent messages return `too_early` without querying reports. Missing variation rows produce zeros for available metrics.
 
   `--metric` accepts `clicks`, `opens` or `orders`; it defaults to the test's winner metric, then clicks. The rate leader must beat every other variation in a two-sided pooled two-proportion z-test with p < 0.05 for `clear_winner`; otherwise the verdict is `no_clear_winner`. P-values, an opens privacy note and small-sample notes (fewer than 100 selected metric events) accompany the result. When the winner audience share is positive, the most-mailed variation is labelled as a Klaviyo winner inferred from recipient counts.
 
-  Reports use the day before the send date through now in `KLAVIYO_TIMEZONE` (default UTC), capped to the provider's 364-day window. The conversion metric uses the existing Shopify Placed Order auto-resolution. JSON includes message ID, A/B settings, timeframe, variations, verdict, leader, p-values and notes.
+  Reports use the day before the send date through now in `KLAVIYO_TIMEZONE` (default UTC), capped to the provider's 364-day window. `--conversion-metric-id` overrides the default Shopify Placed Order auto-resolution. If auto-resolution cannot find a usable order metric, clicks and opens use Received Email for reporting; orders, revenue and revenue per recipient are unavailable (`null` in JSON), with a note. Comparing orders requires a usable order metric. JSON includes message ID, A/B settings, timeframe, variations, verdict, leader, p-values and notes.
 
   ```bash
   klaviyo-pp-cli campaigns ab-test results --campaign-id acme-message-id --metric clicks --json
