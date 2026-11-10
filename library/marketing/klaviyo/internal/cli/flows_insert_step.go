@@ -181,6 +181,12 @@ func newFlowsInsertStepCmd(flags *rootFlags) *cobra.Command {
 				for _, action := range updated.Definition.Actions {
 					if action.ID == result.ActionID && action.Type == step["type"] {
 						found = true
+						if action.Type != "multi-branch-split" {
+							next, exists := action.Links["next"]
+							if !exists || (downstream == "" && next != nil) || (downstream != "" && (next == nil || *next != downstream)) {
+								err = fmt.Errorf("created action %q did not preserve downstream link %q", result.ActionID, downstream)
+							}
+						}
 					}
 				}
 				if err == nil && (result.ActionID == "" || target != result.ActionID || !found) {

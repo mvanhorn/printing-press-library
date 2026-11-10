@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-schedule-compliance-and-insert-verification",
+  "applied_at": "2026-11-10",
+  "base_run_id": "2026-11-09T21:18:59.628302Z",
+  "base_printing_press_version": "4.35.4",
+  "summary": "Campaign message scheduling requires the same unsubscribe preflight as campaign sends, and linear flow insertions verify that the created action preserves the downstream link.",
+  "reason": "Scheduling a message can send email just as a campaign send job can, so CLI and MCP must check the body's campaign-message relationship before posting while preserving network-free previews. An insertion is only verified when its new linear action still reaches the saved downstream action, or has an explicit null next link at the end of a flow.",
+  "files": [
+    "internal/cli/campaign-message-schedule_schedule-campaign-message.go",
+    "internal/cli/klaviyo_compliance.go",
+    "internal/cli/klaviyo_compliance_test.go",
+    "internal/cli/flows_insert_step.go",
+    "internal/cli/flows_insert_step_test.go",
+    "internal/mcp/klaviyo_execute_guard.go",
+    "internal/mcp/klaviyo_execute_guard_test.go"
+  ],
+  "validated_outcome": "Focused CLI and MCP tests reject non-compliant scheduled messages with zero scheduling POSTs, allow compliant messages, and preserve previews without network requests. Flow insertion tests reject missing, null, or wrong downstream links and accept preserved links, including terminal null. go build ./... and go vet ./... pass; the full test suite is blocked by sandbox restrictions on listening sockets in existing tests."
+}

@@ -358,6 +358,61 @@ func TestFlowsInsertStepVerificationFailureReturnsError(t *testing.T) {
 	}
 }
 
+func TestFlowsInsertStepVerifiesDownstreamLink(t *testing.T) {
+	for _, tc := range []struct {
+		name, downstream string
+		links            map[string]any
+		verified         bool
+	}{
+		{"preserved", "end", map[string]any{"next": "end"}, true},
+		{"missing-next", "end", map[string]any{}, false},
+		{"missing-links", "end", nil, false},
+		{"null-next", "end", map[string]any{"next": nil}, false},
+		{"wrong-next", "end", map[string]any{"next": "anchor"}, false},
+		{"terminal-null", "", map[string]any{"next": nil}, true},
+		{"terminal-wrong-next", "", map[string]any{"next": "end"}, false},
+		{"terminal-empty-next", "", map[string]any{"next": ""}, false},
+		{"terminal-missing-next", "", map[string]any{}, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			gets, posts := 0, 0
+			flowInsertStepTestServer(t, func(w http.ResponseWriter, r *http.Request) {
+				if r.Method == http.MethodPost {
+					posts++
+					w.WriteHeader(http.StatusCreated)
+					fmt.Fprint(w, `{"data":{"id":"created"}}`)
+					return
+				}
+				gets++
+				target := tc.downstream
+				if gets == 2 {
+					target = "created"
+				}
+				def := flowInsertStepTestDefinition("send-email", target, gets == 2)
+				if gets == 1 && tc.downstream == "" {
+					def["actions"].([]any)[0].(map[string]any)["links"] = map[string]any{"next": nil}
+				}
+				if gets == 2 {
+					def["actions"].([]any)[2].(map[string]any)["links"] = tc.links
+				}
+				flowInsertStepTestWriteFlow(w, "draft", def)
+			})
+			result, _, err := flowInsertStepTestExecute(t, &rootFlags{asJSON: true}, flowInsertStepTestInput,
+				"flow", "--after", "anchor", "--stdin", "--apply")
+			if gets != 2 || posts != 1 || !result.Applied || result.Verified != tc.verified {
+				t.Fatalf("error=%v gets=%d posts=%d result=%+v", err, gets, posts, result)
+			}
+			if tc.verified {
+				if err != nil {
+					t.Fatal(err)
+				}
+			} else if err == nil || !strings.Contains(err.Error(), "verification failed") || !strings.Contains(result.Error, "downstream") {
+				t.Fatalf("expected downstream verification failure: error=%v result=%+v", err, result)
+			}
+		})
+	}
+}
+
 func TestFlowsInsertStepUnknownResultNeverRetries(t *testing.T) {
 	for _, failure := range []string{"500", "timeout", "redirect"} {
 		t.Run(failure, func(t *testing.T) {

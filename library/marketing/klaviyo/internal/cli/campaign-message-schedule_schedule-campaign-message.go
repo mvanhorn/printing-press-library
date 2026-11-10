@@ -163,6 +163,11 @@ func newCampaignMessageScheduleScheduleCampaignMessageCmd(flags *rootFlags) *cob
 					bodyMap["type"] = bodyDataType
 				}
 			}
+			if !flags.dryRun {
+				if err := RequireCampaignMessageScheduleCompliance(c, body); err != nil {
+					return err
+				}
+			}
 			data, statusCode, err := c.PostWithParamsAndHeaders(cmd.Context(), path, params, body, headerOverrides)
 			if err != nil {
 				return classifyAPIError(cmd.OutOrStdout(), err, flags)

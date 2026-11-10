@@ -16,6 +16,8 @@ func requireKlaviyoExecuteCompliance(c *client.Client, path string, body any) er
 	case "/api/campaign-send-jobs":
 		id, _ := data["id"].(string)
 		return cli.RequireCampaignCompliance(c, id)
+	case "/api/campaign-message-schedule":
+		return cli.RequireCampaignMessageScheduleCompliance(c, body)
 	case "/api/campaign-message-assign-template":
 		relationships, _ := data["relationships"].(map[string]any)
 		template, _ := relationships["template"].(map[string]any)
