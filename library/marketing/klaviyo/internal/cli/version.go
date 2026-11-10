@@ -10,9 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// version is the printed CLI's version, overridable at build time via ldflags.
-var version = "2026.11.4"
-
 // newVersionCmd prints the CLI name and version. Shared by the HTTP and device
 // generators so both printed-CLI shapes carry an identical version command.
 func newVersionCmd() *cobra.Command {
