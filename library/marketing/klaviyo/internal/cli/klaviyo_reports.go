@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/platform"
 	"github.com/spf13/cobra"
 )
@@ -106,12 +107,12 @@ func nonEmptyStrings(values []string) []string {
 }
 
 type reportHeadersClient interface {
-	PostWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error)
+	PostWithHeaders(ctx context.Context, path string, body any, headers map[string]string) (json.RawMessage, int, error)
 }
 
 var waitForKlaviyoReportRetry = waitForIdentityProbeRetry
 
-func postKlaviyoReport(c flowClient, path string, body any) (json.RawMessage, int, error) {
+func postKlaviyoReport(c flowClient, path string, body any, extraHeaders ...map[string]string) (json.RawMessage, int, error) {
 	// PATCH(greptile-review-g5): reporting pagination repeats the POST body on every cursor.
 	ctx := context.Background()
 	var session *platform.Session
@@ -122,6 +123,12 @@ func postKlaviyoReport(c flowClient, path string, body any) (json.RawMessage, in
 		}
 	}
 	endpoint := path
+	headers := map[string]string{"Accept": "application/vnd.api+json", "Content-Type": "application/vnd.api+json"}
+	if len(extraHeaders) > 0 {
+		for name, value := range extraHeaders[0] {
+			headers[name] = value
+		}
+	}
 	seen := map[string]bool{}
 	if initial, err := url.Parse(path); err == nil {
 		seen[initial.Query().Get("page_cursor")] = true
@@ -135,13 +142,20 @@ func postKlaviyoReport(c flowClient, path string, body any) (json.RawMessage, in
 		previousExhausted := session.RateLimitMetadata().Exhausted
 		// PATCH(review-re-report-rate-limit-retries): read-only report POSTs can safely retry a 429.
 		for retries := 0; ; retries++ {
-			if hc, ok := c.(reportHeadersClient); ok {
-				raw, status, err = hc.PostWithHeaders(endpoint, body, map[string]string{
-					"Accept":       "application/vnd.api+json",
-					"Content-Type": "application/vnd.api+json",
-				})
+			if hc, ok := c.(interface {
+				PostQueryWithParamsAndHeaders(context.Context, string, map[string]string, any, map[string]string) (json.RawMessage, int, error)
+			}); ok {
+				retryHeaders := make(map[string]string, len(headers)+1)
+				for name, value := range headers {
+					retryHeaders[name] = value
+				}
+				// Report pages own 429 recovery; ambiguous server failures must not replay.
+				retryHeaders[client.ReplaySafeHeader] = "false"
+				raw, status, err = hc.PostQueryWithParamsAndHeaders(ctx, endpoint, nil, body, retryHeaders)
+			} else if hc, ok := c.(reportHeadersClient); ok {
+				raw, status, err = hc.PostWithHeaders(ctx, endpoint, body, headers)
 			} else {
-				raw, status, err = c.Post(endpoint, body)
+				raw, status, err = c.Post(ctx, endpoint, body)
 			}
 			if err == nil {
 				if retries > 0 {
@@ -227,9 +241,9 @@ func resolveShopifyPlacedOrderMetricID(c flowClient) (string, error) {
 		if cursor != "" {
 			params["page[cursor]"] = cursor
 		}
-		resp, err := c.Get("/api/metrics", params)
+		resp, err := c.Get(klaviyoRequestContext(c), "/api/metrics", params)
 		if err != nil {
-			return "", classifyAPIError(err)
+			return "", classifyAPIErrorOnly(err)
 		}
 		var parsed map[string]any
 		if err := json.Unmarshal(resp, &parsed); err != nil {
@@ -293,7 +307,7 @@ func newReportTargetingCmd(flags *rootFlags) *cobra.Command {
 			}
 			raw, _, err := postKlaviyoReport(c, "/api/campaign-values-reports/", body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIErrorOnly(err)
 			}
 			rows, err := klaviyoReportRows(raw)
 			if err != nil {
@@ -344,10 +358,14 @@ type targetingAggregate struct {
 	LastMailed        time.Time
 }
 
+func campaignReportMessageID(row map[string]any) string {
+	return firstNonEmptyString(stringFromMapPath(row, "groupings.campaign_message_id"), stringFromMapPath(row, "groupings.campaign_id"))
+}
+
 func campaignTargetingReport(c flowClient, reportRows []map[string]any) (map[string]any, error) {
 	performance := map[string]map[string]float64{}
 	for _, row := range reportRows {
-		id := stringFromMapPath(row, "groupings.campaign_id")
+		id := campaignReportMessageID(row)
 		if id == "" {
 			continue
 		}
@@ -358,7 +376,7 @@ func campaignTargetingReport(c flowClient, reportRows []map[string]any) (map[str
 		performance[id]["revenue"] += anyFloat(anyPath(row, "statistics.conversion_value"))
 	}
 
-	campaigns, err := fetchTargetingCampaigns(c)
+	campaigns, err := fetchTargetingCampaigns(c, reportRows)
 	if err != nil {
 		return nil, err
 	}
@@ -483,13 +501,13 @@ func campaignRevenuePerEmailRows(c flowClient, since, until time.Time) ([]map[st
 	}
 	raw, _, err := postKlaviyoReport(c, "/api/campaign-values-reports/", body)
 	if err != nil {
-		return nil, classifyAPIError(err)
+		return nil, classifyAPIErrorOnly(err)
 	}
 	reportRows, err := klaviyoReportRows(raw)
 	if err != nil {
 		return nil, err
 	}
-	campaigns, err := fetchTargetingCampaigns(c)
+	campaigns, err := fetchTargetingCampaigns(c, reportRows)
 	if err != nil {
 		return nil, err
 	}
@@ -499,7 +517,7 @@ func campaignRevenuePerEmailRows(c flowClient, since, until time.Time) ([]map[st
 	}
 	aggregates := map[string]map[string]float64{}
 	for _, reportRow := range reportRows {
-		id := stringFromMapPath(reportRow, "groupings.campaign_id")
+		id := campaignReportMessageID(reportRow)
 		if id == "" {
 			continue
 		}
@@ -527,25 +545,25 @@ func campaignRevenuePerEmailRows(c flowClient, since, until time.Time) ([]map[st
 	return rows, nil
 }
 
-func fetchTargetingCampaigns(c flowClient) ([]map[string]any, error) {
-	params := map[string]string{"fields[campaign]": "name,status,send_time,scheduled_at,audiences", "page[size]": "100"}
-	filters := []string{`equals(messages.channel,'email')`, `and(equals(messages.channel,'email'),equals(archived,true))`}
-	byID := map[string]map[string]any{}
-	for _, filter := range filters {
-		params["filter"] = filter
-		items, err := fetchAllJSONAPI(c, "/api/campaigns", params, 0)
-		if err != nil {
-			return nil, err
-		}
-		for _, item := range items {
-			byID[fmt.Sprint(item["id"])] = item
+func fetchTargetingCampaigns(c flowClient, reportRows []map[string]any) ([]map[string]any, error) {
+	ids := make([]string, 0, len(reportRows))
+	for _, row := range reportRows {
+		ids = append(ids, campaignReportMessageID(row))
+	}
+	rows, err := campaignMessageRowsByID(c, ids)
+	if err != nil {
+		return nil, err
+	}
+	emails := []map[string]any{}
+	for _, row := range rows {
+		for _, v := range row["variations"].([]campaignModelVariation) {
+			if v.Channel == "email" {
+				emails = append(emails, row)
+				break
+			}
 		}
 	}
-	out := make([]map[string]any, 0, len(byID))
-	for _, item := range byID {
-		out = append(out, item)
-	}
-	return out, nil
+	return emails, nil
 }
 
 func campaignAudienceIDsByKind(campaign map[string]any, kind string) []string {
@@ -568,4 +586,18 @@ func ensureTargetingAggregate(aggregates map[string]*targetingAggregate, id stri
 		aggregates[id] = &targetingAggregate{ID: id, Name: "(unknown audience)", Kind: "unknown", Campaigns: map[string]bool{}, ExcludedCampaigns: map[string]bool{}}
 	}
 	return aggregates[id]
+}
+
+func reportPathWithParams(path string, params map[string]string) string {
+	parsed, err := url.Parse(path)
+	if err != nil {
+		return path
+	}
+	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/"
+	query := parsed.Query()
+	for name, value := range params {
+		query.Set(name, value)
+	}
+	parsed.RawQuery = query.Encode()
+	return parsed.String()
 }

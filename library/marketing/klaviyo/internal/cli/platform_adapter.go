@@ -53,7 +53,7 @@ func (a klaviyoIdentityAdapter) ProbeIdentity(ctx context.Context, credentials p
 		return platform.ObservedIdentity{}, err
 	}
 	req.Header.Set("Authorization", "Klaviyo-API-Key "+strings.TrimSpace(string(credentials["credential"])))
-	req.Header.Set("revision", "2026-04-15")
+	req.Header.Set("revision", "2026-10-15")
 	session := platform.SessionFromContext(ctx)
 	var resp *http.Response
 	for attempt := 0; attempt < 4; attempt++ {
@@ -151,6 +151,11 @@ func bindKlaviyoPlatformClient(c *client.Client, session *platform.Session) erro
 }
 
 func validateKlaviyoSourceProfile(source platform.SourceProfile) error {
+	for _, ref := range source.References() {
+		if err := platform.ValidateCredentialReference(ref); err != nil {
+			return err
+		}
+	}
 	if strings.TrimSpace(source.CredentialRef) == "" {
 		return errors.New("Klaviyo source requires an exact API-key credential_ref")
 	}
@@ -261,15 +266,16 @@ func klaviyoResourceHealth(_ context.Context, session *platform.Session) ([]plat
 
 func init() {
 	registerPlatformSource(platformSourceRegistration{
-		Source:                 "klaviyo",
-		Adapter:                klaviyoIdentityAdapter{httpClient: &http.Client{Timeout: 30 * time.Second}},
-		BindClient:             bindKlaviyoPlatformClient,
-		ValidateSourceProfile:  validateKlaviyoSourceProfile,
-		ValidateLegacyInputs:   validateKlaviyoLegacyInputs,
-		PrepareLegacyMigration: prepareKlaviyoLegacyMigration,
-		LegacyDatabaseEvidence: inspectKlaviyoLegacyDatabase,
-		ResourceHealth:         klaviyoResourceHealth,
-		WindowMaximumDays:      364,
-		WindowMaximumName:      "klaviyo_metric_aggregation_364_days",
+		Source:                    "klaviyo",
+		CredentialResolverFactory: func() platform.CredentialResolver { return platformResolverFactory() },
+		Adapter:                   klaviyoIdentityAdapter{httpClient: &http.Client{Timeout: 30 * time.Second}},
+		BindClient:                bindKlaviyoPlatformClient,
+		ValidateSourceProfile:     validateKlaviyoSourceProfile,
+		ValidateLegacyInputs:      validateKlaviyoLegacyInputs,
+		PrepareLegacyMigration:    prepareKlaviyoLegacyMigration,
+		LegacyDatabaseEvidence:    inspectKlaviyoLegacyDatabase,
+		ResourceHealth:            klaviyoResourceHealth,
+		WindowMaximumDays:         364,
+		WindowMaximumName:         "klaviyo_metric_aggregation_364_days",
 	})
 }

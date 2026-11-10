@@ -115,7 +115,7 @@ func TestGreptileG3FirstDefaultSyncIncludesCouponCodes(t *testing.T) {
 				if err != nil || len(body) != 0 || r.Method != http.MethodGet {
 					t.Errorf("request=%s %s body=%q error=%v", r.Method, r.URL, body, err)
 				}
-				if r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" || r.Header.Get("revision") != "2026-04-15" {
+				if r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" || r.Header.Get("revision") != "2026-10-15" {
 					t.Error("sync changed authorization or revision headers")
 				}
 				w.Header().Set("Content-Type", "application/vnd.api+json")

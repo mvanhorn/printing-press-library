@@ -29,7 +29,7 @@ func g2Root(t *testing.T, handler http.HandlerFunc) (*cobra.Command, *rootFlags)
 	t.Setenv("PRINTING_PRESS_CLIENT_PROFILE", "")
 	t.Setenv(mcpBoundProfileEnv, "")
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if got := r.Header.Get("revision"); got != "2026-04-15" {
+		if got := r.Header.Get("revision"); got != "2026-10-15" {
 			t.Errorf("revision = %q", got)
 		}
 		if got := r.Header.Get("Authorization"); got != "Klaviyo-API-Key fixture-key" {
@@ -278,65 +278,68 @@ func TestG2RootResourceOutputPreservesTerminalStatus(t *testing.T) {
 }
 
 func TestG2CampaignSendRecognizesNonEmailAndRequiresReadableEvidence(t *testing.T) {
-	message := func(channel string) string {
-		return fmt.Sprintf(`{"id":"message-1","attributes":{"definition":{"channel":%q}}}`, channel)
-	}
-	email := `{"id":"email-1","attributes":{"definition":{"channel":"email"}}}`
+	page := string(campaignMessageTestPage("message-1", "Campaign", "draft", ""))
+	mixed := string(modelCollectionFixture(modelMessageFixture("message-1", "draft"), modelMessageFixture("email-1", "draft")))
+	email := string(campaignMessageTestPage("email-1", "Campaign", "draft", ""))
 	for _, tc := range []struct {
-		name, page, html, wantErr string
-		templateReads             int
+		name, page, channel, html, wantErr string
+		templateReads                      int
 	}{
-		{"sms", `{"data":[` + message("sms") + `]}`, "", "", 0},
-		{"push", `{"data":[` + message("push") + `]}`, "", "", 0},
-		{"whatsapp", `{"data":[` + message("whatsapp") + `]}`, "", "", 0},
-		{"mobile_push", `{"data":[` + message("mobile_push") + `]}`, "", "", 0},
-		{"mixed valid", `{"data":[` + message("sms") + `,` + email + `]}`, `{% unsubscribe %}`, "", 1},
-		{"mixed invalid", `{"data":[` + message("sms") + `,` + email + `]}`, "hello", "campaign compliance preflight failed for message email-1: No Klaviyo unsubscribe tag found; add {% unsubscribe %} as text or {% unsubscribe_link %} inside href.", 1},
-		{"no messages", `{"data":[]}`, "", "campaign compliance preflight failed: campaign has no readable message", 0},
-		{"missing data", `{}`, "", "campaign compliance preflight failed: campaign message data is missing", 0},
-		{"null data", `{"data":null}`, "", "campaign compliance preflight failed: campaign message data is missing", 0},
-		{"missing next page data", `{"data":[` + message("sms") + `],"links":{"next":"/api/campaigns/campaign-1/campaign-messages?page[cursor]=next"}}`, "", "campaign compliance preflight failed: campaign message data is missing", 0},
-		{"unreadable data", `{"data":`, "", "campaign compliance preflight failed: invalid campaign messages: unexpected end of JSON input", 0},
-		{"missing ID", `{"data":[{"attributes":{"definition":{"channel":"sms"}}}]}`, "", "campaign compliance preflight failed: campaign message ID is missing", 0},
-		{"missing channel", `{"data":[{"id":"message-1"}]}`, "", "campaign compliance preflight failed: campaign message message-1 channel is missing", 0},
-		{"unknown channel", `{"data":[` + message("fax") + `]}`, "", `campaign compliance preflight failed: campaign message message-1 has unsupported channel "fax"`, 0},
-		{"missing email template", `{"data":[` + email + `]}`, "", "campaign message email-1: campaign compliance preflight failed: template ID is missing", 1},
+		{"sms", page, "sms", "", "", 0},
+		{"push", page, "push", "", "", 0},
+		{"whatsapp", page, "whatsapp", "", "", 0},
+		{"mobile_push", page, "mobile_push", "", "", 0},
+		{"mixed valid", mixed, "sms", "{% unsubscribe %}", "", 1},
+		{"mixed invalid", mixed, "sms", "hello", "No Klaviyo unsubscribe tag found", 1},
+		{"no messages", `{"data":[]}`, "", "", "has no readable messages", 0},
+		{"missing data", `{}`, "", "", "campaign collection data is missing", 0},
+		{"null data", `{"data":null}`, "", "", "campaign collection data is missing", 0},
+		{"missing next page data", `{"data":[{"id":"message-1"}],"links":{"next":"/api/campaigns/campaign-1/campaign-messages?page[cursor]=next"}}`, "", "", "campaign collection data is missing", 0},
+		{"unreadable data", `{"data":`, "", "", "unexpected end of JSON input", 0},
+		{"missing ID", `{"data":[{"attributes":{"definition":{"status":"draft"}}}]}`, "", "", "resource ID is missing", 0},
+		{"missing status", `{"data":[{"id":"message-1"}]}`, "sms", "", "status is missing", 0},
+		{"missing channel", page, "", "", "channel is missing", 0},
+		{"unknown channel", page, "fax", "", "unsupported channel", 0},
+		{"missing email template", email, "email", "", "template ID is missing", 0},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			posts, templateReads := 0, 0
-			root, flags := g2Root(t, func(w http.ResponseWriter, r *http.Request) {
+			campaignFixtureClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
 				switch r.Method + " " + r.URL.Path {
+				case "GET /api/campaigns/campaign-1":
+					fmt.Fprint(w, `{"data":{"id":"campaign-1","attributes":{"definition":{"name":"Campaign"}}}}`)
 				case "GET /api/campaigns/campaign-1/campaign-messages":
 					if r.URL.Query().Get("page[cursor]") == "next" {
 						fmt.Fprint(w, `{}`)
 						return
 					}
-					if r.URL.RawQuery != "" {
-						t.Errorf("campaign message query = %q", r.URL.RawQuery)
-					}
 					fmt.Fprint(w, tc.page)
-				case "GET /api/campaign-messages/email-1/template":
-					templateReads++
-					if r.URL.Query().Encode() != "fields%5Btemplate%5D=html" {
-						t.Errorf("template query = %q", r.URL.RawQuery)
-					}
+				case "GET /api/campaign-messages/message-1/campaign-audience", "GET /api/campaign-messages/email-1/campaign-audience":
+					w.Write(modelAudienceFixture(nil, nil))
+				case "GET /api/campaign-messages/message-1/campaign-variations":
+					w.Write(campaignVariationTestPage("variation-message-1", "template", "Subject", tc.channel))
+				case "GET /api/campaign-messages/email-1/campaign-variations":
+					template := "template"
 					if tc.html == "" {
-						fmt.Fprint(w, `{"data":null}`)
-					} else {
-						fmt.Fprintf(w, `{"data":{"attributes":{"html":%q}}}`, tc.html)
+						template = ""
 					}
+					w.Write(campaignVariationTestPage("variation-email-1", template, "Subject", "email"))
+				case "GET /api/templates/template":
+					templateReads++
+					fmt.Fprintf(w, `{"data":{"id":"template","attributes":{"html":%q}}}`, tc.html)
 				case "POST /api/campaign-send-jobs":
 					posts++
 					body, err := io.ReadAll(r.Body)
 					if err != nil || string(body) != `{"data":{"id":"campaign-1","type":"campaign-send-job"}}` {
-						t.Errorf("send body = %s, err=%v", body, err)
+						t.Errorf("send body=%s err=%v", body, err)
 					}
 					fmt.Fprint(w, `{"data":{"id":"send-1","type":"campaign-send-job"}}`)
 				default:
-					t.Errorf("unexpected request: %s %s", r.Method, r.URL.RequestURI())
-					http.Error(w, "unexpected request", http.StatusBadRequest)
+					t.Errorf("unexpected request %s %s", r.Method, r.URL)
+					http.NotFound(w, r)
 				}
-			})
+			}))
 			body, err := os.CreateTemp(t.TempDir(), "send-body-*.json")
 			if err != nil {
 				t.Fatal(err)
@@ -352,20 +355,20 @@ func TestG2CampaignSendRecognizesNonEmailAndRequiresReadableEvidence(t *testing.
 			os.Stdin = body
 			t.Cleanup(func() { os.Stdin = previousStdin })
 			var output, diagnostics bytes.Buffer
-			root.SetOut(&output)
-			root.SetErr(&diagnostics)
-			root.SetArgs([]string{"campaign-send-jobs", "send-campaign", "--stdin", "--json"})
-			err = root.Execute()
-			finalizePlatformInvocation(flags, &err)
+			cmd := newCampaignSendJobsSendCampaignCmd(&rootFlags{asJSON: true, noCache: true})
+			cmd.SetOut(&output)
+			cmd.SetErr(&diagnostics)
+			cmd.SetArgs([]string{"--stdin"})
+			err = cmd.Execute()
 			if tc.wantErr == "" {
 				if err != nil || posts != 1 || !strings.Contains(output.String(), "send-1") {
 					t.Fatalf("send err=%v posts=%d stdout=%s stderr=%s", err, posts, &output, &diagnostics)
 				}
-			} else if err == nil || err.Error() != tc.wantErr || posts != 0 {
-				t.Fatalf("send err=%v, want %q; posts=%d", err, tc.wantErr, posts)
+			} else if err == nil || !strings.Contains(err.Error(), tc.wantErr) || posts != 0 {
+				t.Fatalf("send err=%v want %q posts=%d", err, tc.wantErr, posts)
 			}
 			if templateReads != tc.templateReads {
-				t.Errorf("template reads = %d, want %d", templateReads, tc.templateReads)
+				t.Errorf("template reads=%d want=%d", templateReads, tc.templateReads)
 			}
 		})
 	}

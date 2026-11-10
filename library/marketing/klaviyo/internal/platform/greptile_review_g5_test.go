@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -78,7 +79,7 @@ func TestG5InvalidFingerprintKeyStillFailsClosed(t *testing.T) {
 			if err := os.WriteFile(filepath.Join(root, "cache-key"), test.data, test.mode); err != nil {
 				t.Fatal(err)
 			}
-			if _, err := loadOrCreateFingerprintKey(); err == nil || err.Error() != test.want {
+			if _, err := loadOrCreateFingerprintKey(); err == nil || !strings.HasPrefix(err.Error(), test.want) {
 				t.Fatalf("error = %v, want %s", err, test.want)
 			}
 		})

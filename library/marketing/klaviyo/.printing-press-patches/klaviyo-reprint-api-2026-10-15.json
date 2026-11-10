@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-reprint-api-2026-10-15",
+  "applied_at": "2026-11-09",
+  "base_run_id": "2026-11-09T21:18:59.628302Z",
+  "base_printing_press_version": "4.35.4",
+  "summary": "The Klaviyo CLI is reprinted on Printing Press 4.35.4 against Klaviyo API revision 2026-10-15, and every hand-written command and earlier patch is carried onto the new framework in klaviyo_*.go files so later regen-merges classify them as hand-written.",
+  "reason": "Revision 2026-10-15 adds 128 endpoints (billing usage, brand kit, campaign audiences and variations, flow actions, form publishing, template preview sends) that the 2026-04-15 print could not call; regen-merge alone could not cross a 3.5.0 to 4.35.4 framework jump because generated helpers changed signature.",
+  "files": [
+    "spec.json",
+    ".printing-press.json",
+    "internal/cli/klaviyo_commands.go",
+    "internal/cli/klaviyo_compat.go",
+    "internal/cli/klaviyo_campaign_body.go",
+    "internal/cli/klaviyo_platform_capture.go",
+    "internal/cli/klaviyo_platform_output.go",
+    "internal/cli/klaviyo_sync.go",
+    "internal/client/klaviyo_context.go",
+    "internal/config/klaviyo_paths.go",
+    "internal/store/klaviyo_tenant.go"
+  ],
+  "validated_outcome": "Full go build, go vet and go test pass; the fresh template's tracking_settings index survived a column drop and was repaired in the store migration; the reprinted binary keeps every published command path except six reads the generator now nests one level deeper (for example flow-messages template get-for-flow-message)."
+}

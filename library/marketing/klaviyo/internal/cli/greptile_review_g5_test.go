@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -31,7 +32,7 @@ func TestG5ReportsIncludeLaterPages(t *testing.T) {
 					}
 					bodies = append(bodies, body)
 					paths = append(paths, r.URL.RequestURI())
-					if r.Method != http.MethodPost || r.Header.Get("revision") != "2026-04-15" || r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" || r.Header.Get("Accept") != "application/vnd.api+json" || r.Header.Get("Content-Type") != "application/vnd.api+json" {
+					if r.Method != http.MethodPost || r.Header.Get("revision") != "2026-10-15" || r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" || r.Header.Get("Accept") != "application/vnd.api+json" || r.Header.Get("Content-Type") != "application/vnd.api+json" {
 						t.Errorf("report request = %s, headers=%v", r.Method, r.Header)
 					}
 					if r.URL.Query().Get("page_cursor") == "page-2" {
@@ -45,8 +46,17 @@ func TestG5ReportsIncludeLaterPages(t *testing.T) {
 				switch r.URL.Path {
 				case "/api/metrics":
 					fmt.Fprint(w, `{"data":[{"id":"orders","attributes":{"name":"Placed Order","integration":{"name":"Shopify"}}},{"id":"received","attributes":{"name":"Received Email"}}],"links":{"next":null}}`)
-				case "/api/campaigns":
-					fmt.Fprint(w, `{"data":[{"id":"campaign-1","attributes":{"name":"First","audiences":{"included":["segment-1"]}}},{"id":"campaign-2","attributes":{"name":"Second","audiences":{"included":["segment-2"]}}}],"links":{"next":null}}`)
+				case "/api/campaign-messages":
+					first, second := modelMessageFixture("campaign-1", "sent"), modelMessageFixture("campaign-2", "sent")
+					anyPath(first, "attributes.definition").(map[string]any)["name"] = "First"
+					anyPath(second, "attributes.definition").(map[string]any)["name"] = "Second"
+					w.Write(modelCollectionFixture(first, second))
+				case "/api/campaign-messages/campaign-1/campaign-audience":
+					w.Write(modelAudienceFixture([]string{"segment-1"}, nil))
+				case "/api/campaign-messages/campaign-2/campaign-audience":
+					w.Write(modelAudienceFixture([]string{"segment-2"}, nil))
+				case "/api/campaign-messages/campaign-1/campaign-variations", "/api/campaign-messages/campaign-2/campaign-variations":
+					w.Write(campaignVariationTestPage("variation", "template", "Subject", "email"))
 				case "/api/segments":
 					fmt.Fprint(w, `{"data":[{"id":"segment-1","attributes":{"name":"First audience"}},{"id":"segment-2","attributes":{"name":"Second audience"}}],"links":{"next":null}}`)
 				case "/api/lists":
@@ -197,12 +207,21 @@ func TestG5QAGateChecksEveryEmailAndPage(t *testing.T) {
 				case "/api/campaigns/campaign-1":
 					fmt.Fprint(w, `{"data":{"id":"campaign-1","type":"campaign"}}`)
 				case "/api/campaigns/campaign-1/campaign-messages":
-					fmt.Fprint(w, `{"data":[{"id":"message-1","attributes":{"definition":{"channel":"email"}}},{"id":"sms-1","attributes":{"definition":{"channel":"sms"}}}],"links":{"next":"/api/campaigns/campaign-1/campaign-messages?page[cursor]=next"}}`)
+					fmt.Fprint(w, `{"data":[{"id":"message-1","attributes":{"definition":{"status":"draft"}}},{"id":"sms-1","attributes":{"definition":{"status":"draft"}}}],"links":{"next":"/api/campaigns/campaign-1/campaign-messages?page[cursor]=next"}}`)
 				case "/api/campaigns/campaign-1/campaign-messages?page[cursor]=next":
-					fmt.Fprint(w, `{"data":[{"id":"message-2","attributes":{"definition":{"channel":"email"}}},{"id":"message-3","attributes":{"definition":{"channel":"email"}}}],"links":{"next":null}}`)
-				case "/api/campaign-messages/message-1/template?fields%5Btemplate%5D=html", "/api/campaign-messages/message-3/template?fields%5Btemplate%5D=html":
+					fmt.Fprint(w, `{"data":[{"id":"message-2","attributes":{"definition":{"status":"draft"}}},{"id":"message-3","attributes":{"definition":{"status":"draft"}}}],"links":{"next":null}}`)
+				case "/api/campaign-messages/message-1/campaign-audience", "/api/campaign-messages/message-2/campaign-audience", "/api/campaign-messages/message-3/campaign-audience", "/api/campaign-messages/sms-1/campaign-audience":
+					w.Write(modelAudienceFixture(nil, nil))
+				case "/api/campaign-messages/message-1/campaign-variations", "/api/campaign-messages/message-2/campaign-variations", "/api/campaign-messages/message-3/campaign-variations", "/api/campaign-messages/sms-1/campaign-variations":
+					id := strings.Split(r.URL.Path, "/")[3]
+					channel := "email"
+					if id == "sms-1" {
+						channel = "sms"
+					}
+					w.Write(campaignVariationTestPage("variation-"+id, "template-"+id, "Subject", channel))
+				case "/api/templates/template-message-1?additional-fields%5Btemplate%5D=definition&fields%5Btemplate%5D=definition%2Chtml", "/api/templates/template-message-3?additional-fields%5Btemplate%5D=definition&fields%5Btemplate%5D=definition%2Chtml":
 					fmt.Fprint(w, `{"data":{"id":"valid","attributes":{"html":"<a href=\"{% unsubscribe_link %}\">Unsubscribe</a>"}}}`)
-				case "/api/campaign-messages/message-2/template?fields%5Btemplate%5D=html":
+				case "/api/templates/template-message-2?additional-fields%5Btemplate%5D=definition&fields%5Btemplate%5D=definition%2Chtml":
 					fmt.Fprint(w, `{"data":{"id":"broken","attributes":{"html":"<a href=\"{% unsubscribe %}\">Unsubscribe</a>"}}}`)
 				default:
 					t.Errorf("unexpected request %s", r.URL.RequestURI())
@@ -252,7 +271,13 @@ func TestG5QAGateChecksEveryEmailAndPage(t *testing.T) {
 			if result.Verdict != "fail" || !reflect.DeepEqual(checked, map[string]string{"message-1": "pass", "message-2": "fail", "message-3": "pass"}) {
 				t.Fatalf("campaign findings = %s", &output)
 			}
-			wantPaths := []string{"/api/campaigns/campaign-1", "/api/campaigns/campaign-1/campaign-messages", "/api/campaigns/campaign-1/campaign-messages?page[cursor]=next", "/api/campaign-messages/message-1/template?fields%5Btemplate%5D=html", "/api/campaign-messages/message-2/template?fields%5Btemplate%5D=html", "/api/campaign-messages/message-3/template?fields%5Btemplate%5D=html"}
+			wantPaths := []string{"/api/campaigns/campaign-1", "/api/campaigns/campaign-1/campaign-messages", "/api/campaigns/campaign-1/campaign-messages?page[cursor]=next"}
+			for _, id := range []string{"message-1", "sms-1", "message-2", "message-3"} {
+				wantPaths = append(wantPaths, "/api/campaign-messages/"+id+"/campaign-audience", "/api/campaign-messages/"+id+"/campaign-variations")
+			}
+			for _, id := range []string{"message-1", "message-2", "message-3"} {
+				wantPaths = append(wantPaths, "/api/templates/template-"+id+"?additional-fields%5Btemplate%5D=definition&fields%5Btemplate%5D=definition%2Chtml")
+			}
 			if !reflect.DeepEqual(paths, wantPaths) {
 				t.Fatalf("requests = %v, want %v", paths, wantPaths)
 			}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-static-command-discovery",
+  "applied_at": "2026-11-09",
+  "base_run_id": "",
+  "base_printing_press_version": "4.35.4",
+  "summary": "Client profile controls and form publication commands remain discoverable through explicit Cobra registrations and literal command usage declarations.",
+  "reason": "Static command discovery must reach extension commands and their flags while runtime registration remains unique and preserves client management annotations and form preview/apply behavior.",
+  "files": [
+    "internal/cli/client.go",
+    "internal/cli/forms.go",
+    "internal/cli/forms_publish.go",
+    "internal/cli/platform_client.go"
+  ]
+}

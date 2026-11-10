@@ -36,7 +36,7 @@ func rxHTTPFixture(t *testing.T, mode string, handler http.Handler) string {
 		handler.ServeHTTP(response, r)
 		return response.Result(), nil
 	})
-	return "http://klaviyo.test"
+	return "https://klaviyo.test"
 }
 
 func TestRXFlowPathAnalysisPropagatesAggregateFailure(t *testing.T) {
@@ -45,10 +45,10 @@ func TestRXFlowPathAnalysisPropagatesAggregateFailure(t *testing.T) {
 		for _, failAt := range []int{1, 2, 5} {
 			t.Run(fmt.Sprintf("%s/aggregate-%d", mode, failAt), func(t *testing.T) {
 				posts, flowReads, metricReads := 0, 0, 0
-				now := time.Now()
+				now := time.Now().UTC() // the request declares timezone UTC, so its calendar days are UTC days
 				const failure = `{"errors":[{"detail":"message aggregation unavailable"}]}`
 				baseURL := rxHTTPFixture(t, mode, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					for key, want := range map[string]string{"revision": "2026-04-15", "Authorization": "Klaviyo-API-Key test-key"} {
+					for key, want := range map[string]string{"revision": "2026-10-15", "Authorization": "Klaviyo-API-Key test-key"} {
 						if got := r.Header.Get(key); got != want {
 							t.Errorf("%s = %q, want %q", key, got, want)
 						}
@@ -152,7 +152,7 @@ func TestRXReportRetriesRecordSessionAndReceiptTelemetry(t *testing.T) {
 						t.Errorf("request = %s %s, want POST %s", r.Method, r.URL, endpoint)
 					}
 					for key, want := range map[string]string{
-						"Authorization": "Klaviyo-API-Key fixture-key", "revision": "2026-04-15",
+						"Authorization": "Klaviyo-API-Key fixture-key", "revision": "2026-10-15",
 						"Accept": "application/vnd.api+json", "Content-Type": "application/vnd.api+json",
 						"Idempotency-Key": "", "X-Idempotency-Key": "",
 					} {

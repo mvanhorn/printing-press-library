@@ -47,11 +47,12 @@ func TestKlaviyoProviderNativeLegacyMigrationRequiresExplicitEvidenceAdoption(t 
 	previousRegistration, previousResolver := registeredPlatformSource, platformResolverFactory
 	t.Cleanup(func() { registeredPlatformSource, platformResolverFactory = previousRegistration, previousResolver })
 	registeredPlatformSource = &platformSourceRegistration{
-		Source:                 "klaviyo",
-		Adapter:                platformCLIAdapter{observed: platform.ObservedIdentity{AccountID: "acct-fixture", OrgName: "Fixture Org"}},
-		ValidateSourceProfile:  validateKlaviyoSourceProfile,
-		PrepareLegacyMigration: prepareKlaviyoLegacyMigration,
-		LegacyDatabaseEvidence: inspectKlaviyoLegacyDatabase,
+		Source:                    "klaviyo",
+		CredentialResolverFactory: func() platform.CredentialResolver { return platformResolverFactory() },
+		Adapter:                   platformCLIAdapter{observed: platform.ObservedIdentity{AccountID: "acct-fixture", OrgName: "Fixture Org"}},
+		ValidateSourceProfile:     validateKlaviyoSourceProfile,
+		PrepareLegacyMigration:    prepareKlaviyoLegacyMigration,
+		LegacyDatabaseEvidence:    inspectKlaviyoLegacyDatabase,
 	}
 	platformResolverFactory = func() platform.CredentialResolver {
 		return platformCLIResolver{value: []byte("resolved-synthetic-key")}

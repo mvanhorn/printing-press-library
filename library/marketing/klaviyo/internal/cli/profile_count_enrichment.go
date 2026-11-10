@@ -38,11 +38,11 @@ func enrichProfileCounts(ctx context.Context, c flowClient, items []map[string]a
 				return err
 			}
 		}
-		resp, err := c.Get("/api/"+resource+"/"+url.PathEscape(id)+"/", map[string]string{
+		resp, err := c.Get(klaviyoRequestContext(c), "/api/"+resource+"/"+url.PathEscape(id)+"/", map[string]string{
 			"additional-fields[" + resourceType + "]": "profile_count",
 		})
 		if err != nil {
-			return classifyAPIError(err)
+			return classifyAPIErrorOnly(err)
 		}
 		profileCount := firstJSONValue(resp, "data.attributes.profile_count")
 		if profileCount == nil {
@@ -106,11 +106,11 @@ func compactSegmentProfileCounts(data json.RawMessage) json.RawMessage {
 	if err := json.Unmarshal(data, &segments); err != nil {
 		var envelope map[string]json.RawMessage
 		if json.Unmarshal(data, &envelope) != nil || json.Unmarshal(envelope["data"], &segments) != nil {
-			return compactFields(data)
+			return compactFields(data, nil)
 		}
 	}
 
-	compactRaw := compactListFields(segments)
+	compactRaw := compactListFields(segments, nil)
 	var compact []map[string]any
 	if err := json.Unmarshal(compactRaw, &compact); err != nil {
 		return compactRaw

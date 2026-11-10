@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "analytics-calendar-days-follow-request-timezone",
+  "applied_at": "2026-11-09",
+  "base_run_id": "",
+  "base_printing_press_version": "4.35.4",
+  "summary": "Compute relative analytics calendar days and format aggregate filters in the timezone declared by the request, preserving explicit user dates.",
+  "reason": "The host calendar can differ from the request calendar around midnight and daylight saving changes; CLI, MCP, and report windows must use the same timezone as their filters.",
+  "files": [
+    "internal/cli/klaviyo_window_policy.go",
+    "internal/cli/platform_window.go",
+    "internal/cli/novel_segments_reports.go",
+    "internal/cli/novel_computed_analytics.go",
+    "internal/cli/novel_klaviyo.go",
+    "internal/cli/window_timezone_test.go"
+  ]
+}

@@ -79,6 +79,12 @@ func TestGreptileG1CLIProcess(t *testing.T) {
 	if os.Getenv("GREPTILE_G1_CLI_PROCESS") != "1" {
 		return
 	}
+	// TestMain isolates each process; restore the parent's explicit fixture paths.
+	for _, name := range []string{"XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME"} {
+		if err := os.Setenv(name, os.Getenv("GREPTILE_G1_"+name)); err != nil {
+			t.Fatal(err)
+		}
+	}
 	probeURL := os.Getenv("GREPTILE_G1_PROBE_URL")
 	if probeURL == "" {
 		probeURL = "http://127.0.0.1:1"
@@ -106,6 +112,9 @@ func greptileG1RunCLI(t *testing.T, args ...string) (string, string, int) {
 	defer cancel()
 	command := exec.CommandContext(ctx, binary, append([]string{"-test.run=^TestGreptileG1CLIProcess$", "--"}, args...)...)
 	command.Env = append(os.Environ(), "GREPTILE_G1_CLI_PROCESS=1")
+	for _, name := range []string{"XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME"} {
+		command.Env = append(command.Env, "GREPTILE_G1_"+name+"="+os.Getenv(name))
+	}
 	var stdout, stderr bytes.Buffer
 	command.Stdout, command.Stderr = &stdout, &stderr
 	err = command.Run()
@@ -168,7 +177,7 @@ func greptileG1AssertProbeRequest(t *testing.T, r *http.Request) {
 	if err != nil || len(body) != 0 || r.Method != http.MethodGet || r.URL.RequestURI() != "/api/accounts" {
 		t.Errorf("probe request = %s %s body=%q, error %v", r.Method, r.URL.RequestURI(), body, err)
 	}
-	if r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" || r.Header.Get("revision") != "2026-04-15" {
+	if r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" || r.Header.Get("revision") != "2026-10-15" {
 		t.Error("probe did not preserve the exact authorization and revision headers")
 	}
 }

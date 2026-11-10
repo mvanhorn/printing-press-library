@@ -1,3 +1,5 @@
+// Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
+
 package cli
 
 import (
@@ -21,25 +23,14 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/platform"
 )
 
-func TestCampaignCreatePreservesNestedRequestBody(t *testing.T) {
+func TestCampaignCreateTranslatesLegacyRequestBody(t *testing.T) {
 	expected := map[string]any{
 		"data": map[string]any{
 			"type": "campaign",
 			"attributes": map[string]any{
-				"name": "Contract test",
-				"audiences": map[string]any{
-					"included": []any{"list-1"},
-					"excluded": []any{},
-				},
-				"campaign-messages": map[string]any{"data": []any{
-					map[string]any{
-						"type": "campaign-message",
-						"attributes": map[string]any{
-							"definition": map[string]any{"channel": "email"},
-						},
-					},
-				}},
-				"send_options": map[string]any{"use_smart_sending": false},
+				"definition": map[string]any{"name": "Contract test"},
+				"audiences":  []any{map[string]any{"temporary_id": "legacy-audience", "name": "Contract test audience", "included": []any{"list-1"}, "excluded": []any{}}},
+				"messages":   []any{map[string]any{"name": "Contract test", "audience_temporary_id": "legacy-audience", "variations": []any{map[string]any{"definition": map[string]any{"name": "Contract test", "details": map[string]any{"channel": "email"}}}}}},
 			},
 		},
 	}
@@ -62,7 +53,6 @@ func TestCampaignCreatePreservesNestedRequestBody(t *testing.T) {
 		"--data-attributes-name", "Contract test",
 		"--data-attributes-audiences", `{"included":["list-1"],"excluded":[]}`,
 		"--data-attributes-campaign-messages", `{"data":[{"type":"campaign-message","attributes":{"definition":{"channel":"email"}}}]}`,
-		"--data-attributes-send-options", `{"use_smart_sending":false}`,
 	})
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("execute campaigns create: %v", err)
@@ -146,8 +136,8 @@ func TestCampaignMessageAssignTemplatePreservesNestedRequestBody(t *testing.T) {
 func requestBodyServer(t *testing.T, expectedPath string, expectedBody map[string]any, queryKey ...string) *httptest.Server {
 	t.Helper()
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if got := r.Header.Get("revision"); got != "2026-04-15" {
-			t.Errorf("revision = %q, want 2026-04-15", got)
+		if got := r.Header.Get("revision"); got != "2026-10-15" {
+			t.Errorf("revision = %q, want 2026-10-15", got)
 		}
 		if got := r.Header.Get("Authorization"); got != "Klaviyo-API-Key test-key" {
 			t.Errorf("Authorization = %q", got)
@@ -155,6 +145,11 @@ func requestBodyServer(t *testing.T, expectedPath string, expectedBody map[strin
 		if expectedPath == "/api/campaign-message-assign-template" && r.Method == http.MethodGet && r.URL.Path == "/api/templates/template-1" {
 			w.Header().Set("Content-Type", "application/json")
 			_, _ = w.Write([]byte(`{"data":{"id":"template-1","type":"template","attributes":{"html":"<a href=\"{% unsubscribe_link %}\">Unsubscribe</a>"}}}`))
+			return
+		}
+		if expectedPath == "/api/campaign-message-assign-template" && r.Method == http.MethodGet && strings.HasPrefix(r.URL.Path, "/api/campaign-variations/") {
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprintf(w, `{"data":{"id":%q,"type":"campaign-variation"}}`, strings.TrimPrefix(r.URL.Path, "/api/campaign-variations/"))
 			return
 		}
 		if r.Method != http.MethodPost {
@@ -262,7 +257,7 @@ func TestMergedClientDoesNotReplayUnprotectedWrites(t *testing.T) {
 					if r.Method != requestMethod || r.URL.RequestURI() != "/api/write" {
 						t.Errorf("request = %s %s", r.Method, r.URL.RequestURI())
 					}
-					if got := r.Header.Get("revision"); got != "2026-04-15" {
+					if got := r.Header.Get("revision"); got != "2026-10-15" {
 						t.Errorf("revision = %q", got)
 					}
 					_, _ = io.Copy(io.Discard, r.Body)
@@ -349,7 +344,7 @@ func TestMergedClientPreservesBoundedRecovery(t *testing.T) {
 			var data json.RawMessage
 			var err error
 			if tt.method == http.MethodGet {
-				data, err = c.Get("/api/write", nil)
+				data, err = c.Get(klaviyoRequestContext(c), "/api/write", nil)
 			} else {
 				data, _, err = mergedWriteRequest(t, c, tt.method, map[string]string{"Idempotency-Key": tt.key})
 			}
@@ -395,13 +390,13 @@ func mergedWriteRequest(t *testing.T, c *client.Client, method string, headers m
 	body := map[string]any{"data": map[string]any{"type": "synthetic"}}
 	switch method {
 	case http.MethodPost:
-		return c.PostWithHeaders("/api/write", body, headers)
+		return c.PostWithHeaders(context.Background(), "/api/write", body, headers)
 	case http.MethodPatch:
-		return c.PatchWithHeaders("/api/write", body, headers)
+		return c.PatchWithHeaders(context.Background(), "/api/write", body, headers)
 	case http.MethodPut:
-		return c.PutWithHeaders("/api/write", body, headers)
+		return c.PutWithHeaders(context.Background(), "/api/write", body, headers)
 	case http.MethodDelete:
-		return c.DeleteWithHeaders("/api/write", headers)
+		return c.DeleteWithHeaders(context.Background(), "/api/write", headers)
 	default:
 		file, err := os.CreateTemp(t.TempDir(), "*.png")
 		if err != nil {
@@ -414,7 +409,7 @@ func mergedWriteRequest(t *testing.T, c *client.Client, method string, headers m
 		if _, err := file.Seek(0, io.SeekStart); err != nil {
 			t.Fatal(err)
 		}
-		return c.PostMultipart("/api/write", file, map[string]string{"name": "Synthetic"}, headers)
+		return c.PostMultipartWithHeaders(context.Background(), "/api/write", map[string]string{"name": "Synthetic"}, map[string]string{"file": file.Name()}, headers)
 	}
 }
 
@@ -434,7 +429,7 @@ func TestPathParametersRemainSingleSegmentsOnWire(t *testing.T) {
 			}))
 			defer server.Close()
 			c := mergedRetryClient(t, server, false)
-			if _, err := c.Get(replacePathParam("/api/segments/{id}", "id", tt.id), nil); err != nil {
+			if _, err := c.Get(klaviyoRequestContext(c), replacePathParam("/api/segments/{id}", "id", tt.id), nil); err != nil {
 				t.Fatal(err)
 			}
 		})

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-02T18:02:09.219489Z",
-  "printing_press_version": "3.5.0",
+  "generated_at": "2026-11-09T21:18:59.628302Z",
+  "printing_press_version": "4.35.4",
   "api_name": "klaviyo",
   "display_name": "Klaviyo",
   "cli_name": "klaviyo-pp-cli",
@@ -12,18 +12,18 @@
   "owner": "cathryn-lavery",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",
-  "spec_url": "https://raw.githubusercontent.com/klaviyo/openapi/3fb87e6042183f6c790c60f2473e4c254efe81b3/openapi/stable.json",
-  "spec_path": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-klaviyo-b1952ca2/runs/20260502T175749Z-699b4af1/specs/klaviyo-stable.preprocessed.json",
+  "spec_url": "https://raw.githubusercontent.com/klaviyo/openapi/1838308847ecf8da756542134d114ea61d8d88d5/openapi/stable.json",
+  "spec_path": "spec.json",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:be7778d9d5729d95e84464a8792e349f80da3235dc398d505eabacff63c11191",
+  "spec_checksum": "sha256:838363f683475e29d03073d6788ddc24ab879d5ac3d4a2af87097667f4a8c154",
   "catalog_entry": "klaviyo",
   "category": "marketing",
   "description": "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation.",
   "mcp_binary": "klaviyo-pp-mcp",
-  "mcp_tool_count": 308,
-  "mcp_public_tool_count": 11,
+  "mcp_tool_count": 92,
+  "mcp_public_tool_count": 92,
   "mcp_ready": "full",
-  "api_version": "2026-04-15",
+  "api_version": "2026-10-15",
   "auth_type": "api_key",
   "auth_env_vars": [
     "PRINTING_PRESS_CLIENT_PROFILE"
@@ -80,13 +80,39 @@
     {
       "name": "QA Gate",
       "command": "plan qa-gate",
-      "description": "Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, compliance, and deliverability flags."
+      "description": "Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, compliance and deliverability; with --brand, also check colors, logos and the footer against the Klaviyo brand kit."
     },
     {
       "name": "Targeting Report",
       "command": "report targeting",
       "description": "Join campaign audience segments to sends, attributed revenue, exclusions, last-mailed dates, and a never-mailed segment list."
+    },
+    {
+      "name": "Send Budget",
+      "command": "send-budget",
+      "description": "Show this billing period's email sends against the plan cap, add recipient estimates for every scheduled campaign, and say whether the period goes over and by how much."
+    },
+    {
+      "name": "Flow Insert Step",
+      "command": "flows insert-step",
+      "description": "Preview a flow before and after adding one step after an existing action, then insert it with --apply and confirm the placement from a re-read."
+    },
+    {
+      "name": "Form Publish",
+      "command": "forms publish",
+      "description": "Show the draft-versus-live changes and the last 30 days of views and submits for a signup form, then publish the draft with --apply."
+    },
+    {
+      "name": "Form Unpublish",
+      "command": "forms unpublish",
+      "description": "Show a live form's last 30 days of numbers, then take it down with --apply and confirm it is no longer live."
+    },
+    {
+      "name": "Campaign Test Send",
+      "command": "campaigns test-send",
+      "description": "Run the campaign QA gate and, only when it passes, email a preview of each email variation to up to five team addresses."
     }
   ],
-  "catalog_description": "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation."
+  "catalog_description": "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation.",
+  "spec_source": "official"
 }

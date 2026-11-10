@@ -67,7 +67,7 @@ func rcCheckSyncRequest(t *testing.T, r *http.Request) {
 	if err != nil || len(body) != 0 || r.Method != http.MethodGet {
 		t.Errorf("sync request = %s %s body=%q error=%v", r.Method, r.URL, body, err)
 	}
-	if r.Header.Get("Authorization") != "Klaviyo-API-Key fixture-key" || r.Header.Get("revision") != "2026-04-15" {
+	if r.Header.Get("Authorization") != "Klaviyo-API-Key fixture-key" || r.Header.Get("revision") != "2026-10-15" {
 		t.Error("sync authorization or revision header changed")
 	}
 }
@@ -196,7 +196,7 @@ func TestRCSyncFlowsIncrementalSortAndCheckpoint(t *testing.T) {
 				t.Fatal(err)
 			}
 			c := &recordingSyncClient{}
-			res := syncResource(c, db, "flows", since, false, 1)
+			res := syncResource(klaviyoRequestContext(c), c, db, "flows", since, false, 1, false, false, nil, nil)
 			if res.Err != nil || res.Warn != nil {
 				t.Fatalf("sync result = %+v", res)
 			}
@@ -228,6 +228,7 @@ func TestRCSyncSinceUsesDocumentedFilters(t *testing.T) {
 		{"events", "greater-or-equal(datetime,%s)"},
 		{"profiles", "greater-than(updated,%s)"},
 		{"campaigns", "greater-or-equal(updated_at,%s)"},
+		{"campaign-messages", "greater-or-equal(updated,%s)"},
 		{"flows", "greater-or-equal(updated,%s)"},
 		{"forms", "greater-or-equal(updated_at,%s)"},
 		{"images", "greater-or-equal(updated_at,%s)"},
@@ -254,7 +255,7 @@ func TestRCSyncSinceUsesDocumentedFilters(t *testing.T) {
 				delete(query, "filter")
 				desc, _ := syncDescriptorForResource(tc.resource)
 				want := url.Values{"page[size]": {fmt.Sprint(desc.MaxPageSize)}}
-				if tc.resource == "flows" {
+				if tc.resource == "flows" || tc.resource == "campaign-messages" {
 					want.Set("sort", "updated")
 				}
 				if !reflect.DeepEqual(query, want) {
@@ -274,7 +275,7 @@ func TestRCSyncSinceUsesDocumentedFilters(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			res := syncResource(c, db, tc.resource, cutoff, false, 1)
+			res := syncResource(klaviyoRequestContext(c), c, db, tc.resource, cutoff, false, 1, false, false, nil, nil)
 			if res.Err != nil || res.Warn != nil {
 				t.Fatalf("sync error=%v warning=%v", res.Err, res.Warn)
 			}
@@ -283,12 +284,6 @@ func TestRCSyncSinceUsesDocumentedFilters(t *testing.T) {
 				t.Fatalf("filtered completion changed unfiltered checkpoint: cursor=%q time=%v count=%d err=%v", cursor, lastSynced, count, err)
 			}
 			want := []string{fmt.Sprintf(tc.filter, cutoff)}
-			if tc.resource == "campaigns" {
-				want = nil
-				for _, channel := range []string{"email", "sms", "mobile_push"} {
-					want = append(want, "and(equals(messages.channel,'"+channel+"'),"+fmt.Sprintf(tc.filter, cutoff)+")")
-				}
-			}
 			mu.Lock()
 			defer mu.Unlock()
 			if !reflect.DeepEqual(got, want) {
@@ -436,7 +431,7 @@ func TestRCSyncSinceAllSkipsUnsupported(t *testing.T) {
 	rcClearLegacyEnvironment(t)
 	var mu sync.Mutex
 	seen := map[string]int{}
-	supported := map[string]bool{"events": true, "profiles": true, "campaigns": true, "flows": true, "forms": true, "images": true, "lists": true, "segments": true, "reviews": true, "templates": true, "template-universal-content": true, "web-feeds": true}
+	supported := map[string]bool{"events": true, "profiles": true, "campaigns": true, "campaign-messages": true, "flows": true, "forms": true, "images": true, "lists": true, "segments": true, "reviews": true, "templates": true, "template-universal-content": true, "web-feeds": true}
 	root, _ := g2Root(t, func(w http.ResponseWriter, r *http.Request) {
 		rcCheckSyncRequest(t, r)
 		resource := strings.TrimPrefix(r.URL.Path, "/api/")
@@ -461,9 +456,6 @@ func TestRCSyncSinceAllSkipsUnsupported(t *testing.T) {
 	}
 	for resource := range supported {
 		want := 1
-		if resource == "campaigns" {
-			want = 3
-		}
 		if seen[resource] != want {
 			t.Errorf("%s requests = %d, want %d", resource, seen[resource], want)
 		}
@@ -472,7 +464,7 @@ func TestRCSyncSinceAllSkipsUnsupported(t *testing.T) {
 
 type rcCappedSyncClient struct{}
 
-func (rcCappedSyncClient) Get(string, map[string]string) (json.RawMessage, error) {
+func (rcCappedSyncClient) Get(context.Context, string, map[string]string) (json.RawMessage, error) {
 	return json.RawMessage(`{"data":[{"type":"profile","id":"p1"}],"links":{"next":"/api/profiles?page%5Bcursor%5D=filtered-next"}}`), nil
 }
 
@@ -488,7 +480,7 @@ func TestRCSyncCapWarningUsesCommandWriter(t *testing.T) {
 			cmd := &cobra.Command{}
 			cmd.SetErr(&diagnostics)
 			db := openTestStore(t)
-			res := syncResource(rcCappedSyncClient{}, db, "profiles", "2026-11-02T12:00:00Z", false, 1, cmd.ErrOrStderr())
+			res := syncResource(klaviyoRequestContext(rcCappedSyncClient{}), rcCappedSyncClient{}, db, "profiles", "2026-11-02T12:00:00Z", false, 1, false, false, nil, nil, cmd.ErrOrStderr())
 			if res.Err != nil || res.Warn != nil || res.Count != 1 {
 				t.Fatalf("sync result = %+v", res)
 			}
@@ -601,7 +593,7 @@ func TestRCSyncCappedSincePreservesUnfilteredCheckpoint(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			res := syncResource(c, db, "profiles", "", false, 1)
+			res := syncResource(klaviyoRequestContext(c), c, db, "profiles", "", false, 1, false, false, nil, nil)
 			if res.Err != nil || res.Warn != nil || res.Count != 1 {
 				t.Fatalf("plain sync result = %+v", res)
 			}

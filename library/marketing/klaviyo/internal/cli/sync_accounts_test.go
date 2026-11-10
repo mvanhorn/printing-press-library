@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -20,7 +21,7 @@ type recordingSyncClient struct {
 	requests []recordedSyncRequest
 }
 
-func (c *recordingSyncClient) Get(path string, params map[string]string) (json.RawMessage, error) {
+func (c *recordingSyncClient) Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
 	copied := map[string]string{}
 	for k, v := range params {
 		copied[k] = v
@@ -59,7 +60,7 @@ func TestKlaviyoSyncDescriptorsControlRequestParams(t *testing.T) {
 		t.Run(tc.resource, func(t *testing.T) {
 			db := openTestStore(t)
 			c := &recordingSyncClient{}
-			res := syncResource(c, db, tc.resource, "2026-07-01T00:00:00Z", false, 1)
+			res := syncResource(context.Background(), c, db, tc.resource, "2026-07-01T00:00:00Z", false, 1, false, false, nil, nil)
 			if res.Err != nil || res.Warn != nil {
 				t.Fatalf("syncResource returned err=%v warn=%v", res.Err, res.Warn)
 			}
@@ -84,35 +85,18 @@ func TestKlaviyoSyncDescriptorsControlRequestParams(t *testing.T) {
 	}
 }
 
-func TestKlaviyoCampaignSyncFansOutRequiredChannelFilters(t *testing.T) {
+func TestKlaviyoCampaignSyncUsesUnfilteredContainerCollection(t *testing.T) {
 	db := openTestStore(t)
 	c := &recordingSyncClient{}
-	res := syncResource(c, db, "campaigns", "", false, 1)
+	res := syncResource(context.Background(), c, db, "campaigns", "", false, 1, false, false, nil, nil)
 	if res.Err != nil || res.Warn != nil {
 		t.Fatalf("syncResource returned err=%v warn=%v", res.Err, res.Warn)
 	}
-	if len(c.requests) != 3 {
-		t.Fatalf("requests = %d, want 3", len(c.requests))
+	if len(c.requests) != 1 {
+		t.Fatalf("requests = %d, want 1", len(c.requests))
 	}
-	want := map[string]bool{
-		"equals(messages.channel,'email')":       false,
-		"equals(messages.channel,'sms')":         false,
-		"equals(messages.channel,'mobile_push')": false,
-	}
-	for _, req := range c.requests {
-		if req.params["page[size]"] != "100" {
-			t.Fatalf("campaign page[size] = %q, want 100", req.params["page[size]"])
-		}
-		filter := req.params["filter"]
-		if _, ok := want[filter]; !ok {
-			t.Fatalf("unexpected campaign filter %q", filter)
-		}
-		want[filter] = true
-	}
-	for filter, seen := range want {
-		if !seen {
-			t.Fatalf("missing campaign filter %q", filter)
-		}
+	if req := c.requests[0]; req.params["page[size]"] != "100" || req.params["filter"] != "" {
+		t.Fatalf("campaign params = %#v", req.params)
 	}
 	cursor, lastSynced, count, err := db.GetSyncState("campaigns")
 	if err != nil {
@@ -132,7 +116,7 @@ func TestKlaviyoCampaignSyncFansOutRequiredChannelFilters(t *testing.T) {
 func TestKlaviyoCouponCodesSkipWithoutSyncedCoupons(t *testing.T) {
 	db := openTestStore(t)
 	c := &recordingSyncClient{}
-	res := syncResource(c, db, "coupon-codes", "", false, 1)
+	res := syncResource(context.Background(), c, db, "coupon-codes", "", false, 1, false, false, nil, nil)
 	if res.Err != nil {
 		t.Fatalf("syncResource error = %v", res.Err)
 	}

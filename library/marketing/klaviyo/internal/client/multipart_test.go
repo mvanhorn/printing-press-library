@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -52,10 +53,10 @@ func TestPostMultipartRequestAndRetry(t *testing.T) {
 				if got := r.Header.Get("Authorization"); got != "Klaviyo-API-Key test-key" {
 					t.Errorf("Authorization = %q", got)
 				}
-				if got := r.Header.Get("revision"); got != "2026-04-15" {
+				if got := r.Header.Get("revision"); got != "2026-10-15" {
 					t.Errorf("revision = %q", got)
 				}
-				if got := r.Header.Get("User-Agent"); got != "klaviyo-pp-cli/2026-04-15" {
+				if got := r.Header.Get("User-Agent"); got != "klaviyo-pp-cli/2026-10-15" {
 					t.Errorf("User-Agent = %q", got)
 				}
 				if tt.retry && r.Header.Get("Idempotency-Key") != "test-upload" {
@@ -123,7 +124,7 @@ func TestPostMultipartRequestAndRetry(t *testing.T) {
 					"*": {Class: "*", MaxAttempts: 2, RetryBudget: time.Second},
 				}
 			}
-			data, status, err := c.PostMultipart("/api/image-upload", file, fields, headers)
+			data, status, err := c.PostMultipartWithHeaders(context.Background(), "/api/image-upload", fields, map[string]string{"file": file.Name()}, headers)
 			if err != nil || status != http.StatusCreated || string(data) != `{"data":{"id":"image-1"}}` {
 				t.Fatalf("PostMultipart = %s, %d, %v", data, status, err)
 			}
@@ -159,7 +160,7 @@ func TestPostMultipartPreservesAPIErrorAndUnsafeWritePolicy(t *testing.T) {
 			defer server.Close()
 			c := New(&config.Config{BaseURL: server.URL}, time.Second, 0)
 			c.platformBudgets = map[string]platform.EndpointBudget{"*": {Class: "*", MaxAttempts: 2, RetryBudget: time.Second}}
-			_, gotStatus, err := c.PostMultipart("/api/image-upload", file, nil, nil)
+			_, gotStatus, err := c.PostMultipartWithHeaders(context.Background(), "/api/image-upload", nil, map[string]string{"file": file.Name()}, nil)
 			var apiErr *APIError
 			want := fmt.Sprintf(`POST /api/image-upload returned HTTP %d: {"errors":[{"detail":"rejected"}]}`, status)
 			if !errors.As(err, &apiErr) || apiErr.Error() != want || gotStatus != status {
@@ -195,7 +196,7 @@ func TestPostMultipartDryRunDoesNotReadFile(t *testing.T) {
 	previousStderr := os.Stderr
 	os.Stderr = stderr
 	defer func() { os.Stderr = previousStderr }()
-	data, status, err := c.PostMultipart("/api/image-upload", file, map[string]string{"name": "Preview", "hidden": "false"}, nil)
+	data, status, err := c.PostMultipartWithHeaders(context.Background(), "/api/image-upload", map[string]string{"name": "Preview", "hidden": "false"}, map[string]string{"file": file.Name()}, nil)
 	if err != nil || status != 0 || string(data) != `{"dry_run": true}` {
 		t.Fatalf("dry run = %s, %d, %v", data, status, err)
 	}

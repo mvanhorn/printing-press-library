@@ -11,13 +11,13 @@ import (
 
 func TestAdaptiveLimiterWaitHonorsCancellation(t *testing.T) {
 	limiter := NewAdaptiveLimiter(0.01)
-	if err := limiter.WaitContext(context.Background()); err != nil {
+	if err := limiter.Wait(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	started := time.Now()
-	if err := limiter.WaitContext(ctx); !errors.Is(err, context.Canceled) {
+	if err := limiter.Wait(ctx); !errors.Is(err, context.Canceled) {
 		t.Fatalf("wait error = %v, want context cancellation", err)
 	}
 	if elapsed := time.Since(started); elapsed > time.Second {

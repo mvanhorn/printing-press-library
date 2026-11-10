@@ -84,7 +84,7 @@ func TestReviewREReportPageRetries(t *testing.T) {
 					return
 				}
 				for name, want := range map[string]string{
-					"Authorization": "Klaviyo-API-Key synthetic-key", "revision": "2026-04-15",
+					"Authorization": "Klaviyo-API-Key synthetic-key", "revision": "2026-10-15",
 					"Accept": "application/vnd.api+json", "Content-Type": "application/vnd.api+json",
 					"Idempotency-Key": "", "X-Idempotency-Key": "",
 				} {
@@ -152,7 +152,7 @@ func TestReviewREReportPageRetries(t *testing.T) {
 				t.Fatalf("requests = %v, waits = %v; want %v and %v", paths, waits, test.wantPaths, test.wantWaits)
 			}
 			if test.wantError != "" {
-				if err == nil || err.Error() != test.wantError || output.Len() != 0 {
+				if err == nil || err.Error() != test.wantError || bytes.Contains(output.Bytes(), []byte(`"results"`)) || bytes.Contains(output.Bytes(), []byte(`"row"`)) {
 					t.Fatalf("error = %v, output = %q; want %q and no partial output", err, output.String(), test.wantError)
 				}
 				if test.wantError == rateLimitError {

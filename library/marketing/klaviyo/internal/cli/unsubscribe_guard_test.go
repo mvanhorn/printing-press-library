@@ -23,10 +23,16 @@ func TestCampaignPathsBlockKitFooterBeforeWrite(t *testing.T) {
 			return
 		}
 		switch r.URL.Path {
-		case "/api/templates/template-1", "/api/campaign-messages/message-1/template":
+		case "/api/templates/template-1":
 			fmt.Fprint(w, `{"data":{"id":"template-1","type":"template","attributes":{"html":"<a href=\"{{ unsubscribe_url }}\">Unsubscribe</a>"}}}`)
+		case "/api/campaigns/campaign-1":
+			fmt.Fprint(w, `{"data":{"id":"campaign-1"}}`)
 		case "/api/campaigns/campaign-1/campaign-messages":
-			fmt.Fprint(w, `{"data":[{"id":"message-1","type":"campaign-message"}]}`)
+			w.Write(campaignMessageTestPage("message-1", "Launch", "draft", ""))
+		case "/api/campaign-messages/message-1/campaign-audience":
+			w.Write(modelAudienceFixture(nil, nil))
+		case "/api/campaign-messages/message-1/campaign-variations":
+			w.Write(campaignVariationTestPage("variation-1", "template-1", "Subject", "email"))
 		default:
 			http.NotFound(w, r)
 		}
@@ -80,18 +86,26 @@ func TestCampaignComplianceChecksEveryEmailMessageAndPage(t *testing.T) {
 		seen = append(seen, r.URL.RequestURI())
 		w.Header().Set("Content-Type", "application/json")
 		switch r.URL.Path {
+		case "/api/campaigns/campaign-1":
+			fmt.Fprint(w, `{"data":{"id":"campaign-1"}}`)
 		case "/api/campaigns/campaign-1/campaign-messages":
 			if r.URL.Query().Get("page[cursor]") == "next" {
-				fmt.Fprint(w, `{"data":[{"id":"message-2","attributes":{"definition":{"channel":"email"}}}]}`)
+				w.Write(campaignMessageTestPage("message-2", "Second", "draft", ""))
 			} else {
-				fmt.Fprintf(w, `{"data":[{"id":"message-1","attributes":{"definition":{"channel":"email"}}}],"links":{"next":%q}}`, serverURLForRequest(r)+"/api/campaigns/campaign-1/campaign-messages?page[cursor]=next")
+				fmt.Fprintf(w, `{"data":[{"id":"message-1","attributes":{"definition":{"status":"draft","send_options":{}}}}],"links":{"next":%q}}`, serverURLForRequest(r)+"/api/campaigns/campaign-1/campaign-messages?page[cursor]=next")
 			}
-		case "/api/campaign-messages/message-1/template":
-			if r.URL.Query().Get("fields[template]") != "html" {
+		case "/api/campaign-messages/message-1/campaign-audience", "/api/campaign-messages/message-2/campaign-audience":
+			w.Write(modelAudienceFixture(nil, nil))
+		case "/api/campaign-messages/message-1/campaign-variations":
+			w.Write(campaignVariationTestPage("variation-1", "template-1", "Subject", "email"))
+		case "/api/campaign-messages/message-2/campaign-variations":
+			w.Write(campaignVariationTestPage("variation-2", "template-2", "Subject", "email"))
+		case "/api/templates/template-1":
+			if r.URL.Query().Get("fields[template]") != "definition,html" {
 				t.Errorf("unsupported field query: %s", r.URL.RawQuery)
 			}
 			fmt.Fprint(w, `{"data":{"id":"template-1","attributes":{"html":"<a href=\"{% unsubscribe_link %}\">Unsubscribe</a>"}}}`)
-		case "/api/campaign-messages/message-2/template":
+		case "/api/templates/template-2":
 			fmt.Fprint(w, `{"data":{"id":"template-2","attributes":{"html":"<a href=\"{{ unsubscribe_url }}\">Unsubscribe</a>"}}}`)
 		default:
 			http.NotFound(w, r)

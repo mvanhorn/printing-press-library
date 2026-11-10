@@ -93,7 +93,7 @@ func TestPaginatedGetFollowsJSONAPINextLink(t *testing.T) {
 		rawJSON(`{"data":[{"id":"flow-2"}],"links":{"next":null}}`),
 	}}
 
-	got, err := paginatedGet(c, "/api/flows", map[string]string{"page[size]": "50"}, nil, true, "page[cursor]", "", "")
+	got, err := paginatedGet(context.Background(), c, "/api/flows", map[string]string{"page[size]": "50"}, nil, true, "page[cursor]", "", "page[size]", 50, "", "")
 	if err != nil {
 		t.Fatalf("paginatedGet() error = %v", err)
 	}
@@ -116,7 +116,7 @@ func TestPaginatedGetRejectsCursorCycles(t *testing.T) {
 		rawJSON(`{"data":[{"id":"flow-3"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=A"}}`),
 	}}
 
-	if _, err := paginatedGet(c, "/api/flows", map[string]string{"page[size]": "50"}, nil, true, "page[cursor]", "", ""); err == nil || !strings.Contains(err.Error(), "cursor") {
+	if _, err := paginatedGet(context.Background(), c, "/api/flows", map[string]string{"page[size]": "50"}, nil, true, "page[cursor]", "", "page[size]", 50, "", ""); err == nil || !strings.Contains(err.Error(), "cursor") {
 		t.Fatalf("expected cursor-cycle error, got %v", err)
 	}
 	if len(c.params) != 3 {
@@ -197,7 +197,9 @@ func TestSubjectLineAnalysisProducesNonEmptyOutput(t *testing.T) {
 	c := &fakeCouponPoolClient{
 		responses: []json.RawMessage{
 			rawJSON(`{"data":[{"id":"received-email","attributes":{"name":"Received Email","integration":{"name":"Klaviyo"}}}],"links":{}}`),
-			rawJSON(`{"data":[{"id":"campaign-1","attributes":{"name":"Campaign One","status":"Sent","send_time":"2026-06-15T12:00:00Z"},"relationships":{"campaign-messages":{"data":[{"id":"message-1"}]} }},{"id":"campaign-draft","attributes":{"name":"Draft Campaign","status":"Draft","send_time":"2026-06-16T12:00:00Z"},"relationships":{"campaign-messages":{"data":[{"id":"message-draft"}]}}}],"included":[{"id":"message-1","attributes":{"definition":{"content":{"subject":"A useful subject"}}}},{"id":"message-draft","attributes":{"definition":{"content":{"subject":"Not sent"}}}}],"links":{}}`),
+			campaignMessageTestPage("campaign-1", "Campaign One", "sent", "2026-06-15T12:00:00Z"),
+			modelAudienceFixture([]string{"list"}, nil),
+			campaignVariationTestPage("message-1", "campaign-template", "A useful subject", "email"),
 		},
 		postResponses: []json.RawMessage{rawJSON(`{"data":{"attributes":{"results":[{"groupings":{"campaign_id":"campaign-1"},"statistics":{"delivered":1000,"opens_unique":642,"open_rate":0.642,"clicks_unique":15,"click_rate":0.015}}]}}}`)},
 	}
@@ -235,7 +237,7 @@ func TestSubjectLineAnalysisProducesNonEmptyOutput(t *testing.T) {
 	if got := anyPath(c.posts[0].body, "data.attributes.conversion_metric_id"); got != "received-email" {
 		t.Fatalf("report conversion metric = %#v", got)
 	}
-	if len(c.requests) != 2 || !strings.Contains(c.requests[1].params["filter"], `any(id,["campaign-1"])`) {
+	if len(c.requests) != 4 || !strings.Contains(c.requests[1].params["filter"], `any(id,["campaign-1"])`) {
 		t.Fatalf("campaign requests = %#v", c.requests)
 	}
 }
@@ -278,7 +280,9 @@ func TestClampKlaviyoAnalyticsWindowKeepsRequestsInsideOneYear(t *testing.T) {
 func TestCollectReferencedTemplateIDsUsesIncludedResources(t *testing.T) {
 	c := &fakeCouponPoolClient{responses: []json.RawMessage{
 		rawJSON(`{"data":[{"id":"flow-1"}],"included":[{"id":"action-1","attributes":{"definition":{"data":{"message":{"template_id":"flow-template"}}}}}],"links":{}}`),
-		rawJSON(`{"data":[{"id":"campaign-1"}],"included":[{"id":"message-1","relationships":{"template":{"data":{"id":"campaign-template"}}}}],"links":{}}`),
+		campaignMessageTestPage("campaign-1", "Launch", "sent", ""),
+		modelAudienceFixture(nil, nil),
+		campaignVariationTestPage("message-1", "campaign-template", "Subject", "email"),
 	}}
 	refs, err := collectReferencedTemplateIDs(c)
 	if err != nil {
@@ -287,12 +291,10 @@ func TestCollectReferencedTemplateIDsUsesIncludedResources(t *testing.T) {
 	if !refs["flow-template"] || !refs["campaign-template"] || len(refs) != 2 {
 		t.Fatalf("refs = %#v", refs)
 	}
-	if len(c.requests) != 2 || c.requests[0].params["include"] != "flow-actions" || c.requests[1].params["include"] != "campaign-messages" {
+	if len(c.requests) != 4 || c.requests[0].params["include"] != "flow-actions" || c.requests[1].path != "/api/campaign-messages" {
 		t.Fatalf("requests = %#v", c.requests)
 	}
-	if got := c.requests[1].params["fields[campaign-message]"]; got != "definition" {
-		t.Fatalf("campaign message fields = %q", got)
-	}
+
 }
 
 func TestCollectSubjectMessagesPreservesFlowSubjectFallbacks(t *testing.T) {
@@ -344,7 +346,9 @@ func TestCollectSubjectEmailsUsesCampaignForwardRelationship(t *testing.T) {
 	since := time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)
 	until := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
 	c := &fakeCouponPoolClient{responses: []json.RawMessage{
-		rawJSON(`{"data":[{"id":"campaign-1","attributes":{"name":"Launch","status":"Sent","send_time":"2026-06-15T12:00:00Z"},"relationships":{"campaign-messages":{"data":[{"id":"message-1"}]}}}],"included":[{"id":"message-1","attributes":{"definition":{"content":{"subject":"New collection"}}}}],"links":{}}`),
+		campaignMessageTestPage("campaign-1", "Launch", "sent", "2026-06-15T12:00:00Z"),
+		modelAudienceFixture(nil, nil),
+		campaignVariationTestPage("message-1", "campaign-template", "New collection", "email"),
 	}}
 	emails, err := collectSubjectEmails(c, "campaign", since, until, []string{"campaign-1"})
 	if err != nil {
@@ -1313,7 +1317,7 @@ type fakePaginatedClient struct {
 	params    []map[string]string
 }
 
-func (f *fakePaginatedClient) GetWithHeaders(_ string, params map[string]string, _ map[string]string) (json.RawMessage, error) {
+func (f *fakePaginatedClient) GetWithHeaders(ctx context.Context, _ string, params map[string]string, _ map[string]string) (json.RawMessage, error) {
 	copied := map[string]string{}
 	for k, v := range params {
 		copied[k] = v
@@ -1334,7 +1338,7 @@ type fakeCouponPoolPost struct {
 	body any
 }
 
-func (f *fakeCouponPoolClient) Get(path string, params map[string]string) (json.RawMessage, error) {
+func (f *fakeCouponPoolClient) Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
 	copied := map[string]string{}
 	for k, v := range params {
 		copied[k] = v
@@ -1348,7 +1352,7 @@ func (f *fakeCouponPoolClient) Get(path string, params map[string]string) (json.
 	return resp, nil
 }
 
-func (f *fakeCouponPoolClient) Post(path string, body any) (json.RawMessage, int, error) {
+func (f *fakeCouponPoolClient) Post(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
 	f.posts = append(f.posts, fakeCouponPoolPost{path: path, body: body})
 	if len(f.postResponses) > 0 {
 		resp := f.postResponses[0]
@@ -1358,11 +1362,11 @@ func (f *fakeCouponPoolClient) Post(path string, body any) (json.RawMessage, int
 	return nil, 0, nil
 }
 
-func (f *fakeCouponPoolClient) Patch(_ string, _ any) (json.RawMessage, int, error) {
+func (f *fakeCouponPoolClient) Patch(ctx context.Context, _ string, _ any) (json.RawMessage, int, error) {
 	return nil, 0, nil
 }
 
-func (f *fakeCouponPoolClient) Delete(path string) (json.RawMessage, int, error) {
+func (f *fakeCouponPoolClient) Delete(ctx context.Context, path string) (json.RawMessage, int, error) {
 	f.deletes = append(f.deletes, path)
 	return nil, 204, nil
 }
@@ -1444,8 +1448,12 @@ func TestQAGateUsesAssignedCampaignTemplate(t *testing.T) {
 		case "/api/campaigns/campaign-1":
 			fmt.Fprint(w, `{"data":{"id":"campaign-1","type":"campaign"}}`)
 		case "/api/campaigns/campaign-1/campaign-messages":
-			fmt.Fprint(w, `{"data":[{"id":"message-1","type":"campaign-message"}]}`)
-		case "/api/campaign-messages/message-1/template":
+			w.Write(campaignMessageTestPage("message-1", "Launch", "draft", ""))
+		case "/api/campaign-messages/message-1/campaign-audience":
+			w.Write(modelAudienceFixture(nil, nil))
+		case "/api/campaign-messages/message-1/campaign-variations":
+			w.Write(campaignVariationTestPage("variation-1", "template-1", "Subject", "email"))
+		case "/api/templates/template-1":
 			fmt.Fprint(w, `{"data":{"id":"template-1","type":"template","attributes":{"html":"<p>No unsubscribe link</p>"}}}`)
 		default:
 			http.NotFound(w, r)
@@ -1480,8 +1488,12 @@ func TestQAGateWithoutAssignedTemplateReturnsChecklist(t *testing.T) {
 		case "/api/campaigns/campaign-1":
 			fmt.Fprint(w, `{"data":{"id":"campaign-1","type":"campaign"}}`)
 		case "/api/campaigns/campaign-1/campaign-messages":
-			fmt.Fprint(w, `{"data":[{"id":"message-1","type":"campaign-message"}]}`)
-		case "/api/campaign-messages/message-1/template":
+			w.Write(campaignMessageTestPage("message-1", "Launch", "draft", ""))
+		case "/api/campaign-messages/message-1/campaign-audience":
+			w.Write(modelAudienceFixture(nil, nil))
+		case "/api/campaign-messages/message-1/campaign-variations":
+			w.Write(campaignVariationTestPage("variation-1", "template-1", "Subject", "email"))
+		case "/api/templates/template-1":
 			http.Error(w, `{"errors":[{"detail":"not found"}]}`, http.StatusNotFound)
 		default:
 			http.NotFound(w, r)

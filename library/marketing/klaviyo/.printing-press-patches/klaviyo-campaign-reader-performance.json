@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-campaign-reader-performance",
+  "applied_at": "2026-11-09",
+  "base_run_id": "2026-11-09T21:18:59.628302Z",
+  "base_printing_press_version": "4.35.4",
+  "summary": "Campaign readers scope message enrichment to the operation: report joins resolve distinct campaign_message_id values in any(id,[...]) batches of at most 100, campaign collections request pages of 100, scheduled readers retain the scheduled status filter, and sync reuses complete stored message rows with matching nonempty updated timestamps. Audience and variation reads are memoized per operation, including across concurrent campaign sync workers, without serializing different messages or caching mutation verification across operations.",
+  "reason": "Unbounded message enrichment made targeting reports and campaign sync take tens of minutes on accounts with years of campaigns. Preserve report-first joins, API pagination to links.next exhaustion, and message IDs distinct from campaign container IDs. Subject analysis is report-driven; updated/created bounds must not discard in-window sends edited later. Time-decay already resolves an explicit ID and templates audit has no window, so neither should gain an arbitrary history cutoff. This is a Klaviyo omnichannel runtime customization rather than a generic collection rewrite.",
+  "files": [
+    "internal/cli/campaign-messages_get.go",
+    "internal/cli/campaigns_get.go",
+    "internal/cli/klaviyo_campaign_model.go",
+    "internal/cli/klaviyo_campaign_sync.go",
+    "internal/cli/klaviyo_reports.go",
+    "internal/cli/klaviyo_sync.go",
+    "internal/cli/novel_computed_analytics.go",
+    "internal/cli/novel_segments_reports.go",
+    "internal/cli/resource_paths.go",
+    "internal/cli/send_budget.go",
+    "internal/cli/sync.go",
+    "internal/cli/klaviyo_campaign_perf_test.go"
+  ],
+  "validated_outcome": "56 related regression tests and all 13 performance tests under the race detector pass. httptest counts for 3 sent messages among 500 fall from 1025 to 7 campaign-message requests; 205-message initial sync falls from 421 to 413; three unchanged messages need zero enrichment calls. Coverage includes report pagination before ID lookups, separate message/container IDs, empty reports, 100/100/5 batches, scheduled/window filters on continuation pages, duplicate and failed enrichment, concurrent workers, independent message concurrency, and changed/incomplete stored rows. Baselines use read-only HEAD overlays. Build and vet pass with GOCACHE=/tmp/kfp-codex-gocache GOFLAGS=-mod=mod GOPROXY=off. Full-suite verification is blocked by sandbox TCP listener restrictions; real-account verification remains unverified."
+}

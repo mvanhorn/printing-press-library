@@ -24,7 +24,7 @@ func TestPlatformClientMutationDryRunNoEffects(t *testing.T) {
 	}
 	previous := registeredPlatformSource
 	t.Cleanup(func() { registeredPlatformSource = previous })
-	registeredPlatformSource = &platformSourceRegistration{Source: "test-source", Adapter: platformCLIAdapter{}}
+	registeredPlatformSource = platformCLITestRegistration(platformCLIAdapter{})
 	profile := &platform.Profile{SchemaVersion: platform.ProfileSchemaVersion, Name: "preview-tenant", Sources: map[string]platform.SourceProfile{
 		"test-source": {CredentialRef: "op://Synthetic/Profile/token", ExpectedAccountID: "before"},
 	}}
@@ -62,7 +62,15 @@ func TestPlatformClientMutationDryRunNoEffects(t *testing.T) {
 			root.SetOut(&output)
 			root.SetErr(&bytes.Buffer{})
 			args := append([]string{"client"}, strings.Fields(action)...)
-			root.SetArgs(append(args, "preview-tenant", "--dry-run", "--json"))
+			name := "preview-tenant"
+			if action == "add" {
+				name = "new-tenant"
+			}
+			args = append(args, name, "--dry-run", "--json")
+			if action == "add" || action == "source set" || action == "migrate" {
+				args = append(args, "--credential-ref", "op://Synthetic/Profile/token", "--expected-account-id", "before")
+			}
+			root.SetArgs(args)
 			if err := root.Execute(); err != nil {
 				t.Fatal(err)
 			}

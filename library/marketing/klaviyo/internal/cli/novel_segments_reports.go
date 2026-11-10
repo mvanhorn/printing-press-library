@@ -5,8 +5,8 @@ package cli
 import (
 	"encoding/csv"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"github.com/spf13/cobra"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -14,9 +14,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/client"
-	"github.com/spf13/cobra"
 )
 
 func newSegmentsBuildCmd(flags *rootFlags) *cobra.Command {
@@ -123,9 +120,9 @@ func newSegmentsBuildCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			body := jsonAPIBody("segment", map[string]any{"name": name, "definition": def}, nil)
-			resp, status, err := c.Post("/api/segments", body)
+			resp, status, err := c.Post(klaviyoRequestContext(c), "/api/segments", body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIErrorOnly(err)
 			}
 			segmentID := jsonAPIID(resp)
 			result := map[string]any{
@@ -633,17 +630,17 @@ func tagSegmentByName(c flowClient, segmentID, tagName string) (map[string]any, 
 	}
 	created := false
 	if tagID == "" {
-		resp, _, err := c.Post("/api/tags", jsonAPIBody("tag", map[string]any{"name": tagName}, nil))
+		resp, _, err := c.Post(klaviyoRequestContext(c), "/api/tags", jsonAPIBody("tag", map[string]any{"name": tagName}, nil))
 		if err != nil {
-			return nil, classifyAPIError(err)
+			return nil, classifyAPIErrorOnly(err)
 		}
 		tagID = jsonAPIID(resp)
 		created = true
 	}
 	body := map[string]any{"data": []any{map[string]any{"type": "segment", "id": segmentID}}}
-	_, _, err = c.Post("/api/tags/"+url.PathEscape(tagID)+"/relationships/segments", body)
+	_, _, err = c.Post(klaviyoRequestContext(c), "/api/tags/"+url.PathEscape(tagID)+"/relationships/segments", body)
 	if err != nil {
-		return nil, classifyAPIError(err)
+		return nil, classifyAPIErrorOnly(err)
 	}
 	return map[string]any{"tag_id": tagID, "name": tagName, "created": created}, nil
 }
@@ -655,9 +652,9 @@ func findTagIDByName(c flowClient, name string) (string, error) {
 		if cursor != "" {
 			params["page[cursor]"] = cursor
 		}
-		resp, err := c.Get("/api/tags", params)
+		resp, err := c.Get(klaviyoRequestContext(c), "/api/tags", params)
 		if err != nil {
-			return "", classifyAPIError(err)
+			return "", classifyAPIErrorOnly(err)
 		}
 		items, next, err := parseJSONAPICollection(resp)
 		if err != nil {
@@ -756,9 +753,9 @@ func fetchSegmentProfileIDs(c flowClient, segmentID string, limit int) ([]string
 		if cursor != "" {
 			params["page[cursor]"] = cursor
 		}
-		resp, err := c.Get("/api/segments/"+url.PathEscape(segmentID)+"/profiles", params)
+		resp, err := c.Get(klaviyoRequestContext(c), "/api/segments/"+url.PathEscape(segmentID)+"/profiles", params)
 		if err != nil {
-			return nil, false, classifyAPIError(err)
+			return nil, false, classifyAPIErrorOnly(err)
 		}
 		items, next, err := parseJSONAPICollection(resp)
 		if err != nil {
@@ -785,9 +782,9 @@ func deleteSegment(c flowClient, segmentID string) error {
 	if strings.TrimSpace(segmentID) == "" {
 		return fmt.Errorf("segment id is empty")
 	}
-	_, _, err := c.Delete("/api/segments/" + url.PathEscape(segmentID))
+	_, _, err := c.Delete(klaviyoRequestContext(c), "/api/segments/"+url.PathEscape(segmentID))
 	if err != nil {
-		return classifyAPIError(err)
+		return classifyAPIErrorOnly(err)
 	}
 	return nil
 }
@@ -807,7 +804,7 @@ func newFlowsHealthCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			report, err := scanFlowHealth(c, time.Now())
+			report, err := scanFlowHealth(c, klaviyoWindowNow())
 			if err != nil {
 				return err
 			}
@@ -818,6 +815,7 @@ func newFlowsHealthCmd(flags *rootFlags) *cobra.Command {
 }
 
 func scanFlowHealth(c flowClient, now time.Time) (map[string]any, error) {
+	now = now.In(loadNovelLocation(defaultMetricTimezone()))
 	flows, err := fetchAllJSONAPI(c, "/api/flows", map[string]string{"fields[flow]": "name,status,trigger_type", "page[size]": "50"}, 0)
 	if err != nil {
 		return nil, err
@@ -833,7 +831,7 @@ func scanFlowHealth(c flowClient, now time.Time) (map[string]any, error) {
 		checked++
 		flowID := fmt.Sprint(flow["id"])
 		flowName := stringFromMapPath(flow, "attributes.name")
-		resp, err := c.Get("/api/flows/"+url.PathEscape(flowID), map[string]string{"additional-fields[flow]": "definition"})
+		resp, err := c.Get(klaviyoRequestContext(c), "/api/flows/"+url.PathEscape(flowID), map[string]string{"additional-fields[flow]": "definition"})
 		if err != nil {
 			issues = append(issues, flowIssue(flowID, flowName, "definition_unreadable", err.Error()))
 			continue
@@ -865,7 +863,7 @@ func scanFlowHealth(c flowClient, now time.Time) (map[string]any, error) {
 			for _, templateID := range collectTemplateIDs(action) {
 				exists, ok := templateCache[templateID]
 				if !ok {
-					_, tErr := c.Get("/api/templates/"+url.PathEscape(templateID), map[string]string{"fields[template]": "name"})
+					_, tErr := c.Get(klaviyoRequestContext(c), "/api/templates/"+url.PathEscape(templateID), map[string]string{"fields[template]": "name"})
 					exists = tErr == nil
 					templateCache[templateID] = exists
 				}
@@ -946,7 +944,7 @@ func collectTriggerMetricIDs(def map[string]any) []string {
 
 func queryMetricCount(c flowClient, metricID string, since, until time.Time) float64 {
 	body := metricAggregateBody(metricID, []string{"count"}, nil, since, until)
-	resp, _, err := c.Post("/api/metric-aggregates", body)
+	resp, _, err := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", body)
 	if err != nil {
 		return -1
 	}
@@ -970,7 +968,7 @@ func newCampaignsScheduleConflictsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			campaigns, err := fetchAllJSONAPI(c, "/api/campaigns", map[string]string{"filter": `equals(status,"Scheduled")`, "fields[campaign]": "name,audiences,send_time,status", "page[size]": "50"}, 0)
+			campaigns, err := campaignMessageRows(c, map[string]string{"filter": "equals(status,'scheduled')"})
 			if err != nil {
 				return err
 			}
@@ -1085,9 +1083,9 @@ func newProfilesPruneCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
-			resp, _, err := c.Post("/api/segments", jsonAPIBody("segment", map[string]any{"name": name, "definition": def}, nil))
+			resp, _, err := c.Post(klaviyoRequestContext(c), "/api/segments", jsonAPIBody("segment", map[string]any{"name": name, "definition": def}, nil))
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIErrorOnly(err)
 			}
 			segmentID := jsonAPIID(resp)
 			if segmentID == "" {
@@ -1106,9 +1104,9 @@ func newProfilesPruneCmd(flags *rootFlags) *cobra.Command {
 			result := map[string]any{"segment_id": segmentID, "segment_name": name, "temporary_segment_deleted": true, "count": len(profileIDs), "sample_profile_ids": firstStrings(profileIDs, 25), "estimated": estimated, "max": max}
 			if suppress && len(profileIDs) > 0 {
 				body := map[string]any{"data": map[string]any{"type": "profile-suppression-bulk-create-job", "attributes": map[string]any{"profiles": profileIDData(profileIDs)}}}
-				jobResp, status, err := c.Post("/api/profile-suppression-bulk-create-jobs", body)
+				jobResp, status, err := c.Post(klaviyoRequestContext(c), "/api/profile-suppression-bulk-create-jobs", body)
 				if err != nil {
-					return classifyAPIError(err)
+					return classifyAPIErrorOnly(err)
 				}
 				result["suppression_status"] = status
 				result["suppression_job"] = mustJSONAny(jobResp)
@@ -1152,7 +1150,8 @@ func newReportDeliverabilityCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			since, until := platformCalculationWindow(flags, time.Now().AddDate(0, 0, -days), time.Now())
+			now := metricNow()
+			since, until := platformCalculationWindow(flags, now.AddDate(0, 0, -days), now)
 			report, err := buildDeliverabilityReport(c, since, until)
 			if err != nil {
 				return err
@@ -1234,17 +1233,17 @@ func buildDeliverabilityReport(c flowClient, since, until time.Time) (map[string
 
 func aggregateByDimension(c flowClient, metricID, dimension string, since, until time.Time) (map[string]float64, error) {
 	body := metricAggregateBody(metricID, []string{"count"}, []string{dimension}, since, until)
-	resp, _, err := c.Post("/api/metric-aggregates", body)
+	resp, _, err := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", body)
 	if err != nil {
-		return nil, classifyAPIError(err)
+		return nil, classifyAPIErrorOnly(err)
 	}
 	return metricAggregateRows(resp, "count"), nil
 }
 
 func aggregateTotal(c flowClient, metricID string, since, until time.Time) (float64, error) {
-	resp, _, err := c.Post("/api/metric-aggregates", metricAggregateBody(metricID, []string{"count"}, nil, since, until))
+	resp, _, err := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", metricAggregateBody(metricID, []string{"count"}, nil, since, until))
 	if err != nil {
-		return 0, classifyAPIError(err)
+		return 0, classifyAPIErrorOnly(err)
 	}
 	return sumMeasurement(resp, "count"), nil
 }
@@ -1289,7 +1288,7 @@ func newUniversalContentSyncCmd(flags *rootFlags) *cobra.Command {
 				name := strings.TrimSuffix(filepath.Base(file), filepath.Ext(file))
 				attrs := map[string]any{"name": name, "definition": map[string]any{"type": "html", "content": string(b)}}
 				if id := existing[name]; id != "" {
-					resp, status, err := c.Patch("/api/template-universal-content/"+url.PathEscape(id), jsonAPIBody("template-universal-content", attrs, nil))
+					resp, status, err := c.Patch(klaviyoRequestContext(c), "/api/template-universal-content/"+url.PathEscape(id), jsonAPIBody("template-universal-content", attrs, nil))
 					if err != nil {
 						results = append(results, map[string]any{"file": file, "name": name, "id": id, "action": "error", "error": err.Error()})
 					} else {
@@ -1297,7 +1296,7 @@ func newUniversalContentSyncCmd(flags *rootFlags) *cobra.Command {
 					}
 					continue
 				}
-				resp, status, err := c.Post("/api/template-universal-content", jsonAPIBody("template-universal-content", attrs, nil))
+				resp, status, err := c.Post(klaviyoRequestContext(c), "/api/template-universal-content", jsonAPIBody("template-universal-content", attrs, nil))
 				if err != nil {
 					results = append(results, map[string]any{"file": file, "name": name, "action": "error", "error": err.Error()})
 				} else {
@@ -1350,7 +1349,7 @@ func updateMessageTemplatesForImageSwap(c flowClient, scope, oldURL, newURL stri
 		matched++
 		updated := strings.ReplaceAll(html, oldURL, newURL)
 		patchBody := jsonAPIBody("template", map[string]any{"html": updated}, nil)
-		_, _, pErr := c.Patch("/api/templates/"+url.PathEscape(templateID), patchBody)
+		_, _, pErr := c.Patch(klaviyoRequestContext(c), "/api/templates/"+url.PathEscape(templateID), patchBody)
 		result := map[string]any{
 			"scope":       scope,
 			"template_id": templateID,
@@ -1389,7 +1388,7 @@ func collectMessageTemplates(c flowClient, scope string) ([]map[string]any, erro
 				}
 				for _, msg := range messages {
 					msgID := fmt.Sprint(msg["id"])
-					tmpl, err := c.Get("/api/flow-messages/"+url.PathEscape(msgID)+"/template", map[string]string{"fields[template]": "name,html"})
+					tmpl, err := c.Get(klaviyoRequestContext(c), "/api/flow-messages/"+url.PathEscape(msgID)+"/template", map[string]string{"fields[template]": "name,html"})
 					if err != nil {
 						continue
 					}
@@ -1404,29 +1403,32 @@ func collectMessageTemplates(c flowClient, scope string) ([]map[string]any, erro
 			}
 		}
 	case "campaign":
-		campaigns, err := fetchAllJSONAPI(c, "/api/campaigns", map[string]string{"fields[campaign]": "name,status", "page[size]": "50"}, 0)
+		messages, err := campaignMessageRows(c, nil)
 		if err != nil {
 			return nil, err
 		}
-		for _, campaign := range campaigns {
-			campaignID := fmt.Sprint(campaign["id"])
-			messages, err := fetchAllJSONAPI(c, "/api/campaigns/"+url.PathEscape(campaignID)+"/campaign-messages", map[string]string{"fields[campaign-message]": "id", "page[size]": "50"}, 0)
-			if err != nil {
-				return nil, err
-			}
-			for _, msg := range messages {
-				msgID := fmt.Sprint(msg["id"])
-				tmpl, err := c.Get("/api/campaign-messages/"+url.PathEscape(msgID)+"/template", map[string]string{"fields[template]": "name,html"})
-				if err != nil {
+		seen := map[string]bool{}
+		for _, message := range messages {
+			for _, v := range message["variations"].([]campaignModelVariation) {
+				if v.Channel != "email" || v.TemplateID == "" || seen[v.TemplateID] {
 					continue
 				}
-				if m, ok := mustJSONAny(tmpl).(map[string]any); ok {
-					if data, ok := m["data"].(map[string]any); ok {
-						data["message_id"] = msgID
-						data["parent_id"] = campaignID
-						out = append(out, data)
-					}
+				seen[v.TemplateID] = true
+				raw, err := c.Get(klaviyoRequestContext(c), "/api/templates/"+url.PathEscape(v.TemplateID), map[string]string{"fields[template]": "name,html"})
+				if err != nil {
+					return nil, err
 				}
+				var envelope struct {
+					Data map[string]any `json:"data"`
+				}
+				if err := json.Unmarshal(raw, &envelope); err != nil {
+					return nil, err
+				}
+				if envelope.Data == nil {
+					return nil, fmt.Errorf("template %s is unreadable", v.TemplateID)
+				}
+				envelope.Data["message_id"], envelope.Data["variation_id"], envelope.Data["parent_id"] = message["id"], v.ID, message["campaign_id"]
+				out = append(out, envelope.Data)
 			}
 		}
 	}
@@ -1449,12 +1451,12 @@ func newSegmentsRFMCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			now := time.Now()
+			now := metricNow()
 			since := now.AddDate(-2, 0, 0)
 			body := metricAggregateBody(metricID, []string{"count", "sum_value"}, []string{"Profile ID"}, since, now)
-			resp, _, err := c.Post("/api/metric-aggregates", body)
+			resp, _, err := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIErrorOnly(err)
 			}
 			lastOrders, err := profileLastOrderTimes(c, metricID, since, now, 10000)
 			if err != nil {
@@ -1462,8 +1464,8 @@ func newSegmentsRFMCmd(flags *rootFlags) *cobra.Command {
 			}
 			scores := scoreRFMProfiles(resp, lastOrders, now)
 			if len(scores) > 0 {
-				if _, _, err := c.Post("/api/profile-bulk-import-jobs", rfmProfileBulkImportJobBody(scores)); err != nil {
-					return classifyAPIError(err)
+				if _, _, err := c.Post(klaviyoRequestContext(c), "/api/profile-bulk-import-jobs", rfmProfileBulkImportJobBody(scores)); err != nil {
+					return classifyAPIErrorOnly(err)
 				}
 			}
 			segments := []string{"Champions", "Loyal Customers", "At Risk", "About to Sleep", "Lost"}
@@ -1471,7 +1473,7 @@ func newSegmentsRFMCmd(flags *rootFlags) *cobra.Command {
 			for _, label := range segments {
 				def := rfmSegmentDefinition(label)
 				name := "RFM - " + label
-				segResp, status, err := c.Post("/api/segments", jsonAPIBody("segment", map[string]any{"name": name, "definition": def}, nil))
+				segResp, status, err := c.Post(klaviyoRequestContext(c), "/api/segments", jsonAPIBody("segment", map[string]any{"name": name, "definition": def}, nil))
 				if err != nil {
 					created = append(created, map[string]any{"name": name, "error": err.Error()})
 					continue
@@ -1749,9 +1751,9 @@ func fetchAllJSONAPI(c flowClient, path string, params map[string]string, limit 
 		if cursor != "" {
 			p["page[cursor]"] = cursor
 		}
-		resp, err := c.Get(path, p)
+		resp, err := c.Get(klaviyoRequestContext(c), path, p)
 		if err != nil {
-			return nil, classifyAPIError(err)
+			return nil, classifyAPIErrorOnly(err)
 		}
 		pageItems, next, err := parseJSONAPICollection(resp)
 		if err != nil {
@@ -1781,9 +1783,9 @@ func fetchAllJSONAPIWithIncluded(c flowClient, path string, params map[string]st
 		if cursor != "" {
 			p["page[cursor]"] = cursor
 		}
-		resp, err := c.Get(path, p)
+		resp, err := c.Get(klaviyoRequestContext(c), path, p)
 		if err != nil {
-			return nil, nil, classifyAPIError(err)
+			return nil, nil, classifyAPIErrorOnly(err)
 		}
 		var envelope map[string]any
 		if err := json.Unmarshal(resp, &envelope); err != nil {
@@ -1857,16 +1859,21 @@ func collectStringsByKey(value any, wanted string) []string {
 }
 
 func metricAggregateBody(metricID string, measurements []string, by []string, since, until time.Time) map[string]any {
+	return metricAggregateBodyWithInterval(metricID, measurements, by, since, until, "day", defaultMetricTimezone())
+}
+
+func metricAggregateBodyWithInterval(metricID string, measurements []string, by []string, since, until time.Time, interval, timezoneName string) map[string]any {
+	location := loadNovelLocation(timezoneName)
 	attrs := map[string]any{
 		"metric_id":    metricID,
 		"measurements": measurements,
-		"interval":     "day",
+		"interval":     interval,
 		"page_size":    500,
 		"filter": []string{
-			"greater-or-equal(datetime," + since.Format("2006-01-02") + "T00:00:00)",
-			"less-than(datetime," + until.Format("2006-01-02") + "T23:59:59)",
+			"greater-or-equal(datetime," + since.In(location).Format("2006-01-02") + "T00:00:00)",
+			"less-than(datetime," + until.In(location).Format("2006-01-02") + "T23:59:59)",
 		},
-		"timezone": defaultMetricTimezone(),
+		"timezone": timezoneName,
 	}
 	if len(by) > 0 {
 		attrs["by"] = by
@@ -1975,7 +1982,7 @@ func newProfilesStatsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			report, err := buildProfilesStats(c, time.Now(), limit)
+			report, err := buildProfilesStats(c, klaviyoWindowNow(), limit)
 			if err != nil {
 				return err
 			}
@@ -1987,6 +1994,7 @@ func newProfilesStatsCmd(flags *rootFlags) *cobra.Command {
 }
 
 func buildProfilesStats(c flowClient, now time.Time, limit int) (map[string]any, error) {
+	now = now.In(loadNovelLocation(defaultMetricTimezone()))
 	profiles, err := fetchAllJSONAPI(c, "/api/profiles", map[string]string{"fields[profile]": "email,phone_number,created,properties", "additional-fields[profile]": "subscriptions", "page[size]": "100"}, limit)
 	if err != nil {
 		return nil, err
@@ -2021,7 +2029,7 @@ func buildProfilesStats(c flowClient, now time.Time, limit int) (map[string]any,
 	if openedID, err := resolveMetricID(c, "Opened Email"); err == nil {
 		for _, days := range []int{30, 60, 90} {
 			body := metricAggregateBody(openedID, []string{"unique"}, nil, now.AddDate(0, 0, -days), now)
-			resp, _, aggErr := c.Post("/api/metric-aggregates", body)
+			resp, _, aggErr := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", body)
 			if aggErr == nil {
 				engagement[fmt.Sprintf("opened_%dd", days)] = int(sumMeasurement(resp, "unique"))
 			}
@@ -2078,7 +2086,8 @@ func newProfilesNeverPurchasedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			purchasers, err := profileIDsWithOrders(c, time.Now().AddDate(-5, 0, 0), time.Now())
+			now := metricNow()
+			purchasers, err := profileIDsWithOrders(c, now.AddDate(-5, 0, 0), now)
 			if err != nil {
 				return err
 			}
@@ -2232,7 +2241,7 @@ func newFlowsAuditCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			report, err := auditFlows(c, time.Now(), max)
+			report, err := auditFlows(c, klaviyoWindowNow(), max)
 			if err != nil {
 				return err
 			}
@@ -2244,6 +2253,7 @@ func newFlowsAuditCmd(flags *rootFlags) *cobra.Command {
 }
 
 func auditFlows(c flowClient, now time.Time, max int) (map[string]any, error) {
+	now = now.In(loadNovelLocation(defaultMetricTimezone()))
 	flows, err := fetchAllJSONAPI(c, "/api/flows", map[string]string{"fields[flow]": "name,status,created,updated,trigger_type", "page[size]": "50"}, max)
 	if err != nil {
 		return nil, err
@@ -2259,7 +2269,7 @@ func auditFlows(c flowClient, now time.Time, max int) (map[string]any, error) {
 		if status == "draft" && !created.IsZero() && created.Before(now.AddDate(0, -6, 0)) {
 			issues = append(issues, flowIssue(id, name, "stale_draft", "flow was created more than six months ago and is still draft"))
 		}
-		resp, getErr := c.Get("/api/flows/"+url.PathEscape(id), map[string]string{"additional-fields[flow]": "definition"})
+		resp, getErr := c.Get(klaviyoRequestContext(c), "/api/flows/"+url.PathEscape(id), map[string]string{"additional-fields[flow]": "definition"})
 		if getErr != nil {
 			issues = append(issues, flowIssue(id, name, "definition_unreadable", getErr.Error()))
 			continue
@@ -2400,40 +2410,14 @@ func collectReferencedTemplateIDs(c flowClient) (map[string]bool, error) {
 		}
 	}
 
-	_, campaignMessages, err := fetchAllJSONAPIWithIncluded(c, "/api/campaigns", map[string]string{
-		"fields[campaign]":         "name,status",
-		"fields[campaign-message]": "definition",
-		"filter":                   `equals(messages.channel,"email")`,
-		"include":                  "campaign-messages",
-		"page[size]":               "100",
-	})
+	messages, err := campaignMessageRows(c, nil)
 	if err != nil {
 		return nil, err
 	}
-	for _, message := range campaignMessages {
-		id := relationshipID(message, "template")
-		if id != "" {
-			refs[id] = true
-		}
-		definitionIDs := collectStringsByKey(message, "template_id")
-		for _, templateID := range definitionIDs {
-			refs[templateID] = true
-		}
-		if id == "" && len(definitionIDs) == 0 {
-			messageID := stringFromMapPath(message, "id")
-			if messageID == "" {
-				return nil, fmt.Errorf("template audit: campaign message ID is missing")
-			}
-			template, err := c.Get("/api/campaign-messages/"+url.PathEscape(messageID)+"/template", map[string]string{"fields[template]": "id"})
-			if err != nil {
-				var apiErr *client.APIError
-				if errors.As(err, &apiErr) && apiErr.StatusCode == 404 {
-					continue
-				}
-				return nil, err
-			}
-			if templateID := jsonAPIID(template); templateID != "" {
-				refs[templateID] = true
+	for _, message := range messages {
+		for _, v := range message["variations"].([]campaignModelVariation) {
+			if v.TemplateID != "" {
+				refs[v.TemplateID] = true
 			}
 		}
 	}
@@ -2498,13 +2482,13 @@ func newReportDashboardCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			now := time.Now()
+			now := metricNow()
 			placedID, err := resolveMetricID(c, "Placed Order")
 			if err != nil {
 				return err
 			}
 			totalRevenue := 0.0
-			if resp, _, err := c.Post("/api/metric-aggregates", metricAggregateBody(placedID, []string{"sum_value"}, nil, now.AddDate(0, 0, -30), now)); err == nil {
+			if resp, _, err := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", metricAggregateBody(placedID, []string{"sum_value"}, nil, now.AddDate(0, 0, -30), now)); err == nil {
 				totalRevenue = sumMeasurement(resp, "sum_value")
 			}
 			flows, err := topAggregateRows(c, placedID, "$attributed_flow", "sum_value", now.AddDate(0, 0, -30), now, 5)
@@ -2709,7 +2693,8 @@ func newReportFlowFunnelCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows := metricTotalsByName(c, []string{"Received Email", "Opened Email", "Clicked Email", "Placed Order"}, time.Now().AddDate(0, 0, -90), time.Now())
+			now := metricNow()
+			rows := metricTotalsByName(c, []string{"Received Email", "Opened Email", "Clicked Email", "Placed Order"}, now.AddDate(0, 0, -90), now)
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"window_days": 90, "funnel": rows, "note": "account-level aggregate metrics"}, flags)
 		},
 	}
@@ -2733,7 +2718,8 @@ func newReportFlowComparisonCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows, err := topAggregateRows(c, placedID, "$attributed_flow", "sum_value", time.Now().AddDate(0, 0, -90), time.Now(), 100)
+			now := metricNow()
+			rows, err := topAggregateRows(c, placedID, "$attributed_flow", "sum_value", now.AddDate(0, 0, -90), now, 100)
 			if err != nil {
 				return err
 			}
@@ -2756,7 +2742,8 @@ func newReportEmailPerformanceCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows := metricTotalsByName(c, []string{"Received Email", "Bounced Email", "Opened Email", "Clicked Email", "Unsubscribed Email", "Marked Email as Spam", "Placed Order"}, time.Now().AddDate(0, 0, -90), time.Now())
+			now := metricNow()
+			rows := metricTotalsByName(c, []string{"Received Email", "Bounced Email", "Opened Email", "Clicked Email", "Unsubscribed Email", "Marked Email as Spam", "Placed Order"}, now.AddDate(0, 0, -90), now)
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"window_days": 90, "metrics": rows}, flags)
 		},
 	}
@@ -3048,7 +3035,7 @@ func newReportConsentCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			stats, err := buildProfilesStats(c, time.Now(), 1000)
+			stats, err := buildProfilesStats(c, klaviyoWindowNow(), 1000)
 			if err != nil {
 				return err
 			}
@@ -3063,9 +3050,10 @@ func profileSpendRows(c flowClient, limit int) ([]map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, _, err := c.Post("/api/metric-aggregates", metricAggregateBody(metricID, []string{"count", "sum_value"}, []string{"Profile ID"}, time.Now().AddDate(-5, 0, 0), time.Now()))
+	now := metricNow()
+	resp, _, err := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", metricAggregateBody(metricID, []string{"count", "sum_value"}, []string{"Profile ID"}, now.AddDate(-5, 0, 0), now))
 	if err != nil {
-		return nil, classifyAPIError(err)
+		return nil, classifyAPIErrorOnly(err)
 	}
 	var rows []map[string]any
 	for _, r := range metricRows(resp) {
@@ -3082,7 +3070,7 @@ func profileSpendRows(c flowClient, limit int) ([]map[string]any, error) {
 	}
 	for i := range rows {
 		profileID := fmt.Sprint(rows[i]["profile_id"])
-		if p, err := c.Get("/api/profiles/"+url.PathEscape(profileID), map[string]string{"fields[profile]": "email"}); err == nil {
+		if p, err := c.Get(klaviyoRequestContext(c), "/api/profiles/"+url.PathEscape(profileID), map[string]string{"fields[profile]": "email"}); err == nil {
 			rows[i]["email"] = firstString(p, "data.attributes.email")
 		}
 	}
@@ -3094,9 +3082,9 @@ func profileIDsWithOrders(c flowClient, since, until time.Time) (map[string]bool
 	if err != nil {
 		return nil, err
 	}
-	resp, _, err := c.Post("/api/metric-aggregates", metricAggregateBody(metricID, []string{"count"}, []string{"Profile ID"}, since, until))
+	resp, _, err := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", metricAggregateBody(metricID, []string{"count"}, []string{"Profile ID"}, since, until))
 	if err != nil {
-		return nil, classifyAPIError(err)
+		return nil, classifyAPIErrorOnly(err)
 	}
 	out := map[string]bool{}
 	for _, r := range metricRows(resp) {
@@ -3135,7 +3123,7 @@ func metricRows(raw json.RawMessage) []metricRow {
 }
 
 func topAggregateRows(c flowClient, metricID, dimension, measurement string, since, until time.Time, limit int) ([]map[string]any, error) {
-	resp, _, err := c.Post("/api/metric-aggregates", metricAggregateBody(metricID, []string{measurement, "count"}, []string{dimension}, since, until))
+	resp, _, err := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", metricAggregateBody(metricID, []string{measurement, "count"}, []string{dimension}, since, until))
 	if err != nil {
 		return nil, err
 	}
@@ -3241,7 +3229,7 @@ func metricTotalsByName(c flowClient, metricNames []string, since, until time.Ti
 			rows = append(rows, map[string]any{"metric": name, "error": err.Error()})
 			continue
 		}
-		resp, _, err := c.Post("/api/metric-aggregates", metricAggregateBody(id, []string{"count", "unique", "sum_value"}, nil, since, until))
+		resp, _, err := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", metricAggregateBody(id, []string{"count", "unique", "sum_value"}, nil, since, until))
 		if err != nil {
 			rows = append(rows, map[string]any{"metric": name, "error": err.Error()})
 			continue
@@ -3297,7 +3285,7 @@ func rowsByName(rows []map[string]any) map[string]map[string]any {
 	return out
 }
 
-func clientAndWindow(flags *rootFlags, last string) (flowClient, time.Time, time.Time, error) {
+func clientAndWindow(flags *rootFlags, last string, timezoneNames ...string) (flowClient, time.Time, time.Time, error) {
 	days, err := strconv.Atoi(strings.TrimSuffix(last, "d"))
 	if err != nil || days <= 0 {
 		return nil, time.Time{}, time.Time{}, usageErr(fmt.Errorf("--last must be a positive duration like 30d"))
@@ -3306,7 +3294,11 @@ func clientAndWindow(flags *rootFlags, last string) (flowClient, time.Time, time
 	if err != nil {
 		return nil, time.Time{}, time.Time{}, err
 	}
-	until := time.Now()
+	timezone := defaultMetricTimezone()
+	if len(timezoneNames) > 0 {
+		timezone = timezoneNames[0]
+	}
+	until := klaviyoWindowNow().In(loadNovelLocation(timezone))
 	since, until := platformCalculationWindow(flags, until.AddDate(0, 0, -days), until)
 	return c, since, until, nil
 }

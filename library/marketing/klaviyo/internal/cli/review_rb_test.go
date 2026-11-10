@@ -139,7 +139,7 @@ func TestReviewRBReportEndpointPacing(t *testing.T) {
 					t.Errorf("request = %s %s, want POST %s", r.Method, r.URL.RequestURI(), path)
 				}
 				for name, want := range map[string]string{
-					"Authorization": "Klaviyo-API-Key synthetic-key", "revision": "2026-04-15",
+					"Authorization": "Klaviyo-API-Key synthetic-key", "revision": "2026-10-15",
 					"Accept": "application/vnd.api+json", "Content-Type": "application/vnd.api+json",
 				} {
 					if got := r.Header.Get(name); got != want {
@@ -171,7 +171,7 @@ func TestReviewRBReportEndpointPacing(t *testing.T) {
 			}
 			c.BaseURL = server.URL
 			for range 3 {
-				response, status, err := c.PostWithHeaders(path, body, map[string]string{
+				response, status, err := c.PostWithHeaders(context.Background(), path, body, map[string]string{
 					"Accept": "application/vnd.api+json", "Content-Type": "application/vnd.api+json",
 				})
 				if err != nil || status != http.StatusOK || string(response) != `{"data":[],"links":{"next":null}}` {
