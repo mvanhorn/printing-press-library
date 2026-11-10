@@ -24,7 +24,7 @@ func raCLIEnvironment(t *testing.T) {
 	}
 	registration, resolver := registeredPlatformSource, platformResolverFactory
 	t.Cleanup(func() { registeredPlatformSource, platformResolverFactory = registration, resolver })
-	registeredPlatformSource = &platformSourceRegistration{Source: "test-source", Adapter: platformCLIAdapter{observed: platform.ObservedIdentity{AccountID: "acct-a"}}}
+	registeredPlatformSource = platformCLITestRegistration(platformCLIAdapter{observed: platform.ObservedIdentity{AccountID: "acct-a"}})
 	platformResolverFactory = func() platform.CredentialResolver { return platformCLIResolver{value: []byte("fixture")} }
 	if err := platform.SaveProfile(&platform.Profile{SchemaVersion: platform.ProfileSchemaVersion, Name: "tenant-a", Sources: map[string]platform.SourceProfile{
 		"test-source": {CredentialRef: "op://Test/Fixture/token", ExpectedAccountID: "acct-a"},

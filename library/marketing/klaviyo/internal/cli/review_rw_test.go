@@ -38,7 +38,7 @@ func TestReviewRWHistoricalRevenueWindows(t *testing.T) {
 			requests := []string{}
 			root, flags := g2Root(t, func(w http.ResponseWriter, r *http.Request) {
 				requests = append(requests, r.Method+" "+r.URL.Path)
-				if got := r.Header.Get("User-Agent"); got != "klaviyo-pp-cli/2026-04-15" {
+				if got := r.Header.Get("User-Agent"); got != "klaviyo-pp-cli/2026-10-15" {
 					t.Errorf("User-Agent = %q", got)
 				}
 				switch r.Method + " " + r.URL.Path {

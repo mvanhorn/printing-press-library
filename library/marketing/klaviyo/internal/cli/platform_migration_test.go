@@ -30,7 +30,7 @@ func TestPlatformMigrationIsVerifiedIdempotentAndQuarantinesLegacyState(t *testi
 	receiptPath := filepath.Join(t.TempDir(), "migration-receipt.json")
 	previousRegistration, previousResolver := registeredPlatformSource, platformResolverFactory
 	t.Cleanup(func() { registeredPlatformSource, platformResolverFactory = previousRegistration, previousResolver })
-	registeredPlatformSource = &platformSourceRegistration{Source: "test-source", Adapter: platformCLIAdapter{observed: platform.ObservedIdentity{AccountID: "acct-a"}}}
+	registeredPlatformSource = platformCLITestRegistration(platformCLIAdapter{observed: platform.ObservedIdentity{AccountID: "acct-a"}})
 	platformResolverFactory = func() platform.CredentialResolver {
 		return platformCLIResolver{value: []byte("migration-secret-never-print")}
 	}
@@ -95,7 +95,7 @@ func TestPlatformMigrationWrongTenantCannotCreateProfile(t *testing.T) {
 
 	previousRegistration, previousResolver := registeredPlatformSource, platformResolverFactory
 	t.Cleanup(func() { registeredPlatformSource, platformResolverFactory = previousRegistration, previousResolver })
-	registeredPlatformSource = &platformSourceRegistration{Source: "test-source", Adapter: platformCLIAdapter{observed: platform.ObservedIdentity{AccountID: "acct-b"}}}
+	registeredPlatformSource = platformCLITestRegistration(platformCLIAdapter{observed: platform.ObservedIdentity{AccountID: "acct-b"}})
 	platformResolverFactory = func() platform.CredentialResolver {
 		return platformCLIResolver{value: []byte("wrong-tenant-credential")}
 	}
@@ -149,7 +149,7 @@ func TestPlatformMigrationAdoptsOnlyVerifiedTenantDatabase(t *testing.T) {
 
 	previousRegistration, previousResolver := registeredPlatformSource, platformResolverFactory
 	t.Cleanup(func() { registeredPlatformSource, platformResolverFactory = previousRegistration, previousResolver })
-	registeredPlatformSource = &platformSourceRegistration{Source: "test-source", Adapter: platformCLIAdapter{observed: platform.ObservedIdentity{AccountID: "acct-a"}}}
+	registeredPlatformSource = platformCLITestRegistration(platformCLIAdapter{observed: platform.ObservedIdentity{AccountID: "acct-a"}})
 	platformResolverFactory = func() platform.CredentialResolver { return platformCLIResolver{value: []byte("new-credential")} }
 
 	root := RootCmd()

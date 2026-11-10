@@ -4,6 +4,10 @@
 
 This printed CLI wraps Klaviyo's JSON:API surface for profiles, events, campaigns, flows, segments, metrics, templates, and related marketing resources. It adds a local SQLite mirror plus compound commands for campaign deployment, flow decay, attribution, deduplication, reconciliation, and growth planning.
 
+Generated with Printing Press 4.35.4 against Klaviyo API revision 2026-10-15. Every request sends `revision: 2026-10-15`.
+
+At this revision, a campaign is a container. Messages carry status and send time; campaign-audiences carry included and excluded lists and segments; variations carry channel, template, subject, and sender. IDs issued before 2026-10-15 are now message IDs. Campaign workflows accept either a container ID or a historical campaign/message ID and resolve its audiences and variations. The raw `campaigns get-id` read expects a container ID and explains historical IDs on a 404.
+
 Implicit local stores and response caches are scoped by a non-secret API-key fingerprint and honor `XDG_DATA_HOME` / `XDG_CACHE_HOME`, so data from separate Klaviyo accounts cannot share a default database or cache namespace.
 
 Learn more at [Klaviyo](https://developers.klaviyo.com).
@@ -24,10 +28,10 @@ and `{{ manage_preferences_url }}` render dead links in Klaviyo and fail the che
 
 `campaigns deploy`, `campaign-message-assign-template`, and
 `campaign-send-jobs send-campaign` check template HTML before writing or sending.
-The send preflight checks every email message and its assigned template. `templates create`,
+The send preflight checks every email variation and its assigned template; SMS and push variations do not use email checks. `templates create`,
 `templates update`, and `template-clone` allow flow and transactional templates
 without an unsubscribe link, but print a warning on stderr and include it in
-JSON output. `plan qa-gate` reads the campaign's assigned template when given
+JSON output. `plan qa-gate` reads every email variation's assigned template when given
 `--campaign-id` without `--html`; a fail verdict exits nonzero after printing
 the JSON findings.
 
@@ -49,13 +53,13 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press-library install klaviyo --cli-only
 ```
 
-For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+For skill only - installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
 npx -y @mvanhorn/printing-press-library install klaviyo --skill-only
 ```
 
-To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+To constrain the skill install to one or more specific agents (repeatable - agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
 npx -y @mvanhorn/printing-press-library install klaviyo --agent claude-code
@@ -70,7 +74,7 @@ If `npx` isn't available (no Node, offline), install the CLI directly via Go (re
 go install github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/cmd/klaviyo-pp-cli@latest
 ```
 
-This installs the CLI only — no skill.
+This installs the CLI only - no skill.
 
 ### Pre-built binary
 
@@ -113,7 +117,7 @@ Restart the OpenClaw session or gateway if the newly installed skill is not visi
 
 ## Use with Claude Desktop
 
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle - Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
 
 To install:
 
@@ -150,6 +154,10 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+The MCP server uses the generator's code-orchestration surface: `klaviyo_search` discovers endpoints, `klaviyo_get` returns GET endpoint metadata without an API call, `klaviyo_read` runs read-only requests, and `klaviyo_execute` handles mutations. It also exposes local `search`, read-only `sql`, `context`, and the hand-written command tools. There is no separate tool for each endpoint.
+
+`klaviyo_execute` returns a preview until `confirm` is boolean `true`; the string `"true"` does not confirm a write. Confirmed campaign sends and template assignments run the same unsubscribe checks as the CLI. The server and its learning commands use the selected client profile.
+
 ## Authentication
 
 Data commands require a tenant-gated client profile. Profiles store only an
@@ -165,6 +173,8 @@ klaviyo-pp-cli --client-profile acme whoami --no-cache
 Selection order is `--client-profile`, `PRINTING_PRESS_CLIENT_PROFILE`, then
 the shared default set by `client set-default`. Legacy Klaviyo credentials,
 config, and DB overrides cannot replace a selected profile.
+
+`teach`, `recall`, `learnings`, and `playbook` also require the selected, verified client profile. Their database and learning journal belong to that profile, so learned IDs, queries, and playbooks do not cross clients.
 
 On hosts without 1Password, use `--credential-ref env:KLAVIYO_API_KEY` with the
 same expected identity assertions. The variable must be set and non-empty when
@@ -195,14 +205,27 @@ klaviyo-pp-cli attribution --metric "Placed Order" --group-by flow --since 2026-
 These capabilities aren't available in any other tool for this API.
 
 ### Campaign operations
-- **`campaigns deploy`** — Create an email template, create a draft campaign, and assign the template to the campaign message in one audited workflow.
 
-  _Agents can build a draft campaign without hand-stitching three endpoint calls._
+- **`campaigns deploy`** - Create an email template and a campaign with an inline audience, message, and email variation, then verify that the result is an unscheduled draft.
+
+  Repeat `--list-id` and `--segment-id` to include audiences; repeat `--exclude` for excluded list or segment IDs. `--preview-text`, `--reply-to`, and `--send-timezone` set the email preview, reply address, and timezone. The reply address defaults to the sender and the timezone defaults to the account timezone. Use `--template-file` for an HTML file or `--template-html` for inline HTML. Deployment never schedules or sends the campaign.
 
   ```bash
-  klaviyo-pp-cli campaigns deploy --template-html ./email.html --campaign-name "May offer" --list-id LIST_ID --subject "May offer" --from-email marketing@example.com --from-label "Marketing" --json
+  klaviyo-pp-cli campaigns deploy --template-file ./email.html --campaign-name "Acme offer" \
+    --list-id LIST_ID --list-id SECOND_LIST_ID --segment-id SEGMENT_ID --exclude EXCLUDED_ID \
+    --subject "Acme offer" --preview-text "This week's offer" --from-email marketing@example.com \
+    --from-label "Acme" --reply-to replies@example.com --send-timezone America/Chicago --json
   ```
-- **`campaigns image-swap`** — Find a campaign message template and replace an image URL inside the HTML while preserving the rest of the draft.
+- **`campaigns test-send`** - Run the same campaign checks as `plan qa-gate`, then send template previews for email variations to up to five recipients. Use it to review a draft in an inbox before launch; a failed QA verdict sends nothing.
+
+  Repeat `--to` or use comma-separated addresses; without `--to`, recipients come from `KLAVIYO_TEST_SEND_TO`. `--variation-id` limits preview sends to one email variation while QA still checks the campaign. `--dry-run` runs QA and shows planned sends without sending. Preview POSTs are never retried; an ambiguous result says "unknown, check the inbox".
+
+  `--brand` reads Klaviyo's brand kit (brand colors, logos, buttons, email defaults), warns on off-brand colors and old logos, and fails on a missing footer. Add `--brand-strict-neutrals` to flag grays that are not in the palette.
+
+  ```bash
+  klaviyo-pp-cli campaigns test-send --campaign-id CAMPAIGN_ID --to qa@example.com --json
+  ```
+- **`campaigns image-swap`** - Replace an image URL in every targeted email variation's template while preserving the rest of the draft.
 
   _Agents can make safe creative swaps without rebuilding a whole campaign._
 
@@ -210,22 +233,44 @@ These capabilities aren't available in any other tool for this API.
   klaviyo-pp-cli campaigns image-swap --campaign-id CAMPAIGN_ID --old-url https://cdn.example.com/old.jpg --new-url https://cdn.example.com/new.jpg --json
   ```
 
+### Flow and form operations
+
+- **`flows insert-step`** - Preview one new action after an existing flow action. Use `--step-file` for a JSON action definition without links, or `--stdin` to read it from stdin; add `--apply` to insert it once and verify placement.
+
+  `--after` identifies the existing action. `--link` selects `next`, `next_if_true`, `next_if_false`, or a multi-branch branch ID. Unsupported step types are refused, and timing or logic steps in a live flow require `--allow-live-action`.
+
+  ```bash
+  klaviyo-pp-cli flows insert-step FLOW_ID --after ACTION_ID --step-file ./step.json --json
+  ```
+- **`forms publish`** - Review live-versus-draft changes and the last 30 days of views, submits, and submit rate before publishing a form. The default is a preview; `--apply` publishes and re-reads the form to verify its status.
+
+  ```bash
+  klaviyo-pp-cli forms publish FORM_ID --apply --json
+  ```
+- **`forms unpublish`** - Take a live form down after reviewing its draft and performance evidence. The default is a preview; `--apply` unpublishes and verifies the status.
+
+  ```bash
+  klaviyo-pp-cli forms unpublish FORM_ID --apply --json
+  ```
+
+Both form commands refuse a draft A/B test. `--dry-run` always previews, even with `--apply`; ambiguous publish or unpublish requests are never retried.
+
 ### Behavior graph analytics
-- **`flow-decay`** — Identify flows whose open or click performance has decayed across recent time buckets using synced local data.
+- **`flow-decay`** - Identify flows whose open or click performance has decayed across recent time buckets using synced local data.
 
   _Agents can spot lifecycle automations that need refresh before revenue falls further._
 
   ```bash
   klaviyo-pp-cli flow-decay --days 90 --threshold 0.15 --json
   ```
-- **`cohort`** — Group profiles by first event date and compute retention or repeat-action curves from synced profiles and events.
+- **`cohort`** - Group profiles by first event date and compute retention or repeat-action curves from synced profiles and events.
 
   _Agents can answer which acquisition cohorts keep buying without exporting CSVs._
 
   ```bash
   klaviyo-pp-cli cohort --metric "Placed Order" --interval month --json --select cohort,profiles,retained
   ```
-- **`attribution`** — Join order events with campaign and flow attribution properties to summarize revenue by channel and source.
+- **`attribution`** - Join order events with campaign and flow attribution properties to summarize revenue by channel and source.
 
   _Agents can explain which automation or campaign generated revenue using local event evidence._
 
@@ -235,40 +280,47 @@ These capabilities aren't available in any other tool for this API.
 
 ### Reporting
 
-- **`campaign-values-reports`** — Query campaign performance with a complete JSON:API report body. `--conversion-metric-id` defaults to the account's Shopify Placed Order metric.
+- **`send-budget`** - Compare email sends in the current billing period with the plan cap and scheduled email message recipient estimates. Use it before scheduling more sends; later periods are shown against the same cap, and missing estimates remain unknown rather than zero.
+
+  Missing or stale estimates are refreshed with estimation jobs by default. `--wait` bounds that work (default two minutes); `--no-refresh` uses GET requests only.
+
+  ```bash
+  klaviyo-pp-cli send-budget --no-refresh --json
+  ```
+- **`campaign-values-reports`** - Query campaign performance with a complete JSON:API report body. `--conversion-metric-id` defaults to the account's Shopify Placed Order metric.
 
   ```bash
   klaviyo-pp-cli campaign-values-reports --timeframe last_12_months --statistics recipients,opens,clicks,conversion_value --agent
   ```
-- **`report targeting`** — Resolve included and excluded campaign audience IDs against both segments and lists, join sends, attributed revenue, and last-mailed dates, and return distinct never-mailed segment and list collections.
+- **`report targeting`** - Resolve included and excluded campaign audience IDs against both segments and lists, join sends, attributed revenue, and last-mailed dates, and return distinct never-mailed segment and list collections.
 
   ```bash
   klaviyo-pp-cli report targeting --timeframe last_12_months --agent
   ```
 
 ### Data hygiene
-- **`list-quality-score`** — Score every list using API-valid collection fields plus paced per-list `profile_count` enrichment.
+- **`list-quality-score`** - Score every list using API-valid collection fields plus paced per-list `profile_count` enrichment.
 
   _The count enrichment observes Klaviyo's 1/s burst and 15/m steady limit and the HTTP client honors `Retry-After`; large accounts can take several minutes._
 
   ```bash
   klaviyo-pp-cli list-quality-score --json --no-cache
   ```
-- **`segments get --with-counts`** — Enrich a segment page with current `profile_count` values through the per-item endpoint. The `list` alias has the same behavior.
+- **`segments get --with-counts`** - Enrich a segment page with current `profile_count` values through the per-item endpoint. The `list` alias has the same behavior.
 
   _Use `--all` when every page is required. The enrichment is deliberately paced at the additional-field endpoint's 15/m steady limit._
 
   ```bash
   klaviyo-pp-cli segments get --all --with-counts --json --no-cache
   ```
-- **`dedup`** — Find profiles that appear duplicated by email, phone, or cross-channel collisions in the local profile mirror.
+- **`dedup`** - Find profiles that appear duplicated by email, phone, or cross-channel collisions in the local profile mirror.
 
   _Agents can flag customer records that split behavior and revenue history across identities._
 
   ```bash
   klaviyo-pp-cli dedup --by email,phone --json
   ```
-- **`reconcile`** — Compare campaign UTM evidence with local Klaviyo order events and optional Shopify credentials when available.
+- **`reconcile`** - Compare campaign UTM evidence with local Klaviyo order events and optional Shopify credentials when available.
 
   _Agents can check whether campaign performance agrees with order evidence before reporting numbers._
 
@@ -277,20 +329,22 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Growth planning
-- **`plan brief-to-strategy`** — Turn a growth brief into a structured Klaviyo campaign, flow, segment, and experiment strategy.
+- **`plan brief-to-strategy`** - Turn a growth brief into a structured Klaviyo campaign, flow, segment, and experiment strategy.
 
   _Agents can convert strategy notes into a concrete Klaviyo execution plan._
 
   ```bash
   klaviyo-pp-cli plan brief-to-strategy --brief ./brief.md --json
   ```
-- **`plan qa-gate`** — Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, unsubscribe placement, compliance, and deliverability flags.
+- **`plan qa-gate`** - Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, unsubscribe placement, compliance, and deliverability flags.
 
   _Agents can block risky campaign launches with explicit findings instead of vague review notes._
 
   ```bash
   klaviyo-pp-cli plan qa-gate --campaign-id CAMPAIGN_ID --html ./email.html --json
   ```
+
+  `--brand` reads Klaviyo's brand kit (brand colors, logos, buttons, email defaults), warns on off-brand colors and old logos, and fails on a missing footer. Add `--brand-strict-neutrals` to flag grays that are not in the palette.
 
 ## Usage
 
@@ -317,7 +371,7 @@ You can use this to retrieve account-specific data (contact information, timezon
 
 Manage back in stock subscriptions
 
-- **`klaviyo-pp-cli back-in-stock-subscriptions create`** - Subscribe a profile to receive back in stock notifications. Check out [our Back in Stock API guide](https://developers.klaviyo.com/en/docs/how_to_set_up_custom_back_in_stock) for more details.
+- **`klaviyo-pp-cli back-in-stock-subscriptions`** - Subscribe a profile to receive back in stock notifications. Check out [our Back in Stock API guide](https://developers.klaviyo.com/en/docs/how_to_set_up_custom_back_in_stock) for more details.
 
 This endpoint is specifically designed to be called from server-side applications. To create subscriptions from client-side contexts, use [POST /client/back-in-stock-subscriptions](https://developers.klaviyo.com/en/reference/create_client_back_in_stock_subscription).<br><br>*Rate limits*:<br>Burst: `350/s`<br>Steady: `3500/m`
 
@@ -329,7 +383,7 @@ This endpoint is specifically designed to be called from server-side application
 
 Manage campaign clone
 
-- **`klaviyo-pp-cli campaign-clone create`** - Clones an existing campaign, returning a new campaign based on the original with a new ID and name.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
+- **`klaviyo-pp-cli campaign-clone`** - Clones an existing campaign, returning a new campaign based on the original with a new ID and name.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
 
 **Scopes:**
 `campaigns:write`
@@ -338,7 +392,7 @@ Manage campaign clone
 
 Manage campaign message assign template
 
-- **`klaviyo-pp-cli campaign-message-assign-template assign-template-to-campaign-message`** - Creates a non-reusable version of the template and assigns it to the message.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
+- **`klaviyo-pp-cli campaign-message-assign-template`** - Creates a non-reusable template copy and assigns it to an email variation. `--data-id` is a variation ID; a message ID is accepted only when that message has exactly one email variation. `--stdin` resolves the ID while preserving the request body and checking unsubscribe links.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
 
 **Scopes:**
 `campaigns:write`
@@ -347,7 +401,7 @@ Manage campaign message assign template
 
 Manage campaign messages
 
-- **`klaviyo-pp-cli campaign-messages get`** - Returns a specific message based on a required id.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
+- **`klaviyo-pp-cli campaign-messages get`** - Lists campaign messages with optional filters. Messages carry status and send time; channel and content belong to their variations.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
 
 **Scopes:**
 `campaigns:read`
@@ -378,7 +432,7 @@ recipient count for a given campaign.<br><br>*Rate limits*:<br>Burst: `10/s`<br>
 
 Manage campaign recipient estimations
 
-- **`klaviyo-pp-cli campaign-recipient-estimations get`** - Get the estimated recipient count for a campaign with the provided campaign ID.
+- **`klaviyo-pp-cli campaign-recipient-estimations <id>`** - Get the estimated recipient count for a campaign with the provided campaign ID.
 You can refresh this count by using the `Create Campaign Recipient Estimation Job` endpoint.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
 
 **Scopes:**
@@ -406,14 +460,18 @@ revert the campaign, setting the status back to DRAFT<br><br>*Rate limits*:<br>B
 
 Manage campaign values reports
 
-- **`klaviyo-pp-cli campaign-values-reports query-campaign-values`** - Returns the requested campaign analytics values data<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
+- **`klaviyo-pp-cli campaign-values-reports`** - Returns the requested campaign analytics values data<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
 
 **Scopes:**
 `campaigns:read`
 
 ### campaigns
 
-campaigns
+Campaign containers, messages, audiences, and variations use the 2026-10-15 model described above. Use `campaigns deploy` for an unscheduled email draft and `campaigns test-send` for QA followed by inbox previews.
+
+`campaigns create` translates legacy `--data-attributes-name` and `--data-attributes-campaign-messages` into the new definition, messages, and variations. A legacy audience object becomes one inline audience. `--stdin` bodies pass through unchanged and must already use the new model.
+
+The flags `--data-attributes-send-options`, `--data-attributes-send-strategy`, and `--data-attributes-tracking-options` were removed. Put campaign `send_settings` in `--data-attributes-definition`; use `--data-attributes-messages` for supported message settings such as `is_add_utm` and `throttling_type`.
 
 - **`klaviyo-pp-cli campaigns create`** - Creates a campaign given a set of parameters, then returns it.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
 
@@ -423,16 +481,11 @@ campaigns
 
 **Scopes:**
 `campaigns:write`
-- **`klaviyo-pp-cli campaigns get`** - Returns some or all campaigns based on filters.
-
-A channel filter is required to list campaigns. Please provide either:
-`?filter=equals(messages.channel,'email')` to list email campaigns, or
-`?filter=equals(messages.channel,'sms')` to list SMS campaigns.
-`?filter=equals(messages.channel,'mobile_push')` to list mobile push campaigns.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
+- **`klaviyo-pp-cli campaigns get`** - Lists campaign containers with optional filters; no channel filter is required or supported on the campaign collection. Read message status and send time from messages and channel from variations.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
 
 **Scopes:**
 `campaigns:read`
-- **`klaviyo-pp-cli campaigns get-id`** - Returns a specific campaign based on a required id.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
+- **`klaviyo-pp-cli campaigns get-id`** - Returns a campaign container by ID. A 404 explains that IDs from before 2026-10-15 are now message IDs.<br><br>*Rate limits*:<br>Burst: `10/s`<br>Steady: `150/m`
 
 **Scopes:**
 `campaigns:read`
@@ -846,7 +899,7 @@ You must have push notifications enabled to use this endpoint.<br><br>*Rate limi
 
 Manage conversation messages
 
-- **`klaviyo-pp-cli conversation-messages create`** - Send an outbound message to a conversation.
+- **`klaviyo-pp-cli conversation-messages`** - Send an outbound message to a conversation.
 
 Requires OAuth authentication and account-level enablement. To request access, reach out in the [developer community](https://community.klaviyo.com/groups/developer-group-64).<br><br>*Rate limits*:<br>Burst: `3/s`<br>Steady: `60/m`
 
@@ -962,7 +1015,7 @@ Custom metric objects must include a `name` and `definition`.<br><br>*Rate limit
 
 Manage data privacy deletion jobs
 
-- **`klaviyo-pp-cli data-privacy-deletion-jobs request-profile-deletion`** - Request a deletion for the profiles corresponding to one of the following identifiers: `email`, `phone_number`, or `id`. If multiple identifiers are provided, we will return an error.
+- **`klaviyo-pp-cli data-privacy-deletion-jobs`** - Request a deletion for the profiles corresponding to one of the following identifiers: `email`, `phone_number`, or `id`. If multiple identifiers are provided, we will return an error.
 
 All profiles that match the provided identifier will be deleted.
 
@@ -977,7 +1030,7 @@ For more information on the deletion process, please refer to our [Help Center d
 
 Manage data source record bulk create jobs
 
-- **`klaviyo-pp-cli data-source-record-bulk-create-jobs bulk-create-data-source-records`** - Create a bulk data source record import job to create a batch of records.
+- **`klaviyo-pp-cli data-source-record-bulk-create-jobs`** - Create a bulk data source record import job to create a batch of records.
 
 Accepts up to 500 records per request. The maximum allowed payload size is 4MB. The maximum allowed payload size per-record is 512KB.
 
@@ -990,7 +1043,7 @@ To learn more, see our [Custom Objects API overview](https://developers.klaviyo.
 
 Manage data source record create jobs
 
-- **`klaviyo-pp-cli data-source-record-create-jobs create-data-source-record`** - Create a data source record import job to create a single record.
+- **`klaviyo-pp-cli data-source-record-create-jobs`** - Create a data source record import job to create a single record.
 
 The maximum allowed payload size per-record is 512KB.
 
@@ -1024,7 +1077,7 @@ Manage data sources
 
 Manage event bulk create jobs
 
-- **`klaviyo-pp-cli event-bulk-create-jobs bulk-create-events`** - Create a batch of events for one or more profiles.
+- **`klaviyo-pp-cli event-bulk-create-jobs`** - Create a batch of events for one or more profiles.
 
 Note that this endpoint allows you to create new profiles or update existing profile properties.
 
@@ -1082,16 +1135,19 @@ Manage flow actions
 
 Manage flow messages
 
-- **`klaviyo-pp-cli flow-messages get`** - Get a flow message from a flow with the given flow message ID.<br><br>*Rate limits*:<br>Burst: `3/s`<br>Steady: `60/m`
+- **`klaviyo-pp-cli flow-messages <id>`** - Get a flow message from a flow with the given flow message ID.<br><br>*Rate limits*:<br>Burst: `3/s`<br>Steady: `60/m`
 
 **Scopes:**
 `flows:read`
+
+- **`klaviyo-pp-cli flow-messages template get-for-flow-message <id>`** - Read the template related to a flow message.
+- **`klaviyo-pp-cli flow-messages flow-action get-action-for-flow-message <id>`** - Read the flow action related to a flow message.
 
 ### flow-series-reports
 
 Manage flow series reports
 
-- **`klaviyo-pp-cli flow-series-reports query-flow-series`** - Returns the requested flow analytics series data<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
+- **`klaviyo-pp-cli flow-series-reports`** - Returns the requested flow analytics series data<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
 
 **Scopes:**
 `flows:read`
@@ -1100,7 +1156,7 @@ Manage flow series reports
 
 Manage flow values reports
 
-- **`klaviyo-pp-cli flow-values-reports query-flow-values`** - Returns the requested flow analytics values data<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
+- **`klaviyo-pp-cli flow-values-reports`** - Returns the requested flow analytics values data<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
 
 **Scopes:**
 `flows:read`
@@ -1142,7 +1198,7 @@ Returns a maximum of 50 flows per request, which can be paginated with cursor-ba
 
 Manage form series reports
 
-- **`klaviyo-pp-cli form-series-reports query-form-series`** - Returns the requested form analytics series data.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
+- **`klaviyo-pp-cli form-series-reports`** - Returns the requested form analytics series data.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
 
 **Scopes:**
 `forms:read`
@@ -1151,7 +1207,7 @@ Manage form series reports
 
 Manage form values reports
 
-- **`klaviyo-pp-cli form-values-reports query-form-values`** - Returns the requested form analytics values data.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
+- **`klaviyo-pp-cli form-values-reports`** - Returns the requested form analytics values data.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
 
 **Scopes:**
 `forms:read`
@@ -1160,10 +1216,13 @@ Manage form values reports
 
 Manage form versions
 
-- **`klaviyo-pp-cli form-versions get`** - Get the form version with the given ID.<br><br>*Rate limits*:<br>Burst: `3/s`<br>Steady: `60/m`
+- **`klaviyo-pp-cli form-versions <id>`** - Get the form version with the given ID.<br><br>*Rate limits*:<br>Burst: `3/s`<br>Steady: `60/m`
 
 **Scopes:**
 `forms:read`
+
+- **`klaviyo-pp-cli form-versions form get-for-version <id>`** - Read the form associated with a form version.
+- **`klaviyo-pp-cli form-versions relationships get-form-id-for-form-version <id>`** - Read only the associated form ID.
 
 ### forms
 
@@ -1190,7 +1249,7 @@ forms
 
 Manage image upload
 
-- **`klaviyo-pp-cli image-upload upload-image-from-file`** - Upload an image from a file.
+- **`klaviyo-pp-cli image-upload`** - Upload an image from a file.
 
 If you want to import an image from an existing url or a data uri, use the Upload Image From URL endpoint instead.<br><br>*Rate limits*:<br>Burst: `3/s`<br>Steady: `100/m`<br>Daily: `100/d`
 
@@ -1240,7 +1299,7 @@ Returns a maximum of 10 results per page.<br><br>*Rate limits*:<br>Burst: `75/s`
 
 **Scopes:**
 `lists:read`
-- **`klaviyo-pp-cli lists get-id`** - Get a list with the given list ID.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`<br><br>Rate limits when using the `additional-fields[list]=profile_count` parameter in your API request:<br>Burst: `1/s`<br>Steady: `15/m`<br><br>To learn more about how the `additional-fields` parameter impacts rate limits, check out our [Rate limits, status codes, and errors](https://developers.klaviyo.com/en/v2026-04-15/docs/rate_limits_and_error_handling) guide.
+- **`klaviyo-pp-cli lists get-id`** - Get a list with the given list ID.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`<br><br>Rate limits when using the `additional-fields[list]=profile_count` parameter in your API request:<br>Burst: `1/s`<br>Steady: `15/m`<br><br>To learn more about how the `additional-fields` parameter impacts rate limits, check out our [Rate limits, status codes, and errors](https://developers.klaviyo.com/en/v2026-10-15/docs/rate_limits_and_error_handling) guide.
 
 **Scopes:**
 `lists:read`
@@ -1270,7 +1329,7 @@ Manage mapped metrics
 
 Manage metric aggregates
 
-- **`klaviyo-pp-cli metric-aggregates query`** - Query and aggregate event data associated with a metric, including native Klaviyo metrics, integration-specific metrics, and custom events (not to be confused with [custom metrics](https://developers.klaviyo.com/en/reference/custom_metrics_api_overview), which are not supported at this time). Queries must be passed in the JSON body of your `POST` request.
+- **`klaviyo-pp-cli metric-aggregates`** - Query and aggregate event data associated with a metric, including native Klaviyo metrics, integration-specific metrics, and custom events (not to be confused with [custom metrics](https://developers.klaviyo.com/en/reference/custom_metrics_api_overview), which are not supported at this time). Queries must be passed in the JSON body of your `POST` request.
 
 To request campaign and flow performance data that matches the data shown in Klaviyo's UI, we recommend the [Reporting API](https://developers.klaviyo.com/en/reference/reporting_api_overview).
 
@@ -1287,10 +1346,13 @@ For a comprehensive list of request body parameters, native Klaviyo metrics, and
 
 Manage metric properties
 
-- **`klaviyo-pp-cli metric-properties get-metric-property`** - Get a metric property with the given metric property ID.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `15/m`
+- **`klaviyo-pp-cli metric-properties <id>`** - Get a metric property with the given metric property ID.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `15/m`
 
 **Scopes:**
 `metrics:read`
+
+- **`klaviyo-pp-cli metric-properties metric get-for-property <id>`** - Read the metric associated with a metric property.
+- **`klaviyo-pp-cli metric-properties relationships get-metric-id-for-metric-property <id>`** - Read only the associated metric ID.
 
 ### metrics
 
@@ -1340,7 +1402,7 @@ Returns a maximum of 100 jobs per request.<br><br>*Rate limits*:<br>Burst: `10/s
 
 Manage profile import
 
-- **`klaviyo-pp-cli profile-import create-or-update-profile`** - Given a set of profile attributes and optionally an ID, create or update a profile.
+- **`klaviyo-pp-cli profile-import`** - Given a set of profile attributes and optionally an ID, create or update a profile.
 
 Returns 201 if a new profile was created, 200 if an existing profile was updated.
 
@@ -1357,7 +1419,7 @@ The maximum allowed payload size is 100KB.<br><br>*Rate limits*:<br>Burst: `75/s
 
 Manage profile merge
 
-- **`klaviyo-pp-cli profile-merge merge-profiles`** - Merge a given related profile into a profile with the given profile ID.
+- **`klaviyo-pp-cli profile-merge`** - Merge a given related profile into a profile with the given profile ID.
 
 The profile provided under `relationships` (the "source" profile) will be merged into the profile provided by the ID in the base data object (the "destination" profile).
 This endpoint queues an asynchronous task which will merge data from the source profile into the destination profile, deleting the source profile in the process. This endpoint accepts only one source profile.
@@ -1371,7 +1433,7 @@ To learn more about how profile data is preserved or overwritten during a merge,
 
 Manage profile subscription bulk create jobs
 
-- **`klaviyo-pp-cli profile-subscription-bulk-create-jobs bulk-subscribe-profiles`** - Subscribe one or more profiles to email marketing, SMS marketing, WhatsApp, or push. If the provided list has double opt-in enabled, profiles will receive a message requiring their confirmation before subscribing. Otherwise, profiles will be immediately subscribed without receiving a confirmation message.
+- **`klaviyo-pp-cli profile-subscription-bulk-create-jobs`** - Subscribe one or more profiles to email marketing, SMS marketing, WhatsApp, or push. If the provided list has double opt-in enabled, profiles will receive a message requiring their confirmation before subscribing. Otherwise, profiles will be immediately subscribed without receiving a confirmation message.
 Learn more about [consent in this guide](https://developers.klaviyo.com/en/docs/collect_email_and_sms_consent_via_api).
 
 If a list is not provided, the opt-in process used will be determined by the [account-level default opt-in setting](https://www.klaviyo.com/settings/account/api-keys).
@@ -1395,7 +1457,7 @@ Push tokens provided in `push_tokens` will be registered for each profile as lon
 
 Manage profile subscription bulk delete jobs
 
-- **`klaviyo-pp-cli profile-subscription-bulk-delete-jobs bulk-unsubscribe-profiles`** - > 🚧
+- **`klaviyo-pp-cli profile-subscription-bulk-delete-jobs`** - > 🚧
 >
 > Profiles not in the specified list will be globally unsubscribed. Always verify profile list membership before calling this endpoint to avoid unintended global unsubscribes.
 
@@ -1471,13 +1533,13 @@ The maximum allowed payload size is 100KB.<br><br>*Rate limits*:<br>Burst: `75/s
 
 Profiles can be sorted by the following fields in ascending and descending order: `id`, `created`, `updated`, `email`, `subscriptions.email.marketing.suppression.timestamp`, `subscriptions.email.marketing.list_suppressions.timestamp`
 
-Use the `additional-fields` parameter to include subscriptions and predictive analytics data in your response.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`<br><br>Rate limits when using the `additional-fields[profile]=predictive_analytics` parameter in your API request:<br>Burst: `10/s`<br>Steady: `150/m`<br><br>To learn more about how the `additional-fields` parameter impacts rate limits, check out our [Rate limits, status codes, and errors](https://developers.klaviyo.com/en/v2026-04-15/docs/rate_limits_and_error_handling) guide.
+Use the `additional-fields` parameter to include subscriptions and predictive analytics data in your response.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`<br><br>Rate limits when using the `additional-fields[profile]=predictive_analytics` parameter in your API request:<br>Burst: `10/s`<br>Steady: `150/m`<br><br>To learn more about how the `additional-fields` parameter impacts rate limits, check out our [Rate limits, status codes, and errors](https://developers.klaviyo.com/en/v2026-10-15/docs/rate_limits_and_error_handling) guide.
 
 **Scopes:**
 `profiles:read`
 - **`klaviyo-pp-cli profiles get-id`** - Get the profile with the given profile ID.
 
-Use the `additional-fields` parameter to include subscriptions and predictive analytics data in your response.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`<br><br>Rate limits when using the `include=list` parameter in your API request:<br>Burst: `1/s`<br>Steady: `15/m`<br><br>Rate limits when using the `include=segment` parameter in your API request:<br>Burst: `1/s`<br>Steady: `15/m`<br><br>To learn more about how the `include` parameter impacts rate limits, check out our [Rate limits, status codes, and errors](https://developers.klaviyo.com/en/v2026-04-15/docs/rate_limits_and_error_handling) guide.
+Use the `additional-fields` parameter to include subscriptions and predictive analytics data in your response.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`<br><br>Rate limits when using the `include=list` parameter in your API request:<br>Burst: `1/s`<br>Steady: `15/m`<br><br>Rate limits when using the `include=segment` parameter in your API request:<br>Burst: `1/s`<br>Steady: `15/m`<br><br>To learn more about how the `include` parameter impacts rate limits, check out our [Rate limits, status codes, and errors](https://developers.klaviyo.com/en/v2026-10-15/docs/rate_limits_and_error_handling) guide.
 
 **Scopes:**
 `profiles:read`
@@ -1541,7 +1603,7 @@ reviews
 
 Manage segment series reports
 
-- **`klaviyo-pp-cli segment-series-reports query-segment-series`** - Returns the requested segment analytics series data.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
+- **`klaviyo-pp-cli segment-series-reports`** - Returns the requested segment analytics series data.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
 
 **Scopes:**
 `segments:read`
@@ -1550,7 +1612,7 @@ Manage segment series reports
 
 Manage segment values reports
 
-- **`klaviyo-pp-cli segment-values-reports query-segment-values`** - Returns the requested segment analytics values data.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
+- **`klaviyo-pp-cli segment-values-reports`** - Returns the requested segment analytics values data.<br><br>*Rate limits*:<br>Burst: `1/s`<br>Steady: `2/m`<br>Daily: `225/d`
 
 **Scopes:**
 `segments:read`
@@ -1577,7 +1639,7 @@ Returns a maximum of 10 results per page.<br><br>*Rate limits*:<br>Burst: `75/s`
 
 **Scopes:**
 `segments:read`
-- **`klaviyo-pp-cli segments get-id`** - Get a segment with the given segment ID.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`<br><br>Rate limits when using the `additional-fields[segment]=profile_count` parameter in your API request:<br>Burst: `1/s`<br>Steady: `15/m`<br><br>To learn more about how the `additional-fields` parameter impacts rate limits, check out our [Rate limits, status codes, and errors](https://developers.klaviyo.com/en/v2026-04-15/docs/rate_limits_and_error_handling) guide.
+- **`klaviyo-pp-cli segments get-id`** - Get a segment with the given segment ID.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`<br><br>Rate limits when using the `additional-fields[segment]=profile_count` parameter in your API request:<br>Burst: `1/s`<br>Steady: `15/m`<br><br>To learn more about how the `additional-fields` parameter impacts rate limits, check out our [Rate limits, status codes, and errors](https://developers.klaviyo.com/en/v2026-10-15/docs/rate_limits_and_error_handling) guide.
 
 **Scopes:**
 `segments:read`
@@ -1671,7 +1733,7 @@ Only a tag's `name` can be changed. A tag cannot be moved from one tag group to 
 
 Manage template clone
 
-- **`klaviyo-pp-cli template-clone clone-template`** - Create a clone of a template with the given template ID.
+- **`klaviyo-pp-cli template-clone`** - Create a clone of a template with the given template ID.
 
 If there are 1,000 or more templates in an account, cloning will fail as there is a limit of 1,000 templates
 that can be created via the API.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Steady: `750/m`
@@ -1683,7 +1745,7 @@ that can be created via the API.<br><br>*Rate limits*:<br>Burst: `75/s`<br>Stead
 
 Manage template render
 
-- **`klaviyo-pp-cli template-render render-template`** - Render a template with the given template ID and context attribute. Returns the AMP, HTML, and plain text versions of the email template.
+- **`klaviyo-pp-cli template-render`** - Render a template with the given template ID and context attribute. Returns the AMP, HTML, and plain text versions of the email template.
 
 **Request body parameters** (nested under `attributes`):
 
@@ -1854,10 +1916,10 @@ klaviyo-pp-cli accounts get --json
 # Filter to specific fields
 klaviyo-pp-cli accounts get --json --select id,name,status
 
-# Dry run — show the request without sending
+# Dry run - show the request without sending
 klaviyo-pp-cli accounts get --dry-run
 
-# Agent mode — JSON + compact + no prompts in one flag
+# Agent mode - JSON + compact + no prompts in one flag
 klaviyo-pp-cli accounts get --agent
 ```
 
@@ -1901,9 +1963,9 @@ from the profile's exact 1Password reference or named environment variable.
 
 ### API-specific
 
-- **401 or 403 from every endpoint** — Confirm the profile points to the exact
+- **401 or 403 from every endpoint** - Confirm the profile points to the exact
   private-key field and that the key can read the account identity endpoint.
-- **Empty local search results** — Run sync for the relevant resources first, such as sync metrics, sync profiles, or sync events.
+- **Empty local search results** - Run sync for the relevant resources first, such as sync metrics, sync profiles, or sync events.
 
 ---
 
@@ -1911,7 +1973,7 @@ from the profile's exact 1Password reference or named environment variable.
 
 This CLI was built by studying these projects and resources:
 
-- [**Klaviyo hosted MCP**](https://developers.klaviyo.com/) — mcp
-- [**klaviyo-api-python**](https://github.com/klaviyo/klaviyo-api-python) — Python
+- [**Klaviyo hosted MCP**](https://developers.klaviyo.com/) - mcp
+- [**klaviyo-api-python**](https://github.com/klaviyo/klaviyo-api-python) - Python
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

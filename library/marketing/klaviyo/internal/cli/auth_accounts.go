@@ -75,7 +75,7 @@ func newAuthAccountsAddCmd(flags *rootFlags) *cobra.Command {
 			if cfg.BaseURL == "" {
 				cfg.BaseURL = klaviyoDefaultBaseURL
 			}
-			if err := cfg.SaveCredential(args[1]); err != nil {
+			if err := cfg.SaveKlaviyoAccountCredential(args[1]); err != nil {
 				return configErr(fmt.Errorf("saving account token: %w", err))
 			}
 			if use {
@@ -405,10 +405,11 @@ func listKlaviyoAccountNames() ([]string, error) {
 }
 
 func currentKlaviyoAccountName() (string, error) {
-	path, err := klaviyoActiveAccountPath()
+	root, err := config.RootDir()
 	if err != nil {
 		return "", err
 	}
+	path := filepath.Join(root, "klaviyo-pp-cli", "active-account")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {

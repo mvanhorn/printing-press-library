@@ -283,7 +283,7 @@ func TestReviewRDSubjectAnalysisPropagatesFlowAggregateFailure(t *testing.T) {
 				now := time.Now().UTC()
 				server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					w.Header().Set("Content-Type", "application/vnd.api+json")
-					if r.Header.Get("revision") != "2026-04-15" || r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" {
+					if r.Header.Get("revision") != "2026-10-15" || r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" {
 						t.Error("request must retain revision and synthetic auth headers")
 					}
 					switch r.Method + " " + r.URL.Path {
@@ -294,8 +294,12 @@ func TestReviewRDSubjectAnalysisPropagatesFlowAggregateFailure(t *testing.T) {
 						fmt.Fprint(w, `{"data":{"attributes":{"results":[{"groupings":{"campaign_id":"campaign-one"},"statistics":{"delivered":100,"opens_unique":50,"clicks_unique":10}}]}}}`)
 					case "GET /api/flows":
 						fmt.Fprint(w, `{"data":[{"id":"flow-one","type":"flow","attributes":{"name":"Welcome","status":"live"},"relationships":{"flow-actions":{"data":[{"id":"action-one","type":"flow-action"}]}}}],"included":[{"id":"action-one","type":"flow-action","attributes":{"definition":{"data":{"message":{"id":"flow-message","subject_line":"Welcome!"}}}},"relationships":{"flow":{"data":{"id":"flow-one","type":"flow"}}}}],"links":{"next":null}}`)
-					case "GET /api/campaigns":
-						fmt.Fprintf(w, `{"data":[{"id":"campaign-one","attributes":{"name":"Launch","status":"sent","send_time":%q},"relationships":{"campaign-messages":{"data":[{"id":"campaign-message"}]}}}],"included":[{"id":"campaign-message","attributes":{"definition":{"content":{"subject":"Launch!"}}}}],"links":{"next":null}}`, time.Now().Add(-time.Hour).UTC().Format(time.RFC3339))
+					case "GET /api/campaign-messages":
+						w.Write(campaignMessageTestPage("campaign-one", "Launch", "sent", time.Now().Add(-time.Hour).UTC().Format(time.RFC3339)))
+					case "GET /api/campaign-messages/campaign-one/campaign-audience":
+						w.Write(modelAudienceFixture(nil, nil))
+					case "GET /api/campaign-messages/campaign-one/campaign-variations":
+						w.Write(campaignVariationTestPage("campaign-message", "template", "Launch!", "email"))
 					case "POST /api/metric-aggregates":
 						posts++
 						var body map[string]any
@@ -347,7 +351,7 @@ type reviewRDMetricFailureClient struct {
 	*reportTestClient
 }
 
-func (c *reviewRDMetricFailureClient) Post(_ string, _ any) (json.RawMessage, int, error) {
+func (c *reviewRDMetricFailureClient) Post(_ context.Context, _ string, _ any) (json.RawMessage, int, error) {
 	return nil, 500, &client.APIError{Method: "POST", Path: "/api/metric-aggregates", StatusCode: 500, Body: `{"errors":[{"detail":"flow aggregation unavailable"}]}`}
 }
 
@@ -372,9 +376,13 @@ func TestReviewRDQAGateRequestsSupportedTemplateFields(t *testing.T) {
 		case "/api/campaigns/campaign-one":
 			fmt.Fprint(w, `{"data":{"id":"campaign-one"}}`)
 		case "/api/campaigns/campaign-one/campaign-messages":
-			fmt.Fprint(w, `{"data":[{"id":"message-one","attributes":{"definition":{"channel":"email"}}}]}`)
-		case "/api/campaign-messages/message-one/template":
-			if !reflect.DeepEqual(r.URL.Query(), url.Values{"fields[template]": {"html"}}) {
+			w.Write(campaignMessageTestPage("message-one", "Launch", "draft", ""))
+		case "/api/campaign-messages/message-one/campaign-audience":
+			w.Write(modelAudienceFixture(nil, nil))
+		case "/api/campaign-messages/message-one/campaign-variations":
+			w.Write(campaignVariationTestPage("variation", "template-one", "Subject", "email"))
+		case "/api/templates/template-one":
+			if !reflect.DeepEqual(r.URL.Query(), url.Values{"additional-fields[template]": {"definition"}, "fields[template]": {"definition,html"}}) {
 				t.Errorf("query=%v; want only supported html field", r.URL.Query())
 			}
 			fmt.Fprint(w, `{"data":{"id":"template-one","attributes":{"html":"<p>No unsubscribe link</p>"}}}`)
@@ -391,7 +399,7 @@ func TestReviewRDQAGateRequestsSupportedTemplateFields(t *testing.T) {
 	cmd.SetErr(io.Discard)
 	cmd.SetArgs([]string{"--campaign-id", "campaign-one"})
 	err := cmd.Execute()
-	if err == nil || err.Error() != "campaign QA failed; see findings above" || len(paths) != 3 {
+	if err == nil || err.Error() != "campaign QA failed; see findings above" || len(paths) != 5 {
 		t.Fatalf("paths=%v error=%v; want fetched HTML to fail QA", paths, err)
 	}
 }
@@ -404,17 +412,16 @@ func TestReviewRDTemplateAuditResolvesReferencesWithSupportedFields(t *testing.T
 		switch r.URL.Path {
 		case "/api/flows":
 			fmt.Fprint(w, `{"data":[],"included":[{"attributes":{"definition":{"data":{"message":{"template_id":"flow-template"}}}}}],"links":{"next":null}}`)
-		case "/api/campaigns":
-			want := url.Values{"fields[campaign]": {"name,status"}, "fields[campaign-message]": {"definition"}, "filter": {`equals(messages.channel,"email")`}, "include": {"campaign-messages"}, "page[size]": {"100"}}
+		case "/api/campaign-messages":
+			want := url.Values{"page[size]": {"100"}} // campaign-messages listings page at the API maximum
 			if !reflect.DeepEqual(r.URL.Query(), want) {
 				t.Errorf("query=%v; want %v", r.URL.Query(), want)
 			}
-			fmt.Fprint(w, `{"data":[],"included":[{"id":"message-one","type":"campaign-message","attributes":{"definition":{"channel":"email"}}}],"links":{"next":null}}`)
-		case "/api/campaign-messages/message-one/template":
-			if !reflect.DeepEqual(r.URL.Query(), url.Values{"fields[template]": {"id"}}) {
-				t.Errorf("template query=%v; want id only", r.URL.Query())
-			}
-			fmt.Fprint(w, `{"data":{"id":"campaign-template","type":"template"}}`)
+			w.Write(campaignMessageTestPage("message-one", "Launch", "draft", ""))
+		case "/api/campaign-messages/message-one/campaign-audience":
+			w.Write(modelAudienceFixture(nil, nil))
+		case "/api/campaign-messages/message-one/campaign-variations":
+			w.Write(campaignVariationTestPage("variation", "campaign-template", "Subject", "email"))
 		default:
 			t.Errorf("unexpected path %s", r.URL.RequestURI())
 			http.NotFound(w, r)
@@ -427,7 +434,7 @@ func TestReviewRDTemplateAuditResolvesReferencesWithSupportedFields(t *testing.T
 	if err != nil || !reflect.DeepEqual(refs, map[string]bool{"flow-template": true, "campaign-template": true}) {
 		t.Fatalf("refs=%v error=%v; want both referenced templates", refs, err)
 	}
-	if !reflect.DeepEqual(paths, []string{"/api/flows", "/api/campaigns", "/api/campaign-messages/message-one/template"}) {
+	if !reflect.DeepEqual(paths, []string{"/api/flows", "/api/campaign-messages", "/api/campaign-messages/message-one/campaign-audience", "/api/campaign-messages/message-one/campaign-variations"}) {
 		t.Fatalf("paths=%v", paths)
 	}
 }
@@ -444,19 +451,24 @@ func TestReviewRDMessageTemplateInspectionUsesSupportedFields(t *testing.T) {
 				case "/api/flows":
 					want.Set("fields[flow]", "name")
 					fmt.Fprint(w, `{"data":[{"id":"parent-one"}],"links":{"next":null}}`)
-				case "/api/campaigns":
-					want.Set("fields[campaign]", "name,status")
-					fmt.Fprint(w, `{"data":[{"id":"parent-one"}],"links":{"next":null}}`)
+				case "/api/campaign-messages":
+					want = url.Values{"page[size]": {"100"}} // campaign-messages listings page at the API maximum
+					message := modelMessageFixture("message-one", "draft")
+					message["relationships"] = map[string]any{"campaign": map[string]any{"data": map[string]any{"id": "parent-one"}}}
+					w.Write(modelCollectionFixture(message))
 				case "/api/flows/parent-one/flow-actions":
 					want.Set("fields[flow-action]", "id")
 					fmt.Fprint(w, `{"data":[{"id":"action-one"}],"links":{"next":null}}`)
 				case "/api/flow-actions/action-one/flow-messages":
 					want.Set("fields[flow-message]", "id")
 					fmt.Fprint(w, `{"data":[{"id":"message-one"}],"links":{"next":null}}`)
-				case "/api/campaigns/parent-one/campaign-messages":
-					want.Set("fields[campaign-message]", "id")
-					fmt.Fprint(w, `{"data":[{"id":"message-one"}],"links":{"next":null}}`)
-				case "/api/flow-messages/message-one/template", "/api/campaign-messages/message-one/template":
+				case "/api/campaign-messages/message-one/campaign-audience":
+					want = url.Values{}
+					w.Write(modelAudienceFixture(nil, nil))
+				case "/api/campaign-messages/message-one/campaign-variations":
+					want = url.Values{}
+					w.Write(campaignVariationTestPage("variation", "template-one", "Subject", "email"))
+				case "/api/flow-messages/message-one/template", "/api/templates/template-one":
 					want = url.Values{"fields[template]": {"name,html"}}
 					fmt.Fprint(w, `{"data":{"id":"template-one","attributes":{"name":"Welcome","html":"<p>Welcome</p>"}}}`)
 				default:
@@ -474,7 +486,7 @@ func TestReviewRDMessageTemplateInspectionUsesSupportedFields(t *testing.T) {
 			if err != nil || len(rows) != 1 || rows[0]["id"] != "template-one" || rows[0]["message_id"] != "message-one" || rows[0]["parent_id"] != "parent-one" {
 				t.Fatalf("templates=%v error=%v", rows, err)
 			}
-			wantPaths := []string{"/api/campaigns", "/api/campaigns/parent-one/campaign-messages", "/api/campaign-messages/message-one/template"}
+			wantPaths := []string{"/api/campaign-messages", "/api/campaign-messages/message-one/campaign-audience", "/api/campaign-messages/message-one/campaign-variations", "/api/templates/template-one"}
 			if scope == "flow" {
 				wantPaths = []string{"/api/flows", "/api/flows/parent-one/flow-actions", "/api/flow-actions/action-one/flow-messages", "/api/flow-messages/message-one/template"}
 			}

@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -16,7 +17,7 @@ type fakeCursorRecordingClient struct {
 	seen      []map[string]string
 }
 
-func (f *fakeCursorRecordingClient) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+func (f *fakeCursorRecordingClient) GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
 	copied := map[string]string{}
 	for k, v := range params {
 		copied[k] = v
@@ -37,7 +38,7 @@ func TestPaginatedGetSendsExplicitInitialCursor(t *testing.T) {
 	}}
 	params := map[string]string{"page[cursor]": "cursor-2"}
 
-	result, err := paginatedGet(client, "/api/forms", params, nil, true, "page[cursor]", "", "")
+	result, err := paginatedGet(context.Background(), client, "/api/forms", params, nil, true, "page[cursor]", "", "page[size]", 50, "", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +60,7 @@ func TestPaginatedGetRejectsHasMoreWithoutCursor(t *testing.T) {
 		`{"data":[{"id":"a"}],"has_more":true}`,
 	}}
 
-	_, err := paginatedGet(client, "/api/items", map[string]string{}, nil, true, "page[cursor]", "", "has_more")
+	_, err := paginatedGet(context.Background(), client, "/api/items", map[string]string{}, nil, true, "page[cursor]", "", "page[size]", 50, "", "has_more")
 	if err == nil || !strings.Contains(err.Error(), "provides no next cursor") {
 		t.Fatalf("err = %v, want has_more-without-cursor error", err)
 	}

@@ -32,7 +32,7 @@ func TestRXMCPWritesKeepQueryArgumentsOutsideBody(t *testing.T) {
 						t.Errorf("request = %s %s; want %s /api/campaign-values-reports with query %v", r.Method, r.URL, method, wantQuery)
 					}
 					for key, want := range map[string]string{
-						"revision": "2026-04-15", "Authorization": "Klaviyo-API-Key fixture-key", "Content-Type": "application/json",
+						"revision": "2026-10-15", "Authorization": "Klaviyo-API-Key fixture-key", "Content-Type": "application/json",
 					} {
 						if got := r.Header.Get(key); got != want {
 							t.Errorf("%s = %q, want %q", key, got, want)
@@ -68,9 +68,13 @@ func TestRXMCPWritesKeepQueryArgumentsOutsideBody(t *testing.T) {
 				s := server.NewMCPServer("review-rx", "test")
 				RegisterTools(s)
 				const name = "campaign-values-reports_query-campaign-values"
-				handler := s.ListTools()[name].Handler
+				handler := s.ListTools()["klaviyo_read"].Handler
 				if method != http.MethodPost {
-					handler = makeAPIHandler(method, "/api/campaign-values-reports", nil)
+					bindings := []mcpParamBinding{{PublicName: "data", WireName: "data", Location: "body", BodyPath: []string{"data"}}}
+					for key := range wantQuery {
+						bindings = append(bindings, mcpParamBinding{PublicName: key, WireName: key, Location: "query"})
+					}
+					handler = makeAPIHandler(method, "/api/campaign-values-reports", false, false, nil, mcpPageConfig{}, bindings, nil)
 				}
 				args := map[string]any{"data": map[string]any{
 					"type": "campaign-values-report", "attributes": map[string]any{
@@ -80,8 +84,12 @@ func TestRXMCPWritesKeepQueryArgumentsOutsideBody(t *testing.T) {
 				for key, values := range wantQuery {
 					args[key] = values[0]
 				}
+				callArgs := args
+				if method == http.MethodPost {
+					callArgs = map[string]any{"endpoint_id": "campaign-values-reports.query-campaign-values", "params": args}
+				}
 				result, err := handler(platform.ContextWithSession(context.Background(), session), mcplib.CallToolRequest{
-					Params: mcplib.CallToolParams{Name: name, Arguments: args},
+					Params: mcplib.CallToolParams{Name: name, Arguments: callArgs},
 				})
 				if err != nil || result == nil || result.IsError || calls != 1 {
 					t.Fatalf("result = %#v, error = %v, calls = %d; want one successful report request", result, err, calls)

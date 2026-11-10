@@ -1,7 +1,10 @@
+// Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
+
 package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -101,8 +104,9 @@ func TestFlowSeriesReportDryRunPrintsPreviewWithoutCredentials(t *testing.T) {
 
 func TestCampaignTargetingReportJoinsIncludedExcludedAndNeverMailedSegments(t *testing.T) {
 	c := &reportTestClient{gets: []json.RawMessage{
-		json.RawMessage(`{"data":[{"id":"campaign-1","attributes":{"name":"Launch","send_time":"2026-07-01T12:00:00Z","audiences":{"included":["segment-a","list-a"],"excluded":["segment-b"]}}}],"links":{}}`),
-		json.RawMessage(`{"data":[],"links":{}}`),
+		campaignMessageTestPage("campaign-1", "Launch", "sent", "2026-07-01T12:00:00Z"),
+		modelAudienceFixture([]string{"segment-a", "list-a"}, []string{"segment-b"}),
+		campaignVariationTestPage("variation-1", "template-1", "Subject", "email"),
 		json.RawMessage(`{"data":[{"id":"segment-a","attributes":{"name":"VIP"}},{"id":"segment-b","attributes":{"name":"Recent Buyers"}},{"id":"segment-c","attributes":{"name":"Never Mailed"}}],"links":{}}`),
 		json.RawMessage(`{"data":[{"id":"list-a","attributes":{"name":"Newsletter Subscribers"}},{"id":"list-b","attributes":{"name":"Dormant List"}}],"links":{}}`),
 	}}
@@ -148,8 +152,9 @@ func TestCampaignRevenuePerEmailUsesCampaignValuesReport(t *testing.T) {
 	c := &reportTestClient{
 		gets: []json.RawMessage{
 			json.RawMessage(`{"data":[{"id":"shopify","attributes":{"name":"Placed Order","integration":{"name":"Shopify"}}}],"links":{}}`),
-			json.RawMessage(`{"data":[{"id":"campaign-1","attributes":{"name":"Launch"}}],"links":{}}`),
-			json.RawMessage(`{"data":[],"links":{}}`),
+			campaignMessageTestPage("campaign-1", "Launch", "sent", ""),
+			modelAudienceFixture(nil, nil),
+			campaignVariationTestPage("variation-1", "template-1", "Subject", "email"),
 		},
 		posts: []json.RawMessage{json.RawMessage(`{"data":{"attributes":{"results":[{"groupings":{"campaign_id":"campaign-1"},"statistics":{"recipients":1000,"conversion_value":2500}}]}}}`)},
 	}
@@ -207,7 +212,7 @@ type reportTestRequest struct {
 	params map[string]string
 }
 
-func (c *reportTestClient) Get(path string, params map[string]string) (json.RawMessage, error) {
+func (c *reportTestClient) Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
 	copied := make(map[string]string, len(params))
 	for key, value := range params {
 		copied[key] = value
@@ -221,7 +226,7 @@ func (c *reportTestClient) Get(path string, params map[string]string) (json.RawM
 	return response, nil
 }
 
-func (c *reportTestClient) Post(_ string, _ any) (json.RawMessage, int, error) {
+func (c *reportTestClient) Post(ctx context.Context, _ string, _ any) (json.RawMessage, int, error) {
 	if len(c.posts) > 0 {
 		response := c.posts[0]
 		c.posts = c.posts[1:]
@@ -230,10 +235,10 @@ func (c *reportTestClient) Post(_ string, _ any) (json.RawMessage, int, error) {
 	return json.RawMessage(`{"data":{"attributes":{"results":[]}}}`), 200, nil
 }
 
-func (c *reportTestClient) Patch(_ string, _ any) (json.RawMessage, int, error) {
+func (c *reportTestClient) Patch(ctx context.Context, _ string, _ any) (json.RawMessage, int, error) {
 	return nil, 200, nil
 }
 
-func (c *reportTestClient) Delete(_ string) (json.RawMessage, int, error) {
+func (c *reportTestClient) Delete(ctx context.Context, _ string) (json.RawMessage, int, error) {
 	return nil, 204, nil
 }

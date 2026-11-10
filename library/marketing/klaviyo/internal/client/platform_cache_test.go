@@ -57,9 +57,9 @@ func TestPlatformCacheResourceInvalidationAndMetadata(t *testing.T) {
 		t.Fatal(err)
 	}
 	c.cacheDir = t.TempDir()
-	c.writeCache("/api/orders", nil, nil, json.RawMessage(`{"resource":"orders"}`))
-	c.writeCache("/api/profiles", nil, nil, json.RawMessage(`{"resource":"profiles"}`))
-	if _, ok := c.readCache("/api/orders", nil, nil); !ok {
+	c.writeCacheWithHeaders("/api/orders", nil, nil, json.RawMessage(`{"resource":"orders"}`))
+	c.writeCacheWithHeaders("/api/profiles", nil, nil, json.RawMessage(`{"resource":"profiles"}`))
+	if _, ok := c.readCacheWithHeaders("/api/orders", nil, nil); !ok {
 		t.Fatal("verified cache entry with matching metadata missed")
 	}
 	c.invalidateCacheResource("/api/orders/123")
@@ -69,7 +69,7 @@ func TestPlatformCacheResourceInvalidationAndMetadata(t *testing.T) {
 	if _, err := os.Stat(c.cacheResourceDir("/api/profiles")); err != nil {
 		t.Fatalf("unrelated profiles cache was removed: %v", err)
 	}
-	c.writeCache("/api/orders", nil, nil, json.RawMessage(`{"resource":"orders"}`))
+	c.writeCacheWithHeaders("/api/orders", nil, nil, json.RawMessage(`{"resource":"orders"}`))
 	c.invalidateCacheAfterMutation("/api/orders/123")
 	if _, err := os.Stat(c.cacheResourceDir("/api/orders")); !os.IsNotExist(err) {
 		t.Fatalf("platform mutation left the directly affected cache: %v", err)
@@ -78,7 +78,7 @@ func TestPlatformCacheResourceInvalidationAndMetadata(t *testing.T) {
 		t.Fatalf("platform mutation left a potentially related projection cache: %v", err)
 	}
 	session.CredentialFingerprint = "rotated-fingerprint"
-	if _, ok := c.readCache("/api/profiles", nil, nil); ok {
+	if _, ok := c.readCacheWithHeaders("/api/profiles", nil, nil); ok {
 		t.Fatal("cache metadata accepted a rotated credential")
 	}
 }
@@ -86,8 +86,8 @@ func TestPlatformCacheResourceInvalidationAndMetadata(t *testing.T) {
 func TestLegacyMutationClearsAllHTTPProjections(t *testing.T) {
 	c := New(&config.Config{BaseURL: "https://a.klaviyo.com"}, time.Second, 0)
 	c.cacheDir = t.TempDir()
-	c.writeCache("/api/orders", nil, nil, json.RawMessage(`{"resource":"orders"}`))
-	c.writeCache("/api/profiles", nil, nil, json.RawMessage(`{"resource":"profiles"}`))
+	c.writeCacheWithHeaders("/api/orders", nil, nil, json.RawMessage(`{"resource":"orders"}`))
+	c.writeCacheWithHeaders("/api/profiles", nil, nil, json.RawMessage(`{"resource":"profiles"}`))
 
 	c.invalidateCacheAfterMutation("/api/orders/123")
 

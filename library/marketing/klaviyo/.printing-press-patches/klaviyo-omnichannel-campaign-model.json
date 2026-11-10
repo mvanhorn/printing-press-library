@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-omnichannel-campaign-model",
+  "applied_at": "2026-11-09",
+  "base_run_id": "2026-11-09T21:18:59.628302Z",
+  "base_printing_press_version": "4.35.4",
+  "summary": "At revision 2026-10-15 a campaign is a container; status, send time and audience live on messages and campaign-audiences, and channel, template, subject and sender live on variations. Every campaign command resolves an ID through one resolver that accepts a container ID or a pre-2026-10-15 campaign ID, which is now a message ID.",
+  "reason": "Klaviyo rejects the old messages.channel and status filters on /api/campaigns, old campaign IDs 404 on /api/campaigns/{id}, reporting rows group by message ID, and the legacy message template routes take a variation ID; code reading the old shapes returned 400s, 404s or empty reports.",
+  "files": [
+    "internal/cli/klaviyo_campaign_model.go",
+    "internal/cli/klaviyo_campaign_commands.go",
+    "internal/cli/klaviyo_campaign_create.go",
+    "internal/cli/klaviyo_campaign_sync.go",
+    "internal/cli/campaigns_create.go",
+    "internal/cli/unsubscribe_guard.go",
+    "internal/cli/novel_klaviyo.go",
+    "internal/cli/novel_segments_reports.go",
+    "internal/cli/novel_computed_analytics.go",
+    "internal/cli/klaviyo_reports.go",
+    "internal/cli/klaviyo_sync.go",
+    "internal/cli/klaviyo_sync_options.go",
+    "internal/cli/promoted_campaign-clone.go",
+    "internal/cli/promoted_campaign-message-assign-template.go",
+    "internal/client/klaviyo_campaign_errors.go"
+  ],
+  "validated_outcome": "Live on a real account: qa-gate on a pre-2026-10-15 campaign ID returns a verdict; campaigns deploy creates an unscheduled draft with list inclusion and list plus segment exclusions and assigns a non-reusable template copy to the variation; image-swap updates that copy; campaign-clone reads back as draft; all test objects deleted."
+}

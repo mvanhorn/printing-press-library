@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -52,7 +53,7 @@ func TestG4FilteredLocalReportsUseFullAnalytics(t *testing.T) {
 		{"select", "send-fatigue", []string{"--json", "--select", "window"}, `{"window":"7d"}`, map[string]float64{"fatigued_profiles": 1, "fatigued_percentage": 100}},
 		{"select with compact", "send-fatigue", []string{"--json", "--compact", "--select", "window"}, `{"window":"7d"}`, map[string]float64{"fatigued_profiles": 1, "fatigued_percentage": 100}},
 		{"selected CSV", "send-fatigue", []string{"--csv", "--select", "window"}, `{"window":"7d"}`, map[string]float64{"fatigued_profiles": 1, "fatigued_percentage": 100}},
-		{"compact array", "cohort", []string{"--json", "--compact"}, `[{}]`, map[string]float64{"profiles": 1, "retained": 0, "retention_rate": 0}},
+		{"compact array", "cohort", []string{"--json", "--compact"}, `[{"cohort":"2026-11","profiles":1,"retained":0,"retention_rate":0}]`, map[string]float64{"profiles": 1, "retained": 0, "retention_rate": 0}},
 		{"selected dry run", "send-fatigue", []string{"--json", "--dry-run", "--select", "window"}, `{"window":"7d"}`, nil},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -67,7 +68,16 @@ func TestG4FilteredLocalReportsUseFullAnalytics(t *testing.T) {
 				t.Fatalf("filtered report rejected: %v; stdout=%s stderr=%s", err, &output, &diagnostics)
 			}
 			data := json.RawMessage(output.Bytes())
-			if !flags.csv {
+			if flags.csv {
+				records, err := csv.NewReader(bytes.NewReader(data)).ReadAll()
+				if err != nil || len(records) != 2 || len(records[0]) != 1 || len(records[1]) != 1 {
+					t.Fatalf("selected CSV = %q, error = %v", data, err)
+				}
+				data, err = json.Marshal(map[string]string{records[0][0]: records[1][0]})
+				if err != nil {
+					t.Fatal(err)
+				}
+			} else {
 				var envelope struct {
 					Data json.RawMessage `json:"data"`
 				}
@@ -133,8 +143,8 @@ func TestG4CompactCohortPreservesObservedZeroRetention(t *testing.T) {
 	if err := json.Compact(&compact, platformTestOutputPayload(t, output.Bytes())); err != nil {
 		t.Fatal(err)
 	}
-	if compact.String() != `[{}]` {
-		t.Fatalf("displayed cohort = %s, want [{}]", &compact)
+	if compact.String() != wantReport {
+		t.Fatalf("displayed cohort = %s, want %s", &compact, wantReport)
 	}
 	if flags.platformAnalytics == nil {
 		t.Fatal("missing unfiltered analytics declaration")

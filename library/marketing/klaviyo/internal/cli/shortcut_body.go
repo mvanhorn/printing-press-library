@@ -6,7 +6,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/pflag"
 	"io"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -21,6 +23,16 @@ func readShortcutBodyOfType(cmd *cobra.Command, wantType string) (map[string]any
 		return nil, fmt.Errorf("stdin data.type must be %q", wantType)
 	}
 	return body, nil
+}
+
+func shortcutBodyFlagsChanged(cmd *cobra.Command) bool {
+	changed := false
+	cmd.Flags().Visit(func(flag *pflag.Flag) {
+		if strings.HasPrefix(flag.Name, "data-") && flag.Name != "data-source" {
+			changed = true
+		}
+	})
+	return changed
 }
 
 func readShortcutBody(cmd *cobra.Command) (map[string]any, error) {

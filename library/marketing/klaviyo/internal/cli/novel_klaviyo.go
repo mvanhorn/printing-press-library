@@ -5,8 +5,10 @@ package cli
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/platform"
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/store"
+	"github.com/spf13/cobra"
 	"html"
 	"io"
 	"net/url"
@@ -16,238 +18,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/store"
-	"github.com/spf13/cobra"
 )
-
-type campaignDeployResult struct {
-	TemplateID string         `json:"template_id,omitempty"`
-	CampaignID string         `json:"campaign_id,omitempty"`
-	MessageID  string         `json:"message_id,omitempty"`
-	Assigned   bool           `json:"assigned"`
-	DryRun     bool           `json:"dry_run,omitempty"`
-	Steps      []string       `json:"steps"`
-	Responses  map[string]any `json:"responses,omitempty"`
-}
-
-func newCampaignsDeployCmd(flags *rootFlags) *cobra.Command {
-	var templateHTML string
-	var templateFile string
-	var campaignName string
-	var listID string
-	var subject string
-	var fromEmail string
-	var fromLabel string
-	var messageID string
-
-	cmd := &cobra.Command{
-		Use:     "deploy",
-		Short:   "Create a template, draft campaign, and assign the template to a campaign message",
-		Example: "  klaviyo-pp-cli campaigns deploy --template-html ./email.html --campaign-name \"May offer\" --list-id LIST_ID --subject \"May offer\" --from-email marketing@example.com --from-label Marketing --json",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if templateFile != "" {
-				b, err := os.ReadFile(templateFile)
-				if err != nil {
-					return fmt.Errorf("reading template file: %w", err)
-				}
-				templateHTML = string(b)
-			}
-			if templateHTML == "" || campaignName == "" || listID == "" || subject == "" || fromEmail == "" || fromLabel == "" {
-				if dryRunOK(flags) {
-					return printJSONFiltered(cmd.OutOrStdout(), campaignDeployResult{DryRun: true, Steps: []string{"create_template", "create_campaign", "assign_template"}}, flags)
-				}
-				return usageErr(fmt.Errorf("required flags: --template-html or --template-file, --campaign-name, --list-id, --subject, --from-email, --from-label"))
-			}
-			if status, detail := unsubscribeCompliance(templateHTML); status != "pass" {
-				return fmt.Errorf("campaign compliance preflight failed: %s", detail)
-			}
-			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"dry_run":        true,
-					"template_name":  campaignName,
-					"campaign_name":  campaignName,
-					"list_id":        listID,
-					"message_id":     messageID,
-					"planned_steps":  []string{"POST /api/templates", "POST /api/campaigns", "POST /api/campaign-message-assign-template"},
-					"template_bytes": len(templateHTML),
-				}, flags)
-			}
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-			result := campaignDeployResult{Steps: []string{"create_template", "create_campaign", "assign_template"}, Responses: map[string]any{}}
-			templateBody := jsonAPIBody("template", map[string]any{
-				"name":        campaignName,
-				"html":        templateHTML,
-				"text":        stripTags(templateHTML),
-				"editor_type": "CODE",
-			}, nil)
-			templateResp, _, err := c.Post("/api/templates", templateBody)
-			if err != nil {
-				return classifyAPIError(err)
-			}
-			result.TemplateID = jsonAPIID(templateResp)
-			result.Responses["template"] = mustJSONAny(templateResp)
-
-			campaignBody := jsonAPIBody("campaign", map[string]any{
-				"name": campaignName,
-				"definition": map[string]any{
-					"channel": "email",
-					"content": map[string]any{
-						"subject":    subject,
-						"from_email": fromEmail,
-						"from_label": fromLabel,
-					},
-					"audiences": map[string]any{
-						"included": []string{listID},
-					},
-				},
-				"send_strategy": map[string]any{
-					"method":   "static",
-					"datetime": time.Now().Add(365 * 24 * time.Hour).UTC().Format(time.RFC3339),
-				},
-			}, nil)
-			campaignResp, _, err := c.Post("/api/campaigns", campaignBody)
-			if err != nil {
-				return classifyAPIError(err)
-			}
-			result.CampaignID = jsonAPIID(campaignResp)
-			result.Responses["campaign"] = mustJSONAny(campaignResp)
-
-			if messageID == "" && result.CampaignID != "" {
-				messages, err := c.Get("/api/campaigns/"+result.CampaignID+"/campaign-messages", nil)
-				if err == nil {
-					messageID = firstJSONAPIID(messages)
-					result.Responses["campaign_messages"] = mustJSONAny(messages)
-				}
-			}
-			result.MessageID = messageID
-			if result.TemplateID != "" && messageID != "" {
-				assignBody := jsonAPIBody("campaign-message-assign-template", map[string]any{}, map[string]any{
-					"template":         map[string]any{"data": map[string]string{"type": "template", "id": result.TemplateID}},
-					"campaign-message": map[string]any{"data": map[string]string{"type": "campaign-message", "id": messageID}},
-				})
-				assignResp, _, err := c.Post("/api/campaign-message-assign-template", assignBody)
-				if err != nil {
-					return classifyAPIError(err)
-				}
-				result.Assigned = true
-				result.Responses["assign_template"] = mustJSONAny(assignResp)
-			}
-			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
-		},
-	}
-	cmd.Flags().StringVar(&templateHTML, "template-html", "", "Inline HTML for the email template")
-	cmd.Flags().StringVar(&templateFile, "template-file", "", "Path to an HTML file for the email template")
-	cmd.Flags().StringVar(&campaignName, "campaign-name", "", "Draft campaign name")
-	cmd.Flags().StringVar(&listID, "list-id", "", "Audience list ID")
-	cmd.Flags().StringVar(&subject, "subject", "", "Email subject")
-	cmd.Flags().StringVar(&fromEmail, "from-email", "", "Sender email")
-	cmd.Flags().StringVar(&fromLabel, "from-label", "", "Sender label")
-	cmd.Flags().StringVar(&messageID, "message-id", "", "Existing campaign message ID to assign; auto-discovered after campaign create when omitted")
-	return cmd
-}
-
-func newCampaignsImageSwapCmd(flags *rootFlags) *cobra.Command {
-	var campaignID string
-	var messageID string
-	var templateID string
-	var oldURL string
-	var newURL string
-
-	cmd := &cobra.Command{
-		Use:     "image-swap",
-		Short:   "Replace an image URL in a campaign message template",
-		Example: "  klaviyo-pp-cli campaigns image-swap --campaign-id CAMPAIGN_ID --old-url https://cdn.example.com/old.jpg --new-url https://cdn.example.com/new.jpg --json",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if (campaignID == "" && messageID == "" && templateID == "") || oldURL == "" || newURL == "" {
-				if dryRunOK(flags) {
-					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "planned_steps": []string{"resolve_message", "resolve_template", "patch_template"}}, flags)
-				}
-				return usageErr(fmt.Errorf("required flags: --old-url, --new-url, and one of --campaign-id, --message-id, --template-id"))
-			}
-			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"dry_run":     true,
-					"campaign_id": campaignID,
-					"message_id":  messageID,
-					"template_id": templateID,
-					"old_url":     oldURL,
-					"new_url":     newURL,
-				}, flags)
-			}
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-			if messageID == "" && campaignID != "" {
-				resp, err := c.Get("/api/campaigns/"+campaignID+"/campaign-messages", nil)
-				if err != nil {
-					return classifyAPIError(err)
-				}
-				messageID = firstJSONAPIID(resp)
-			}
-			if templateID == "" && messageID != "" {
-				resp, err := c.Get("/api/campaign-messages/"+messageID+"/template", map[string]string{"fields[template]": "html"})
-				if err != nil {
-					return classifyAPIError(err)
-				}
-				templateID = jsonAPIID(resp)
-				if templateID == "" {
-					templateID = firstJSONAPIID(resp)
-				}
-				templateHTML := firstString(resp, "data.attributes.html", "data.attributes.definition.html", "data.attributes.text")
-				if templateHTML != "" {
-					return patchTemplateHTML(cmd, flags, c, templateID, templateHTML, oldURL, newURL, campaignID, messageID)
-				}
-			}
-			if templateID == "" {
-				return notFoundErr(fmt.Errorf("could not resolve a template id"))
-			}
-			resp, err := c.Get("/api/templates/"+templateID, map[string]string{"additional-fields[template]": "definition", "fields[template]": "definition,html"})
-			if err != nil {
-				return classifyAPIError(err)
-			}
-			templateHTML := firstString(resp, "data.attributes.html", "data.attributes.definition.html", "data.attributes.text")
-			return patchTemplateHTML(cmd, flags, c, templateID, templateHTML, oldURL, newURL, campaignID, messageID)
-		},
-	}
-	cmd.Flags().StringVar(&campaignID, "campaign-id", "", "Campaign ID to inspect for a message and template")
-	cmd.Flags().StringVar(&messageID, "message-id", "", "Campaign message ID to inspect for a template")
-	cmd.Flags().StringVar(&templateID, "template-id", "", "Template ID to patch directly")
-	cmd.Flags().StringVar(&oldURL, "old-url", "", "Existing image URL")
-	cmd.Flags().StringVar(&newURL, "new-url", "", "Replacement image URL")
-	return cmd
-}
-
-func patchTemplateHTML(cmd *cobra.Command, flags *rootFlags, c interface {
-	Patch(path string, body any) (json.RawMessage, int, error)
-}, templateID, templateHTML, oldURL, newURL, campaignID, messageID string) error {
-	if templateHTML == "" {
-		return notFoundErr(fmt.Errorf("template %s did not include editable HTML in the API response", templateID))
-	}
-	updated := strings.ReplaceAll(templateHTML, oldURL, newURL)
-	if updated == templateHTML {
-		return notFoundErr(fmt.Errorf("old URL not found in template %s", templateID))
-	}
-	body := jsonAPIBody("template", map[string]any{"html": updated}, nil)
-	resp, status, err := c.Patch("/api/templates/"+templateID, body)
-	if err != nil {
-		return classifyAPIError(err)
-	}
-	return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-		"campaign_id": campaignID,
-		"message_id":  messageID,
-		"template_id": templateID,
-		"old_url":     oldURL,
-		"new_url":     newURL,
-		"status":      status,
-		"response":    mustJSONAny(resp),
-	}, flags)
-}
 
 func newFlowDecayCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
@@ -469,9 +240,11 @@ func newPlanBriefToStrategyCmd(flags *rootFlags) *cobra.Command {
 
 func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 	var campaignID string
+	var templateID string
 	var htmlPath string
 	var offer string
 	var timezone string
+	var brandOptions brandQAOptions
 
 	cmd := &cobra.Command{
 		Use:          "qa-gate",
@@ -480,7 +253,14 @@ func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 		Annotations:  map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "planned_checks": qaChecks()}, flags)
+				checks := qaChecks()
+				if brandOptions.Enabled {
+					checks = append(checks, "brand_colors", "brand_logo", "brand_footer")
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "planned_checks": checks}, flags)
+			}
+			if templateID != "" && (campaignID != "" || htmlPath != "") {
+				return usageErr(fmt.Errorf("use --template-id alone or --campaign-id with optional --html"))
 			}
 			htmlBody := ""
 			if htmlPath != "" {
@@ -497,56 +277,40 @@ func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				campaignResp, err := c.Get("/api/campaigns/"+campaignID, nil)
-				if err != nil {
-					return classifyAPIError(err)
+				var suppliedHTML *string
+				if htmlPath != "" {
+					suppliedHTML = &htmlBody
 				}
-				evidence["campaign"] = mustJSONAny(campaignResp)
-				msgResp, err := fetchCampaignMessages(c, campaignID)
+				qa, err := runCampaignQA(c, campaignID, offer, timezone, suppliedHTML, brandOptions)
 				if err != nil {
 					return err
 				}
-				evidence["campaign_messages"] = mustJSONAny(msgResp)
-				templates := map[string]any{}
-				findings := []map[string]any{}
-				if htmlPath != "" {
-					findings = append(findings, result["findings"].([]map[string]any)...)
+				evidence = qa.Evidence
+				result["findings"], result["verdict"] = qa.Findings, qa.Verdict
+				if qa.Brand != nil {
+					result["brand"] = qa.Brand
 				}
-				// PATCH(greptile-review-g5): evaluate each email separately so a valid footer cannot hide another's failure.
-				for _, message := range mapSlice(anyPath(mustJSONAny(msgResp), "data")) {
-					messageID := stringFromMapPath(message, "id")
-					if messageID == "" {
-						return fmt.Errorf("campaign compliance preflight failed: campaign message ID is missing")
-					}
-					channel := stringFromMapPath(message, "attributes.definition.channel")
-					switch channel {
-					case "sms", "push", "whatsapp", "mobile_push":
-						continue
-					case "email", "":
-					default:
-						return fmt.Errorf("campaign compliance preflight failed: campaign message %s has unsupported channel %q", messageID, channel)
-					}
-					templateResp, err := c.Get("/api/campaign-messages/"+url.PathEscape(messageID)+"/template", map[string]string{"fields[template]": "html"})
+			} else if templateID != "" || brandOptions.Enabled {
+				c, err := flags.newClient()
+				if err != nil {
+					return err
+				}
+				if templateID != "" {
+					htmlBody, err = campaignTemplateHTML(c, templateID)
 					if err != nil {
-						var apiErr *client.APIError
-						if !errors.As(err, &apiErr) || apiErr.StatusCode != 404 {
-							return classifyAPIError(err)
-						}
-						evidence["template_status"] = "not_assigned"
-					} else {
-						evidence["template"] = mustJSONAny(templateResp)
-						templates[messageID] = mustJSONAny(templateResp)
+						return err
 					}
-					messageHTML := firstString(templateResp, "data.attributes.html", "data.attributes.definition.html")
-					for _, finding := range qaGate(messageHTML, offer, timezone)["findings"].([]map[string]any) {
-						finding["message_id"] = messageID
-						findings = append(findings, finding)
-					}
+					evidence["template_id"] = templateID
+					result = qaGate(htmlBody, offer, timezone)
 				}
-				evidence["templates"] = templates
-				if len(findings) > 0 {
-					result["findings"] = findings
-					result["verdict"] = qaVerdict(findings)
+				if brandOptions.Enabled {
+					kit, err := fetchBrandQAKit(c, brandOptions)
+					if err != nil {
+						return err
+					}
+					findings := append(result["findings"].([]map[string]any), kit.availabilityFindings()...)
+					findings = append(findings, kit.checkHTML(htmlBody)...)
+					result["findings"], result["verdict"], result["brand"] = findings, qaVerdict(findings), kit
 				}
 			}
 			result["campaign_id"] = campaignID
@@ -561,9 +325,11 @@ func newPlanQAGateCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&campaignID, "campaign-id", "", "Campaign ID to fetch for API evidence")
+	cmd.Flags().StringVar(&templateID, "template-id", "", "Template ID to inspect without a campaign")
 	cmd.Flags().StringVar(&htmlPath, "html", "", "Path to campaign HTML for link and token checks")
 	cmd.Flags().StringVar(&offer, "offer", "", "Expected offer text")
 	cmd.Flags().StringVar(&timezone, "timezone", "America/Chicago", "Expected launch timezone")
+	addBrandQAFlags(cmd, &brandOptions)
 	return cmd
 }
 
@@ -575,7 +341,7 @@ func openNovelStore(ctx context.Context, flags *rootFlags, dbPath string) (*stor
 	if err != nil {
 		return nil, err
 	}
-	return openStoreForRead(ctx, c, "klaviyo-pp-cli")
+	return openStoreForRead(platform.ContextWithSession(ctx, c.PlatformSession()), "klaviyo-pp-cli")
 }
 
 type resourceRow struct {
@@ -584,6 +350,24 @@ type resourceRow struct {
 }
 
 func readResourceRows(ctx context.Context, db *store.Store, resourceType string, limit int) ([]resourceRow, error) {
+	if resourceType == "campaigns" {
+		items, err := localCampaignAnalyticsRows(ctx, db)
+		if err != nil {
+			return nil, err
+		}
+		out := []resourceRow{}
+		for _, raw := range items {
+			var data map[string]any
+			if err := json.Unmarshal(raw, &data); err != nil {
+				return nil, err
+			}
+			out = append(out, resourceRow{ID: stringFromMapPath(data, "id"), Data: data})
+			if limit > 0 && len(out) >= limit {
+				break
+			}
+		}
+		return out, nil
+	}
 	if limit <= 0 {
 		limit = 1000
 	}
@@ -1257,18 +1041,18 @@ func cleanFlowDefinition(definition map[string]any) map[string]any {
 }
 
 type flowClient interface {
-	Get(path string, params map[string]string) (json.RawMessage, error)
-	Post(path string, body any) (json.RawMessage, int, error)
-	Patch(path string, body any) (json.RawMessage, int, error)
-	Delete(path string) (json.RawMessage, int, error)
+	Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error)
+	Post(ctx context.Context, path string, body any) (json.RawMessage, int, error)
+	Patch(ctx context.Context, path string, body any) (json.RawMessage, int, error)
+	Delete(ctx context.Context, path string) (json.RawMessage, int, error)
 }
 
 func fetchAndTransformFlow(c flowClient, flowID string, keepIDs bool) (definition map[string]any, name string, err error) {
-	resp, err := c.Get("/api/flows/"+flowID, map[string]string{
+	resp, err := c.Get(klaviyoRequestContext(c), "/api/flows/"+flowID, map[string]string{
 		"additional-fields[flow]": "definition",
 	})
 	if err != nil {
-		return nil, "", classifyAPIError(err)
+		return nil, "", classifyAPIErrorOnly(err)
 	}
 	var parsed map[string]any
 	if err := json.Unmarshal(resp, &parsed); err != nil {
@@ -1302,9 +1086,9 @@ func resolveMetricID(c flowClient, metricName string) (string, error) {
 		if cursor != "" {
 			params["page[cursor]"] = cursor
 		}
-		resp, err := c.Get("/api/metrics", params)
+		resp, err := c.Get(klaviyoRequestContext(c), "/api/metrics", params)
 		if err != nil {
-			return "", classifyAPIError(err)
+			return "", classifyAPIErrorOnly(err)
 		}
 		var parsed map[string]any
 		if err := json.Unmarshal(resp, &parsed); err != nil {
@@ -1402,9 +1186,9 @@ func createFlowAndSetStatus(c flowClient, name string, definition map[string]any
 		"name":       name,
 		"definition": definition,
 	}, nil)
-	resp, _, err := c.Post("/api/flows", body)
+	resp, _, err := c.Post(klaviyoRequestContext(c), "/api/flows", body)
 	if err != nil {
-		return nil, classifyAPIError(err)
+		return nil, classifyAPIErrorOnly(err)
 	}
 	flowID := jsonAPIID(resp)
 	result := map[string]any{
@@ -1416,7 +1200,7 @@ func createFlowAndSetStatus(c flowClient, name string, definition map[string]any
 	}
 	if status == "live" && flowID != "" {
 		patchBody := jsonAPIBody("flow", map[string]any{"status": "live"}, nil)
-		patchResp, _, err := c.Patch("/api/flows/"+flowID, patchBody)
+		patchResp, _, err := c.Patch(klaviyoRequestContext(c), "/api/flows/"+flowID, patchBody)
 		if err != nil {
 			result["status_error"] = err.Error()
 		} else {
@@ -1950,9 +1734,9 @@ func createPresetTemplates(c flowClient, emails []presetEmail) ([]string, error)
 			"text":        stripTags(html),
 			"editor_type": "CODE",
 		}, nil)
-		resp, _, err := c.Post("/api/templates", body)
+		resp, _, err := c.Post(klaviyoRequestContext(c), "/api/templates", body)
 		if err != nil {
-			return ids, fmt.Errorf("creating template %q: %w", em.Name, classifyAPIError(err))
+			return ids, fmt.Errorf("creating template %q: %w", em.Name, classifyAPIErrorOnly(err))
 		}
 		ids = append(ids, jsonAPIID(resp))
 	}
@@ -2050,9 +1834,9 @@ func bulkFlowStatus(cmd *cobra.Command, flags *rootFlags, tag, targetStatus stri
 	if err != nil {
 		return err
 	}
-	resp, err := c.Get("/api/tags/"+tagID+"/relationships/flows", nil)
+	resp, err := c.Get(klaviyoRequestContext(c), "/api/tags/"+tagID+"/relationships/flows", nil)
 	if err != nil {
-		return classifyAPIError(err)
+		return classifyAPIErrorOnly(err)
 	}
 	var parsed map[string]any
 	if err := json.Unmarshal(resp, &parsed); err != nil {
@@ -2069,7 +1853,7 @@ func bulkFlowStatus(cmd *cobra.Command, flags *rootFlags, tag, targetStatus stri
 		if fID == "" {
 			continue
 		}
-		flowResp, fErr := c.Get("/api/flows/"+fID, map[string]string{"fields[flow]": "name,status"})
+		flowResp, fErr := c.Get(klaviyoRequestContext(c), "/api/flows/"+fID, map[string]string{"fields[flow]": "name,status"})
 		if fErr != nil {
 			results = append(results, map[string]any{"flow_id": fID, "action": "error", "error": fErr.Error()})
 			continue
@@ -2081,7 +1865,7 @@ func bulkFlowStatus(cmd *cobra.Command, flags *rootFlags, tag, targetStatus stri
 			continue
 		}
 		patchBody := jsonAPIBody("flow", map[string]any{"status": targetStatus}, nil)
-		_, _, pErr := c.Patch("/api/flows/"+fID, patchBody)
+		_, _, pErr := c.Patch(klaviyoRequestContext(c), "/api/flows/"+fID, patchBody)
 		if pErr != nil {
 			results = append(results, map[string]any{"flow_id": fID, "name": fName, "status": currentStatus, "action": "error", "error": pErr.Error()})
 		} else {
@@ -2098,12 +1882,12 @@ func bulkFlowStatus(cmd *cobra.Command, flags *rootFlags, tag, targetStatus stri
 
 func resolveTagID(c flowClient, tagName string) (string, error) {
 	escapedName := strings.ReplaceAll(strings.ReplaceAll(tagName, `\`, `\\`), `"`, `\"`)
-	resp, err := c.Get("/api/tags", map[string]string{
+	resp, err := c.Get(klaviyoRequestContext(c), "/api/tags", map[string]string{
 		"filter":      fmt.Sprintf("equals(name,\"%s\")", escapedName),
 		"fields[tag]": "name",
 	})
 	if err != nil {
-		return "", classifyAPIError(err)
+		return "", classifyAPIErrorOnly(err)
 	}
 	id := firstJSONAPIID(resp)
 	if id == "" {
@@ -2115,7 +1899,7 @@ func resolveTagID(c flowClient, tagName string) (string, error) {
 // ── Coupon pool monitoring ──────────────────────────────────────────────
 
 type couponPoolClient interface {
-	Get(path string, params map[string]string) (json.RawMessage, error)
+	Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error)
 }
 
 type couponPoolStatus struct {
@@ -2249,9 +2033,9 @@ func fetchCouponSummaries(c couponPoolClient, couponID string) ([]map[string]any
 		if cursor != "" {
 			params["page[cursor]"] = cursor
 		}
-		resp, err := c.Get("/api/coupons", params)
+		resp, err := c.Get(klaviyoRequestContext(c), "/api/coupons", params)
 		if err != nil {
-			return nil, classifyAPIError(err)
+			return nil, classifyAPIErrorOnly(err)
 		}
 		items, nextCursor, err := parseJSONAPICollection(resp)
 		if err != nil {
@@ -2277,9 +2061,9 @@ func countRemainingCouponCodes(c couponPoolClient, couponID string, now time.Tim
 		if cursor != "" {
 			params["page[cursor]"] = cursor
 		}
-		resp, err := c.Get("/api/coupons/"+url.PathEscape(couponID)+"/coupon-codes", params)
+		resp, err := c.Get(klaviyoRequestContext(c), "/api/coupons/"+url.PathEscape(couponID)+"/coupon-codes", params)
 		if err != nil {
-			return 0, 0, pages, classifyAPIError(err)
+			return 0, 0, pages, classifyAPIErrorOnly(err)
 		}
 		pages++
 		items, nextCursor, err := parseJSONAPICollection(resp)
@@ -2380,18 +2164,20 @@ func newReportRevenueCmd(flags *rootFlags) *cobra.Command {
 			case "message":
 				attrField = "$attributed_message"
 			}
+			timezone := "US/Central"
+			now := klaviyoWindowNow().In(loadNovelLocation(timezone))
 			if since == "" {
-				since = time.Now().AddDate(0, -3, 0).Format("2006-01-02")
+				since = now.AddDate(0, -3, 0).Format("2006-01-02")
 			}
 			if until == "" {
-				until = time.Now().Format("2006-01-02")
+				until = now.Format("2006-01-02")
 			}
 			filters := []string{"greater-or-equal(datetime," + since + "T00:00:00)", "less-than(datetime," + until + "T23:59:59)"}
-			timezone := "US/Central"
 			if flags.platformSession != nil {
 				if window := flags.platformSession.OutputMetadata().ResolvedWindow; window != nil {
-					filters = []string{"greater-or-equal(datetime," + window.Start.Format("2006-01-02T15:04:05") + ")", "less-than(datetime," + window.End.Format("2006-01-02T15:04:05") + ")"}
 					timezone = window.Timezone
+					location := loadNovelLocation(timezone)
+					filters = []string{"greater-or-equal(datetime," + window.Start.In(location).Format("2006-01-02T15:04:05") + ")", "less-than(datetime," + window.End.In(location).Format("2006-01-02T15:04:05") + ")"}
 				}
 			}
 			body := map[string]any{
@@ -2408,9 +2194,9 @@ func newReportRevenueCmd(flags *rootFlags) *cobra.Command {
 					},
 				},
 			}
-			resp, _, err := c.Post("/api/metric-aggregates", body)
+			resp, _, err := c.Post(klaviyoRequestContext(c), "/api/metric-aggregates", body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIErrorOnly(err)
 			}
 			var parsed map[string]any
 			if err := json.Unmarshal(resp, &parsed); err != nil {
@@ -2469,7 +2255,7 @@ func newReportRevenueCmd(flags *rootFlags) *cobra.Command {
 					if fCursor != "" {
 						fParams["page[cursor]"] = fCursor
 					}
-					flowsResp, fErr := c.Get("/api/flows", fParams)
+					flowsResp, fErr := c.Get(klaviyoRequestContext(c), "/api/flows", fParams)
 					if fErr != nil {
 						break
 					}
@@ -2576,38 +2362,9 @@ func newTemplatesUpdateImageCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var allTemplates []map[string]any
-			cursor := ""
-			for {
-				params := map[string]string{"fields[template]": "name,html", "page[size]": "50"}
-				if cursor != "" {
-					params["page[cursor]"] = cursor
-				}
-				resp, err := c.Get("/api/templates", params)
-				if err != nil {
-					return classifyAPIError(err)
-				}
-				var parsed map[string]any
-				if err := json.Unmarshal(resp, &parsed); err != nil {
-					break
-				}
-				items, _ := parsed["data"].([]any)
-				for _, raw := range items {
-					t, ok := raw.(map[string]any)
-					if !ok {
-						continue
-					}
-					allTemplates = append(allTemplates, t)
-				}
-				links, _ := parsed["links"].(map[string]any)
-				nextLink, _ := links["next"].(string)
-				if nextLink == "" {
-					break
-				}
-				cursor = extractCursor(nextLink)
-				if cursor == "" {
-					break
-				}
+			allTemplates, err := campaignCollection(c, "/api/templates", map[string]string{"fields[template]": "name,html", "page[size]": "10"})
+			if err != nil {
+				return classifyAPIErrorOnly(err)
 			}
 			var results []map[string]any
 			matched := 0
@@ -2622,7 +2379,7 @@ func newTemplatesUpdateImageCmd(flags *rootFlags) *cobra.Command {
 				matched++
 				updated := strings.ReplaceAll(tHTML, oldURL, newURL)
 				patchBody := jsonAPIBody("template", map[string]any{"html": updated}, nil)
-				_, _, pErr := c.Patch("/api/templates/"+tID, patchBody)
+				_, _, pErr := c.Patch(klaviyoRequestContext(c), "/api/templates/"+tID, patchBody)
 				if pErr != nil {
 					results = append(results, map[string]any{"template_id": tID, "name": tName, "action": "error", "error": pErr.Error()})
 				} else {

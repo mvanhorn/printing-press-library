@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-retired-required-columns",
+  "applied_at": "2026-11-09",
+  "base_run_id": "2026-11-09T21:18:59.628302Z",
+  "base_printing_press_version": "4.35.4",
+  "summary": "Store migrations must rebuild typed tables when an obsolete required column without a default blocks current-shape upserts, preserving shared values while leaving generic resources and sync checkpoints unchanged.",
+  "reason": "Published 3.5.0 stores modeled campaign messages, lists, metrics, profiles and tags as children with required parent columns that the current schema does not write; additive column backfills cannot remove those constraints. Repair runs under the existing migration transaction on every open, including stores already at the current framework schema version.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/klaviyo_schema_repair.go",
+    "internal/store/klaviyo_schema_repair_test.go",
+    "internal/store/testdata/klaviyo_legacy_typed_tables.sql"
+  ],
+  "validated_outcome": "Legacy CREATE TABLE fixtures for all five affected tables migrate and accept current-shape batch upserts with zero typed failures. Regression checks retain shared values, rowids, tenant ownership and checkpoints, recreate current indexes and generated columns, preserve nonblocking legacy columns, and roll back the entire repair on copy failure."
+}

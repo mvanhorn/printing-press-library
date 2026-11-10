@@ -50,7 +50,7 @@ func TestImageUploadSendsPNGAndOptionalFields(t *testing.T) {
 				if tt.query != "" && r.URL.Query().Get("fields[image]") != "id,name" {
 					t.Errorf("fields[image] = %q, want id,name", r.URL.Query().Get("fields[image]"))
 				}
-				if r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" || r.Header.Get("revision") != "2026-04-15" {
+				if r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" || r.Header.Get("revision") != "2026-10-15" {
 					t.Errorf("auth or revision header missing: %#v", r.Header)
 				}
 				if err := r.ParseMultipartForm(1 << 20); err != nil {

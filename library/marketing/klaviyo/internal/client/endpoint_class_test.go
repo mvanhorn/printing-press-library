@@ -3,6 +3,8 @@
 package client
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -52,7 +54,7 @@ func TestEndpointClassSharesBudgetAndPreservesRequestQuery(t *testing.T) {
 			t.Errorf("request = %s %s, want POST %s", r.Method, r.RequestURI, paths[i])
 		}
 		for header, want := range map[string]string{
-			"Authorization": "Bearer synthetic", "revision": "2026-04-15", "Content-Type": "application/json",
+			"Authorization": "Bearer synthetic", "revision": "2026-10-15", "Content-Type": "application/json",
 		} {
 			if got := r.Header.Get(header); got != want {
 				t.Errorf("%s = %q, want %q", header, got, want)
@@ -76,7 +78,7 @@ func TestEndpointClassSharesBudgetAndPreservesRequestQuery(t *testing.T) {
 		t.Fatal(err)
 	}
 	for i, path := range paths {
-		_, status, err := c.doBytes(http.MethodPost, path, nil, []byte(body), nil)
+		_, status, err := c.do(context.Background(), http.MethodPost, path, nil, json.RawMessage(body), nil)
 		if i == 0 {
 			if err != nil || status != http.StatusOK {
 				t.Fatalf("first request = %d, %v", status, err)
@@ -107,7 +109,7 @@ func TestEndpointClassPreservesDryRunQuery(t *testing.T) {
 	os.Stderr = stderr
 	defer func() { os.Stderr = previousStderr }()
 	const path = "/api/image-upload?fields%5Bimage%5D=id#fragment"
-	data, status, err := c.doBytes(http.MethodPost, path, nil, nil, nil)
+	data, status, err := c.do(context.Background(), http.MethodPost, path, nil, nil, nil)
 	if err != nil || status != 0 || string(data) != `{"dry_run": true}` {
 		t.Fatalf("dry run = %s, %d, %v", data, status, err)
 	}

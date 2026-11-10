@@ -63,7 +63,7 @@ func TestRATypedMCPWritesSendJSONObjectOnce(t *testing.T) {
 					if r.Method != tc.method || r.URL.Path != tc.path || r.URL.RawQuery != "fields%5Bprofile%5D=email" {
 						t.Errorf("request = %s %s, want %s %s", r.Method, r.URL, tc.method, tc.path)
 					}
-					for key, want := range map[string]string{"revision": "2026-04-15", "Authorization": "Klaviyo-API-Key fixture-key", "Content-Type": "application/json"} {
+					for key, want := range map[string]string{"revision": "2026-10-15", "Authorization": "Klaviyo-API-Key fixture-key", "Content-Type": "application/json"} {
 						if got := r.Header.Get(key); got != want {
 							t.Errorf("%s = %q, want %q", key, got, want)
 						}
@@ -98,16 +98,27 @@ func TestRATypedMCPWritesSendJSONObjectOnce(t *testing.T) {
 				}
 				s := server.NewMCPServer("review-ra", "test")
 				RegisterTools(s)
-				handler := makeAPIHandler("PUT", "/api/profiles/{id}", []string{"id"})
+				handler := makeAPIHandler("PUT", "/api/profiles/{id}", false, false, nil, mcpPageConfig{}, []mcpParamBinding{
+					{PublicName: "fields[profile]", WireName: "fields[profile]", Location: "query"},
+					{PublicName: "data", WireName: "data", Location: "body", BodyPath: []string{"data"}},
+				}, []string{"id"})
 				if tc.method != "PUT" {
-					handler = s.ListTools()[tc.name].Handler
+					handler = s.ListTools()["klaviyo_execute"].Handler
 				}
 				args := map[string]any{"fields[profile]": "email", "data": map[string]any{"type": "profile", "attributes": map[string]any{"email": "fixture@example.test"}}}
 				if tc.method != "POST" {
 					args["id"] = "p1"
 				}
+				callArgs := args
+				if tc.method != "PUT" {
+					endpoint := "profiles.create"
+					if tc.method == "PATCH" {
+						endpoint = "profiles.update"
+					}
+					callArgs = map[string]any{"endpoint_id": endpoint, "params": args, "confirm": true}
+				}
 				result, err := handler(platform.ContextWithSession(context.Background(), session), mcplib.CallToolRequest{
-					Params: mcplib.CallToolParams{Name: tc.name, Arguments: args},
+					Params: mcplib.CallToolParams{Name: tc.name, Arguments: callArgs},
 				})
 				if err != nil || result == nil || result.IsError || calls != 1 {
 					t.Fatalf("write result = %#v, error %v, calls %d", result, err, calls)
@@ -162,6 +173,20 @@ func TestRAMCPSQLCannotEscapeOrWriteVerifiedStore(t *testing.T) {
 		t.Fatalf("read query failed: %#v, %v", result, err)
 	}
 	content, _ := mcplib.AsTextContent(result.Content[0])
+	// The framework SQL response now carries rows alongside columns and bounds.
+	var sqlEnvelope struct {
+		Data struct {
+			Rows json.RawMessage `json:"rows"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal([]byte(content.Text), &sqlEnvelope); err != nil {
+		t.Fatal(err)
+	}
+	legacyEnvelope, err := json.Marshal(map[string]any{"data": sqlEnvelope.Data.Rows})
+	if err != nil {
+		t.Fatal(err)
+	}
+	content.Text = string(legacyEnvelope)
 	var envelope struct {
 		Data []struct {
 			ID string `json:"id"`

@@ -130,11 +130,28 @@ func TestWriteShortcutsStdinBodies(t *testing.T) {
 						wantURI += "?" + endpoint.query.Encode()
 					}
 					server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						if endpoint.name == "campaign-clone" && r.Method == http.MethodGet {
+							w.Header().Set("Content-Type", "application/json")
+							switch r.URL.Path {
+							case "/api/campaigns/ok":
+								fmt.Fprint(w, `{"data":{"id":"ok","attributes":{"definition":{"name":"Clone"}}}}`)
+							case "/api/campaigns/ok/campaign-messages":
+								w.Write(campaignMessageTestPage("cloned-message", "Clone", "draft", ""))
+							case "/api/campaign-messages/cloned-message/campaign-audience":
+								w.Write(modelAudienceFixture(nil, nil))
+							case "/api/campaign-messages/cloned-message/campaign-variations":
+								w.Write(campaignVariationTestPage("variation", "template", "Subject", "email"))
+							default:
+								t.Errorf("unexpected clone read-back %s", r.URL)
+								http.NotFound(w, r)
+							}
+							return
+						}
 						calls.Add(1)
 						if r.Method != http.MethodPost || r.URL.RequestURI() != wantURI {
 							t.Errorf("request = %s %s, want POST %s", r.Method, r.URL.RequestURI(), wantURI)
 						}
-						for header, want := range map[string]string{"revision": "2026-04-15", "Content-Type": "application/json", "User-Agent": "klaviyo-pp-cli/2026-04-15", "Authorization": "Klaviyo-API-Key test-key"} {
+						for header, want := range map[string]string{"revision": "2026-10-15", "Content-Type": "application/json", "User-Agent": "klaviyo-pp-cli/2026-10-15", "Authorization": "Klaviyo-API-Key test-key"} {
 							if got := r.Header.Get(header); got != want {
 								t.Errorf("%s = %q, want %q", header, got, want)
 							}

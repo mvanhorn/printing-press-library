@@ -38,7 +38,7 @@ func fixPassAssertGET(t *testing.T, r *http.Request) {
 	if err != nil || r.Method != http.MethodGet || len(body) != 0 {
 		t.Errorf("request = %s body %q, error %v; want GET with empty body", r.Method, body, err)
 	}
-	if r.Header.Get("revision") != "2026-04-15" || r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" {
+	if r.Header.Get("revision") != "2026-10-15" || r.Header.Get("Authorization") != "Klaviyo-API-Key test-key" {
 		t.Error("request must retain revision and test authentication headers")
 	}
 }
@@ -48,7 +48,7 @@ func TestFixPassQAGatePrintsCampaignErrorOnce(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls++
 		fixPassAssertGET(t, r)
-		if r.URL.RequestURI() != "/api/campaigns/missing" {
+		if r.URL.RequestURI() != "/api/campaigns/missing" && r.URL.RequestURI() != "/api/campaign-messages/missing" {
 			t.Errorf("request URI = %q", r.URL.RequestURI())
 		}
 		w.WriteHeader(http.StatusNotFound)
@@ -62,11 +62,11 @@ func TestFixPassQAGatePrintsCampaignErrorOnce(t *testing.T) {
 	cmd.SetErr(&stderr)
 	cmd.SetArgs([]string{"--campaign-id", "missing"})
 	err := cmd.Execute()
-	want := "GET /api/campaigns/missing returned HTTP 404: {\"errors\":[{\"detail\":\"not found\"}]}\nhint: resource not found. Run the 'list' command to see available items"
+	want := "GET /api/campaign-messages/missing returned HTTP 404: {\"errors\":[{\"detail\":\"not found\"}]}\nhint: resource not found. Run the 'list' command to see available items"
 	if err == nil || err.Error() != want || ExitCode(err) != 3 {
 		t.Fatalf("error = %v, want exact 404 error and exit code 3", err)
 	}
-	if stderr.String() != "Error: "+want+"\n" || stdout.Len() != 0 || calls != 1 {
+	if stderr.String() != "Error: "+want+"\n" || stdout.Len() != 0 || calls != 2 {
 		t.Fatalf("stdout=%q stderr=%q calls=%d", stdout.String(), stderr.String(), calls)
 	}
 }
@@ -78,8 +78,12 @@ func TestFixPassQAGateFailVerdictPrintsOnce(t *testing.T) {
 		case "/api/campaigns/campaign-1":
 			fmt.Fprint(w, `{"data":{"id":"campaign-1","type":"campaign"}}`)
 		case "/api/campaigns/campaign-1/campaign-messages":
-			fmt.Fprint(w, `{"data":[{"id":"message-1","type":"campaign-message"}]}`)
-		case "/api/campaign-messages/message-1/template?fields%5Btemplate%5D=html":
+			w.Write(campaignMessageTestPage("message-1", "Launch", "draft", ""))
+		case "/api/campaign-messages/message-1/campaign-audience":
+			w.Write(modelAudienceFixture(nil, nil))
+		case "/api/campaign-messages/message-1/campaign-variations":
+			w.Write(campaignVariationTestPage("variation", "template-1", "Subject", "email"))
+		case "/api/templates/template-1?additional-fields%5Btemplate%5D=definition&fields%5Btemplate%5D=definition%2Chtml":
 			fmt.Fprint(w, `{"data":{"id":"template-1","type":"template","attributes":{"html":"<p>No unsubscribe link</p>"}}}`)
 		default:
 			t.Errorf("unexpected request URI %q", r.URL.RequestURI())
