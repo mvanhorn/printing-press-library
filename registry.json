@@ -6022,9 +6022,9 @@
       "path": "library/sales-and-crm/conduyt-crm",
       "release": {
         "cli_name": "conduyt-crm-pp-cli",
-        "version": "2026.10.4",
-        "released_at": "2026-10-31T08:55:32Z",
-        "source_commit": "ff6fb638425f5facc0e8fc91ebc646918b11e331"
+        "version": "2026.11.1",
+        "released_at": "2026-11-10T09:49:08Z",
+        "source_commit": "96b31014acedc253ec90be87229c5441c02305f8"
       },
       "printer": "ptaramona",
       "printer_name": "Conduyt",
