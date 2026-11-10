@@ -8,7 +8,7 @@
     "type": "api_key"
   },
   "skip_reason": "external_credentials_unavailable",
-  "source_fingerprint": "1d4e3c690d700936d8863595d42af99a6c29db155e6fe969ac9d72945627a95b",
+  "source_fingerprint": "9b8f36ed57258ccc699b24ae5e7ce71033cccd5e8305b44a093701ee25a4d546",
   "source_files": {
     "cmd/klaviyo-pp-cli/main.go": "c5f7f72fe5b2766f82591e66590f40a7c87b6ed8f6d9667baaa5923db8598ca0",
     "cmd/klaviyo-pp-mcp/http_auth_test.go": "f3fc26d3c5884a90aea4ef378975bf6e8cbd1d9be4080b9d9002f35974e13b94",
@@ -591,7 +591,7 @@
     "internal/cli/reviews_get-id.go": "5531096641816e19a487ee8f10f94617ec129180f76575faf1189ebc50587834",
     "internal/cli/reviews_get.go": "f4f5e33bde1f22a91a0a114b9cadb526ae4ed6e60ce185e055026392e34a1d23",
     "internal/cli/reviews_update.go": "bbd3184e6be5e1230959210544fb67ef1430ac527600ea091f220d39dda167f5",
-    "internal/cli/root.go": "31f6c4e2d202a2e35bb6df71610bad86544d6c6fde1284e48f83bcd6c1840cc1",
+    "internal/cli/root.go": "c6259d03fe7412fe5c7150706c6d53ff1be8a399e1eae94a48a847de0edbc298",
     "internal/cli/root_test.go": "6a8115617c153b02c50196269a5c5fa9db52ec7bc2ffc05f3c3f1b5ac61af83b",
     "internal/cli/search.go": "93c5b53de47bfa2a22d5a15e461b5c174a841fb1f45fa3502ae1dfdc77f1adc1",
     "internal/cli/segments.go": "d8a084950387eedb358ded19c873e1ecea9bf7ab6db82876314a8fa54773989d",
