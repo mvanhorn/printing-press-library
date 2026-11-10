@@ -301,6 +301,80 @@ func TestCampaignABCreateValidatesFlagsAndSubjects(t *testing.T) {
 	}
 }
 
+func TestCampaignABCreateReconcilesFailedSettingsPatch(t *testing.T) {
+	for _, failure := range []string{"transport", "HTTP 502", "HTTP 202"} {
+		for _, state := range []string{"requested", "null", "different", "unreadable"} {
+			t.Run(failure+"/"+state, func(t *testing.T) {
+				f := newCampaignABFixture(t)
+				patches, freshReads := 0, 0
+				campaignFixtureClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if r.Method == http.MethodGet && r.URL.Path == "/api/campaign-messages/"+modelMessageID && patches > 0 {
+						freshReads++
+						if state == "unreadable" {
+							w.WriteHeader(http.StatusForbidden)
+							fmt.Fprint(w, `{"errors":[{"detail":"read denied"}]}`)
+							return
+						}
+					}
+					f.ServeHTTP(w, r)
+				}))
+				registerClientHook(func(c *client.Client) error {
+					transport := c.HTTPClient.Transport
+					c.HTTPClient.Transport = klaviyoCloneTransport(func(r *http.Request) (*http.Response, error) {
+						response, err := transport.RoundTrip(r)
+						if err != nil || r.Method != http.MethodPatch {
+							return response, err
+						}
+						patches++
+						switch state {
+						case "null":
+							f.settings = nil
+						case "different":
+							f.settings.(map[string]any)["winner_wait_hours"] = float64(8)
+						}
+						switch failure {
+						case "transport":
+							response.Body.Close()
+							return nil, io.ErrUnexpectedEOF
+						case "HTTP 502":
+							response.StatusCode = http.StatusBadGateway
+						case "HTTP 202":
+							response.StatusCode = http.StatusAccepted
+						}
+						return response, nil
+					})
+					return nil
+				})
+				out, err := executeCampaignAB(t, newCampaignsABTestCreateCmd(&rootFlags{asJSON: true, rateLimit: 10000}),
+					"--campaign-id", modelMessageID, "--subject", "Acme B", "--subject", "Acme C")
+				if patches != 1 || freshReads == 0 {
+					t.Fatalf("patches=%d fresh reads=%d error=%v", patches, freshReads, err)
+				}
+				switch state {
+				case "requested":
+					var result campaignABCreateResult
+					if decodeErr := json.Unmarshal(out, &result); err != nil || decodeErr != nil || result.MessageID != modelMessageID || len(result.Variations) != 3 || len(f.writes) != 3 || freshReads < 2 {
+						t.Fatalf("error=%v output=%s writes=%v fresh reads=%d", err, out, f.writes, freshReads)
+					}
+				case "null":
+					if err == nil || len(f.variations) != 1 || !strings.Contains(err.Error(), "rolled back variations: [variation-b, variation-c]") {
+						t.Fatalf("error=%v remaining variations=%v", err, f.variations)
+					}
+				default:
+					if err == nil || ExitCode(err) == 0 || len(f.writes) != 3 || len(f.variations) != 3 || len(out) != 0 {
+						t.Fatalf("error=%v output=%s writes=%v remaining variations=%v", err, out, f.writes, f.variations)
+					}
+					for _, detail := range []string{modelMessageID, "variation-b", "variation-c", "state needs inspection"} {
+						if !strings.Contains(err.Error(), detail) {
+							t.Fatalf("error missing %q: %v", detail, err)
+						}
+					}
+				}
+			})
+		}
+	}
+}
+
 func TestCampaignABContainerAmbiguityAndGlobalDryRun(t *testing.T) {
 	for _, subcommand := range []string{"create", "results"} {
 		t.Run(subcommand, func(t *testing.T) {
@@ -351,11 +425,87 @@ func campaignABReportRow(id string, recipients, clicks, opens, orders, revenue f
 
 func TestCampaignABResultsTooEarly(t *testing.T) {
 	f := newCampaignABFixture(t)
+	f.settings = map[string]any{"winner_metric": "clicks_unique", "winner_percentage": 80, "winner_wait_hours": 4}
+	f.variations = append(f.variations, modelVariationFixture("variation-b", "acme-template", "email"))
 	campaignFixtureClient(t, f)
 	out, err := executeCampaignAB(t, newCampaignsABTestResultsCmd(&rootFlags{asJSON: true, rateLimit: 10000}), "--campaign-id", modelMessageID)
 	var result campaignABResults
 	if decodeErr := json.Unmarshal(out, &result); err != nil || decodeErr != nil || result.Verdict != "too_early" || result.Timeframe != nil || len(f.writes) != 0 {
 		t.Fatalf("error=%v output=%s writes=%v", err, out, f.writes)
+	}
+}
+
+func TestCampaignABResultsRejectsNonABMessagesBeforeReporting(t *testing.T) {
+	for _, status := range []string{"draft", "sent"} {
+		for _, kind := range []string{"no settings", "one email", "one email and SMS"} {
+			t.Run(status+"/"+kind, func(t *testing.T) {
+				f := newCampaignABFixture(t)
+				f.status, f.sendTime = status, "invalid send time must not be inspected"
+				want := "message " + modelMessageID + " is not an A/B test (only one email variation)"
+				if kind == "no settings" {
+					f.variations = append(f.variations, modelVariationFixture("variation-b", "acme-template", "email"))
+					want = "message " + modelMessageID + " is not an A/B test (no ab_test settings)"
+				} else {
+					f.settings = map[string]any{"winner_metric": "clicks_unique"}
+					if kind == "one email and SMS" {
+						f.variations = append(f.variations, modelVariationFixture("variation-sms", "", "sms"))
+					}
+				}
+				campaignFixtureClient(t, f)
+				out, err := executeCampaignAB(t, newCampaignsABTestResultsCmd(&rootFlags{asJSON: true, rateLimit: 10000}), "--campaign-id", modelMessageID)
+				if err == nil || ExitCode(err) != 2 || err.Error() != want || len(f.writes) != 0 || len(out) != 0 {
+					t.Fatalf("error=%v want=%q output=%s writes=%v", err, want, out, f.writes)
+				}
+			})
+		}
+	}
+}
+
+func TestCampaignABResultsOnlyInfersCompletedRolloutWithUniqueRecipientLeader(t *testing.T) {
+	for _, tc := range []struct {
+		name, status, winner, note string
+		elapsed                    time.Duration
+		percentage                 int
+		recipients                 []float64
+	}{
+		{"sending after wait", "sending", "", "still running", 5 * time.Hour, 80, []float64{1000, 500}},
+		{"sent before wait", "sent", "", "still running", 4*time.Hour - time.Nanosecond, 80, []float64{1000, 500}},
+		{"sent at wait", "sent", "variation-a", "", 4 * time.Hour, 80, []float64{1000, 500}},
+		{"sent after wait", "sent", "variation-b", "", 5 * time.Hour, 80, []float64{500, 1000}},
+		{"no rollout audience", "sent", "", "winner_percentage", 5 * time.Hour, 0, []float64{1000, 500}},
+		{"tied counts", "sent", "", "counts are tied", 5 * time.Hour, 80, []float64{1000, 1000}},
+		{"tied leaders", "sent", "", "counts are tied", 5 * time.Hour, 80, []float64{500, 1000, 1000}},
+		{"zero counts", "sent", "", "counts are tied", 5 * time.Hour, 80, []float64{0, 0}},
+		{"tied trailing counts", "sent", "variation-a", "", 5 * time.Hour, 80, []float64{1000, 500, 500}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			f := newCampaignABFixture(t)
+			f.status, f.sendTime = tc.status, "2026-11-02T12:00:00Z"
+			f.settings = map[string]any{"winner_metric": "clicks_unique", "winner_percentage": tc.percentage, "winner_wait_hours": 4}
+			for i, recipients := range tc.recipients {
+				id := fmt.Sprintf("variation-%c", 'a'+i)
+				if i > 0 {
+					f.variations = append(f.variations, modelVariationFixture(id, "acme-template", "email"))
+				}
+				f.rows = append(f.rows, campaignABReportRow(id, recipients, 0, 0, 0, 0))
+			}
+			previousNow := klaviyoWindowNow
+			klaviyoWindowNow = func() time.Time { return time.Date(2026, 11, 2, 12, 0, 0, 0, time.UTC).Add(tc.elapsed) }
+			t.Cleanup(func() { klaviyoWindowNow = previousNow })
+			campaignFixtureClient(t, f)
+			out, err := executeCampaignAB(t, newCampaignsABTestResultsCmd(&rootFlags{asJSON: true, rateLimit: 10000}), "--campaign-id", modelMessageID)
+			var result campaignABResults
+			if decodeErr := json.Unmarshal(out, &result); err != nil || decodeErr != nil {
+				t.Fatalf("error=%v output=%s", err, out)
+			}
+			if tc.winner != "" {
+				if result.KlaviyoWinnerInferred == nil || result.KlaviyoWinnerInferred.VariationID != tc.winner {
+					t.Fatalf("expected winner %s: %s", tc.winner, out)
+				}
+			} else if result.KlaviyoWinnerInferred != nil || bytes.Contains(out, []byte(`"klaviyo_winner_inferred"`)) || !strings.Contains(strings.Join(result.Notes, " "), tc.note) {
+				t.Fatalf("expected no inferred winner and note %q: %s", tc.note, out)
+			}
+		})
 	}
 }
 
@@ -489,6 +639,7 @@ func TestCampaignABWindowCapsAndUsesCalendarDays(t *testing.T) {
 
 func TestCampaignABResultsLabelsSurviveReorderedVariations(t *testing.T) {
 	f := newCampaignABFixture(t)
+	f.settings = map[string]any{"winner_metric": "clicks_unique"}
 	a := f.variations[0]
 	a["id"] = "variation-z"
 	b := modelVariationFixture("variation-a", "acme-template", "email")

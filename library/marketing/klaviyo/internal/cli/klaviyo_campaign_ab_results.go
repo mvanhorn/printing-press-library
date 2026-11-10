@@ -6,6 +6,7 @@ import (
 	"math"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/platform"
 	"github.com/spf13/cobra"
@@ -74,6 +75,9 @@ func newCampaignsABTestResultsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			settings := anyPath(m.Data, "attributes.definition.ab_test")
+			if settings == nil {
+				return usageErr(fmt.Errorf("message %s is not an A/B test (no ab_test settings)", m.ID))
+			}
 			if metric == "" {
 				switch stringFromMapPath(m.Data, "attributes.definition.ab_test.winner_metric") {
 				case "opens_unique":
@@ -90,6 +94,9 @@ func newCampaignsABTestResultsCmd(flags *rootFlags) *cobra.Command {
 				if v.Channel == "email" {
 					result.Variations = append(result.Variations, campaignABVariationResult{VariationID: v.ID, Label: string(rune('A' + len(result.Variations))), Subject: v.Subject})
 				}
+			}
+			if len(result.Variations) < 2 {
+				return usageErr(fmt.Errorf("message %s is not an A/B test (only one email variation)", m.ID))
 			}
 			if metric == "opens" {
 				result.Notes = append(result.Notes, campaignABOpensNote)
@@ -131,7 +138,7 @@ func newCampaignsABTestResultsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if err := populateCampaignABResults(&result, rows); err != nil {
+			if err := populateCampaignABResults(&result, rows, m); err != nil {
 				return err
 			}
 			return printCampaignABResults(cmd, flags, result)
@@ -142,7 +149,7 @@ func newCampaignsABTestResultsCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-func populateCampaignABResults(result *campaignABResults, rows []map[string]any) error {
+func populateCampaignABResults(result *campaignABResults, rows []map[string]any, message campaignModelMessage) error {
 	byID := map[string]map[string]any{}
 	for _, row := range rows {
 		id := stringFromMapPath(row, "groupings.variation")
@@ -199,18 +206,24 @@ func populateCampaignABResults(result *campaignABResults, rows []map[string]any)
 		result.Verdict = "clear_winner"
 	}
 	settings, _ := result.ABTest.(map[string]any)
-	if anyFloat(settings["winner_percentage"]) > 0 {
-		v := result.Variations[mostRecipients]
-		if v.Recipients > 0 {
-			result.KlaviyoWinnerInferred = &campaignABInferredWinner{VariationID: v.VariationID, Label: v.Label, Basis: "inferred from recipient counts"}
-			for i, other := range result.Variations {
-				if i != mostRecipients && other.Recipients == v.Recipients {
-					result.Notes = append(result.Notes, "Recipient counts are tied; the inferred Klaviyo winner is ambiguous.")
-					break
-				}
-			}
+	if anyFloat(settings["winner_percentage"]) <= 0 {
+		result.Notes = append(result.Notes, "No Klaviyo rollout winner: winner_percentage is zero.")
+		return nil
+	}
+	sent, err := time.Parse(time.RFC3339, message.SendTime)
+	wait := time.Duration(anyFloat(settings["winner_wait_hours"]) * float64(time.Hour))
+	if message.Status != "sent" || err != nil || klaviyoWindowNow().Before(sent.Add(wait)) {
+		result.Notes = append(result.Notes, "A/B test is still running; the Klaviyo rollout winner is not yet inferred.")
+		return nil
+	}
+	v := result.Variations[mostRecipients]
+	for i, other := range result.Variations {
+		if i != mostRecipients && other.Recipients >= v.Recipients {
+			result.Notes = append(result.Notes, "Recipient counts are tied; the Klaviyo rollout winner cannot be inferred.")
+			return nil
 		}
 	}
+	result.KlaviyoWinnerInferred = &campaignABInferredWinner{VariationID: v.VariationID, Label: v.Label, Basis: "inferred from recipient counts"}
 	return nil
 }
 

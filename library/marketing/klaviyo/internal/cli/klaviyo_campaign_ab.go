@@ -189,7 +189,18 @@ func newCampaignsABTestCreateCmd(flags *rootFlags) *cobra.Command {
 				if err == nil {
 					err = fmt.Errorf("expected HTTP 200, got HTTP %d", code)
 				}
-				return rollbackCampaignAB(cmd.Context(), c, created, fmt.Errorf("A/B settings PATCH failed; settings may need inspection: %w", err))
+				err = fmt.Errorf("A/B settings PATCH failed: %w", err)
+				fresh, readErr := resolveCampaignABMessage(c, m.ID)
+				if readErr != nil {
+					return fmt.Errorf("message %s state needs inspection (created variations: %s): %w; fresh read failed: %v", m.ID, strings.Join(created, ", "), err, readErr)
+				}
+				actual := anyPath(fresh.Data, "attributes.definition.ab_test")
+				if actual == nil {
+					return rollbackCampaignAB(cmd.Context(), c, created, err)
+				}
+				if !campaignABSettingsEqual(actual, settings) {
+					return fmt.Errorf("message %s state needs inspection (created variations: %s): %w; fresh ab_test differs from requested settings", m.ID, strings.Join(created, ", "), err)
+				}
 			}
 			verified, err := resolveCampaignABMessage(c, m.ID)
 			if err == nil {
@@ -238,12 +249,7 @@ func verifyCampaignABCreate(m campaignModelMessage, want campaignABCreateResult)
 	if err := verifyCampaignDraft(&campaignModel{Messages: []campaignModelMessage{m}}); err != nil {
 		return err
 	}
-	settings, ok := anyPath(m.Data, "attributes.definition.ab_test").(map[string]any)
-	percentage, hasPercentage := settings["winner_percentage"]
-	wait, hasWait := settings["winner_wait_hours"]
-	if !ok || !hasPercentage || !hasWait || len(settings) != len(want.ABTest) || settings["winner_metric"] != want.ABTest["winner_metric"] ||
-		anyFloat(percentage) != anyFloat(want.ABTest["winner_percentage"]) ||
-		anyFloat(wait) != anyFloat(want.ABTest["winner_wait_hours"]) {
+	if !campaignABSettingsEqual(anyPath(m.Data, "attributes.definition.ab_test"), want.ABTest) {
 		return fmt.Errorf("A/B settings differ from requested settings")
 	}
 	if len(m.Variations) != len(want.Variations) {
@@ -260,6 +266,14 @@ func verifyCampaignABCreate(m campaignModelMessage, want campaignABCreateResult)
 		}
 	}
 	return nil
+}
+
+func campaignABSettingsEqual(actual any, want map[string]any) bool {
+	settings, ok := actual.(map[string]any)
+	percentage, hasPercentage := settings["winner_percentage"]
+	wait, hasWait := settings["winner_wait_hours"]
+	return ok && hasPercentage && hasWait && len(settings) == len(want) && settings["winner_metric"] == want["winner_metric"] &&
+		anyFloat(percentage) == anyFloat(want["winner_percentage"]) && anyFloat(wait) == anyFloat(want["winner_wait_hours"])
 }
 
 func printCampaignABCreate(cmd *cobra.Command, flags *rootFlags, result campaignABCreateResult) error {
