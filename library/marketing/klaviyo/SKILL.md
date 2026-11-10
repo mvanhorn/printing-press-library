@@ -80,6 +80,31 @@ These capabilities aren't available in any other tool for this API.
   klaviyo-pp-cli campaigns image-swap --campaign-id CAMPAIGN_ID --old-url https://cdn.example.com/old.jpg --new-url https://cdn.example.com/new.jpg --json
   ```
 
+- **`campaigns ab-test create`** - Add one to six subject-line alternatives to an unscheduled draft email message. The existing variation is A; new variations B through G share A's template and sender fields.
+
+  Repeat `--subject` for each new variation. Preview text is copied from A unless `--preview-text` is repeated once per new subject. Empty subjects, duplicate subjects, scheduled messages and existing tests are refused. `--campaign-id` accepts a container with exactly one email message or a message ID; containers with several messages list the IDs to choose from.
+
+  `--winner-metric` accepts `clicks` (default), `opens` or `orders`. `--test-percent` defaults to 20 and accepts 1 to 100; this share is split evenly across all variations, and the remaining share receives the winner. `--wait-hours` defaults to 4 and accepts 1 to 264. Apple Mail Privacy Protection inflates opens, so clicks or orders pick a truer winner.
+
+  `--dry-run` reads current state and prints the plan without writing. Creates are attempted once; a failed create or settings update triggers best-effort deletion of this run's known new variations. An ambiguous create can leave an unconfirmed variation and reports that uncertainty. A successful command re-reads subjects, settings, draft status and send time. It never schedules or sends. Run `campaigns test-send --campaign-id acme-message-id` afterward to preview every variation.
+
+  ```bash
+  klaviyo-pp-cli campaigns ab-test create --campaign-id acme-message-id \
+    --subject "Acme: a new way to start" --subject "Start with Acme today" \
+    --preview-text "Your next step" --preview-text "See what's new" \
+    --winner-metric clicks --test-percent 20 --wait-hours 4 --dry-run --json
+  ```
+
+- **`campaigns ab-test results`** - Read recipient counts, unique opens and clicks, rates, orders, revenue and revenue per recipient for each email variation. Unsent messages return `too_early` without querying reports. Missing variation rows produce zeros for available metrics.
+
+  `--metric` accepts `clicks`, `opens` or `orders`; it defaults to the test's winner metric, then clicks. The rate leader must beat every other variation in a two-sided pooled two-proportion z-test with p < 0.05 for `clear_winner`; otherwise the verdict is `no_clear_winner`. P-values, an opens privacy note and small-sample notes (fewer than 100 selected metric events) accompany the result. When the winner audience share is positive, the most-mailed variation is labelled as a Klaviyo winner inferred from recipient counts.
+
+  Reports use the day before the send date through now in `KLAVIYO_TIMEZONE` (default UTC), capped to the provider's 364-day window. `--conversion-metric-id` overrides the default Shopify Placed Order auto-resolution. If auto-resolution cannot find a usable order metric, clicks and opens use Received Email for reporting; orders, revenue and revenue per recipient are unavailable (`null` in JSON), with a note. Comparing orders requires a usable order metric. JSON includes message ID, A/B settings, timeframe, variations, verdict, leader, p-values and notes.
+
+  ```bash
+  klaviyo-pp-cli campaigns ab-test results --campaign-id acme-message-id --metric clicks --json
+  ```
+
 ### Flow and form operations
 
 - **`flows insert-step`** - Preview one new action after an existing flow action. Use `--step-file` for a JSON action definition without links, or `--stdin` to read it from stdin; add `--apply` to insert it once and verify placement.
@@ -234,7 +259,7 @@ Both form commands refuse a draft A/B test. `--dry-run` always previews, even wi
 
 **campaigns** - campaigns
 
-Use `campaigns deploy` for an unscheduled email draft and `campaigns test-send` for QA followed by inbox previews.
+Use `campaigns deploy` for an unscheduled email draft and `campaigns test-send` for QA followed by inbox previews. Use `campaigns ab-test create` for subject-line alternatives and `campaigns ab-test results` to compare their performance.
 
 `campaigns create` translates legacy `--data-attributes-name` and `--data-attributes-campaign-messages` into the new definition, messages, and variations; a legacy audience object becomes one inline audience. `--stdin` bodies pass through unchanged and must already use the new model. The flags `--data-attributes-send-options`, `--data-attributes-send-strategy`, and `--data-attributes-tracking-options` were removed: put campaign `send_settings` in `--data-attributes-definition` and supported message settings (`is_add_utm`, `throttling_type`) in `--data-attributes-messages`.
 

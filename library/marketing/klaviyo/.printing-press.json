@@ -20,8 +20,8 @@
   "category": "marketing",
   "description": "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation.",
   "mcp_binary": "klaviyo-pp-mcp",
-  "mcp_tool_count": 92,
-  "mcp_public_tool_count": 92,
+  "mcp_tool_count": 94,
+  "mcp_public_tool_count": 94,
   "mcp_ready": "full",
   "api_version": "2026-10-15",
   "auth_type": "api_key",
@@ -46,6 +46,16 @@
       "name": "Campaign Image Swap",
       "command": "campaigns image-swap",
       "description": "Find a campaign message template and replace an image URL inside the HTML while preserving the rest of the draft."
+    },
+    {
+      "name": "Campaign A/B Test",
+      "command": "campaigns ab-test create",
+      "description": "Add subject-line variations to one unscheduled draft email message, configure winner selection, and verify the saved test."
+    },
+    {
+      "name": "Campaign A/B Results",
+      "command": "campaigns ab-test results",
+      "description": "Compare per-variation email rates with two-proportion z-tests and infer Klaviyo's rollout winner from recipient counts."
     },
     {
       "name": "Flow Decay",

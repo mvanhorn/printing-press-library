@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-campaign-ab-tests",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261110-011500-4505b426",
+  "base_printing_press_version": "4.35.4",
+  "summary": "A/B creation must touch only unscheduled drafts, roll back or stop safely, and verify by readback, while results compare variations with significance tests and never invent a winner.",
+  "reason": "Subject-line tests use message settings and per-variation results; replayed writes can duplicate variations, and aggregate totals or unavailable metrics can mislead winner selection.",
+  "files": [
+    "internal/cli/klaviyo_campaign_ab.go",
+    "internal/cli/klaviyo_campaign_ab_results.go",
+    "internal/cli/klaviyo_campaign_ab_test.go",
+    "internal/cli/klaviyo_campaign_model.go",
+    "internal/cli/klaviyo_commands.go",
+    "internal/client/klaviyo_campaign_test_send.go",
+    "internal/client/klaviyo_campaign_ab_test.go",
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md"
+  ]
+}

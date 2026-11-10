@@ -21,7 +21,21 @@ func (t campaignTestSendTransport) RoundTrip(req *http.Request) (*http.Response,
 
 // PostCampaignTestSend makes one attempt, including for rate limits and ambiguous failures.
 func (c *Client) PostCampaignTestSend(ctx context.Context, body any) (json.RawMessage, int, error) {
-	const path = "/api/template-preview-send-jobs"
+	return c.postCampaignOnce(ctx, "/api/template-preview-send-jobs", body, platform.EndpointBudget{
+		Class: "POST /api/template-preview-send-jobs", Steady: 15, Interval: time.Minute, Burst: 1,
+		MaxAttempts: 1, RetryBudget: time.Minute,
+	})
+}
+
+// PostCampaignVariation must not replay a create, even with an inherited idempotency key.
+func (c *Client) PostCampaignVariation(ctx context.Context, body any) (json.RawMessage, int, error) {
+	return c.postCampaignOnce(ctx, "/api/campaign-variations", body, platform.EndpointBudget{
+		Class: "POST /api/campaign-variations", Steady: 150, Interval: time.Minute, Burst: 10,
+		MaxAttempts: 1, RetryBudget: time.Minute,
+	})
+}
+
+func (c *Client) postCampaignOnce(ctx context.Context, path string, body any, budget platform.EndpointBudget) (json.RawMessage, int, error) {
 	httpClient := *c.HTTPClient
 	transport := httpClient.Transport
 	if transport == nil {
@@ -29,15 +43,11 @@ func (c *Client) PostCampaignTestSend(ctx context.Context, body any) (json.RawMe
 	}
 	httpClient.Transport = campaignTestSendTransport{transport}
 	httpClient.CheckRedirect = func(*http.Request, []*http.Request) error {
-		return fmt.Errorf("campaign test sends cannot follow redirects")
+		return fmt.Errorf("campaign POST %s cannot follow redirects", path)
 	}
 	previousHTTPClient := c.HTTPClient
 	c.HTTPClient = &httpClient
 	defer func() { c.HTTPClient = previousHTTPClient }()
-	budget := platform.EndpointBudget{
-		Class: "POST " + path, Steady: 15, Interval: time.Minute, Burst: 1,
-		MaxAttempts: 1, RetryBudget: time.Minute,
-	}
 	c.platformLimiterMu.Lock()
 	if c.platformBudgets == nil {
 		c.platformBudgets = map[string]platform.EndpointBudget{}
@@ -56,8 +66,12 @@ func (c *Client) PostCampaignTestSend(ctx context.Context, body any) (json.RawMe
 		}
 		delete(c.platformLimiters, budget.Class)
 	}()
-	return c.PostWithHeaders(ctx, path, body, map[string]string{
+	raw, code, err := c.PostWithHeaders(ctx, path, body, map[string]string{
 		"Accept": "application/vnd.api+json", "Content-Type": "application/vnd.api+json",
 		ReplaySafeHeader: "false",
 	})
+	if err == nil && code >= 300 && code < 400 {
+		return raw, code, fmt.Errorf("campaign POST %s cannot follow redirects (HTTP %d)", path, code)
+	}
+	return raw, code, err
 }

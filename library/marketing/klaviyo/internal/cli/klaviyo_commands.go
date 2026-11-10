@@ -28,6 +28,7 @@ func init() {
 			if parent.Name() == "campaigns" {
 				addNovelCommandIfAbsent(parent, newCampaignsDeployCmd(flags))
 				addNovelCommandIfAbsent(parent, newCampaignsImageSwapCmd(flags))
+				addNovelCommandIfAbsent(parent, newCampaignsABTestCmd(flags))
 				addNovelCommandIfAbsent(parent, newCampaignsScheduleConflictsCmd(flags))
 			}
 		}
