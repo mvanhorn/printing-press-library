@@ -16736,6 +16736,12 @@
         "Campaign Image Swap",
         "campaigns image-swap",
         "Find a campaign message template and replace an image URL inside the HTML while preserving the rest of the draft.",
+        "Campaign A/B Test",
+        "campaigns ab-test create",
+        "Add subject-line variations to one unscheduled draft email message, configure winner selection, and verify the saved test.",
+        "Campaign A/B Results",
+        "campaigns ab-test results",
+        "Compare per-variation email rates with two-proportion z-tests and infer Klaviyo's rollout winner from recipient counts.",
         "Flow Decay",
         "flow-decay",
         "Identify flows whose open or click performance has decayed across recent time buckets using synced local data.",
@@ -16795,8 +16801,8 @@
           "stdio",
           "http"
         ],
-        "tool_count": 92,
-        "public_tool_count": 92,
+        "tool_count": 94,
+        "public_tool_count": 94,
         "auth_type": "api_key",
         "env_vars": [
           "PRINTING_PRESS_CLIENT_PROFILE"
