@@ -63,7 +63,7 @@ func main() {
 	}
 	s := server.NewMCPServer(
 		"Klaviyo",
-		"1.0.0",
+		cli.Version(),
 		server.WithToolCapabilities(false),
 	)
 

@@ -21,3 +21,6 @@ func newVersionCmd() *cobra.Command {
 		},
 	}
 }
+
+// Version reports the CLI release version; the MCP server reports the same value.
+func Version() string { return version }

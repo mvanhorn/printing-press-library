@@ -114,5 +114,6 @@
     }
   ],
   "catalog_description": "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation.",
-  "spec_source": "official"
+  "spec_source": "official",
+  "run_id": "20261110-011500-4505b426"
 }
