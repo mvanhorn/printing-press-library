@@ -30,14 +30,15 @@ type campaignModelMessage struct {
 }
 
 type campaignModelVariation struct {
-	ID          string `json:"id"`
-	Channel     string `json:"channel"`
-	TemplateID  string `json:"template_id"`
-	Subject     string `json:"subject"`
-	PreviewText string `json:"preview_text"`
-	FromEmail   string `json:"from_email"`
-	FromLabel   string `json:"from_label"`
-	ReplyTo     string `json:"reply_to_email"`
+	Data        map[string]any `json:"-"`
+	ID          string         `json:"id"`
+	Channel     string         `json:"channel"`
+	TemplateID  string         `json:"template_id"`
+	Subject     string         `json:"subject"`
+	PreviewText string         `json:"preview_text"`
+	FromEmail   string         `json:"from_email"`
+	FromLabel   string         `json:"from_label"`
+	ReplyTo     string         `json:"reply_to_email"`
 }
 
 func campaignNotFound(err error) bool {
@@ -222,6 +223,7 @@ func resolveCampaignMessageWithVariations(c templateReader, data map[string]any,
 		if v.Channel == "" {
 			return m, fmt.Errorf("variation %s channel is missing", v.ID)
 		}
+		v.Data = data
 		m.Variations = append(m.Variations, v)
 	}
 	return m, nil

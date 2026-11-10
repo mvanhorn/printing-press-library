@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-campaign-ab-tests",
+  "applied_at": "2026-11-09",
+  "base_run_id": "20261110-011500-4505b426",
+  "base_printing_press_version": "4.35.4",
+  "summary": "Preserve campaigns ab-test create and results for revision 2026-10-15. Resolve container or message IDs through the shared resolver and reject multi-message containers with selectable message IDs. Create only on one unscheduled draft email variation with no existing ab_test. Copy the original template, sender, reply, CC, BCC and preview fields into one to six distinct subject alternatives B through G; apply winner settings on the message, never schedule or send, and verify subjects, settings and unscheduled draft state from fresh reads. Variation POSTs must have exactly one attempt even with inherited idempotency headers, transport replay or redirects; on create or PATCH failure, best-effort delete every known variation created in this run and name cleanup failures and ambiguous outcomes. Dry runs read current evidence without writes. Results return too_early before a report call for unsent messages, otherwise auto-resolve the order metric and paginate per-variation campaign values reports within a timezone-aware calendar window capped to 364 days. Join on variation ID, fill missing rows with zeros, compute revenue per recipient and two-sided pooled two-proportion z-tests for the rate leader against every other variation, and emit clear_winner only when every p-value is below 0.05. Include opens privacy and small-sample notes and label the most-mailed variation as an inferred Klaviyo winner when winner_percentage is positive. Keep registration, novel feature metadata, flags and campaign documentation aligned.",
+  "reason": "Subject-line tests belong to campaign variations and message ab_test settings in the omnichannel campaign model; replaying creates would duplicate variations, and aggregate campaign totals cannot compare variation performance. Both create and results must label variations by attributes.created ascending, with variation ID as the tie-breaker, so the original variation stays A even when names sort differently.",
+  "files": [
+    "internal/cli/klaviyo_campaign_ab.go",
+    "internal/cli/klaviyo_campaign_ab_results.go",
+    "internal/cli/klaviyo_campaign_ab_test.go",
+    "internal/cli/klaviyo_campaign_model.go",
+    "internal/cli/klaviyo_commands.go",
+    "internal/client/klaviyo_campaign_test_send.go",
+    "internal/client/klaviyo_campaign_ab_test.go",
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md"
+  ]
+}

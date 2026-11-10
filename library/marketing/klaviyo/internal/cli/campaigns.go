@@ -25,5 +25,6 @@ func newCampaignsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newCampaignsCampaignMessagesCmd(flags))
 	cmd.AddCommand(newCampaignsRelationshipsCmd(flags))
 	cmd.AddCommand(newCampaignsTagsCmd(flags))
+	cmd.AddCommand(newCampaignsABTestCmd(flags))
 	return cmd
 }
