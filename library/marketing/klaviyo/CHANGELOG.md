@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.5 - 2026-11-10
+
+- feat(klaviyo): move to Klaviyo API 2026-10-15 and add test-send, send-budget, brand QA, flow insert-step and form publishing (#2457).
+
 ## 2026.11.4 - 2026-11-09
 
 - fix(klaviyo): clamp explicit windows on whole days (#2456).
