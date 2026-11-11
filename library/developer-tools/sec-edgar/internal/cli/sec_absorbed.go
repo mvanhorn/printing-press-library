@@ -8,6 +8,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"regexp"
 	"sort"
 	"strconv"
@@ -20,7 +21,8 @@ import (
 // ---------- companies lookup ----------
 //
 // Resolves a ticker (or company-name fragment) to its CIK + name by reading
-// the SEC's company_tickers.json. Backs both `companies lookup <ticker>` and
+// the SEC's company_tickers.json, falling back to the EFTS entity index when
+// that file is unavailable. Backs both `companies lookup <ticker>` and
 // `companies search "<query>"`.
 
 type tickerRow struct {
@@ -30,7 +32,25 @@ type tickerRow struct {
 	Padded string `json:"-"`
 }
 
-func fetchTickerMap(c clientLike) ([]tickerRow, error) {
+// fetchTickerMap returns ticker rows for the given ticker or company-name
+// queries. It reads the full company_tickers.json map first. www.sec.gov
+// rejects some User-Agents with HTTP 403 that data.sec.gov and efts.sec.gov
+// accept, so when the full map fails each query is resolved through the EFTS
+// entity index instead. Callers filter the returned rows the same way in both
+// cases; the fallback only returns rows related to the queries.
+func fetchTickerMap(c clientLike, queries ...string) ([]tickerRow, error) {
+	rows, err := fetchFullTickerMap(c)
+	if err == nil || len(queries) == 0 {
+		return rows, err
+	}
+	fallback, ferr := fetchEFTSEntityRows(c, queries)
+	if ferr != nil {
+		return nil, fmt.Errorf("%w (EFTS entity fallback also failed: %v)", err, ferr)
+	}
+	return fallback, nil
+}
+
+func fetchFullTickerMap(c clientLike) ([]tickerRow, error) {
 	var raw map[string]struct {
 		CIK    int64  `json:"cik_str"`
 		Ticker string `json:"ticker"`
@@ -47,6 +67,71 @@ func fetchTickerMap(c clientLike) ([]tickerRow, error) {
 			Title:  v.Title,
 			Padded: fmt.Sprintf("%010d", v.CIK),
 		})
+	}
+	return out, nil
+}
+
+// eftsEntityResponse models efts.sec.gov/LATEST/search-index?keysTyped=...,
+// the entity autocomplete behind EDGAR's company search box. _id is the
+// unpadded CIK, tickers is a comma-separated list ("GOOG, GOOGL"), and entity
+// carries the tickers as a parenthesized suffix ("Apple Inc. (AAPL)").
+type eftsEntityResponse struct {
+	Hits struct {
+		Hits []struct {
+			ID     string `json:"_id"`
+			Source struct {
+				Entity  string `json:"entity"`
+				Tickers string `json:"tickers"`
+			} `json:"_source"`
+		} `json:"hits"`
+	} `json:"hits"`
+}
+
+func eftsEntityURL(query string) string {
+	v := url.Values{}
+	v.Set("keysTyped", query)
+	return "https://efts.sec.gov/LATEST/search-index?" + v.Encode()
+}
+
+// fetchEFTSEntityRows resolves each query through the EFTS entity index and
+// returns one row per (CIK, ticker) pair in EFTS rank order. Entities without
+// a ticker are skipped, matching company_tickers.json, which only lists
+// issuers with a listed ticker.
+func fetchEFTSEntityRows(c clientLike, queries []string) ([]tickerRow, error) {
+	out := []tickerRow{}
+	seen := map[string]bool{}
+	for _, q := range queries {
+		q = strings.TrimSpace(q)
+		if q == "" {
+			continue
+		}
+		var resp eftsEntityResponse
+		if err := fetchSECJSON(c, eftsEntityURL(q), &resp); err != nil {
+			return nil, err
+		}
+		for _, h := range resp.Hits.Hits {
+			cik, err := strconv.ParseInt(strings.TrimSpace(h.ID), 10, 64)
+			if err != nil || cik <= 0 {
+				continue
+			}
+			tickers := strings.FieldsFunc(h.Source.Tickers, func(r rune) bool {
+				return r == ',' || r == ' '
+			})
+			title := strings.TrimSpace(strings.TrimSuffix(h.Source.Entity, " ("+strings.TrimSpace(h.Source.Tickers)+")"))
+			for _, t := range tickers {
+				key := strconv.FormatInt(cik, 10) + "|" + t
+				if seen[key] {
+					continue
+				}
+				seen[key] = true
+				out = append(out, tickerRow{
+					CIK:    cik,
+					Ticker: t,
+					Title:  title,
+					Padded: fmt.Sprintf("%010d", cik),
+				})
+			}
+		}
 	}
 	return out, nil
 }
@@ -68,7 +153,7 @@ func newCompaniesLookupCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows, err := fetchTickerMap(c)
+			rows, err := fetchTickerMap(c, args[0])
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -83,7 +168,7 @@ func newCompaniesLookupCmd(flags *rootFlags) *cobra.Command {
 					return printJSONOrTable(cmd, flags, []map[string]any{out})
 				}
 			}
-			return usageErr(fmt.Errorf("ticker %q not found in SEC company_tickers.json; try 'companies search' for fuzzy matching", args[0]))
+			return usageErr(fmt.Errorf("ticker %q not found in the SEC company directory; try 'companies search' for fuzzy matching", args[0]))
 		},
 	}
 	return cmd
@@ -107,11 +192,12 @@ func newCompaniesSearchCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows, err := fetchTickerMap(c)
+			query := strings.TrimSpace(strings.Join(args, " "))
+			rows, err := fetchTickerMap(c, query)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			needle := strings.ToLower(strings.TrimSpace(strings.Join(args, " ")))
+			needle := strings.ToLower(query)
 			matches := make([]map[string]any, 0, 32)
 			for _, r := range rows {
 				name := strings.ToLower(r.Title)

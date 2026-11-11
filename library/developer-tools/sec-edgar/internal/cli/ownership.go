@@ -221,7 +221,7 @@ func resolveOwnershipCIK(c clientLike, input string) (cik, title string, err err
 		}
 		return p, "", nil
 	}
-	rows, ferr := fetchTickerMap(c)
+	rows, ferr := fetchTickerMap(c, in)
 	if ferr != nil {
 		return "", "", ferr
 	}

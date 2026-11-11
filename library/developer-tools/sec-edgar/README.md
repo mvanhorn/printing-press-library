@@ -4,7 +4,7 @@
 
 An agent-native CLI for the entire SEC EDGAR surface — data.sec.gov XBRL, efts.sec.gov full-text search, and the live Atom feed. The synced SQLite store enables joins no single SEC endpoint supports: insider-cluster detection across issuers, XBRL peer-group benchmarks by SIC, 13F holdings deltas across quarters, and live filing watches with multi-dimensional filters. All free — SEC provides no API key, just a mandatory User-Agent header.
 
-Created by [@ChrisDrit](https://github.com/ChrisDrit) (Chris Drit). Contributors: [@Alexi5000](https://github.com/Alexi5000) (Alex Cinovoj).
+Created by [@ChrisDrit](https://github.com/ChrisDrit) (Chris Drit). Contributors: [@Alexi5000](https://github.com/Alexi5000) (Alex Cinovoj), [@officialasishkumar](https://github.com/officialasishkumar) (Asish Kumar).
 
 ## Install
 
@@ -316,6 +316,7 @@ Environment variables:
 ### API-specific
 
 - **HTTP 403 from data.sec.gov** — The User-Agent header is missing or generic. Set SEC_EDGAR_USER_AGENT='Your Name your@email.com' and retry.
+- **HTTP 403 from www.sec.gov/files/company_tickers.json** — www.sec.gov can reject a User-Agent that data.sec.gov and efts.sec.gov accept. `companies lookup`, `companies search`, `cross-section --ticker`, and `ownership` then resolve tickers and names through the EFTS company index instead, which returns the top matches for each query rather than the full directory.
 - **HTTP 429 (rate-limited)** — Reduce concurrency. The CLI caps at 8 req/sec by default; --concurrency 4 halves it. Sync commands resume from cursor.
 - **CIK not found** — CIKs are 10 digits with leading zeros. Use 'companies lookup <ticker>' to resolve; the CLI also accepts un-padded CIKs and pads them.
 - **Empty 'facts company' output for a known filer** — Not all filers report XBRL (e.g. older filings, foreign private issuers using 20-F). 'filings list' shows what they did file.
