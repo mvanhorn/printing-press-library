@@ -996,6 +996,19 @@ func printJSONOrTable(cmd *cobra.Command, flags *rootFlags, rows []map[string]an
 }
 
 func printJSONOrTableWithMeta(cmd *cobra.Command, flags *rootFlags, rows []map[string]any, meta map[string]any) error {
+	// --csv and --plain ask for flat rows, so they win over the JSON envelope
+	// that piped output gets by default. meta has no place in a row stream and
+	// is dropped, as it is for the terminal table.
+	if flags.csv || flags.plain {
+		if rows == nil {
+			rows = []map[string]any{}
+		}
+		inner, err := json.Marshal(rows)
+		if err != nil {
+			return err
+		}
+		return printOutputWithFlags(cmd.OutOrStdout(), inner, flags)
+	}
 	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 		out := map[string]any{
 			"results": rows,

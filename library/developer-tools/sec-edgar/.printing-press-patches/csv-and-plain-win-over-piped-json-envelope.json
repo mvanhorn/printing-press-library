@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "csv-and-plain-win-over-piped-json-envelope",
+  "applied_at": "2026-11-11",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Hand-written commands that print through printJSONOrTableWithMeta honor --csv and --plain before falling back to the JSON envelope for piped output; CSV and plain cells print numbers in full rather than in scientific notation.",
+  "reason": "fts, filings list/get/exhibits, companies lookup/search, feed latest, status, sic show, facts statement and the transcendence commands always printed the {results, meta} JSON envelope when stdout was not a terminal, silently ignoring --csv and --plain; this print predates the generator's printPlain, so --plain did nothing anywhere.",
+  "files": [
+    "internal/cli/sec_absorbed.go",
+    "internal/cli/helpers.go",
+    "internal/cli/output_format_test.go"
+  ],
+  "validated_outcome": "Piped `filings list --csv` and `--plain` print header plus rows, `facts statement --csv` prints 265595000000 instead of 2.65595e+11, and output without a format flag keeps the JSON envelope."
+}
