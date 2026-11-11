@@ -79,6 +79,20 @@ var retractionDashCases = []retractionCase{
 		why:   "synthetic: a hyphenated compound is not a separator; the dash needs a space after it",
 	},
 	{
+		name:  "dash_without_space_before",
+		title: "Retracted- a study of citation decay after retraction",
+		flag:  false,
+		want:  NotRetracted,
+		why:   "synthetic: whitespace is required on BOTH sides of the dash; this guards the left side",
+	},
+	{
+		name:  "noun_dash_without_space_before",
+		title: "Retracted Paper- citations in oncology",
+		flag:  false,
+		want:  NotRetracted,
+		why:   "synthetic: the left-side space rule also holds after a listed noun",
+	},
+	{
 		name:  "withdrawal_is_not_withdrawn",
 		title: "Withdrawal of antidepressants - a review",
 		flag:  false,

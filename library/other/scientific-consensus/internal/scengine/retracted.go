@@ -80,7 +80,7 @@ const (
 // Deliberately NOT matched: "Retraction Note: ..." — the notice is a separate
 // indexed work, "retraction" is not "retracted", and filtering notices is a
 // different rule needing its own measurement.
-var retractionMarkerRe = regexp.MustCompile(`(?i)^\s*\[?\s*(retracted|withdrawn)\b(?:[^:\]]{0,20}[:\]]|(?:\s+(?:article|paper|publication|manuscript|chapter))?\s*[-\x{2013}\x{2014}]\s)`)
+var retractionMarkerRe = regexp.MustCompile(`(?i)^\s*\[?\s*(retracted|withdrawn)\b(?:[^:\]]{0,20}[:\]]|(?:\s+(?:article|paper|publication|manuscript|chapter))?\s+[-\x{2013}\x{2014}]\s)`)
 
 // DetectRetraction reports a work's retraction status from its title and the
 // source index's retraction flag.
