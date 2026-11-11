@@ -92,11 +92,38 @@ func TestLegacyGatewayKeyIsNotSentToTheCloud(t *testing.T) {
 	}
 }
 
+// A saved cloud key next to the legacy pair has its own store. The legacy key's store
+// must not adopt it as an older name, or the next cloud-only run loses that history.
+func TestLegacyStoreScopeDoesNotAdoptTheSavedCloudStore(t *testing.T) {
+	cfg := loadWithEnv(t, "", nil)
+	if err := cfg.SaveCredential("saved-cloud"); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("UNIFI_GATEWAY_HOST", "192.0.2.9")
+	t.Setenv("UNIFI_API_KEY", "legacy-key")
+	reloaded, err := Load(cfg.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reloaded.UnifiApiKey != "saved-cloud" {
+		t.Fatalf("setup: saved cloud key = %q", reloaded.UnifiApiKey)
+	}
+	if got := reloaded.StoreScopeCredential(); got != "legacy-key" {
+		t.Fatalf("store scope = %q, want the legacy key", got)
+	}
+	if got := reloaded.StoreScopeLegacyCredential(); got != "legacy-key" {
+		t.Fatalf("migration source = %q, want the legacy key (nothing to adopt)", got)
+	}
+}
+
 // Only the legacy pair overrides the store scope; every other setup keeps its own.
 func TestStoreScopeUnchangedOutsideTheLegacyPair(t *testing.T) {
 	cloud := loadWithEnv(t, "", map[string]string{"UNIFI_API_KEY": "cloud-key"})
 	if got := cloud.StoreScopeCredential(); got != "cloud-key" {
 		t.Fatalf("cloud store scope = %q, want cloud-key", got)
+	}
+	if got := cloud.StoreScopeLegacyCredential(); got != "cloud-key" {
+		t.Fatalf("cloud migration source = %q, want cloud-key", got)
 	}
 	local := loadWithEnv(t, "", map[string]string{"UNIFI_GATEWAY": "192.0.2.10", "UNIFI_LOCAL_API_KEY": "local"})
 	if got := local.StoreScopeCredential(); got != "" {

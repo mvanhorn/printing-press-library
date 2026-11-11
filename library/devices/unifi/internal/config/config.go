@@ -585,6 +585,12 @@ func (c *Config) StoreScopeLegacyCredential() string {
 	if c == nil {
 		return ""
 	}
+	// PATCH(unifi-legacy-gateway-key-stays-local): the legacy gateway key already
+	// named the store before it stopped doubling as the cloud key, so there is no
+	// older name to adopt. A saved cloud key's store is not a migration source.
+	if id := legacyGatewayStoreScope(c); id != "" {
+		return id
+	}
 	return c.legacyStoreScopeCredential()
 }
 
