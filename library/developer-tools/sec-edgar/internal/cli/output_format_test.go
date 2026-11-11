@@ -97,3 +97,20 @@ func TestPrintJSONOrTableDefaultPipedEnvelope(t *testing.T) {
 		t.Fatalf("envelope = %+v", env)
 	}
 }
+
+// --agent sets --compact, whose generic allow-list matches none of these
+// commands' columns; with --csv or --plain it must not blank every row.
+func TestPrintJSONOrTableAgentKeepsRowColumns(t *testing.T) {
+	rows := []map[string]any{{"form": "8-K", "file_date": "2026-11-02"}}
+	agent := rootFlags{agent: true, asJSON: true, compact: true}
+	csvFlags := agent
+	csvFlags.csv = true
+	if got, want := printRows(t, &csvFlags, rows, nil), "file_date,form\n2026-11-02,8-K\n"; got != want {
+		t.Fatalf("--agent --csv output:\n%q\nwant:\n%q", got, want)
+	}
+	plainFlags := agent
+	plainFlags.plain = true
+	if got, want := printRows(t, &plainFlags, rows, nil), "file_date\tform\n2026-11-02\t8-K\n"; got != want {
+		t.Fatalf("--agent --plain output:\n%q\nwant:\n%q", got, want)
+	}
+}

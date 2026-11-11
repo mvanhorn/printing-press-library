@@ -1007,7 +1007,11 @@ func printJSONOrTableWithMeta(cmd *cobra.Command, flags *rootFlags, rows []map[s
 		if err != nil {
 			return err
 		}
-		return printOutputWithFlags(cmd.OutOrStdout(), inner, flags)
+		// --agent turns on --compact, whose generic allow-list keeps none of
+		// these commands' columns. The JSON envelope below ignores it too.
+		rowFlags := *flags
+		rowFlags.compact = false
+		return printOutputWithFlags(cmd.OutOrStdout(), inner, &rowFlags)
 	}
 	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 		out := map[string]any{
