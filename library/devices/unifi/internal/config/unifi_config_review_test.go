@@ -85,6 +85,23 @@ func TestLegacyGatewayKeyIsNotSentToTheCloud(t *testing.T) {
 	if cfg.AuthSource == "env:UNIFI_API_KEY" {
 		t.Fatalf("auth source still claims the env cloud key: %q", cfg.AuthSource)
 	}
+	// The key used to scope the local store as the cloud credential; it has to keep
+	// doing so, or an upgrade strands the existing data-<hash>.db.
+	if got := cfg.StoreScopeCredential(); got != "legacy-key" {
+		t.Fatalf("store scope = %q, want the legacy key", got)
+	}
+}
+
+// Only the legacy pair overrides the store scope; every other setup keeps its own.
+func TestStoreScopeUnchangedOutsideTheLegacyPair(t *testing.T) {
+	cloud := loadWithEnv(t, "", map[string]string{"UNIFI_API_KEY": "cloud-key"})
+	if got := cloud.StoreScopeCredential(); got != "cloud-key" {
+		t.Fatalf("cloud store scope = %q, want cloud-key", got)
+	}
+	local := loadWithEnv(t, "", map[string]string{"UNIFI_GATEWAY": "192.0.2.10", "UNIFI_LOCAL_API_KEY": "local"})
+	if got := local.StoreScopeCredential(); got != "" {
+		t.Fatalf("local-only store scope = %q, want unscoped", got)
+	}
 }
 
 // UNIFI_API_KEY stays the cloud key whenever the legacy host did not move it.

@@ -84,6 +84,22 @@ func (c *Config) legacyAPIKeyIsLocal() bool {
 	return legacyKey
 }
 
+func init() {
+	StoreScopeIdentity = legacyGatewayStoreScope
+}
+
+// legacyGatewayStoreScope keeps the local database a legacy UNIFI_GATEWAY_HOST install
+// has been writing. Before the gateway key stopped doubling as the cloud key, it named the
+// credential-scoped store, so it has to keep naming it or digests, snapshots and change
+// records would move to a fresh data.db.
+func legacyGatewayStoreScope(c *Config) string {
+	target, legacyKey := c.resolveUniFiTarget()
+	if !legacyKey {
+		return ""
+	}
+	return target.LocalAPIKey
+}
+
 // resolveUniFiTarget also reports whether the local key came from UNIFI_API_KEY.
 func (c *Config) resolveUniFiTarget() (UniFiTarget, bool) {
 	var target UniFiTarget
