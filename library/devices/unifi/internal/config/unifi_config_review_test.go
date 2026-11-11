@@ -8,19 +8,7 @@ import (
 
 func loadFixture(t *testing.T, contents string) *Config {
 	t.Helper()
-	for _, name := range []string{"UNIFI_CONSOLE_ID", "UNIFI_GATEWAY", "UNIFI_GATEWAY_HOST", "UNIFI_LOCAL_API_KEY", "UNIFI_TRANSPORT", "UNIFI_API_KEY"} {
-		t.Setenv(name, "")
-	}
-	t.Setenv("UNIFI_HOME", t.TempDir())
-	path := filepath.Join(t.TempDir(), "config.toml")
-	if err := os.WriteFile(path, []byte(contents), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	cfg, err := Load(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return cfg
+	return loadWithEnv(t, contents, nil)
 }
 
 // Saving a key must not forget which console or gateway it is for, or the next command
@@ -62,6 +50,65 @@ func TestLegacyGatewayHostStillRoutesLocally(t *testing.T) {
 	t.Setenv("UNIFI_LOCAL_API_KEY", "")
 	if got := cfg.UniFiTarget(); got.Gateway != "" || got.LocalAPIKey != "" {
 		t.Fatalf("the cloud key must not become a local key without the legacy host: %+v", got)
+	}
+}
+
+// loadWithEnv loads contents with the given UniFi env vars set (the rest cleared) before
+// Load runs, since Load is where UNIFI_API_KEY becomes the cloud credential.
+func loadWithEnv(t *testing.T, contents string, env map[string]string) *Config {
+	t.Helper()
+	for _, name := range []string{"UNIFI_CONSOLE_ID", "UNIFI_GATEWAY", "UNIFI_GATEWAY_HOST", "UNIFI_LOCAL_API_KEY", "UNIFI_TRANSPORT", "UNIFI_API_KEY"} {
+		t.Setenv(name, env[name])
+	}
+	t.Setenv("UNIFI_HOME", t.TempDir())
+	path := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(path, []byte(contents), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return cfg
+}
+
+// Under the legacy names UNIFI_API_KEY is the gateway's key. It becomes the local key,
+// so it must not also be the cloud key, or Site Manager requests carry it to api.ui.com.
+func TestLegacyGatewayKeyIsNotSentToTheCloud(t *testing.T) {
+	cfg := loadWithEnv(t, "", map[string]string{"UNIFI_GATEWAY_HOST": "192.0.2.9", "UNIFI_API_KEY": "legacy-key"})
+	if got := cfg.UniFiTarget(); got.Gateway != "192.0.2.9" || got.LocalAPIKey != "legacy-key" {
+		t.Fatalf("legacy install must still route locally: %+v", got)
+	}
+	if cfg.UnifiApiKey != "" || cfg.AuthHeader() != "" {
+		t.Fatalf("the gateway key became the cloud key: UnifiApiKey=%q AuthHeader=%q", cfg.UnifiApiKey, cfg.AuthHeader())
+	}
+	if cfg.AuthSource == "env:UNIFI_API_KEY" {
+		t.Fatalf("auth source still claims the env cloud key: %q", cfg.AuthSource)
+	}
+}
+
+// UNIFI_API_KEY stays the cloud key whenever the legacy host did not move it.
+func TestCloudKeyKeptWhenTheLegacyHostDoesNotMoveIt(t *testing.T) {
+	tests := []struct {
+		name     string
+		contents string
+		env      map[string]string
+	}{
+		{"no gateway", "", map[string]string{"UNIFI_API_KEY": "cloud-key"}},
+		{"current gateway names", "", map[string]string{"UNIFI_GATEWAY": "192.0.2.10", "UNIFI_LOCAL_API_KEY": "local", "UNIFI_API_KEY": "cloud-key"}},
+		{"legacy host with a separate local key", "", map[string]string{"UNIFI_GATEWAY_HOST": "192.0.2.9", "UNIFI_LOCAL_API_KEY": "local", "UNIFI_API_KEY": "cloud-key"}},
+		{"gateway from the config file", "gateway = \"192.0.2.1\"\n", map[string]string{"UNIFI_GATEWAY_HOST": "192.0.2.9", "UNIFI_API_KEY": "cloud-key"}},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := loadWithEnv(t, tc.contents, tc.env)
+			if cfg.UnifiApiKey != "cloud-key" {
+				t.Fatalf("cloud key = %q, want cloud-key", cfg.UnifiApiKey)
+			}
+			if got := cfg.UniFiTarget().LocalAPIKey; got == "cloud-key" {
+				t.Fatalf("the cloud key became the local key: %+v", cfg.UniFiTarget())
+			}
+		})
 	}
 }
 

@@ -72,7 +72,22 @@ func keepUniFiTarget(path string, data []byte, loggingOut bool) []byte {
 // UniFiTarget resolves env over config file. Flags are layered on top by the
 // caller because config must stay importable without cobra.
 func (c *Config) UniFiTarget() UniFiTarget {
+	target, _ := c.resolveUniFiTarget()
+	return target
+}
+
+// legacyAPIKeyIsLocal reports that UNIFI_API_KEY is the gateway's local key under the
+// legacy UNIFI_GATEWAY_HOST names. Load must not also apply it as the cloud key, or
+// every Site Manager request would carry the gateway key to api.ui.com.
+func (c *Config) legacyAPIKeyIsLocal() bool {
+	_, legacyKey := c.resolveUniFiTarget()
+	return legacyKey
+}
+
+// resolveUniFiTarget also reports whether the local key came from UNIFI_API_KEY.
+func (c *Config) resolveUniFiTarget() (UniFiTarget, bool) {
 	var target UniFiTarget
+	legacyKey := false
 	if c != nil && strings.TrimSpace(c.Path) != "" {
 		if opened, err := cliutil.ReadOpenedConfig(c.Path); err == nil {
 			var parsed unifiTargetFile
@@ -109,7 +124,8 @@ func (c *Config) UniFiTarget() UniFiTarget {
 		target.Gateway = v
 		if target.LocalAPIKey == "" {
 			target.LocalAPIKey = strings.TrimSpace(cliutil.EnvOverride("UNIFI_API_KEY"))
+			legacyKey = target.LocalAPIKey != ""
 		}
 	}
-	return target
+	return target, legacyKey
 }

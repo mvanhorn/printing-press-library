@@ -112,7 +112,10 @@ func Load(configPath string) (*Config, error) {
 			})
 		}
 	} else {
-		if v := cliutil.EnvOverride("UNIFI_API_KEY"); v != "" {
+		// PATCH(unifi-legacy-gateway-key-stays-local): under the legacy
+		// UNIFI_GATEWAY_HOST names this key belongs to the gateway, and
+		// UniFiTarget already uses it as the local key.
+		if v := cliutil.EnvOverride("UNIFI_API_KEY"); v != "" && !cfg.legacyAPIKeyIsLocal() {
 			cfg.UnifiApiKey = v
 			cfg.markEnvOverride("UnifiApiKey")
 			cfg.AuthSource = "env:UNIFI_API_KEY"

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "unifi-legacy-gateway-key-stays-local",
+  "applied_at": "2026-11-11",
+  "base_run_id": "20261101-155632-9a5a2a2b",
+  "base_printing_press_version": "4.35.0",
+  "summary": "When the legacy UNIFI_GATEWAY_HOST chooses the gateway and UniFiTarget takes UNIFI_API_KEY as the local key, Load does not also apply UNIFI_API_KEY as the cloud credential.",
+  "reason": "Earlier releases documented UNIFI_GATEWAY_HOST with the gateway's key in UNIFI_API_KEY. The generated env override still copied that key into UnifiApiKey, so Site Manager commands and bare sync sent the local gateway key to api.ui.com.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/unifi_config.go",
+    "internal/config/unifi_config_review_test.go"
+  ],
+  "validated_outcome": "With UNIFI_GATEWAY_HOST and UNIFI_API_KEY set, `sites --dry-run` and `sync --dry-run` send no X-API-KEY to api.ui.com, `auth status` reports a local gateway key with no cloud key, and UNIFI_API_KEY remains the cloud key in every other env combination."
+}
