@@ -66,11 +66,21 @@ const (
 //     Not present in OpenAlex display_name, but cheap to accept.
 //   - 20-character window: room for " ARTICLE" and similar qualifiers without
 //     letting the pattern run into an unrelated colon later in the title.
+//   - spaced dash as a second separator: some publishers write the marker as
+//     "Retracted Paper - <title>" or "RETRACTED – <title>". In a 1,490-title
+//     OpenAlex sample (titles starting with retract*/withdraw*, 2026-11-11)
+//     the colon/bracket rule missed exactly these, and accepting the dash added
+//     no title that is not a marker. The dash is accepted ONLY directly after
+//     the marker word or after one of a closed list of nouns (article, paper,
+//     publication, manuscript, chapter), and only with a space on both sides:
+//     a free 20-character window before a dash would also take "Withdrawn
+//     patients - outcomes ..." and "Retracted papers - a bibliometric ...",
+//     ordinary titles that merely start with the word.
 //
 // Deliberately NOT matched: "Retraction Note: ..." — the notice is a separate
 // indexed work, "retraction" is not "retracted", and filtering notices is a
 // different rule needing its own measurement.
-var retractionMarkerRe = regexp.MustCompile(`(?i)^\s*\[?\s*(retracted|withdrawn)\b[^:\]]{0,20}[:\]]`)
+var retractionMarkerRe = regexp.MustCompile(`(?i)^\s*\[?\s*(retracted|withdrawn)\b(?:[^:\]]{0,20}[:\]]|(?:\s+(?:article|paper|publication|manuscript|chapter))?\s*[-\x{2013}\x{2014}]\s)`)
 
 // DetectRetraction reports a work's retraction status from its title and the
 // source index's retraction flag.
