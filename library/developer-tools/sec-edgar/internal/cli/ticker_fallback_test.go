@@ -153,3 +153,29 @@ func TestResolveOwnershipCIKUsesEFTSFallback(t *testing.T) {
 		t.Fatalf("got %q %q", cik, title)
 	}
 }
+
+// When both sources fail, the EFTS failure decides the exit code: a 403 from
+// www.sec.gov must not turn an EFTS rate limit into a permission error.
+func TestClassifyTickerLookupErrorFollowsEFTSFailure(t *testing.T) {
+	c := &tickerFakeClient{
+		tickerMapErr: errTickerMap403,
+		entityErr:    errors.New("GET efts.sec.gov returned HTTP 429: Too Many Requests"),
+	}
+	_, err := fetchTickerMap(c, "AAPL")
+	classified := classifyTickerLookupError(err, &rootFlags{})
+	if code := ExitCode(classified); code != 7 {
+		t.Fatalf("exit code = %d, want 7 (rate limited): %v", code, classified)
+	}
+	for _, want := range []string{"HTTP 429", "company_tickers.json also failed", "HTTP 403"} {
+		if !strings.Contains(classified.Error(), want) {
+			t.Errorf("classified error missing %q: %v", want, classified)
+		}
+	}
+}
+
+func TestClassifyTickerLookupErrorKeepsSingleSourceErrors(t *testing.T) {
+	err := classifyTickerLookupError(errTickerMap403, &rootFlags{})
+	if code := ExitCode(err); code != 4 {
+		t.Fatalf("exit code = %d, want 4 for a plain 403", code)
+	}
+}

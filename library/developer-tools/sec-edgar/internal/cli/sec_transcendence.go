@@ -847,7 +847,7 @@ func newCrossSectionCmd(flags *rootFlags) *cobra.Command {
 			if tickers != "" {
 				rows, err := fetchTickerMap(c, parseCSV(tickers)...)
 				if err != nil {
-					return classifyAPIError(err, flags)
+					return classifyTickerLookupError(err, flags)
 				}
 				lookup := map[string]string{}
 				for _, r := range rows {

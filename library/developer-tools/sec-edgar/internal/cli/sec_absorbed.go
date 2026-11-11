@@ -7,6 +7,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -45,9 +46,39 @@ func fetchTickerMap(c clientLike, queries ...string) ([]tickerRow, error) {
 	}
 	fallback, ferr := fetchEFTSEntityRows(c, queries)
 	if ferr != nil {
-		return nil, fmt.Errorf("%w (EFTS entity fallback also failed: %v)", err, ferr)
+		return nil, &tickerLookupError{mapErr: err, eftsErr: ferr}
 	}
 	return fallback, nil
+}
+
+// tickerLookupError reports that company_tickers.json and the EFTS fallback
+// both failed. The message names both failures.
+type tickerLookupError struct {
+	mapErr  error
+	eftsErr error
+}
+
+func (e *tickerLookupError) Error() string {
+	return fmt.Sprintf("%v (EFTS entity fallback also failed: %v)", e.mapErr, e.eftsErr)
+}
+
+func (e *tickerLookupError) Unwrap() []error { return []error{e.mapErr, e.eftsErr} }
+
+// classifyTickerLookupError classifies a fetchTickerMap error. When both
+// sources failed, the EFTS failure picks the exit code and hint: it is the
+// last source tried and the one a retry can still reach, while the
+// company_tickers.json 403 says nothing about the user's credentials.
+func classifyTickerLookupError(err error, flags *rootFlags) error {
+	var te *tickerLookupError
+	if !errors.As(err, &te) {
+		return classifyAPIError(err, flags)
+	}
+	classified := classifyAPIError(te.eftsErr, flags)
+	var ce *cliError
+	if !errors.As(classified, &ce) {
+		return classified
+	}
+	return &cliError{code: ce.code, err: fmt.Errorf("%w\ncompany_tickers.json also failed: %v", ce.err, te.mapErr)}
 }
 
 func fetchFullTickerMap(c clientLike) ([]tickerRow, error) {
@@ -155,7 +186,7 @@ func newCompaniesLookupCmd(flags *rootFlags) *cobra.Command {
 			}
 			rows, err := fetchTickerMap(c, args[0])
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyTickerLookupError(err, flags)
 			}
 			needle := strings.ToUpper(strings.TrimSpace(args[0]))
 			for _, r := range rows {
@@ -195,7 +226,7 @@ func newCompaniesSearchCmd(flags *rootFlags) *cobra.Command {
 			query := strings.TrimSpace(strings.Join(args, " "))
 			rows, err := fetchTickerMap(c, query)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyTickerLookupError(err, flags)
 			}
 			needle := strings.ToLower(query)
 			matches := make([]map[string]any, 0, 32)
