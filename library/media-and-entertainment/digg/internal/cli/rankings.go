@@ -2,22 +2,14 @@
 //
 // PATCH(digg-rankings-and-min-starrers): library-side new file. The
 // rankings page (formerly /ai/x/rankings/companies, now
-// https://digg.com/tech/x/rankings) used to surface three sub-views
-// (Emerging Startups, Movers up/down, the full ranking) inside one
-// HTML page's RSC stream. The CLI exposes each as a sibling subcommand
-// so consumers get a stable typed schema per command rather than a
-// polymorphic --section flag. As of 2026-10-21 only the full ranking
-// remains; emerging and movers fail closed with a removed-view error.
-//
-// All three commands hit the same URL and parse different sections of
-// the response.
+// https://digg.com/tech/x/rankings) carries the full ranking of people
+// and companies inside its RSC stream; `rankings list` parses it.
 
 package cli
 
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
 	"github.com/spf13/cobra"
@@ -26,18 +18,8 @@ import (
 // rankingsCompaniesURL is the live endpoint. Exposed as a package var
 // (not const) so tests can swap it for an httptest server URL. The old
 // /ai/x/rankings/companies URL 308-redirects here, so the CLI reads the
-// current page directly. As of 2026-10-21 this page carries only the
-// full ranking; the Emerging and Movers sections are gone.
+// current page directly. The page carries one view, the full ranking.
 var rankingsCompaniesURL = "https://digg.com/tech/x/rankings"
-
-// errRemovedView wraps diggparse.ErrSectionNotFound for a rankings view
-// that Digg no longer publishes, so the command fails closed with a
-// message naming the view instead of exiting 0 with no rows.
-func errRemovedView(view string, err error) error {
-	return fmt.Errorf(
-		"rankings: the %s view was removed from Digg's rankings page (%s); 'rankings list' still works: %w",
-		view, rankingsCompaniesURL, err)
-}
 
 // defaultMaxSkipRatio is the schema-drift tolerance for rankings
 // commands. 10% feels tight enough to catch a rename of any key
@@ -56,27 +38,38 @@ func newRankingsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "rankings",
-		Short: "Rankings views Digg publishes alongside the AI 1000 leaderboard",
-		Long: `Rankings views Digg publishes alongside the AI 1000 leaderboard.
+		Short: "Digg's ranking of people and companies on X",
+		Long: `Digg's ranking of people and companies on X.
 
-Reads https://digg.com/tech/x/rankings, each sub-view a stable typed
-schema:
+Reads https://digg.com/tech/x/rankings:
 
   list       The full ranking of people and companies (the
-             initial-HTML slice; pass --limit to cap).
-
-  emerging   Removed. Digg's rankings page no longer publishes the
-             Emerging Startups section; the command exits non-zero
-             with a removed-view error.
-
-  movers     Removed. Digg's rankings page no longer publishes the
-             Movers section; the command exits non-zero with a
-             removed-view error.`,
+             initial-HTML slice; pass --limit to cap).`,
 	}
-	cmd.AddCommand(newRankingsEmergingCmd(flags, fetcher))
-	cmd.AddCommand(newRankingsMoversCmd(flags, fetcher))
 	cmd.AddCommand(newRankingsListCmd(flags, fetcher))
+	// A group command prints help and exits 0 for any argument, so a view
+	// Digg no longer serves would look like it worked. The group stays
+	// without a RunE, which keeps it from becoming a help-only MCP tool;
+	// hidden stubs make the removed views fail instead.
+	for _, name := range []string{"emerging", "movers"} {
+		cmd.AddCommand(newRemovedRankingsCmd(name))
+	}
 	return cmd
+}
+
+// newRemovedRankingsCmd stands in for a rankings view Digg stopped
+// serving. It is hidden from help, discovery and the MCP server, and
+// fails as an unknown command would.
+func newRemovedRankingsCmd(name string) *cobra.Command {
+	return &cobra.Command{
+		Use:                name,
+		Hidden:             true,
+		DisableFlagParsing: true,
+		Annotations:        map[string]string{"mcp:hidden": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return usageErr(fmt.Errorf("unknown command %q for %q", cmd.Name(), cmd.Parent().CommandPath()))
+		},
+	}
 }
 
 // rankingsFetcher fetches the rankings/companies HTML on demand.
@@ -170,132 +163,6 @@ const maxSkipRatioFlagHelp = "Fraction of entries that may fail to decode before
 	"Schema-drift detector — if upstream renames a key, every row registers as Skipped and SkipRatio becomes 1.0. " +
 	"Default 0.10 (10%) tolerates one bad entry in ten. Range [0, 1]; 0 means \"no tolerance\" (any skip trips) " +
 	"and 1 only trips when every entry fails to decode."
-
-func newRankingsEmergingCmd(flags *rootFlags, fetcher *rankingsFetcher) *cobra.Command {
-	maxSkip := defaultMaxSkipRatio
-	cmd := &cobra.Command{
-		Use:   "emerging",
-		Short: "Removed: Digg's rankings page no longer publishes Emerging Startups",
-		Long: `Emerging startups: the "EMERGING STARTUPS — CURATED THIS SNAPSHOT"
-section of Digg's rankings page.
-
-Digg removed this section; https://digg.com/tech/x/rankings no longer
-carries it, so the command exits non-zero with a removed-view error
-rather than returning an empty list. If the section reappears in the
-page's RSC stream, the command parses it again.`,
-		Example: "  digg-pp-cli rankings emerging --json",
-		// Hidden from MCP: Digg removed this view, and a tool that can
-		// only fail should not appear in an agent's tool list.
-		Annotations: map[string]string{
-			"mcp:hidden": "true",
-		},
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return validateMaxSkipRatio(maxSkip)
-		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
-			decoded, err := fetcher.get(cmd)
-			if err != nil {
-				return err
-			}
-			entries, stats, err := diggparse.ExtractEmerging(decoded)
-			if errors.Is(err, diggparse.ErrSectionNotFound) {
-				return errRemovedView("Emerging", err)
-			}
-			if err != nil {
-				return fmt.Errorf("emerging: %w", err)
-			}
-			if err := reportDriftOrEmit(cmd, "rankings.emerging", stats, maxSkip); err != nil {
-				return err
-			}
-			return emitGithub(cmd, flags, entries, 0)
-		},
-	}
-	cmd.Flags().Float64Var(&maxSkip, "max-skip-ratio", defaultMaxSkipRatio, maxSkipRatioFlagHelp)
-	return cmd
-}
-
-// validMoverDirections is the closed set of values accepted by
-// `rankings movers --direction`. Centralized so help text and
-// PreRunE validation can't drift.
-var validMoverDirections = []string{"up", "down", "both"}
-
-func newRankingsMoversCmd(flags *rootFlags, fetcher *rankingsFetcher) *cobra.Command {
-	var direction string
-	maxSkip := defaultMaxSkipRatio
-	cmd := &cobra.Command{
-		Use:   "movers",
-		Short: "Removed: Digg's rankings page no longer publishes Movers",
-		Long: `Movers since the last rankings snapshot.
-
-Digg removed this section; https://digg.com/tech/x/rankings no longer
-carries it, so the command exits non-zero with a removed-view error
-rather than returning an empty list. If the section reappears in the
-page's RSC stream, the command parses it again.
-
-  --direction up    return only the gainers (positive followCountChange)
-  --direction down  return only the losers
-  --direction both  return both, with .direction tagged on each row (default)
-
-Each side is curated by Digg to ~10 entries; the section is intended
-as a "what changed today" view, not an exhaustive delta feed.`,
-		Example: "  digg-pp-cli rankings movers --direction up --json",
-		Annotations: map[string]string{
-			// See newRankingsEmergingCmd note on mcp:hidden.
-			"mcp:hidden": "true",
-		},
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			if err := validateMaxSkipRatio(maxSkip); err != nil {
-				return err
-			}
-			for _, ok := range validMoverDirections {
-				if direction == ok {
-					return nil
-				}
-			}
-			return fmt.Errorf(
-				"invalid --direction %q: must be one of %s",
-				direction, strings.Join(validMoverDirections, ", "))
-		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
-			decoded, err := fetcher.get(cmd)
-			if err != nil {
-				return err
-			}
-			up, down, stats, err := diggparse.ExtractMovers(decoded)
-			if errors.Is(err, diggparse.ErrSectionNotFound) {
-				return errRemovedView("Movers", err)
-			}
-			if err != nil {
-				return fmt.Errorf("movers: %w", err)
-			}
-			if err := reportDriftOrEmit(cmd, "rankings.movers", stats, maxSkip); err != nil {
-				return err
-			}
-			var out []diggparse.CompanyEntry
-			switch direction {
-			case "up":
-				out = up
-			case "down":
-				out = down
-			case "both":
-				out = make([]diggparse.CompanyEntry, 0, len(up)+len(down))
-				out = append(out, up...)
-				out = append(out, down...)
-			}
-			return emitGithub(cmd, flags, out, 0)
-		},
-	}
-	cmd.Flags().StringVar(&direction, "direction", "both",
-		"Movers direction: up | down | both")
-	cmd.Flags().Float64Var(&maxSkip, "max-skip-ratio", defaultMaxSkipRatio, maxSkipRatioFlagHelp)
-	return cmd
-}
 
 func newRankingsListCmd(flags *rootFlags, fetcher *rankingsFetcher) *cobra.Command {
 	var limit int

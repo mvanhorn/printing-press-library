@@ -24,9 +24,7 @@
     "internal/diggparse/parse_stats_test.go",
     "internal/diggparse/rankings_companies.go",
     "internal/diggparse/rankings_companies_test.go",
-    "testdata/rankings-companies-fixture.html",
-    "testdata/rankings-companies-dirty-fixture.html",
-    "testdata/rankings-companies-empty-fixture.html"
+    "testdata/rankings-companies-fixture.html"
   ],
   "validated_outcome": "Live smoke against digg.com at PR time: 'rankings emerging' returns 10 entries (Inspired Cognition, Evolving Programs, Shadow Robot, Tavus, etc.); 'rankings movers --direction up' returns 10 gainers (rank 76 aclanthology, rank 4 GoogleAI...); 'rankings list --limit 3' returns OpenAI(#1), GoogleDeepMind(#2), AnthropicAI(#3); 'github stars --min-starrers 2' narrows 114 unfiltered rows to 6 with distinct_starrers >= 2.",
   "scope_note": "Rankings leaf commands intentionally OMIT the pp:endpoint annotation. The MCP cobratree walker treats pp:endpoint-tagged commands as 'covered by a typed MCP tool' and skips registering a shell-out tool; until a typed rankings tool ships, the rankings commands need shell-out MCP exposure. The existing github stars/new/activity/recent commands have the same annotation/MCP-skip behavior as a known issue, not as precedent."

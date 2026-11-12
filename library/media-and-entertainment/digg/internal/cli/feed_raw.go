@@ -15,7 +15,7 @@ func newFeedRawCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "raw",
-		Short:       "Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `sync` then `top` instead of...",
+		Short:       "Fetch the raw HTML of Digg's AI topic page (/ai). Most users should run `top` instead.",
 		Example:     "  digg-pp-cli feed raw",
 		Annotations: map[string]string{"pp:endpoint": "feed.raw", "pp:method": "GET", "pp:path": "/ai", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {

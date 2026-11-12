@@ -13,6 +13,8 @@ tags: [printing-press, digg, fts5, sqlite, sync, freshness, pagination, greptile
 
 # A removed search API turned into a local FTS copy that served stale or partial data as current
 
+> Superseded for search (2026-11-11). Digg published a public search endpoint, and `digg-pp-cli search` now calls it live across every topic. The local search copy, its freshness rules and the shared FTS index described below were removed from the digg CLI, along with the code paths and tests this doc cites. The current contract is recorded in `library/media-and-entertainment/digg/.printing-press-patches/digg-search-and-story-detail-are-live-calls-and-views-digg-stops-serving-are-removed.json`. The Prevention notes still apply to any CLI that keeps a local copy of a remote feed.
+
 ## Problem
 
 `digg-pp-cli search` called `/api/search/stories`, which Digg removed in October 2026 along with `/api/trending/status`. Both returned 404; this was not a bot block. Search fell back to an empty or stale local FTS table and exited 0 with no results, so last30days saw zero Digg items without any error (issue mvanhorn/printing-press-library#2317). The repair, in PR mvanhorn/printing-press-library#2354 (open as of this writing), made search read a local copy of Digg's story feed. Building that local copy exposed four further traps, each of which silently served wrong data.
