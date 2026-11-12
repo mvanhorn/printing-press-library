@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.2 - 2026-11-12
+
+- fix(unifi): keep the legacy gateway key off the cloud API (#2463).
+
 ## 2026.11.1 - 2026-11-08
 
 - feat(unifi): reprint with the cloud connector route (#2441).

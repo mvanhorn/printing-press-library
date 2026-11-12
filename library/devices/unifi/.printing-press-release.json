@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "unifi",
   "cli_name": "unifi-pp-cli",
-  "version": "2026.11.1",
-  "released_at": "2026-11-08T09:54:01Z",
-  "source_commit": "7fae94248075144757ef51b43ed2f12e8916fb88",
+  "version": "2026.11.2",
+  "released_at": "2026-11-12T09:55:51Z",
+  "source_commit": "77eea9d47dc92fadb146c2cbe3f9f18d43279602",
   "printing_press_version": "4.35.0",
   "run_id": "20261101-155632-9a5a2a2b",
   "changes": [
     {
-      "title": "feat(unifi): reprint with the cloud connector route",
-      "pr": 2441,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2441",
-      "commit": "7fae94248075144757ef51b43ed2f12e8916fb88"
+      "title": "fix(unifi): keep the legacy gateway key off the cloud API",
+      "pr": 2463,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2463",
+      "commit": "77eea9d47dc92fadb146c2cbe3f9f18d43279602"
     }
   ]
 }

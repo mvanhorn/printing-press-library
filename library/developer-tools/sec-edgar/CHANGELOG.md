@@ -2,6 +2,14 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.3 - 2026-11-12
+
+- feat(sec-edgar): resolve tickers through EFTS when company_tickers.json is blocked (#2461).
+
+## 2026.11.2 - 2026-11-12
+
+- fix(sec-edgar): honor --csv and --plain on piped output (#2462).
+
 ## 2026.11.1 - 2026-11-09
 
 - fix(sec-edgar): accept string CIK in companyfacts and frames (#2449).

@@ -54,7 +54,7 @@ const (
 const httpAllowedOriginsEnvVar = "UNIFI_MCP_HTTP_ALLOWED_ORIGINS"
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
-var version = "2026.11.1"
+var version = "2026.11.2"
 
 func main() {
 	// Pin the learn-event surface for this process and every walker
