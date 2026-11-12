@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "retraction-marker-accepts-a-spaced-dash",
+  "applied_at": "2026-11-11",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "The publisher retraction marker at the start of a title is followed either by a colon or bracket, or by a spaced dash; the dash counts only directly after the marker word or after one singular noun from a closed list (article, paper, publication, manuscript, chapter), with whitespace on both sides, so ordinary titles that merely start with the word stay unmarked.",
+  "reason": "Some publishers write \"Retracted Paper - <title>\" or \"RETRACTED – <title>\". The colon/bracket rule left those works in the softer index-only tier, or unmarked when the index flag is missing, while a free window before any dash would mark titles such as \"Withdrawn patients - outcomes ...\". A regen that rebuilds the pattern must keep both separators and the noun limit.",
+  "files": [
+    "internal/scengine/retracted.go",
+    "internal/scengine/retracted_dash_marker_test.go"
+  ],
+  "validated_outcome": "On a 1,490-title OpenAlex sample the dash rule changed only dash-marker titles and added no non-marker. TestDetectRetractionDashSeparator kills seven pattern mutations that the existing retraction tests all pass; TestKnownGapSingularNounAboutRetraction records the accepted cost."
+}
