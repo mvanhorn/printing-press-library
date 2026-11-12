@@ -23,7 +23,7 @@ import (
 // emits a sync that walks the spec's REST resources, but the only Digg
 // data this CLI keeps locally is rank history: each topic page's embedded
 // stream carries its ranked list, and sync stores one snapshot of it per
-// run. `history`, `watch`, `stats` and the `authors` commands read those
+// run. `history`, `stats` and the `authors` commands read those
 // snapshots. Search and `top` read Digg live and need no sync.
 
 // syncTopics lists Digg's current topics in display order. The value is
@@ -79,7 +79,7 @@ func newDiggSyncCmd(flags *rootFlags) *cobra.Command {
 		Short: "Snapshot Digg topics' ranked lists into the local store, building rank history",
 		Long: `Take one snapshot of each topic's ranked list and save it to a local SQLite
 database. Each run adds a point to every listed story's rank history, which
-` + "`history`" + ` shows; ` + "`watch`" + `, ` + "`stats`" + ` and the ` + "`authors`" + ` commands read the same
+` + "`history`" + ` shows; ` + "`stats`" + ` and the ` + "`authors`" + ` commands read the same
 snapshots. Run it on a schedule to build a trajectory.
 
 ` + "`search`" + ` and ` + "`top`" + ` read Digg live and do not need a sync.

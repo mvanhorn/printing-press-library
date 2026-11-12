@@ -2174,7 +2174,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "watch",
 		Short:       "Poll one Digg topic on an interval and alert when any cluster moves N+ ranks",
-		Long:        "Polls a Digg topic page (--topic, default ai), parses the feed, diffs against the previous local snapshot, and prints any cluster whose absolute rank delta is at-or-above --min-delta (or matches --alert). READ-ONLY: never writes anything to Digg.",
+		Long:        "Polls a Digg topic page (--topic, default ai), parses the feed, compares each story's rank with the previous poll of the same topic (kept in the local store, so a restarted watch picks up where it left off), and prints any cluster whose absolute rank delta is at-or-above --min-delta (or matches --alert). READ-ONLY: never writes anything to Digg.",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  digg-pp-cli watch --interval 60s --min-delta 5
   digg-pp-cli watch --alert 'rank.delta>=10'
@@ -2193,9 +2193,10 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer closeFn()
-			// prev is this watcher's previous poll, by cluster id. Other
-			// watchers and sync write other topics to the same store, so
-			// the store is read only for the first poll's baseline.
+			// prev is the poll this one is compared with, by cluster id. It
+			// starts as the topic's stored baseline, which only watchers of
+			// this topic write, and is then kept in memory so a poll whose
+			// baseline could not be stored is still compared correctly.
 			var prev map[string]int
 			it := 0
 			for {
@@ -2207,27 +2208,39 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 					clusters, _, _, err := diggparse.ParseHomeFeed(html)
 					if err == nil {
 						if prev == nil {
-							prev = storedWatchBaseline(db, clusters)
-						}
-						alerts := computeWatchAlerts(prev, clusters, minDelta)
-						prev = make(map[string]int, len(clusters))
-						for _, c := range clusters {
-							prev[c.ClusterID] = c.CurrentRank
+							prev, err = diggstore.LoadWatchBaseline(ctx, db, topic)
+							if err != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "watch: %v\n", err)
+								prev = map[string]int{}
+							}
 						}
 						now := time.Now().UTC().Format(time.RFC3339)
-						if len(alerts) == 0 {
+						alerts := computeWatchAlerts(prev, clusters, minDelta)
+						switch {
+						case len(prev) == 0:
+							fmt.Fprintf(cmd.OutOrStdout(), "[%s] watch: %d clusters, baseline poll for %s; movers are reported from the next poll\n", now, len(clusters), topic)
+						case len(alerts) == 0:
 							fmt.Fprintf(cmd.OutOrStdout(), "[%s] watch: %d clusters, no movers >= %d\n", now, len(clusters), minDelta)
-						} else {
+						default:
 							fmt.Fprintf(cmd.OutOrStdout(), "[%s] watch: %d alerts\n", now, len(alerts))
 							for _, a := range alerts {
 								fmt.Fprintf(cmd.OutOrStdout(), "  %+d  %s [%s]\n", a.Delta, a.Label, a.ClusterURLID)
 							}
 						}
-						// Persist the poll under one timestamp: a later
-						// watcher's first baseline is the rows saved together.
-						snapAt := time.Now()
-						for _, c := range clusters {
-							_ = diggstore.UpsertCluster(db, c, snapAt)
+						// A page that parsed to no stories keeps the last
+						// real poll as the baseline.
+						if len(clusters) > 0 {
+							prev = make(map[string]int, len(clusters))
+							// Add the poll to the rank history, then store it
+							// as the topic's baseline for a restarted watcher.
+							snapAt := time.Now()
+							for _, c := range clusters {
+								prev[c.ClusterID] = c.CurrentRank
+								_ = diggstore.UpsertCluster(db, c, snapAt)
+							}
+							if err := diggstore.SaveWatchBaseline(ctx, db, topic, prev, snapAt); err != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "watch: %v\n", err)
+							}
 						}
 					}
 				}
@@ -2271,41 +2284,6 @@ type watchAlert struct {
 	ClusterURLID string
 	Label        string
 	Delta        int
-}
-
-// storedWatchBaseline returns the ranks the store holds for the stories in
-// current, as of the latest snapshot that saved any of them. Snapshots of
-// other topics are newer rows for other stories and are ignored, so the
-// baseline is the watched topic's own last snapshot.
-func storedWatchBaseline(db *sql.DB, current []diggparse.Cluster) map[string]int {
-	watched := make(map[string]bool, len(current))
-	for _, c := range current {
-		watched[c.ClusterID] = true
-	}
-	baseline := make(map[string]int)
-	rows, err := db.Query(`SELECT cluster_id, COALESCE(current_rank,0), last_seen_at FROM digg_clusters`)
-	if err != nil {
-		return baseline
-	}
-	defer rows.Close()
-	var latest time.Time
-	for rows.Next() {
-		var id, seen string
-		var rank int
-		if err := rows.Scan(&id, &rank, &seen); err != nil || !watched[id] {
-			continue
-		}
-		at, err := time.Parse(time.RFC3339Nano, seen)
-		if err != nil || at.Before(latest) {
-			continue
-		}
-		if at.After(latest) {
-			latest = at
-			clear(baseline)
-		}
-		baseline[id] = rank
-	}
-	return baseline
 }
 
 // computeWatchAlerts compares a poll with the previous poll's ranks (prev,

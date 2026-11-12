@@ -3,11 +3,14 @@ package diggstore
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"maps"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/store"
 
 	_ "modernc.org/sqlite"
 )
@@ -380,5 +383,86 @@ func TestRecordPostRefsUpdatesAMovedStory(t *testing.T) {
 	got, ok, err := LookupPostRef(db, "ab12cd34")
 	if err != nil || !ok || got.Topic != "tech" {
 		t.Fatalf("LookupPostRef = %+v ok=%v err=%v, want the latest topic", got, ok, err)
+	}
+}
+
+// Each topic's baseline is its own last poll: a story listed in two
+// topics keeps a rank per topic, and a story that left a topic's list is
+// gone from that topic's baseline.
+func TestWatchBaselineIsKeptPerTopic(t *testing.T) {
+	db := openTempDB(t)
+	ctx := context.Background()
+	now := time.Date(2026, 11, 11, 12, 0, 0, 0, time.UTC)
+
+	if got, err := LoadWatchBaseline(ctx, db, "ai"); err != nil || len(got) != 0 {
+		t.Fatalf("never-polled topic: %v err=%v, want empty and no error", got, err)
+	}
+	if err := SaveWatchBaseline(ctx, db, "ai", map[string]int{"shared": 1, "ai-only": 2}, now); err != nil {
+		t.Fatal(err)
+	}
+	if err := SaveWatchBaseline(ctx, db, "sports", map[string]int{"shared": 7}, now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	if err := SaveWatchBaseline(ctx, db, "ai", map[string]int{"shared": 3, "ai-new": 1}, now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	// A poll that found no stories leaves the last real poll in place.
+	if err := SaveWatchBaseline(ctx, db, "sports", nil, now.Add(2*time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+
+	ai, err := LoadWatchBaseline(ctx, db, "ai")
+	if err != nil || !maps.Equal(ai, map[string]int{"shared": 3, "ai-new": 1}) {
+		t.Errorf("ai baseline = %v err=%v, want its latest poll only", ai, err)
+	}
+	sports, err := LoadWatchBaseline(ctx, db, "sports")
+	if err != nil || !maps.Equal(sports, map[string]int{"shared": 7}) {
+		t.Errorf("sports baseline = %v err=%v, want its own poll", sports, err)
+	}
+}
+
+// Watchers of different topics are separate processes writing one store.
+// Their writes queue; none fails and none lands in the other's baseline.
+func TestWatchBaselineConcurrentTopicsShareOneStore(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "test.db")
+	ctx := context.Background()
+	const rounds = 25
+	topics := []string{"ai", "sports", "tech"}
+	// One handle per watcher, opened the way each CLI process opens it.
+	dbs := map[string]*sql.DB{}
+	for _, topic := range topics {
+		s, err := store.OpenWithContext(ctx, path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { s.Close() })
+		if err := EnsureSchema(s.DB()); err != nil {
+			t.Fatal(err)
+		}
+		dbs[topic] = s.DB()
+	}
+	errs := make(chan error, len(topics))
+	for _, topic := range topics {
+		db := dbs[topic]
+		go func() {
+			for i := 1; i <= rounds; i++ {
+				if err := SaveWatchBaseline(ctx, db, topic, map[string]int{"shared": i, topic + "-only": i}, time.Now()); err != nil {
+					errs <- fmt.Errorf("%s round %d: %w", topic, i, err)
+					return
+				}
+			}
+			errs <- nil
+		}()
+	}
+	for range topics {
+		if err := <-errs; err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, topic := range topics {
+		got, err := LoadWatchBaseline(ctx, dbs[topic], topic)
+		if want := map[string]int{"shared": rounds, topic + "-only": rounds}; err != nil || !maps.Equal(got, want) {
+			t.Errorf("%s baseline = %v err=%v, want %v", topic, got, err, want)
+		}
 	}
 }

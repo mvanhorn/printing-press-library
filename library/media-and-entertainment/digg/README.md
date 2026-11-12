@@ -190,7 +190,7 @@ These capabilities aren't available in any other tool for this API.
   `--view top|trending`, `--range 24h|7d|30d|all`, `--limit`.
 
 ### Local state that compounds
-- **`sync`** — Take one snapshot of each topic's ranked list (`--topics`, default `ai`) and save it to a local SQLite database. `history`, `watch`, `stats`, `author` and `authors top` read these snapshots. `search` and `top` do not need it.
+- **`sync`** — Take one snapshot of each topic's ranked list (`--topics`, default `ai`) and save it to a local SQLite database. `history`, `stats`, `author` and `authors top` read these snapshots. `watch` polls Digg itself and keeps its own baseline per topic. `search` and `top` do not need it.
 - **`history`** — Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.
 
   _'Entered at #18, peaked at #4 over 6h, dropped to #22 by 24h' is impossible to learn from the live site._
@@ -198,7 +198,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   digg-pp-cli history iq7usf9e --json
   ```
-- **`watch`** — Poll one Digg topic (`--topic`, default `ai`), diff against the last snapshot, and alert when any cluster moves N+ ranks.
+- **`watch`** — Poll one Digg topic (`--topic`, default `ai`), compare each story's rank with the previous poll of that same topic (stored locally per topic, so a restarted watch continues from it and the first poll of a topic only sets the baseline), and alert when any cluster moves N+ ranks.
 
   _Read-only operational watcher; never writes anything back to Digg._
 
@@ -327,7 +327,7 @@ This CLI is designed for AI agent consumption:
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
 - **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
-- **Local history** - `sync` snapshots feed `history`, `watch`, `stats` and `sql` from a local SQLite store
+- **Local history** - `sync` snapshots feed `history`, `stats` and `sql` from a local SQLite store
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
@@ -351,7 +351,7 @@ Config file: `~/.config/digg-pp-cli/config.toml`
 
 ### API-specific
 
-- **`history`, `watch`, `stats`, `author` or `authors top` say there is no data** — These read local snapshots. Run `digg-pp-cli sync` first. `search`, `top`, `posts` and `story` read Digg live and need no sync.
+- **`history`, `stats`, `author` or `authors top` say there is no data** — These read local snapshots. Run `digg-pp-cli sync` first. `search`, `top`, `posts` and `story` read Digg live and need no sync.
 - **`posts`, `story` or `open` says it does not know a short id** — Run `digg-pp-cli search` for the story first, or pass the story's UUID (`clusterId` in search results).
 - **`search` fails** — Run `digg-pp-cli doctor` and read the `search` line. A failed search exits non-zero; it never prints an empty result as success.
 - **A command from an older version is missing** — Digg stopped serving the data behind several commands, and they were removed instead of returning empty results. Run `digg-pp-cli --help` for the current list. `top --view trending` shows which stories are climbing.

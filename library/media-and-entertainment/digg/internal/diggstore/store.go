@@ -1,6 +1,7 @@
 // Package diggstore extends the generated SQLite store with the
 // Digg-specific tables that hold ranked-list snapshots (clusters and
-// their rank history), authors, and the story ids search has seen.
+// their rank history), authors, the story ids search has seen, and each
+// watched topic's last poll.
 //
 // Schema additions live here (rather than in the generated store
 // package) so a regeneration of the printed CLI does not blow them
@@ -125,6 +126,17 @@ func EnsureSchema(db *sql.DB) error {
 			post_id TEXT NOT NULL,
 			topic TEXT NOT NULL DEFAULT '',
 			seen_at TEXT NOT NULL
+		)`,
+
+		// digg_watch_baselines holds each watched topic's last poll: one
+		// row per story in it, with the story's rank in that topic. A
+		// story listed in two topics has a row, and a rank, per topic.
+		`CREATE TABLE IF NOT EXISTS digg_watch_baselines (
+			topic TEXT NOT NULL,
+			cluster_id TEXT NOT NULL,
+			rank INTEGER NOT NULL,
+			polled_at TEXT NOT NULL,
+			PRIMARY KEY (topic, cluster_id)
 		)`,
 	}
 	for _, q := range stmts {
@@ -540,6 +552,49 @@ func LookupPostRef(db *sql.DB, shortID string) (PostRef, bool, error) {
 		return PostRef{}, false, err
 	}
 	return ref, true, nil
+}
+
+// SaveWatchBaseline replaces topic's stored poll with ranks (rank by
+// cluster id), leaving other topics' polls alone. An empty poll is not
+// stored, so a page that parsed to nothing keeps the last real poll. The
+// swap is one write transaction: a reader sees the old poll or the new.
+func SaveWatchBaseline(ctx context.Context, db *sql.DB, topic string, ranks map[string]int, polledAt time.Time) error {
+	if len(ranks) == 0 {
+		return nil
+	}
+	at := polledAt.UTC().Format(time.RFC3339Nano)
+	return withWriteTx(ctx, db, func(tx *sql.Conn) error {
+		if _, err := tx.ExecContext(ctx, `DELETE FROM digg_watch_baselines WHERE topic = ?`, topic); err != nil {
+			return fmt.Errorf("clearing %s watch baseline: %w", topic, err)
+		}
+		for id, rank := range ranks {
+			if _, err := tx.ExecContext(ctx, `INSERT INTO digg_watch_baselines (topic, cluster_id, rank, polled_at)
+				VALUES (?, ?, ?, ?)`, topic, id, rank, at); err != nil {
+				return fmt.Errorf("storing %s watch baseline: %w", topic, err)
+			}
+		}
+		return nil
+	})
+}
+
+// LoadWatchBaseline returns the ranks of topic's last stored poll by
+// cluster id. The map is empty when the topic has never been polled.
+func LoadWatchBaseline(ctx context.Context, db *sql.DB, topic string) (map[string]int, error) {
+	rows, err := db.QueryContext(ctx, `SELECT cluster_id, rank FROM digg_watch_baselines WHERE topic = ?`, topic)
+	if err != nil {
+		return nil, fmt.Errorf("reading %s watch baseline: %w", topic, err)
+	}
+	defer rows.Close()
+	ranks := map[string]int{}
+	for rows.Next() {
+		var id string
+		var rank int
+		if err := rows.Scan(&id, &rank); err != nil {
+			return nil, fmt.Errorf("reading %s watch baseline: %w", topic, err)
+		}
+		ranks[id] = rank
+	}
+	return ranks, rows.Err()
 }
 
 func tableColumns(db *sql.DB, table string) (map[string]bool, error) {

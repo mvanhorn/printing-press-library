@@ -79,7 +79,7 @@ These capabilities aren't available in any other tool for this API.
   `--view top|trending`, `--range 24h|7d|30d|all`, `--limit`.
 
 ### Local state that compounds
-- **`sync`** — Take one snapshot of each topic's ranked list (`--topics`, default `ai`) and save it to a local SQLite database. `history`, `watch`, `stats`, `author` and `authors top` read these snapshots. `search` and `top` do not need it.
+- **`sync`** — Take one snapshot of each topic's ranked list (`--topics`, default `ai`) and save it to a local SQLite database. `history`, `stats`, `author` and `authors top` read these snapshots. `watch` polls Digg itself and keeps its own baseline per topic. `search` and `top` do not need it.
 - **`history`** — Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.
 
   _'Entered at #18, peaked at #4 over 6h, dropped to #22 by 24h' is impossible to learn from the live site._
@@ -87,7 +87,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   digg-pp-cli history iq7usf9e --json
   ```
-- **`watch`** — Poll one Digg topic (`--topic`, default `ai`), diff against the last snapshot, and alert when any cluster moves N+ ranks.
+- **`watch`** — Poll one Digg topic (`--topic`, default `ai`), compare each story's rank with the previous poll of that same topic (stored locally per topic, so a restarted watch continues from it and the first poll of a topic only sets the baseline), and alert when any cluster moves N+ ranks.
 
   _Read-only operational watcher; never writes anything back to Digg._
 
@@ -250,7 +250,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   digg-pp-cli feed raw --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
-- **Local history** — `sync` snapshots feed `history`, `watch`, `stats` and `sql` from a local SQLite store; `search` and `top` always read Digg live
+- **Local history** — `sync` snapshots feed `history`, `stats` and `sql` from a local SQLite store; `search` and `top` always read Digg live
 - **Non-interactive** — never prompts, every input is a flag
 - **Read-only** — do not use this CLI for create, update, delete, publish, comment, upvote, invite, order, send, or other mutating requests
 

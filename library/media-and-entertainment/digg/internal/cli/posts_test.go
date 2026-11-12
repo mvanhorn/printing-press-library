@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -734,6 +735,130 @@ func TestWatchKeepsItsBaselineWhileAnotherTopicIsPolled(t *testing.T) {
 	}
 	if !strings.Contains(out, "+2") || !strings.Contains(out, "[aaa33333]") {
 		t.Errorf("second ai poll did not alert on the story that climbed two ranks:\n%s", out)
+	}
+}
+
+// watchOnce runs one `watch` poll of topic as its own command invocation,
+// the way a restarted watcher process would, and returns its output.
+func watchOnce(t *testing.T, url, topic string) string {
+	t.Helper()
+	out, stderr, err := runCLIAgainst(t, url, "watch", "--topic", topic, "--iterations", "1", "--min-delta", "2")
+	if err != nil {
+		t.Fatalf("watch %s: %v\n%s", topic, err, stderr)
+	}
+	return out
+}
+
+// watchAlertLines returns each alert in out as "<delta> [<short id>]".
+func watchAlertLines(out string) []string {
+	var alerts []string
+	for _, line := range strings.Split(out, "\n") {
+		f := strings.Fields(line)
+		if !strings.HasPrefix(line, "  ") || len(f) < 2 {
+			continue
+		}
+		alerts = append(alerts, f[0]+" "+f[len(f)-1])
+	}
+	return alerts
+}
+
+func wantWatchAlerts(t *testing.T, what, out string, want ...string) {
+	t.Helper()
+	if got := watchAlertLines(out); !slices.Equal(got, want) {
+		t.Errorf("%s: alerts %v, want %v; output:\n%s", what, got, want, out)
+	}
+}
+
+// Two topics are polled alternately against one store, every poll its own
+// invocation. Each topic's later polls alert on exactly its own movers.
+func TestWatchRestartedWatchersAlertOnExactlyTheirOwnMovers(t *testing.T) {
+	withTempHome(t)
+	stub := &watchSectionStub{ranks: map[string][]string{
+		"ai":     {"aaa11111", "aaa22222", "aaa33333"},
+		"sports": {"sss11111", "sss22222", "sss33333"},
+	}}
+	url := stub.serve(t)
+	wantWatchAlerts(t, "first ai poll", watchOnce(t, url, "ai"))
+	wantWatchAlerts(t, "first sports poll", watchOnce(t, url, "sports"))
+
+	stub.setRanks("ai", "aaa33333", "aaa11111", "aaa22222")
+	wantWatchAlerts(t, "second ai poll", watchOnce(t, url, "ai"), "+2 [aaa33333]")
+	stub.setRanks("sports", "sss22222", "sss33333", "sss11111")
+	wantWatchAlerts(t, "second sports poll", watchOnce(t, url, "sports"), "-2 [sss11111]")
+
+	// Nothing moved since each topic's own last poll.
+	wantWatchAlerts(t, "third ai poll", watchOnce(t, url, "ai"))
+	wantWatchAlerts(t, "third sports poll", watchOnce(t, url, "sports"))
+}
+
+// A sync of every topic lands between a topic's two polls, after the
+// topic's ranks changed. The second poll still compares against the first
+// poll, not against what the sync saved.
+func TestWatchBaselineSurvivesASyncOfAllTopics(t *testing.T) {
+	withTempHome(t)
+	stub := &watchSectionStub{ranks: map[string][]string{
+		"ai": {"aaa11111", "aaa22222", "aaa33333"},
+		// The cross-topic mix lists ai's stories at other ranks.
+		"": {"sss11111", "ttt11111", "aaa33333", "aaa22222", "aaa11111"},
+	}}
+	for _, topic := range []string{"tech", "world-business", "sports", "science", "gaming", "entertainment"} {
+		stub.setRanks(topic, topic[:3]+"11111", topic[:3]+"22222")
+	}
+	url := stub.serve(t)
+	wantWatchAlerts(t, "first ai poll", watchOnce(t, url, "ai"))
+
+	stub.setRanks("ai", "aaa33333", "aaa11111", "aaa22222")
+	if out, stderr, err := runCLIAgainst(t, url, "sync", "--topics", strings.Join(validTopicSlugs(), ",")); err != nil || stderr != "" {
+		t.Fatalf("sync: %v\n%s\n%s", err, out, stderr)
+	}
+	wantWatchAlerts(t, "ai poll after the sync", watchOnce(t, url, "ai"), "+2 [aaa33333]")
+}
+
+// One story is listed in two topics at different ranks. Each topic's
+// baseline holds that story's rank in that topic only.
+func TestWatchStoryInTwoTopicsKeepsARankPerTopic(t *testing.T) {
+	withTempHome(t)
+	stub := &watchSectionStub{ranks: map[string][]string{
+		"ai":     {"xxx11111", "aaa22222", "aaa33333"},
+		"sports": {"sss11111", "sss22222", "xxx11111"},
+	}}
+	url := stub.serve(t)
+	watchOnce(t, url, "ai")
+	watchOnce(t, url, "sports")
+
+	// The shared story is third in sports and still first in ai.
+	wantWatchAlerts(t, "second ai poll, nothing moved", watchOnce(t, url, "ai"))
+	wantWatchAlerts(t, "second sports poll, nothing moved", watchOnce(t, url, "sports"))
+
+	stub.setRanks("ai", "aaa22222", "aaa33333", "xxx11111")
+	wantWatchAlerts(t, "third ai poll", watchOnce(t, url, "ai"), "-2 [xxx11111]")
+	stub.setRanks("sports", "xxx11111", "sss11111", "sss22222")
+	wantWatchAlerts(t, "third sports poll", watchOnce(t, url, "sports"), "+2 [xxx11111]")
+}
+
+// With nothing stored for the topic, the first poll reports no movers,
+// says it is the baseline, and stores the ranks the next poll compares to.
+func TestWatchFirstPollOfATopicIsTheBaseline(t *testing.T) {
+	withTempHome(t)
+	stub := &watchSectionStub{ranks: map[string][]string{
+		"ai":     {"aaa11111", "aaa22222", "aaa33333"},
+		"sports": {"aaa33333", "aaa22222", "aaa11111"},
+	}}
+	url := stub.serve(t)
+	// Another topic's poll of the same stories is not ai's baseline.
+	watchOnce(t, url, "sports")
+
+	out := watchOnce(t, url, "ai")
+	wantWatchAlerts(t, "first ai poll", out)
+	if !strings.Contains(out, "baseline") || strings.Contains(out, "alerts") {
+		t.Errorf("first ai poll should report a baseline poll and no alerts, got:\n%s", out)
+	}
+
+	stub.setRanks("ai", "aaa33333", "aaa11111", "aaa22222")
+	out = watchOnce(t, url, "ai")
+	wantWatchAlerts(t, "second ai poll", out, "+2 [aaa33333]")
+	if strings.Contains(out, "baseline") {
+		t.Errorf("second ai poll should not be a baseline poll, got:\n%s", out)
 	}
 }
 
