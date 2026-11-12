@@ -137,7 +137,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name: "digg-pp-cli",
-			// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding.
+			// PATCH(digg-rename-and-github-feeds): the product is named Digg, with no roster-size branding.
 			Description: "Tail Digg's news cycle and GitHub feeds from the terminal — read-only, with rank-history nobody else surfaces.",
 			Version:     rootCmd.Version,
 		},

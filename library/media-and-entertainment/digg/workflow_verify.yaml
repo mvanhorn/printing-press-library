@@ -1,17 +1,17 @@
 # Verification manifest for the digg-pp-cli read-only research workflow:
-# (1) sync the AI section ranked list and story feed,
-# (2) read the current top stories,
-# (3) ask why a specific story is top-ranked,
-# (4) tail recent fast_climb events for movers in the last hour.
+# (1) check that Digg's site and search endpoint answer,
+# (2) search stories live across every topic,
+# (3) read the highest-scoring stories across every topic,
+# (4) read one topic's ranked stories.
 #
-# Every step is read-only against Digg. Run via:
+# Every step is read-only against Digg and needs no prior sync. Run via:
 #   printing-press workflow-verify --dir <cli-dir>
-name: digg-ai-research-flow
-description: Power-user research flow over Digg AI's top stories and stored pipeline events
+name: digg-research-flow
+description: Research flow over Digg's live search and ranked stories, across all topics
 goal: |
-  Pull a fresh snapshot of the AI news feed, list today's top clusters,
-  drill into one cluster's score components, and tail any fast-climb events
-  from the last hour.
+  Confirm Digg is reachable, search every topic for stories on a subject
+  with their Digg Scores, list the highest-scoring stories across all
+  topics, and list one topic's stories in rank order.
 
 steps:
   - name: doctor
@@ -19,21 +19,23 @@ steps:
     expect:
       exit_code: 0
 
-  - name: sync
-    command: digg-pp-cli sync
+  - name: search-all-topics
+    command: digg-pp-cli search "election" --since 30d --limit 5 --json
     expect:
       exit_code: 0
       output_contains:
-        - "synced"
+        - "totalMatches"
 
-  - name: top-stories
-    command: digg-pp-cli top --limit 5 --json --select clusterUrlId,currentRank,delta,tldr
+  - name: top-all-topics
+    command: digg-pp-cli top --limit 5 --json
     expect:
       exit_code: 0
       output_contains:
-        - "clusterUrlId"
+        - "diggScore"
 
-  - name: tail-fast-climb-events
-    command: digg-pp-cli events --since 1h --type fast_climb --json --select clusterId,label,delta,currentRank,previousRank
+  - name: top-one-topic
+    command: digg-pp-cli top --topic sports --limit 5 --json
     expect:
       exit_code: 0
+      output_contains:
+        - "diggScore"

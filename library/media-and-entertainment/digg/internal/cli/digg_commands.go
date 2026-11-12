@@ -1124,8 +1124,8 @@ func newHistoryCmd(flags *rootFlags) *cobra.Command {
 func newAuthorsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "authors",
-		// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding.
-		Short:       "Inspect the accounts Digg tracks — the curated leaderboard of AI-news influencers on X",
+		// PATCH(digg-rename-and-github-feeds): the product is named Digg, with no roster-size branding.
+		Short:       "Inspect the accounts Digg tracks: its ranked roster of accounts on X",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 	}
 	cmd.AddCommand(newAuthorsTopCmd(flags))
@@ -1339,11 +1339,11 @@ func newAuthorsListCmd(flags *rootFlags) *cobra.Command {
 	var onlyFallers bool
 	cmd := &cobra.Command{
 		Use:         "list",
-		Short:       "Full ranked roster of Digg-tracked accounts with rich fields (rank, category, bio, vibeDistribution); fetches /ai/1000 by default",
+		Short:       "Full ranked roster of Digg-tracked accounts with rich fields (rank, category, bio, vibeDistribution); fetches Digg's rankings page by default",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `List the full roster of Digg-tracked accounts with per-author rank, category, bio, GitHub URL, and vibe distribution.
 
-Live by default: fetches /ai/1000, parses the embedded RSC payload, upserts
+Live by default: fetches https://digg.com/tech/x/rankings, parses the embedded RSC payload, upserts
 the roster into the local store, then reads back. Pass --data-source local
 to skip the network fetch and use only what's already cached.
 
@@ -1670,16 +1670,16 @@ func newAuthorsGetCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:         "get <handle>",
-		Short:       "Look up a handle on /api/search/users; off-1000 results include the rank-1000 author for comparison",
+		Short:       "Look up a handle on /api/search/users; unranked handles include the rank-1000 author for comparison",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `Look up an X handle in Digg's full author universe (1000 + off-1000).
+		Long: `Look up an X handle among every account Digg knows, ranked or not.
 
 Live by default — hits /api/search/users, the same vector+prefix
-search that backs the di.gg/ai handle picker. Returns a single rich
+search that backs Digg's handle picker. Returns a single rich
 record on exact match, or an array of fuzzy candidates sorted by
 similarity_score when the handle has no exact hit.
 
-For off-1000 handles (current_rank: null), the response also
+For unranked handles (current_rank: null, tier_status: off_1000), the response also
 includes the rank-1000 author's stats as a comparison anchor
 (nearest_in_1000). The anchor is read from the local digg_authors
 cache (populated by ` + "`digg-pp-cli authors list`" + `); on cache

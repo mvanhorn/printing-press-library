@@ -10,7 +10,7 @@ import (
 func newFeedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feed",
-		Short: "Top-level AI story feed (HTML page; CLI parses the embedded RSC stream)",
+		Short: "Raw Digg pages: the AI topic page and one story's page, as HTML",
 	}
 
 	cmd.AddCommand(newFeedRawCmd(flags))

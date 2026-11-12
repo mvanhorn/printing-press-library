@@ -25,7 +25,7 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("feed_raw",
-			mcplib.WithDescription("Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `top` instead of calling this directly. Returns the RawHTML."),
+			mcplib.WithDescription("Fetch the raw HTML of Digg's AI topic page (/ai). Most users should run `top` instead of calling this directly. Returns the RawHTML."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -34,7 +34,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("feed_story_raw",
-			mcplib.WithDescription("Fetch the raw /ai/{clusterUrlId} story detail page (HTML). The CLI's `story` command parses this; users should not need to call this directly. Required: cluster_url_id. Returns the RawHTML."),
+			mcplib.WithDescription("Fetch the raw HTML of one story's page under /ai. Most users should run `story` or `posts` instead of calling this directly. Required: cluster_url_id. Returns the RawHTML."),
 			mcplib.WithString("cluster_url_id", mcplib.Required(), mcplib.Description("Short alphanumeric cluster URL ID (8 chars), e.g. iq7usf9e")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -324,7 +324,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api": "digg",
-		// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding; add github resource.
+		// PATCH(digg-rename-and-github-feeds): the product is named Digg, with no roster-size branding; add github resource.
 		"description": "Tail Digg's news cycle and GitHub feeds from the terminal — read-only, with rank-history nobody else surfaces.",
 		"archetype":   "generic",
 		"tool_count":  3,
@@ -354,17 +354,17 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
 			{"name": "Live ranked feed", "command": "top", "description": "Digg's ranked stories right now for one topic, or merged across all seven by Digg Score; --view trending shows what is rising.", "rationale": "Digg's feed is the one public source with each story's per-topic rank and Digg Score.", "via": "mcp-command-mirror"},
-			{"name": "Influence-ranked author leaderboard", "command": "authors top", "description": "Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.", "rationale": "Digg's product premise is a ranked leaderboard of AI-news accounts on X. The /ai/influencers page is currently 404; the data is embedded in every feed response.", "via": "mcp-command-mirror"},
-			{"name": "GitHub: top starred AI repos", "command": "github stars", "description": "Top AI repos ranked by starring activity from Digg-tracked accounts: stargazers, recent starrers, breakout/novel/ai_related scores, language, one-sentence classification.", "rationale": "Digg's /tech/github/stars page embeds the full repo + scoring JSON in its RSC payload. CLI extracts and exposes as structured records.", "via": "mcp-command-mirror"},
+			{"name": "Influence-ranked author leaderboard", "command": "authors top", "description": "Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.", "rationale": "Digg ranks the accounts on X whose posts it builds stories from. The local store makes that ranking sortable and scriptable.", "via": "mcp-command-mirror"},
+			{"name": "GitHub: top starred repos", "command": "github stars", "description": "Top repos ranked by starring activity from Digg-tracked accounts: stargazers, recent starrers, breakout/novel/ai_related scores, language, one-sentence classification.", "rationale": "Digg's /tech/github/stars page embeds the full repo + scoring JSON in its RSC payload. CLI extracts and exposes as structured records.", "via": "mcp-command-mirror"},
 			{"name": "GitHub: newly first-seen repos", "command": "github new", "description": "Recently first-seen GitHub repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator).", "rationale": "Digg's /tech/github/new page exposes per-event flat records; CLI parses them.", "via": "mcp-command-mirror"},
 			{"name": "GitHub: contributor leaderboard", "command": "github activity", "description": "Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos count over Digg's tracking window.", "rationale": "Digg's /tech/github/activity page lists contributors with rank + contribution + repos counts; CLI scrapes the rendered table.", "via": "mcp-command-mirror"},
 			{"name": "GitHub: live activity feed", "command": "github recent", "description": "Live GitHub activity feed: per-event entries with the GitHub URL (issue/PR/commit/repo), the user who acted, and a short description of the target.", "rationale": "Digg's /tech/github/recent page is a real-time event stream; CLI extracts the github.com URL + actor user JSON per entry.", "via": "mcp-command-mirror"},
 			{"name": "Rank history per cluster", "command": "history", "description": "Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.", "rationale": "Local snapshots persist what the web UI overwrites every fetch.", "via": "mcp-command-mirror"},
 			{"name": "Author surfacing record", "command": "author", "description": "Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).", "rationale": "Cluster payloads list all contributing X posts with username, xId, displayName, and postType. Local store joins them...", "via": "mcp-command-mirror"},
-			{"name": "Rank-movement watcher", "command": "watch", "description": "Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.", "rationale": "Read-only polling combined with the local snapshot store and AdaptiveLimiter.", "via": "mcp-command-mirror"},
+			{"name": "Rank-movement watcher", "command": "watch", "description": "Poll one Digg topic (--topic), diff against last snapshot, alert when any cluster moves N+ ranks.", "rationale": "Read-only polling combined with the local snapshot store and AdaptiveLimiter.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Influence-ranked author leaderboard", "insight": "Digg's product premise is a ranked leaderboard of AI-news accounts on X. The /ai/influencers page is currently 404; the data is embedded in every feed response."},
+			{"topic": "Influence-ranked author leaderboard", "insight": "Digg ranks the accounts on X whose posts it builds stories from. The local store makes that ranking sortable and scriptable."},
 			{"topic": "GitHub feeds", "insight": "Digg surfaces four parallel GitHub views — /tech/github/{stars,new,activity,recent}. Stars and New embed rich JSON records (repo_full_name, stargazers_count, breakout_score, novel_score, ai_related_score, classification_tldr). Activity is a contributor leaderboard table. Recent is a live event stream with github.com URLs in href."},
 			{"topic": "Rank history per cluster", "insight": "Local snapshots persist what the web UI overwrites every fetch."},
 			{"topic": "Author surfacing record", "insight": "Cluster payloads list all contributing X posts with username, xId, displayName, and postType. Local store joins them per author."},

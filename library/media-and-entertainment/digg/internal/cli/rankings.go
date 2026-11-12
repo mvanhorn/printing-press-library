@@ -38,8 +38,8 @@ func newRankingsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "rankings",
-		Short: "Rankings views Digg publishes alongside the AI 1000 leaderboard",
-		Long: `Rankings views Digg publishes alongside the AI 1000 leaderboard.
+		Short: "Digg's ranking of people and companies on X",
+		Long: `Digg's ranking of people and companies on X.
 
 Reads https://digg.com/tech/x/rankings:
 

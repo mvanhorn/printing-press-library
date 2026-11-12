@@ -1,7 +1,7 @@
 {
   "api_name": "digg",
   "base_url": "https://digg.com",
-  "description": "Digg: tail the AI story leaderboard, GitHub feeds (stars/new/activity/recent), ranking-change history, and live ingestion pipeline events from the terminal. Read-only.",
+  "description": "Digg: search stories live across all seven topics, read the ranked story leaderboard, GitHub feeds (stars/new/activity/recent), and ranking-change history from the terminal. Read-only.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -11,7 +11,7 @@
   "tools": [
     {
       "name": "feed_raw",
-      "description": "Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `sync` then `top` instead of calling this directly. Returns the RawHTML.",
+      "description": "Fetch the raw HTML of Digg's AI topic page (/ai). Most users should run `top` instead of calling this directly. Returns the RawHTML.",
       "method": "GET",
       "path": "/ai",
       "no_auth": true,
@@ -19,7 +19,7 @@
     },
     {
       "name": "feed_story_raw",
-      "description": "Fetch the raw /ai/{clusterUrlId} story detail page (HTML). The CLI's `story` command parses this; users should not need to call this directly. Required: cluster_url_id. Returns the RawHTML.",
+      "description": "Fetch the raw HTML of one story's page under /ai. Most users should run `story` or `posts` instead of calling this directly. Required: cluster_url_id. Returns the RawHTML.",
       "method": "GET",
       "path": "/ai/{cluster_url_id}",
       "no_auth": true,
@@ -35,7 +35,7 @@
     },
     {
       "name": "github_stars",
-      "description": "Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrer list, breakout_score, novel_score, ai_related_score, and the model's one-sentence classification. Returns the RawHTML; structured records are extracted by the CLI from the embedded RSC payload.",
+      "description": "Top repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrer list, breakout_score, novel_score, ai_related_score, and the model's one-sentence classification. Returns the RawHTML; structured records are extracted by the CLI from the embedded RSC payload.",
       "method": "GET",
       "path": "/tech/github/stars",
       "no_auth": true,
@@ -89,7 +89,7 @@
           "name": "max-skip-ratio",
           "type": "float",
           "required": false,
-          "description": "Schema-drift tolerance (see rankings_emerging)."
+          "description": "Schema-drift tolerance: fraction of entries that may fail to decode before the command exits non-zero. Default 0.10. Range [0, 1]."
         }
       ]
     }

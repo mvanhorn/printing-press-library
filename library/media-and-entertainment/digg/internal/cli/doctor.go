@@ -174,6 +174,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
 			}
+			// Search, posts, story and open read Digg's search endpoint, a
+			// different host path from the pages the check above reaches,
+			// so it gets its own verdict.
+			if !dryRunOK(flags) {
+				report["search"] = checkDiggSearch(cmd.Context(), flags)
+			}
 			// Cache health: only reported when this CLI has a local store.
 			// Surfaces rows + last_synced_at per resource, schema version,
 			// and a fresh/stale/unknown verdict so agents can introspect
@@ -196,6 +202,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				{"auth", "Auth"},
 				{"env_vars", "Env Vars"},
 				{"api", "API"},
+				{"search", "Search"},
 				{"credentials", "Credentials"},
 			}
 			for _, ck := range checkKeys {
@@ -248,6 +255,22 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero when a health level is reached: stale, error. Default is never.")
 	return cmd
+}
+
+// checkDiggSearch runs one single-result search against Digg's search
+// endpoint, through the same client `search` uses, and reports
+// "reachable" or "unreachable: <reason>".
+func checkDiggSearch(ctx context.Context, flags *rootFlags) string {
+	mc, err := newDiggMCPClient(flags)
+	if err != nil {
+		return fmt.Sprintf("unreachable: %s", err)
+	}
+	ctx, cancel := context.WithTimeout(ctx, mc.Timeout)
+	defer cancel()
+	if _, err := mc.Call(ctx, diggSearchTool, map[string]any{"query": "news", "limit": 1}); err != nil {
+		return fmt.Sprintf("unreachable: %s", err)
+	}
+	return "reachable"
 }
 
 // doctorExitForFailOn returns a non-nil error when the report's worst

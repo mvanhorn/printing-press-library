@@ -1,8 +1,8 @@
 # Digg CLI
 
-**Tail Digg's news cycle from the terminal — read-only, with the full pipeline event stream, GitHub feeds, and rank-history nobody else surfaces.**
+**Search and read Digg from the terminal: live story search across all seven topics, the ranked story leaderboard with Digg Scores, GitHub feeds, and a local rank history. Read-only.**
 
-Digg is a curated AI-news leaderboard powered by tracked accounts on X and a parallel GitHub feed (stars / new / activity / recent). The web UI shows you today's snapshot. This CLI tails the pipeline events, keeps a local rank-history that survives daily overwrites, exposes Digg's own replacement rationale and gravity components, and surfaces the four GitHub feeds as structured data.
+Digg is a news leaderboard covering seven topics: ai, tech, world-business, sports, science, gaming and entertainment. It groups posts on X and web pages into stories and ranks each story with a Digg Score. This CLI searches those stories live, reads the ranked feed for one topic or all of them, returns the sources behind a story, keeps a local rank history that outlives Digg's own snapshots, and exposes Digg's GitHub feeds and account rankings as structured data.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
@@ -118,134 +118,77 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-No auth required. The CLI uses only public surfaces: section pages such as /ai and /tech (HTML+RSC scrape) and the public story feed at /api/feed/continuous (JSON). It does not use Clerk session cookies or any authenticated endpoint, by design: this is a read-only research tool, and Digg's parent platform was shut down over AI-agent abuse. The CLI is read-only and identifies itself with a clear User-Agent so Digg ops can rate-limit it cleanly.
+No auth required. The CLI uses only public surfaces: Digg's public search endpoint at https://digg.com/mcp (story search and story detail), the public story feed at /api/feed/continuous (JSON), and topic and rankings pages such as /ai and /tech/x/rankings (HTML). It does not use session cookies or any authenticated endpoint. The CLI is read-only, paces its requests, and backs off when Digg answers with a rate limit.
 
 ## Quick Start
 
 ```bash
-# Pull the AI section's ranked list and 30 days of stories into the local store
-digg-pp-cli sync
+# Search every topic for stories on a subject, live, with Digg Scores
+digg-pp-cli search "world cup" --since 7d --sort score --json
 
-# Sync more sections (ai, tech, world-business, sports, science, gaming, entertainment, all)
-digg-pp-cli sync --topics ai,tech
+# Limit a search to some topics
+digg-pp-cli search "claude" --topic ai,tech --since 30d --agent
 
-# Read today's top 10 clusters as structured JSON
+# The highest-scoring stories across every topic right now
 digg-pp-cli top --limit 10 --json
 
-# See which stories climbed the rankings in the last hour with explicit rank deltas
-digg-pp-cli events --since 1h --type fast_climb
+# One topic's stories in rank order, or what is trending this week
+digg-pp-cli top --topic sports --limit 10
+digg-pp-cli top --topic ai --view trending --range 7d --json
 
-# What got knocked out of the rankings overnight and Digg's own rationale for each
-digg-pp-cli replaced --since 24h
+# The sources behind one story: text, author, URL and time
+digg-pp-cli posts https://digg.com/sports/65idu2x5 --agent
 
-# Top influencers tracked by Digg, ranked by Digg's score
-digg-pp-cli authors top --by influence --limit 25
+# Snapshot ranked lists on a schedule to build rank history
+digg-pp-cli sync --topics ai,tech,sports
 
-# Top AI repos by starring activity from Digg-tracked accounts
+# Top repos by starring activity from Digg-tracked accounts
 digg-pp-cli github stars --limit 10 --json
 
-# Smart-money convergence — repos starred by >= 2 distinct AI-builder accounts
+# Repos starred by two or more distinct Digg-tracked accounts
 digg-pp-cli github stars --min-starrers 2 --json
-
-# Live GitHub activity feed: who starred / committed / opened issues, in real time
-digg-pp-cli github recent --limit 20 --json
 
 # Full ranking of people and companies (initial-HTML slice)
 digg-pp-cli rankings list --limit 20 --json
-
 ```
 
 ## Unique Features
 
 These capabilities aren't available in any other tool for this API.
 
-### Topic search and per-post citations
-- **`search`** — Topic search over the stories `sync` stores from each Digg section's feed. Pick sections with `--topic` (default `ai`; valid: ai, tech, world-business, sports, science, gaming, entertainment, all). When a section has no completed sync in the last 6 hours, search first fetches up to 8 live feed pages so new stories still appear, and marks the result `meta.stale: true`. `--data-source local` never fetches; `--data-source live` always does.
+### Live search and story sources
+- **`search`** — Search Digg stories with Digg's own search, live. It needs no prior `sync` and reads no local copy. Without `--topic` every topic is searched; `--topic` takes one or more of ai, tech, world-business, sports, science, gaming, entertainment, all.
 
-  _Returns ranked clusters with engagement metadata (postCount, uniqueAuthors, firstPostAge); the load-bearing recipe for last30days-style research workflows._
-
-  ```bash
-  digg-pp-cli search "<topic>" --since 30d --agent --select clusterUrlId,title,rank,postCount,uniqueAuthors,firstPostAge
-  ```
-  - **`--since Nh|Nd|Nw|Nm`** — filter to stories that started within the window. `firstPostAge` is measured from now. For full 30-day coverage, run `digg-pp-cli sync --topics ai,tech` first.
-- **`posts`** — X posts attached to one cluster, with author rank, body when rendered, media URLs, repost-context, and minted xUrl for one-click citation.
-
-  _The citations recipe: surface the highest-credibility AI 1000 voices on a story, sortable by rank, type, or time._
+  _Each result carries `clusterId` (the story's UUID), `clusterUrlId` (the short id from its URL), `title`, `tldr`, `description`, `url`, `topic`, `diggScore`, `sourceCount`, `postCount` (same number as `sourceCount`), `uniqueAuthors`, `publishedAt`, `firstSourceAt` and `firstPostAge`. `meta` carries `source: "live"`, `stale: false`, `totalMatches`, `window` and `sort`._
 
   ```bash
-  digg-pp-cli posts <clusterUrlId> --by rank --limit 5 --agent --select author.username,author.rank,post_type,xUrl,body
+  digg-pp-cli search "<topic>" --since 30d --agent --select title,diggScore,sourceCount,url
   ```
-
-### Author lookup and roster browse
-- **`authors get`** — Look up any X handle in Digg's full author universe (1000 + off-1000) via `/api/search/users`. For off-1000 handles, the response includes `subject_peer_follow_count`, the rank-1000 anchor's `peer_follow_count`, and a signed `peer_follow_gap` — the gap to the 1000 measured in AI-1000 peer follows (NOT raw X follower count).
-
-  _The credibility lookup: an agent can decide whether to quote a handle by reading one structured record._
+  - **`--since`, `--until`** — a duration back from now (`12h`, `7d`, `2w`, `1m` for 30 days) or an ISO date (`2026-11-01`). They filter on `publishedAt`. Digg search reaches back 90 days.
+  - **`--sort relevance|score|newest`** — `score` puts the highest Digg Score first.
+  - **`--limit`** — may exceed one page of 50; search follows Digg's cursor.
+  - A failed search exits non-zero. With `--json` the envelope still prints, with the reason in `meta.error`.
+- **`posts`** — Every source Digg attributes one story to, in any topic. Each row has the source's text (`body`), URL (`xUrl`), time (`posted_at`) and `kind`: `x` for an X post (with `author.username` and `author.display_name`) or `webpage` (with `title`).
 
   ```bash
-  digg-pp-cli authors get <handle> --agent
+  digg-pp-cli posts <story> --limit 5 --agent --select author.username,xUrl,body
   ```
+  `<story>` is the story's UUID, its short id, or its URL. A short id or URL resolves once `search` has returned that story; one `search` has not seen fails with a message that says so. `--by time` sorts oldest first. `--by rank`, `--by type` and `--type` are accepted and have no effect, because Digg no longer reports author rank or post type.
+- **`story`** — One story as Digg publishes it: title, summary, topic, URL and dates, the earlier and later stories in the same thread, and its first 20 sources. Takes the same `<story>` argument as `posts`.
+- **`open`** — Print the story's digg.com URL under its own topic; `--launch` opens it in a browser.
 
-  Trimmed off-1000 example for `mvanhorn`:
-  ```json
-  {
-    "username": "mvanhorn",
-    "current_rank": null,
-    "subject_peer_follow_count": 19,
-    "nearest_in_1000": {"rank": 1000, "username": "...", "peer_follow_count": 90},
-    "peer_follow_gap": 71
-  }
-  ```
-  `peer_follow_gap` is the gap to rank-1000's `followed_by_count` (peer follows from inside the AI 1000). Do not read it as a raw X follower delta.
-- **`authors list`** — Full ranked AI 1000 from `/ai/1000`, persisted with rich fields (rank, category, bio, vibeDistribution, GitHub URL).
+### Ranked stories, live
+- **`top`** — Digg's ranked story feed, read live with no sync. `--topic` returns one topic in rank order. Without it, `top` reads the first page (20 stories) of every topic and merges them by Digg Score.
 
-  _Identify rising voices in a category, find authors who just joined the 1000, see who's falling fast — sortable, filterable, scriptable._
+  _Output is a `{meta, results}` envelope. Each row has `rank` (within its own topic), `diggScore`, `postCount`, `uniqueAuthors`, `publishedAt`, `topic`, `url`, `title`, `description`, `clusterId` and `clusterUrlId`._
 
   ```bash
-  # Biggest movers since the last snapshot
-  digg-pp-cli authors list --by rankChange --limit 20 --agent
-
-  # Newly listed (first appearance in the 1000)
-  digg-pp-cli authors list --only-new --agent
+  digg-pp-cli top --topic ai --view trending --range 7d --json --select results.title,results.diggScore,results.url
   ```
-  Sort with `--by rank|rankChange|category|followers`; filter with `--category "<name>"`, `--only-new`, `--only-fallers`.
+  `--view top|trending`, `--range 24h|7d|30d|all`, `--limit`.
 
-### Pipeline observability
-- **`events`** — List the pipeline events `sync` captured from section pages: clusters as they were detected and stories fast-climbing the leaderboard with explicit rank deltas. Run `sync` to capture new ones.
-
-  _When an agent needs 'tell me when story X just climbed N ranks' or 'what new clusters did Digg detect in the last hour', this is the only way._
-
-  ```bash
-  digg-pp-cli events --since 1h --type fast_climb --json --select clusterId,label,delta,currentRank,previousRank
-  ```
-- **`watch`** — Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.
-
-  _Read-only operational watcher; never writes anything back to Digg._
-
-  ```bash
-  digg-pp-cli watch --alert 'rank.delta>=10'
-  ```
 ### Local state that compounds
-- **`replaced`** — Show stories that were knocked out of the rankings since the last sync, with Digg's own published replacement rationale.
-
-  _Best-of-feed shifts faster than people remember. This makes 'what did Digg drop and why' queryable._
-
-  ```bash
-  digg-pp-cli replaced --since 24h --json
-  ```
-- **`crossref`** — Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there.
-
-  _Removes the manual 'is HN talking about this too' step from any cross-aggregator research workflow._
-
-  ```bash
-  digg-pp-cli crossref iq7usf9e
-  ```
-- **`authors top`** — Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.
-
-  _Investors and AI scouts care which accounts move the news cycle. Now queryable, sortable, scriptable._
-
-  ```bash
-  digg-pp-cli authors top --by influence --limit 50 --json
-  ```
+- **`sync`** — Take one snapshot of each topic's ranked list (`--topics`, default `ai`) and save it to a local SQLite database. `history`, `watch`, `stats`, `author` and `authors top` read these snapshots. `search` and `top` do not need it.
 - **`history`** — Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.
 
   _'Entered at #18, peaked at #4 over 6h, dropped to #22 by 24h' is impossible to learn from the live site._
@@ -253,28 +196,39 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   digg-pp-cli history iq7usf9e --json
   ```
-- **`author`** — Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).
+- **`watch`** — Poll one Digg topic (`--topic`, default `ai`), diff against the last snapshot, and alert when any cluster moves N+ ranks.
 
-  _'Show me every story this account surfaced this week' is the investor-scout query._
+  _Read-only operational watcher; never writes anything back to Digg._
+
+  ```bash
+  digg-pp-cli watch --topic sports --alert 'rank.delta>=10'
+  ```
+- **`authors top`** — Top accounts in the local store, ranked by Digg's influence score, story count, or reach.
+
+  ```bash
+  digg-pp-cli authors top --by influence --limit 50 --json
+  ```
+- **`author`** — Every synced cluster a given X account contributed to.
 
   ```bash
   digg-pp-cli author Scobleizer --since 7d --json
   ```
 
-### Transparency
-- **`evidence`** — Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel, percentAboveAverage.
-
-  _When a user asks 'why is THIS the top story', the answer is structured data; agents can compose with it._
+### Account roster
+- **`authors list`** — Digg's ranked roster of accounts on X, fetched from its rankings page and saved locally with rank, category, bio, vibeDistribution and GitHub URL.
 
   ```bash
-  digg-pp-cli evidence iq7usf9e --json
+  # Biggest movers since the last snapshot
+  digg-pp-cli authors list --by rankChange --limit 20 --agent
+
+  # Newly listed accounts
+  digg-pp-cli authors list --only-new --agent
   ```
-- **`sentiment`** — Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.
-
-  _Tells an agent whether the conversation around a story is still net-positive or has soured; useful before quoting a story._
+  Sort with `--by rank|rankChange|category|followers`; filter with `--category "<name>"`, `--only-new`, `--only-fallers`.
+- **`authors get`** — Look up any X handle through `/api/search/users`, ranked or not. A handle with no rank comes back with `current_rank: null` and `tier_status: "off_1000"`, plus `nearest_in_1000`: the account at rank 1000 with its `peer_follow_count`, for comparison.
 
   ```bash
-  digg-pp-cli sentiment iq7usf9e --window 6h --json
+  digg-pp-cli authors get <handle> --agent
   ```
 
 ## Usage
@@ -285,51 +239,63 @@ Run `digg-pp-cli --help` for the full command reference and flag list.
 
 ### feed
 
-Top-level story feed (HTML page; CLI parses the embedded RSC stream)
+Raw Digg pages, as HTML.
 
-- **`digg-pp-cli feed raw`** - Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `sync` then `top` instead of calling this directly.
-- **`digg-pp-cli feed story_raw`** - Fetch the raw /ai/{clusterUrlId} story detail page (HTML). The CLI's `story` command parses this; users should not need to call this directly.
+- **`digg-pp-cli feed raw`** - Fetch the raw HTML of Digg's AI topic page (/ai). Most users should run `top` instead.
+- **`digg-pp-cli feed story_raw`** - Fetch the raw HTML of one story's page under /ai. Most users should run `story` or `posts` instead.
 
 ### github
 
 GitHub feeds Digg surfaces alongside the X-account leaderboard. Four flavors, each parsed from the embedded RSC stream.
 
-- **`digg-pp-cli github stars`** - Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo name, language, stargazers_count, recent starrer list, breakout_score, novel_score, ai_related_score, and the model's one-sentence classification. Flag: `--min-starrers N` filters to repos starred by >= N distinct accounts (smart-money convergence).
+- **`digg-pp-cli github stars`** - Top repos ranked by starring activity from Digg-tracked accounts. Returns repo name, language, stargazers_count, recent starrer list, breakout_score, novel_score, ai_related_score, and the model's one-sentence classification. Flag: `--min-starrers N` filters to repos starred by >= N distinct accounts.
 - **`digg-pp-cli github new`** - Recently first-seen repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator).
 - **`digg-pp-cli github activity`** - Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos.
 - **`digg-pp-cli github recent`** - Live activity feed: per-event entries with the GitHub URL and the user who acted.
 
-### Rankings views
+### rankings
 
-Views of Digg's rankings page (`/tech/x/rankings`). Every command shares a schema-drift gate via `--max-skip-ratio` (default 0.10). Digg removed the Emerging and Movers sections in October 2026; those commands now exit non-zero with an error naming the removed view.
+Digg's ranking of people and companies on X (`/tech/x/rankings`).
 
-- **`digg-pp-cli rankings list`** - Full ranking of people and companies. Server-paginated; returns the initial-HTML slice. `--limit` caps.
-- **`digg-pp-cli rankings emerging`** - Removed by Digg; exits non-zero with a removed-view error.
-- **`digg-pp-cli rankings movers`** - Removed by Digg; exits non-zero with a removed-view error.
+- **`digg-pp-cli rankings list`** - Full ranking of people and companies. Server-paginated; returns the initial-HTML slice. `--limit` caps. `--max-skip-ratio` (default 0.10) makes the command exit non-zero when too many rows fail to decode.
 
 ### search
 
-Topic search over synced Digg section feeds
+Search Digg stories live, across one or more topics.
 
-- **`digg-pp-cli search "<query>"`** - Matches stored story headlines and summaries, topping up from the live feed when a section is stale. Flags: `--topic`, `--since Nh|Nd|Nw|Nm`, `--data-source live|local|auto`, `--limit`.
+- **`digg-pp-cli search "<query>"`** - Calls Digg's search. Flags: `--topic`, `--since`, `--until`, `--sort relevance|score|newest`, `--limit`.
+
+### top
+
+Digg's ranked stories right now.
+
+- **`digg-pp-cli top`** - Flags: `--topic`, `--view top|trending`, `--range 24h|7d|30d|all`, `--limit`.
+
+### posts, story, open
+
+One story, in any topic. Each takes the story's UUID, short id or URL.
+
+- **`digg-pp-cli posts <story>`** - The story's sources: text, author, URL and time. Flags: `--by time`, `--limit`.
+- **`digg-pp-cli story <story>`** - The story's detail, thread links and first 20 sources.
+- **`digg-pp-cli open <story>`** - Print the story's URL; `--launch` opens it.
+
+### sync, history, watch, stats
+
+Local rank history.
+
+- **`digg-pp-cli sync`** - Snapshot each topic's ranked list. Flags: `--topics`, `--db`.
+- **`digg-pp-cli history <clusterUrlId>`** - One cluster's rank trajectory across snapshots.
+- **`digg-pp-cli watch`** - Poll one topic and alert on rank moves. Flags: `--topic`, `--interval`, `--min-delta`, `--alert`, `--iterations`.
+- **`digg-pp-cli stats`** - Cluster count, author count and snapshot depth of the local store.
 
 ### authors
 
-Inspect Digg's tracked AI-news accounts (the /ai/1000 roster).
+Inspect the accounts Digg tracks.
 
-- **`digg-pp-cli authors get <handle>`** - Look up any X handle (1000 + off-1000); off-1000 records include `subject_peer_follow_count`, the rank-1000 `nearest_in_1000` anchor, and `peer_follow_gap`. Flag: `--limit` (fuzzy fallback).
-- **`digg-pp-cli authors list`** - Full ranked roster from `/ai/1000`, persisted with rich fields. Flags: `--by rank|rankChange|category|followers`, `--category`, `--only-new`, `--only-fallers`, `--limit`.
-- **`digg-pp-cli authors top`** - Top contributors by influence, post count, or reach.
-
-### posts
-
-X posts attached to one cluster
-
-- **`digg-pp-cli posts <clusterUrlId>`** - Origins, replies, quotes, retweets with author rank, body when rendered, media URLs, minted xUrl. Flags: `--by rank|type|time`, `--type tweet|reply|quote|retweet`, `--limit`, `--no-cache`.
-
-### story
-
-Full cluster detail. The envelope now includes `posts` and `postsMeta` fields populated by the U5 RSC parser.
+- **`digg-pp-cli authors get <handle>`** - Look up any X handle; an unranked handle includes the rank-1000 `nearest_in_1000` anchor. Flag: `--limit` (fuzzy fallback).
+- **`digg-pp-cli authors list`** - Full ranked roster from Digg's rankings page, saved with rich fields. Flags: `--by rank|rankChange|category|followers`, `--category`, `--only-new`, `--only-fallers`, `--limit`.
+- **`digg-pp-cli authors top`** - Top contributors in the local store by influence, post count, or reach.
+- **`digg-pp-cli authors overlap <userA> <userB>`** - Synced clusters both accounts contributed to.
 
 ## Output Formats
 
@@ -359,7 +325,7 @@ This CLI is designed for AI agent consumption:
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
 - **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
-- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Local history** - `sync` snapshots feed `history`, `watch`, `stats` and `sql` from a local SQLite store
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
@@ -370,7 +336,7 @@ Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate
 digg-pp-cli doctor
 ```
 
-Verifies configuration and connectivity to the API.
+Verifies configuration and reports two connectivity checks: `api` (digg.com answers) and `search` (Digg's search endpoint at https://digg.com/mcp answers a one-result search). Each reads `reachable` or `unreachable: <reason>`. `--fail-on error` makes an unreachable check exit non-zero.
 
 ## Configuration
 
@@ -383,11 +349,11 @@ Config file: `~/.config/digg-pp-cli/config.toml`
 
 ### API-specific
 
-- **All commands return empty after install** — Run `digg-pp-cli sync` first — the local store is empty until the first sync.
-- **`events` shows no fast_climb / cluster_detected events** — Events come from section pages at sync time. Run `digg-pp-cli sync` again later or filter by a different `--type`.
-- **`search` warns that the local copy is stale** — Run `digg-pp-cli sync --topics <sections>`; a full 30-day sync of one section takes about two minutes.
-- **HTTP 429 on sync** — Adaptive limiter backs off automatically. If it persists, lower the polling rate with `--interval 120s` on `watch` commands.
-- **Story command returns 'cluster not found'** — Use `clusterUrlId` (the 8-char alphanumeric short ID), not the UUID-style clusterId. `digg-pp-cli top --json --select clusterUrlId` lists them.
+- **`history`, `watch`, `stats`, `author` or `authors top` say there is no data** — These read local snapshots. Run `digg-pp-cli sync` first. `search`, `top`, `posts` and `story` read Digg live and need no sync.
+- **`posts`, `story` or `open` says it does not know a short id** — Run `digg-pp-cli search` for the story first, or pass the story's UUID (`clusterId` in search results).
+- **`search` fails** — Run `digg-pp-cli doctor` and read the `search` line. A failed search exits non-zero; it never prints an empty result as success.
+- **A command from an older version is missing** — Digg stopped serving the data behind several commands, and they were removed instead of returning empty results. Run `digg-pp-cli --help` for the current list. `top --view trending` shows which stories are climbing.
+- **HTTP 429** — The CLI backs off on its own. If the limit persists the command exits with code 7; lower the polling rate with `--interval 120s` on `watch`.
 
 ## HTTP Transport
 

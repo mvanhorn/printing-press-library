@@ -82,19 +82,20 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use: "digg-pp-cli",
-		// PATCH(digg-rename-and-github-feeds): drop "Digg AI" / "1000" branding; add github feeds to highlights.
+		// PATCH(digg-rename-and-github-feeds): the product is named Digg, with no roster-size branding; add github feeds to highlights.
 		Short: `Read-only CLI for Digg — the story leaderboard, live search, and GitHub feeds on digg.com.`,
 		Long: `Read-only CLI for Digg — the story leaderboard, live search, and GitHub feeds on digg.com.
 
 Highlights (not in the official API docs):
   • search   Live topic search across Digg's topics (ai, tech, world-business, sports, science, gaming, entertainment), with Digg Score and source counts.
   • top   Digg's ranked stories right now, for one topic or merged across all of them by Digg Score.
-  • github stars|new|activity|recent   Four GitHub feeds: top starred AI repos, freshly first-seen repos, contributor leaderboard, live activity stream. github stars supports --min-starrers N (smart-money convergence filter).
+  • github stars|new|activity|recent   Four GitHub feeds: top starred repos, freshly first-seen repos, contributor leaderboard, live activity stream. github stars supports --min-starrers N (smart-money convergence filter).
+  • posts   Every source Digg attributes a story to, in any topic: text, author, URL and time.
   • rankings list   Full ranking of people and companies from /tech/x/rankings.
   • authors top   Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.
   • history   Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.
   • author   Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).
-  • watch   Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.
+  • watch   Poll one Digg topic (--topic), diff against last snapshot, alert when any cluster moves N+ ranks.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'digg-pp-cli doctor' to verify auth and connectivity.
