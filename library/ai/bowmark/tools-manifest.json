@@ -1,0 +1,233 @@
+{
+  "api_name": "bowmark",
+  "base_url": "https://api.bowmark.ai",
+  "description": "Run real tasks on live websites over plain HTTP.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "BOWMARK_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BOWMARK_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://bowmark.ai/dashboard/keys"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "library_get",
+      "description": "Read-only, touches no site, costs nothing. Returns the `bowmark.*` functions, their arguments and return types for the task. A query that matches nothing returns the index rather than an error. Markdown by default; send `Accept: application/json` for JSON. Optional: query.",
+      "method": "GET",
+      "path": "/v1/library",
+      "params": [
+        {
+          "name": "query",
+          "type": "array",
+          "location": "query",
+          "description": "The task or the site's hostname (`flights`, `amazon.com`). Repeat it for a task with several parts (`?query=flights\u0026query=hotels`), up to 6."
+        }
+      ]
+    },
+    {
+      "name": "recipes_get",
+      "description": "Read one recipe, including its script. Required: id. Returns the RecipesGetResponse. (public)",
+      "method": "GET",
+      "path": "/v1/recipes/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recipes_list",
+      "description": "List ready-made scripts. Returns array of Recipe. (public)",
+      "method": "GET",
+      "path": "/v1/recipes",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "recipes_run",
+      "description": "The body is the recipe's inputs as a JSON object. Same envelope, billing and status codes as `POST /v1/run`. Required: id. Returns the new RunEnvelope.",
+      "method": "POST",
+      "path": "/v1/recipes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "run_run",
+      "description": "The script is the body of an async function: use `await` freely and `return` the result. It runs in a sandbox with the `bowmark` global and `log()`. Read `GET /v1/library` first for the exact function names. Required: script. Optional: egress. Returns the new RunEnvelope.",
+      "method": "POST",
+      "path": "/v1/run",
+      "params": [
+        {
+          "name": "egress",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. `link` sends every request of the run through your own Chrome (Bowmark Link) and fails with 'Link not connected' when it is not open, never falling back to Bowmark's route. Any other value is a 400."
+        },
+        {
+          "name": "script",
+          "type": "string",
+          "location": "body",
+          "description": "Script",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scripts_delete",
+      "description": "Delete one of your saved scripts. Required: ref. Returns the ScriptsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/scripts/{ref}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "The script's id or its name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scripts_get",
+      "description": "Read one of your saved scripts. Required: ref. Returns the SavedScript.",
+      "method": "GET",
+      "path": "/v1/scripts/{ref}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "The script's id or its name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scripts_list",
+      "description": "List your saved scripts. Returns array of SavedScript.",
+      "method": "GET",
+      "path": "/v1/scripts",
+      "params": []
+    },
+    {
+      "name": "scripts_save",
+      "description": "Saves a script you can later run by its id or name with `POST /v1/scripts/{ref}/run`. Saving over a name you already used replaces its script and keeps its id. The script is checked when you save it, so one that does not parse is refused here. Inside it, `input` is the object the run passes. Scripts belong to you, not to one key: every key on your account sees the same ones. Required: name, script. Optional: description. Returns the new SavedScript.",
+      "method": "POST",
+      "path": "/v1/scripts",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "script",
+          "type": "string",
+          "location": "body",
+          "description": "Script",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scripts_run_script",
+      "description": "`input` is the object the script reads as `input`. Same envelope, billing and status codes as `POST /v1/run`. Required: ref. Optional: input. Returns the new RunEnvelope.",
+      "method": "POST",
+      "path": "/v1/scripts/{ref}/run",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "The script's id or its name.",
+          "required": true
+        },
+        {
+          "name": "input",
+          "type": "object",
+          "location": "body",
+          "description": "Input"
+        }
+      ]
+    },
+    {
+      "name": "sites_call-function",
+      "description": "The body is the function's arguments as an object keyed by parameter name. The site's own spec has the exact shape for each function. Same envelope, billing and status codes as `POST /v1/run`. Required: site, fn. Returns the new RunEnvelope.",
+      "method": "POST",
+      "path": "/v1/sites/{site}/{fn}",
+      "params": [
+        {
+          "name": "site",
+          "type": "string",
+          "location": "path",
+          "description": "Site",
+          "required": true
+        },
+        {
+          "name": "fn",
+          "type": "string",
+          "location": "path",
+          "description": "Fn",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_list",
+      "description": "Every site with its own functions. Each row carries `openapiUrl`, that site's own spec. Returns array of SitesListItem. (public)",
+      "method": "GET",
+      "path": "/v1/sites",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sites_openapi-json_get-site-spec",
+      "description": "An OpenAPI 3.1 document with one operation per function of that site, each a `POST /v1/sites/{site}/{fn}`. Feed it to an SDK generator for a typed client. Required: site. Returns the OpenapiJsonGetSiteSpecResponse. (public)",
+      "method": "GET",
+      "path": "/v1/sites/{site}/openapi.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "site",
+          "type": "string",
+          "location": "path",
+          "description": "A site id from `GET /v1/sites` (`kayak`) or the site's host (`kayak.com`).",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

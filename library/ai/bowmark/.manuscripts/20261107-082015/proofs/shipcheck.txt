@@ -1,0 +1,173 @@
+
+=== verify ===
+Runtime Verification: /private/tmp/claude-501/bm/pp/bowmark/bowmark
+Mode: live
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+jobs                           read         PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+library                        write        PASS   PASS     PASS     3/3
+local-data                     write        PASS   PASS     PASS     3/3
+playbook                       write        PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     PASS     3/3
+recall                         read         PASS   PASS     PASS     3/3
+recipes                        read         PASS   PASS     PASS     3/3
+run                            read         PASS   PASS     PASS     3/3
+scripts                        read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sites                          read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS jobs get
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS recipes get
+  PASS recipes run
+  PASS scripts delete
+  PASS scripts get
+  PASS scripts run script
+  PASS sites call-function
+  PASS sites openapi-json get-site-spec
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped) [sync --resources recipes]
+Pass Rate: 100% (43/43 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+N/A: research.json not found at /private/tmp/claude-501/bm/pp/bowmark/research.json; narrative validation skipped
+
+=== dogfood ===
+dogfood: using spec /private/tmp/claude-501/bm/pp/bowmark/spec.json (bundled)
+dogfood: caller --spec=spec.json overridden by bundled /private/tmp/claude-501/bm/pp/bowmark/spec.json
+Dogfood Report: bowmark
+================================
+
+Path Validity:     0/0 valid (N/A)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    1 dead (WARN)
+  - retainCLIQueryParams (defined, never called)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          7/7 commands have examples (PASS)
+
+Novel Features:    SKIP (no research.json)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 1 dead helper functions found
+
+=== workflow-verify ===
+Workflow Verification: bowmark
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== bowmark ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: bowmark
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              9/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              4/10
+  Agent Workflow       10/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   10/10
+  Type Fidelity           5/5
+  Dead Code               4/5
+
+  Total: 94/100 - Grade A
+  Denominator: infrastructure 180, domain 60
+  Note: omitted from denominator: mcp_tool_design, mcp_surface_strategy
+
+Sample Output Probe (live command sample)
+  Status: unavailable
+  Unable to run: no research.json: open /private/tmp/claude-501/bm/pp/bowmark/research.json: no such file or directory
+  Review: skipped
+
+Gaps:
+  - insight scored 4/10 - needs improvement
+  - MCP: 13 tools (4 public, 9 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         3.335s
+  validate-narrative  PASS    0         15ms
+  dogfood           PASS    0         1.307s
+  workflow-verify   PASS    0         17ms
+  apify-audit       PASS    0         26ms
+  verify-skill      PASS    0         1.331s
+  scorecard         PASS    0         542ms
+
+Verdict: PASS (7/7 legs passed)

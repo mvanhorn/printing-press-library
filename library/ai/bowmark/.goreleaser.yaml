@@ -1,0 +1,55 @@
+version: 2
+project_name: bowmark-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: bowmark-pp-cli
+    main: ./cmd/bowmark-pp-cli
+    binary: bowmark-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X bowmark-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: bowmark-pp-mcp
+    main: ./cmd/bowmark-pp-mcp
+    binary: bowmark-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: bowmark-pp-cli
+    repository:
+      owner: bowmark-ai
+      name: homebrew-tap
+    homepage: "https://github.com/bowmark-ai/bowmark-pp-cli"
+    description: "Run real tasks on live websites over plain HTTP."
+    install: |
+      bin.install "bowmark-pp-cli"
+      bin.install "bowmark-pp-mcp"
