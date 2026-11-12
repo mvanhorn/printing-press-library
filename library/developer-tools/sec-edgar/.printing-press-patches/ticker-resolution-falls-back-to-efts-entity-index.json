@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ticker-resolution-falls-back-to-efts-entity-index",
+  "applied_at": "2026-11-11",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Ticker and company-name resolution falls back to the EFTS entity index (efts.sec.gov/LATEST/search-index?keysTyped=...) when www.sec.gov/files/company_tickers.json fails.",
+  "reason": "www.sec.gov answers HTTP 403 to User-Agents that data.sec.gov and efts.sec.gov accept, so every ticker path (companies lookup/search, cross-section --ticker, ownership) failed even though the --cik paths worked. If both sources fail the error must name both failures.",
+  "files": [
+    "internal/cli/sec_absorbed.go",
+    "internal/cli/sec_transcendence.go",
+    "internal/cli/ownership.go",
+    "internal/cli/ticker_fallback_test.go"
+  ],
+  "validated_outcome": "With company_tickers.json returning 403 for a generic User-Agent, companies lookup SPCX, companies search apple and cross-section --ticker SPCX,AAPL,GOOGL resolve the right CIKs through EFTS."
+}
