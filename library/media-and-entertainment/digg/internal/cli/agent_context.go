@@ -94,7 +94,7 @@ type agentContextFlag struct {
 func commandNotes(path string) string {
 	switch path {
 	case "story":
-		return "Envelope now includes posts and postsMeta fields populated by the U5 RSC parser; use posts <clusterUrlId> for richer per-post detail."
+		return "Read live from Digg for a story in any topic. Envelope: story, follows, newer, and posts (the first 20 sources); use posts <story> for every source."
 	}
 	return ""
 }
