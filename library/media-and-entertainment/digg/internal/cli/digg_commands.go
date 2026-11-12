@@ -849,7 +849,7 @@ func openStoreWaiting(ctx context.Context) (*sql.DB, func() error, error) {
 		if err == nil {
 			return db, closeFn, nil
 		}
-		if msg := err.Error(); !strings.Contains(msg, "SQLITE_BUSY") && !strings.Contains(msg, "database is locked") {
+		if !diggstore.IsBusy(err) {
 			return nil, nil, err
 		}
 		select {

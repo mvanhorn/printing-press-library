@@ -107,7 +107,7 @@ func ExtractMainRanking(decoded string) ([]CompanyEntry, ParseStats, error) {
 			continue
 		}
 		if w.Direction != nil {
-			continue // A section wrapper, not the ranking.
+			continue
 		}
 		if len(w.Entries) == 0 {
 			continue

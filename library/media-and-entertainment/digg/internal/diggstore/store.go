@@ -582,7 +582,7 @@ func withWriteTx(ctx context.Context, db *sql.DB, fn func(*sql.Conn) error) erro
 		if err == nil {
 			break
 		}
-		if !isBusy(err) || time.Now().After(deadline) {
+		if !IsBusy(err) || time.Now().After(deadline) {
 			return fmt.Errorf("begin write: %w", err)
 		}
 		select {
@@ -604,7 +604,9 @@ func withWriteTx(ctx context.Context, db *sql.DB, fn func(*sql.Conn) error) erro
 	return nil
 }
 
-func isBusy(err error) bool {
+// IsBusy reports whether err is SQLite refusing a write because another
+// process holds the lock.
+func IsBusy(err error) bool {
 	msg := err.Error()
 	return strings.Contains(msg, "SQLITE_BUSY") || strings.Contains(msg, "database is locked")
 }
