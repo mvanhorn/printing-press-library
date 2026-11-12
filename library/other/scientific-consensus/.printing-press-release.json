@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "scientific-consensus",
   "cli_name": "scientific-consensus-pp-cli",
-  "version": "2026.10.6",
-  "released_at": "2026-10-30T15:00:12Z",
-  "source_commit": "610bba33062c2396d06230124e106a990cdc72a4",
+  "version": "2026.11.1",
+  "released_at": "2026-11-12T09:54:53Z",
+  "source_commit": "06a5d782398a5ace75d90770cfb733a5d76bb9c2",
   "printing_press_version": "4.24.0",
   "run_id": "20260620-165352-e55cec69",
   "changes": [
     {
-      "title": "feat(scientific-consensus): LLM claim split for the relevance gate",
-      "pr": 2411,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2411",
-      "commit": "610bba33062c2396d06230124e106a990cdc72a4"
+      "title": "fix(cli): scientific-consensus retraction marker accepts a spaced dash",
+      "pr": 2465,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2465",
+      "commit": "06a5d782398a5ace75d90770cfb733a5d76bb9c2"
     }
   ]
 }

@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-12
+
+- fix(cli): scientific-consensus retraction marker accepts a spaced dash (#2465).
+
 ## 2026.10.6 - 2026-10-30
 
 - feat(scientific-consensus): LLM claim split for the relevance gate (#2411).
