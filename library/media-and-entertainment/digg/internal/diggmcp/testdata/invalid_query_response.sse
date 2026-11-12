@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"content":[{"type":"text","text":"Input validation error: Invalid arguments for tool digg_search_posts: query: Too small: expected string to have >=3 characters"}],"isError":true},"jsonrpc":"2.0","id":1}
+

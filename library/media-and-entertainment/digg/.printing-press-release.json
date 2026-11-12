@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "digg",
   "cli_name": "digg-pp-cli",
-  "version": "2026.10.2",
-  "released_at": "2026-10-25T23:57:39Z",
-  "source_commit": "328611dc58dfc3295dcff83e685757ac4b9eaeb4",
+  "version": "2026.11.1",
+  "released_at": "2026-11-12T08:11:09Z",
+  "source_commit": "c16b24332b305bb8ce5e2f3bb69bc8e944a870c2",
   "printing_press_version": "4.0.6",
   "run_id": "20260508-234057",
   "changes": [
     {
-      "title": "fix(cli): keep digg search top-ups inside caller timeouts and concurrent writers",
-      "pr": 2377,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2377",
-      "commit": "328611dc58dfc3295dcff83e685757ac4b9eaeb4"
+      "title": "feat(digg): search Digg live across every topic, with scores, and drop dead commands",
+      "pr": 2466,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2466",
+      "commit": "c16b24332b305bb8ce5e2f3bb69bc8e944a870c2"
     }
   ]
 }

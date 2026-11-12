@@ -106,3 +106,20 @@ func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {
 		}
 	}
 }
+
+// `posts` and `story` are how a caller gets a story's sources, so the
+// index this CLI ships must resolve to them.
+func TestWhichIndexListsPostsAndStory(t *testing.T) {
+	listed := map[string]bool{}
+	for _, e := range whichIndex {
+		listed[e.Command] = true
+	}
+	for _, name := range []string{"posts", "story"} {
+		if !listed[name] {
+			t.Errorf("which index has no %q entry", name)
+		}
+	}
+	if got := rankWhich(whichIndex, "sources", 3); len(got) == 0 || got[0].Entry.Command != "posts" {
+		t.Errorf("`which sources` should resolve to posts first, got %+v", got)
+	}
+}

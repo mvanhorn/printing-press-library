@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.10.2"
+var version = "2026.11.1"
 
 type rootFlags struct {
 	asJSON        bool
@@ -82,23 +82,20 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use: "digg-pp-cli",
-		// PATCH(digg-rename-and-github-feeds): drop "Digg AI" / "1000" branding; add github feeds to highlights.
-		Short: `Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com.`,
-		Long: `Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com.
+		// PATCH(digg-rename-and-github-feeds): the product is named Digg, with no roster-size branding; add github feeds to highlights.
+		Short: `Read-only CLI for Digg — the story leaderboard, live search, and GitHub feeds on digg.com.`,
+		Long: `Read-only CLI for Digg — the story leaderboard, live search, and GitHub feeds on digg.com.
 
 Highlights (not in the official API docs):
-  • search   Topic search over synced section feeds (ai, tech, world-business, sports, science, gaming, entertainment, all), with a live top-up when a section is stale.
-  • events   Pipeline events sync captured from section pages: clusters as they were detected and stories fast-climbing the leaderboard with explicit rank deltas.
-  • replaced   Show stories that were knocked out of the rankings since the last sync, with Digg's own published replacement rationale.
-  • evidence   Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel, percentAboveAverage.
-  • sentiment   Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.
-  • crossref   Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there.
-  • github stars|new|activity|recent   Four GitHub feeds: top starred AI repos, freshly first-seen repos, contributor leaderboard, live activity stream. github stars supports --min-starrers N (smart-money convergence filter).
-  • rankings list   Full ranking of people and companies from /tech/x/rankings. (Digg removed the emerging and movers views in October 2026.)
+  • search   Live topic search across Digg's topics (ai, tech, world-business, sports, science, gaming, entertainment), with Digg Score and source counts.
+  • top   Digg's ranked stories right now, for one topic or merged across all of them by Digg Score.
+  • github stars|new|activity|recent   Four GitHub feeds: top starred repos, freshly first-seen repos, contributor leaderboard, live activity stream. github stars supports --min-starrers N (smart-money convergence filter).
+  • posts   Every source Digg attributes a story to, in any topic: text, author, URL and time.
+  • rankings list   Full ranking of people and companies from /tech/x/rankings.
   • authors top   Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.
   • history   Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.
   • author   Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).
-  • watch   Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.
+  • watch   Poll one Digg topic (--topic), diff against last snapshot, alert when any cluster moves N+ ranks.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'digg-pp-cli doctor' to verify auth and connectivity.

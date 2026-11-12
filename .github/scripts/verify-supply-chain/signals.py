@@ -34,7 +34,7 @@ import yaml
 # Fallback for unit tests and bootstrap scans before .go-version exists.
 # Renovate patch-bumps this string together with .go-version and the root
 # README. scan_test at-floor fixtures read this constant.
-DEFAULT_GO_FLOOR = "1.26.10"
+DEFAULT_GO_FLOOR = "1.26.11"
 
 
 # ---------------------------------------------------------------------------
