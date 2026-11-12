@@ -27,7 +27,7 @@ func newGithubCmd(flags *rootFlags) *cobra.Command {
 
 Four flavors, each parsed from the page's embedded RSC stream:
 
-  stars      Top AI repos by starring activity from Digg-tracked accounts.
+  stars      Top repos by starring activity from Digg-tracked accounts.
              Returns repo_full_name, language, stargazers_count, recent
              starrer list, breakout/novel/ai_related scores, and the model's
              one-sentence classification.
@@ -118,10 +118,10 @@ func newGithubStarsCmd(flags *rootFlags) *cobra.Command {
 	var minStarrers int
 	cmd := &cobra.Command{
 		Use:         "stars",
-		Short:       "Top AI repos ranked by starring activity from Digg-tracked accounts",
+		Short:       "Top repos ranked by starring activity from Digg-tracked accounts",
 		Example:     "  digg-pp-cli github stars --min-starrers 2 --limit 10 --json",
 		Annotations: map[string]string{"pp:endpoint": "github.stars", "pp:method": "GET", "pp:path": "/tech/github/stars", "mcp:read-only": "true"},
-		Long: `Top AI repos ranked by starring activity from Digg-tracked accounts.
+		Long: `Top repos ranked by starring activity from Digg-tracked accounts.
 
 Returns each repo's full_name, stargazers_count, recent starrer list,
 breakout/novel/ai_related scores, and the model's one-sentence

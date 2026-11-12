@@ -1,6 +1,7 @@
 // Package diggstore extends the generated SQLite store with the
-// Digg-AI-specific tables that hold parsed clusters, snapshots,
-// authors, and events.
+// Digg-specific tables that hold ranked-list snapshots (clusters and
+// their rank history), authors, the story ids search has seen, and each
+// watched topic's last poll.
 //
 // Schema additions live here (rather than in the generated store
 // package) so a regeneration of the printed CLI does not blow them
@@ -8,8 +9,10 @@
 package diggstore
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -102,65 +105,6 @@ func EnsureSchema(db *sql.DB) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_digg_cluster_authors_user ON digg_cluster_authors(username)`,
 
-		// Pipeline events embedded in section pages (formerly also
-		// /api/trending/status, which Digg removed in October 2026).
-		`CREATE TABLE IF NOT EXISTS digg_events (
-			id TEXT PRIMARY KEY,
-			type TEXT NOT NULL,
-			run_id TEXT,
-			cluster_id TEXT,
-			label TEXT,
-			username TEXT,
-			post_type TEXT,
-			post_x_id TEXT,
-			permalink TEXT,
-			delta INTEGER,
-			current_rank INTEGER,
-			previous_rank INTEGER,
-			count INTEGER,
-			total INTEGER,
-			original_posts INTEGER,
-			retweets INTEGER,
-			quote_tweets INTEGER,
-			replies INTEGER,
-			links INTEGER,
-			videos INTEGER,
-			images INTEGER,
-			embedded_count INTEGER,
-			total_count INTEGER,
-			at TEXT,
-			created_at TEXT,
-			dedupe_key TEXT,
-			raw_json TEXT,
-			fetched_at TEXT NOT NULL
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_digg_events_type_at ON digg_events(type, at DESC)`,
-		`CREATE INDEX IF NOT EXISTS idx_digg_events_cluster ON digg_events(cluster_id)`,
-		`CREATE INDEX IF NOT EXISTS idx_digg_events_at ON digg_events(at DESC)`,
-
-		// Replacement archaeology — derived during sync.
-		`CREATE TABLE IF NOT EXISTS digg_replacements (
-			cluster_id TEXT NOT NULL,
-			observed_at TEXT NOT NULL,
-			rationale TEXT,
-			previous_rank INTEGER,
-			cluster_url_id TEXT,
-			label TEXT,
-			PRIMARY KEY (cluster_id, observed_at)
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_digg_replacements_at ON digg_replacements(observed_at DESC)`,
-
-		// FTS5 over cluster searchable text.
-		`CREATE VIRTUAL TABLE IF NOT EXISTS digg_clusters_fts USING fts5(
-			cluster_id UNINDEXED,
-			cluster_url_id UNINDEXED,
-			label,
-			title,
-			tldr,
-			source_title,
-			tokenize='porter unicode61'
-		)`,
-
 		// FTS5 over the AI 1000 author bio + display_name. Lets agents
 		// answer "who works on frontier red teaming?" against the cached
 		// roster (after a single `authors list` call) without a network
@@ -173,18 +117,27 @@ func EnsureSchema(db *sql.DB) error {
 			tokenize='porter unicode61'
 		)`,
 
-		// Per-cluster posts cache. One row per clusterUrlId; the parsed
-		// posts are stored as a JSON-encoded blob so the schema doesn't
-		// have to track the structured-post-plus-DOM-correlation shape
-		// in normalized form. fetched_at is the cache freshness anchor;
-		// `posts <id>` and `story <id>` honor a 1h TTL by default and
-		// can bypass via --no-cache.
-		`CREATE TABLE IF NOT EXISTS digg_cluster_posts (
-			cluster_url_id TEXT PRIMARY KEY,
-			posts_json TEXT NOT NULL,
-			fetched_at TEXT NOT NULL
+		// digg_post_refs maps the short id in a story URL to the UUID
+		// Digg's single-story tool needs, plus the story's topic. Search
+		// writes it for every result so a later command given only the
+		// short id can find the story.
+		`CREATE TABLE IF NOT EXISTS digg_post_refs (
+			short_id TEXT PRIMARY KEY,
+			post_id TEXT NOT NULL,
+			topic TEXT NOT NULL DEFAULT '',
+			seen_at TEXT NOT NULL
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_digg_cluster_posts_at ON digg_cluster_posts(fetched_at)`,
+
+		// digg_watch_baselines holds each watched topic's last poll: one
+		// row per story in it, with the story's rank in that topic. A
+		// story listed in two topics has a row, and a rank, per topic.
+		`CREATE TABLE IF NOT EXISTS digg_watch_baselines (
+			topic TEXT NOT NULL,
+			cluster_id TEXT NOT NULL,
+			rank INTEGER NOT NULL,
+			polled_at TEXT NOT NULL,
+			PRIMARY KEY (topic, cluster_id)
+		)`,
 	}
 	for _, q := range stmts {
 		if _, err := db.Exec(q); err != nil {
@@ -197,7 +150,18 @@ func EnsureSchema(db *sql.DB) error {
 	if err := ensureAuthorsRosterColumns(db); err != nil {
 		return err
 	}
-	return ensureFeedSchema(db)
+	return nil
+}
+
+// addColumn adds one column. Commands started together on a new store
+// each see the column missing and each try to add it; the ones that lose
+// get "duplicate column name", which means the column is there.
+func addColumn(db *sql.DB, table, name, ddl string) error {
+	_, err := db.Exec(fmt.Sprintf(`ALTER TABLE %s ADD COLUMN %s %s`, table, name, ddl))
+	if err != nil && !strings.Contains(err.Error(), "duplicate column name") {
+		return fmt.Errorf("adding %s.%s: %w", table, name, err)
+	}
+	return nil
 }
 
 // ensureAuthorsRosterColumns adds the AI-1000-roster columns to
@@ -228,9 +192,8 @@ func ensureAuthorsRosterColumns(db *sql.DB) error {
 		if have[c.name] {
 			continue
 		}
-		stmt := fmt.Sprintf(`ALTER TABLE digg_authors ADD COLUMN %s %s`, c.name, c.ddl)
-		if _, err := db.Exec(stmt); err != nil {
-			return fmt.Errorf("adding column %s: %w", c.name, err)
+		if err := addColumn(db, "digg_authors", c.name, c.ddl); err != nil {
+			return err
 		}
 	}
 	// Indexes used by `authors list` ranking + filters.
@@ -380,19 +343,6 @@ func UpsertCluster(db *sql.DB, c diggparse.Cluster, fetchedAt time.Time) error {
 		}
 	}
 
-	// FTS row, built from the stored row: the upsert keeps saved text when
-	// a scrape leaves a field blank, and the index must match that text.
-	// UpsertFeedPage skips reindexing when the stored text is unchanged.
-	if _, err := db.Exec(`DELETE FROM digg_clusters_fts WHERE cluster_id = ?`, c.ClusterID); err != nil {
-		return fmt.Errorf("fts delete: %w", err)
-	}
-	if _, err := db.Exec(`
-		INSERT INTO digg_clusters_fts (cluster_id, cluster_url_id, label, title, tldr, source_title)
-		SELECT cluster_id, cluster_url_id, label, title, tldr, source_title FROM digg_clusters WHERE cluster_id = ?
-	`, c.ClusterID); err != nil {
-		return fmt.Errorf("fts insert: %w", err)
-	}
-
 	return nil
 }
 
@@ -410,155 +360,6 @@ func upsertAuthor(db *sql.DB, a diggparse.ClusterAuthor, now string) error {
 			last_seen_at=excluded.last_seen_at
 	`, a.Username, a.DisplayName, a.XID, a.AvatarURL, a.Influence, a.Podist, now)
 	return err
-}
-
-// UpsertEvent writes one pipeline event row captured from a section page.
-func UpsertEvent(db *sql.DB, e diggparse.Event, fetchedAt time.Time) error {
-	if e.ID == "" {
-		return nil
-	}
-	rawJSON := raw(e.RawJSON)
-	now := fetchedAt.UTC().Format(time.RFC3339Nano)
-	_, err := db.Exec(`
-		INSERT INTO digg_events (
-			id, type, run_id, cluster_id, label, username, post_type, post_x_id, permalink,
-			delta, current_rank, previous_rank, count, total,
-			original_posts, retweets, quote_tweets, replies, links, videos, images,
-			embedded_count, total_count, at, created_at, dedupe_key, raw_json, fetched_at
-		) VALUES (?,?,?,?,?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?,?,?, ?,?,?,?,?,?,?)
-		ON CONFLICT(id) DO NOTHING
-	`,
-		e.ID, e.Type, e.RunID, e.ClusterID, e.Label, e.Username, e.PostType, e.PostXID, e.Permalink,
-		e.Delta, e.CurrentRank, e.PreviousRank, e.Count, e.Total,
-		e.OriginalPosts, e.Retweets, e.QuoteTweets, e.Replies, e.Links, e.Videos, e.Images,
-		e.EmbeddedCount, e.TotalCount, e.At, e.CreatedAt, e.DedupeKey, rawJSON, now,
-	)
-	if err != nil {
-		return fmt.Errorf("upsert event %s: %w", e.ID, err)
-	}
-	return nil
-}
-
-// RecordReplacements compares the cluster IDs we just observed against
-// the cluster IDs we had in the local store and records a replacement
-// row for any cluster present last sync but missing from the current
-// snapshot. The "rationale" is best-effort — Digg only sometimes ships
-// it; otherwise we record a synthetic "fell out of feed" rationale.
-func RecordReplacements(db *sql.DB, observedClusterIDs map[string]bool, observedAt time.Time) error {
-	now := observedAt.UTC().Format(time.RFC3339Nano)
-	rows, err := db.Query(`
-		SELECT cluster_id, cluster_url_id, label, current_rank, replacement_rationale, last_seen_at
-		FROM digg_clusters
-		WHERE last_seen_at < ?
-		  AND last_seen_at >= datetime(?, '-2 hours')
-	`, now, now)
-	if err != nil {
-		return fmt.Errorf("scanning replacements: %w", err)
-	}
-	defer rows.Close()
-
-	type pending struct {
-		id, urlID, label, rationale string
-		rank                        int
-	}
-	var pendings []pending
-	for rows.Next() {
-		var id, urlID, label, rationale string
-		var rank sql.NullInt64
-		var lastSeen string
-		if err := rows.Scan(&id, &urlID, &label, &rank, &rationale, &lastSeen); err != nil {
-			return err
-		}
-		if observedClusterIDs[id] {
-			continue
-		}
-		r := rationale
-		if r == "" {
-			r = "fell out of feed (no rationale published)"
-		}
-		pendings = append(pendings, pending{id: id, urlID: urlID, label: label, rationale: r, rank: int(rank.Int64)})
-	}
-	if err := rows.Err(); err != nil {
-		return err
-	}
-	for _, p := range pendings {
-		if _, err := db.Exec(`
-			INSERT OR IGNORE INTO digg_replacements (cluster_id, observed_at, rationale, previous_rank, cluster_url_id, label)
-			VALUES (?,?,?,?,?,?)
-		`, p.id, now, p.rationale, p.rank, p.urlID, p.label); err != nil {
-			return fmt.Errorf("record replacement %s: %w", p.id, err)
-		}
-	}
-	return nil
-}
-
-// PATCH(digg-enhancements): topic-scoped variant of RecordReplacements.
-// The multi-topic sync flag means a single run may cover only a subset of
-// topics. The non-scoped version scans all digg_clusters in the 2-hour
-// window, so a `sync --topics tech` run would falsely mark every
-// recently-seen `ai` cluster as fell-out-of-feed. Scoping by topic IN (...)
-// fixes the cross-topic pollution. Passing an empty slice falls back to the
-// non-scoped behavior so callers that genuinely sync everything still work.
-func RecordReplacementsForTopics(db *sql.DB, observedClusterIDs map[string]bool, observedAt time.Time, topics []string) error {
-	if len(topics) == 0 {
-		return RecordReplacements(db, observedClusterIDs, observedAt)
-	}
-	now := observedAt.UTC().Format(time.RFC3339Nano)
-
-	placeholders := strings.Repeat("?,", len(topics))
-	placeholders = strings.TrimSuffix(placeholders, ",")
-	args := make([]any, 0, len(topics)+2)
-	args = append(args, now, now)
-	for _, t := range topics {
-		args = append(args, t)
-	}
-
-	query := `
-		SELECT cluster_id, cluster_url_id, label, current_rank, replacement_rationale, last_seen_at
-		FROM digg_clusters
-		WHERE last_seen_at < ?
-		  AND last_seen_at >= datetime(?, '-2 hours')
-		  AND topic IN (` + placeholders + `)
-	`
-	rows, err := db.Query(query, args...)
-	if err != nil {
-		return fmt.Errorf("scanning replacements: %w", err)
-	}
-	defer rows.Close()
-
-	type pending struct {
-		id, urlID, label, rationale string
-		rank                        int
-	}
-	var pendings []pending
-	for rows.Next() {
-		var id, urlID, label, rationale string
-		var rank sql.NullInt64
-		var lastSeen string
-		if err := rows.Scan(&id, &urlID, &label, &rank, &rationale, &lastSeen); err != nil {
-			return err
-		}
-		if observedClusterIDs[id] {
-			continue
-		}
-		r := rationale
-		if r == "" {
-			r = "fell out of feed (no rationale published)"
-		}
-		pendings = append(pendings, pending{id: id, urlID: urlID, label: label, rationale: r, rank: int(rank.Int64)})
-	}
-	if err := rows.Err(); err != nil {
-		return err
-	}
-	for _, p := range pendings {
-		if _, err := db.Exec(`
-			INSERT OR IGNORE INTO digg_replacements (cluster_id, observed_at, rationale, previous_rank, cluster_url_id, label)
-			VALUES (?,?,?,?,?,?)
-		`, p.id, now, p.rationale, p.rank, p.urlID, p.label); err != nil {
-			return fmt.Errorf("record replacement %s: %w", p.id, err)
-		}
-	}
-	return nil
 }
 
 func raw(r json.RawMessage) any {
@@ -707,73 +508,160 @@ func UpsertRoster1000(db *sql.DB, authors []diggparse.Roster1000Author, fetchedA
 	return written, nil
 }
 
-// UpsertClusterPosts caches the parsed posts for a single cluster.
-// One row per clusterUrlId; subsequent calls overwrite. The posts
-// blob is JSON-marshalled directly from the slice so the structured
-// shape (per-post body / media_urls / repost_context) round-trips
-// untouched on the read side.
-//
-// fetchedAt is the cache anchor — readers compare it to time.Now()
-// against a TTL (1h by default; `--no-cache` bypasses entirely).
-// We store the timestamp in RFC3339Nano UTC so SQL ordering stays
-// monotonic.
-func UpsertClusterPosts(db *sql.DB, clusterUrlID string, posts []diggparse.ClusterPost, fetchedAt time.Time) error {
-	if clusterUrlID == "" {
-		return fmt.Errorf("UpsertClusterPosts: clusterUrlID required")
+// PostRef identifies one Digg story three ways: the short id from its
+// URL, its UUID, and the topic it is filed under.
+type PostRef struct {
+	ShortID string
+	ID      string
+	Topic   string
+}
+
+// RecordPostRefs stores refs, replacing any earlier record of the same
+// short id. It takes the write lock up front so concurrent searches on
+// one store queue instead of failing.
+func RecordPostRefs(ctx context.Context, db *sql.DB, refs []PostRef, seenAt time.Time) error {
+	if len(refs) == 0 {
+		return nil
 	}
-	body, err := json.Marshal(posts)
-	if err != nil {
-		return fmt.Errorf("marshalling cluster posts: %w", err)
+	now := seenAt.UTC().Format(time.RFC3339)
+	return withWriteTx(ctx, db, func(tx *sql.Conn) error {
+		for _, r := range refs {
+			if r.ShortID == "" || r.ID == "" {
+				continue
+			}
+			if _, err := tx.ExecContext(ctx, `INSERT INTO digg_post_refs (short_id, post_id, topic, seen_at)
+				VALUES (?, ?, ?, ?)
+				ON CONFLICT(short_id) DO UPDATE SET post_id = excluded.post_id, topic = excluded.topic, seen_at = excluded.seen_at`,
+				r.ShortID, r.ID, r.Topic, now); err != nil {
+				return fmt.Errorf("recording story id %s: %w", r.ShortID, err)
+			}
+		}
+		return nil
+	})
+}
+
+// LookupPostRef returns the record for a story's short id, or false when
+// no search has seen that story.
+func LookupPostRef(db *sql.DB, shortID string) (PostRef, bool, error) {
+	ref := PostRef{ShortID: shortID}
+	err := db.QueryRow(`SELECT post_id, topic FROM digg_post_refs WHERE short_id = ?`, shortID).Scan(&ref.ID, &ref.Topic)
+	if errors.Is(err, sql.ErrNoRows) {
+		return PostRef{}, false, nil
 	}
-	now := fetchedAt.UTC().Format(time.RFC3339Nano)
-	_, err = db.Exec(`
-		INSERT INTO digg_cluster_posts (cluster_url_id, posts_json, fetched_at)
-		VALUES (?,?,?)
-		ON CONFLICT(cluster_url_id) DO UPDATE SET
-			posts_json = excluded.posts_json,
-			fetched_at = excluded.fetched_at
-	`, clusterUrlID, string(body), now)
 	if err != nil {
-		return fmt.Errorf("upsert cluster posts %s: %w", clusterUrlID, err)
+		return PostRef{}, false, err
+	}
+	return ref, true, nil
+}
+
+// SaveWatchBaseline replaces topic's stored poll with ranks (rank by
+// cluster id), leaving other topics' polls alone. An empty poll is not
+// stored, so a page that parsed to nothing keeps the last real poll. The
+// swap is one write transaction: a reader sees the old poll or the new.
+func SaveWatchBaseline(ctx context.Context, db *sql.DB, topic string, ranks map[string]int, polledAt time.Time) error {
+	if len(ranks) == 0 {
+		return nil
+	}
+	at := polledAt.UTC().Format(time.RFC3339Nano)
+	return withWriteTx(ctx, db, func(tx *sql.Conn) error {
+		if _, err := tx.ExecContext(ctx, `DELETE FROM digg_watch_baselines WHERE topic = ?`, topic); err != nil {
+			return fmt.Errorf("clearing %s watch baseline: %w", topic, err)
+		}
+		for id, rank := range ranks {
+			if _, err := tx.ExecContext(ctx, `INSERT INTO digg_watch_baselines (topic, cluster_id, rank, polled_at)
+				VALUES (?, ?, ?, ?)`, topic, id, rank, at); err != nil {
+				return fmt.Errorf("storing %s watch baseline: %w", topic, err)
+			}
+		}
+		return nil
+	})
+}
+
+// LoadWatchBaseline returns the ranks of topic's last stored poll by
+// cluster id. The map is empty when the topic has never been polled.
+func LoadWatchBaseline(ctx context.Context, db *sql.DB, topic string) (map[string]int, error) {
+	rows, err := db.QueryContext(ctx, `SELECT cluster_id, rank FROM digg_watch_baselines WHERE topic = ?`, topic)
+	if err != nil {
+		return nil, fmt.Errorf("reading %s watch baseline: %w", topic, err)
+	}
+	defer rows.Close()
+	ranks := map[string]int{}
+	for rows.Next() {
+		var id string
+		var rank int
+		if err := rows.Scan(&id, &rank); err != nil {
+			return nil, fmt.Errorf("reading %s watch baseline: %w", topic, err)
+		}
+		ranks[id] = rank
+	}
+	return ranks, rows.Err()
+}
+
+func tableColumns(db *sql.DB, table string) (map[string]bool, error) {
+	rows, err := db.Query(`PRAGMA table_info(` + table + `)`)
+	if err != nil {
+		return nil, fmt.Errorf("reading %s columns: %w", table, err)
+	}
+	defer rows.Close()
+	have := map[string]bool{}
+	for rows.Next() {
+		var cid, notnull, pk int
+		var name, typ string
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			return nil, fmt.Errorf("scanning %s columns: %w", table, err)
+		}
+		have[name] = true
+	}
+	return have, rows.Err()
+}
+
+// writeLockWait bounds how long a write waits for another
+// process's write to finish before giving up.
+const writeLockWait = 10 * time.Second
+
+// withWriteTx runs fn in a BEGIN IMMEDIATE transaction on one pinned
+// connection. Concurrent searches share one database. IMMEDIATE takes the
+// write lock up front, so writers queue instead of failing with
+// SQLITE_BUSY; BEGIN itself is retried because modernc.org/sqlite's
+// busy_timeout does not reliably cover it.
+func withWriteTx(ctx context.Context, db *sql.DB, fn func(*sql.Conn) error) error {
+	conn, err := db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	deadline := time.Now().Add(writeLockWait)
+	for backoff := 5 * time.Millisecond; ; backoff = min(backoff*2, 100*time.Millisecond) {
+		_, err = conn.ExecContext(ctx, "BEGIN IMMEDIATE")
+		if err == nil {
+			break
+		}
+		if !IsBusy(err) || time.Now().After(deadline) {
+			return fmt.Errorf("begin write: %w", err)
+		}
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("begin write: %w", ctx.Err())
+		case <-time.After(backoff):
+		}
+	}
+	// ROLLBACK runs on a fresh context so an ended ctx cannot leave the
+	// pinned connection inside an open transaction.
+	if err := fn(conn); err != nil {
+		_, _ = conn.ExecContext(context.Background(), "ROLLBACK")
+		return err
+	}
+	if _, err := conn.ExecContext(ctx, "COMMIT"); err != nil {
+		_, _ = conn.ExecContext(context.Background(), "ROLLBACK")
+		return fmt.Errorf("commit write: %w", err)
 	}
 	return nil
 }
 
-// GetClusterPosts reads the cached posts for one clusterUrlId,
-// honoring the supplied TTL. Returns:
-//
-//   - (posts, true, fetchedAt, nil) when a fresh row exists.
-//   - (nil, false, time.Time{}, nil) when no row exists OR the row
-//     has aged past the TTL. The caller refetches in either case.
-//   - (nil, false, time.Time{}, err) on a SQL or JSON-decode error
-//     — surfaced rather than swallowed so flaky storage doesn't
-//     silently look like a cache miss.
-//
-// A zero-or-negative ttl disables the cache (always returns miss).
-func GetClusterPosts(db *sql.DB, clusterUrlID string, ttl time.Duration) ([]diggparse.ClusterPost, bool, time.Time, error) {
-	if clusterUrlID == "" || ttl <= 0 {
-		return nil, false, time.Time{}, nil
-	}
-	var body, fetchedStr string
-	row := db.QueryRow(`SELECT posts_json, fetched_at FROM digg_cluster_posts WHERE cluster_url_id = ?`, clusterUrlID)
-	if err := row.Scan(&body, &fetchedStr); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, false, time.Time{}, nil
-		}
-		return nil, false, time.Time{}, fmt.Errorf("read cluster posts %s: %w", clusterUrlID, err)
-	}
-	fetchedAt, perr := time.Parse(time.RFC3339Nano, fetchedStr)
-	if perr != nil {
-		// Defensive: if the timestamp is unparseable, treat as a miss
-		// rather than crashing. A subsequent upsert will fix the row.
-		return nil, false, time.Time{}, nil
-	}
-	if time.Since(fetchedAt) > ttl {
-		return nil, false, fetchedAt, nil
-	}
-	var posts []diggparse.ClusterPost
-	if err := json.Unmarshal([]byte(body), &posts); err != nil {
-		return nil, false, fetchedAt, fmt.Errorf("decode cluster posts %s: %w", clusterUrlID, err)
-	}
-	return posts, true, fetchedAt, nil
+// IsBusy reports whether err is SQLite refusing a write because another
+// process holds the lock.
+func IsBusy(err error) bool {
+	msg := err.Error()
+	return strings.Contains(msg, "SQLITE_BUSY") || strings.Contains(msg, "database is locked")
 }

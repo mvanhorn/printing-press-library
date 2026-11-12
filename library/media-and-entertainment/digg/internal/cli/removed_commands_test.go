@@ -2,13 +2,8 @@ package cli
 
 import (
 	"bytes"
-	"database/sql"
 	"strings"
 	"testing"
-	"time"
-
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggstore"
 )
 
 func runRoot(t *testing.T, args ...string) (string, error) {
@@ -32,25 +27,48 @@ func TestPipelineStatusAndTrendingAreRemoved(t *testing.T) {
 	}
 }
 
-func TestEventsListsStoredEvents(t *testing.T) {
+// Digg stopped serving what these commands read, so they are gone rather
+// than left returning empty rows. `top --view trending` replaces `rising`.
+var removedCommands = [][]string{
+	{"events"}, {"evidence", "abc12345"}, {"sentiment", "abc12345"}, {"crossref", "abc12345"},
+	{"replaced"}, {"rising"}, {"rankings", "emerging"}, {"rankings", "movers"},
+}
+
+func TestCommandsDiggNoLongerFeedsAreRemoved(t *testing.T) {
 	withTempHome(t)
-	db, err := sql.Open("sqlite", defaultDBPath("digg-pp-cli"))
-	if err != nil {
-		t.Fatal(err)
+	// Nothing here may reach digg.com, whichever code runs.
+	prevRankings, prevSite, prevFeed, prevMCP := rankingsCompaniesURL, diggSiteURL, feedURLOverride, diggMCPURLOverride
+	rankingsCompaniesURL, diggSiteURL, feedURLOverride, diggMCPURLOverride = "http://127.0.0.1:1", "http://127.0.0.1:1", "http://127.0.0.1:1", "http://127.0.0.1:1"
+	t.Cleanup(func() {
+		rankingsCompaniesURL, diggSiteURL, feedURLOverride, diggMCPURLOverride = prevRankings, prevSite, prevFeed, prevMCP
+	})
+	for _, args := range removedCommands {
+		if _, err := runRoot(t, args...); err == nil || !strings.Contains(err.Error(), "unknown command") {
+			t.Errorf("%v: err = %v, want unknown command", args, err)
+		}
 	}
-	if err := diggstore.EnsureSchema(db); err != nil {
-		t.Fatal(err)
+}
+
+// `which` and `agent-context` are how agents find commands; neither may
+// point at a removed one.
+func TestDiscoveryOmitsRemovedCommands(t *testing.T) {
+	removed := map[string]bool{}
+	for _, args := range removedCommands {
+		if args[0] == "rankings" {
+			removed[strings.Join(args, " ")] = true
+		} else {
+			removed[args[0]] = true
+		}
 	}
-	at := time.Now().UTC().Add(-time.Hour).Format(time.RFC3339)
-	if err := diggstore.UpsertEvent(db, diggparse.Event{ID: "e1", Type: "fast_climb", ClusterID: "c1", Label: "old climb", At: at, DedupeKey: "k1"}, time.Now()); err != nil {
-		t.Fatal(err)
+	for _, e := range whichIndex {
+		if removed[e.Command] {
+			t.Errorf("which index still lists %q", e.Command)
+		}
 	}
-	db.Close()
-	out, err := runRoot(t, "events", "--since", "1d", "--json")
-	if err != nil {
-		t.Fatalf("events: %v", err)
-	}
-	if !strings.Contains(out, "old climb") {
-		t.Fatalf("events output %q should include the stored event", out)
+	var flags rootFlags
+	for path := range collectAgentCommands(newRootCmd(&flags)) {
+		if removed[path] {
+			t.Errorf("agent-context still lists %q", path)
+		}
 	}
 }
