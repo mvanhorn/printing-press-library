@@ -34,8 +34,10 @@ const (
 // mirroring the Cobra tree. Two cases qualify:
 //
 //  1. A typed MCP tool already covers the same capability (the typed tool's
-//     schema is strictly better than a shell-out). Examples: `sql`, `search`,
+//     schema is strictly better than a shell-out). Examples: `sql`,
 //     `context`/`about`/`agent-context`, `api` (endpoint mirror tools cover it).
+//     `search` is not in the list here: this CLI has no typed search tool,
+//     and its `search` command is a live call that must be reachable.
 //  2. The command is non-functional via MCP (interactive setup, shell-only
 //     ergonomics, trivial introspection, local-only feedback). Examples:
 //     `auth`, `completion`, `doctor`, `version`, `feedback`, `profile`,
@@ -64,7 +66,6 @@ var frameworkCommands = map[string]bool{
 	"feedback":      true,
 	"help":          true,
 	"profile":       true,
-	"search":        true,
 	"sql":           true,
 	"version":       true,
 	"which":         true,

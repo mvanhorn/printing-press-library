@@ -39,27 +39,25 @@ type authorGetEnvelopeForTest struct {
 }
 
 type authorGetResultForTst struct {
-	XID                    string  `json:"x_id,omitempty"`
-	Username               string  `json:"username"`
-	DisplayName            string  `json:"display_name,omitempty"`
-	FollowersCount         int     `json:"followers_count"`
-	Category               *string `json:"category"`
-	CurrentRank            *int    `json:"current_rank"`
-	SimilarityScore        float64 `json:"similarity_score"`
-	IsPrefixMatch          bool    `json:"is_prefix_match"`
-	XURL                   string  `json:"xUrl,omitempty"`
-	GithubURL              string  `json:"githubUrl,omitempty"`
-	TierStatus             string  `json:"tier_status,omitempty"`
-	SubjectPeerFollowCount *int    `json:"subject_peer_follow_count,omitempty"`
-	NearestIn1000          *struct {
+	XID             string  `json:"x_id,omitempty"`
+	Username        string  `json:"username"`
+	DisplayName     string  `json:"display_name,omitempty"`
+	FollowersCount  int     `json:"followers_count"`
+	Category        *string `json:"category"`
+	CurrentRank     *int    `json:"current_rank"`
+	SimilarityScore float64 `json:"similarity_score"`
+	IsPrefixMatch   bool    `json:"is_prefix_match"`
+	XURL            string  `json:"xUrl,omitempty"`
+	GithubURL       string  `json:"githubUrl,omitempty"`
+	TierStatus      string  `json:"tier_status,omitempty"`
+	NearestIn1000   *struct {
 		Username        string  `json:"username"`
 		Rank            int     `json:"rank"`
 		FollowersCount  int     `json:"followers_count"`
 		PeerFollowCount int     `json:"peer_follow_count"`
 		Score           float64 `json:"score,omitempty"`
 	} `json:"nearest_in_1000,omitempty"`
-	PeerFollowGap *int   `json:"peer_follow_gap,omitempty"`
-	MatchType     string `json:"match_type,omitempty"`
+	MatchType string `json:"match_type,omitempty"`
 	// FollowersGap remains here as a *deliberate negative-assertion
 	// hook: U2-fix removed the field from the live response, but
 	// tests parse it so they can assert it stays absent. If the
@@ -148,45 +146,6 @@ func runAuthorsGet(t *testing.T, mockURL, handle string, extra ...string) (strin
 	root.SetErr(&stderr)
 	err := root.Execute()
 	return stdout.String(), stderr.String(), err
-}
-
-// startMockUserPeerFollowServer returns an httptest server that
-// responds to GET /<handle> with an HTML page containing a
-// <meta name="description"> tag whose copy carries
-// "followed by N tracked AI influencers" — the phrase the live
-// upstream uses on /u/x/<handle>. peerCounts maps handle (lower) to
-// the integer the page should advertise. Handles missing from the
-// map produce a 404 (matches the upstream's "we don't track this
-// handle" path, which the client returns as 0/nil).
-func startMockUserPeerFollowServer(t *testing.T, peerCounts map[string]int) *httptest.Server {
-	t.Helper()
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// The CLI's override base is joined with "/<handle>" by
-		// fetchSubjectPeerFollowCount; the path is therefore
-		// /<handle> with no extra prefix.
-		handle := strings.TrimPrefix(r.URL.Path, "/")
-		handle = strings.ToLower(handle)
-		n, ok := peerCounts[handle]
-		if !ok {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-		body := fmt.Sprintf(`<html><head><meta name="description" content="%s is tracked in the latest Digg AI graph — followed by %d tracked AI influencers on X."/></head><body></body></html>`, handle, n)
-		w.Header().Set("Content-Type", "text/html")
-		_, _ = w.Write([]byte(body))
-	}))
-	t.Cleanup(srv.Close)
-	return srv
-}
-
-// withUserPeerFollowOverride wires the package-level
-// userPeerFollowURLOverride to the supplied base URL for the
-// duration of one test, restoring the previous value afterwards.
-func withUserPeerFollowOverride(t *testing.T, baseURL string) {
-	t.Helper()
-	prev := userPeerFollowURLOverride
-	userPeerFollowURLOverride = baseURL
-	t.Cleanup(func() { userPeerFollowURLOverride = prev })
 }
 
 // cannedUsersLogangraham returns one in-1000 record. Matches the
@@ -291,17 +250,9 @@ func TestAuthorsGet_InThousandExactMatch(t *testing.T) {
 	if env.Result.XURL != "https://x.com/logangraham" {
 		t.Errorf("xUrl = %q, want https://x.com/logangraham", env.Result.XURL)
 	}
-	// In-1000 path: no anchor fields. Assert both the new
-	// peer_follow_gap and the retired followers_gap are absent so
-	// we catch any accidental field reintroduction.
+	// In-1000 path: no anchor fields.
 	if env.Result.NearestIn1000 != nil {
 		t.Errorf("nearest_in_1000 should be omitted on in-1000 path; got %+v", env.Result.NearestIn1000)
-	}
-	if env.Result.PeerFollowGap != nil {
-		t.Errorf("peer_follow_gap should be omitted on in-1000 path; got %d", *env.Result.PeerFollowGap)
-	}
-	if env.Result.SubjectPeerFollowCount != nil {
-		t.Errorf("subject_peer_follow_count should be omitted on in-1000 path; got %d", *env.Result.SubjectPeerFollowCount)
 	}
 	if env.Result.FollowersGap != nil {
 		t.Errorf("legacy followers_gap should never appear; got %d", *env.Result.FollowersGap)
@@ -317,27 +268,17 @@ func TestAuthorsGet_InThousandExactMatch(t *testing.T) {
 	}
 }
 
-// TestAuthorsGet_OffThousandWithWarmCache exercises the off-1000
-// path against a pre-seeded digg_authors cache. The anchor must be
-// populated with peer_follow_count from the seeded
-// followed_by_count, and peer_follow_gap must be a signed integer
-// (anchor_peer_follow - subject_peer_follow). The subject's
-// peer-follow count is fetched from a mocked /u/x/<handle> server.
-//
-// mvanhorn live values (probe 2026-05-09): peer-follow count is 19;
-// rank-1000 anchor's followed_by_count is 90 (seeded above). The
-// seeded fixture mirrors those numbers so the gap math (90 - 19 =
-// 71) matches the value an agent would compute against the live
-// upstream.
+// TestAuthorsGet_OffThousandWithWarmCache exercises the off-1000 path
+// against a pre-seeded digg_authors cache. The profile comes back with
+// the rank-1000 anchor, and nothing about the subject's own peer-follow
+// count: Digg's profile pages stopped publishing it.
 func TestAuthorsGet_OffThousandWithWarmCache(t *testing.T) {
 	seed := withTempHome(t)
 	seedRank1000(t, seed)
 
 	usersSrv := startMockUsersServer(t, cannedUsersMVH())
-	peerSrv := startMockUserPeerFollowServer(t, map[string]int{"mvanhorn": 19})
-	withUserPeerFollowOverride(t, peerSrv.URL)
 
-	out, _, err := runAuthorsGet(t, usersSrv.URL, "mvanhorn")
+	out, stderr, err := runAuthorsGet(t, usersSrv.URL, "mvanhorn")
 	if err != nil {
 		t.Fatalf("authors get mvanhorn: %v\nstdout=%s", err, out)
 	}
@@ -367,29 +308,21 @@ func TestAuthorsGet_OffThousandWithWarmCache(t *testing.T) {
 		t.Errorf("nearest_in_1000.rank = %d, want 1000", env.Result.NearestIn1000.Rank)
 	}
 	if env.Result.NearestIn1000.FollowersCount != 9000 {
-		t.Errorf("nearest_in_1000.followers_count = %d, want 9000 (kept for context, not the ranking metric)", env.Result.NearestIn1000.FollowersCount)
+		t.Errorf("nearest_in_1000.followers_count = %d, want 9000", env.Result.NearestIn1000.FollowersCount)
 	}
 	if env.Result.NearestIn1000.PeerFollowCount != 90 {
 		t.Errorf("nearest_in_1000.peer_follow_count = %d, want 90", env.Result.NearestIn1000.PeerFollowCount)
 	}
-	if env.Result.SubjectPeerFollowCount == nil {
-		t.Fatal("subject_peer_follow_count should be populated when /u/x mock resolves")
+	for _, gone := range []string{"subject_peer_follow_count", "peer_follow_gap", "followers_gap"} {
+		if strings.Contains(out, gone) {
+			t.Errorf("output still carries %s:\n%s", gone, out)
+		}
 	}
-	if *env.Result.SubjectPeerFollowCount != 19 {
-		t.Errorf("subject_peer_follow_count = %d, want 19", *env.Result.SubjectPeerFollowCount)
-	}
-	if env.Result.PeerFollowGap == nil {
-		t.Fatal("peer_follow_gap should be set when both anchor and subject resolve")
-	}
-	// 90 (anchor peer-follow) - 19 (mvanhorn peer-follow) = 71.
-	if *env.Result.PeerFollowGap != 71 {
-		t.Errorf("peer_follow_gap = %d, want 71 (anchor.peer_follow_count - subject.peer_follow_count)", *env.Result.PeerFollowGap)
-	}
-	if env.Result.FollowersGap != nil {
-		t.Errorf("legacy followers_gap should not appear; got %d", *env.Result.FollowersGap)
+	if strings.Contains(stderr, "peer-follow") || strings.Contains(stderr, "page shape") {
+		t.Errorf("stderr carries the removed peer-follow warning: %s", stderr)
 	}
 	if env.Meta["tier_status_resolved"] != true {
-		t.Errorf("meta.tier_status_resolved should be true with warm cache + subject fetch; got %v", env.Meta["tier_status_resolved"])
+		t.Errorf("meta.tier_status_resolved should be true once the anchor resolves; got %v", env.Meta["tier_status_resolved"])
 	}
 }
 
@@ -515,7 +448,7 @@ func TestAuthorsGet_FuzzyResultsSortedBySimilarity(t *testing.T) {
 // TestAuthorsGet_CacheColdLiveFallback exercises the off-1000
 // distance path against an empty cache: the command must do a live
 // /ai/1000 fetch (mocked here), populate the cache, and return a
-// complete payload with the peer-follow distance view. The mocked
+// complete payload with the rank-1000 anchor. The mocked
 // rank-1000 row carries `followed_by_count: 84` so the cache-cold
 // path also exercises the peer_follow_count round-trip through the
 // upsert/read pipeline rather than just the anchor lookup.
@@ -541,9 +474,6 @@ func TestAuthorsGet_CacheColdLiveFallback(t *testing.T) {
 	prev := roster1000URLOverride
 	roster1000URLOverride = rosterSrv.URL
 	t.Cleanup(func() { roster1000URLOverride = prev })
-
-	peerSrv := startMockUserPeerFollowServer(t, map[string]int{"mvanhorn": 19})
-	withUserPeerFollowOverride(t, peerSrv.URL)
 
 	usersSrv := startMockUsersServer(t, cannedUsersMVH())
 	out, stderr, err := runAuthorsGet(t, usersSrv.URL, "mvanhorn")
@@ -571,19 +501,6 @@ func TestAuthorsGet_CacheColdLiveFallback(t *testing.T) {
 		t.Errorf("nearest_in_1000.peer_follow_count = %d, want 84 (round-tripped from RSC followed_by_count)",
 			env.Result.NearestIn1000.PeerFollowCount)
 	}
-	if env.Result.SubjectPeerFollowCount == nil {
-		t.Fatal("subject_peer_follow_count should be set after /u/x mock resolves")
-	}
-	if *env.Result.SubjectPeerFollowCount != 19 {
-		t.Errorf("subject_peer_follow_count = %d, want 19", *env.Result.SubjectPeerFollowCount)
-	}
-	if env.Result.PeerFollowGap == nil {
-		t.Fatal("peer_follow_gap should be set after live fallback populates anchor and subject fetch resolves")
-	}
-	// 84 (anchor) - 19 (subject) = 65.
-	if *env.Result.PeerFollowGap != 65 {
-		t.Errorf("peer_follow_gap = %d, want 65", *env.Result.PeerFollowGap)
-	}
 	if env.Result.FollowersGap != nil {
 		t.Errorf("legacy followers_gap should not appear; got %d", *env.Result.FollowersGap)
 	}
@@ -596,15 +513,8 @@ func TestAuthorsGet_CacheColdLiveFallback(t *testing.T) {
 // failure-mode for the off-1000 anchor: empty cache + /ai/1000
 // fetch errors. The command must NOT exit non-zero — it should
 // return the rest of the record with tier_status off_1000, omit
-// nearest_in_1000 / peer_follow_gap, and set
-// meta.tier_status_resolved: false so callers detect the partial
-// result.
-//
-// We deliberately *do* wire a working /u/x mock here so the test
-// confirms a successful subject-side fetch alongside an anchor
-// failure still surfaces subject_peer_follow_count (i.e. partial
-// data flows from whichever side resolved). peer_follow_gap stays
-// omitted because gap requires both sides.
+// nearest_in_1000, and set meta.tier_status_resolved: false so
+// callers detect the partial result.
 func TestAuthorsGet_OffThousandFetchFailureGraceful(t *testing.T) {
 	withTempHome(t) // empty cache
 
@@ -616,9 +526,6 @@ func TestAuthorsGet_OffThousandFetchFailureGraceful(t *testing.T) {
 	prev := roster1000URLOverride
 	roster1000URLOverride = rosterSrv.URL
 	t.Cleanup(func() { roster1000URLOverride = prev })
-
-	peerSrv := startMockUserPeerFollowServer(t, map[string]int{"mvanhorn": 19})
-	withUserPeerFollowOverride(t, peerSrv.URL)
 
 	usersSrv := startMockUsersServer(t, cannedUsersMVH())
 	out, stderr, err := runAuthorsGet(t, usersSrv.URL, "mvanhorn")
@@ -638,17 +545,8 @@ func TestAuthorsGet_OffThousandFetchFailureGraceful(t *testing.T) {
 	if env.Result.NearestIn1000 != nil {
 		t.Errorf("nearest_in_1000 should be omitted on anchor failure; got %+v", env.Result.NearestIn1000)
 	}
-	if env.Result.PeerFollowGap != nil {
-		t.Errorf("peer_follow_gap should be omitted on anchor failure; got %d", *env.Result.PeerFollowGap)
-	}
 	if env.Result.FollowersGap != nil {
 		t.Errorf("legacy followers_gap should never appear; got %d", *env.Result.FollowersGap)
-	}
-	// Subject-side fetch resolved independently; surface what we
-	// do have so callers can still see the subject's standing.
-	if env.Result.SubjectPeerFollowCount == nil || *env.Result.SubjectPeerFollowCount != 19 {
-		t.Errorf("subject_peer_follow_count = %v, want 19 (subject fetch resolved even when anchor did not)",
-			env.Result.SubjectPeerFollowCount)
 	}
 	if env.Meta["tier_status_resolved"] != false {
 		t.Errorf("meta.tier_status_resolved = %v, want false", env.Meta["tier_status_resolved"])
@@ -656,61 +554,6 @@ func TestAuthorsGet_OffThousandFetchFailureGraceful(t *testing.T) {
 	// Stderr should mention the fetch failure so operators can debug.
 	if !strings.Contains(stderr, "/ai/1000") {
 		t.Errorf("stderr should log /ai/1000 fetch failure; got: %s", stderr)
-	}
-}
-
-// TestAuthorsGet_OffThousandSubjectFetchFailureGraceful covers the
-// inverse failure-mode: anchor resolves (warm cache), but the
-// /u/x/<handle> page fetch fails. The command must keep
-// nearest_in_1000 (so the rank-1000 anchor is still visible to the
-// caller), omit subject_peer_follow_count and peer_follow_gap, set
-// meta.tier_status_resolved: false, and exit 0.
-func TestAuthorsGet_OffThousandSubjectFetchFailureGraceful(t *testing.T) {
-	seed := withTempHome(t)
-	seedRank1000(t, seed) // anchor resolves cleanly
-
-	// /u/x mock returns 500 to simulate fetch failure (the
-	// http.StatusNotFound path is the legitimate "Digg doesn't
-	// track this handle" case and returns 0/nil — we want a
-	// hard failure here).
-	subjectSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusInternalServerError)
-	}))
-	t.Cleanup(subjectSrv.Close)
-	withUserPeerFollowOverride(t, subjectSrv.URL)
-
-	usersSrv := startMockUsersServer(t, cannedUsersMVH())
-	out, stderr, err := runAuthorsGet(t, usersSrv.URL, "mvanhorn")
-	if err != nil {
-		t.Fatalf("authors get on /u/x fetch failure should NOT error; got: %v\nstderr=%s", err, stderr)
-	}
-	var env authorGetEnvelopeForTest
-	if err := json.Unmarshal([]byte(out), &env); err != nil {
-		t.Fatalf("invalid JSON: %v\n%s", err, out)
-	}
-	if env.Result == nil {
-		t.Fatalf("expected result envelope; got: %s", out)
-	}
-	if env.Result.TierStatus != "off_1000" {
-		t.Errorf("tier_status = %q, want off_1000", env.Result.TierStatus)
-	}
-	if env.Result.NearestIn1000 == nil {
-		t.Errorf("nearest_in_1000 should still be present when anchor resolves but subject fetch fails (caller still sees the rank-1000 anchor)")
-	}
-	if env.Result.SubjectPeerFollowCount != nil {
-		t.Errorf("subject_peer_follow_count should be omitted on /u/x fetch failure; got %d", *env.Result.SubjectPeerFollowCount)
-	}
-	if env.Result.PeerFollowGap != nil {
-		t.Errorf("peer_follow_gap should be omitted on /u/x fetch failure; got %d", *env.Result.PeerFollowGap)
-	}
-	if env.Result.FollowersGap != nil {
-		t.Errorf("legacy followers_gap should never appear; got %d", *env.Result.FollowersGap)
-	}
-	if env.Meta["tier_status_resolved"] != false {
-		t.Errorf("meta.tier_status_resolved = %v, want false (subject fetch failed)", env.Meta["tier_status_resolved"])
-	}
-	if !strings.Contains(stderr, "/u/x/mvanhorn") {
-		t.Errorf("stderr should log /u/x fetch failure; got: %s", stderr)
 	}
 }
 

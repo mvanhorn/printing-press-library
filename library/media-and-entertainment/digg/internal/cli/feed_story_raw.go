@@ -15,7 +15,7 @@ func newFeedStoryRawCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "story-raw <cluster_url_id>",
-		Short:       "Fetch the raw /ai/{clusterUrlId} story detail page (HTML). The CLI's `story` command parses this; users should not...",
+		Short:       "Fetch the raw HTML of one story's page under /ai. Most users should run `story` or `posts` instead.",
 		Example:     "  digg-pp-cli feed story-raw 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "feed.story_raw", "pp:method": "GET", "pp:path": "/ai/{cluster_url_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
