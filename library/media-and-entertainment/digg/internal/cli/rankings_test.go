@@ -276,7 +276,10 @@ func TestRankings_RegisteredInRoot(t *testing.T) {
 			found = true
 			subs := map[string]bool{}
 			for _, sc := range c.Commands() {
-				subs[sc.Name()] = true
+				// Hidden stubs stand in for the views Digg removed.
+				if !sc.Hidden {
+					subs[sc.Name()] = true
+				}
 			}
 			if len(subs) != 1 || !subs["list"] {
 				t.Errorf("subcommands under 'rankings' = %v, want only list", subs)

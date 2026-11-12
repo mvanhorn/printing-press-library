@@ -45,18 +45,31 @@ Reads https://digg.com/tech/x/rankings:
 
   list       The full ranking of people and companies (the
              initial-HTML slice; pass --limit to cap).`,
-		// A group command with no RunE prints help and exits 0 for any
-		// argument, so a subcommand Digg no longer backs would look like
-		// it worked. Name the unknown subcommand instead.
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) > 0 {
-				return usageErr(fmt.Errorf("unknown command %q for %q", args[0], cmd.CommandPath()))
-			}
-			return cmd.Help()
-		},
 	}
 	cmd.AddCommand(newRankingsListCmd(flags, fetcher))
+	// A group command prints help and exits 0 for any argument, so a view
+	// Digg no longer serves would look like it worked. The group stays
+	// without a RunE, which keeps it from becoming a help-only MCP tool;
+	// hidden stubs make the removed views fail instead.
+	for _, name := range []string{"emerging", "movers"} {
+		cmd.AddCommand(newRemovedRankingsCmd(name))
+	}
 	return cmd
+}
+
+// newRemovedRankingsCmd stands in for a rankings view Digg stopped
+// serving. It is hidden from help, discovery and the MCP server, and
+// fails as an unknown command would.
+func newRemovedRankingsCmd(name string) *cobra.Command {
+	return &cobra.Command{
+		Use:                name,
+		Hidden:             true,
+		DisableFlagParsing: true,
+		Annotations:        map[string]string{"mcp:hidden": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return usageErr(fmt.Errorf("unknown command %q for %q", cmd.Name(), cmd.Parent().CommandPath()))
+		},
+	}
 }
 
 // rankingsFetcher fetches the rankings/companies HTML on demand.

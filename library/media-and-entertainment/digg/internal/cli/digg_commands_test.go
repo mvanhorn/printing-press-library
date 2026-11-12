@@ -618,3 +618,72 @@ func TestSearchRejectsMalformedSince(t *testing.T) {
 		t.Fatalf("err = %v, want a --since usage error", err)
 	}
 }
+
+// Digg rejects a window that starts 90 days back or more, so the widest
+// relative --since is sent a minute inside that limit.
+func TestSearchSinceAtNinetyDayLimitStaysInsideIt(t *testing.T) {
+	withTempHome(t)
+	stub := &searchStub{posts: manyPosts(1, "ai")}
+	url := stub.serve(t)
+	for i, since := range []string{"90d", "3m"} {
+		if _, _, err := runSearchCmd(t, url, "story", "--since", since, "--json"); err != nil {
+			t.Fatalf("--since %s: %v", since, err)
+		}
+		a := stub.requests()[i]
+		sent, err := time.Parse(time.RFC3339, fmt.Sprint(a["since"]))
+		if err != nil {
+			t.Fatalf("--since %s sent since=%v, want an ISO 8601 datetime", since, a["since"])
+		}
+		if inside := 90*24*time.Hour - time.Since(sent); inside < 30*time.Second || inside > 61*time.Second {
+			t.Fatalf("--since %s sent a start %s inside the 90 day limit, want about one minute", since, inside)
+		}
+	}
+}
+
+// orderedWriter appends its name to a shared log on every write, so a
+// test can tell which stream was written first.
+type orderedWriter struct {
+	name string
+	log  *[]string
+	buf  bytes.Buffer
+}
+
+func (w *orderedWriter) Write(p []byte) (int, error) {
+	*w.log = append(*w.log, w.name)
+	return w.buf.Write(p)
+}
+
+// The id record is optional, so results are printed before it is tried:
+// a slow or failing store can then never hold them back.
+func TestSearchPrintsResultsBeforeRecordingStoryIDs(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	if err := os.WriteFile(filepath.Join(home, ".local"), []byte("not a directory"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	prev := diggMCPURLOverride
+	diggMCPURLOverride = (&searchStub{posts: manyPosts(3, "ai")}).serve(t)
+	t.Cleanup(func() { diggMCPURLOverride = prev })
+
+	var order []string
+	stdout := &orderedWriter{name: "stdout", log: &order}
+	stderr := &orderedWriter{name: "stderr", log: &order}
+	var flags rootFlags
+	root := newRootCmd(&flags)
+	root.SetArgs([]string{"search", "story", "--json"})
+	root.SetOut(stdout)
+	root.SetErr(stderr)
+	if err := root.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if n := len(decodeSearch(t, stdout.buf.String()).Results); n != 3 {
+		t.Fatalf("got %d results, want 3", n)
+	}
+	if !strings.Contains(stderr.buf.String(), "story ids") {
+		t.Fatalf("stderr %q should warn that story ids were not recorded", stderr.buf.String())
+	}
+	if len(order) == 0 || order[0] != "stdout" {
+		t.Fatalf("streams were written in order %v, want the results on stdout first", order)
+	}
+}

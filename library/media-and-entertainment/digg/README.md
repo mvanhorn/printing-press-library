@@ -161,6 +161,8 @@ These capabilities aren't available in any other tool for this API.
 
   _Each result carries `clusterId` (the story's UUID), `clusterUrlId` (the short id from its URL), `title`, `tldr`, `description`, `url`, `topic`, `diggScore`, `sourceCount`, `postCount` (same number as `sourceCount`), `uniqueAuthors`, `publishedAt`, `firstSourceAt` and `firstPostAge`. `meta` carries `source: "live"`, `stale: false`, `totalMatches`, `window` and `sort`._
 
+  _Search rows carry no `rank`: Digg's search does not return one (`top` rows do). `postCount` always equals `sourceCount`, and `firstPostAge` is the age since `publishedAt` (hours under a day, whole days after), not the age of the first source._
+
   ```bash
   digg-pp-cli search "<topic>" --since 30d --agent --select title,diggScore,sourceCount,url
   ```
@@ -173,7 +175,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   digg-pp-cli posts <story> --limit 5 --agent --select author.username,xUrl,body
   ```
-  `<story>` is the story's UUID, its short id, or its URL. A short id or URL resolves once `search` has returned that story; one `search` has not seen fails with a message that says so. `--by time` sorts oldest first. `--by rank`, `--by type` and `--type` are accepted and have no effect, because Digg no longer reports author rank or post type.
+  `<story>` is the story's UUID (`clusterId`), its short id (`clusterUrlId`), or its URL. Digg itself accepts only the UUID, so a short id or URL resolves only after `search` has returned that story on this machine, from the record `search` keeps in the local store; one it has not recorded fails with a not-found error that says so. Pass the UUID from `clusterId` when `search` ran on another machine or home directory, or printed a warning that it could not record story ids. `--by time` sorts oldest first. `--by rank`, `--by type` and `--type` are accepted and have no effect, because Digg no longer reports author rank or post type.
 - **`story`** — One story as Digg publishes it: title, summary, topic, URL and dates, the earlier and later stories in the same thread, and its first 20 sources. Takes the same `<story>` argument as `posts`.
 - **`open`** — Print the story's digg.com URL under its own topic; `--launch` opens it in a browser.
 

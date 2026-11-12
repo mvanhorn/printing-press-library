@@ -784,6 +784,10 @@ func searchWindowArgs(sinceStr, untilStr string, now time.Time) (map[string]any,
 				return args, nil
 			}
 		}
+		// Kept just inside Digg's limit, as the --until default below is.
+		if floor := oldest.Add(time.Minute); at.Before(floor) {
+			at = floor
+		}
 		since = at
 	}
 	if untilStr != "" {
@@ -1006,30 +1010,34 @@ the matches run out.`,
 			}
 			meta["count"] = len(results)
 
+			// Results go out before the id record is tried, so a slow or
+			// locked store can neither delay nor lose them.
+			var printErr error
+			switch {
+			case flags.asJSON:
+				printErr = printJSONFiltered(cmd.OutOrStdout(), searchEnvelope{Meta: meta, Results: results}, flags)
+			case len(results) == 0:
+				printErr = emptyHint(cmd, fmt.Sprintf("no matches for %q in %s. Try a different query or a wider --since.", query, strings.Join(metaTopics, ",")))
+			default:
+				for _, r := range results {
+					score := "-"
+					if r.DiggScore != nil {
+						score = strconv.FormatFloat(*r.DiggScore, 'f', -1, 64)
+					}
+					fmt.Fprintf(cmd.OutOrStdout(), "%s  [%s]\n", firstNonEmpty(r.Title, r.ClusterURLID), r.Topic)
+					if r.TLDR != "" {
+						fmt.Fprintf(cmd.OutOrStdout(), "    %s\n", diggTruncate(r.TLDR, 200))
+					}
+					fmt.Fprintf(cmd.OutOrStdout(), "    score=%s  sources=%d  authors=%d  age=%s  %s\n", score, r.SourceCount, r.UniqueAuthors, r.FirstPostAge, r.URL)
+				}
+			}
+
 			// Best-effort: several searches may share one store, and a
 			// failed write must not cost the caller its results.
 			if err := recordSearchRefs(ctx, results); err != nil {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warn: could not record story ids in the local store: %v\n", err)
 			}
-
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), searchEnvelope{Meta: meta, Results: results}, flags)
-			}
-			if len(results) == 0 {
-				return emptyHint(cmd, fmt.Sprintf("no matches for %q in %s. Try a different query or a wider --since.", query, strings.Join(metaTopics, ",")))
-			}
-			for _, r := range results {
-				score := "-"
-				if r.DiggScore != nil {
-					score = strconv.FormatFloat(*r.DiggScore, 'f', -1, 64)
-				}
-				fmt.Fprintf(cmd.OutOrStdout(), "%s  [%s]\n", firstNonEmpty(r.Title, r.ClusterURLID), r.Topic)
-				if r.TLDR != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), "    %s\n", diggTruncate(r.TLDR, 200))
-				}
-				fmt.Fprintf(cmd.OutOrStdout(), "    score=%s  sources=%d  authors=%d  age=%s  %s\n", score, r.SourceCount, r.UniqueAuthors, r.FirstPostAge, r.URL)
-			}
-			return nil
+			return printErr
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max number of results; may exceed one page of 50")
@@ -2147,9 +2155,11 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 								fmt.Fprintf(cmd.OutOrStdout(), "  %+d  %s [%s]\n", a.Delta, a.Label, a.ClusterURLID)
 							}
 						}
-						// Persist snapshots so future polls have history
+						// Persist the poll under one timestamp: the next
+						// poll's baseline is every row saved at the latest one.
+						snapAt := time.Now()
 						for _, c := range clusters {
-							_ = diggstore.UpsertCluster(db, c, time.Now())
+							_ = diggstore.UpsertCluster(db, c, snapAt)
 						}
 					}
 				}

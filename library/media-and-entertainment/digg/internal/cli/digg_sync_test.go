@@ -235,3 +235,43 @@ func TestSyncFeedWalkFlagsAreGone(t *testing.T) {
 		}
 	}
 }
+
+// Every poll after the first must compare against the whole previous
+// poll, not one story of it.
+func TestWatchSecondPollAlertsOnEveryMover(t *testing.T) {
+	withTempHome(t)
+	polls := [][]string{
+		{"aaa11111", "bbb22222", "ccc33333", "ddd44444", "eee55555", "fff66666"},
+		{"fff66666", "eee55555", "ccc33333", "ddd44444", "bbb22222", "aaa11111"},
+	}
+	var mu sync.Mutex
+	served := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		ids := polls[min(served, len(polls)-1)]
+		served++
+		mu.Unlock()
+		var objs []string
+		for i, id := range ids {
+			objs = append(objs, fmt.Sprintf(`{"clusterId":"uuid-%s","clusterUrlId":"%s","rank":%d,"authors":[{"username":"author_%s","displayName":"Author %s"}]}`, id, id, i+1, id, id))
+		}
+		payload := `{"posts":[` + strings.Join(objs, ",") + `]}`
+		fmt.Fprintf(w, `<html><script>self.__next_f.push([1,%s])</script></html>`, strconv.Quote(payload))
+	}))
+	t.Cleanup(srv.Close)
+
+	out, _, err := runCLIAgainst(t, srv.URL, "watch", "--topic", "ai", "--interval", "10ms", "--iterations", "2", "--min-delta", "3")
+	if err != nil {
+		t.Fatalf("watch: %v\n%s", err, out)
+	}
+	// Between the polls four stories moved three ranks or more: the
+	// first and last swapped (5 ranks), the second and fifth swapped (3).
+	if !strings.Contains(out, "watch: 4 alerts") {
+		t.Fatalf("second poll should alert on 4 movers, got:\n%s", out)
+	}
+	for _, id := range []string{"aaa11111", "bbb22222", "eee55555", "fff66666"} {
+		if !strings.Contains(out, "["+id+"]") {
+			t.Errorf("no alert for %s in:\n%s", id, out)
+		}
+	}
+}

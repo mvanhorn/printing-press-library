@@ -34,6 +34,51 @@
       ]
     },
     {
+      "name": "search",
+      "description": "Search Digg stories live across all seven topics with Digg's own search. Each result carries clusterId, clusterUrlId, title, diggScore, sourceCount, uniqueAuthors, publishedAt, topic and url. Needs no sync.",
+      "method": "POST",
+      "path": "/mcp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "args",
+          "type": "string",
+          "required": true,
+          "description": "The search query, 3 to 120 characters."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "required": false,
+          "description": "Max number of results (default 20); may exceed one page of 50."
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "required": false,
+          "description": "Only stories published at or after this: a duration back from now (30d, 1w, 12h, 1m) or an ISO date. At most 90 days back."
+        },
+        {
+          "name": "until",
+          "type": "string",
+          "required": false,
+          "description": "Only stories published before this: a duration back from now or an ISO date."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "required": false,
+          "description": "Order: relevance (default), score or newest."
+        },
+        {
+          "name": "topic",
+          "type": "string",
+          "required": false,
+          "description": "Comma-separated Digg topics to search. Default: every topic."
+        }
+      ]
+    },
+    {
       "name": "github_stars",
       "description": "Top repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrer list, breakout_score, novel_score, ai_related_score, and the model's one-sentence classification. Returns the RawHTML; structured records are extracted by the CLI from the embedded RSC payload.",
       "method": "GET",

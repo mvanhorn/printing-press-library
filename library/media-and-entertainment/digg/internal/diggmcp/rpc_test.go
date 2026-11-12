@@ -12,6 +12,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/cliutil"
 )
 
 const structuredReply = `{"result":{"content":[{"type":"text","text":"{\"posts\":[{\"id\":\"from-text\"}]}"}],"structuredContent":{"posts":[{"id":"from-structured"}]}},"jsonrpc":"2.0","id":1}`
@@ -189,5 +191,34 @@ func TestUnwrapRecordedValidationError(t *testing.T) {
 	}
 	if e.Tool != "digg_search_posts" || !strings.Contains(e.Message, "expected string to have >=3 characters") {
 		t.Fatalf("error = %+v, want Digg's validation message", e)
+	}
+}
+
+// A caller with two seconds left cannot use a retry that starts in thirty:
+// it gets the rate-limit error at once instead of a timeout later.
+func TestCallReturnsRateLimitWhenRetryAfterOutlastsDeadline(t *testing.T) {
+	var hits atomic.Int32
+	c := serve(t, func(w http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
+		w.Header().Set("Retry-After", "30")
+		w.WriteHeader(http.StatusTooManyRequests)
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	start := time.Now()
+	_, err := c.Call(ctx, "digg_search_posts", nil)
+	elapsed := time.Since(start)
+	var rl *cliutil.RateLimitError
+	if !errors.As(err, &rl) {
+		t.Fatalf("err = %v, want a rate-limit error", err)
+	}
+	if rl.RetryAfter != 30*time.Second {
+		t.Fatalf("RetryAfter = %s, want 30s", rl.RetryAfter)
+	}
+	if elapsed > time.Second {
+		t.Fatalf("returned after %s, want an immediate return", elapsed)
+	}
+	if hits.Load() != 1 {
+		t.Fatalf("server saw %d requests, want 1", hits.Load())
 	}
 }

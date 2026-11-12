@@ -67,7 +67,8 @@ type callParams struct {
 }
 
 // Call invokes one tool and returns its structured result. A 429 is
-// retried once after the server's Retry-After delay.
+// retried once after the server's Retry-After delay, unless ctx ends
+// before that delay does.
 func (c *Client) Call(ctx context.Context, tool string, args map[string]any) (json.RawMessage, error) {
 	if args == nil {
 		args = map[string]any{}
@@ -83,8 +84,14 @@ func (c *Client) Call(ctx context.Context, tool string, args map[string]any) (js
 		}
 		if status == http.StatusTooManyRequests {
 			c.Limiter.OnRateLimit()
+			rateLimited := &cliutil.RateLimitError{URL: c.endpoint(), RetryAfter: wait, Body: clip(raw, 200)}
 			if attempt > 0 {
-				return nil, &cliutil.RateLimitError{URL: c.endpoint(), RetryAfter: wait, Body: clip(raw, 200)}
+				return nil, rateLimited
+			}
+			// Waiting past the caller's deadline would turn a rate limit
+			// into a timeout; report the rate limit now instead.
+			if deadline, ok := ctx.Deadline(); ok && time.Until(deadline) < wait {
+				return nil, rateLimited
 			}
 			select {
 			case <-ctx.Done():
