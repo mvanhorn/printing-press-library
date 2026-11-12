@@ -1,6 +1,7 @@
 package diggstore
 
 import (
+	"context"
 	"database/sql"
 	"path/filepath"
 	"testing"
@@ -531,5 +532,44 @@ func TestRecordReplacementsDropsClustersNotSeen(t *testing.T) {
 	}
 	if prevRank != 5 {
 		t.Errorf("previous_rank should be 5; got %d", prevRank)
+	}
+}
+
+func TestPostRefRoundTrip(t *testing.T) {
+	db := openTempDB(t)
+	ctx := context.Background()
+	now := time.Date(2026, 11, 11, 12, 0, 0, 0, time.UTC)
+	refs := []PostRef{
+		{ShortID: "ab12cd34", ID: "0190a1b2-0000-7000-8000-000000000001", Topic: "ai"},
+		{ShortID: "ef56gh78", ID: "0190a1b2-0000-7000-8000-000000000002", Topic: "sports"},
+	}
+	if err := RecordPostRefs(ctx, db, refs, now); err != nil {
+		t.Fatal(err)
+	}
+	got, ok, err := LookupPostRef(db, "ef56gh78")
+	if err != nil || !ok {
+		t.Fatalf("LookupPostRef ok=%v err=%v, want the recorded story", ok, err)
+	}
+	if got != refs[1] {
+		t.Fatalf("LookupPostRef = %+v, want %+v", got, refs[1])
+	}
+	if _, ok, err := LookupPostRef(db, "nosuchid"); err != nil || ok {
+		t.Fatalf("unknown short id: ok=%v err=%v, want not found and no error", ok, err)
+	}
+}
+
+func TestRecordPostRefsUpdatesAMovedStory(t *testing.T) {
+	db := openTempDB(t)
+	ctx := context.Background()
+	now := time.Date(2026, 11, 11, 12, 0, 0, 0, time.UTC)
+	if err := RecordPostRefs(ctx, db, []PostRef{{ShortID: "ab12cd34", ID: "uuid-1", Topic: "ai"}}, now); err != nil {
+		t.Fatal(err)
+	}
+	if err := RecordPostRefs(ctx, db, []PostRef{{ShortID: "ab12cd34", ID: "uuid-1", Topic: "tech"}}, now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	got, ok, err := LookupPostRef(db, "ab12cd34")
+	if err != nil || !ok || got.Topic != "tech" {
+		t.Fatalf("LookupPostRef = %+v ok=%v err=%v, want the latest topic", got, ok, err)
 	}
 }

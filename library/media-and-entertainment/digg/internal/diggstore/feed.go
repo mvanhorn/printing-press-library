@@ -37,8 +37,8 @@ func ensureFeedSchema(db *sql.DB) error {
 		if have[c.name] {
 			continue
 		}
-		if _, err := db.Exec(fmt.Sprintf(`ALTER TABLE digg_clusters ADD COLUMN %s %s`, c.name, c.ddl)); err != nil {
-			return fmt.Errorf("adding digg_clusters.%s: %w", c.name, err)
+		if err := addColumn(db, "digg_clusters", c.name, c.ddl); err != nil {
+			return err
 		}
 	}
 	stmts := []string{

@@ -16,6 +16,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/cliutil"
 )
 
 // feedContinuousURL is the feed endpoint. It has no published contract.
@@ -147,6 +149,10 @@ func (c *Client) WalkFeedFrom(ctx context.Context, endpoint string, p FeedParams
 		cursor = *page.NextCursor
 	}
 }
+
+// Limiter returns the client's request pacer so other Digg endpoints
+// called in the same run share one rate budget. Nil when pacing is off.
+func (c *Client) Limiter() *cliutil.AdaptiveLimiter { return c.limiter }
 
 func (c *Client) fetchFeedPage(ctx context.Context, endpoint string, p FeedParams, cursor string) (*FeedPage, error) {
 	if err := c.limiter.WaitContext(ctx); err != nil {

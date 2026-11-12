@@ -12,11 +12,14 @@ import (
 	"runtime"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggmcp"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggstore"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/store"
@@ -708,26 +711,29 @@ Sort options:
 
 // ============== search ==============
 //
-// PATCH(digg-feed-continuous-replaces-removed-search-and-trending): Digg
-// removed /api/search/stories in October 2026 and its feed API has no
-// query parameter, so `search` matches against the local copy of the
-// story feed that `sync` builds. When a requested topic has no recent
-// completed sync, search first fetches a few live feed pages (a top-up)
-// so new stories still show up, and reports the copy as stale.
+// Search asks Digg's own search (the digg_search_posts tool on its public
+// MCP server) and prints what it returns. It needs no local copy of the
+// feed and covers every public topic.
 
-// searchResult is one search row. JSON tags keep the shape the removed
-// /api/search/stories returned, so existing consumers (last30days reads
-// clusterUrlId, title, tldr, rank, postCount, uniqueAuthors, firstPostAge)
-// keep working.
+// searchResult is one search row. The first seven fields keep the names
+// the removed /api/search/stories used, which existing consumers read
+// (last30days reads clusterUrlId, title, tldr, postCount, uniqueAuthors,
+// firstPostAge). The rest are Digg's engagement numbers and dates.
 type searchResult struct {
-	ClusterID     string `json:"clusterId"`
-	ClusterURLID  string `json:"clusterUrlId"`
-	Title         string `json:"title,omitempty"`
-	TLDR          string `json:"tldr,omitempty"`
-	Rank          int    `json:"rank,omitempty"`
-	PostCount     int    `json:"postCount,omitempty"`
-	UniqueAuthors int    `json:"uniqueAuthors,omitempty"`
-	FirstPostAge  string `json:"firstPostAge,omitempty"`
+	ClusterID     string   `json:"clusterId"`
+	ClusterURLID  string   `json:"clusterUrlId"`
+	Title         string   `json:"title"`
+	TLDR          string   `json:"tldr,omitempty"`
+	PostCount     int      `json:"postCount"`
+	UniqueAuthors int      `json:"uniqueAuthors"`
+	FirstPostAge  string   `json:"firstPostAge,omitempty"`
+	URL           string   `json:"url"`
+	Topic         string   `json:"topic"`
+	DiggScore     *float64 `json:"diggScore,omitempty"`
+	SourceCount   int      `json:"sourceCount"`
+	PublishedAt   string   `json:"publishedAt"`
+	FirstSourceAt string   `json:"firstSourceAt,omitempty"`
+	Description   string   `json:"description"`
 }
 
 // searchEnvelope wraps the result list with provenance metadata. Shape
@@ -737,296 +743,376 @@ type searchEnvelope struct {
 	Results []searchResult `json:"results"`
 }
 
+// diggSearchPost is one story in a digg_search_posts page.
+type diggSearchPost struct {
+	ID            string   `json:"id"`
+	URL           string   `json:"url"`
+	Topic         string   `json:"topic"`
+	Title         string   `json:"title"`
+	Description   string   `json:"description"`
+	TLDR          *string  `json:"tldr"`
+	PublishedAt   string   `json:"publishedAt"`
+	DiggScore     *float64 `json:"diggScore"`
+	SourceCount   int      `json:"sourceCount"`
+	UniqueAuthors int      `json:"uniqueAuthors"`
+	FirstSourceAt *string  `json:"firstSourceAt"`
+}
+
+// diggSearchPage is one digg_search_posts response.
+type diggSearchPage struct {
+	Posts        []diggSearchPost `json:"posts"`
+	NextCursor   *string          `json:"nextCursor"`
+	TotalMatches int              `json:"totalMatches"`
+	Window       json.RawMessage  `json:"window"`
+	Sort         string           `json:"sort"`
+}
+
 const (
-	// searchFreshFor is how old a completed sync may be before search
-	// treats the topic as stale. Matches doctor's stale_after.
-	searchFreshFor = 6 * time.Hour
-	// searchTopUpPages caps live feed pages per search across all topics.
-	searchTopUpPages = 8
+	diggSearchTool = "digg_search_posts"
+	// Limits Digg's search enforces; checking them here turns a server
+	// rejection into a usage error before any request.
+	searchQueryMin  = 3
+	searchQueryMax  = 120
+	searchPageMax   = 50
+	searchMaxWindow = 90 * 24 * time.Hour
+	// searchRecordWait bounds the best-effort write of story ids, so a
+	// busy store cannot hold up results a caller is waiting on.
+	searchRecordWait = 5 * time.Second
 )
 
-// searchTopUpBudget bounds the whole top-up. Callers such as research
-// pipelines kill the CLI after a fixed timeout (30s is common), so the
-// top-up must stop early enough to still print what it stored. A var so
-// tests can shorten it.
-var searchTopUpBudget = 15 * time.Second
+var searchSorts = []string{"relevance", "score", "newest"}
 
-// feedRangeFor maps a --since window to the smallest feed range that
-// covers it. No window uses the range sync defaults to.
-func feedRangeFor(since time.Duration) string {
-	switch {
-	case since <= 0:
-		return defaultFeedRange
-	case since <= 24*time.Hour:
-		return "24h"
-	case since <= 7*24*time.Hour:
-		return "7d"
-	case since <= 30*24*time.Hour:
-		return "30d"
-	default:
-		return "all"
+// diggMCPURLOverride, when set, replaces Digg's MCP endpoint. Tests only.
+var diggMCPURLOverride string
+
+// newDiggMCPClient builds the MCP client on the CLI's limiter and timeout.
+func newDiggMCPClient(flags *rootFlags) (*diggmcp.Client, error) {
+	c, err := flags.newClient()
+	if err != nil {
+		return nil, err
 	}
+	return &diggmcp.Client{
+		Endpoint:  diggMCPURLOverride,
+		Limiter:   c.Limiter(),
+		Timeout:   c.ConfiguredTimeout(),
+		UserAgent: "digg-pp-cli/" + version,
+	}, nil
 }
 
-// coveringRanges lists the feed ranges whose completed sync covers r.
-func coveringRanges(r string) []string {
-	i := slices.Index(feedRanges, r)
-	if i < 0 {
-		return []string{r}
-	}
-	return feedRanges[i:]
-}
-
-// topicSyncedAt returns the newest completed sync of topic at any range
-// covering r, or false when there is none.
-func topicSyncedAt(db *sql.DB, topic, r string) (time.Time, bool, error) {
-	var newest time.Time
-	for _, cr := range coveringRanges(r) {
-		at, ok, err := diggstore.FeedSyncedAt(db, topic, cr)
-		if err != nil {
-			return time.Time{}, false, err
-		}
-		if ok && at.After(newest) {
-			newest = at
-		}
-	}
-	return newest, !newest.IsZero(), nil
-}
-
-// formatStoryAge renders an age the way Digg's removed search did: whole
-// hours under a day, whole days otherwise.
+// formatStoryAge renders an age with hour and day tokens only. Under a
+// day it rounds up to whole hours and never prints 0h; otherwise it
+// counts whole days. It never uses a month token: older readers take "m"
+// for months and drop the row.
 func formatStoryAge(d time.Duration) string {
-	if d < 0 {
-		d = 0
-	}
 	if d < 24*time.Hour {
-		return fmt.Sprintf("%dh", int(d/time.Hour))
+		h := int((d + time.Hour - 1) / time.Hour)
+		if h < 1 {
+			h = 1
+		}
+		return fmt.Sprintf("%dh", h)
 	}
 	return fmt.Sprintf("%dd", int(d/(24*time.Hour)))
 }
 
+// parseSearchTime reads a --since or --until value: a relative age (Nh,
+// Nd, Nw, Nm) counted back from now, or an ISO date or datetime.
+func parseSearchTime(s string, now time.Time) (at time.Time, age time.Duration, err error) {
+	if d, derr := cliutil.ParseDiggAge(s); derr == nil {
+		return now.Add(-d), d, nil
+	}
+	if t, terr := time.Parse(time.RFC3339, s); terr == nil {
+		return t, 0, nil
+	}
+	if t, terr := time.Parse("2006-01-02", s); terr == nil {
+		return t, 0, nil
+	}
+	return time.Time{}, 0, fmt.Errorf("%q is not a duration (Nh, Nd, Nw, Nm) or an ISO date (2026-11-01 or 2026-11-01T00:00:00Z)", s)
+}
+
+// searchWindowArgs turns --since and --until into digg_search_posts
+// window arguments. A bare 24h, 7d or 30d becomes Digg's range; anything
+// else is an absolute since. Digg rejects range combined with since or
+// until, so --until always travels with an absolute since.
+func searchWindowArgs(sinceStr, untilStr string, now time.Time) (map[string]any, error) {
+	args := map[string]any{}
+	sinceStr, untilStr = strings.TrimSpace(sinceStr), strings.TrimSpace(untilStr)
+	oldest := now.Add(-searchMaxWindow)
+	var since time.Time
+	if sinceStr != "" {
+		at, age, err := parseSearchTime(sinceStr, now)
+		if err != nil {
+			return nil, usageErr(fmt.Errorf("--since: %w", err))
+		}
+		if age > searchMaxWindow || at.Before(oldest) {
+			return nil, usageErr(fmt.Errorf("--since %q is more than 90 days back; Digg search covers the last 90 days", sinceStr))
+		}
+		if untilStr == "" {
+			switch age {
+			case 24 * time.Hour:
+				args["range"] = "24h"
+				return args, nil
+			case 7 * 24 * time.Hour:
+				args["range"] = "7d"
+				return args, nil
+			case 30 * 24 * time.Hour:
+				args["range"] = "30d"
+				return args, nil
+			}
+		}
+		since = at
+	}
+	if untilStr != "" {
+		until, _, err := parseSearchTime(untilStr, now)
+		if err != nil {
+			return nil, usageErr(fmt.Errorf("--until: %w", err))
+		}
+		if since.IsZero() {
+			// The widest window Digg serves, kept just inside its limit.
+			since = oldest.Add(time.Minute)
+		}
+		args["until"] = until.UTC().Format(time.RFC3339)
+	}
+	if !since.IsZero() {
+		args["since"] = since.UTC().Format(time.RFC3339)
+	}
+	return args, nil
+}
+
+// storyShortID returns the last path segment of a story URL, the id Digg
+// uses in links (https://digg.com/<topic>/<shortId>).
+func storyShortID(storyURL string) string {
+	p := storyURL
+	if i := strings.IndexAny(p, "?#"); i >= 0 {
+		p = p[:i]
+	}
+	p = strings.TrimRight(p, "/")
+	return p[strings.LastIndex(p, "/")+1:]
+}
+
+func searchResultFor(p diggSearchPost, now time.Time) searchResult {
+	r := searchResult{
+		ClusterID:     p.ID,
+		ClusterURLID:  storyShortID(p.URL),
+		Title:         p.Title,
+		PostCount:     p.SourceCount,
+		UniqueAuthors: p.UniqueAuthors,
+		URL:           p.URL,
+		Topic:         p.Topic,
+		DiggScore:     p.DiggScore,
+		SourceCount:   p.SourceCount,
+		PublishedAt:   p.PublishedAt,
+		Description:   p.Description,
+	}
+	if p.TLDR != nil {
+		r.TLDR = *p.TLDR
+	}
+	if p.FirstSourceAt != nil {
+		r.FirstSourceAt = *p.FirstSourceAt
+	}
+	if at, err := time.Parse(time.RFC3339, p.PublishedAt); err == nil {
+		r.FirstPostAge = formatStoryAge(now.Sub(at))
+	}
+	return r
+}
+
+// recordSearchRefs stores each result's short id, UUID and topic so a
+// later command given only a short id can find the story.
+func recordSearchRefs(ctx context.Context, results []searchResult) error {
+	ctx, cancel := context.WithTimeout(ctx, searchRecordWait)
+	defer cancel()
+	// Searches started together on a store that does not exist yet race
+	// to create it, and the losers see the database as locked. Wait for
+	// the winner instead of dropping the record.
+	var db *sql.DB
+	var closeFn func() error
+	for {
+		var err error
+		_, db, closeFn, err = openStore(ctx)
+		if err == nil {
+			break
+		}
+		if msg := err.Error(); !strings.Contains(msg, "SQLITE_BUSY") && !strings.Contains(msg, "database is locked") {
+			return err
+		}
+		select {
+		case <-ctx.Done():
+			return err
+		case <-time.After(50 * time.Millisecond):
+		}
+	}
+	defer closeFn()
+	refs := make([]diggstore.PostRef, 0, len(results))
+	for _, r := range results {
+		refs = append(refs, diggstore.PostRef{ShortID: r.ClusterURLID, ID: r.ClusterID, Topic: r.Topic})
+	}
+	return diggstore.RecordPostRefs(ctx, db, refs, time.Now())
+}
+
 func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var limit int
-	var sinceStr string
+	var sinceStr, untilStr, sortBy string
 	var topics []string
 	cmd := &cobra.Command{
 		Use:   "search [query]",
-		Short: "Search Digg stories by title and summary across one or more sections",
-		Long: `Search Digg stories by title and summary.
+		Short: "Search Digg stories live, across one or more topics, with Digg Score and source counts",
+		Long: `Search Digg stories with Digg's own search.
 
-Search reads the local copy of each section's story feed that ` + "`sync`" + ` builds.
-Every query word must appear in a story's headline or summary. --topic picks
-the sections (default ai; valid: ` + strings.Join(validTopicSlugs(), ", ") + `).
+Every search is live: it needs no prior ` + "`sync`" + ` and reads no local copy.
+--topic limits the search to one or more topics (valid: ` + strings.Join(validTopicSlugs(), ", ") + `);
+without it every topic is searched.
 
-When a requested section has no completed sync in the last 6 hours, search
-first fetches a few live feed pages so new stories still appear, and marks
-the result meta.stale=true. Run ` + "`digg-pp-cli sync --topics <sections>`" + ` for full
-coverage. --data-source local never fetches; --data-source live always does.
+Each result carries its Digg Score (diggScore), how many sources the story
+lists (sourceCount), how many different authors wrote them (uniqueAuthors),
+when it was published (publishedAt), when its earliest source appeared
+(firstSourceAt), its topic and its URL.
 
-The --since flag filters by when each story started (Nh, Nd, Nw, or Nm for
-months of about 30 days). firstPostAge is measured from now.`,
+--since and --until take a duration counted back from now (Nh, Nd, Nw, or
+Nm for months of 30 days) or an ISO date such as 2026-11-01. They filter on
+publishedAt. Digg search covers the last 90 days. --sort is relevance
+(default), score (highest Digg Score first) or newest. --limit may exceed
+one page; search follows Digg's cursor until it has that many results or
+the matches run out.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  digg-pp-cli search "openai gpt-5"
   digg-pp-cli search "<topic>" --since 30d --agent
-  digg-pp-cli search "claude" --topic ai,tech --since 7d --json
-  digg-pp-cli search "robotics" --json --select clusterUrlId,title,rank,postCount
-  digg-pp-cli search "claude" --data-source local`,
+  digg-pp-cli search "claude" --topic ai,tech --since 7d --sort score --json
+  digg-pp-cli search "world cup" --topic sports --since 2026-11-01 --until 2026-11-08
+  digg-pp-cli search "robotics" --limit 120 --json --select title,diggScore,url`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			query := strings.TrimSpace(strings.Join(args, " "))
-			if query == "" {
-				return usageErr(fmt.Errorf("query is required (e.g. `digg-pp-cli search \"openai\"`)"))
+			if n := utf8.RuneCountInString(query); n < searchQueryMin || n > searchQueryMax {
+				return usageErr(fmt.Errorf("query must be %d to %d characters, got %d (e.g. `digg-pp-cli search \"openai\"`)", searchQueryMin, searchQueryMax, n))
 			}
 			if err := validateTopics(topics); err != nil {
 				return err
 			}
-			// Parse --since up front so a malformed value is a usage error
-			// before any network or store work. Zero means no window.
-			var since time.Duration
-			if s := strings.TrimSpace(sinceStr); s != "" {
-				d, err := cliutil.ParseDiggAge(s)
-				if err != nil {
-					return usageErr(fmt.Errorf("--since %q: %w (accepts Nh, Nd, Nw, Nm; e.g. 30d)", sinceStr, err))
-				}
-				since = d
+			if !slices.Contains(searchSorts, sortBy) {
+				return usageErr(fmt.Errorf("invalid --sort %q; valid: %s", sortBy, strings.Join(searchSorts, ", ")))
+			}
+			if limit < 1 {
+				return usageErr(fmt.Errorf("--limit must be at least 1, got %d", limit))
+			}
+			now := time.Now()
+			callArgs, err := searchWindowArgs(sinceStr, untilStr, now)
+			if err != nil {
+				return err
 			}
 			if dryRunOK(flags) {
 				return nil
 			}
+			callArgs["query"] = query
+			callArgs["sort"] = sortBy
+			// Digg reads a missing topic, like "all", as every topic.
+			metaTopics := []string{"all"}
+			if len(topics) > 0 && !slices.Contains(topics, "all") {
+				callArgs["topic"] = topics
+				metaTopics = topics
+			}
+			meta := map[string]any{
+				"source": "live",
+				"stale":  false,
+				"query":  query,
+				"count":  0,
+				"topics": metaTopics,
+				"sort":   sortBy,
+			}
+			if sinceStr != "" {
+				meta["since"] = sinceStr
+			}
+			if untilStr != "" {
+				meta["until"] = untilStr
+			}
+			// fail prints the envelope with the error in it, so a JSON
+			// reader never mistakes a failed search for an empty one.
+			fail := func(err error) error {
+				if flags.asJSON {
+					meta["error"] = err.Error()
+					_ = printJSONFiltered(cmd.OutOrStdout(), searchEnvelope{Meta: meta, Results: []searchResult{}}, flags)
+				}
+				var rl *cliutil.RateLimitError
+				if errors.As(err, &rl) {
+					return rateLimitErr(err)
+				}
+				return apiErr(err)
+			}
+
 			ctx := cmd.Context()
-			feedRange := feedRangeFor(since)
-
-			_, db, closeFn, err := openStore(ctx)
+			mc, err := newDiggMCPClient(flags)
 			if err != nil {
 				return err
 			}
-			defer closeFn()
-
-			// Freshness per topic.
-			var staleTopics []string
-			var oldestSync time.Time
-			for _, t := range topics {
-				at, ok, err := topicSyncedAt(db, t, feedRange)
+			results := make([]searchResult, 0, limit)
+			for cursor, first := "", true; len(results) < limit; first = false {
+				callArgs["limit"] = min(searchPageMax, limit-len(results))
+				if cursor != "" {
+					callArgs["cursor"] = cursor
+				}
+				raw, err := mc.Call(ctx, diggSearchTool, callArgs)
 				if err != nil {
-					return err
+					return fail(err)
 				}
-				if !ok || time.Since(at) > searchFreshFor {
-					staleTopics = append(staleTopics, t)
+				var page diggSearchPage
+				if err := json.Unmarshal(raw, &page); err != nil {
+					return fail(fmt.Errorf("%s: unreadable result: %w", diggSearchTool, err))
 				}
-				if ok && (oldestSync.IsZero() || at.Before(oldestSync)) {
-					oldestSync = at
+				if first {
+					meta["totalMatches"] = page.TotalMatches
+					if len(page.Window) > 0 {
+						meta["window"] = page.Window
+					}
+					if page.Sort != "" {
+						meta["sort"] = page.Sort
+					}
 				}
+				for _, p := range page.Posts {
+					results = append(results, searchResultFor(p, now))
+				}
+				// An empty page with a cursor would otherwise loop forever.
+				if page.NextCursor == nil || *page.NextCursor == "" || len(page.Posts) == 0 {
+					break
+				}
+				cursor = *page.NextCursor
 			}
+			if len(results) > limit {
+				results = results[:limit]
+			}
+			meta["count"] = len(results)
 
-			fresh := len(staleTopics) == 0
-			ds := flags.dataSource
-			if ds == "" {
-				ds = "auto"
-			}
-			topUp := ds == "live" || (ds == "auto" && !fresh)
-
-			var window time.Time
-			if since > 0 {
-				window = time.Now().Add(-since)
-			}
-			storedBefore, err := diggstore.CountTopicStories(db, topics, window)
-			if err != nil {
-				return err
-			}
-
-			source := "local"
-			pages := 0
-			var topUpErr error
-			if topUp {
-				pages, topUpErr = searchTopUp(ctx, flags, db, topics, feedRange)
-				switch {
-				case pages > 0 && storedBefore == 0:
-					source = "live"
-				case pages > 0:
-					source = "local+live"
-				}
-				if topUpErr != nil && ds == "live" && pages == 0 {
-					return fmt.Errorf("live feed fetch failed: %w", topUpErr)
-				}
-			}
-			// A stale or never-synced section with nothing stored in the
-			// window and no live pages is missing data, not an empty result.
-			// A fresh sync with nothing in the window really has no matches.
-			if !fresh && storedBefore == 0 && pages == 0 {
-				reason := "no completed sync"
-				if topUpErr != nil {
-					reason = fmt.Sprintf("the live feed is unreachable (%v)", topUpErr)
-				} else if ds == "local" {
-					reason = "--data-source local skips the live feed"
-				}
-				return fmt.Errorf("no stored stories for %s in the requested window and %s; run `digg-pp-cli sync --topics %s`",
-					strings.Join(topics, ","), reason, strings.Join(topics, ","))
-			}
-			if topUpErr != nil {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warn: live feed top-up failed: %v\n", topUpErr)
-			}
-			if !fresh {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warn: local copy of %s has no completed sync in the last %d hours; results may miss stories. Run `digg-pp-cli sync --topics %s`.\n",
-					strings.Join(staleTopics, ","), int(searchFreshFor.Hours()), strings.Join(staleTopics, ","))
-			}
-
-			matches, err := diggstore.SearchFeedStories(db, query, topics, window, limit)
-			if err != nil {
-				return err
-			}
-			now := time.Now()
-			results := make([]searchResult, 0, len(matches))
-			for _, m := range matches {
-				results = append(results, searchResult{
-					ClusterID:     m.ClusterID,
-					ClusterURLID:  m.ClusterURLID,
-					Title:         m.Title,
-					TLDR:          m.TLDR,
-					Rank:          m.Rank,
-					PostCount:     m.PostCount,
-					UniqueAuthors: m.UniqueAuthors,
-					FirstPostAge:  formatStoryAge(now.Sub(m.CreatedAt)),
-				})
+			// Best-effort: several searches may share one store, and a
+			// failed write must not cost the caller its results.
+			if err := recordSearchRefs(ctx, results); err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warn: could not record story ids in the local store: %v\n", err)
 			}
 
 			if flags.asJSON {
-				meta := map[string]any{
-					"source": source,
-					"query":  query,
-					"count":  len(results),
-					"topics": topics,
-					"stale":  !fresh,
-				}
-				if !oldestSync.IsZero() {
-					meta["synced_at"] = oldestSync.UTC().Format(time.RFC3339)
-				}
-				if sinceStr != "" {
-					meta["since"] = sinceStr
-				}
 				return printJSONFiltered(cmd.OutOrStdout(), searchEnvelope{Meta: meta, Results: results}, flags)
 			}
 			if len(results) == 0 {
-				return emptyHint(cmd, fmt.Sprintf("no matches for %q in %s (source=%s). Try a different query or `digg-pp-cli sync --topics %s`.",
-					query, strings.Join(topics, ","), source, strings.Join(topics, ",")))
+				return emptyHint(cmd, fmt.Sprintf("no matches for %q in %s. Try a different query or a wider --since.", query, strings.Join(metaTopics, ",")))
 			}
 			for _, r := range results {
-				fmt.Fprintf(cmd.OutOrStdout(), "#%d  %s  [%s]\n", r.Rank, firstNonEmpty(r.Title, r.ClusterURLID), r.ClusterURLID)
+				score := "-"
+				if r.DiggScore != nil {
+					score = strconv.FormatFloat(*r.DiggScore, 'f', -1, 64)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "%s  [%s]\n", firstNonEmpty(r.Title, r.ClusterURLID), r.Topic)
 				if r.TLDR != "" {
 					fmt.Fprintf(cmd.OutOrStdout(), "    %s\n", diggTruncate(r.TLDR, 200))
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "    posts=%d  authors=%d  age=%s\n", r.PostCount, r.UniqueAuthors, r.FirstPostAge)
+				fmt.Fprintf(cmd.OutOrStdout(), "    score=%s  sources=%d  authors=%d  age=%s  %s\n", score, r.SourceCount, r.UniqueAuthors, r.FirstPostAge, r.URL)
 			}
 			return nil
 		},
 	}
-	cmd.Flags().IntVar(&limit, "limit", 20, "Max number of results")
-	cmd.Flags().StringVar(&sinceStr, "since", "", "Filter to stories that started within this window. Accepts Nh, Nd, Nw, Nm (e.g. 30d, 1w, 12h, 1m). Default empty (no filter).")
-	cmd.Flags().StringSliceVar(&topics, "topic", []string{"ai"}, "Comma-separated Digg sections to search (valid: "+strings.Join(validTopicSlugs(), ", ")+")")
+	cmd.Flags().IntVar(&limit, "limit", 20, "Max number of results; may exceed one page of 50")
+	cmd.Flags().StringVar(&sinceStr, "since", "", "Only stories published at or after this: a duration back from now (30d, 1w, 12h, 1m) or an ISO date (2026-11-01). At most 90 days back. Default empty (no filter).")
+	cmd.Flags().StringVar(&untilStr, "until", "", "Only stories published before this: a duration back from now or an ISO date. Default empty (no filter).")
+	cmd.Flags().StringVar(&sortBy, "sort", "relevance", "Order: relevance | score | newest")
+	cmd.Flags().StringSliceVar(&topics, "topic", nil, "Comma-separated Digg topics to search (valid: "+strings.Join(validTopicSlugs(), ", ")+"). Default: every topic.")
 	return cmd
-}
-
-// searchTopUp fetches up to searchTopUpPages live feed pages split across
-// topics and stores them. It never records freshness: a top-up sees only
-// the highest-ranked stories, so it must not stand in for a sync. It
-// returns the pages stored and the first error hit. Running out of
-// searchTopUpBudget ends the top-up with the pages stored so far.
-func searchTopUp(ctx context.Context, flags *rootFlags, db *sql.DB, topics []string, feedRange string) (int, error) {
-	c, err := flags.newClient()
-	if err != nil {
-		return 0, err
-	}
-	ctx, cancel := context.WithTimeout(ctx, searchTopUpBudget)
-	defer cancel()
-	perTopic := searchTopUpPages / len(topics)
-	if perTopic < 1 {
-		perTopic = 1
-	}
-	pages := 0
-	var firstErr error
-	for i, t := range topics {
-		if i*perTopic >= searchTopUpPages {
-			break
-		}
-		res, err := walkFeed(ctx, c, client.FeedParams{Topic: t, View: "top", Range: feedRange}, perTopic, func(p *client.FeedPage) error {
-			return diggstore.UpsertFeedPageContext(ctx, db, p.Posts, t, feedRange, time.Now())
-		})
-		pages += res.Pages
-		budgetSpent := ctx.Err() != nil
-		// The budget running out is how the top-up ends, not a failure;
-		// any other error still is.
-		if err != nil && firstErr == nil && !(budgetSpent && errors.Is(err, ctx.Err())) {
-			firstErr = fmt.Errorf("%s: %w", t, err)
-		}
-		if budgetSpent {
-			if firstErr == nil && pages == 0 {
-				firstErr = fmt.Errorf("%s: no feed page within %s: %w", t, searchTopUpBudget, ctx.Err())
-			}
-			break
-		}
-	}
-	return pages, firstErr
 }
 
 // ============== events ==============

@@ -1,7 +1,6 @@
-// Tests for the `search` command. Search reads the local copy of Digg's
-// story feed and tops it up from /api/feed/continuous when a requested
-// topic has no recent completed sync. Each test seeds a temp store and
-// points the feed at an httptest stub via feedURLOverride.
+// Tests for the `search` command. Search calls Digg's digg_search_posts
+// tool and reads no local copy. Each test points the command at an
+// httptest stub of Digg's MCP server via diggMCPURLOverride.
 
 package cli
 
@@ -10,128 +9,152 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggstore"
 )
 
-// searchEnvelopeForTest mirrors the JSON shape printed by `search`.
-type searchEnvelopeForTest struct {
-	Meta    map[string]any `json:"meta"`
-	Results []struct {
-		ClusterID     string `json:"clusterId"`
-		ClusterURLID  string `json:"clusterUrlId"`
-		Title         string `json:"title,omitempty"`
-		TLDR          string `json:"tldr,omitempty"`
-		Rank          int    `json:"rank,omitempty"`
-		PostCount     int    `json:"postCount,omitempty"`
-		UniqueAuthors int    `json:"uniqueAuthors,omitempty"`
-		FirstPostAge  string `json:"firstPostAge,omitempty"`
-	} `json:"results"`
+// stubPost is one story the stub server knows. score < 0 and firstSource
+// "" stand for the nulls Digg sends when it has no score or no source date.
+type stubPost struct {
+	id, shortID, topic, title string
+	score                     int
+	age                       time.Duration
+	firstSource               string
 }
 
-type testStory struct {
-	id, title, desc string
-	age             time.Duration
+func (p stubPost) json() map[string]any {
+	published := time.Now().Add(-p.age).UTC().Format(time.RFC3339)
+	out := map[string]any{
+		"id": p.id, "url": "https://digg.com/" + p.topic + "/" + p.shortID, "topic": p.topic,
+		"title": p.title, "description": "About " + p.title, "tldr": "Short: " + p.title,
+		"feedEntryAt": published, "publishedAt": published, "updatedAt": published,
+		"diggScore": nil, "sourceCount": 14, "uniqueAuthors": 9, "firstSourceAt": nil,
+	}
+	if p.score >= 0 {
+		out["diggScore"] = p.score
+	}
+	if p.firstSource != "" {
+		out["firstSourceAt"] = p.firstSource
+	}
+	return out
 }
 
-func (s testStory) json() map[string]any {
-	return map[string]any{
-		"clusterId": s.id, "clusterUrlId": "u-" + s.id, "rank": 3, "diggScore": 50,
-		"createdAt": time.Now().Add(-s.age).UTC().Format(time.RFC3339),
-		"postCount": 14, "uniqueAuthors": 9,
-		"summary": map[string]string{"title": s.title, "description": s.desc},
-	}
-}
-
-func (s testStory) feedStory(t *testing.T) client.FeedStory {
-	t.Helper()
-	b, _ := json.Marshal(s.json())
-	var fs client.FeedStory
-	if err := json.Unmarshal(b, &fs); err != nil {
-		t.Fatal(err)
-	}
-	return fs
-}
-
-// seedTopic stores stories under topic. fresh records a completed 30d
-// sync just now, so search treats the topic as current.
-func seedTopic(t *testing.T, topic string, fresh bool, stories ...testStory) {
-	t.Helper()
-	db, err := sql.Open("sqlite", defaultDBPath("digg-pp-cli"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-	if err := diggstore.EnsureSchema(db); err != nil {
-		t.Fatal(err)
-	}
-	var page []client.FeedStory
-	for _, s := range stories {
-		page = append(page, s.feedStory(t))
-	}
-	if err := diggstore.UpsertFeedPage(db, page, topic, "30d", time.Now()); err != nil {
-		t.Fatal(err)
-	}
-	if fresh {
-		if err := diggstore.MarkFeedSynced(db, topic, "30d", len(stories), time.Now()); err != nil {
-			t.Fatal(err)
+// manyPosts returns n stories in topic with distinct ids and scores.
+func manyPosts(n int, topic string) []stubPost {
+	posts := make([]stubPost, n)
+	for i := range posts {
+		posts[i] = stubPost{
+			id: fmt.Sprintf("00000000-0000-7000-8000-%012d", i), shortID: fmt.Sprintf("%s%04d", topic, i),
+			topic: topic, title: fmt.Sprintf("Story %d", i), score: (i * 37) % 101, age: 2 * time.Hour,
 		}
 	}
+	return posts
 }
 
-// feedStub serves the same stories on every feed page and never ends the
-// cursor, so a walk only stops at its page budget. fail makes every
-// request return HTTP 500.
-type feedStub struct {
-	stories []testStory
-	fail    bool
-	delay   time.Duration
-	mu      sync.Mutex
-	queries []string
+// searchStub is a stand-in for Digg's MCP server. It filters by topic,
+// orders by score when asked, and pages by the requested limit using the
+// offset as the cursor. fail makes every call a tool error.
+type searchStub struct {
+	posts []stubPost
+	fail  bool
+	mu    sync.Mutex
+	calls []map[string]any
 }
 
-func (f *feedStub) serve(t *testing.T) string {
+func (s *searchStub) serve(t *testing.T) string {
 	t.Helper()
-	page := 0
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		f.mu.Lock()
-		f.queries = append(f.queries, r.URL.RawQuery)
-		page++
-		n := page
-		f.mu.Unlock()
-		time.Sleep(f.delay)
-		if f.fail {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+		var req struct {
+			Params struct {
+				Name      string         `json:"name"`
+				Arguments map[string]any `json:"arguments"`
+			} `json:"params"`
 		}
-		posts := []map[string]any{}
-		for _, s := range f.stories {
-			posts = append(posts, s.json())
+		body, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(body, &req)
+		args := req.Params.Arguments
+		s.mu.Lock()
+		s.calls = append(s.calls, args)
+		s.mu.Unlock()
+
+		var result map[string]any
+		if s.fail || req.Params.Name != "digg_search_posts" {
+			result = map[string]any{"isError": true, "content": []map[string]any{{"type": "text", "text": "search is unavailable"}}}
+		} else {
+			result = map[string]any{"structuredContent": s.page(args)}
 		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"nextCursor": fmt.Sprintf("c%d", n), "posts": posts})
+		reply, _ := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 1, "result": result})
+		w.Header().Set("Content-Type", "text/event-stream")
+		fmt.Fprintf(w, "event: message\ndata: %s\n\n", reply)
 	}))
 	t.Cleanup(srv.Close)
 	return srv.URL
 }
 
-func (f *feedStub) hits() int {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	return len(f.queries)
+func (s *searchStub) page(args map[string]any) map[string]any {
+	var matched []stubPost
+	topics, filtered := args["topic"].([]any)
+	for _, p := range s.posts {
+		keep := !filtered
+		for _, tp := range topics {
+			if tp == p.topic {
+				keep = true
+			}
+		}
+		if keep {
+			matched = append(matched, p)
+		}
+	}
+	if args["sort"] == "score" {
+		sort.SliceStable(matched, func(i, j int) bool { return matched[i].score > matched[j].score })
+	}
+	offset := 0
+	if c, ok := args["cursor"].(string); ok {
+		offset, _ = strconv.Atoi(c)
+	}
+	limit := 10
+	if l, ok := args["limit"].(float64); ok {
+		limit = int(l)
+	}
+	end := min(offset+limit, len(matched))
+	posts := []map[string]any{}
+	for _, p := range matched[min(offset, end):end] {
+		posts = append(posts, p.json())
+	}
+	var next any
+	if end < len(matched) {
+		next = strconv.Itoa(end)
+	}
+	return map[string]any{
+		"posts": posts, "nextCursor": next, "totalMatches": len(matched),
+		"window": map[string]string{"since": "2026-10-12T00:00:00.000Z", "until": "2026-11-11T00:00:00.000Z"},
+		"sort":   "relevance",
+	}
 }
 
-func runSearchCmd(t *testing.T, feedURL string, args ...string) (string, string, error) {
+func (s *searchStub) requests() []map[string]any {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]map[string]any(nil), s.calls...)
+}
+
+func runSearchCmd(t *testing.T, mcpURL string, args ...string) (string, string, error) {
 	t.Helper()
-	prev := feedURLOverride
-	feedURLOverride = feedURL
-	t.Cleanup(func() { feedURLOverride = prev })
+	prev := diggMCPURLOverride
+	diggMCPURLOverride = mcpURL
+	t.Cleanup(func() { diggMCPURLOverride = prev })
 
 	var flags rootFlags
 	root := newRootCmd(&flags)
@@ -143,29 +166,31 @@ func runSearchCmd(t *testing.T, feedURL string, args ...string) (string, string,
 	return stdout.String(), stderr.String(), err
 }
 
-func decodeSearch(t *testing.T, stdout string) searchEnvelopeForTest {
+// searchOutput is the printed envelope, decoded loosely so tests can
+// assert which keys are present.
+type searchOutput struct {
+	Meta    map[string]any   `json:"meta"`
+	Results []map[string]any `json:"results"`
+}
+
+func decodeSearch(t *testing.T, stdout string) searchOutput {
 	t.Helper()
-	var env searchEnvelopeForTest
+	var env searchOutput
 	if err := json.Unmarshal([]byte(stdout), &env); err != nil {
 		t.Fatalf("invalid JSON: %v\n%s", err, stdout)
 	}
 	return env
 }
 
-func resultIDs(env searchEnvelopeForTest) []string {
-	ids := []string{}
-	for _, r := range env.Results {
-		ids = append(ids, r.ClusterID)
-	}
-	return ids
-}
-
-// The exact call last30days makes, asserting every field lib/digg.py reads.
+// The exact call last30days 3.36.1 makes. This pins the envelope older
+// skill versions read plus the fields added for Digg's engagement numbers.
 func TestSearchLast30daysCallShape(t *testing.T) {
 	withTempHome(t)
-	seedTopic(t, "ai", true, testStory{"c1", "Claude Code ships plugins", "Anthropic adds a plugin system", 3 * 24 * time.Hour})
-	stub := &feedStub{}
-	stdout, _, err := runSearchCmd(t, stub.serve(t), "claude", "--since", "30d", "--agent", "--limit", "5")
+	stub := &searchStub{posts: []stubPost{{
+		id: "0190a1b2-c3d4-7e5f-8a6b-000000000001", shortID: "ab12cd34", topic: "ai",
+		title: "Gemini 3 ships", score: 87, age: 3 * 24 * time.Hour, firstSource: "2026-11-08T09:30:00.000Z",
+	}}}
+	stdout, _, err := runSearchCmd(t, stub.serve(t), "gemini", "--topic", "ai,tech", "--since", "30d", "--agent", "--limit", "20")
 	if err != nil {
 		t.Fatalf("search: %v", err)
 	}
@@ -174,189 +199,407 @@ func TestSearchLast30daysCallShape(t *testing.T) {
 		t.Fatalf("got %d results, want 1: %s", len(env.Results), stdout)
 	}
 	r := env.Results[0]
-	if r.ClusterURLID != "u-c1" || r.Title != "Claude Code ships plugins" || r.TLDR != "Anthropic adds a plugin system" ||
-		r.Rank != 3 || r.PostCount != 14 || r.UniqueAuthors != 9 || r.FirstPostAge != "3d" {
-		t.Fatalf("result fields wrong: %+v", r)
+	want := map[string]any{
+		// Keys older skill versions read.
+		"clusterId":     "0190a1b2-c3d4-7e5f-8a6b-000000000001",
+		"clusterUrlId":  "ab12cd34",
+		"title":         "Gemini 3 ships",
+		"tldr":          "Short: Gemini 3 ships",
+		"postCount":     float64(14),
+		"uniqueAuthors": float64(9),
+		"firstPostAge":  "3d",
+		// Keys added with live search.
+		"url":           "https://digg.com/ai/ab12cd34",
+		"topic":         "ai",
+		"diggScore":     float64(87),
+		"sourceCount":   float64(14),
+		"firstSourceAt": "2026-11-08T09:30:00.000Z",
+		"description":   "About Gemini 3 ships",
 	}
-	if env.Meta["source"] != "local" || env.Meta["stale"] != false {
-		t.Fatalf("meta = %v, want source=local stale=false", env.Meta)
+	for k, v := range want {
+		if r[k] != v {
+			t.Errorf("results[0].%s = %v, want %v", k, r[k], v)
+		}
 	}
-	if stub.hits() != 0 {
-		t.Fatalf("fresh store made %d feed requests, want 0", stub.hits())
+	if at, err := time.Parse(time.RFC3339, fmt.Sprint(r["publishedAt"])); err != nil || time.Since(at) < 71*time.Hour || time.Since(at) > 73*time.Hour {
+		t.Errorf("results[0].publishedAt = %v, want the story's publish time 3 days ago", r["publishedAt"])
+	}
+	if _, has := r["rank"]; has {
+		t.Errorf("results carry no rank, got %v", r["rank"])
+	}
+	if env.Meta["source"] != "live" || env.Meta["stale"] != false {
+		t.Errorf("meta = %v, want source=live stale=false", env.Meta)
+	}
+	if env.Meta["totalMatches"] != float64(1) || env.Meta["sort"] != "relevance" {
+		t.Errorf("meta = %v, want totalMatches=1 sort=relevance", env.Meta)
+	}
+	window, _ := env.Meta["window"].(map[string]any)
+	if window["since"] != "2026-10-12T00:00:00.000Z" || window["until"] != "2026-11-11T00:00:00.000Z" {
+		t.Errorf("meta.window = %v, want the window Digg resolved", env.Meta["window"])
+	}
+
+	reqs := stub.requests()
+	if len(reqs) != 1 {
+		t.Fatalf("made %d requests, want 1", len(reqs))
+	}
+	a := reqs[0]
+	if a["query"] != "gemini" || a["range"] != "30d" || a["limit"] != float64(20) || fmt.Sprint(a["topic"]) != "[ai tech]" {
+		t.Errorf("request arguments = %v", a)
+	}
+	if _, has := a["since"]; has {
+		t.Errorf("--since 30d should travel as range, got since=%v", a["since"])
 	}
 }
 
-func TestSearchStaleStoreTopsUpFromFeed(t *testing.T) {
+func TestSearchFollowsCursorPastOnePage(t *testing.T) {
 	withTempHome(t)
-	seedTopic(t, "ai", false, testStory{"stored", "Claude stored story", "", 24 * time.Hour})
-	stub := &feedStub{stories: []testStory{{"live", "Claude live story", "", time.Hour}}}
-	stdout, _, err := runSearchCmd(t, stub.serve(t), "claude", "--json")
+	stub := &searchStub{posts: manyPosts(120, "ai")}
+	stdout, _, err := runSearchCmd(t, stub.serve(t), "story", "--limit", "120", "--json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	env := decodeSearch(t, stdout)
-	ids := strings.Join(resultIDs(env), ",")
-	if !strings.Contains(ids, "stored") || !strings.Contains(ids, "live") {
-		t.Fatalf("results %s, want both the stored and the topped-up story", ids)
+	seen := map[any]bool{}
+	for _, r := range env.Results {
+		seen[r["clusterId"]] = true
 	}
-	if env.Meta["source"] != "local+live" {
-		t.Fatalf("meta.source = %v, want local+live", env.Meta["source"])
+	if len(env.Results) != 120 || len(seen) != 120 {
+		t.Fatalf("got %d results with %d distinct clusterIds, want 120 and 120", len(env.Results), len(seen))
 	}
-	if env.Meta["stale"] != true {
-		t.Fatalf("a top-up does not replace a sync; meta.stale = %v, want true", env.Meta["stale"])
+	var limits []any
+	for _, a := range stub.requests() {
+		limits = append(limits, a["limit"])
+	}
+	if fmt.Sprint(limits) != "[50 50 20]" {
+		t.Fatalf("page limits = %v, want [50 50 20]", limits)
 	}
 }
 
-func TestSearchStaleStoreWithFailingFeedServesStoredRows(t *testing.T) {
+func TestSearchStopsWhenMatchesRunOut(t *testing.T) {
 	withTempHome(t)
-	seedTopic(t, "ai", false, testStory{"stored", "Claude stored story", "", 24 * time.Hour})
-	stub := &feedStub{fail: true}
-	stdout, stderr, err := runSearchCmd(t, stub.serve(t), "claude", "--json")
+	stub := &searchStub{posts: manyPosts(70, "ai")}
+	stdout, _, err := runSearchCmd(t, stub.serve(t), "story", "--limit", "120", "--json")
 	if err != nil {
-		t.Fatalf("search should still answer from the store: %v", err)
+		t.Fatalf("fewer matches than --limit is not an error: %v", err)
 	}
 	env := decodeSearch(t, stdout)
-	if len(env.Results) != 1 || env.Meta["stale"] != true || env.Meta["source"] != "local" {
-		t.Fatalf("results=%v meta=%v, want the stored row, stale=true, source=local", resultIDs(env), env.Meta)
-	}
-	if !strings.Contains(stderr, "sync") {
-		t.Fatalf("stderr %q should warn that the copy is stale and suggest sync", stderr)
+	if len(env.Results) != 70 || env.Meta["count"] != float64(70) {
+		t.Fatalf("got %d results (meta.count %v), want 70", len(env.Results), env.Meta["count"])
 	}
 }
 
-func TestSearchEmptyStoreWithFailingFeedErrors(t *testing.T) {
+func TestSearchTopicFilter(t *testing.T) {
 	withTempHome(t)
-	stub := &feedStub{fail: true}
-	_, _, err := runSearchCmd(t, stub.serve(t), "claude", "--json")
-	if err == nil || !strings.Contains(err.Error(), "sync") {
-		t.Fatalf("err = %v, want a failure telling the user to run sync", err)
-	}
-}
+	stub := &searchStub{posts: append(manyPosts(2, "ai"), manyPosts(2, "sports")...)}
+	url := stub.serve(t)
 
-func TestSearchTopicScopesResults(t *testing.T) {
-	withTempHome(t)
-	seedTopic(t, "ai", true, testStory{"ai-1", "Claude news", "", time.Hour})
-	seedTopic(t, "sports", true, testStory{"sp-1", "Claude scores a goal", "", time.Hour})
-	stdout, _, err := runSearchCmd(t, (&feedStub{}).serve(t), "claude", "--topic", "sports", "--json")
+	stdout, _, err := runSearchCmd(t, url, "story", "--json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if ids := resultIDs(decodeSearch(t, stdout)); len(ids) != 1 || ids[0] != "sp-1" {
-		t.Fatalf("results %v, want only the sports story", ids)
+	if _, has := stub.requests()[0]["topic"]; has {
+		t.Fatalf("no --topic should send no topic filter, sent %v", stub.requests()[0]["topic"])
 	}
-}
+	if n := len(decodeSearch(t, stdout).Results); n != 4 {
+		t.Fatalf("got %d results across every topic, want 4", n)
+	}
 
-func TestSearchSinceFiltersOnCreatedAt(t *testing.T) {
-	withTempHome(t)
-	seedTopic(t, "ai", true,
-		testStory{"new", "Claude new", "", 24 * time.Hour},
-		testStory{"old", "Claude old", "", 3 * 24 * time.Hour})
-	stdout, _, err := runSearchCmd(t, (&feedStub{}).serve(t), "claude", "--since", "2d", "--json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if ids := resultIDs(decodeSearch(t, stdout)); len(ids) != 1 || ids[0] != "new" {
-		t.Fatalf("results %v, want only the 1-day-old story", ids)
-	}
-}
-
-func TestSearchLongSinceTopsUpWithAllRange(t *testing.T) {
-	withTempHome(t)
-	stub := &feedStub{stories: []testStory{{"live", "Claude live", "", time.Hour}}}
-	if _, _, err := runSearchCmd(t, stub.serve(t), "claude", "--since", "45d", "--json"); err != nil {
-		t.Fatal(err)
-	}
-	if stub.hits() == 0 || !strings.Contains(stub.queries[0], "range=all") {
-		t.Fatalf("queries %v, want the top-up to request range=all", stub.queries)
-	}
-}
-
-func TestSearchAgeComesFromWallClock(t *testing.T) {
-	withTempHome(t)
-	// Stored long ago when the story was younger; age must be measured now.
-	seedTopic(t, "ai", true, testStory{"aged", "Claude aged story", "", 35 * 24 * time.Hour})
-	stub := &feedStub{}
-	stdout, _, err := runSearchCmd(t, stub.serve(t), "claude", "--json")
+	stdout, _, err = runSearchCmd(t, url, "story", "--topic", "sports", "--json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	env := decodeSearch(t, stdout)
-	if len(env.Results) != 1 || env.Results[0].FirstPostAge != "35d" {
-		t.Fatalf("results %+v, want one story aged 35d", env.Results)
+	if len(env.Results) != 2 {
+		t.Fatalf("got %d results, want the 2 sports stories", len(env.Results))
 	}
-	stdout, _, err = runSearchCmd(t, stub.serve(t), "claude", "--since", "30d", "--json")
+	for _, r := range env.Results {
+		if r["topic"] != "sports" {
+			t.Fatalf("--topic sports returned a %v story", r["topic"])
+		}
+	}
+}
+
+func TestSearchSinceWindowArguments(t *testing.T) {
+	withTempHome(t)
+	stub := &searchStub{posts: manyPosts(1, "ai")}
+	url := stub.serve(t)
+
+	if _, _, err := runSearchCmd(t, url, "story", "--since", "45d", "--json"); err != nil {
+		t.Fatal(err)
+	}
+	a := stub.requests()[0]
+	since, err := time.Parse(time.RFC3339, fmt.Sprint(a["since"]))
+	if err != nil {
+		t.Fatalf("--since 45d sent since=%v, want an ISO 8601 datetime", a["since"])
+	}
+	if off := time.Since(since) - 45*24*time.Hour; off < 0 || off > time.Minute {
+		t.Fatalf("since = %s, want 45 days ago", since)
+	}
+	if _, has := a["range"]; has {
+		t.Fatalf("--since 45d must not send range, sent %v", a["range"])
+	}
+
+	if _, _, err := runSearchCmd(t, url, "story", "--since", "30d", "--json"); err != nil {
+		t.Fatal(err)
+	}
+	a = stub.requests()[1]
+	if _, has := a["since"]; a["range"] != "30d" || has {
+		t.Fatalf("--since 30d sent %v, want range=30d and no since", a)
+	}
+}
+
+func TestSearchUntilSendsAbsoluteWindow(t *testing.T) {
+	withTempHome(t)
+	stub := &searchStub{posts: manyPosts(1, "ai")}
+	until := time.Now().Add(-10 * 24 * time.Hour).UTC().Format("2006-01-02")
+	if _, _, err := runSearchCmd(t, stub.serve(t), "story", "--since", "30d", "--until", until, "--json"); err != nil {
+		t.Fatal(err)
+	}
+	a := stub.requests()[0]
+	if _, has := a["range"]; has {
+		t.Fatalf("--until must never travel with range, sent %v", a)
+	}
+	since, err := time.Parse(time.RFC3339, fmt.Sprint(a["since"]))
+	if err != nil {
+		t.Fatalf("since = %v, want an ISO 8601 datetime", a["since"])
+	}
+	if off := time.Since(since) - 30*24*time.Hour; off < 0 || off > time.Minute {
+		t.Fatalf("since = %s, want 30 days ago", since)
+	}
+	if a["until"] != until+"T00:00:00Z" {
+		t.Fatalf("until = %v, want %sT00:00:00Z", a["until"], until)
+	}
+}
+
+func TestSearchSortScore(t *testing.T) {
+	withTempHome(t)
+	stub := &searchStub{posts: manyPosts(30, "ai")}
+	stdout, _, err := runSearchCmd(t, stub.serve(t), "story", "--sort", "score", "--limit", "30", "--json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if ids := resultIDs(decodeSearch(t, stdout)); len(ids) != 0 {
-		t.Fatalf("results %v, want the 35-day-old story excluded by --since 30d", ids)
+	if got := stub.requests()[0]["sort"]; got != "score" {
+		t.Fatalf("request sort = %v, want score", got)
+	}
+	env := decodeSearch(t, stdout)
+	if len(env.Results) != 30 {
+		t.Fatalf("got %d results, want 30", len(env.Results))
+	}
+	for i := 1; i < len(env.Results); i++ {
+		prev, cur := env.Results[i-1]["diggScore"].(float64), env.Results[i]["diggScore"].(float64)
+		if cur > prev {
+			t.Fatalf("results[%d].diggScore %v follows %v; want descending order", i, cur, prev)
+		}
 	}
 }
 
-func TestSearchTopUpPageBudget(t *testing.T) {
+func TestSearchOmitsNullScoreAndFirstSource(t *testing.T) {
 	withTempHome(t)
-	stub := &feedStub{stories: []testStory{{"live", "Claude live", "", time.Hour}}}
-	if _, _, err := runSearchCmd(t, stub.serve(t), "claude", "--topic", "ai,tech", "--json"); err != nil {
+	stub := &searchStub{posts: []stubPost{{id: "u-1", shortID: "nulls001", topic: "tech", title: "Unscored", score: -1, age: time.Hour}}}
+	stdout, _, err := runSearchCmd(t, stub.serve(t), "unscored", "--json")
+	if err != nil {
 		t.Fatal(err)
 	}
-	if h := stub.hits(); h == 0 || h > 8 {
-		t.Fatalf("top-up made %d feed requests, want 1 to 8", h)
+	r := decodeSearch(t, stdout).Results[0]
+	for _, k := range []string{"diggScore", "firstSourceAt"} {
+		if v, has := r[k]; has {
+			t.Errorf("results[0].%s = %v, want the key left out when Digg sends null", k, v)
+		}
+	}
+	if r["clusterUrlId"] != "nulls001" {
+		t.Errorf("clusterUrlId = %v", r["clusterUrlId"])
 	}
 }
 
-func TestSearchTopUpStopsAtTimeBudget(t *testing.T) {
+func TestSearchFirstPostAgeTokens(t *testing.T) {
 	withTempHome(t)
-	prev := searchTopUpBudget
-	searchTopUpBudget = 500 * time.Millisecond
-	t.Cleanup(func() { searchTopUpBudget = prev })
-	stub := &feedStub{stories: []testStory{{"live", "Claude live", "", time.Hour}}, delay: 200 * time.Millisecond}
-
-	start := time.Now()
-	stdout, _, err := runSearchCmd(t, stub.serve(t), "claude", "--json")
+	stub := &searchStub{posts: []stubPost{
+		{id: "u-1", shortID: "age00001", topic: "ai", title: "Minutes old", age: 45 * time.Minute},
+		{id: "u-2", shortID: "age00002", topic: "ai", title: "Days old", age: 3 * 24 * time.Hour},
+		{id: "u-3", shortID: "age00003", topic: "ai", title: "Weeks old", age: 40 * 24 * time.Hour},
+	}}
+	stdout, _, err := runSearchCmd(t, stub.serve(t), "old", "--json")
 	if err != nil {
-		t.Fatalf("search past its top-up budget should still answer: %v", err)
-	}
-	if elapsed := time.Since(start); elapsed > 2*time.Second {
-		t.Fatalf("search took %s, want the top-up cut off near its 500ms budget", elapsed)
-	}
-	if h := stub.hits(); h >= 8 {
-		t.Fatalf("top-up made %d feed requests, want the budget to stop it before the page cap", h)
-	}
-	if ids := resultIDs(decodeSearch(t, stdout)); len(ids) != 1 || ids[0] != "live" {
-		t.Fatalf("results %v, want the story stored before the budget ran out", ids)
-	}
-}
-
-func TestSearchTopUpBudgetCoversRateLimitWait(t *testing.T) {
-	withTempHome(t)
-	prev := searchTopUpBudget
-	searchTopUpBudget = 500 * time.Millisecond
-	t.Cleanup(func() { searchTopUpBudget = prev })
-	stub := &feedStub{stories: []testStory{{"live", "Claude live", "", time.Hour}}}
-
-	// At 0.5 req/s the second page would wait 2s for the limiter.
-	start := time.Now()
-	stdout, _, err := runSearchCmd(t, stub.serve(t), "claude", "--json", "--rate-limit", "0.5")
-	if err != nil {
-		t.Fatalf("search should answer once the budget ends: %v", err)
-	}
-	if elapsed := time.Since(start); elapsed > 1500*time.Millisecond {
-		t.Fatalf("search took %s, want the limiter wait cut off by the 500ms budget", elapsed)
-	}
-	if ids := resultIDs(decodeSearch(t, stdout)); len(ids) != 1 || ids[0] != "live" {
-		t.Fatalf("results %v, want the story from the first page", ids)
-	}
-}
-
-func TestSearchDataSourceLocalSkipsTopUp(t *testing.T) {
-	withTempHome(t)
-	seedTopic(t, "ai", false, testStory{"stored", "Claude stored", "", time.Hour})
-	stub := &feedStub{}
-	if _, _, err := runSearchCmd(t, stub.serve(t), "claude", "--data-source", "local", "--json"); err != nil {
 		t.Fatal(err)
 	}
-	if stub.hits() != 0 {
-		t.Fatalf("--data-source local made %d feed requests", stub.hits())
+	var ages []string
+	for _, r := range decodeSearch(t, stdout).Results {
+		ages = append(ages, fmt.Sprint(r["firstPostAge"]))
+	}
+	if strings.Join(ages, ",") != "1h,3d,40d" {
+		t.Fatalf("firstPostAge = %v, want [1h 3d 40d]", ages)
+	}
+}
+
+func TestSearchRejectsBadQueryBeforeAnyRequest(t *testing.T) {
+	withTempHome(t)
+	stub := &searchStub{posts: manyPosts(1, "ai")}
+	url := stub.serve(t)
+	for _, q := range []string{"ai", strings.Repeat("x", 121)} {
+		_, _, err := runSearchCmd(t, url, q, "--json")
+		if err == nil || ExitCode(err) != 2 {
+			t.Fatalf("query of %d chars: err = %v (exit %d), want a usage error", len(q), err, ExitCode(err))
+		}
+	}
+	if n := len(stub.requests()); n != 0 {
+		t.Fatalf("made %d requests for rejected queries, want 0", n)
+	}
+}
+
+func TestSearchRejectsWindowOlderThan90Days(t *testing.T) {
+	withTempHome(t)
+	stub := &searchStub{posts: manyPosts(1, "ai")}
+	url := stub.serve(t)
+	old := time.Now().Add(-100 * 24 * time.Hour).UTC().Format("2006-01-02")
+	for _, since := range []string{"91d", "4m", old} {
+		_, _, err := runSearchCmd(t, url, "story", "--since", since, "--json")
+		if err == nil || ExitCode(err) != 2 || !strings.Contains(err.Error(), "90 days") {
+			t.Fatalf("--since %s: err = %v, want a usage error naming the 90 day limit", since, err)
+		}
+	}
+	if n := len(stub.requests()); n != 0 {
+		t.Fatalf("made %d requests for rejected windows, want 0", n)
+	}
+}
+
+func TestSearchServerErrorIsNotAnEmptyResult(t *testing.T) {
+	withTempHome(t)
+	stub := &searchStub{fail: true}
+	stdout, _, err := runSearchCmd(t, stub.serve(t), "story", "--json")
+	if err == nil || ExitCode(err) == 0 {
+		t.Fatalf("err = %v, want a non-zero exit", err)
+	}
+	env := decodeSearch(t, stdout)
+	if msg, _ := env.Meta["error"].(string); !strings.Contains(msg, "search is unavailable") {
+		t.Fatalf("meta.error = %v, want the server's error", env.Meta["error"])
+	}
+}
+
+func TestSearchSelectFiltersResultsEnvelope(t *testing.T) {
+	withTempHome(t)
+	stub := &searchStub{posts: manyPosts(3, "ai")}
+	stdout, _, err := runSearchCmd(t, stub.serve(t), "story", "--json", "--select", "title,diggScore")
+	if err != nil {
+		t.Fatalf("search --select: %v", err)
+	}
+	env := decodeSearch(t, stdout)
+	if len(env.Results) != 3 {
+		t.Fatalf("got %d results, want 3: %s", len(env.Results), stdout)
+	}
+	for _, r := range env.Results {
+		_, hasTitle := r["title"]
+		_, hasScore := r["diggScore"]
+		if !hasTitle || !hasScore || len(r) != 2 {
+			t.Fatalf("selected result = %v, want only title and diggScore", r)
+		}
+	}
+}
+
+func TestSearchRecordsStoryIDs(t *testing.T) {
+	withTempHome(t)
+	posts := append(manyPosts(3, "ai"), manyPosts(2, "gaming")...)
+	if _, _, err := runSearchCmd(t, (&searchStub{posts: posts}).serve(t), "story", "--json"); err != nil {
+		t.Fatal(err)
+	}
+	db, err := sql.Open("sqlite", defaultDBPath("digg-pp-cli"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	for _, p := range posts {
+		ref, ok, err := diggstore.LookupPostRef(db, p.shortID)
+		if err != nil || !ok {
+			t.Fatalf("short id %s: ok=%v err=%v, want a record", p.shortID, ok, err)
+		}
+		if ref.ID != p.id || ref.Topic != p.topic {
+			t.Fatalf("short id %s recorded as %+v, want id %s topic %s", p.shortID, ref, p.id, p.topic)
+		}
+	}
+}
+
+func TestSearchUnwritableStoreStillReturnsResults(t *testing.T) {
+	// A file where the store's directory tree should start makes the
+	// store impossible to create, whoever runs the test.
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	if err := os.WriteFile(filepath.Join(home, ".local"), []byte("not a directory"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	stub := &searchStub{posts: manyPosts(3, "ai")}
+	stdout, stderr, err := runSearchCmd(t, stub.serve(t), "story", "--json")
+	if err != nil {
+		t.Fatalf("a store that cannot be written must not fail search: %v", err)
+	}
+	if n := len(decodeSearch(t, stdout).Results); n != 3 {
+		t.Fatalf("got %d results, want 3", n)
+	}
+	if !strings.Contains(stderr, "warn") || !strings.Contains(stderr, "story ids") {
+		t.Fatalf("stderr %q should warn that story ids were not recorded", stderr)
+	}
+}
+
+// TestSearchHelperProcess is not a test: it is the body of the child
+// processes TestSearchConcurrentProcessesShareOneStore starts.
+func TestSearchHelperProcess(t *testing.T) {
+	if os.Getenv("DIGG_SEARCH_HELPER") != "1" {
+		return
+	}
+	diggMCPURLOverride = os.Getenv("DIGG_SEARCH_HELPER_URL")
+	var flags rootFlags
+	root := newRootCmd(&flags)
+	root.SetArgs([]string{"search", "story", "--limit", "50", "--json"})
+	root.SetOut(os.Stdout)
+	root.SetErr(os.Stderr)
+	if err := root.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(ExitCode(err))
+	}
+	os.Exit(0)
+}
+
+func TestSearchConcurrentProcessesShareOneStore(t *testing.T) {
+	home := t.TempDir()
+	posts := manyPosts(50, "ai")
+	url := (&searchStub{posts: posts}).serve(t)
+
+	type outcome struct {
+		stdout, stderr string
+		err            error
+	}
+	outcomes := make([]outcome, 4)
+	var wg sync.WaitGroup
+	for i := range outcomes {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			cmd := exec.Command(os.Args[0], "-test.run=^TestSearchHelperProcess$")
+			cmd.Env = append(os.Environ(), "DIGG_SEARCH_HELPER=1", "DIGG_SEARCH_HELPER_URL="+url, "HOME="+home, "USERPROFILE="+home)
+			var stdout, stderr bytes.Buffer
+			cmd.Stdout, cmd.Stderr = &stdout, &stderr
+			err := cmd.Run()
+			outcomes[i] = outcome{stdout.String(), stderr.String(), err}
+		}()
+	}
+	wg.Wait()
+	for i, o := range outcomes {
+		if o.err != nil {
+			t.Fatalf("process %d: %v\nstderr: %s", i, o.err, o.stderr)
+		}
+		if n := len(decodeSearch(t, o.stdout).Results); n != 50 {
+			t.Fatalf("process %d returned %d results, want 50\nstderr: %s", i, n, o.stderr)
+		}
+		if strings.Contains(o.stderr, "warn") {
+			t.Fatalf("process %d could not record story ids: %s", i, o.stderr)
+		}
+	}
+	db, err := sql.Open("sqlite", filepath.Join(home, ".local", "share", "digg-pp-cli", "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if _, ok, err := diggstore.LookupPostRef(db, posts[49].shortID); err != nil || !ok {
+		t.Fatalf("shared store is missing a recorded story: ok=%v err=%v", ok, err)
 	}
 }
 
@@ -373,43 +616,5 @@ func TestSearchRejectsMalformedSince(t *testing.T) {
 	_, _, err := runSearchCmd(t, "http://127.0.0.1:1", "claude", "--since", "soon")
 	if err == nil || !strings.Contains(err.Error(), "--since") {
 		t.Fatalf("err = %v, want a --since usage error", err)
-	}
-}
-
-func TestSearchSelectFiltersResultsEnvelope(t *testing.T) {
-	withTempHome(t)
-	seedTopic(t, "ai", true, testStory{"c1", "Agents everywhere", "", 2 * 24 * time.Hour})
-	stdout, _, err := runSearchCmd(t, (&feedStub{}).serve(t), "agents", "--json",
-		"--select", "clusterUrlId,title,rank,postCount,uniqueAuthors,firstPostAge")
-	if err != nil {
-		t.Fatalf("search --select: %v", err)
-	}
-	env := decodeSearch(t, stdout)
-	if len(env.Results) == 0 {
-		t.Fatalf("expected selected results, got: %s", stdout)
-	}
-	first := env.Results[0]
-	if first.ClusterURLID == "" || first.Title == "" || first.Rank == 0 || first.PostCount == 0 || first.UniqueAuthors == 0 || first.FirstPostAge == "" {
-		t.Fatalf("selected result missing requested fields: %+v", first)
-	}
-	if first.ClusterID != "" {
-		t.Fatalf("unrequested clusterId should be omitted, got %q", first.ClusterID)
-	}
-}
-
-func TestSearchDataSourceLocalEmptyStoreErrors(t *testing.T) {
-	withTempHome(t)
-	_, _, err := runSearchCmd(t, (&feedStub{}).serve(t), "claude", "--data-source", "local", "--json")
-	if err == nil || !strings.Contains(err.Error(), "sync") {
-		t.Fatalf("err = %v, want a failure telling the user to run sync", err)
-	}
-}
-
-func TestSearchStaleStoreOutsideWindowWithFailingFeedErrors(t *testing.T) {
-	withTempHome(t)
-	seedTopic(t, "ai", false, testStory{"old", "Claude old", "", 10 * 24 * time.Hour})
-	_, _, err := runSearchCmd(t, (&feedStub{fail: true}).serve(t), "claude", "--since", "2d", "--json")
-	if err == nil || !strings.Contains(err.Error(), "sync") {
-		t.Fatalf("err = %v, want a failure telling the user to run sync", err)
 	}
 }

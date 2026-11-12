@@ -8,8 +8,10 @@
 package diggstore
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -185,6 +187,16 @@ func EnsureSchema(db *sql.DB) error {
 			fetched_at TEXT NOT NULL
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_digg_cluster_posts_at ON digg_cluster_posts(fetched_at)`,
+		// digg_post_refs maps the short id in a story URL to the UUID
+		// Digg's single-story tool needs, plus the story's topic. Search
+		// writes it for every result so a later command given only the
+		// short id can find the story.
+		`CREATE TABLE IF NOT EXISTS digg_post_refs (
+			short_id TEXT PRIMARY KEY,
+			post_id TEXT NOT NULL,
+			topic TEXT NOT NULL DEFAULT '',
+			seen_at TEXT NOT NULL
+		)`,
 	}
 	for _, q := range stmts {
 		if _, err := db.Exec(q); err != nil {
@@ -198,6 +210,17 @@ func EnsureSchema(db *sql.DB) error {
 		return err
 	}
 	return ensureFeedSchema(db)
+}
+
+// addColumn adds one column. Commands started together on a new store
+// each see the column missing and each try to add it; the ones that lose
+// get "duplicate column name", which means the column is there.
+func addColumn(db *sql.DB, table, name, ddl string) error {
+	_, err := db.Exec(fmt.Sprintf(`ALTER TABLE %s ADD COLUMN %s %s`, table, name, ddl))
+	if err != nil && !strings.Contains(err.Error(), "duplicate column name") {
+		return fmt.Errorf("adding %s.%s: %w", table, name, err)
+	}
+	return nil
 }
 
 // ensureAuthorsRosterColumns adds the AI-1000-roster columns to
@@ -228,9 +251,8 @@ func ensureAuthorsRosterColumns(db *sql.DB) error {
 		if have[c.name] {
 			continue
 		}
-		stmt := fmt.Sprintf(`ALTER TABLE digg_authors ADD COLUMN %s %s`, c.name, c.ddl)
-		if _, err := db.Exec(stmt); err != nil {
-			return fmt.Errorf("adding column %s: %w", c.name, err)
+		if err := addColumn(db, "digg_authors", c.name, c.ddl); err != nil {
+			return err
 		}
 	}
 	// Indexes used by `authors list` ranking + filters.
@@ -776,4 +798,50 @@ func GetClusterPosts(db *sql.DB, clusterUrlID string, ttl time.Duration) ([]digg
 		return nil, false, fetchedAt, fmt.Errorf("decode cluster posts %s: %w", clusterUrlID, err)
 	}
 	return posts, true, fetchedAt, nil
+}
+
+// PostRef identifies one Digg story three ways: the short id from its
+// URL, its UUID, and the topic it is filed under.
+type PostRef struct {
+	ShortID string
+	ID      string
+	Topic   string
+}
+
+// RecordPostRefs stores refs, replacing any earlier record of the same
+// short id. It takes the write lock up front so concurrent searches on
+// one store queue instead of failing.
+func RecordPostRefs(ctx context.Context, db *sql.DB, refs []PostRef, seenAt time.Time) error {
+	if len(refs) == 0 {
+		return nil
+	}
+	now := seenAt.UTC().Format(time.RFC3339)
+	return withWriteTx(ctx, db, func(tx *sql.Conn) error {
+		for _, r := range refs {
+			if r.ShortID == "" || r.ID == "" {
+				continue
+			}
+			if _, err := tx.ExecContext(ctx, `INSERT INTO digg_post_refs (short_id, post_id, topic, seen_at)
+				VALUES (?, ?, ?, ?)
+				ON CONFLICT(short_id) DO UPDATE SET post_id = excluded.post_id, topic = excluded.topic, seen_at = excluded.seen_at`,
+				r.ShortID, r.ID, r.Topic, now); err != nil {
+				return fmt.Errorf("recording story id %s: %w", r.ShortID, err)
+			}
+		}
+		return nil
+	})
+}
+
+// LookupPostRef returns the record for a story's short id, or false when
+// no search has seen that story.
+func LookupPostRef(db *sql.DB, shortID string) (PostRef, bool, error) {
+	ref := PostRef{ShortID: shortID}
+	err := db.QueryRow(`SELECT post_id, topic FROM digg_post_refs WHERE short_id = ?`, shortID).Scan(&ref.ID, &ref.Topic)
+	if errors.Is(err, sql.ErrNoRows) {
+		return PostRef{}, false, nil
+	}
+	if err != nil {
+		return PostRef{}, false, err
+	}
+	return ref, true, nil
 }
