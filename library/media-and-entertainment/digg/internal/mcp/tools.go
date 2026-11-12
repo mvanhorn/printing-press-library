@@ -25,7 +25,7 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("feed_raw",
-			mcplib.WithDescription("Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `sync` then `top` instead of calling this directly. Returns the RawHTML."),
+			mcplib.WithDescription("Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `top` instead of calling this directly. Returns the RawHTML."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -325,7 +325,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	ctx := map[string]any{
 		"api": "digg",
 		// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding; add github resource.
-		"description": "Tail Digg's news cycle, GitHub feeds, and pipeline events from the terminal — read-only, with rank-history nobody else surfaces.",
+		"description": "Tail Digg's news cycle and GitHub feeds from the terminal — read-only, with rank-history nobody else surfaces.",
 		"archetype":   "generic",
 		"tool_count":  3,
 		// tool_surface tells agents which surface a capability lives on.
@@ -347,18 +347,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"query_tips": []string{
 			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
 			"Control page size with the limit parameter (default 100).",
-			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
-			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
-			"Prefer sql/search over repeated API calls when the data is already synced.",
+			"search and top read Digg live and need no sync.",
+			"Use the sql tool for ad-hoc analysis on rank snapshots. Run sync first to populate the local database.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Stored pipeline events", "command": "events", "description": "List pipeline events (cluster_detected, fast_climb) that sync captured from section pages, filtered by type and time.", "rationale": "Section pages embed recent pipeline events in their RSC stream; sync stores them so they survive the next page refresh.", "via": "mcp-command-mirror"},
-			{"name": "Replacement archaeology", "command": "replaced", "description": "Show stories that were knocked out of the rankings since the last sync, with Digg's own published replacement rationale.", "rationale": "Digg explicitly publishes a replacementRationale field per cluster. The web UI shows current rankings only — once...", "via": "mcp-command-mirror"},
-			{"name": "Score component breakdown", "command": "evidence", "description": "Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel,...", "rationale": "Digg ships gravity-score components and evidence in the page payload. The web UI shows only the final gravity score.", "via": "mcp-command-mirror"},
-			{"name": "Time-windowed sentiment", "command": "sentiment", "description": "Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.", "rationale": "Each cluster carries pos6h/12h/24h fields. No web UI surfaces them.", "via": "mcp-command-mirror"},
-			{"name": "Cross-aggregator references", "command": "crossref", "description": "Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there.", "rationale": "Each cluster carries hackerNews and techmeme cross-reference fields populated by Digg's own pipeline.", "via": "mcp-command-mirror"},
+			{"name": "Live ranked feed", "command": "top", "description": "Digg's ranked stories right now for one topic, or merged across all seven by Digg Score; --view trending shows what is rising.", "rationale": "Digg's feed is the one public source with each story's per-topic rank and Digg Score.", "via": "mcp-command-mirror"},
 			{"name": "Influence-ranked author leaderboard", "command": "authors top", "description": "Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.", "rationale": "Digg's product premise is a ranked leaderboard of AI-news accounts on X. The /ai/influencers page is currently 404; the data is embedded in every feed response.", "via": "mcp-command-mirror"},
 			{"name": "GitHub: top starred AI repos", "command": "github stars", "description": "Top AI repos ranked by starring activity from Digg-tracked accounts: stargazers, recent starrers, breakout/novel/ai_related scores, language, one-sentence classification.", "rationale": "Digg's /tech/github/stars page embeds the full repo + scoring JSON in its RSC payload. CLI extracts and exposes as structured records.", "via": "mcp-command-mirror"},
 			{"name": "GitHub: newly first-seen repos", "command": "github new", "description": "Recently first-seen GitHub repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator).", "rationale": "Digg's /tech/github/new page exposes per-event flat records; CLI parses them.", "via": "mcp-command-mirror"},
@@ -369,11 +364,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Rank-movement watcher", "command": "watch", "description": "Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.", "rationale": "Read-only polling combined with the local snapshot store and AdaptiveLimiter.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Stored pipeline events", "insight": "Section pages embed recent pipeline events in their RSC stream; sync stores them so they survive the next page refresh. Digg removed its separate pipeline-status endpoint in October 2026."},
-			{"topic": "Replacement archaeology", "insight": "Digg explicitly publishes a replacementRationale field per cluster. The web UI shows current rankings only — once a story drops, the rationale is gone. The local snapshot store keeps it."},
-			{"topic": "Score component breakdown", "insight": "Digg ships gravity-score components and evidence in the page payload. The web UI shows only the final gravity score."},
-			{"topic": "Time-windowed sentiment", "insight": "Each cluster carries pos6h/12h/24h fields. No web UI surfaces them."},
-			{"topic": "Cross-aggregator references", "insight": "Each cluster carries hackerNews and techmeme cross-reference fields populated by Digg's own pipeline."},
 			{"topic": "Influence-ranked author leaderboard", "insight": "Digg's product premise is a ranked leaderboard of AI-news accounts on X. The /ai/influencers page is currently 404; the data is embedded in every feed response."},
 			{"topic": "GitHub feeds", "insight": "Digg surfaces four parallel GitHub views — /tech/github/{stars,new,activity,recent}. Stars and New embed rich JSON records (repo_full_name, stargazers_count, breakout_score, novel_score, ai_related_score, classification_tldr). Activity is a contributor leaderboard table. Recent is a live event stream with github.com URLs in href."},
 			{"topic": "Rank history per cluster", "insight": "Local snapshots persist what the web UI overwrites every fetch."},

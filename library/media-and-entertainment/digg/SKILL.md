@@ -96,13 +96,6 @@ These capabilities aren't available in any other tool for this API.
   Sort with `--by rank|rankChange|category|followers`; filter with `--category "<name>"`, `--only-new`, `--only-fallers`.
 
 ### Pipeline observability
-- **`events`** — List the pipeline events `sync` captured from section pages: clusters as they were detected and stories fast-climbing the leaderboard with explicit rank deltas. Run `sync` to capture new ones.
-
-  _When an agent needs 'tell me when story X just climbed N ranks' or 'what new clusters did Digg detect in the last hour', this is the only way._
-
-  ```bash
-  digg-pp-cli events --since 1h --type fast_climb --json --select clusterId,label,delta,currentRank,previousRank
-  ```
 - **`watch`** — Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.
 
   _Read-only operational watcher; never writes anything back to Digg._
@@ -111,20 +104,6 @@ These capabilities aren't available in any other tool for this API.
   digg-pp-cli watch --alert 'rank.delta>=10'
   ```
 ### Local state that compounds
-- **`replaced`** — Show stories that were knocked out of the rankings since the last sync, with Digg's own published replacement rationale.
-
-  _Best-of-feed shifts faster than people remember. This makes 'what did Digg drop and why' queryable._
-
-  ```bash
-  digg-pp-cli replaced --since 24h --json
-  ```
-- **`crossref`** — Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there.
-
-  _Removes the manual 'is HN talking about this too' step from any cross-aggregator research workflow._
-
-  ```bash
-  digg-pp-cli crossref iq7usf9e
-  ```
 - **`authors top`** — Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.
 
   _Investors and AI scouts care which accounts move the news cycle. Now queryable, sortable, scriptable._
@@ -145,22 +124,6 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   digg-pp-cli author Scobleizer --since 7d --json
-  ```
-
-### Transparency
-- **`evidence`** — Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel, percentAboveAverage.
-
-  _When a user asks 'why is THIS the top story', the answer is structured data; agents can compose with it._
-
-  ```bash
-  digg-pp-cli evidence iq7usf9e --json
-  ```
-- **`sentiment`** — Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.
-
-  _Tells an agent whether the conversation around a story is still net-positive or has soured; useful before quoting a story._
-
-  ```bash
-  digg-pp-cli sentiment iq7usf9e --window 6h --json
   ```
 
 ## HTTP Transport
@@ -184,7 +147,6 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 **rankings** — Views of Digg's rankings page (/tech/x/rankings)
 
 - `digg-pp-cli rankings list` — Full ranking of people and companies. Server-paginated; returns the initial-HTML slice. Flags: `--limit`, `--max-skip-ratio`.
-- `digg-pp-cli rankings emerging` and `digg-pp-cli rankings movers` — Removed by Digg in October 2026; both exit non-zero with an error naming the removed view.
 
 **search** — Topic search over synced Digg section feeds
 
@@ -252,22 +214,6 @@ digg-pp-cli posts <clusterUrlId> --by rank --limit 5 --agent --select author.use
 
 Surfaces the highest-credibility AI 1000 voices on a story; minted X URLs make citations one-click. Combine with `search` to go from topic → cluster → quotable posts in two commands.
 
-### What climbed >=10 ranks in the last hour
-
-```bash
-digg-pp-cli events --since 1h --type fast_climb --json --select clusterId,label,delta,currentRank,previousRank
-```
-
-Reads events `sync` stored from section pages, filters to fast-climb events only, and narrows the JSON to the five fields an agent actually needs.
-
-### Why is a story the top story
-
-```bash
-digg-pp-cli evidence 65idu2x5 --json
-```
-
-Print the scoreComponents and evidence array for one cluster. Get a clusterUrlId from `digg-pp-cli top --json --select clusterUrlId`.
-
 ### Show every cluster a given X account contributed to this week
 
 ```bash
@@ -275,14 +221,6 @@ digg-pp-cli author Scobleizer --since 7d --json --select label,clusterUrlId,acti
 ```
 
 Queries the local store for clusters where the named author was a contributor; output is narrowed for agent consumption.
-
-### Cross-reference a story across HN and Techmeme
-
-```bash
-digg-pp-cli crossref 65idu2x5
-```
-
-Uses Digg's own hackerNews/techmeme reference fields so you don't have to search those sites manually. Pass any clusterUrlId from `top --json --select clusterUrlId`.
 
 ## Auth Setup
 
