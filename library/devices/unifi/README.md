@@ -6,7 +6,7 @@ One binary for the official UniFi APIs, over the cloud connector or a direct con
 
 Created by [@phoenix-server](https://github.com/phoenix-server) (Ricardo Cabral).
 
-Contributors: [@amansk](https://github.com/amansk) (Amandeep Khurana), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Contributors: [@amansk](https://github.com/amansk) (Amandeep Khurana), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery), [@officialasishkumar](https://github.com/officialasishkumar) (Asish Kumar).
 
 ## Install
 
@@ -1280,7 +1280,7 @@ Environment variables:
 | `UNIFI_CONSOLE_ID` | routing | With several consoles | Console id for the connector. Same as `--console`, or `console_id` in config. |
 | `UNIFI_GATEWAY` | routing | For the local route | Gateway address. Same as `--gateway`, or `gateway` in config. |
 | `UNIFI_TRANSPORT` | routing | No | `auto`, `cloud` or `local`. Same as `--transport`, or `transport` in config. |
-| `UNIFI_GATEWAY_HOST` | routing | No | Deprecated alias for `UNIFI_GATEWAY`, kept for existing installs. When it picks the gateway and no local key is set, `UNIFI_API_KEY` is used as that gateway's key. |
+| `UNIFI_GATEWAY_HOST` | routing | No | Deprecated alias for `UNIFI_GATEWAY`, kept for existing installs. When it picks the gateway and no local key is set, `UNIFI_API_KEY` is used as that gateway's key only, and is not sent to the Site Manager API. |
 | `UNIFI_INSECURE_SKIP_VERIFY` | TLS | No | `1`, `true`, `yes` or `on` skips gateway certificate checks; `0`, `false`, `no` or `off` forces them. Default: skip for literal private addresses only. |
 | `UNIFI_READ_ONLY` | safety | No | Any value except empty, `0`, `false`, `no` or `off` refuses all API writes from the CLI and MCP server. |
 | `UNIFI_CONSOLE_ALLOWLIST` | safety | No | Comma-separated console ids allowed on the connector. Does not limit Site Manager reads or the local route. A named console is also checked on the local route. |
