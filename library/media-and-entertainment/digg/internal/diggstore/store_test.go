@@ -1,12 +1,16 @@
 package diggstore
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
+	"maps"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/store"
 
 	_ "modernc.org/sqlite"
 )
@@ -88,43 +92,6 @@ func TestUpsertClusterRoundTrip(t *testing.T) {
 	}
 	if snapRank != 3 {
 		t.Errorf("snapshot rank mismatch: got %d", snapRank)
-	}
-}
-
-func TestUpsertEvent(t *testing.T) {
-	db := openTempDB(t)
-	now := time.Date(2026, 5, 9, 12, 0, 0, 0, time.UTC)
-	e := diggparse.Event{
-		ID:           "e-1",
-		Type:         "fast_climb",
-		ClusterID:    "c-1",
-		Label:        "Fast Climber",
-		Delta:        9,
-		CurrentRank:  4,
-		PreviousRank: 13,
-		At:           "2026-05-09T11:00:00Z",
-	}
-	if err := UpsertEvent(db, e, now); err != nil {
-		t.Fatal(err)
-	}
-	// Idempotent: second insert is a no-op.
-	if err := UpsertEvent(db, e, now); err != nil {
-		t.Fatal(err)
-	}
-	var n int
-	if err := db.QueryRow(`SELECT COUNT(*) FROM digg_events WHERE id = ?`, e.ID).Scan(&n); err != nil {
-		t.Fatal(err)
-	}
-	if n != 1 {
-		t.Errorf("expected exactly one event row; got %d", n)
-	}
-	var typ string
-	var delta int
-	if err := db.QueryRow(`SELECT type, COALESCE(delta,0) FROM digg_events WHERE id = ?`, e.ID).Scan(&typ, &delta); err != nil {
-		t.Fatal(err)
-	}
-	if typ != "fast_climb" || delta != 9 {
-		t.Errorf("event row mismatch: type=%q delta=%d", typ, delta)
 	}
 }
 
@@ -380,156 +347,122 @@ func indexOf(s, sub string) int {
 	return -1
 }
 
-func TestUpsertClusterPosts_RoundTrip(t *testing.T) {
+func TestPostRefRoundTrip(t *testing.T) {
 	db := openTempDB(t)
-	// Use real wall-clock now so the TTL math reflects the live
-	// time.Since(fetchedAt) check the production reader uses.
-	now := time.Now().UTC().Truncate(time.Second)
-	body := "hmm"
-	posts := []diggparse.ClusterPost{
-		{
-			PostXID:  "1111",
-			PostType: "tweet",
-			PostedAt: "2026-05-09T08:02:21+00:00",
-			Author: diggparse.ClusterPostAuthor{
-				Username: "tszzl", DisplayName: "roon",
-				Category: "Researcher", Rank: 32,
-			},
-			XURL:       "https://x.com/tszzl/status/1111",
-			Body:       &body,
-			BodyLoaded: true,
-			MediaURLs:  []string{"https://pbs.twimg.com/media/AAA.jpg"},
-		},
+	ctx := context.Background()
+	now := time.Date(2026, 11, 11, 12, 0, 0, 0, time.UTC)
+	refs := []PostRef{
+		{ShortID: "ab12cd34", ID: "0190a1b2-0000-7000-8000-000000000001", Topic: "ai"},
+		{ShortID: "ef56gh78", ID: "0190a1b2-0000-7000-8000-000000000002", Topic: "sports"},
 	}
-	if err := UpsertClusterPosts(db, "65idu2x5", posts, now); err != nil {
-		t.Fatalf("UpsertClusterPosts: %v", err)
-	}
-	got, ok, fetchedAt, err := GetClusterPosts(db, "65idu2x5", time.Hour)
-	if err != nil {
-		t.Fatalf("GetClusterPosts: %v", err)
-	}
-	if !ok {
-		t.Fatal("expected cache hit, got miss")
-	}
-	if !fetchedAt.Equal(now) {
-		t.Errorf("fetched_at round-trip mismatch: got %v, want %v", fetchedAt, now)
-	}
-	if len(got) != 1 || got[0].PostXID != "1111" {
-		t.Errorf("round-trip mismatch: got %+v", got)
-	}
-	if got[0].Body == nil || *got[0].Body != "hmm" {
-		t.Errorf("body round-trip lost: got %v", got[0].Body)
-	}
-	if len(got[0].MediaURLs) != 1 {
-		t.Errorf("media URL round-trip mismatch: %v", got[0].MediaURLs)
-	}
-}
-
-func TestUpsertClusterPosts_TTLMiss(t *testing.T) {
-	db := openTempDB(t)
-	stale := time.Now().Add(-2 * time.Hour) // older than 1h TTL
-	posts := []diggparse.ClusterPost{
-		{
-			PostXID: "1", PostType: "tweet",
-			Author: diggparse.ClusterPostAuthor{Username: "alice"},
-		},
-	}
-	if err := UpsertClusterPosts(db, "abc", posts, stale); err != nil {
-		t.Fatalf("UpsertClusterPosts: %v", err)
-	}
-	// 1h TTL: a row from 2h ago should miss.
-	got, ok, _, err := GetClusterPosts(db, "abc", time.Hour)
-	if err != nil {
-		t.Fatalf("GetClusterPosts: %v", err)
-	}
-	if ok {
-		t.Errorf("expected TTL miss for stale row; got hit with %d posts", len(got))
-	}
-	// But a 365d TTL should hit (used by the live-fail-with-stale-cache fallback).
-	_, ok2, _, err := GetClusterPosts(db, "abc", 365*24*time.Hour)
-	if err != nil {
-		t.Fatalf("GetClusterPosts (long TTL): %v", err)
-	}
-	if !ok2 {
-		t.Error("long TTL should still find the cached row")
-	}
-}
-
-func TestUpsertClusterPosts_OverwriteSameKey(t *testing.T) {
-	db := openTempDB(t)
-	// Anchor on real wall-clock so TTL math reflects production.
-	t1 := time.Now().UTC().Add(-30 * time.Minute).Truncate(time.Second)
-	t2 := t1.Add(20 * time.Minute)
-	body1, body2 := "first", "second"
-	v1 := []diggparse.ClusterPost{
-		{PostXID: "1", Author: diggparse.ClusterPostAuthor{Username: "a"}, Body: &body1, MediaURLs: []string{}},
-	}
-	v2 := []diggparse.ClusterPost{
-		{PostXID: "1", Author: diggparse.ClusterPostAuthor{Username: "a"}, Body: &body2, MediaURLs: []string{}},
-		{PostXID: "2", Author: diggparse.ClusterPostAuthor{Username: "b"}, MediaURLs: []string{}},
-	}
-	if err := UpsertClusterPosts(db, "k", v1, t1); err != nil {
+	if err := RecordPostRefs(ctx, db, refs, now); err != nil {
 		t.Fatal(err)
 	}
-	if err := UpsertClusterPosts(db, "k", v2, t2); err != nil {
-		t.Fatal(err)
-	}
-	got, ok, fetchedAt, err := GetClusterPosts(db, "k", time.Hour)
+	got, ok, err := LookupPostRef(db, "ef56gh78")
 	if err != nil || !ok {
-		t.Fatalf("hit failed: ok=%v err=%v", ok, err)
+		t.Fatalf("LookupPostRef ok=%v err=%v, want the recorded story", ok, err)
 	}
-	if len(got) != 2 {
-		t.Errorf("expected 2 posts after overwrite, got %d", len(got))
+	if got != refs[1] {
+		t.Fatalf("LookupPostRef = %+v, want %+v", got, refs[1])
 	}
-	if got[0].Body == nil || *got[0].Body != "second" {
-		t.Errorf("overwrite did not update body; got %v", got[0].Body)
-	}
-	if !fetchedAt.Equal(t2) {
-		t.Errorf("fetched_at not refreshed; got %v want %v", fetchedAt, t2)
+	if _, ok, err := LookupPostRef(db, "nosuchid"); err != nil || ok {
+		t.Fatalf("unknown short id: ok=%v err=%v, want not found and no error", ok, err)
 	}
 }
 
-func TestGetClusterPosts_EmptyKeyOrTTLReturnsMiss(t *testing.T) {
+func TestRecordPostRefsUpdatesAMovedStory(t *testing.T) {
 	db := openTempDB(t)
-	if _, ok, _, err := GetClusterPosts(db, "", time.Hour); ok || err != nil {
-		t.Errorf("empty key should return (miss, nil); got ok=%v err=%v", ok, err)
+	ctx := context.Background()
+	now := time.Date(2026, 11, 11, 12, 0, 0, 0, time.UTC)
+	if err := RecordPostRefs(ctx, db, []PostRef{{ShortID: "ab12cd34", ID: "uuid-1", Topic: "ai"}}, now); err != nil {
+		t.Fatal(err)
 	}
-	if _, ok, _, err := GetClusterPosts(db, "x", 0); ok || err != nil {
-		t.Errorf("zero TTL should return (miss, nil); got ok=%v err=%v", ok, err)
+	if err := RecordPostRefs(ctx, db, []PostRef{{ShortID: "ab12cd34", ID: "uuid-1", Topic: "tech"}}, now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	got, ok, err := LookupPostRef(db, "ab12cd34")
+	if err != nil || !ok || got.Topic != "tech" {
+		t.Fatalf("LookupPostRef = %+v ok=%v err=%v, want the latest topic", got, ok, err)
 	}
 }
 
-func TestRecordReplacementsDropsClustersNotSeen(t *testing.T) {
+// Each topic's baseline is its own last poll: a story listed in two
+// topics keeps a rank per topic, and a story that left a topic's list is
+// gone from that topic's baseline.
+func TestWatchBaselineIsKeptPerTopic(t *testing.T) {
 	db := openTempDB(t)
-	old := time.Date(2026, 5, 9, 11, 0, 0, 0, time.UTC)
-	now := time.Date(2026, 5, 9, 12, 0, 0, 0, time.UTC)
+	ctx := context.Background()
+	now := time.Date(2026, 11, 11, 12, 0, 0, 0, time.UTC)
 
-	prev := diggparse.Cluster{ClusterID: "c-old", ClusterURLID: "oldid", Label: "Old", CurrentRank: 5}
-	stay := diggparse.Cluster{ClusterID: "c-stay", ClusterURLID: "stayid", Label: "Stays", CurrentRank: 6}
-	if err := UpsertCluster(db, prev, old); err != nil {
+	if got, err := LoadWatchBaseline(ctx, db, "ai"); err != nil || len(got) != 0 {
+		t.Fatalf("never-polled topic: %v err=%v, want empty and no error", got, err)
+	}
+	if err := SaveWatchBaseline(ctx, db, "ai", map[string]int{"shared": 1, "ai-only": 2}, now); err != nil {
 		t.Fatal(err)
 	}
-	if err := UpsertCluster(db, stay, old); err != nil {
+	if err := SaveWatchBaseline(ctx, db, "sports", map[string]int{"shared": 7}, now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	if err := SaveWatchBaseline(ctx, db, "ai", map[string]int{"shared": 3, "ai-new": 1}, now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	// A poll that found no stories leaves the last real poll in place.
+	if err := SaveWatchBaseline(ctx, db, "sports", nil, now.Add(2*time.Hour)); err != nil {
 		t.Fatal(err)
 	}
 
-	// At "now", we observe only c-stay. c-old should be recorded as a replacement.
-	if err := UpsertCluster(db, stay, now); err != nil {
-		t.Fatal(err)
+	ai, err := LoadWatchBaseline(ctx, db, "ai")
+	if err != nil || !maps.Equal(ai, map[string]int{"shared": 3, "ai-new": 1}) {
+		t.Errorf("ai baseline = %v err=%v, want its latest poll only", ai, err)
 	}
-	observed := map[string]bool{"c-stay": true}
-	if err := RecordReplacements(db, observed, now); err != nil {
-		t.Fatal(err)
+	sports, err := LoadWatchBaseline(ctx, db, "sports")
+	if err != nil || !maps.Equal(sports, map[string]int{"shared": 7}) {
+		t.Errorf("sports baseline = %v err=%v, want its own poll", sports, err)
 	}
-	var rationale string
-	var prevRank int
-	if err := db.QueryRow(`SELECT rationale, previous_rank FROM digg_replacements WHERE cluster_id = ?`, "c-old").Scan(&rationale, &prevRank); err != nil {
-		t.Fatalf("replacement row not written: %v", err)
+}
+
+// Watchers of different topics are separate processes writing one store.
+// Their writes queue; none fails and none lands in the other's baseline.
+func TestWatchBaselineConcurrentTopicsShareOneStore(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "test.db")
+	ctx := context.Background()
+	const rounds = 25
+	topics := []string{"ai", "sports", "tech"}
+	// One handle per watcher, opened the way each CLI process opens it.
+	dbs := map[string]*sql.DB{}
+	for _, topic := range topics {
+		s, err := store.OpenWithContext(ctx, path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { s.Close() })
+		if err := EnsureSchema(s.DB()); err != nil {
+			t.Fatal(err)
+		}
+		dbs[topic] = s.DB()
 	}
-	if rationale == "" {
-		t.Errorf("rationale should be populated even when upstream didn't publish one")
+	errs := make(chan error, len(topics))
+	for _, topic := range topics {
+		db := dbs[topic]
+		go func() {
+			for i := 1; i <= rounds; i++ {
+				if err := SaveWatchBaseline(ctx, db, topic, map[string]int{"shared": i, topic + "-only": i}, time.Now()); err != nil {
+					errs <- fmt.Errorf("%s round %d: %w", topic, i, err)
+					return
+				}
+			}
+			errs <- nil
+		}()
 	}
-	if prevRank != 5 {
-		t.Errorf("previous_rank should be 5; got %d", prevRank)
+	for range topics {
+		if err := <-errs; err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, topic := range topics {
+		got, err := LoadWatchBaseline(ctx, dbs[topic], topic)
+		if want := map[string]int{"shared": rounds, topic + "-only": rounds}; err != nil || !maps.Equal(got, want) {
+			t.Errorf("%s baseline = %v err=%v, want %v", topic, got, err, want)
+		}
 	}
 }

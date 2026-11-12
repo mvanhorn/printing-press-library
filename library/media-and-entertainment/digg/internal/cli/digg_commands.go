@@ -7,16 +7,21 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"os/exec"
+	"regexp"
 	"runtime"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggmcp"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggstore"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/store"
@@ -29,15 +34,9 @@ import (
 // registered. Each command shows up as a top-level subcommand.
 func registerDiggCommands(root *cobra.Command, flags *rootFlags) {
 	root.AddCommand(newTopCmd(flags))
-	root.AddCommand(newRisingCmd(flags))
 	root.AddCommand(newStoryCmd(flags))
 	root.AddCommand(newPostsCmd(flags))
 	root.AddCommand(newSearchCmd(flags))
-	root.AddCommand(newEventsCmd(flags))
-	root.AddCommand(newEvidenceCmd(flags))
-	root.AddCommand(newSentimentCmd(flags))
-	root.AddCommand(newCrossrefCmd(flags))
-	root.AddCommand(newReplacedCmd(flags))
 	root.AddCommand(newHistoryCmd(flags))
 	root.AddCommand(newAuthorsCmd(flags))
 	root.AddCommand(newAuthorCmd(flags))
@@ -71,146 +70,460 @@ func openStore(ctx context.Context) (*store.Store, *sql.DB, func() error, error)
 }
 
 // ============== top ==============
+//
+// `top` reads Digg's ranked story feed live, one topic at a time. The
+// feed is the one public source that carries each story's per-topic rank
+// and Digg Score. Its rows name neither their topic nor their URL, so
+// each read is for a single topic and tags its rows with it.
 
-type clusterRow struct {
-	ClusterID            string  `json:"clusterId"`
-	ClusterURLID         string  `json:"clusterUrlId"`
-	Label                string  `json:"label,omitempty"`
-	Title                string  `json:"title,omitempty"`
-	TLDR                 string  `json:"tldr,omitempty"`
-	URL                  string  `json:"url,omitempty"`
-	Permalink            string  `json:"permalink,omitempty"`
-	CurrentRank          int     `json:"currentRank"`
-	PeakRank             int     `json:"peakRank,omitempty"`
-	PreviousRank         int     `json:"previousRank,omitempty"`
-	Delta                int     `json:"delta"`
-	GravityScore         float64 `json:"gravityScore,omitempty"`
-	NumeratorCount       int     `json:"numeratorCount,omitempty"`
-	NumeratorLabel       string  `json:"numeratorLabel,omitempty"`
-	Pos6h                float64 `json:"pos6h,omitempty"`
-	Pos12h               float64 `json:"pos12h,omitempty"`
-	Pos24h               float64 `json:"pos24h,omitempty"`
-	Likes                int     `json:"likes,omitempty"`
-	Views                int     `json:"views,omitempty"`
-	SourceTitle          string  `json:"sourceTitle,omitempty"`
-	ReplacementRationale string  `json:"replacementRationale,omitempty"`
-	ActivityAt           string  `json:"activityAt,omitempty"`
-	LastSeenAt           string  `json:"lastSeenAt,omitempty"`
+// topRow is one ranked story. Keys shared with `search` results keep the
+// same names; rank is the story's position within its own topic.
+type topRow struct {
+	Rank          int     `json:"rank"`
+	ClusterID     string  `json:"clusterId"`
+	ClusterURLID  string  `json:"clusterUrlId"`
+	URL           string  `json:"url"`
+	Topic         string  `json:"topic"`
+	Title         string  `json:"title"`
+	Description   string  `json:"description"`
+	DiggScore     float64 `json:"diggScore"`
+	PostCount     int     `json:"postCount"`
+	UniqueAuthors int     `json:"uniqueAuthors"`
+	PublishedAt   string  `json:"publishedAt"`
 }
 
-func scanClusters(rows *sql.Rows) ([]clusterRow, error) {
-	defer rows.Close()
-	var out []clusterRow
-	for rows.Next() {
-		var c clusterRow
-		var peakRank sql.NullInt64
-		if err := rows.Scan(&c.ClusterID, &c.ClusterURLID, &c.Label, &c.Title, &c.TLDR,
-			&c.URL, &c.Permalink, &c.CurrentRank, &peakRank, &c.PreviousRank, &c.Delta,
-			&c.GravityScore, &c.NumeratorCount, &c.NumeratorLabel, &c.Pos6h, &c.Pos12h, &c.Pos24h,
-			&c.Likes, &c.Views, &c.SourceTitle, &c.ReplacementRationale, &c.ActivityAt, &c.LastSeenAt); err != nil {
+// topEnvelope wraps the rows the way `search` does, so --compact (part of
+// --agent) keeps every row field.
+type topEnvelope struct {
+	Meta    map[string]any `json:"meta"`
+	Results []topRow       `json:"results"`
+}
+
+// feedViews and feedRanges are the view and range values the feed accepts.
+var (
+	feedViews  = []string{"top", "trending"}
+	feedRanges = []string{"24h", "7d", "30d", "all"}
+)
+
+// feedURLOverride, when set, replaces the feed endpoint. Tests only.
+var feedURLOverride string
+
+// feedTopics are the topics with a ranked feed of their own: every
+// current topic except "all", the cross-topic mix.
+func feedTopics() []string {
+	var out []string
+	for _, t := range syncTopics {
+		if t.slug != "all" {
+			out = append(out, t.slug)
+		}
+	}
+	return out
+}
+
+// fetchTopRows reads one topic's ranked feed until it has want rows or
+// the feed runs out.
+func fetchTopRows(ctx context.Context, c *client.Client, p client.FeedParams, want int) ([]topRow, error) {
+	var rows []topRow
+	cursor := ""
+	for {
+		page, err := c.FetchFeedPage(ctx, feedURLOverride, p, cursor)
+		if err != nil {
 			return nil, err
 		}
-		c.PeakRank = int(peakRank.Int64)
-		out = append(out, c)
+		for _, s := range page.Posts {
+			rows = append(rows, topRow{
+				Rank:          s.Rank,
+				ClusterID:     s.ClusterID,
+				ClusterURLID:  s.ClusterURLID,
+				URL:           "https://digg.com/" + p.Topic + "/" + s.ClusterURLID,
+				Topic:         p.Topic,
+				Title:         s.Summary.Title,
+				Description:   s.Summary.Description,
+				DiggScore:     s.DiggScore,
+				PostCount:     s.PostCount,
+				UniqueAuthors: s.UniqueAuthors,
+				PublishedAt:   s.CreatedAt,
+			})
+		}
+		// An empty page with a cursor would otherwise loop forever.
+		if len(rows) >= want || page.NextCursor == nil || *page.NextCursor == "" || len(page.Posts) == 0 {
+			return rows, nil
+		}
+		cursor = *page.NextCursor
 	}
-	return out, rows.Err()
 }
-
-const clusterSelectCols = `cluster_id, cluster_url_id, COALESCE(label,''), COALESCE(title,''), COALESCE(tldr,''),
-COALESCE(url,''), COALESCE(permalink,''), COALESCE(current_rank,0), peak_rank, COALESCE(previous_rank,0), COALESCE(delta,0),
-COALESCE(gravity_score,0), COALESCE(numerator_count,0), COALESCE(numerator_label,''), COALESCE(pos6h,0), COALESCE(pos12h,0), COALESCE(pos24h,0),
-COALESCE(likes,0), COALESCE(views,0), COALESCE(source_title,''), COALESCE(replacement_rationale,''), COALESCE(activity_at,''), COALESCE(last_seen_at,'')`
 
 func newTopCmd(flags *rootFlags) *cobra.Command {
 	var limit int
+	var topic, view, feedRange string
 	cmd := &cobra.Command{
-		Use:         "top",
-		Short:       "List top clusters from the local store, sorted by current rank",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Example: `  # Top 20 clusters
-  digg-pp-cli top --limit 20
+		Use:   "top",
+		Short: "List Digg's ranked stories right now, for one topic or across all of them, with Digg Scores",
+		Long: `Read Digg's ranked story feed live. It needs no prior ` + "`sync`" + `.
 
-  # JSON for agents, narrowed to a few fields
-  digg-pp-cli top --limit 10 --json --select clusterUrlId,label,currentRank,delta,tldr`,
+--topic picks one topic (valid: ` + strings.Join(feedTopics(), ", ") + `) and
+returns its stories in rank order. Without --topic, top reads the first page
+(20 stories) of every topic and merges them by Digg Score, highest first.
+
+Each row carries the story's rank within its own topic (rank), its Digg
+Score (diggScore), how many sources it lists (postCount), how many
+different authors wrote them (uniqueAuthors), when it was published
+(publishedAt), its topic and its URL.
+
+--view is top (default, ranked by Digg Score) or trending. --range is how
+far back the feed reaches: 24h (default), 7d, 30d or all.`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		Example: `  # Today's top sports stories
+  digg-pp-cli top --topic sports --limit 10
+
+  # The highest-scoring stories across every topic, for agents
+  digg-pp-cli top --limit 20 --agent
+
+  # What is trending in AI this week
+  digg-pp-cli top --topic ai --view trending --range 7d --json --select results.title,results.diggScore,results.url`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			topics := feedTopics()
+			if topic != "" {
+				if !slices.Contains(topics, topic) {
+					return usageErr(fmt.Errorf("unknown topic %q; valid topics: %s", topic, strings.Join(topics, ", ")))
+				}
+				topics = []string{topic}
+			}
+			if !slices.Contains(feedViews, view) {
+				return usageErr(fmt.Errorf("invalid --view %q; valid: %s", view, strings.Join(feedViews, ", ")))
+			}
+			if !slices.Contains(feedRanges, feedRange) {
+				return usageErr(fmt.Errorf("invalid --range %q; valid: %s", feedRange, strings.Join(feedRanges, ", ")))
+			}
+			if limit < 1 {
+				return usageErr(fmt.Errorf("--limit must be at least 1, got %d", limit))
+			}
 			if dryRunOK(flags) {
 				return nil
 			}
-			_, db, closeFn, err := openStore(cmd.Context())
+			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			defer closeFn()
-			rows, err := db.QueryContext(cmd.Context(),
-				`SELECT `+clusterSelectCols+` FROM digg_clusters
-				 WHERE current_rank > 0 AND last_seen_at = (SELECT MAX(last_seen_at) FROM digg_clusters)
-				 ORDER BY current_rank ASC LIMIT ?`, limit)
-			if err != nil {
-				return err
+			// One page per topic when merging; as many pages as --limit
+			// needs when reading a single topic.
+			want := limit
+			if topic == "" {
+				want = 1
 			}
-			clusters, err := scanClusters(rows)
-			if err != nil {
-				return err
+			var rows []topRow
+			for _, t := range topics {
+				got, err := fetchTopRows(cmd.Context(), c, client.FeedParams{Topic: t, View: view, Range: feedRange}, want)
+				if err != nil {
+					return fmt.Errorf("reading the %s feed: %w", t, err)
+				}
+				rows = append(rows, got...)
 			}
-			if len(clusters) == 0 {
-				return emptyHint(cmd, "no clusters in the local store. Run `digg-pp-cli sync` first.")
+			if len(rows) == 0 {
+				return fmt.Errorf("Digg's feed returned no stories for %s (view %s, range %s); its layout may have changed", strings.Join(topics, ", "), view, feedRange)
 			}
-			return printClusterOutput(cmd, flags, clusters, renderClusterTable)
+			if topic == "" {
+				sort.SliceStable(rows, func(i, j int) bool { return rows[i].DiggScore > rows[j].DiggScore })
+			}
+			if len(rows) > limit {
+				rows = rows[:limit]
+			}
+			if flags.asJSON {
+				meta := map[string]any{"source": "live", "topics": topics, "view": view, "range": feedRange, "count": len(rows)}
+				return printJSONFiltered(cmd.OutOrStdout(), topEnvelope{Meta: meta, Results: rows}, flags)
+			}
+			for _, r := range rows {
+				fmt.Fprintf(cmd.OutOrStdout(), "#%-3d %s  [%s]\n", r.Rank, diggTruncate(firstNonEmpty(r.Title, r.ClusterURLID), 100), r.Topic)
+				fmt.Fprintf(cmd.OutOrStdout(), "    score=%s  sources=%d  authors=%d  %s\n",
+					strconv.FormatFloat(r.DiggScore, 'f', -1, 64), r.PostCount, r.UniqueAuthors, r.URL)
+			}
+			return nil
 		},
 	}
-	cmd.Flags().IntVar(&limit, "limit", 20, "Max number of clusters to return")
+	cmd.Flags().IntVar(&limit, "limit", 20, "Max number of stories to return")
+	cmd.Flags().StringVar(&topic, "topic", "", "Digg topic to read (valid: "+strings.Join(feedTopics(), ", ")+"). Default: every topic, merged by Digg Score.")
+	cmd.Flags().StringVar(&view, "view", "top", "Feed view: top | trending")
+	cmd.Flags().StringVar(&feedRange, "range", "24h", "How far back the feed reaches: 24h | 7d | 30d | all")
 	return cmd
 }
 
-func newRisingCmd(flags *rootFlags) *cobra.Command {
-	var limit int
-	var minDelta int
-	cmd := &cobra.Command{
-		Use:         "rising",
-		Short:       "List clusters with the largest positive rank delta since their last snapshot",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Example: `  digg-pp-cli rising --limit 10
-  digg-pp-cli rising --min-delta 5 --json`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
-			_, db, closeFn, err := openStore(cmd.Context())
-			if err != nil {
-				return err
-			}
-			defer closeFn()
-			rows, err := db.QueryContext(cmd.Context(),
-				`SELECT `+clusterSelectCols+` FROM digg_clusters
-				 WHERE delta >= ? AND last_seen_at = (SELECT MAX(last_seen_at) FROM digg_clusters)
-				 ORDER BY delta DESC, current_rank ASC LIMIT ?`, minDelta, limit)
-			if err != nil {
-				return err
-			}
-			clusters, err := scanClusters(rows)
-			if err != nil {
-				return err
-			}
-			if len(clusters) == 0 {
-				return emptyHint(cmd, "no rising clusters since last sync. Run `digg-pp-cli sync` again later, or lower --min-delta.")
-			}
-			return printClusterOutput(cmd, flags, clusters, renderClusterTable)
-		},
-	}
-	cmd.Flags().IntVar(&limit, "limit", 20, "Max number of clusters to return")
-	cmd.Flags().IntVar(&minDelta, "min-delta", 1, "Minimum positive rank delta")
-	return cmd
+// ============== story, posts ==============
+//
+// `story`, `posts` and `open` act on one story in any topic. They read
+// Digg's digg_get_post tool, which needs the story's UUID. The argument
+// may be that UUID, the short id from the story's URL, or the URL; the
+// last two are looked up in the record `search` keeps of every story it
+// returns.
+
+const (
+	diggGetPostTool = "digg_get_post"
+	// Limits digg_get_post enforces on one page of sources.
+	storySourcePageMax   = 20
+	storySourceOffsetMax = 499
+)
+
+var storyUUIDRe = regexp.MustCompile(`^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$`)
+
+// storyRef is what an argument tells us about a story before any request.
+// ID is always set; URL is empty when only the UUID is known.
+type storyRef struct {
+	ID      string
+	ShortID string
+	URL     string
 }
 
-// ============== story ==============
+// resolveStory identifies the story an argument names. A UUID is used as
+// given. A short id or a story URL must have been returned by an earlier
+// `search`, which recorded its UUID and topic.
+func resolveStory(ctx context.Context, arg string) (storyRef, error) {
+	arg = strings.TrimSpace(arg)
+	if arg == "" {
+		return storyRef{}, usageErr(fmt.Errorf("a story is required: its UUID, the short id from its URL, or the URL"))
+	}
+	if storyUUIDRe.MatchString(arg) {
+		return storyRef{ID: strings.ToLower(arg)}, nil
+	}
+	ref := storyRef{ShortID: arg}
+	if strings.Contains(arg, "://") {
+		u, err := url.Parse(arg)
+		if err != nil || strings.TrimPrefix(strings.ToLower(u.Hostname()), "www.") != "digg.com" {
+			return storyRef{}, usageErr(fmt.Errorf("%q is not a Digg story URL (expected https://digg.com/<topic>/<id>)", arg))
+		}
+		ref.ShortID, ref.URL = storyShortID(arg), arg
+	}
+	ctx, cancel := context.WithTimeout(ctx, searchRecordWait)
+	defer cancel()
+	db, closeFn, err := openStoreWaiting(ctx)
+	if err != nil {
+		return storyRef{}, err
+	}
+	defer closeFn()
+	rec, ok, err := diggstore.LookupPostRef(db, ref.ShortID)
+	if err != nil {
+		return storyRef{}, err
+	}
+	if !ok {
+		return storyRef{}, notFoundErr(fmt.Errorf("story %q is not in the local record: run `digg-pp-cli search \"<query>\"` to find it first, or pass the story's UUID (clusterId in search results)", ref.ShortID))
+	}
+	ref.ID = rec.ID
+	if ref.URL == "" && rec.Topic != "" {
+		ref.URL = "https://digg.com/" + rec.Topic + "/" + ref.ShortID
+	}
+	return ref, nil
+}
+
+// diggStory is the story part of a digg_get_post response.
+type diggStory struct {
+	ID          string  `json:"id"`
+	URL         string  `json:"url"`
+	Topic       string  `json:"topic"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	TLDR        *string `json:"tldr"`
+	FeedEntryAt string  `json:"feedEntryAt"`
+	PublishedAt string  `json:"publishedAt"`
+	UpdatedAt   string  `json:"updatedAt"`
+}
+
+// diggStoryLink points at the earlier or later story in a running thread.
+type diggStoryLink struct {
+	ID          string `json:"id"`
+	URL         string `json:"url"`
+	Title       string `json:"title"`
+	PublishedAt string `json:"publishedAt"`
+}
+
+// diggSource is one X post or web page Digg attributes a story to.
+type diggSource struct {
+	ID          string  `json:"id"`
+	Kind        string  `json:"kind"`
+	URL         *string `json:"url"`
+	Author      *string `json:"author"`
+	Title       *string `json:"title"`
+	Text        *string `json:"text"`
+	PublishedAt *string `json:"publishedAt"`
+}
+
+// diggPostPage is one digg_get_post response.
+type diggPostPage struct {
+	Story              diggStory      `json:"story"`
+	Follows            *diggStoryLink `json:"follows"`
+	Newer              *diggStoryLink `json:"newer"`
+	Sources            []diggSource   `json:"sources"`
+	NextSourceOffset   *int           `json:"nextSourceOffset"`
+	SourceLimitReached bool           `json:"sourceLimitReached"`
+	// SourcesTruncated is set by fetchStory, not by Digg: the story has
+	// sources that could not be read.
+	SourcesTruncated bool `json:"-"`
+}
+
+// missingJSONValue reports whether a field was absent from a response or
+// was null.
+func missingJSONValue(raw json.RawMessage) bool {
+	return len(raw) == 0 || string(raw) == "null"
+}
+
+// fetchStory reads a story and up to limit of its sources, following
+// Digg's source offset from page to page. A limit of 0 reads every source
+// Digg serves. SourcesTruncated is true on the result when Digg reports it
+// cut the source list short, or when more sources remain past the highest
+// offset Digg accepts.
+func fetchStory(ctx context.Context, mc *diggmcp.Client, id string, limit int) (diggPostPage, error) {
+	var out diggPostPage
+	for offset := 0; ; {
+		pageSize := storySourcePageMax
+		if limit > 0 {
+			pageSize = min(pageSize, limit-len(out.Sources))
+		}
+		raw, err := mc.Call(ctx, diggGetPostTool, map[string]any{"id": id, "sourceOffset": offset, "sourceLimit": pageSize})
+		if err != nil {
+			return out, err
+		}
+		// A result without its story or its sources array is a changed
+		// response, not a story with no sources.
+		var probe struct {
+			Story   json.RawMessage `json:"story"`
+			Sources json.RawMessage `json:"sources"`
+		}
+		if err := json.Unmarshal(raw, &probe); err != nil {
+			return out, fmt.Errorf("%s: unreadable result: %w", diggGetPostTool, err)
+		}
+		if missingJSONValue(probe.Story) || missingJSONValue(probe.Sources) {
+			return out, fmt.Errorf("%s: Digg's story response did not have the expected shape (no story object or no sources array)", diggGetPostTool)
+		}
+		var page diggPostPage
+		if err := json.Unmarshal(raw, &page); err != nil {
+			return out, fmt.Errorf("%s: unreadable result: %w", diggGetPostTool, err)
+		}
+		sources := append(out.Sources, page.Sources...)
+		out = page
+		out.Sources = sources
+		out.SourcesTruncated = page.SourceLimitReached
+		next := page.NextSourceOffset
+		// An empty page or an offset that does not advance would loop forever.
+		if next == nil || len(page.Sources) == 0 || *next <= offset {
+			break
+		}
+		if limit > 0 && len(sources) >= limit {
+			break
+		}
+		if *next > storySourceOffsetMax {
+			out.SourcesTruncated = true
+			break
+		}
+		offset = *next
+	}
+	return out, nil
+}
+
+// diggCallErr maps a failed Digg call to the CLI's exit codes.
+func diggCallErr(err error) error {
+	var rl *cliutil.RateLimitError
+	if errors.As(err, &rl) {
+		return rateLimitErr(err)
+	}
+	return apiErr(err)
+}
+
+type postsAuthorRow struct {
+	Username    string `json:"username,omitempty"`
+	DisplayName string `json:"display_name,omitempty"`
+}
+
+// postRow is one source of a story. The field names are the ones `posts`
+// has always printed, which existing consumers read: last30days keeps a
+// row only when body, author.username and xUrl are all present. xUrl
+// holds the source's own URL, an X post or a web page; kind says which.
+// A web page has a title and no author.username.
+type postRow struct {
+	PostXID  string         `json:"post_x_id,omitempty"`
+	Kind     string         `json:"kind"`
+	PostedAt string         `json:"posted_at,omitempty"`
+	Author   postsAuthorRow `json:"author"`
+	XURL     string         `json:"xUrl,omitempty"`
+	Title    string         `json:"title,omitempty"`
+	Body     *string        `json:"body"`
+}
+
+type postsEnvelope struct {
+	Meta    map[string]any `json:"meta"`
+	Results []postRow      `json:"results"`
+}
+
+// xPostHandleAndID reads the author handle and post id out of an X post
+// URL (https://x.com/<handle>/status/<id>). Digg gives the handle nowhere
+// else.
+func xPostHandleAndID(postURL string) (handle, id string) {
+	u, err := url.Parse(postURL)
+	if err != nil {
+		return "", ""
+	}
+	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
+	if len(parts) < 3 || parts[1] != "status" || parts[0] == "i" {
+		return "", ""
+	}
+	return parts[0], parts[2]
+}
+
+func postRowsFor(sources []diggSource) []postRow {
+	deref := func(s *string) string {
+		if s == nil {
+			return ""
+		}
+		return *s
+	}
+	rows := make([]postRow, 0, len(sources))
+	for _, s := range sources {
+		row := postRow{
+			Kind:     s.Kind,
+			PostedAt: deref(s.PublishedAt),
+			Author:   postsAuthorRow{DisplayName: deref(s.Author)},
+			XURL:     deref(s.URL),
+			Title:    deref(s.Title),
+			Body:     s.Text,
+		}
+		if s.Kind == "x" {
+			row.Author.Username, row.PostXID = xPostHandleAndID(row.XURL)
+		}
+		rows = append(rows, row)
+	}
+	return rows
+}
+
+func renderPostRows(w io.Writer, rows []postRow) {
+	for _, r := range rows {
+		who := firstNonEmpty(r.Author.DisplayName, r.Title, r.Kind)
+		if r.Author.Username != "" {
+			who = "@" + r.Author.Username + "  " + r.Author.DisplayName
+		}
+		fmt.Fprintf(w, "%s  %s\n", strings.TrimSpace(who), r.PostedAt)
+		if r.Title != "" && who != r.Title {
+			fmt.Fprintf(w, "  %s\n", diggTruncate(r.Title, 200))
+		}
+		if r.Body != nil && *r.Body != "" {
+			fmt.Fprintf(w, "  %s\n", diggTruncate(*r.Body, 200))
+		}
+		if r.XURL != "" {
+			fmt.Fprintf(w, "  %s\n", r.XURL)
+		}
+	}
+}
 
 func newStoryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:         "story [clusterUrlId]",
-		Short:       "Show full detail for one cluster from the local store",
+		Use:   "story [story]",
+		Short: "Show one story's detail and sources, live from Digg, in any topic",
+		Long: `Show one story as Digg publishes it: title, summary, topic, URL and dates,
+the earlier and later stories in the same thread when there are any, and its
+first ` + strconv.Itoa(storySourcePageMax) + ` sources. Use ` + "`posts`" + ` for every source.
+
+The argument is the story's UUID (clusterId in search results), the short id
+from its URL (clusterUrlId), or the URL. A short id or URL works once
+` + "`search`" + ` has returned that story.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  digg-pp-cli story iq7usf9e
-  digg-pp-cli story iq7usf9e --json`,
+  digg-pp-cli story iq7usf9e --json
+  digg-pp-cli story https://digg.com/sports/iq7usf9e --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -218,372 +531,53 @@ func newStoryCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			id := args[0]
-			_, db, closeFn, err := openStore(cmd.Context())
+			ctx := cmd.Context()
+			ref, err := resolveStory(ctx, args[0])
 			if err != nil {
 				return err
 			}
-			defer closeFn()
-			row := db.QueryRowContext(cmd.Context(),
-				`SELECT `+clusterSelectCols+`, COALESCE(score_components_json,''), COALESCE(authors_json,'[]'), COALESCE(hacker_news_json,''), COALESCE(techmeme_json,''), COALESCE(raw_json,'')
-				 FROM digg_clusters WHERE cluster_url_id = ? OR cluster_id = ?`, id, id)
-			var c clusterRow
-			var peakRank sql.NullInt64
-			var scoreJSON, authorsJSON, hnJSON, tmJSON, rawJSON string
-			if err := row.Scan(&c.ClusterID, &c.ClusterURLID, &c.Label, &c.Title, &c.TLDR,
-				&c.URL, &c.Permalink, &c.CurrentRank, &peakRank, &c.PreviousRank, &c.Delta,
-				&c.GravityScore, &c.NumeratorCount, &c.NumeratorLabel, &c.Pos6h, &c.Pos12h, &c.Pos24h,
-				&c.Likes, &c.Views, &c.SourceTitle, &c.ReplacementRationale, &c.ActivityAt, &c.LastSeenAt,
-				&scoreJSON, &authorsJSON, &hnJSON, &tmJSON, &rawJSON); err != nil {
-				if err == sql.ErrNoRows {
-					return fmt.Errorf("cluster not found: %s (run `sync` or pass a clusterUrlId from `top --json --select clusterUrlId`)", id)
-				}
+			mc, err := newDiggMCPClient(flags)
+			if err != nil {
 				return err
 			}
-			c.PeakRank = int(peakRank.Int64)
-
-			// Per R9: grow the story envelope with a `posts` field so a
-			// single fetch covers ranking + citations. Reuses the same
-			// loader as the standalone `posts` command (cache-first
-			// with 1h TTL; honors --no-cache; falls back to live
-			// fetch). On any error we surface an empty array and a
-			// stderr warning rather than failing the whole story view
-			// — old story callers shouldn't break when the parser hits
-			// an upstream-shape change.
-			postsRows, postsMeta := loadPostsForCluster(cmd.Context(), cmd, flags, db, c.ClusterURLID, postsLoadOptions{
-				honorNoCache: flags.noCache,
-				cacheTTL:     defaultClusterPostsTTL,
-			})
-			full := map[string]any{
-				"cluster":         c,
-				"scoreComponents": asJSONString(scoreJSON),
-				"authors":         asJSONString(authorsJSON),
-				"hackerNews":      asJSONString(hnJSON),
-				"techmeme":        asJSONString(tmJSON),
-				"posts":           postsRows,
-				"postsMeta":       postsMeta,
+			page, err := fetchStory(ctx, mc, ref.ID, storySourcePageMax)
+			if err != nil {
+				return diggCallErr(err)
 			}
+			s := page.Story
+			rows := postRowsFor(page.Sources)
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), full, flags)
+				story := map[string]any{
+					"id": s.ID, "clusterUrlId": storyShortID(s.URL), "url": s.URL, "topic": s.Topic,
+					"title": s.Title, "description": s.Description, "tldr": s.TLDR,
+					"feedEntryAt": s.FeedEntryAt, "publishedAt": s.PublishedAt, "updatedAt": s.UpdatedAt,
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"story": story, "follows": page.Follows, "newer": page.Newer, "posts": rows,
+				}, flags)
 			}
-			return renderStoryText(cmd.OutOrStdout(), c, scoreJSON, authorsJSON, hnJSON, tmJSON)
+			w := cmd.OutOrStdout()
+			fmt.Fprintf(w, "%s  [%s]\n", s.Title, s.Topic)
+			fmt.Fprintf(w, "  %s\n  published %s\n", s.URL, s.PublishedAt)
+			if page.Follows != nil {
+				fmt.Fprintf(w, "  follows: %s  %s\n", page.Follows.Title, page.Follows.URL)
+			}
+			if page.Newer != nil {
+				fmt.Fprintf(w, "  newer:   %s  %s\n", page.Newer.Title, page.Newer.URL)
+			}
+			if s.TLDR != nil && *s.TLDR != "" {
+				fmt.Fprintf(w, "\n%s\n", *s.TLDR)
+			} else if s.Description != "" {
+				fmt.Fprintf(w, "\n%s\n", s.Description)
+			}
+			if len(rows) > 0 {
+				fmt.Fprintf(w, "\nsources:\n")
+				renderPostRows(w, rows)
+			}
+			return nil
 		},
 	}
 	return cmd
-}
-
-func renderStoryText(w io.Writer, c clusterRow, scoreJSON, authorsJSON, hnJSON, tmJSON string) error {
-	fmt.Fprintf(w, "%s\n", c.Label)
-	if c.Title != "" && c.Title != c.Label {
-		fmt.Fprintf(w, "  %s\n", c.Title)
-	}
-	fmt.Fprintf(w, "  rank %d (peak %d, prev %d, delta %+d)  gravity %.2f\n",
-		c.CurrentRank, c.PeakRank, c.PreviousRank, c.Delta, c.GravityScore)
-	if c.NumeratorLabel != "" {
-		fmt.Fprintf(w, "  %s: %d\n", c.NumeratorLabel, c.NumeratorCount)
-	}
-	if c.Pos24h > 0 {
-		fmt.Fprintf(w, "  positivity 6h=%.2f 12h=%.2f 24h=%.2f\n", c.Pos6h, c.Pos12h, c.Pos24h)
-	}
-	if c.SourceTitle != "" {
-		fmt.Fprintf(w, "  source: %s\n", c.SourceTitle)
-	}
-	if c.URL != "" {
-		fmt.Fprintf(w, "  link:   %s\n", c.URL)
-	}
-	if c.Permalink != "" {
-		fmt.Fprintf(w, "  digg:   %s\n", c.Permalink)
-	}
-	if c.TLDR != "" {
-		fmt.Fprintf(w, "\n%s\n", c.TLDR)
-	}
-	if c.ReplacementRationale != "" {
-		fmt.Fprintf(w, "\nreplacement rationale: %s\n", c.ReplacementRationale)
-	}
-
-	// Authors
-	if authorsJSON != "" && authorsJSON != "[]" && authorsJSON != "null" {
-		var authors []diggparse.ClusterAuthor
-		if err := json.Unmarshal([]byte(authorsJSON), &authors); err == nil && len(authors) > 0 {
-			fmt.Fprintf(w, "\ncontributors (%d):\n", len(authors))
-			for i, a := range authors {
-				if i >= 10 {
-					fmt.Fprintf(w, "  ... and %d more\n", len(authors)-i)
-					break
-				}
-				name := firstNonEmpty(a.DisplayName, a.Username)
-				fmt.Fprintf(w, "  - @%s (%s) [%s]\n", a.Username, name, a.PostType)
-			}
-		}
-	}
-	return nil
-}
-
-// ============== posts ==============
-//
-// `posts <clusterUrlId>` returns the X posts attached to one cluster:
-// origins, replies, quotes, retweets — with author rank, body text,
-// image URLs, repost-context chips, and minted X URLs. Live by default
-// (fetch /ai/<id> + parse + cache + return); --data-source local reads
-// from cache only. Cache TTL is 1h; --no-cache bypasses entirely.
-//
-// This is the load-bearing surface for `last30days` citations — it's
-// what surfaces "top comments on this story." The structured-array
-// shape mirrors the JSON-friendly contract documented in the plan; a
-// caller can `jq '.results[] | select(.author.rank <= 100)'` to filter
-// to high-credibility AI 1000 voices and get clean citation rows.
-//
-// The same parser feeds the `story` command's new `posts` envelope
-// field via loadPostsForCluster, so a single fetch covers both
-// surfaces (R9).
-
-// clusterPostsURLOverride lets tests redirect the live /ai/<id> fetch
-// to a local httptest server. Empty string falls through to the
-// production base URL. Production code never sets this.
-var clusterPostsURLOverride string
-
-// defaultClusterPostsTTL is the in-store cache freshness window for
-// per-cluster posts. One hour matches the upstream activity cadence on
-// trending clusters: shorter and we'd hammer Digg on legitimate page
-// reloads; longer and the citation freshness drifts. --no-cache
-// bypasses the read; --data-source local skips the fetch even on a
-// stale cache (returns the stored snapshot regardless of age).
-const defaultClusterPostsTTL = time.Hour
-
-// postsAuthorRow mirrors diggparse.ClusterPostAuthor for output. We
-// declare a CLI-side row type rather than reusing the parser type so
-// JSON tags stay independently controllable (e.g. omitempty rules
-// differ between the parser layer's "raw" view and the CLI's "agent"
-// view).
-type postsAuthorRow struct {
-	Username        string `json:"username"`
-	DisplayName     string `json:"display_name,omitempty"`
-	Category        string `json:"category,omitempty"`
-	Rank            int    `json:"rank,omitempty"`
-	ProfileImageURL string `json:"profile_image_url,omitempty"`
-}
-
-type postsRepostContextRow struct {
-	RepostingHandle string `json:"reposting_handle"`
-	OriginalHandle  string `json:"original_handle"`
-}
-
-// postRow is the per-post output shape. Body is a *string so the JSON
-// preserves the null-vs-empty distinction documented in the plan;
-// jq pipelines that test `select(.body != null)` need this. MediaURLs
-// is always an array (possibly empty) so the JSON shape stays
-// uniform across posts.
-type postRow struct {
-	PostXID    string                 `json:"post_x_id"`
-	PostType   string                 `json:"post_type,omitempty"`
-	PostedAt   string                 `json:"posted_at,omitempty"`
-	Author     postsAuthorRow         `json:"author"`
-	XURL       string                 `json:"xUrl,omitempty"`
-	Body       *string                `json:"body"`
-	BodyLoaded bool                   `json:"body_loaded"`
-	MediaURLs  []string               `json:"media_urls"`
-	Repost     *postsRepostContextRow `json:"repost_context"`
-}
-
-// postsEnvelope wraps the result list with provenance metadata.
-// meta.source records "live" or "local"; meta.from_cache flags whether
-// the rows were served from the in-store cache (vs a fresh fetch).
-type postsEnvelope struct {
-	Meta    map[string]any `json:"meta"`
-	Results []postRow      `json:"results"`
-}
-
-// postsLoadOptions controls how loadPostsForCluster sources posts.
-// honorNoCache reflects the user's --no-cache flag (bypass cache read,
-// always refetch live). cacheTTL is the staleness budget; pass 0 to
-// always refetch. forceLocal pins to cache-only (no network) — used
-// when the user passes --data-source local on the posts command.
-type postsLoadOptions struct {
-	honorNoCache bool
-	cacheTTL     time.Duration
-	forceLocal   bool
-}
-
-// loadPostsForCluster is the shared loader used by both the `posts`
-// command and the `story` command's new `posts` envelope field. It
-// implements the live/cache/local data-source policy described above.
-// Returns the slice of postRow + a meta map (source, from_cache,
-// fetched_at, parser_warning when applicable). Errors are NOT
-// returned here: callers are expected to surface partial-results
-// gracefully so a transient parse hiccup doesn't fail the whole
-// command. Errors are logged to stderr via cmd.ErrOrStderr().
-func loadPostsForCluster(ctx context.Context, cmd *cobra.Command, flags *rootFlags, db *sql.DB, clusterUrlID string, opts postsLoadOptions) ([]postRow, map[string]any) {
-	meta := map[string]any{
-		"clusterUrlId": clusterUrlID,
-	}
-	if clusterUrlID == "" {
-		meta["source"] = "none"
-		meta["error"] = "clusterUrlId is empty; cannot load posts"
-		return []postRow{}, meta
-	}
-
-	// Cache read (skipped when --no-cache or TTL <= 0).
-	if !opts.honorNoCache && opts.cacheTTL > 0 {
-		if cached, ok, fetchedAt, cerr := diggstore.GetClusterPosts(db, clusterUrlID, opts.cacheTTL); ok && cerr == nil {
-			meta["source"] = "local"
-			meta["from_cache"] = true
-			meta["fetched_at"] = fetchedAt.UTC().Format(time.RFC3339)
-			return promotePostsToRows(cached), meta
-		} else if cerr != nil {
-			fmt.Fprintf(cmd.ErrOrStderr(), "warning: reading cached cluster posts failed: %v\n", cerr)
-		}
-	}
-
-	// --data-source local: never hit the network. Read whatever is
-	// in cache regardless of TTL; if there's nothing, return empty.
-	if opts.forceLocal {
-		if cached, ok, fetchedAt, _ := diggstore.GetClusterPosts(db, clusterUrlID, 365*24*time.Hour); ok {
-			meta["source"] = "local"
-			meta["from_cache"] = true
-			meta["fetched_at"] = fetchedAt.UTC().Format(time.RFC3339)
-			return promotePostsToRows(cached), meta
-		}
-		meta["source"] = "local"
-		meta["from_cache"] = false
-		meta["empty_reason"] = "no cached posts for cluster; rerun without --data-source local to fetch"
-		return []postRow{}, meta
-	}
-
-	// Live fetch.
-	c, cerr := flags.newClient()
-	if cerr != nil {
-		meta["source"] = "live"
-		meta["error"] = cerr.Error()
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: building client for /ai/<id> fetch failed: %v\n", cerr)
-		return []postRow{}, meta
-	}
-	url := clusterPostsURLBaseFromOverride() + "/" + clusterUrlID
-	posts, perr := c.FetchClusterPostsFrom(ctx, url)
-	if perr != nil && len(posts) == 0 {
-		meta["source"] = "live"
-		meta["error"] = perr.Error()
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: live /ai/%s fetch/parse failed: %v\n", clusterUrlID, perr)
-		// Try to fall back to whatever's cached, ignoring TTL — better
-		// to return a stale snapshot than nothing.
-		if cached, ok, fetchedAt, _ := diggstore.GetClusterPosts(db, clusterUrlID, 365*24*time.Hour); ok {
-			meta["source"] = "local"
-			meta["from_cache"] = true
-			meta["fetched_at"] = fetchedAt.UTC().Format(time.RFC3339)
-			meta["fallback_reason"] = "live fetch failed; serving stale cache"
-			return promotePostsToRows(cached), meta
-		}
-		return []postRow{}, meta
-	}
-	if perr != nil {
-		// Partial parse: log the warning, keep the records we got.
-		meta["parser_warning"] = perr.Error()
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: /ai/%s partial parse: %v\n", clusterUrlID, perr)
-	}
-
-	// Cache the fresh slice for next time.
-	if cerr := diggstore.UpsertClusterPosts(db, clusterUrlID, posts, time.Now().UTC()); cerr != nil {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: caching cluster posts failed: %v\n", cerr)
-	}
-
-	meta["source"] = "live"
-	meta["from_cache"] = false
-	meta["fetched_at"] = time.Now().UTC().Format(time.RFC3339)
-	return promotePostsToRows(posts), meta
-}
-
-// clusterPostsURLBaseFromOverride returns the base /ai URL, honoring
-// the test override when set. Production code never sets the
-// override; tests substitute a local httptest server.
-func clusterPostsURLBaseFromOverride() string {
-	if clusterPostsURLOverride != "" {
-		return clusterPostsURLOverride
-	}
-	return "https://digg.com/ai"
-}
-
-// promotePostsToRows converts diggparse.ClusterPost values into the
-// CLI's postRow output shape. Defensive about MediaURLs: ensures the
-// slice is non-nil so the JSON encodes as `[]` instead of `null`.
-func promotePostsToRows(in []diggparse.ClusterPost) []postRow {
-	out := make([]postRow, 0, len(in))
-	for _, p := range in {
-		row := postRow{
-			PostXID:    p.PostXID,
-			PostType:   p.PostType,
-			PostedAt:   p.PostedAt,
-			XURL:       p.XURL,
-			Body:       p.Body,
-			BodyLoaded: p.BodyLoaded,
-			MediaURLs:  p.MediaURLs,
-			Author: postsAuthorRow{
-				Username:        p.Author.Username,
-				DisplayName:     p.Author.DisplayName,
-				Category:        p.Author.Category,
-				Rank:            p.Author.Rank,
-				ProfileImageURL: p.Author.ProfileImageURL,
-			},
-		}
-		if row.MediaURLs == nil {
-			row.MediaURLs = []string{}
-		}
-		if p.Repost != nil {
-			row.Repost = &postsRepostContextRow{
-				RepostingHandle: p.Repost.RepostingHandle,
-				OriginalHandle:  p.Repost.OriginalHandle,
-			}
-		}
-		out = append(out, row)
-	}
-	return out
-}
-
-// sortPostsBy applies the --by ordering to the slice in place. The
-// default ("rank") sorts by author rank ascending, with chronological
-// (posted_at ASC) as the tiebreaker so ties / null-rank rows still
-// produce deterministic output. "type" prioritizes original tweets
-// (the page-prominent posts) and pushes retweets to the bottom. "time"
-// is straight chronological.
-func sortPostsBy(rows []postRow, by string) error {
-	switch by {
-	case "", "rank":
-		sort.SliceStable(rows, func(i, j int) bool {
-			ri, rj := rows[i].Author.Rank, rows[j].Author.Rank
-			// Treat 0/missing rank as "below all ranked authors" (largest
-			// effective rank) so the highest-credibility voices float to
-			// the top.
-			if ri == 0 {
-				ri = 1<<31 - 1
-			}
-			if rj == 0 {
-				rj = 1<<31 - 1
-			}
-			if ri != rj {
-				return ri < rj
-			}
-			return rows[i].PostedAt < rows[j].PostedAt
-		})
-	case "type":
-		order := map[string]int{"tweet": 0, "quote": 1, "reply": 2, "retweet": 3}
-		sort.SliceStable(rows, func(i, j int) bool {
-			oi, oki := order[rows[i].PostType]
-			oj, okj := order[rows[j].PostType]
-			if !oki {
-				oi = 99
-			}
-			if !okj {
-				oj = 99
-			}
-			if oi != oj {
-				return oi < oj
-			}
-			return rows[i].PostedAt < rows[j].PostedAt
-		})
-	case "time":
-		sort.SliceStable(rows, func(i, j int) bool { return rows[i].PostedAt < rows[j].PostedAt })
-	default:
-		return fmt.Errorf("--by must be one of: rank, type, time")
-	}
-	return nil
 }
 
 func newPostsCmd(flags *rootFlags) *cobra.Command {
@@ -591,143 +585,126 @@ func newPostsCmd(flags *rootFlags) *cobra.Command {
 	var typeFilter string
 	var limit int
 	cmd := &cobra.Command{
-		Use:         "posts <clusterUrlId>",
-		Short:       "X posts attached to one cluster: rank, body, media, repost-context, X URLs",
+		Use:         "posts <story>",
+		Short:       "The sources of one story in any topic: text, author, URL and time",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `List the X posts attached to one cluster, with author rank, body
-text, image URLs, repost-context, and minted X URLs.
+		Long: `List the sources Digg attributes one story to, live from Digg. Each row
+carries the source's text (body), its URL (xUrl), when it was published
+(posted_at) and its kind: an X post (kind "x", with author.username and
+author.display_name) or a web page (kind "webpage", with a title).
 
-Live by default — fetches /ai/<clusterUrlId>, parses the embedded RSC
-posts array, attaches DOM-rendered bodies and media, caches the result
-for 1 hour. --data-source local reads from the cache only (no
-network). --no-cache bypasses the cache entirely and forces a fresh
-fetch.
+The argument is the story's UUID (clusterId in search results), the short id
+from its URL (clusterUrlId), or the URL. A short id or URL works once
+` + "`search`" + ` has returned that story.
 
-Sort options:
-  rank   author rank ascending (default; ties broken by posted_at)
-  type   originals first (tweet, then quote, then reply, then retweet)
-  time   chronological ascending by posted_at`,
+Rows come in Digg's order. --by time sorts them oldest first; with --limit
+it reads every source and returns the oldest. --by rank, --by type and
+--type are accepted and have no effect: Digg no longer reports author rank
+or post type.
+
+In JSON, meta.sourcesTruncated is true when the story has more sources
+than Digg served; text output prints a warning on stderr instead.`,
 		Example: `  digg-pp-cli posts 65idu2x5
-  digg-pp-cli posts 65idu2x5 --by rank --limit 5 --json
-  digg-pp-cli posts 65idu2x5 --type tweet --json
+  digg-pp-cli posts 65idu2x5 --limit 5 --json
   digg-pp-cli posts 65idu2x5 --by time --agent
-  digg-pp-cli posts 65idu2x5 --no-cache --json`,
+  digg-pp-cli posts https://digg.com/sports/65idu2x5 --agent --select author.username,xUrl,body`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			if !slices.Contains([]string{"rank", "type", "time"}, by) {
+				return usageErr(fmt.Errorf("--by must be one of: rank, type, time"))
+			}
+			if limit < 0 {
+				return usageErr(fmt.Errorf("--limit must be 0 or more, got %d", limit))
+			}
 			if dryRunOK(flags) {
 				return nil
 			}
-			id := strings.TrimSpace(args[0])
-			if id == "" {
-				return usageErr(fmt.Errorf("clusterUrlId is required (e.g. `digg-pp-cli posts 65idu2x5`)"))
-			}
 			ctx := cmd.Context()
-			_, db, closeFn, err := openStore(ctx)
+			ref, err := resolveStory(ctx, args[0])
 			if err != nil {
 				return err
 			}
-			defer closeFn()
-
-			rows, meta := loadPostsForCluster(ctx, cmd, flags, db, id, postsLoadOptions{
-				honorNoCache: flags.noCache,
-				cacheTTL:     defaultClusterPostsTTL,
-				forceLocal:   flags.dataSource == "local",
-			})
-
-			// --type filter runs BEFORE sort so the limit applies to the
-			// filtered list (a caller asking for `--type tweet --limit 5`
-			// gets up to 5 originals, never fewer because retweets ate
-			// into the budget).
-			if typeFilter != "" {
-				filtered := make([]postRow, 0, len(rows))
-				for _, r := range rows {
-					if r.PostType == typeFilter {
-						filtered = append(filtered, r)
-					}
-				}
-				rows = filtered
-			}
-
-			if err := sortPostsBy(rows, by); err != nil {
+			mc, err := newDiggMCPClient(flags)
+			if err != nil {
 				return err
 			}
-
-			if limit > 0 && len(rows) > limit {
-				rows = rows[:limit]
+			// The oldest sources can sit on any page, so --by time reads
+			// them all before it sorts and applies the limit.
+			fetchLimit := limit
+			if by == "time" {
+				fetchLimit = 0
 			}
-
-			env := postsEnvelope{
-				Meta: map[string]any{
-					"clusterUrlId": id,
-					"by":           by,
-					"count":        len(rows),
-				},
-				Results: rows,
+			page, err := fetchStory(ctx, mc, ref.ID, fetchLimit)
+			if err != nil {
+				return diggCallErr(err)
 			}
-			// Hoist the loader's source/cache metadata into the envelope.
-			for k, v := range meta {
-				if k == "clusterUrlId" {
-					continue // already set
+			rows := postRowsFor(page.Sources)
+			if by == "time" {
+				sort.SliceStable(rows, func(i, j int) bool { return rows[i].PostedAt < rows[j].PostedAt })
+				if limit > 0 && len(rows) > limit {
+					rows = rows[:limit]
 				}
-				env.Meta[k] = v
 			}
-			if typeFilter != "" {
-				env.Meta["type"] = typeFilter
-			}
-
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), env, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), postsEnvelope{
+					Meta: map[string]any{
+						"clusterId":    page.Story.ID,
+						"clusterUrlId": storyShortID(page.Story.URL),
+						"topic":        page.Story.Topic,
+						"url":          page.Story.URL,
+						"title":        page.Story.Title,
+						"source":       "live",
+						"by":           by,
+						"count":        len(rows),
+						// True when the story has sources Digg did not serve.
+						"sourcesTruncated": page.SourcesTruncated,
+					},
+					Results: rows,
+				}, flags)
+			}
+			if page.SourcesTruncated {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: the source list for %s is incomplete: the story has more sources than Digg served\n", page.Story.URL)
 			}
 			if len(rows) == 0 {
-				return emptyHint(cmd, fmt.Sprintf("no posts surfaced for cluster %s.", id))
+				return emptyHint(cmd, fmt.Sprintf("Digg lists no sources for %s.", page.Story.URL))
 			}
-			for _, r := range rows {
-				name := firstNonEmpty(r.Author.DisplayName, r.Author.Username)
-				rankStr := "-"
-				if r.Author.Rank > 0 {
-					rankStr = fmt.Sprintf("#%d", r.Author.Rank)
-				}
-				fmt.Fprintf(cmd.OutOrStdout(), "[%s] @%-20s %s  %s\n", r.PostType, r.Author.Username, diggTruncate(name, 24), rankStr)
-				if r.Body != nil && *r.Body != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", diggTruncate(*r.Body, 200))
-				}
-				if r.XURL != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", r.XURL)
-				}
-			}
+			renderPostRows(cmd.OutOrStdout(), rows)
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&by, "by", "rank", "Sort: rank | type | time")
-	cmd.Flags().StringVar(&typeFilter, "type", "", "Filter to one post type: tweet | reply | quote | retweet")
-	cmd.Flags().IntVar(&limit, "limit", 0, "Cap results (0 = no cap)")
+	cmd.Flags().StringVar(&by, "by", "rank", "Order: time sorts oldest first; rank and type are accepted and keep Digg's order")
+	cmd.Flags().StringVar(&typeFilter, "type", "", "Accepted for older callers; has no effect (Digg no longer reports post type)")
+	cmd.Flags().IntVar(&limit, "limit", 0, "Cap results (0 = every source Digg serves)")
 	return cmd
 }
 
 // ============== search ==============
 //
-// PATCH(digg-feed-continuous-replaces-removed-search-and-trending): Digg
-// removed /api/search/stories in October 2026 and its feed API has no
-// query parameter, so `search` matches against the local copy of the
-// story feed that `sync` builds. When a requested topic has no recent
-// completed sync, search first fetches a few live feed pages (a top-up)
-// so new stories still show up, and reports the copy as stale.
+// Search asks Digg's own search (the digg_search_posts tool on its public
+// MCP server) and prints what it returns. It needs no local copy of the
+// feed and covers every public topic.
 
-// searchResult is one search row. JSON tags keep the shape the removed
-// /api/search/stories returned, so existing consumers (last30days reads
-// clusterUrlId, title, tldr, rank, postCount, uniqueAuthors, firstPostAge)
-// keep working.
+// searchResult is one search row. The first seven fields keep the names
+// the removed /api/search/stories used, which existing consumers read
+// (last30days reads clusterUrlId, title, tldr, postCount, uniqueAuthors,
+// firstPostAge). The rest are Digg's engagement numbers and dates.
 type searchResult struct {
-	ClusterID     string `json:"clusterId"`
-	ClusterURLID  string `json:"clusterUrlId"`
-	Title         string `json:"title,omitempty"`
-	TLDR          string `json:"tldr,omitempty"`
-	Rank          int    `json:"rank,omitempty"`
-	PostCount     int    `json:"postCount,omitempty"`
-	UniqueAuthors int    `json:"uniqueAuthors,omitempty"`
-	FirstPostAge  string `json:"firstPostAge,omitempty"`
+	ClusterID     string   `json:"clusterId"`
+	ClusterURLID  string   `json:"clusterUrlId"`
+	Title         string   `json:"title"`
+	TLDR          string   `json:"tldr,omitempty"`
+	PostCount     int      `json:"postCount"`
+	UniqueAuthors int      `json:"uniqueAuthors"`
+	FirstPostAge  string   `json:"firstPostAge,omitempty"`
+	URL           string   `json:"url"`
+	Topic         string   `json:"topic"`
+	DiggScore     *float64 `json:"diggScore,omitempty"`
+	SourceCount   int      `json:"sourceCount"`
+	PublishedAt   string   `json:"publishedAt"`
+	FirstSourceAt string   `json:"firstSourceAt,omitempty"`
+	Description   string   `json:"description"`
 }
 
 // searchEnvelope wraps the result list with provenance metadata. Shape
@@ -737,674 +714,394 @@ type searchEnvelope struct {
 	Results []searchResult `json:"results"`
 }
 
+// diggSearchPost is one story in a digg_search_posts page.
+type diggSearchPost struct {
+	ID            string   `json:"id"`
+	URL           string   `json:"url"`
+	Topic         string   `json:"topic"`
+	Title         string   `json:"title"`
+	Description   string   `json:"description"`
+	TLDR          *string  `json:"tldr"`
+	PublishedAt   string   `json:"publishedAt"`
+	DiggScore     *float64 `json:"diggScore"`
+	SourceCount   int      `json:"sourceCount"`
+	UniqueAuthors int      `json:"uniqueAuthors"`
+	FirstSourceAt *string  `json:"firstSourceAt"`
+}
+
+// diggSearchPage is one digg_search_posts response.
+type diggSearchPage struct {
+	Posts        []diggSearchPost `json:"posts"`
+	NextCursor   *string          `json:"nextCursor"`
+	TotalMatches int              `json:"totalMatches"`
+	Window       json.RawMessage  `json:"window"`
+	Sort         string           `json:"sort"`
+}
+
 const (
-	// searchFreshFor is how old a completed sync may be before search
-	// treats the topic as stale. Matches doctor's stale_after.
-	searchFreshFor = 6 * time.Hour
-	// searchTopUpPages caps live feed pages per search across all topics.
-	searchTopUpPages = 8
+	diggSearchTool = "digg_search_posts"
+	// Limits Digg's search enforces; checking them here turns a server
+	// rejection into a usage error before any request.
+	searchQueryMin  = 3
+	searchQueryMax  = 120
+	searchPageMax   = 50
+	searchMaxWindow = 90 * 24 * time.Hour
+	// searchRecordWait bounds the write and the lookup of story ids, so a
+	// busy store cannot hold up a caller indefinitely.
+	searchRecordWait = 5 * time.Second
 )
 
-// searchTopUpBudget bounds the whole top-up. Callers such as research
-// pipelines kill the CLI after a fixed timeout (30s is common), so the
-// top-up must stop early enough to still print what it stored. A var so
-// tests can shorten it.
-var searchTopUpBudget = 15 * time.Second
+var searchSorts = []string{"relevance", "score", "newest"}
 
-// feedRangeFor maps a --since window to the smallest feed range that
-// covers it. No window uses the range sync defaults to.
-func feedRangeFor(since time.Duration) string {
-	switch {
-	case since <= 0:
-		return defaultFeedRange
-	case since <= 24*time.Hour:
-		return "24h"
-	case since <= 7*24*time.Hour:
-		return "7d"
-	case since <= 30*24*time.Hour:
-		return "30d"
-	default:
-		return "all"
+// diggMCPURLOverride, when set, replaces Digg's MCP endpoint. Tests only.
+var diggMCPURLOverride string
+
+// newDiggMCPClient builds the MCP client on the CLI's limiter and timeout.
+func newDiggMCPClient(flags *rootFlags) (*diggmcp.Client, error) {
+	c, err := flags.newClient()
+	if err != nil {
+		return nil, err
 	}
+	return &diggmcp.Client{
+		Endpoint:  diggMCPURLOverride,
+		Limiter:   c.Limiter(),
+		Timeout:   c.ConfiguredTimeout(),
+		UserAgent: "digg-pp-cli/" + version,
+	}, nil
 }
 
-// coveringRanges lists the feed ranges whose completed sync covers r.
-func coveringRanges(r string) []string {
-	i := slices.Index(feedRanges, r)
-	if i < 0 {
-		return []string{r}
-	}
-	return feedRanges[i:]
-}
-
-// topicSyncedAt returns the newest completed sync of topic at any range
-// covering r, or false when there is none.
-func topicSyncedAt(db *sql.DB, topic, r string) (time.Time, bool, error) {
-	var newest time.Time
-	for _, cr := range coveringRanges(r) {
-		at, ok, err := diggstore.FeedSyncedAt(db, topic, cr)
-		if err != nil {
-			return time.Time{}, false, err
-		}
-		if ok && at.After(newest) {
-			newest = at
-		}
-	}
-	return newest, !newest.IsZero(), nil
-}
-
-// formatStoryAge renders an age the way Digg's removed search did: whole
-// hours under a day, whole days otherwise.
+// formatStoryAge renders an age with hour and day tokens only. Under a
+// day it rounds up to whole hours and never prints 0h; otherwise it
+// counts whole days. It never uses a month token: older readers take "m"
+// for months and drop the row.
 func formatStoryAge(d time.Duration) string {
-	if d < 0 {
-		d = 0
-	}
 	if d < 24*time.Hour {
-		return fmt.Sprintf("%dh", int(d/time.Hour))
+		h := int((d + time.Hour - 1) / time.Hour)
+		if h < 1 {
+			h = 1
+		}
+		return fmt.Sprintf("%dh", h)
 	}
 	return fmt.Sprintf("%dd", int(d/(24*time.Hour)))
 }
 
+// parseSearchTime reads a --since or --until value: a relative age (Nh,
+// Nd, Nw, Nm) counted back from now, or an ISO date or datetime.
+func parseSearchTime(s string, now time.Time) (at time.Time, age time.Duration, err error) {
+	if d, derr := cliutil.ParseDiggAge(s); derr == nil {
+		return now.Add(-d), d, nil
+	}
+	if t, terr := time.Parse(time.RFC3339, s); terr == nil {
+		return t, 0, nil
+	}
+	if t, terr := time.Parse("2006-01-02", s); terr == nil {
+		return t, 0, nil
+	}
+	return time.Time{}, 0, fmt.Errorf("%q is not a duration (Nh, Nd, Nw, Nm) or an ISO date (2026-11-01 or 2026-11-01T00:00:00Z)", s)
+}
+
+// searchWindowArgs turns --since and --until into digg_search_posts
+// window arguments. A bare 24h, 7d or 30d becomes Digg's range; anything
+// else is an absolute since. Digg rejects range combined with since or
+// until, so --until always travels with an absolute since.
+func searchWindowArgs(sinceStr, untilStr string, now time.Time) (map[string]any, error) {
+	args := map[string]any{}
+	sinceStr, untilStr = strings.TrimSpace(sinceStr), strings.TrimSpace(untilStr)
+	oldest := now.Add(-searchMaxWindow)
+	var since time.Time
+	if sinceStr != "" {
+		at, age, err := parseSearchTime(sinceStr, now)
+		if err != nil {
+			return nil, usageErr(fmt.Errorf("--since: %w", err))
+		}
+		if age > searchMaxWindow || at.Before(oldest) {
+			return nil, usageErr(fmt.Errorf("--since %q is more than 90 days back; Digg search covers the last 90 days", sinceStr))
+		}
+		if untilStr == "" {
+			switch age {
+			case 24 * time.Hour:
+				args["range"] = "24h"
+				return args, nil
+			case 7 * 24 * time.Hour:
+				args["range"] = "7d"
+				return args, nil
+			case 30 * 24 * time.Hour:
+				args["range"] = "30d"
+				return args, nil
+			}
+		}
+		// Kept just inside Digg's limit, as the --until default below is.
+		if floor := oldest.Add(time.Minute); at.Before(floor) {
+			at = floor
+		}
+		since = at
+	}
+	if untilStr != "" {
+		until, _, err := parseSearchTime(untilStr, now)
+		if err != nil {
+			return nil, usageErr(fmt.Errorf("--until: %w", err))
+		}
+		if since.IsZero() {
+			// The widest window Digg serves, kept just inside its limit.
+			since = oldest.Add(time.Minute)
+		}
+		args["until"] = until.UTC().Format(time.RFC3339)
+	}
+	if !since.IsZero() {
+		args["since"] = since.UTC().Format(time.RFC3339)
+	}
+	return args, nil
+}
+
+// storyShortID returns the last path segment of a story URL, the id Digg
+// uses in links (https://digg.com/<topic>/<shortId>).
+func storyShortID(storyURL string) string {
+	p := storyURL
+	if i := strings.IndexAny(p, "?#"); i >= 0 {
+		p = p[:i]
+	}
+	p = strings.TrimRight(p, "/")
+	return p[strings.LastIndex(p, "/")+1:]
+}
+
+func searchResultFor(p diggSearchPost, now time.Time) searchResult {
+	r := searchResult{
+		ClusterID:     p.ID,
+		ClusterURLID:  storyShortID(p.URL),
+		Title:         p.Title,
+		PostCount:     p.SourceCount,
+		UniqueAuthors: p.UniqueAuthors,
+		URL:           p.URL,
+		Topic:         p.Topic,
+		DiggScore:     p.DiggScore,
+		SourceCount:   p.SourceCount,
+		PublishedAt:   p.PublishedAt,
+		Description:   p.Description,
+	}
+	if p.TLDR != nil {
+		r.TLDR = *p.TLDR
+	}
+	if p.FirstSourceAt != nil {
+		r.FirstSourceAt = *p.FirstSourceAt
+	}
+	if at, err := time.Parse(time.RFC3339, p.PublishedAt); err == nil {
+		r.FirstPostAge = formatStoryAge(now.Sub(at))
+	}
+	return r
+}
+
+// openStoreWaiting opens the local store. Commands started together on a
+// store that does not exist yet race to create it, and the losers see the
+// database as locked; this waits for the winner until ctx ends.
+func openStoreWaiting(ctx context.Context) (*sql.DB, func() error, error) {
+	for {
+		_, db, closeFn, err := openStore(ctx)
+		if err == nil {
+			return db, closeFn, nil
+		}
+		if !diggstore.IsBusy(err) {
+			return nil, nil, err
+		}
+		select {
+		case <-ctx.Done():
+			return nil, nil, err
+		case <-time.After(50 * time.Millisecond):
+		}
+	}
+}
+
+// recordSearchRefs stores each result's short id, UUID and topic so a
+// later command given only a short id can find the story.
+func recordSearchRefs(ctx context.Context, results []searchResult) error {
+	ctx, cancel := context.WithTimeout(ctx, searchRecordWait)
+	defer cancel()
+	db, closeFn, err := openStoreWaiting(ctx)
+	if err != nil {
+		return err
+	}
+	defer closeFn()
+	refs := make([]diggstore.PostRef, 0, len(results))
+	for _, r := range results {
+		refs = append(refs, diggstore.PostRef{ShortID: r.ClusterURLID, ID: r.ClusterID, Topic: r.Topic})
+	}
+	return diggstore.RecordPostRefs(ctx, db, refs, time.Now())
+}
+
 func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var limit int
-	var sinceStr string
+	var sinceStr, untilStr, sortBy string
 	var topics []string
 	cmd := &cobra.Command{
 		Use:   "search [query]",
-		Short: "Search Digg stories by title and summary across one or more sections",
-		Long: `Search Digg stories by title and summary.
+		Short: "Search Digg stories live, across one or more topics, with Digg Score and source counts",
+		Long: `Search Digg stories with Digg's own search.
 
-Search reads the local copy of each section's story feed that ` + "`sync`" + ` builds.
-Every query word must appear in a story's headline or summary. --topic picks
-the sections (default ai; valid: ` + strings.Join(validTopicSlugs(), ", ") + `).
+Every search is live: it needs no prior ` + "`sync`" + ` and reads no local copy.
+--topic limits the search to one or more topics (valid: ` + strings.Join(validTopicSlugs(), ", ") + `);
+without it every topic is searched.
 
-When a requested section has no completed sync in the last 6 hours, search
-first fetches a few live feed pages so new stories still appear, and marks
-the result meta.stale=true. Run ` + "`digg-pp-cli sync --topics <sections>`" + ` for full
-coverage. --data-source local never fetches; --data-source live always does.
+Each result carries its Digg Score (diggScore), how many sources the story
+lists (sourceCount), how many different authors wrote them (uniqueAuthors),
+when it was published (publishedAt), when its earliest source appeared
+(firstSourceAt), its topic and its URL.
 
-The --since flag filters by when each story started (Nh, Nd, Nw, or Nm for
-months of about 30 days). firstPostAge is measured from now.`,
+--since and --until take a duration counted back from now (Nh, Nd, Nw, or
+Nm for months of 30 days) or an ISO date such as 2026-11-01. They filter on
+publishedAt. Digg search covers the last 90 days. --sort is relevance
+(default), score (highest Digg Score first) or newest. --limit may exceed
+one page; search follows Digg's cursor until it has that many results or
+the matches run out.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  digg-pp-cli search "openai gpt-5"
   digg-pp-cli search "<topic>" --since 30d --agent
-  digg-pp-cli search "claude" --topic ai,tech --since 7d --json
-  digg-pp-cli search "robotics" --json --select clusterUrlId,title,rank,postCount
-  digg-pp-cli search "claude" --data-source local`,
+  digg-pp-cli search "claude" --topic ai,tech --since 7d --sort score --json
+  digg-pp-cli search "world cup" --topic sports --since 2026-11-01 --until 2026-11-08
+  digg-pp-cli search "robotics" --limit 120 --json --select title,diggScore,url`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			query := strings.TrimSpace(strings.Join(args, " "))
-			if query == "" {
-				return usageErr(fmt.Errorf("query is required (e.g. `digg-pp-cli search \"openai\"`)"))
+			if n := utf8.RuneCountInString(query); n < searchQueryMin || n > searchQueryMax {
+				return usageErr(fmt.Errorf("query must be %d to %d characters, got %d (e.g. `digg-pp-cli search \"openai\"`)", searchQueryMin, searchQueryMax, n))
 			}
 			if err := validateTopics(topics); err != nil {
 				return err
 			}
-			// Parse --since up front so a malformed value is a usage error
-			// before any network or store work. Zero means no window.
-			var since time.Duration
-			if s := strings.TrimSpace(sinceStr); s != "" {
-				d, err := cliutil.ParseDiggAge(s)
-				if err != nil {
-					return usageErr(fmt.Errorf("--since %q: %w (accepts Nh, Nd, Nw, Nm; e.g. 30d)", sinceStr, err))
-				}
-				since = d
+			if !slices.Contains(searchSorts, sortBy) {
+				return usageErr(fmt.Errorf("invalid --sort %q; valid: %s", sortBy, strings.Join(searchSorts, ", ")))
 			}
-			if dryRunOK(flags) {
-				return nil
-			}
-			ctx := cmd.Context()
-			feedRange := feedRangeFor(since)
-
-			_, db, closeFn, err := openStore(ctx)
-			if err != nil {
-				return err
-			}
-			defer closeFn()
-
-			// Freshness per topic.
-			var staleTopics []string
-			var oldestSync time.Time
-			for _, t := range topics {
-				at, ok, err := topicSyncedAt(db, t, feedRange)
-				if err != nil {
-					return err
-				}
-				if !ok || time.Since(at) > searchFreshFor {
-					staleTopics = append(staleTopics, t)
-				}
-				if ok && (oldestSync.IsZero() || at.Before(oldestSync)) {
-					oldestSync = at
-				}
-			}
-
-			fresh := len(staleTopics) == 0
-			ds := flags.dataSource
-			if ds == "" {
-				ds = "auto"
-			}
-			topUp := ds == "live" || (ds == "auto" && !fresh)
-
-			var window time.Time
-			if since > 0 {
-				window = time.Now().Add(-since)
-			}
-			storedBefore, err := diggstore.CountTopicStories(db, topics, window)
-			if err != nil {
-				return err
-			}
-
-			source := "local"
-			pages := 0
-			var topUpErr error
-			if topUp {
-				pages, topUpErr = searchTopUp(ctx, flags, db, topics, feedRange)
-				switch {
-				case pages > 0 && storedBefore == 0:
-					source = "live"
-				case pages > 0:
-					source = "local+live"
-				}
-				if topUpErr != nil && ds == "live" && pages == 0 {
-					return fmt.Errorf("live feed fetch failed: %w", topUpErr)
-				}
-			}
-			// A stale or never-synced section with nothing stored in the
-			// window and no live pages is missing data, not an empty result.
-			// A fresh sync with nothing in the window really has no matches.
-			if !fresh && storedBefore == 0 && pages == 0 {
-				reason := "no completed sync"
-				if topUpErr != nil {
-					reason = fmt.Sprintf("the live feed is unreachable (%v)", topUpErr)
-				} else if ds == "local" {
-					reason = "--data-source local skips the live feed"
-				}
-				return fmt.Errorf("no stored stories for %s in the requested window and %s; run `digg-pp-cli sync --topics %s`",
-					strings.Join(topics, ","), reason, strings.Join(topics, ","))
-			}
-			if topUpErr != nil {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warn: live feed top-up failed: %v\n", topUpErr)
-			}
-			if !fresh {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warn: local copy of %s has no completed sync in the last %d hours; results may miss stories. Run `digg-pp-cli sync --topics %s`.\n",
-					strings.Join(staleTopics, ","), int(searchFreshFor.Hours()), strings.Join(staleTopics, ","))
-			}
-
-			matches, err := diggstore.SearchFeedStories(db, query, topics, window, limit)
-			if err != nil {
-				return err
+			if limit < 1 {
+				return usageErr(fmt.Errorf("--limit must be at least 1, got %d", limit))
 			}
 			now := time.Now()
-			results := make([]searchResult, 0, len(matches))
-			for _, m := range matches {
-				results = append(results, searchResult{
-					ClusterID:     m.ClusterID,
-					ClusterURLID:  m.ClusterURLID,
-					Title:         m.Title,
-					TLDR:          m.TLDR,
-					Rank:          m.Rank,
-					PostCount:     m.PostCount,
-					UniqueAuthors: m.UniqueAuthors,
-					FirstPostAge:  formatStoryAge(now.Sub(m.CreatedAt)),
-				})
-			}
-
-			if flags.asJSON {
-				meta := map[string]any{
-					"source": source,
-					"query":  query,
-					"count":  len(results),
-					"topics": topics,
-					"stale":  !fresh,
-				}
-				if !oldestSync.IsZero() {
-					meta["synced_at"] = oldestSync.UTC().Format(time.RFC3339)
-				}
-				if sinceStr != "" {
-					meta["since"] = sinceStr
-				}
-				return printJSONFiltered(cmd.OutOrStdout(), searchEnvelope{Meta: meta, Results: results}, flags)
-			}
-			if len(results) == 0 {
-				return emptyHint(cmd, fmt.Sprintf("no matches for %q in %s (source=%s). Try a different query or `digg-pp-cli sync --topics %s`.",
-					query, strings.Join(topics, ","), source, strings.Join(topics, ",")))
-			}
-			for _, r := range results {
-				fmt.Fprintf(cmd.OutOrStdout(), "#%d  %s  [%s]\n", r.Rank, firstNonEmpty(r.Title, r.ClusterURLID), r.ClusterURLID)
-				if r.TLDR != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), "    %s\n", diggTruncate(r.TLDR, 200))
-				}
-				fmt.Fprintf(cmd.OutOrStdout(), "    posts=%d  authors=%d  age=%s\n", r.PostCount, r.UniqueAuthors, r.FirstPostAge)
-			}
-			return nil
-		},
-	}
-	cmd.Flags().IntVar(&limit, "limit", 20, "Max number of results")
-	cmd.Flags().StringVar(&sinceStr, "since", "", "Filter to stories that started within this window. Accepts Nh, Nd, Nw, Nm (e.g. 30d, 1w, 12h, 1m). Default empty (no filter).")
-	cmd.Flags().StringSliceVar(&topics, "topic", []string{"ai"}, "Comma-separated Digg sections to search (valid: "+strings.Join(validTopicSlugs(), ", ")+")")
-	return cmd
-}
-
-// searchTopUp fetches up to searchTopUpPages live feed pages split across
-// topics and stores them. It never records freshness: a top-up sees only
-// the highest-ranked stories, so it must not stand in for a sync. It
-// returns the pages stored and the first error hit. Running out of
-// searchTopUpBudget ends the top-up with the pages stored so far.
-func searchTopUp(ctx context.Context, flags *rootFlags, db *sql.DB, topics []string, feedRange string) (int, error) {
-	c, err := flags.newClient()
-	if err != nil {
-		return 0, err
-	}
-	ctx, cancel := context.WithTimeout(ctx, searchTopUpBudget)
-	defer cancel()
-	perTopic := searchTopUpPages / len(topics)
-	if perTopic < 1 {
-		perTopic = 1
-	}
-	pages := 0
-	var firstErr error
-	for i, t := range topics {
-		if i*perTopic >= searchTopUpPages {
-			break
-		}
-		res, err := walkFeed(ctx, c, client.FeedParams{Topic: t, View: "top", Range: feedRange}, perTopic, func(p *client.FeedPage) error {
-			return diggstore.UpsertFeedPageContext(ctx, db, p.Posts, t, feedRange, time.Now())
-		})
-		pages += res.Pages
-		budgetSpent := ctx.Err() != nil
-		// The budget running out is how the top-up ends, not a failure;
-		// any other error still is.
-		if err != nil && firstErr == nil && !(budgetSpent && errors.Is(err, ctx.Err())) {
-			firstErr = fmt.Errorf("%s: %w", t, err)
-		}
-		if budgetSpent {
-			if firstErr == nil && pages == 0 {
-				firstErr = fmt.Errorf("%s: no feed page within %s: %w", t, searchTopUpBudget, ctx.Err())
-			}
-			break
-		}
-	}
-	return pages, firstErr
-}
-
-// ============== events ==============
-
-func newEventsCmd(flags *rootFlags) *cobra.Command {
-	var limit int
-	var sinceStr string
-	var typeFilter string
-	cmd := &cobra.Command{
-		Use:         "events",
-		Short:       "List Digg pipeline events stored by sync",
-		Long:        `List pipeline events stored in the local database. Sync captures the events each section page embeds in its RSC stream (cluster_detected, fast_climb with delta + previousRank → currentRank). This reads stored events only; Digg removed its live pipeline-status endpoint in October 2026, so run ` + "`sync`" + ` to capture new ones.`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Example: `  digg-pp-cli events --since 1h --type fast_climb
-  digg-pp-cli events --type cluster_detected --limit 10 --json
-  digg-pp-cli events --json --select clusterId,label,delta,currentRank,previousRank`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
-			since := parseSinceWithFallback(sinceStr, 24*time.Hour)
-			_, db, closeFn, err := openStore(cmd.Context())
+			callArgs, err := searchWindowArgs(sinceStr, untilStr, now)
 			if err != nil {
 				return err
-			}
-			defer closeFn()
-
-			q := `SELECT id, type, COALESCE(cluster_id,''), COALESCE(label,''), COALESCE(username,''), COALESCE(post_type,''), COALESCE(permalink,''),
-				COALESCE(delta,0), COALESCE(current_rank,0), COALESCE(previous_rank,0), COALESCE(count,0), COALESCE(total,0),
-				COALESCE(at,''), COALESCE(created_at,''), COALESCE(raw_json,'')
-				FROM digg_events WHERE 1=1`
-			var argsSQL []any
-			if !since.IsZero() {
-				q += ` AND at >= ?`
-				argsSQL = append(argsSQL, since.UTC().Format(time.RFC3339))
-			}
-			if typeFilter != "" {
-				q += ` AND type = ?`
-				argsSQL = append(argsSQL, typeFilter)
-			}
-			q += ` ORDER BY at DESC LIMIT ?`
-			argsSQL = append(argsSQL, limit)
-
-			rows, err := db.QueryContext(cmd.Context(), q, argsSQL...)
-			if err != nil {
-				return err
-			}
-			defer rows.Close()
-			type evRow struct {
-				ID           string `json:"id"`
-				Type         string `json:"type"`
-				ClusterID    string `json:"clusterId,omitempty"`
-				Label        string `json:"label,omitempty"`
-				Username     string `json:"username,omitempty"`
-				PostType     string `json:"postType,omitempty"`
-				Permalink    string `json:"permalink,omitempty"`
-				Delta        int    `json:"delta,omitempty"`
-				CurrentRank  int    `json:"currentRank,omitempty"`
-				PreviousRank int    `json:"previousRank,omitempty"`
-				Count        int    `json:"count,omitempty"`
-				Total        int    `json:"total,omitempty"`
-				At           string `json:"at"`
-				CreatedAt    string `json:"createdAt,omitempty"`
-			}
-			var out []evRow
-			for rows.Next() {
-				var e evRow
-				var rawJSON string
-				if err := rows.Scan(&e.ID, &e.Type, &e.ClusterID, &e.Label, &e.Username, &e.PostType, &e.Permalink,
-					&e.Delta, &e.CurrentRank, &e.PreviousRank, &e.Count, &e.Total,
-					&e.At, &e.CreatedAt, &rawJSON); err != nil {
-					return err
-				}
-				out = append(out, e)
-			}
-			if err := rows.Err(); err != nil {
-				return err
-			}
-			if len(out) == 0 {
-				return emptyHint(cmd, "no events in window. Run `digg-pp-cli sync` first, or widen --since.")
-			}
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
-			}
-			for _, e := range out {
-				switch e.Type {
-				case "fast_climb":
-					fmt.Fprintf(cmd.OutOrStdout(), "[%s] fast_climb %+d  %d→%d  %s\n", e.At, e.Delta, e.PreviousRank, e.CurrentRank, e.Label)
-				case "cluster_detected":
-					fmt.Fprintf(cmd.OutOrStdout(), "[%s] cluster_detected  %s\n", e.At, e.Label)
-				case "post_understanding":
-					fmt.Fprintf(cmd.OutOrStdout(), "[%s] post @%s [%s]  %s\n", e.At, e.Username, e.PostType, e.Permalink)
-				default:
-					fmt.Fprintf(cmd.OutOrStdout(), "[%s] %s  count=%d\n", e.At, e.Type, e.Count)
-				}
-			}
-			return nil
-		},
-	}
-	cmd.Flags().IntVar(&limit, "limit", 50, "Max number of events to return")
-	cmd.Flags().StringVar(&sinceStr, "since", "24h", "Only events at-or-after this duration ago (e.g. 30m, 6h, 2d) or RFC3339")
-	cmd.Flags().StringVar(&typeFilter, "type", "", "Filter to event type (cluster_detected, fast_climb, post_understanding, batch_started, batch_breakdown, posts_stored, embedding_progress)")
-	return cmd
-}
-
-// ============== evidence ==============
-
-func newEvidenceCmd(flags *rootFlags) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:         "evidence [clusterUrlId]",
-		Short:       "Print Digg's published score components and evidence array for one cluster",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Example: `  digg-pp-cli evidence iq7usf9e
-  digg-pp-cli evidence iq7usf9e --json`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return cmd.Help()
 			}
 			if dryRunOK(flags) {
 				return nil
 			}
-			id := args[0]
-			_, db, closeFn, err := openStore(cmd.Context())
+			callArgs["query"] = query
+			callArgs["sort"] = sortBy
+			// Digg reads a missing topic, like "all", as every topic.
+			metaTopics := []string{"all"}
+			if len(topics) > 0 && !slices.Contains(topics, "all") {
+				callArgs["topic"] = topics
+				metaTopics = topics
+			}
+			meta := map[string]any{
+				"source": "live",
+				"stale":  false,
+				"query":  query,
+				"count":  0,
+				"topics": metaTopics,
+				"sort":   sortBy,
+			}
+			if sinceStr != "" {
+				meta["since"] = sinceStr
+			}
+			if untilStr != "" {
+				meta["until"] = untilStr
+			}
+			// fail prints the envelope with the error in it, so a JSON
+			// reader never mistakes a failed search for an empty one.
+			fail := func(err error) error {
+				if flags.asJSON {
+					meta["error"] = err.Error()
+					_ = printJSONFiltered(cmd.OutOrStdout(), searchEnvelope{Meta: meta, Results: []searchResult{}}, flags)
+				}
+				return diggCallErr(err)
+			}
+
+			ctx := cmd.Context()
+			mc, err := newDiggMCPClient(flags)
 			if err != nil {
 				return err
 			}
-			defer closeFn()
-			row := db.QueryRowContext(cmd.Context(),
-				`SELECT cluster_id, COALESCE(cluster_url_id,''), COALESCE(label,''),
-				 COALESCE(gravity_score,0), COALESCE(numerator_count,0), COALESCE(numerator_label,''),
-				 COALESCE(percent_above_average,0), COALESCE(score_components_json,''), COALESCE(evidence_json,'')
-				 FROM digg_clusters WHERE cluster_url_id = ? OR cluster_id = ?`, id, id)
-			var clusterID, urlID, label string
-			var gravity, pct float64
-			var numeratorCount int
-			var numeratorLabel, scoreJSON, evJSON string
-			if err := row.Scan(&clusterID, &urlID, &label, &gravity, &numeratorCount, &numeratorLabel, &pct, &scoreJSON, &evJSON); err != nil {
-				if err == sql.ErrNoRows {
-					return fmt.Errorf("cluster not found: %s", id)
+			results := make([]searchResult, 0, limit)
+			for cursor, first := "", true; len(results) < limit; first = false {
+				callArgs["limit"] = min(searchPageMax, limit-len(results))
+				if cursor != "" {
+					callArgs["cursor"] = cursor
 				}
-				return err
+				raw, err := mc.Call(ctx, diggSearchTool, callArgs)
+				if err != nil {
+					return fail(err)
+				}
+				// A result without a posts array is a changed response,
+				// not a search with no matches.
+				var probe struct {
+					Posts json.RawMessage `json:"posts"`
+				}
+				if err := json.Unmarshal(raw, &probe); err != nil {
+					return fail(fmt.Errorf("%s: unreadable result: %w", diggSearchTool, err))
+				}
+				if missingJSONValue(probe.Posts) {
+					return fail(fmt.Errorf("%s: Digg's search response did not have the expected shape (no posts array)", diggSearchTool))
+				}
+				var page diggSearchPage
+				if err := json.Unmarshal(raw, &page); err != nil {
+					return fail(fmt.Errorf("%s: unreadable result: %w", diggSearchTool, err))
+				}
+				if first {
+					meta["totalMatches"] = page.TotalMatches
+					if len(page.Window) > 0 {
+						meta["window"] = page.Window
+					}
+					if page.Sort != "" {
+						meta["sort"] = page.Sort
+					}
+				}
+				for _, p := range page.Posts {
+					results = append(results, searchResultFor(p, now))
+				}
+				// An empty page with a cursor would otherwise loop forever.
+				if page.NextCursor == nil || *page.NextCursor == "" || len(page.Posts) == 0 {
+					break
+				}
+				cursor = *page.NextCursor
 			}
-			result := map[string]any{
-				"clusterId":           clusterID,
-				"clusterUrlId":        urlID,
-				"label":               label,
-				"gravityScore":        gravity,
-				"numeratorCount":      numeratorCount,
-				"numeratorLabel":      numeratorLabel,
-				"percentAboveAverage": pct,
-				"scoreComponents":     asJSONString(scoreJSON),
-				"evidence":            asJSONString(evJSON),
+			if len(results) > limit {
+				results = results[:limit]
 			}
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+			meta["count"] = len(results)
+
+			// Results go out before the id record is tried, so a slow or
+			// locked store can neither delay nor lose them.
+			var printErr error
+			switch {
+			case flags.asJSON:
+				printErr = printJSONFiltered(cmd.OutOrStdout(), searchEnvelope{Meta: meta, Results: results}, flags)
+			case len(results) == 0:
+				printErr = emptyHint(cmd, fmt.Sprintf("no matches for %q in %s. Try a different query or a wider --since.", query, strings.Join(metaTopics, ",")))
+			default:
+				for _, r := range results {
+					score := "-"
+					if r.DiggScore != nil {
+						score = strconv.FormatFloat(*r.DiggScore, 'f', -1, 64)
+					}
+					fmt.Fprintf(cmd.OutOrStdout(), "%s  [%s]\n", firstNonEmpty(r.Title, r.ClusterURLID), r.Topic)
+					if r.TLDR != "" {
+						fmt.Fprintf(cmd.OutOrStdout(), "    %s\n", diggTruncate(r.TLDR, 200))
+					}
+					fmt.Fprintf(cmd.OutOrStdout(), "    score=%s  sources=%d  authors=%d  age=%s  %s\n", score, r.SourceCount, r.UniqueAuthors, r.FirstPostAge, r.URL)
+				}
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "%s [%s]\n", label, urlID)
-			fmt.Fprintf(cmd.OutOrStdout(), "  gravityScore: %.4f\n", gravity)
-			if numeratorLabel != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "  %s: %d\n", numeratorLabel, numeratorCount)
+
+			// Best-effort: several searches may share one store, and a
+			// failed write must not cost the caller its results.
+			if err := recordSearchRefs(ctx, results); err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warn: could not record story ids in the local store: %v\n", err)
 			}
-			if pct > 0 {
-				fmt.Fprintf(cmd.OutOrStdout(), "  percentAboveAverage: %.2f\n", pct)
-			}
-			if scoreJSON != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "  scoreComponents:\n    %s\n", indentJSON(scoreJSON, 4))
-			}
-			if evJSON != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "  evidence:\n    %s\n", indentJSON(evJSON, 4))
-			}
-			return nil
+			return printErr
 		},
 	}
-	return cmd
-}
-
-// ============== sentiment ==============
-
-func newSentimentCmd(flags *rootFlags) *cobra.Command {
-	var window string
-	cmd := &cobra.Command{
-		Use:         "sentiment [clusterUrlId]",
-		Short:       "Print per-time-window positivity ratios for one cluster (pos6h/pos12h/pos24h)",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Example: `  digg-pp-cli sentiment iq7usf9e
-  digg-pp-cli sentiment iq7usf9e --window 6h
-  digg-pp-cli sentiment iq7usf9e --json`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return cmd.Help()
-			}
-			if dryRunOK(flags) {
-				return nil
-			}
-			id := args[0]
-			_, db, closeFn, err := openStore(cmd.Context())
-			if err != nil {
-				return err
-			}
-			defer closeFn()
-			row := db.QueryRowContext(cmd.Context(),
-				`SELECT cluster_id, COALESCE(cluster_url_id,''), COALESCE(label,''),
-				 COALESCE(pos6h,0), COALESCE(pos12h,0), COALESCE(pos24h,0), COALESCE(pos_last,0)
-				 FROM digg_clusters WHERE cluster_url_id = ? OR cluster_id = ?`, id, id)
-			var clusterID, urlID, label string
-			var p6, p12, p24, pLast float64
-			if err := row.Scan(&clusterID, &urlID, &label, &p6, &p12, &p24, &pLast); err != nil {
-				if err == sql.ErrNoRows {
-					return fmt.Errorf("cluster not found: %s", id)
-				}
-				return err
-			}
-			result := map[string]any{
-				"clusterId":    clusterID,
-				"clusterUrlId": urlID,
-				"label":        label,
-				"pos6h":        p6, "pos12h": p12, "pos24h": p24, "posLast": pLast,
-			}
-			if window != "" {
-				switch window {
-				case "6h":
-					result["window"] = window
-					result["positivity"] = p6
-				case "12h":
-					result["window"] = window
-					result["positivity"] = p12
-				case "24h":
-					result["window"] = window
-					result["positivity"] = p24
-				default:
-					return fmt.Errorf("--window must be 6h, 12h, or 24h")
-				}
-			}
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "%s [%s]\n  pos6h=%.2f  pos12h=%.2f  pos24h=%.2f  posLast=%.2f\n",
-				label, urlID, p6, p12, p24, pLast)
-			return nil
-		},
-	}
-	cmd.Flags().StringVar(&window, "window", "", "Restrict output to one window: 6h, 12h, or 24h")
-	return cmd
-}
-
-// ============== crossref ==============
-
-func newCrossrefCmd(flags *rootFlags) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:         "crossref [clusterUrlId]",
-		Short:       "Show this cluster's Hacker News and Techmeme cross-references",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Example: `  digg-pp-cli crossref iq7usf9e
-  digg-pp-cli crossref iq7usf9e --json`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return cmd.Help()
-			}
-			if dryRunOK(flags) {
-				return nil
-			}
-			id := args[0]
-			_, db, closeFn, err := openStore(cmd.Context())
-			if err != nil {
-				return err
-			}
-			defer closeFn()
-			row := db.QueryRowContext(cmd.Context(),
-				`SELECT cluster_id, COALESCE(cluster_url_id,''), COALESCE(label,''),
-				 COALESCE(url,''), COALESCE(permalink,''),
-				 COALESCE(hacker_news_json,''), COALESCE(techmeme_json,''), COALESCE(external_feeds_json,'')
-				 FROM digg_clusters WHERE cluster_url_id = ? OR cluster_id = ?`, id, id)
-			var clusterID, urlID, label, sourceURL, perm, hnJSON, tmJSON, extJSON string
-			if err := row.Scan(&clusterID, &urlID, &label, &sourceURL, &perm, &hnJSON, &tmJSON, &extJSON); err != nil {
-				if err == sql.ErrNoRows {
-					return fmt.Errorf("cluster not found: %s", id)
-				}
-				return err
-			}
-			result := map[string]any{
-				"clusterId":    clusterID,
-				"clusterUrlId": urlID,
-				"label":        label,
-				"source":       sourceURL,
-				"diggURL":      perm,
-				"hackerNews":   asJSONString(hnJSON),
-				"techmeme":     asJSONString(tmJSON),
-				"external":     asJSONString(extJSON),
-			}
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "%s [%s]\n", label, urlID)
-			fmt.Fprintf(cmd.OutOrStdout(), "  digg:       %s\n", perm)
-			if sourceURL != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "  source:     %s\n", sourceURL)
-			}
-			if hnJSON != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "  hackerNews: %s\n", indentJSON(hnJSON, 14))
-			} else {
-				fmt.Fprintf(cmd.OutOrStdout(), "  hackerNews: (not detected by Digg)\n")
-			}
-			if tmJSON != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "  techmeme:   %s\n", indentJSON(tmJSON, 14))
-			} else {
-				fmt.Fprintf(cmd.OutOrStdout(), "  techmeme:   (not detected by Digg)\n")
-			}
-			return nil
-		},
-	}
-	return cmd
-}
-
-// ============== replaced ==============
-
-func newReplacedCmd(flags *rootFlags) *cobra.Command {
-	var sinceStr string
-	var limit int
-	cmd := &cobra.Command{
-		Use:         "replaced",
-		Short:       "Stories that were knocked out of the rankings, with Digg's published rationale",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Example: `  digg-pp-cli replaced --since 24h
-  digg-pp-cli replaced --json --select clusterUrlId,label,rationale,previousRank`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
-			since := parseSinceWithFallback(sinceStr, 24*time.Hour)
-			_, db, closeFn, err := openStore(cmd.Context())
-			if err != nil {
-				return err
-			}
-			defer closeFn()
-			rows, err := db.QueryContext(cmd.Context(),
-				`SELECT cluster_id, COALESCE(cluster_url_id,''), COALESCE(label,''),
-				 observed_at, COALESCE(rationale,''), COALESCE(previous_rank,0)
-				 FROM digg_replacements WHERE observed_at >= ?
-				 ORDER BY observed_at DESC LIMIT ?`,
-				since.UTC().Format(time.RFC3339Nano), limit)
-			if err != nil {
-				return err
-			}
-			defer rows.Close()
-			type repRow struct {
-				ClusterID    string `json:"clusterId"`
-				ClusterURLID string `json:"clusterUrlId"`
-				Label        string `json:"label"`
-				ObservedAt   string `json:"observedAt"`
-				Rationale    string `json:"rationale"`
-				PreviousRank int    `json:"previousRank,omitempty"`
-			}
-			var out []repRow
-			for rows.Next() {
-				var r repRow
-				if err := rows.Scan(&r.ClusterID, &r.ClusterURLID, &r.Label, &r.ObservedAt, &r.Rationale, &r.PreviousRank); err != nil {
-					return err
-				}
-				out = append(out, r)
-			}
-			if err := rows.Err(); err != nil {
-				return err
-			}
-			if len(out) == 0 {
-				return emptyHint(cmd, "no replacements recorded in window. Replacement archaeology needs at least 2 syncs over time.")
-			}
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
-			}
-			for _, r := range out {
-				fmt.Fprintf(cmd.OutOrStdout(), "[%s] %s [%s]  was rank #%d\n  rationale: %s\n",
-					r.ObservedAt, r.Label, r.ClusterURLID, r.PreviousRank, r.Rationale)
-			}
-			return nil
-		},
-	}
-	cmd.Flags().StringVar(&sinceStr, "since", "24h", "Lookback window (e.g. 6h, 24h, 7d)")
-	cmd.Flags().IntVar(&limit, "limit", 50, "Max number of replacements to return")
+	cmd.Flags().IntVar(&limit, "limit", 20, "Max number of results; may exceed one page of 50")
+	cmd.Flags().StringVar(&sinceStr, "since", "", "Only stories published at or after this: a duration back from now (30d, 1w, 12h, 1m) or an ISO date (2026-11-01). At most 90 days back. Default empty (no filter).")
+	cmd.Flags().StringVar(&untilStr, "until", "", "Only stories published before this: a duration back from now or an ISO date. Default empty (no filter).")
+	cmd.Flags().StringVar(&sortBy, "sort", "relevance", "Order: relevance | score | newest")
+	cmd.Flags().StringSliceVar(&topics, "topic", nil, "Comma-separated Digg topics to search (valid: "+strings.Join(validTopicSlugs(), ", ")+"). Default: every topic.")
 	return cmd
 }
 
@@ -1492,8 +1189,8 @@ func newHistoryCmd(flags *rootFlags) *cobra.Command {
 func newAuthorsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "authors",
-		// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding.
-		Short:       "Inspect the accounts Digg tracks — the curated leaderboard of AI-news influencers on X",
+		// PATCH(digg-rename-and-github-feeds): the product is named Digg, with no roster-size branding.
+		Short:       "Inspect the accounts Digg tracks: its ranked roster of accounts on X",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 	}
 	cmd.AddCommand(newAuthorsTopCmd(flags))
@@ -1707,11 +1404,11 @@ func newAuthorsListCmd(flags *rootFlags) *cobra.Command {
 	var onlyFallers bool
 	cmd := &cobra.Command{
 		Use:         "list",
-		Short:       "Full ranked roster of Digg-tracked accounts with rich fields (rank, category, bio, vibeDistribution); fetches /ai/1000 by default",
+		Short:       "Full ranked roster of Digg-tracked accounts with rich fields (rank, category, bio, vibeDistribution); fetches Digg's rankings page by default",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `List the full roster of Digg-tracked accounts with per-author rank, category, bio, GitHub URL, and vibe distribution.
 
-Live by default: fetches /ai/1000, parses the embedded RSC payload, upserts
+Live by default: fetches https://digg.com/tech/x/rankings, parses the embedded RSC payload, upserts
 the roster into the local store, then reads back. Pass --data-source local
 to skip the network fetch and use only what's already cached.
 
@@ -1943,22 +1640,14 @@ func rosterOrderBy(by string) (string, error) {
 // 1000, and caching that answer would let stale tier_status leak
 // into the output.
 //
-// The off-1000 path adds a "distance to the 1000" view by reading
-// the rank-1000 row from the local digg_authors cache (populated by
+// The off-1000 path adds the rank-1000 author as a comparison anchor,
+// reading the rank-1000 row from the local digg_authors cache (populated by
 // `authors list`). On cache miss the command does a one-shot live
 // /ai/1000 fetch + upsert (the same call `authors list` makes), then
 // re-queries. If both the cache is empty AND the live fetch fails,
 // the command still returns a useful payload — just without the
-// nearest_in_1000 / peer_follow_gap fields, with
-// meta.tier_status_resolved set to false so callers can detect the
-// partial result.
-//
-// The distance metric is `peer_follow_gap` — the difference in
-// `followed_by_count` (AI-1000 peer follows), which is what Digg
-// actually ranks the AI 1000 by. The subject's peer-follow count
-// comes from /u/x/<handle> (the page's <meta name="description">
-// reveals it). Total X followers are also surfaced for context but
-// are not used as the comparison metric.
+// nearest_in_1000 field, with meta.tier_status_resolved set to false
+// so callers can detect the partial result.
 
 // searchUsersURLOverride lets tests redirect the live user-search
 // URL to a local httptest server. Empty string falls through to the
@@ -1980,19 +1669,8 @@ var roster1000URLOverride string
 //   - GithubURL: looked up from local digg_authors cache when present
 //     (the search endpoint doesn't return it; /ai/1000 does)
 //   - TierStatus: "in_1000" when CurrentRank != nil, else "off_1000"
-//   - SubjectPeerFollowCount: the off-1000 subject's "followed by N
-//     tracked AI influencers" count, scraped from the
-//     /u/x/<handle> page meta description. Pointer so we can omit
-//     it cleanly when the page fetch / parse fails.
-//   - NearestIn1000 / PeerFollowGap: present only on off-1000 path,
-//     and only when the rank-1000 anchor was resolvable (cache or
-//     live fetch). Both omitted when neither source produced a record.
-//   - PeerFollowGap is computed as `nearest.peer_follow_count -
-//     subject.peer_follow_count`. Positive means "subject needs that
-//     many more AI-1000 peer-follows to catch rank 1000"; negative
-//     means the off-1000 subject has more peer-follows than the
-//     rank-1000 anchor (ranking isn't strictly peer-follow either —
-//     Digg uses a weighted score).
+//   - NearestIn1000: present only on off-1000 path, and only when
+//     the rank-1000 anchor was resolvable (cache or live fetch).
 //   - MatchType: "exact" or "fuzzy"; advertised separately at the
 //     envelope level (Meta.match_type) too — caller's choice which to
 //     read.
@@ -2005,22 +1683,20 @@ var roster1000URLOverride string
 // `null` for off-1000 handles (matches upstream shape; downstream
 // jq pipelines that test `current_rank == null` keep working).
 type authorGetResult struct {
-	XID                    string             `json:"x_id,omitempty"`
-	Username               string             `json:"username"`
-	DisplayName            string             `json:"display_name,omitempty"`
-	ProfileImageURL        string             `json:"profile_image_url,omitempty"`
-	FollowersCount         int                `json:"followers_count"`
-	Category               *string            `json:"category"`
-	CurrentRank            *int               `json:"current_rank"`
-	SimilarityScore        float64            `json:"similarity_score"`
-	IsPrefixMatch          bool               `json:"is_prefix_match"`
-	XURL                   string             `json:"xUrl,omitempty"`
-	GithubURL              string             `json:"githubUrl,omitempty"`
-	TierStatus             string             `json:"tier_status,omitempty"`
-	SubjectPeerFollowCount *int               `json:"subject_peer_follow_count,omitempty"`
-	NearestIn1000          *nearestIn1000Anch `json:"nearest_in_1000,omitempty"`
-	PeerFollowGap          *int               `json:"peer_follow_gap,omitempty"`
-	MatchType              string             `json:"match_type,omitempty"`
+	XID             string             `json:"x_id,omitempty"`
+	Username        string             `json:"username"`
+	DisplayName     string             `json:"display_name,omitempty"`
+	ProfileImageURL string             `json:"profile_image_url,omitempty"`
+	FollowersCount  int                `json:"followers_count"`
+	Category        *string            `json:"category"`
+	CurrentRank     *int               `json:"current_rank"`
+	SimilarityScore float64            `json:"similarity_score"`
+	IsPrefixMatch   bool               `json:"is_prefix_match"`
+	XURL            string             `json:"xUrl,omitempty"`
+	GithubURL       string             `json:"githubUrl,omitempty"`
+	TierStatus      string             `json:"tier_status,omitempty"`
+	NearestIn1000   *nearestIn1000Anch `json:"nearest_in_1000,omitempty"`
+	MatchType       string             `json:"match_type,omitempty"`
 }
 
 // nearestIn1000Anch is the rank-1000 author's stats, used as a
@@ -2059,25 +1735,22 @@ func newAuthorsGetCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:         "get <handle>",
-		Short:       "Look up a handle on /api/search/users; off-1000 results include distance to the 1000",
+		Short:       "Look up a handle on /api/search/users; unranked handles include the rank-1000 author for comparison",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `Look up an X handle in Digg's full author universe (1000 + off-1000).
+		Long: `Look up an X handle among every account Digg knows, ranked or not.
 
 Live by default — hits /api/search/users, the same vector+prefix
-search that backs the di.gg/ai handle picker. Returns a single rich
+search that backs Digg's handle picker. Returns a single rich
 record on exact match, or an array of fuzzy candidates sorted by
 similarity_score when the handle has no exact hit.
 
-For off-1000 handles (current_rank: null), the response also
-includes a "distance to the 1000" view: the rank-1000 author's
-stats as a comparison anchor and a signed peer_follow_gap (the
-difference in AI-1000 peer-follow counts — the metric Digg
-actually ranks by). The anchor is read from the local digg_authors
+For unranked handles (current_rank: null, tier_status: off_1000), the response also
+includes the rank-1000 author's stats as a comparison anchor
+(nearest_in_1000). The anchor is read from the local digg_authors
 cache (populated by ` + "`digg-pp-cli authors list`" + `); on cache
-miss the command does a one-shot live /ai/1000 fetch and populates
-the cache before returning. The subject's own peer-follow count is
-fetched from the /u/x/<handle> page. If either piece doesn't
-resolve, the rest of the record is returned with
+miss the command does a one-shot live roster fetch and populates
+the cache before returning. If the anchor doesn't resolve, the
+rest of the record is returned with
 meta.tier_status_resolved: false.`,
 		Example: `  digg-pp-cli authors get logangraham
   digg-pp-cli authors get mvanhorn --json
@@ -2128,14 +1801,14 @@ meta.tier_status_resolved: false.`,
 			}
 
 			// Hoist all per-candidate-shared work (DB open, rank-1000
-			// anchor with live fallback, HTTP client) out of the fuzzy
-			// loop so a 5-candidate fuzzy fallback pays for one of each
-			// rather than five.
+			// anchor with live fallback) out of the fuzzy loop so a
+			// 5-candidate fuzzy fallback pays for one of each rather
+			// than five.
 			env := computeAuthorGetEnv(ctx, cmd, flags)
 			defer env.closeFn()
 
 			if exact != nil {
-				record, resolved := buildAuthorGetResult(ctx, cmd, env, *exact, "exact")
+				record, resolved := buildAuthorGetResult(ctx, env, *exact, "exact")
 				meta["match_type"] = "exact"
 				meta["count"] = 1
 				meta["tier_status_resolved"] = resolved
@@ -2153,7 +1826,7 @@ meta.tier_status_resolved: false.`,
 			fuzzy := make([]authorGetResult, 0, len(resp.Results))
 			anyUnresolved := false
 			for _, r := range resp.Results {
-				record, resolved := buildAuthorGetResult(ctx, cmd, env, r, "fuzzy")
+				record, resolved := buildAuthorGetResult(ctx, env, r, "fuzzy")
 				if !resolved && record.CurrentRank == nil {
 					anyUnresolved = true
 				}
@@ -2193,35 +1866,26 @@ meta.tier_status_resolved: false.`,
 
 // authorGetEnv carries the per-invocation shared state used by
 // buildAuthorGetResult so a fuzzy-fallback list of N candidates only
-// pays for one DB open, one rank-1000 anchor lookup (with optional
-// live fallback), and one Client construction — not N of each.
+// pays for one DB open and one rank-1000 anchor lookup (with optional
+// live fallback), not N of each.
 //
 // `anchor` is nil when the rank-1000 anchor couldn't be resolved
 // (cache cold + live fallback failure). `anchorOK` is the matching
-// resolved bit. Callers don't need to recompute either; they only
-// gate per-candidate decisions on them.
+// resolved bit.
 //
 // `db` is owned by the caller (computeAuthorGetEnv's caller is
-// responsible for closing it via the returned closeFn). Per-candidate
-// reads (`lookupGithubURL`, `loadRank1000AnchorForDB`, FTS hits) all
-// share this single SQLite handle so we don't open one per candidate.
-//
-// `httpClient` is the shared *client.Client used for /u/x/<handle>
-// peer-follow fetches across candidates. nil means client construction
-// failed at env setup time; per-candidate paths fall back to "subject
-// peer-follow not available" rather than rebuilding it.
+// responsible for closing it via the returned closeFn).
 type authorGetEnv struct {
-	db         *sql.DB
-	closeFn    func() error
-	anchor     *nearestIn1000Anch
-	anchorOK   bool
-	httpClient *client.Client
+	db       *sql.DB
+	closeFn  func() error
+	anchor   *nearestIn1000Anch
+	anchorOK bool
 }
 
-// computeAuthorGetEnv opens the shared store, resolves the rank-1000
-// anchor once (with live fallback when allowed), and constructs the
-// shared HTTP Client. The returned env's `closeFn` MUST be called by
-// the caller once the per-candidate loop is done.
+// computeAuthorGetEnv opens the shared store and resolves the
+// rank-1000 anchor once (with live fallback when allowed). The
+// returned env's `closeFn` MUST be called by the caller once the
+// per-candidate loop is done.
 //
 // Failures degrade gracefully:
 //
@@ -2230,8 +1894,6 @@ type authorGetEnv struct {
 //   - Anchor resolution failure (cache miss + live fetch failure) →
 //     env.anchor is nil and env.anchorOK is false. Per-candidate
 //     off-1000 paths will surface partial data without nearest_in_1000.
-//   - Client construction failure → env.httpClient is nil. Per-
-//     candidate off-1000 paths will skip the subject peer-follow fetch.
 func computeAuthorGetEnv(ctx context.Context, cmd *cobra.Command, flags *rootFlags) authorGetEnv {
 	env := authorGetEnv{closeFn: func() error { return nil }}
 	if _, db, closeFn, err := openStore(ctx); err == nil {
@@ -2243,33 +1905,20 @@ func computeAuthorGetEnv(ctx context.Context, cmd *cobra.Command, flags *rootFla
 	if env.db != nil {
 		env.anchor, env.anchorOK = loadRank1000AnchorForDB(ctx, cmd, env.db, true /* allowLiveFallback */, flags)
 	}
-	if c, err := flags.newClient(); err == nil {
-		env.httpClient = c
-	} else {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: building client for authors get peer-follow fetches failed: %v\n", err)
-	}
 	return env
 }
 
 // buildAuthorGetResult promotes one UsersSearchResult into the CLI's
 // authorGetResult shape. Mints xUrl, computes tier_status, and (for
-// off-1000) attaches the rank-1000 anchor and the subject's
-// peer-follow count for the distance view. Returns the result and a
-// `tierResolved` bool: true when in_1000 OR when off_1000 with BOTH
-// a successful anchor lookup AND a successful subject peer-follow
-// fetch; false when either piece of the off-1000 distance view is
-// missing. Callers surface that bit on meta.tier_status_resolved.
-//
-// Failure modes are kept independent so partial data still flows:
-// if /u/x/<handle> fails we still emit nearest_in_1000 (caller sees
-// the rank-1000 anchor); if the anchor fails we still emit
-// subject_peer_follow_count (caller sees the subject's standing).
-// peer_follow_gap is only emitted when both sides resolve.
+// off-1000) attaches the rank-1000 anchor. Returns the result and a
+// `tierResolved` bool: true when in_1000, or when off_1000 and the
+// anchor resolved. Callers surface that bit on
+// meta.tier_status_resolved.
 //
 // `env` carries shared state hoisted out of the fuzzy-candidate loop
-// so calling this for N candidates pays only one DB open, one anchor
-// lookup, and one client construction across the batch.
-func buildAuthorGetResult(ctx context.Context, cmd *cobra.Command, env authorGetEnv, src client.UsersSearchResult, matchType string) (authorGetResult, bool) {
+// so calling this for N candidates pays only one DB open and one
+// anchor lookup across the batch.
+func buildAuthorGetResult(ctx context.Context, env authorGetEnv, src client.UsersSearchResult, matchType string) (authorGetResult, bool) {
 	out := authorGetResult{
 		XID:             src.XID,
 		Username:        src.Username,
@@ -2285,82 +1934,20 @@ func buildAuthorGetResult(ctx context.Context, cmd *cobra.Command, env authorGet
 	if src.Username != "" {
 		out.XURL = "https://x.com/" + src.Username
 	}
-
-	// In-1000 path: tier_status fixed; we still try a quick local
-	// lookup for githubUrl since /api/search/users doesn't return it
-	// but the /ai/1000 ingest does. Failure is silent — a missing
-	// githubUrl is normal and not a partial-result signal.
-	if src.CurrentRank != nil {
-		out.TierStatus = "in_1000"
-		if gh := lookupGithubURLForDB(ctx, env.db, src.Username); gh != "" {
-			out.GithubURL = gh
-		}
-		return out, true
-	}
-
-	// Off-1000 path: surface the pre-computed rank-1000 anchor and
-	// fetch the subject's peer-follow count. The two halves can fail
-	// separately; we surface whichever resolved and only emit
-	// peer_follow_gap when both did.
-	out.TierStatus = "off_1000"
+	// The search endpoint doesn't return githubUrl but the roster
+	// ingest does. A missing githubUrl is normal, not a partial result.
 	if gh := lookupGithubURLForDB(ctx, env.db, src.Username); gh != "" {
 		out.GithubURL = gh
 	}
+	if src.CurrentRank != nil {
+		out.TierStatus = "in_1000"
+		return out, true
+	}
+	out.TierStatus = "off_1000"
 	if env.anchorOK {
 		out.NearestIn1000 = env.anchor
 	}
-	subjectPeerFollow, subjectOK := fetchSubjectPeerFollowCountWithClient(ctx, cmd, env.httpClient, src.Username)
-	if subjectOK {
-		spf := subjectPeerFollow
-		out.SubjectPeerFollowCount = &spf
-	}
-	if env.anchorOK && subjectOK {
-		gap := env.anchor.PeerFollowCount - subjectPeerFollow
-		out.PeerFollowGap = &gap
-		return out, true
-	}
-	return out, false
-}
-
-// userPeerFollowURLOverride lets tests redirect the live
-// /u/x/<handle> fetch used to read the subject's
-// `followed_by_count` to a local httptest server. Empty string falls
-// through to the default base URL handled inside the client.
-// Production code never sets this.
-var userPeerFollowURLOverride string
-
-// fetchSubjectPeerFollowCountWithClient calls /u/x/<handle> via the
-// caller-supplied shared *client.Client and returns the parsed
-// peer-follow count. Logs warnings to stderr on failure (404 is
-// silent — that's a legitimate "Digg doesn't track this handle"
-// zero, returned through the client) so operators can debug without
-// the rest of the response failing.
-//
-// Returns (n, true) on success, (0, false) on any kind of failure
-// (network, non-200/non-404 status, missing meta tag, bad parse, or
-// nil client passed in).
-//
-// Reusing the caller-supplied client across candidates keeps the
-// rate limiter, timeout, and impersonated transport pool shared so
-// a 5-candidate fuzzy fallback doesn't construct 5 clients.
-func fetchSubjectPeerFollowCountWithClient(ctx context.Context, cmd *cobra.Command, c *client.Client, username string) (int, bool) {
-	if username == "" || c == nil {
-		return 0, false
-	}
-	var (
-		n   int
-		err error
-	)
-	if userPeerFollowURLOverride != "" {
-		n, err = c.FetchUserPeerFollowCountFrom(ctx, userPeerFollowURLOverride+"/"+username)
-	} else {
-		n, err = c.FetchUserPeerFollowCount(ctx, username)
-	}
-	if err != nil {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: /u/x/%s peer-follow fetch failed: %v\n", username, err)
-		return 0, false
-	}
-	return n, true
+	return out, env.anchorOK
 }
 
 // lookupGithubURLForDB checks the digg_authors row for a stored
@@ -2452,8 +2039,7 @@ func loadRank1000AnchorForDB(ctx context.Context, cmd *cobra.Command, db *sql.DB
 //
 // `followed_by_count` is the metric the AI 1000 is ranked by (how
 // many of the AI 1000 follow this user); it's surfaced as
-// `peer_follow_count` on the output anchor so the off-1000 distance
-// view compares apples to apples.
+// `peer_follow_count` on the output anchor.
 func readRank1000FromDB(ctx context.Context, db *sql.DB) (*nearestIn1000Anch, bool) {
 	var (
 		username        sql.NullString
@@ -2481,12 +2067,8 @@ func readRank1000FromDB(ctx context.Context, db *sql.DB) (*nearestIn1000Anch, bo
 // printAuthorGetHuman renders one record in the table-y default
 // (non-JSON) shape. Mirrors the rest of the digg CLI: leading rank
 // or "off-1000" tag, then handle, display name, followers,
-// category, and (when off-1000) the peer-follow distance view.
+// category, and (when off-1000) the rank-1000 anchor.
 // Keep it dense so `digg-pp-cli authors get foo` reads at a glance.
-//
-// Distance view shows the AI-1000 peer-follow gap rather than the
-// raw X-followers gap because the AI 1000 is ranked by
-// `followed_by_count`, not total followers.
 func printAuthorGetHuman(cmd *cobra.Command, r authorGetResult) {
 	tierTag := "off-1000"
 	if r.CurrentRank != nil {
@@ -2499,17 +2081,9 @@ func printAuthorGetHuman(cmd *cobra.Command, r authorGetResult) {
 	dn := firstNonEmpty(r.DisplayName, r.Username)
 	fmt.Fprintf(cmd.OutOrStdout(), "%-9s @%-22s %s  followers=%d%s\n",
 		tierTag, r.Username, diggTruncate(dn, 28), r.FollowersCount, cat)
-	if r.NearestIn1000 != nil && r.PeerFollowGap != nil {
-		fmt.Fprintf(cmd.OutOrStdout(), "    nearest_in_1000=@%s (rank %d, peer_follows=%d)  peer_follow_gap=%+d\n",
-			r.NearestIn1000.Username, r.NearestIn1000.Rank, r.NearestIn1000.PeerFollowCount, *r.PeerFollowGap)
-	} else if r.NearestIn1000 != nil {
-		// Anchor resolved but subject's peer-follow fetch failed;
-		// still show the rank-1000 anchor so the caller has context.
+	if r.NearestIn1000 != nil {
 		fmt.Fprintf(cmd.OutOrStdout(), "    nearest_in_1000=@%s (rank %d, peer_follows=%d)\n",
 			r.NearestIn1000.Username, r.NearestIn1000.Rank, r.NearestIn1000.PeerFollowCount)
-	}
-	if r.SubjectPeerFollowCount != nil {
-		fmt.Fprintf(cmd.OutOrStdout(), "    subject_peer_follow_count=%d\n", *r.SubjectPeerFollowCount)
 	}
 	if r.XURL != "" {
 		fmt.Fprintf(cmd.OutOrStdout(), "    %s\n", r.XURL)
@@ -2596,15 +2170,20 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 	var minDelta int
 	var iterations int
 	var alertExpr string
+	var topic string
 	cmd := &cobra.Command{
 		Use:         "watch",
-		Short:       "Poll /ai on an interval and alert when any cluster moves N+ ranks",
-		Long:        "Polls Digg, parses the feed, diffs against the previous local snapshot, and prints any cluster whose absolute rank delta is at-or-above --min-delta (or matches --alert). READ-ONLY: never writes anything to Digg.",
+		Short:       "Poll one Digg topic on an interval and alert when any cluster moves N+ ranks",
+		Long:        "Polls a Digg topic page (--topic, default ai), parses the feed, compares each story's rank with the previous poll of the same topic (kept in the local store, so a restarted watch picks up where it left off), and prints any cluster whose absolute rank delta is at-or-above --min-delta (or matches --alert). READ-ONLY: never writes anything to Digg.",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  digg-pp-cli watch --interval 60s --min-delta 5
   digg-pp-cli watch --alert 'rank.delta>=10'
+  digg-pp-cli watch --topic sports --interval 2m
   digg-pp-cli watch --interval 30s --iterations 3   # for verify`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := validateTopics([]string{topic}); err != nil {
+				return err
+			}
 			if dryRunOK(flags) {
 				return nil
 			}
@@ -2614,28 +2193,54 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer closeFn()
+			// prev is the poll this one is compared with, by cluster id. It
+			// starts as the topic's stored baseline, which only watchers of
+			// this topic write, and is then kept in memory so a poll whose
+			// baseline could not be stored is still compared correctly.
+			var prev map[string]int
 			it := 0
 			for {
 				it++
-				html, err := fetchURL(ctx, "https://digg.com/ai")
+				html, err := fetchURL(ctx, diggSiteURL+topicPage(topic))
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "watch: fetch error: %v\n", err)
 				} else {
 					clusters, _, _, err := diggparse.ParseHomeFeed(html)
 					if err == nil {
-						alerts := computeWatchAlerts(db, clusters, minDelta)
+						if prev == nil {
+							prev, err = diggstore.LoadWatchBaseline(ctx, db, topic)
+							if err != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "watch: %v\n", err)
+								prev = map[string]int{}
+							}
+						}
 						now := time.Now().UTC().Format(time.RFC3339)
-						if len(alerts) == 0 {
+						alerts := computeWatchAlerts(prev, clusters, minDelta)
+						switch {
+						case len(prev) == 0:
+							fmt.Fprintf(cmd.OutOrStdout(), "[%s] watch: %d clusters, baseline poll for %s; movers are reported from the next poll\n", now, len(clusters), topic)
+						case len(alerts) == 0:
 							fmt.Fprintf(cmd.OutOrStdout(), "[%s] watch: %d clusters, no movers >= %d\n", now, len(clusters), minDelta)
-						} else {
+						default:
 							fmt.Fprintf(cmd.OutOrStdout(), "[%s] watch: %d alerts\n", now, len(alerts))
 							for _, a := range alerts {
 								fmt.Fprintf(cmd.OutOrStdout(), "  %+d  %s [%s]\n", a.Delta, a.Label, a.ClusterURLID)
 							}
 						}
-						// Persist snapshots so future polls have history
-						for _, c := range clusters {
-							_ = diggstore.UpsertCluster(db, c, time.Now())
+						// A page that parsed to no stories keeps the last
+						// real poll as the baseline.
+						if len(clusters) > 0 {
+							prev = make(map[string]int, len(clusters))
+							// Add the poll to the rank history, then store it
+							// as the topic's baseline for a restarted watcher.
+							snapAt := time.Now()
+							for _, c := range clusters {
+								prev[c.ClusterID] = c.CurrentRank
+								_ = diggstore.UpsertCluster(db, c, snapAt)
+							}
+							if err := diggstore.SaveWatchBaseline(ctx, db, topic, prev, snapAt); err != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "watch: %v\n", err)
+							}
 						}
 					}
 				}
@@ -2653,6 +2258,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().DurationVar(&interval, "interval", 60*time.Second, "Poll interval (e.g. 30s, 2m)")
 	cmd.Flags().IntVar(&minDelta, "min-delta", 5, "Minimum |rank delta| to alert on")
 	cmd.Flags().IntVar(&iterations, "iterations", 0, "Stop after N iterations (0 = run until interrupted)")
+	cmd.Flags().StringVar(&topic, "topic", "ai", "Digg topic to poll (valid: "+strings.Join(validTopicSlugs(), ", ")+")")
 	cmd.Flags().StringVar(&alertExpr, "alert", "", "Shorthand for --min-delta: 'rank.delta>=N' sets --min-delta to N")
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if alertExpr != "" {
@@ -2680,21 +2286,9 @@ type watchAlert struct {
 	Delta        int
 }
 
-func computeWatchAlerts(db *sql.DB, current []diggparse.Cluster, minDelta int) []watchAlert {
-	prev := make(map[string]int)
-	rows, err := db.Query(`SELECT cluster_id, COALESCE(current_rank,0) FROM digg_clusters
-		WHERE last_seen_at = (SELECT MAX(last_seen_at) FROM digg_clusters)`)
-	if err != nil {
-		return nil
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var id string
-		var rank int
-		if err := rows.Scan(&id, &rank); err == nil {
-			prev[id] = rank
-		}
-	}
+// computeWatchAlerts compares a poll with the previous poll's ranks (prev,
+// by cluster id) and returns the stories that moved at least minDelta.
+func computeWatchAlerts(prev map[string]int, current []diggparse.Cluster, minDelta int) []watchAlert {
 	var out []watchAlert
 	for _, c := range current {
 		oldRank, hadPrev := prev[c.ClusterID]
@@ -2721,9 +2315,15 @@ func computeWatchAlerts(db *sql.DB, current []diggparse.Cluster, minDelta int) [
 func newOpenCmd(flags *rootFlags) *cobra.Command {
 	var launch bool
 	cmd := &cobra.Command{
-		Use:         "open [clusterUrlId]",
-		Short:       "Print or open the Digg URL for one cluster",
-		Long:        "Prints the digg.com permalink for the given cluster. By default does NOT launch a browser; pass --launch to actually open. Per the printing-press side-effect convention.",
+		Use:   "open [story]",
+		Short: "Print or open the Digg URL for one story in any topic",
+		Long: `Prints the digg.com URL for the given story, under the topic the story is
+filed in. By default does NOT launch a browser; pass --launch to actually
+open. Per the printing-press side-effect convention.
+
+The argument is the story's UUID (clusterId in search results), the short id
+from its URL (clusterUrlId), or the URL. A short id or URL works once
+` + "`search`" + ` has returned that story.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  # Print the URL only (default; safe in scripts)
   digg-pp-cli open iq7usf9e
@@ -2737,24 +2337,23 @@ func newOpenCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			id := args[0]
-			_, db, closeFn, err := openStore(cmd.Context())
+			ctx := cmd.Context()
+			ref, err := resolveStory(ctx, args[0])
 			if err != nil {
 				return err
 			}
-			defer closeFn()
-			var perm, urlID string
-			err = db.QueryRowContext(cmd.Context(),
-				`SELECT COALESCE(permalink,''), COALESCE(cluster_url_id,'')
-				 FROM digg_clusters WHERE cluster_url_id = ? OR cluster_id = ?`, id, id).Scan(&perm, &urlID)
-			if err != nil {
-				if err == sql.ErrNoRows {
-					return fmt.Errorf("cluster not found: %s (run sync first)", id)
-				}
-				return err
-			}
+			perm := ref.URL
 			if perm == "" {
-				perm = "https://digg.com/ai/" + urlID
+				// Only the UUID is known; Digg has the story's URL.
+				mc, err := newDiggMCPClient(flags)
+				if err != nil {
+					return err
+				}
+				page, err := fetchStory(ctx, mc, ref.ID, 1)
+				if err != nil {
+					return diggCallErr(err)
+				}
+				perm = page.Story.URL
 			}
 			// Verify-environment short-circuit (printing-press side-effect convention).
 			if isVerifyEnv() {
@@ -2792,24 +2391,20 @@ func newStatsCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer closeFn()
 			var s struct {
-				Clusters     int    `json:"clusters"`
-				Authors      int    `json:"authors"`
-				Snapshots    int    `json:"snapshots"`
-				Events       int    `json:"events"`
-				Replacements int    `json:"replacements"`
-				LastSync     string `json:"lastSync,omitempty"`
+				Clusters  int    `json:"clusters"`
+				Authors   int    `json:"authors"`
+				Snapshots int    `json:"snapshots"`
+				LastSync  string `json:"lastSync,omitempty"`
 			}
 			_ = db.QueryRowContext(cmd.Context(), `SELECT COUNT(*) FROM digg_clusters`).Scan(&s.Clusters)
 			_ = db.QueryRowContext(cmd.Context(), `SELECT COUNT(*) FROM digg_authors`).Scan(&s.Authors)
 			_ = db.QueryRowContext(cmd.Context(), `SELECT COUNT(*) FROM digg_snapshots`).Scan(&s.Snapshots)
-			_ = db.QueryRowContext(cmd.Context(), `SELECT COUNT(*) FROM digg_events`).Scan(&s.Events)
-			_ = db.QueryRowContext(cmd.Context(), `SELECT COUNT(*) FROM digg_replacements`).Scan(&s.Replacements)
 			_ = db.QueryRowContext(cmd.Context(), `SELECT MAX(last_seen_at) FROM digg_clusters`).Scan(&s.LastSync)
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), s, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Local store: %d clusters, %d authors, %d snapshots, %d events, %d replacements\n",
-				s.Clusters, s.Authors, s.Snapshots, s.Events, s.Replacements)
+			fmt.Fprintf(cmd.OutOrStdout(), "Local store: %d clusters, %d authors, %d snapshots\n",
+				s.Clusters, s.Authors, s.Snapshots)
 			if s.LastSync != "" {
 				fmt.Fprintf(cmd.OutOrStdout(), "  last sync: %s\n", s.LastSync)
 			}
@@ -2820,28 +2415,6 @@ func newStatsCmd(flags *rootFlags) *cobra.Command {
 }
 
 // ============== shared helpers ==============
-
-func renderClusterTable(w io.Writer, rows []clusterRow) error {
-	for _, c := range rows {
-		extra := ""
-		if c.Delta != 0 {
-			extra = fmt.Sprintf("  delta=%+d", c.Delta)
-		}
-		display := firstNonEmpty(c.Label, c.Title, "(no label)")
-		fmt.Fprintf(w, "#%-3d %s [%s]%s\n", c.CurrentRank, diggTruncate(display, 100), c.ClusterURLID, extra)
-		if c.TLDR != "" {
-			fmt.Fprintf(w, "    %s\n", diggTruncate(c.TLDR, 200))
-		}
-	}
-	return nil
-}
-
-func printClusterOutput(cmd *cobra.Command, flags *rootFlags, rows []clusterRow, render func(io.Writer, []clusterRow) error) error {
-	if flags.asJSON {
-		return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
-	}
-	return render(cmd.OutOrStdout(), rows)
-}
 
 func emptyHint(cmd *cobra.Command, hint string) error {
 	fmt.Fprintln(cmd.OutOrStdout(), hint)
@@ -2866,22 +2439,6 @@ func firstNonEmpty(xs ...string) string {
 		}
 	}
 	return ""
-}
-
-func indentJSON(s string, indent int) string {
-	if s == "" {
-		return ""
-	}
-	var v any
-	if err := json.Unmarshal([]byte(s), &v); err != nil {
-		return s
-	}
-	pad := strings.Repeat(" ", indent)
-	pretty, err := json.MarshalIndent(v, pad, "  ")
-	if err != nil {
-		return s
-	}
-	return string(pretty)
 }
 
 func parseSinceWithFallback(s string, fallback time.Duration) time.Time {

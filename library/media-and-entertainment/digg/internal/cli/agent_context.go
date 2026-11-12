@@ -93,8 +93,10 @@ type agentContextFlag struct {
 // flag tree alone.
 func commandNotes(path string) string {
 	switch path {
+	case "top":
+		return "Read live from Digg's ranked feed; no sync needed. Envelope: meta and results. Each result has rank (within its own topic), diggScore, postCount, uniqueAuthors, publishedAt, topic and url."
 	case "story":
-		return "Envelope now includes posts and postsMeta fields populated by the U5 RSC parser; use posts <clusterUrlId> for richer per-post detail."
+		return "Read live from Digg for a story in any topic. Envelope: story, follows, newer, and posts (the first 20 sources); use posts <story> for every source."
 	}
 	return ""
 }
@@ -135,8 +137,8 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name: "digg-pp-cli",
-			// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding.
-			Description: "Tail Digg's news cycle, GitHub feeds, and pipeline events from the terminal — read-only, with rank-history nobody else surfaces.",
+			// PATCH(digg-rename-and-github-feeds): the product is named Digg, with no roster-size branding.
+			Description: "Tail Digg's news cycle and GitHub feeds from the terminal — read-only, with rank-history nobody else surfaces.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

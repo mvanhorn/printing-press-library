@@ -13,7 +13,7 @@ import (
 
 func main() {
 	s := server.NewMCPServer(
-		"Digg AI",
+		"Digg",
 		"1.0.0",
 		server.WithToolCapabilities(false),
 	)

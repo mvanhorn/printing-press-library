@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -70,135 +69,80 @@ func (f *feedServer) handler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(body))
 }
 
-func TestWalkFeedFollowsCursorUntilNull(t *testing.T) {
-	fs := &feedServer{pages: map[string]string{
-		"":      feedPageJSON(0, 20, "cur-2"),
-		"cur-2": feedPageJSON(20, 20, ""),
-	}}
+func TestFetchFeedPageDecodesStoriesAndSendsQuery(t *testing.T) {
+	fs := &feedServer{pages: map[string]string{"": feedPageJSON(0, 20, "cur-2")}}
 	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
 	defer srv.Close()
 
-	var got []FeedStory
-	res, err := newTestClient().WalkFeedFrom(context.Background(), srv.URL,
-		FeedParams{Topic: "ai", View: "top", Range: "30d"}, 10,
-		func(p *FeedPage) error { got = append(got, p.Posts...); return nil })
+	page, err := newTestClient().FetchFeedPage(context.Background(), srv.URL,
+		FeedParams{Topic: "ai", View: "trending", Range: "7d"}, "")
 	if err != nil {
-		t.Fatalf("WalkFeedFrom: %v", err)
+		t.Fatalf("FetchFeedPage: %v", err)
 	}
-	if len(got) != 40 {
-		t.Fatalf("got %d stories, want 40", len(got))
+	if len(page.Posts) != 20 {
+		t.Fatalf("got %d stories, want 20", len(page.Posts))
 	}
-	if res.Pages != 2 || !res.Complete || res.Capped {
-		t.Fatalf("result = %+v, want 2 pages, complete, not capped", res)
+	if page.NextCursor == nil || *page.NextCursor != "cur-2" {
+		t.Fatalf("NextCursor = %v, want cur-2", page.NextCursor)
 	}
-	if !strings.Contains(fs.queries[1], "cursor=cur-2") {
-		t.Fatalf("second request %q did not send the page-1 cursor", fs.queries[1])
+	first := page.Posts[0]
+	if first.ClusterID != "c-0" || first.ClusterURLID != "u0" || first.Summary.Title != "Story 0" ||
+		first.Summary.Description != "About story 0" || first.PostCount != 12 || first.UniqueAuthors != 7 ||
+		first.Rank != 1 || first.DiggScore != 100 || first.CreatedAt != "2026-10-10T08:00:00+00:00" {
+		t.Fatalf("first story decoded wrong: %+v", first)
 	}
-	for _, want := range []string{"topic=ai", "view=top", "range=30d", "published=1"} {
+	if len(fs.queries) != 1 {
+		t.Fatalf("made %d requests, want exactly one page", len(fs.queries))
+	}
+	for _, want := range []string{"topic=ai", "view=trending", "range=7d", "published=1"} {
 		if !strings.Contains(fs.queries[0], want) {
-			t.Fatalf("first request %q missing %s", fs.queries[0], want)
+			t.Fatalf("request %q missing %s", fs.queries[0], want)
 		}
 	}
-	if got[0].Summary.Title != "Story 0" || got[0].PostCount != 12 || got[0].UniqueAuthors != 7 || got[0].Rank != 1 {
-		t.Fatalf("first story decoded wrong: %+v", got[0])
+	if strings.Contains(fs.queries[0], "cursor") {
+		t.Fatalf("first-page request %q should carry no cursor", fs.queries[0])
 	}
 }
 
-func TestWalkFeedStopsAtMaxPages(t *testing.T) {
-	fs := &feedServer{pages: map[string]string{
-		"":   feedPageJSON(0, 20, "c2"),
-		"c2": feedPageJSON(20, 20, "c3"),
-		"c3": feedPageJSON(40, 20, "c4"),
-	}}
+func TestFetchFeedPageSendsCursorAndReportsLastPage(t *testing.T) {
+	fs := &feedServer{pages: map[string]string{"cur-2": feedPageJSON(20, 5, "")}}
 	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
 	defer srv.Close()
 
-	res, err := newTestClient().WalkFeedFrom(context.Background(), srv.URL,
-		FeedParams{Topic: "ai", View: "top", Range: "30d"}, 2,
-		func(p *FeedPage) error { return nil })
+	page, err := newTestClient().FetchFeedPage(context.Background(), srv.URL,
+		FeedParams{Topic: "ai", View: "top", Range: "24h"}, "cur-2")
 	if err != nil {
-		t.Fatalf("WalkFeedFrom: %v", err)
+		t.Fatalf("FetchFeedPage: %v", err)
 	}
-	if res.Pages != 2 || !res.Capped || res.Complete {
-		t.Fatalf("result = %+v, want 2 pages, capped, not complete", res)
+	if len(page.Posts) != 5 || page.NextCursor != nil {
+		t.Fatalf("got %d stories and cursor %v, want 5 stories and no cursor", len(page.Posts), page.NextCursor)
+	}
+	if !strings.Contains(fs.queries[0], "cursor=cur-2") {
+		t.Fatalf("request %q did not send the cursor", fs.queries[0])
 	}
 }
 
-func TestWalkFeedSurfacesHTTPErrorBody(t *testing.T) {
+func TestFetchFeedPageSurfacesHTTPErrorBody(t *testing.T) {
 	fs := &feedServer{pages: map[string]string{}, status: map[string]int{"": 400}}
 	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
 	defer srv.Close()
 
-	_, err := newTestClient().WalkFeedFrom(context.Background(), srv.URL,
-		FeedParams{Topic: "ai", View: "top", Range: "30d"}, 5,
-		func(p *FeedPage) error { return nil })
+	_, err := newTestClient().FetchFeedPage(context.Background(), srv.URL,
+		FeedParams{Topic: "ai", View: "top", Range: "30d"}, "")
 	if err == nil || !strings.Contains(err.Error(), "Invalid query parameters") {
 		t.Fatalf("err = %v, want HTTP 400 error carrying the body", err)
 	}
 }
 
-func TestWalkFeedEmptyFirstPageIsError(t *testing.T) {
-	fs := &feedServer{pages: map[string]string{"": feedPageJSON(0, 0, "")}}
-	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
-	defer srv.Close()
-
-	_, err := newTestClient().WalkFeedFrom(context.Background(), srv.URL,
-		FeedParams{Topic: "ai", View: "top", Range: "30d"}, 5,
-		func(p *FeedPage) error { return nil })
-	if err == nil || !strings.Contains(err.Error(), "layout") {
-		t.Fatalf("err = %v, want a layout-change error for an empty first page", err)
-	}
-}
-
-func TestWalkFeedMissingPostsKeyIsError(t *testing.T) {
+func TestFetchFeedPageMissingPostsKeyIsError(t *testing.T) {
 	fs := &feedServer{pages: map[string]string{"": `{"nextCursor": null, "nowMs": 1}`}}
 	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
 	defer srv.Close()
 
-	_, err := newTestClient().WalkFeedFrom(context.Background(), srv.URL,
-		FeedParams{Topic: "ai", View: "top", Range: "30d"}, 5,
-		func(p *FeedPage) error { return nil })
+	_, err := newTestClient().FetchFeedPage(context.Background(), srv.URL,
+		FeedParams{Topic: "ai", View: "top", Range: "30d"}, "")
 	if err == nil || !strings.Contains(err.Error(), "layout") {
 		t.Fatalf("err = %v, want a layout-change error when posts is missing", err)
-	}
-}
-
-func TestWalkFeedEmptyLaterPageEndsWalk(t *testing.T) {
-	fs := &feedServer{pages: map[string]string{
-		"":   feedPageJSON(0, 20, "c2"),
-		"c2": feedPageJSON(0, 0, "c3"),
-	}}
-	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
-	defer srv.Close()
-
-	res, err := newTestClient().WalkFeedFrom(context.Background(), srv.URL,
-		FeedParams{Topic: "ai", View: "top", Range: "30d"}, 5,
-		func(p *FeedPage) error { return nil })
-	if err != nil {
-		t.Fatalf("WalkFeedFrom: %v", err)
-	}
-	if res.Pages != 2 || !res.Complete {
-		t.Fatalf("result = %+v, want walk to end complete after the empty page", res)
-	}
-}
-
-func TestWalkFeedLaterPageErrorKeepsEarlierPages(t *testing.T) {
-	fs := &feedServer{
-		pages:  map[string]string{"": feedPageJSON(0, 20, "c2")},
-		status: map[string]int{"c2": 500},
-	}
-	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
-	defer srv.Close()
-
-	seen := 0
-	res, err := newTestClient().WalkFeedFrom(context.Background(), srv.URL,
-		FeedParams{Topic: "ai", View: "top", Range: "30d"}, 5,
-		func(p *FeedPage) error { seen += len(p.Posts); return nil })
-	if err == nil {
-		t.Fatalf("want an error from the failed page 2")
-	}
-	if seen != 20 || res.Pages != 1 || res.Complete {
-		t.Fatalf("seen=%d result=%+v, want page 1 delivered and walk incomplete", seen, res)
 	}
 }
 
@@ -209,21 +153,5 @@ func TestFeedStoryNullSummaryDecodes(t *testing.T) {
 	}
 	if s.Summary.Title != "" {
 		t.Fatalf("title = %q, want empty", s.Summary.Title)
-	}
-}
-
-func TestWalkFeedDoesNotCountPageWhoseCallbackFails(t *testing.T) {
-	fs := &feedServer{pages: map[string]string{"": feedPageJSON(0, 20, "c2")}}
-	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
-	defer srv.Close()
-
-	res, err := newTestClient().WalkFeedFrom(context.Background(), srv.URL,
-		FeedParams{Topic: "ai", View: "top", Range: "30d"}, 5,
-		func(p *FeedPage) error { return errors.New("store write failed") })
-	if err == nil {
-		t.Fatal("want the callback error")
-	}
-	if res.Pages != 0 || res.Stories != 0 {
-		t.Fatalf("result = %+v, want no pages counted for a page that was not stored", res)
 	}
 }

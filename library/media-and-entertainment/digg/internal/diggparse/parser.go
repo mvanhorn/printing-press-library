@@ -1,9 +1,9 @@
 // Package diggparse decodes the React Server Component (RSC) stream that
-// Digg AI embeds in its /ai and /ai/<clusterUrlId> HTML pages, extracts
+// Digg embeds in its topic pages (such as /ai) and story pages, extracts
 // the structured cluster/author/event objects, and exposes them as Go
 // types for the local store.
 //
-// Why this exists: Digg AI is a Next.js 15 SPA on Vercel. The page's
+// Why this exists: Digg is a Next.js 15 SPA on Vercel. The page's
 // data is shipped to the browser as a series of self.__next_f.push([1,
 // "<escaped-json>"]) calls embedded inline in the HTML. The ranked list,
 // scores, and embedded pipeline events exist only there (the paginated
@@ -20,7 +20,7 @@ import (
 	"time"
 )
 
-// Cluster is a Digg AI story cluster as embedded in the /ai page.
+// Cluster is a Digg story cluster as embedded in a topic page.
 // Fields mirror the upstream payload field names; unset fields are
 // zero-valued. RawJSON keeps the original object for forward-compat.
 type Cluster struct {

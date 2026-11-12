@@ -1,9 +1,9 @@
 name: digg
 display_name: Digg
-description: "Digg: tail the AI story leaderboard, GitHub feeds, ranking-change history, and live ingestion pipeline events from the terminal. Read-only."
+description: "Digg: search stories live across all seven topics, read the ranked story leaderboard, GitHub feeds, and ranking-change history from the terminal. Read-only."
 version: "0.2.0"
 base_url: "https://digg.com"
-cli_description: "Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com."
+cli_description: "Read-only CLI for Digg — the story leaderboard, live search, and GitHub feeds on digg.com."
 
 auth:
   type: none
@@ -14,12 +14,12 @@ config:
 
 resources:
   feed:
-    description: "Top-level story feed (HTML page; CLI parses the embedded RSC stream)"
+    description: "Raw Digg pages: the AI topic page and one story's page, as HTML"
     endpoints:
       raw:
         method: GET
         path: "/ai"
-        description: "Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `sync` then `top` instead of calling this directly."
+        description: "Fetch the raw HTML of Digg's AI topic page (/ai). Most users should run `top` instead of calling this directly."
         params: []
         response:
           type: object
@@ -28,7 +28,7 @@ resources:
       story_raw:
         method: GET
         path: "/ai/{cluster_url_id}"
-        description: "Fetch the raw /ai/{clusterUrlId} story detail page (HTML). The CLI's `story` command parses this; users should not need to call this directly."
+        description: "Fetch the raw HTML of one story's page under /ai. Most users should run `story` or `posts` instead of calling this directly."
         params:
           - name: cluster_url_id
             type: string
@@ -45,7 +45,7 @@ resources:
       stars:
         method: GET
         path: "/tech/github/stars"
-        description: "Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrer list, breakout/novel/ai_related scores, and the model's one-sentence classification."
+        description: "Top repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrer list, breakout/novel/ai_related scores, and the model's one-sentence classification."
         params:
           # PATCH(digg-rankings-and-min-starrers): smart-money-convergence filter.
           - name: min-starrers
@@ -85,40 +85,11 @@ resources:
 
   # PATCH(digg-rankings-and-min-starrers): views of the rankings page
   # (formerly /ai/x/rankings/companies, now /tech/x/rankings). Digg
-  # removed the emerging and movers sections in October 2026.
+  # removed the emerging and movers sections in October 2026, so only
+  # the full ranking is exposed.
   rankings:
-    description: "Views of Digg's rankings page. Only the full ranking remains; emerging and movers fail closed."
+    description: "Digg's ranking of people and companies on X."
     endpoints:
-      emerging:
-        method: GET
-        path: "/tech/x/rankings"
-        description: "Removed by Digg in October 2026; the command exits non-zero with a removed-view error."
-        params:
-          - name: max-skip-ratio
-            type: float
-            required: false
-            description: "Schema-drift tolerance: fraction of entries that may fail to decode before the command exits non-zero. Default 0.10. Range [0, 1]."
-        response:
-          type: object
-          item: RawHTML
-
-      movers:
-        method: GET
-        path: "/tech/x/rankings"
-        description: "Removed by Digg in October 2026; the command exits non-zero with a removed-view error."
-        params:
-          - name: direction
-            type: string
-            required: false
-            description: "Movers direction: up | down | both (default both)."
-          - name: max-skip-ratio
-            type: float
-            required: false
-            description: "Schema-drift tolerance (see emerging)."
-        response:
-          type: object
-          item: RawHTML
-
       list:
         method: GET
         path: "/tech/x/rankings"
@@ -131,7 +102,7 @@ resources:
           - name: max-skip-ratio
             type: float
             required: false
-            description: "Schema-drift tolerance (see emerging)."
+            description: "Schema-drift tolerance: fraction of entries that may fail to decode before the command exits non-zero. Default 0.10. Range [0, 1]."
         response:
           type: object
           item: RawHTML
