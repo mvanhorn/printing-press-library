@@ -26880,9 +26880,9 @@
       "path": "library/developer-tools/sec-edgar",
       "release": {
         "cli_name": "sec-edgar-pp-cli",
-        "version": "2026.11.1",
-        "released_at": "2026-11-09T09:56:01Z",
-        "source_commit": "628589a65e0e85845e64b3fdf3493fcc6fdf3efc"
+        "version": "2026.11.3",
+        "released_at": "2026-11-12T09:55:51Z",
+        "source_commit": "4410e377cf9fa182ac8a923bad6f87677159dc55"
       },
       "printer": "ChrisDrit",
       "printer_name": "Chris Drit",
@@ -32470,9 +32470,9 @@
       "path": "library/devices/unifi",
       "release": {
         "cli_name": "unifi-pp-cli",
-        "version": "2026.11.1",
-        "released_at": "2026-11-08T09:54:01Z",
-        "source_commit": "442d1c1d97a91f092dcdfed9eb4bbbda198d725f"
+        "version": "2026.11.2",
+        "released_at": "2026-11-12T09:55:51Z",
+        "source_commit": "4410e377cf9fa182ac8a923bad6f87677159dc55"
       },
       "printer": "phoenix-server",
       "printer_name": "Ricardo Cabral",
