@@ -59,7 +59,7 @@ These capabilities aren't available in any other tool for this API.
   - **`--sort relevance|score|newest`** — `score` puts the highest Digg Score first.
   - **`--limit`** — may exceed one page of 50; search follows Digg's cursor.
   - A failed search exits non-zero. With `--json` or `--agent` the envelope still prints, with the reason in `meta.error`. Never read an empty `results` with `meta.error` set as "no stories".
-- **`posts`** — Every source Digg attributes one story to, in any topic. Each row has the source's text (`body`), URL (`xUrl`), time (`posted_at`) and `kind`: `x` for an X post (with `author.username` and `author.display_name`) or `webpage` (with `title`).
+- **`posts`** — Every source Digg attributes one story to, in any topic. Each row has the source's text (`body`), URL (`xUrl`), time (`posted_at`) and `kind`: `x` for an X post (with `author.username` and `author.display_name`) or `webpage` (with `title`). In JSON, `meta.sourcesTruncated` is `true` when the story has more sources than Digg served.
 
   ```bash
   digg-pp-cli posts <story> --limit 5 --agent --select author.username,xUrl,body

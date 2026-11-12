@@ -352,11 +352,22 @@ type diggPostPage struct {
 	Sources            []diggSource   `json:"sources"`
 	NextSourceOffset   *int           `json:"nextSourceOffset"`
 	SourceLimitReached bool           `json:"sourceLimitReached"`
+	// SourcesTruncated is set by fetchStory, not by Digg: the story has
+	// sources that could not be read.
+	SourcesTruncated bool `json:"-"`
+}
+
+// missingJSONValue reports whether a field was absent from a response or
+// was null.
+func missingJSONValue(raw json.RawMessage) bool {
+	return len(raw) == 0 || string(raw) == "null"
 }
 
 // fetchStory reads a story and up to limit of its sources, following
 // Digg's source offset from page to page. A limit of 0 reads every source
-// Digg serves.
+// Digg serves. SourcesTruncated is true on the result when Digg reports it
+// cut the source list short, or when more sources remain past the highest
+// offset Digg accepts.
 func fetchStory(ctx context.Context, mc *diggmcp.Client, id string, limit int) (diggPostPage, error) {
 	var out diggPostPage
 	for offset := 0; ; {
@@ -368,6 +379,18 @@ func fetchStory(ctx context.Context, mc *diggmcp.Client, id string, limit int) (
 		if err != nil {
 			return out, err
 		}
+		// A result without its story or its sources array is a changed
+		// response, not a story with no sources.
+		var probe struct {
+			Story   json.RawMessage `json:"story"`
+			Sources json.RawMessage `json:"sources"`
+		}
+		if err := json.Unmarshal(raw, &probe); err != nil {
+			return out, fmt.Errorf("%s: unreadable result: %w", diggGetPostTool, err)
+		}
+		if missingJSONValue(probe.Story) || missingJSONValue(probe.Sources) {
+			return out, fmt.Errorf("%s: Digg's story response did not have the expected shape (no story object or no sources array)", diggGetPostTool)
+		}
 		var page diggPostPage
 		if err := json.Unmarshal(raw, &page); err != nil {
 			return out, fmt.Errorf("%s: unreadable result: %w", diggGetPostTool, err)
@@ -375,12 +398,17 @@ func fetchStory(ctx context.Context, mc *diggmcp.Client, id string, limit int) (
 		sources := append(out.Sources, page.Sources...)
 		out = page
 		out.Sources = sources
+		out.SourcesTruncated = page.SourceLimitReached
 		next := page.NextSourceOffset
 		// An empty page or an offset that does not advance would loop forever.
-		if next == nil || len(page.Sources) == 0 || *next <= offset || *next > storySourceOffsetMax {
+		if next == nil || len(page.Sources) == 0 || *next <= offset {
 			break
 		}
 		if limit > 0 && len(sources) >= limit {
+			break
+		}
+		if *next > storySourceOffsetMax {
+			out.SourcesTruncated = true
 			break
 		}
 		offset = *next
@@ -569,9 +597,13 @@ The argument is the story's UUID (clusterId in search results), the short id
 from its URL (clusterUrlId), or the URL. A short id or URL works once
 ` + "`search`" + ` has returned that story.
 
-Rows come in Digg's order. --by time sorts them oldest first. --by rank,
---by type and --type are accepted and have no effect: Digg no longer
-reports author rank or post type.`,
+Rows come in Digg's order. --by time sorts them oldest first; with --limit
+it reads every source and returns the oldest. --by rank, --by type and
+--type are accepted and have no effect: Digg no longer reports author rank
+or post type.
+
+In JSON, meta.sourcesTruncated is true when the story has more sources
+than Digg served; text output prints a warning on stderr instead.`,
 		Example: `  digg-pp-cli posts 65idu2x5
   digg-pp-cli posts 65idu2x5 --limit 5 --json
   digg-pp-cli posts 65idu2x5 --by time --agent
@@ -598,13 +630,22 @@ reports author rank or post type.`,
 			if err != nil {
 				return err
 			}
-			page, err := fetchStory(ctx, mc, ref.ID, limit)
+			// The oldest sources can sit on any page, so --by time reads
+			// them all before it sorts and applies the limit.
+			fetchLimit := limit
+			if by == "time" {
+				fetchLimit = 0
+			}
+			page, err := fetchStory(ctx, mc, ref.ID, fetchLimit)
 			if err != nil {
 				return diggCallErr(err)
 			}
 			rows := postRowsFor(page.Sources)
 			if by == "time" {
 				sort.SliceStable(rows, func(i, j int) bool { return rows[i].PostedAt < rows[j].PostedAt })
+				if limit > 0 && len(rows) > limit {
+					rows = rows[:limit]
+				}
 			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), postsEnvelope{
@@ -617,9 +658,14 @@ reports author rank or post type.`,
 						"source":       "live",
 						"by":           by,
 						"count":        len(rows),
+						// True when the story has sources Digg did not serve.
+						"sourcesTruncated": page.SourcesTruncated,
 					},
 					Results: rows,
 				}, flags)
+			}
+			if page.SourcesTruncated {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: the source list for %s is incomplete: the story has more sources than Digg served\n", page.Story.URL)
 			}
 			if len(rows) == 0 {
 				return emptyHint(cmd, fmt.Sprintf("Digg lists no sources for %s.", page.Story.URL))
@@ -982,6 +1028,17 @@ the matches run out.`,
 				raw, err := mc.Call(ctx, diggSearchTool, callArgs)
 				if err != nil {
 					return fail(err)
+				}
+				// A result without a posts array is a changed response,
+				// not a search with no matches.
+				var probe struct {
+					Posts json.RawMessage `json:"posts"`
+				}
+				if err := json.Unmarshal(raw, &probe); err != nil {
+					return fail(fmt.Errorf("%s: unreadable result: %w", diggSearchTool, err))
+				}
+				if missingJSONValue(probe.Posts) {
+					return fail(fmt.Errorf("%s: Digg's search response did not have the expected shape (no posts array)", diggSearchTool))
 				}
 				var page diggSearchPage
 				if err := json.Unmarshal(raw, &page); err != nil {
@@ -2136,6 +2193,10 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer closeFn()
+			// prev is this watcher's previous poll, by cluster id. Other
+			// watchers and sync write other topics to the same store, so
+			// the store is read only for the first poll's baseline.
+			var prev map[string]int
 			it := 0
 			for {
 				it++
@@ -2145,7 +2206,14 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 				} else {
 					clusters, _, _, err := diggparse.ParseHomeFeed(html)
 					if err == nil {
-						alerts := computeWatchAlerts(db, clusters, minDelta)
+						if prev == nil {
+							prev = storedWatchBaseline(db, clusters)
+						}
+						alerts := computeWatchAlerts(prev, clusters, minDelta)
+						prev = make(map[string]int, len(clusters))
+						for _, c := range clusters {
+							prev[c.ClusterID] = c.CurrentRank
+						}
 						now := time.Now().UTC().Format(time.RFC3339)
 						if len(alerts) == 0 {
 							fmt.Fprintf(cmd.OutOrStdout(), "[%s] watch: %d clusters, no movers >= %d\n", now, len(clusters), minDelta)
@@ -2155,8 +2223,8 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 								fmt.Fprintf(cmd.OutOrStdout(), "  %+d  %s [%s]\n", a.Delta, a.Label, a.ClusterURLID)
 							}
 						}
-						// Persist the poll under one timestamp: the next
-						// poll's baseline is every row saved at the latest one.
+						// Persist the poll under one timestamp: a later
+						// watcher's first baseline is the rows saved together.
 						snapAt := time.Now()
 						for _, c := range clusters {
 							_ = diggstore.UpsertCluster(db, c, snapAt)
@@ -2205,21 +2273,44 @@ type watchAlert struct {
 	Delta        int
 }
 
-func computeWatchAlerts(db *sql.DB, current []diggparse.Cluster, minDelta int) []watchAlert {
-	prev := make(map[string]int)
-	rows, err := db.Query(`SELECT cluster_id, COALESCE(current_rank,0) FROM digg_clusters
-		WHERE last_seen_at = (SELECT MAX(last_seen_at) FROM digg_clusters)`)
+// storedWatchBaseline returns the ranks the store holds for the stories in
+// current, as of the latest snapshot that saved any of them. Snapshots of
+// other topics are newer rows for other stories and are ignored, so the
+// baseline is the watched topic's own last snapshot.
+func storedWatchBaseline(db *sql.DB, current []diggparse.Cluster) map[string]int {
+	watched := make(map[string]bool, len(current))
+	for _, c := range current {
+		watched[c.ClusterID] = true
+	}
+	baseline := make(map[string]int)
+	rows, err := db.Query(`SELECT cluster_id, COALESCE(current_rank,0), last_seen_at FROM digg_clusters`)
 	if err != nil {
-		return nil
+		return baseline
 	}
 	defer rows.Close()
+	var latest time.Time
 	for rows.Next() {
-		var id string
+		var id, seen string
 		var rank int
-		if err := rows.Scan(&id, &rank); err == nil {
-			prev[id] = rank
+		if err := rows.Scan(&id, &rank, &seen); err != nil || !watched[id] {
+			continue
 		}
+		at, err := time.Parse(time.RFC3339Nano, seen)
+		if err != nil || at.Before(latest) {
+			continue
+		}
+		if at.After(latest) {
+			latest = at
+			clear(baseline)
+		}
+		baseline[id] = rank
 	}
+	return baseline
+}
+
+// computeWatchAlerts compares a poll with the previous poll's ranks (prev,
+// by cluster id) and returns the stories that moved at least minDelta.
+func computeWatchAlerts(prev map[string]int, current []diggparse.Cluster, minDelta int) []watchAlert {
 	var out []watchAlert
 	for _, c := range current {
 		oldRank, hadPrev := prev[c.ClusterID]

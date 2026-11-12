@@ -475,6 +475,41 @@ func TestSearchServerErrorIsNotAnEmptyResult(t *testing.T) {
 	}
 }
 
+// A digg_search_posts result without a posts array is a changed response
+// shape, not a search with no matches.
+func TestSearchRejectsAResponseWithoutAPostsArray(t *testing.T) {
+	withTempHome(t)
+	for name, content := range map[string]string{
+		"empty object": `{}`,
+		"posts null":   `{"posts":null,"totalMatches":0}`,
+	} {
+		stdout, _, err := runSearchCmd(t, serveStructured(t, content), "story", "--json")
+		if err == nil || ExitCode(err) == 0 {
+			t.Errorf("%s: err = %v, want a non-zero exit\n%s", name, err, stdout)
+			continue
+		}
+		env := decodeSearch(t, stdout)
+		if msg, _ := env.Meta["error"].(string); !strings.Contains(msg, "expected shape") {
+			t.Errorf("%s: meta.error = %v, want it to say the response did not have the expected shape", name, env.Meta["error"])
+		}
+		if len(env.Results) != 0 {
+			t.Errorf("%s: got %d results with an error", name, len(env.Results))
+		}
+	}
+}
+
+func TestSearchEmptyPostsArrayIsAValidEmptyResult(t *testing.T) {
+	withTempHome(t)
+	stdout, stderr, err := runSearchCmd(t, serveStructured(t, `{"posts":[],"nextCursor":null,"totalMatches":0}`), "story", "--json")
+	if err != nil {
+		t.Fatalf("search: %v\n%s", err, stderr)
+	}
+	env := decodeSearch(t, stdout)
+	if _, failed := env.Meta["error"]; failed || env.Meta["count"] != float64(0) {
+		t.Errorf("meta = %v, want count 0 and no error", env.Meta)
+	}
+}
+
 func TestSearchSelectFiltersResultsEnvelope(t *testing.T) {
 	withTempHome(t)
 	stub := &searchStub{posts: manyPosts(3, "ai")}

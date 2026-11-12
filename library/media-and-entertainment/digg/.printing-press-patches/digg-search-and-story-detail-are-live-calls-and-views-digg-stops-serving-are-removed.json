@@ -4,7 +4,7 @@
   "applied_at": "2026-11-11",
   "base_run_id": "20260508-234057",
   "base_printing_press_version": "4.0.6",
-  "summary": "Story search and single-story detail are live calls to Digg's public search endpoint, covering every topic Digg currently lists, with no local search copy; the ranked feed is read live per topic; sync only snapshots ranked lists for rank history; and a view Digg stops serving is removed from the CLI, MCP tools and docs instead of returning empty data with a success exit.",
+  "summary": "Story search and single-story detail are live calls to Digg's public search endpoint, covering every topic Digg currently lists, with no local search copy; the ranked feed is read live per topic; sync only snapshots ranked lists for rank history; and a view Digg stops serving is removed from the CLI, MCP tools and docs instead of returning empty data with a success exit. A Digg response missing the list a command reads is an error, not an empty result; a source list Digg cut short is reported as incomplete; and `watch` compares each poll with the same topic's previous poll, whatever else shares the store.",
   "reason": "Digg's surface keeps moving (endpoints, tool names, topics and result fields), so a local copy of the feed goes stale and hides outages as empty results, which zeroed out downstream research tools. The id write search makes for later short-id lookups must stay best-effort and time-bounded so it never changes search results or the exit code.",
   "files": [
     ".printing-press.json",
@@ -46,5 +46,5 @@
     "tools-manifest.json",
     "workflow_verify.yaml"
   ],
-  "validated_outcome": "TestSearchConcurrentProcessesShareOneStore runs separate search processes against one store; TestSearchUnwritableStoreStillReturnsResults shows a failed id write leaves results and exit code alone; TestSearchServerErrorIsNotAnEmptyResult and TestPostsDiggErrorIsNotAnEmptyResult show a failed call exits non-zero; TestCommandsDiggNoLongerFeedsAreRemoved and TestRegisterToolsOmitsRemovedCommands pin the removals; doctor reports the search endpoint as its own check."
+  "validated_outcome": "TestSearchConcurrentProcessesShareOneStore runs separate search processes against one store; TestSearchUnwritableStoreStillReturnsResults shows a failed id write leaves results and exit code alone; TestSearchServerErrorIsNotAnEmptyResult and TestPostsDiggErrorIsNotAnEmptyResult show a failed call exits non-zero; TestCommandsDiggNoLongerFeedsAreRemoved and TestRegisterToolsOmitsRemovedCommands pin the removals; doctor reports the search endpoint as its own check; TestSearchRejectsAResponseWithoutAPostsArray and TestPostsAndStoryRejectAResponseWithoutStoryOrSources pin the shape checks; TestWatchTopicsSharingAStoreKeepTheirOwnBaseline pins the per-topic baseline."
 }

@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -62,8 +63,10 @@ func xSources(n int) []stubSource {
 type storyStub struct {
 	id, shortID, topic string
 	sources            []stubSource
-	mu                 sync.Mutex
-	calls              []map[string]any
+	// limitReached is what the stub reports as sourceLimitReached.
+	limitReached bool
+	mu           sync.Mutex
+	calls        []map[string]any
 }
 
 func sportsStub(sources []stubSource) *storyStub {
@@ -125,7 +128,7 @@ func (s *storyStub) page(args map[string]any) map[string]any {
 			"feedEntryAt": "2026-11-10T02:00:00.000Z", "publishedAt": "2026-11-10T02:05:00.000Z", "updatedAt": "2026-11-10T03:00:00.000Z",
 		},
 		"follows": nil, "newer": nil,
-		"sources": sources, "nextSourceOffset": next, "sourceLimitReached": false,
+		"sources": sources, "nextSourceOffset": next, "sourceLimitReached": s.limitReached,
 	}
 }
 
@@ -133,6 +136,19 @@ func (s *storyStub) requests() []map[string]any {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return append([]map[string]any(nil), s.calls...)
+}
+
+// serveStructured is a stand-in for Digg's MCP server that answers every
+// tool call with the given structuredContent JSON.
+func serveStructured(t *testing.T, structuredContent string) string {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.Copy(io.Discard, r.Body)
+		w.Header().Set("Content-Type", "text/event-stream")
+		fmt.Fprintf(w, "event: message\ndata: {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"structuredContent\":%s}}\n\n", structuredContent)
+	}))
+	t.Cleanup(srv.Close)
+	return srv.URL
 }
 
 // runDiggCmd runs the CLI with Digg's MCP endpoint pointed at mcpURL.
@@ -364,6 +380,154 @@ func TestPostsByTimeOrdersChronologically(t *testing.T) {
 	}
 }
 
+// Digg lists a newer source ahead of older ones, and the oldest sit on a
+// later page. --by time --limit must return the oldest of all of them.
+func TestPostsByTimeLimitReturnsTheOldestSources(t *testing.T) {
+	withTempHome(t)
+	sources := xSources(45)
+	for i := range sources {
+		sources[i].publishedAt = fmt.Sprintf("2026-11-10T12:%02d:00.000Z", i)
+	}
+	sources[30].publishedAt = "2026-11-09T01:00:00.000Z"
+	sources[44].publishedAt = "2026-11-09T02:00:00.000Z"
+	out, stderr, err := runDiggCmd(t, sportsStub(sources).serve(t), "posts", sportsStoryID, "--agent", "--by", "time", "--limit", "3")
+	if err != nil {
+		t.Fatalf("posts: %v\n%s", err, stderr)
+	}
+	env := decodePosts(t, out)
+	var got []any
+	for _, row := range env.Results {
+		got = append(got, row["posted_at"])
+	}
+	want := []any{"2026-11-09T01:00:00.000Z", "2026-11-09T02:00:00.000Z", "2026-11-10T12:00:00.000Z"}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Errorf("posted_at = %v, want the three oldest %v", got, want)
+	}
+	if env.Meta["count"] != float64(3) {
+		t.Errorf("meta.count = %v, want 3", env.Meta["count"])
+	}
+}
+
+// Without --by time a limit still stops the fetch at that many sources.
+func TestPostsLimitInDiggOrderFetchesOnlyThatMany(t *testing.T) {
+	withTempHome(t)
+	stub := sportsStub(xSources(45))
+	out, stderr, err := runDiggCmd(t, stub.serve(t), "posts", sportsStoryID, "--agent", "--limit", "3")
+	if err != nil {
+		t.Fatalf("posts: %v\n%s", err, stderr)
+	}
+	rows := decodePosts(t, out).Results
+	if len(rows) != 3 || rows[0]["body"] != "Take 0 on the game" || rows[2]["body"] != "Take 2 on the game" {
+		t.Errorf("rows = %v, want Digg's first three", rows)
+	}
+	if calls := stub.requests(); len(calls) != 1 {
+		t.Errorf("made %d requests for 3 sources, want 1", len(calls))
+	}
+}
+
+func TestPostsReportsWhenDiggCutsTheSourceListShort(t *testing.T) {
+	withTempHome(t)
+	stub := sportsStub(xSources(5))
+	stub.limitReached = true
+	url := stub.serve(t)
+	out, stderr, err := runDiggCmd(t, url, "posts", sportsStoryID, "--agent")
+	if err != nil {
+		t.Fatalf("posts: %v\n%s", err, stderr)
+	}
+	if got := decodePosts(t, out).Meta["sourcesTruncated"]; got != true {
+		t.Errorf("meta.sourcesTruncated = %v, want true", got)
+	}
+
+	out, stderr, err = runDiggCmd(t, url, "posts", sportsStoryID)
+	if err != nil {
+		t.Fatalf("posts: %v\n%s", err, stderr)
+	}
+	if !strings.Contains(stderr, "warning") || !strings.Contains(stderr, "incomplete") {
+		t.Errorf("stderr = %q, want a warning that the list is incomplete", stderr)
+	}
+	if strings.Contains(out, "incomplete") {
+		t.Errorf("the warning belongs on stderr, got it on stdout:\n%s", out)
+	}
+}
+
+func TestPostsCompleteSourceListIsNotMarkedTruncated(t *testing.T) {
+	withTempHome(t)
+	url := sportsStub(xSources(45)).serve(t)
+	out, stderr, err := runDiggCmd(t, url, "posts", sportsStoryID, "--agent")
+	if err != nil {
+		t.Fatalf("posts: %v\n%s", err, stderr)
+	}
+	if got := decodePosts(t, out).Meta["sourcesTruncated"]; got != false {
+		t.Errorf("meta.sourcesTruncated = %v, want false", got)
+	}
+	_, stderr, err = runDiggCmd(t, url, "posts", sportsStoryID)
+	if err != nil {
+		t.Fatalf("posts: %v\n%s", err, stderr)
+	}
+	if strings.Contains(stderr, "incomplete") {
+		t.Errorf("stderr = %q, want no warning for a complete list", stderr)
+	}
+}
+
+// Digg accepts source offsets up to 499. A story with more sources than
+// that reaches cannot be read to the end, and posts must say so.
+func TestPostsReportsWhenSourcesRunPastTheOffsetMaximum(t *testing.T) {
+	withTempHome(t)
+	stub := sportsStub(xSources(520))
+	out, stderr, err := runDiggCmd(t, stub.serve(t), "posts", sportsStoryID, "--agent")
+	if err != nil {
+		t.Fatalf("posts: %v\n%s", err, stderr)
+	}
+	env := decodePosts(t, out)
+	if len(env.Results) != 500 {
+		t.Errorf("got %d rows, want the 500 Digg's offsets reach", len(env.Results))
+	}
+	if got := env.Meta["sourcesTruncated"]; got != true {
+		t.Errorf("meta.sourcesTruncated = %v, want true", got)
+	}
+	for _, call := range stub.requests() {
+		if o, _ := call["sourceOffset"].(float64); o > 499 {
+			t.Errorf("asked Digg for source offset %v; its maximum is 499", o)
+		}
+	}
+}
+
+// A digg_get_post result without its story or sources is a changed
+// response shape, not a story with no sources.
+func TestPostsAndStoryRejectAResponseWithoutStoryOrSources(t *testing.T) {
+	withTempHome(t)
+	story := `{"id":"` + sportsStoryID + `","url":"https://digg.com/sports/` + sportsStoryShort + `","topic":"sports","title":"Game one"}`
+	for name, content := range map[string]string{
+		"empty object":    `{}`,
+		"sources missing": `{"story":` + story + `}`,
+		"sources null":    `{"story":` + story + `,"sources":null}`,
+		"story missing":   `{"sources":[]}`,
+		"story null":      `{"story":null,"sources":[]}`,
+	} {
+		for _, command := range []string{"posts", "story"} {
+			out, _, err := runDiggCmd(t, serveStructured(t, content), command, sportsStoryID, "--agent")
+			if err == nil || ExitCode(err) == 0 {
+				t.Errorf("%s, %s: err = %v, want a non-zero exit\n%s", command, name, err, out)
+				continue
+			}
+			if !strings.Contains(err.Error(), "expected shape") {
+				t.Errorf("%s, %s: error %q should say the response did not have the expected shape", command, name, err)
+			}
+		}
+	}
+}
+
+func TestPostsStoryWithNoSourcesIsAValidEmptyResult(t *testing.T) {
+	withTempHome(t)
+	out, stderr, err := runDiggCmd(t, sportsStub(nil).serve(t), "posts", sportsStoryID, "--agent")
+	if err != nil {
+		t.Fatalf("posts: %v\n%s", err, stderr)
+	}
+	if env := decodePosts(t, out); len(env.Results) != 0 || env.Meta["count"] != float64(0) {
+		t.Errorf("got %d rows and count %v, want an empty result", len(env.Results), env.Meta["count"])
+	}
+}
+
 func TestPostsDiggErrorIsNotAnEmptyResult(t *testing.T) {
 	withTempHome(t)
 	out, _, err := runDiggCmd(t, sportsStub(nil).serve(t), "posts", "99999999-2222-7333-8444-555555555555", "--agent")
@@ -468,6 +632,108 @@ func TestWatchPollsTheRequestedTopicPage(t *testing.T) {
 	defer mu.Unlock()
 	if len(paths) != 1 || paths[0] != "/sports" {
 		t.Errorf("watch requested %v, want one request for /sports", paths)
+	}
+}
+
+// watchSectionStub serves topic pages with a ranked list per topic, the
+// way sectionStub does, and calls beforePage (when set) ahead of each
+// response without holding its lock, so a test can run another watcher
+// between two polls.
+type watchSectionStub struct {
+	mu         sync.Mutex
+	ranks      map[string][]string
+	hits       map[string]int
+	beforePage func(topic string, hit int)
+}
+
+func (s *watchSectionStub) setRanks(topic string, ids ...string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.ranks[topic] = ids
+}
+
+func (s *watchSectionStub) serve(t *testing.T) string {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		topic := strings.TrimPrefix(r.URL.Path, "/")
+		s.mu.Lock()
+		if s.hits == nil {
+			s.hits = map[string]int{}
+		}
+		s.hits[topic]++
+		hit, hook := s.hits[topic], s.beforePage
+		s.mu.Unlock()
+		if hook != nil {
+			hook(topic, hit)
+		}
+		s.mu.Lock()
+		ids := s.ranks[topic]
+		s.mu.Unlock()
+		var objs []string
+		for i, id := range ids {
+			objs = append(objs, fmt.Sprintf(`{"clusterId":"uuid-%s","clusterUrlId":"%s","rank":%d}`, id, id, i+1))
+		}
+		payload := `{"posts":[` + strings.Join(objs, ",") + `]}`
+		fmt.Fprintf(w, `<html><script>self.__next_f.push([1,%s])</script></html>`, strconv.Quote(payload))
+	}))
+	t.Cleanup(srv.Close)
+	return srv.URL
+}
+
+// Two watchers on different topics share one store, each run as its own
+// process would be. Each one's next poll must still see its own movers.
+func TestWatchTopicsSharingAStoreKeepTheirOwnBaseline(t *testing.T) {
+	withTempHome(t)
+	stub := &watchSectionStub{ranks: map[string][]string{
+		"ai":     {"aaa11111", "aaa22222", "aaa33333"},
+		"sports": {"sss11111", "sss22222", "sss33333"},
+	}}
+	url := stub.serve(t)
+	poll := func(topic string) string {
+		t.Helper()
+		out, stderr, err := runCLIAgainst(t, url, "watch", "--topic", topic, "--iterations", "1", "--min-delta", "2")
+		if err != nil {
+			t.Fatalf("watch %s: %v\n%s", topic, err, stderr)
+		}
+		return out
+	}
+	poll("ai")
+	poll("sports")
+
+	stub.setRanks("ai", "aaa33333", "aaa11111", "aaa22222")
+	if out := poll("ai"); !strings.Contains(out, "+2") || !strings.Contains(out, "[aaa33333]") {
+		t.Errorf("second ai poll did not alert on the story that climbed two ranks:\n%s", out)
+	}
+	stub.setRanks("sports", "sss22222", "sss33333", "sss11111")
+	if out := poll("sports"); !strings.Contains(out, "-2") || !strings.Contains(out, "[sss11111]") {
+		t.Errorf("second sports poll did not alert on the story that fell two ranks:\n%s", out)
+	}
+}
+
+// One long-running watcher polls ai twice. Between its two polls another
+// watcher polls sports into the same store.
+func TestWatchKeepsItsBaselineWhileAnotherTopicIsPolled(t *testing.T) {
+	withTempHome(t)
+	stub := &watchSectionStub{ranks: map[string][]string{
+		"ai":     {"aaa11111", "aaa22222", "aaa33333"},
+		"sports": {"sss11111", "sss22222", "sss33333"},
+	}}
+	url := stub.serve(t)
+	stub.beforePage = func(topic string, hit int) {
+		if topic != "ai" || hit != 2 {
+			return
+		}
+		if _, stderr, err := runCLIAgainst(t, url, "watch", "--topic", "sports", "--iterations", "1"); err != nil {
+			t.Errorf("watch sports: %v\n%s", err, stderr)
+		}
+		stub.setRanks("ai", "aaa33333", "aaa11111", "aaa22222")
+	}
+	out, stderr, err := runCLIAgainst(t, url, "watch", "--topic", "ai", "--iterations", "2", "--interval", "1ms", "--min-delta", "2")
+	if err != nil {
+		t.Fatalf("watch ai: %v\n%s", err, stderr)
+	}
+	if !strings.Contains(out, "+2") || !strings.Contains(out, "[aaa33333]") {
+		t.Errorf("second ai poll did not alert on the story that climbed two ranks:\n%s", out)
 	}
 }
 
