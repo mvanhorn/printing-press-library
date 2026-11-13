@@ -182,7 +182,7 @@ def issue_body(decision: dict, press_tag: str, canary: str) -> str:
             % (canary, ", ".join("`%s`" % item if item != "none" else item for item in fixes)),
             "- Unfixed stdlib findings: %s" % ", ".join(unfixed),
             "",
-            "Bump `.go-version` to `%s` in this repo first. Set `MIN_PRESS_VERSION` to the first press release that prints that floor. Do not bulk-bump per-CLI `go` directives."
+            "Bump `.go-version` to `%s` in this repo first. Set `MIN_PRESS_VERSION` to the first press release that prints that floor. Do not bulk-bump per-CLI `go` directives, except modules that already declare the previous floor: those may be raised to the new floor in one PR with their install text."
             % target,
             "",
             "Renovate automerges patch updates of `.go-version` when the GitHub App is installed. This issue is the backstop when the library is behind the press release or the vuln DB.",

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "compression-govulncheck-floor",
+  "applied_at": "2026-11-13",
+  "base_run_id": "20261024-084709-6d9f8432",
+  "base_printing_press_version": "4.34.0",
+  "summary": "Keep the Chrome and sqlite compression modules at govulncheck-clean releases.",
+  "reason": "Package-reachability govulncheck traces the Chrome transport and the learning store into andybalholm/brotli v1.0.6 (GO-2026-6888, fixed in v1.2.7) and klauspost/compress v1.17.4 (GO-2026-6865, fixed in v1.20.2).",
+  "files": ["go.mod", "go.sum"],
+  "markers": ["github.com/andybalholm/brotli v1.2.7", "github.com/klauspost/compress v1.20.2"]
+}

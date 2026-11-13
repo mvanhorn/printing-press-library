@@ -5,12 +5,12 @@
   "base_run_id": "20261009-095850-f6dfc042",
   "base_printing_press_version": "4.33.2",
   "summary": "Keep golang.org/x/net at a govulncheck-clean release, and keep the go directive at the repo .go-version floor without a toolchain line that selects a newer Go.",
-  "reason": "The generated module failed govulncheck on golang.org/x/net (fixed in v0.60.0). A later toolchain go1.27.2 pin is still affected by GO-2026-6809 and makes CI download that toolchain. A toolchain line equal to the go directive is redundant: go mod tidy deletes it and go build refuses to run until it is gone.",
+  "reason": "Reachable html.Parse pulls golang.org/x/net, and v0.60.0 is GO-2026-6860 (fixed in v0.62.0). A later toolchain go1.27.2 pin is still affected by GO-2026-6809 and makes CI download that toolchain. A toolchain line equal to the go directive is redundant: go mod tidy deletes it and go build refuses to run until it is gone.",
   "files": [
     "go.mod"
   ],
   "markers": [
-    "golang.org/x/net v0.60.0",
+    "golang.org/x/net v0.62.0",
     "go 1.26.11"
   ]
 }

@@ -6,7 +6,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
-	golang.org/x/net v0.60.0
+	golang.org/x/net v0.62.0
 )
 
 require modernc.org/sqlite v1.37.0
@@ -25,7 +25,7 @@ require (
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/text v0.42.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect
@@ -38,4 +38,4 @@ require (
 // transitive floor. NOTE (go mod tidy GOOS caveat): the import is behind
 // `//go:build windows`, so tidy under GOOS=linux/darwin re-marks this
 // // indirect; under GOOS=windows it stays direct.
-require golang.org/x/sys v0.48.0
+require golang.org/x/sys v0.49.0
