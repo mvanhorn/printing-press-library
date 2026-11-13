@@ -37,7 +37,7 @@ npx -y @mvanhorn/printing-press-library install cloro --agent claude-code --agen
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.10 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.11 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/marketing/cloro/cmd/cloro-pp-cli@latest

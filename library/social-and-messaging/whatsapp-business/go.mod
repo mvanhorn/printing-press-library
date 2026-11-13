@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/social-and-messaging/whatsapp-business
 
-go 1.26.10
+go 1.26.11
 
 toolchain go1.27.3
 

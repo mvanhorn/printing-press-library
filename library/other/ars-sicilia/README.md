@@ -37,7 +37,7 @@ npx -y @mvanhorn/printing-press-library install ars-sicilia --agent claude-code 
 
 ### Without Node
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.10 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.11 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/cmd/ars-sicilia-pp-cli@latest
@@ -78,7 +78,7 @@ Every command of this CLI is also an MCP tool, served over stdio by the `ars-sic
 
 ### 1. Install the server binary
 
-The `npx` installer and the pre-built binaries above ship the **CLI** only. Install the MCP binary with Go (1.26.10 or newer, matching this module's `go` directive) — same command on Linux, macOS, and Windows:
+The `npx` installer and the pre-built binaries above ship the **CLI** only. Install the MCP binary with Go (1.26.11 or newer, matching this module's `go` directive) — same command on Linux, macOS, and Windows:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/cmd/ars-sicilia-pp-mcp@latest

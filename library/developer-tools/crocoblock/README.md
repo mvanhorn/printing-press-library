@@ -10,11 +10,11 @@ Use the Printing Press catalog to install the CLI and agent skill. The source-bu
 
 ### Build from source
 
-From this CLI module directory, use Go 1.26.10:
+From this CLI module directory, use Go 1.26.11:
 
 ```bash
-GOTOOLCHAIN=go1.26.10 go build -o ./crocoblock-pp-cli ./cmd/crocoblock-pp-cli
-GOTOOLCHAIN=go1.26.10 go install ./cmd/crocoblock-pp-cli ./cmd/crocoblock-pp-mcp
+GOTOOLCHAIN=go1.26.11 go build -o ./crocoblock-pp-cli ./cmd/crocoblock-pp-cli
+GOTOOLCHAIN=go1.26.11 go install ./cmd/crocoblock-pp-cli ./cmd/crocoblock-pp-mcp
 crocoblock-pp-cli --version
 ```
 
@@ -49,7 +49,7 @@ npx -y @mvanhorn/printing-press-library install crocoblock --agent claude-code -
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.10 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.11 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/crocoblock/cmd/crocoblock-pp-cli@latest

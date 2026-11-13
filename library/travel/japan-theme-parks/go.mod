@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/travel/japan-theme-parks
 
-go 1.26.10
+go 1.26.11
 
 require (
 	github.com/enetx/surf v1.0.201

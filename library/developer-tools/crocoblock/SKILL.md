@@ -24,11 +24,11 @@ Use the Printing Press catalog to install the CLI and agent skill. The source-bu
 
 ### Build from source
 
-From this CLI module directory, use Go 1.26.10:
+From this CLI module directory, use Go 1.26.11:
 
 ```bash
-GOTOOLCHAIN=go1.26.10 go build -o ./crocoblock-pp-cli ./cmd/crocoblock-pp-cli
-GOTOOLCHAIN=go1.26.10 go install ./cmd/crocoblock-pp-cli ./cmd/crocoblock-pp-mcp
+GOTOOLCHAIN=go1.26.11 go build -o ./crocoblock-pp-cli ./cmd/crocoblock-pp-cli
+GOTOOLCHAIN=go1.26.11 go install ./cmd/crocoblock-pp-cli ./cmd/crocoblock-pp-mcp
 crocoblock-pp-cli --version
 ```
 
@@ -48,7 +48,7 @@ This skill drives the `crocoblock-pp-cli` binary. **You must verify the CLI is i
 2. Verify: `crocoblock-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.10 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.11 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/crocoblock/cmd/crocoblock-pp-cli@latest

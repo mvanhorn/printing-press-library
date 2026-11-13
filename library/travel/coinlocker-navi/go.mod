@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/travel/coinlocker-navi
 
-go 1.26.10
+go 1.26.11
 
 require (
 	github.com/pelletier/go-toml/v2 v2.2.4

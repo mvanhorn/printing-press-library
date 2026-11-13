@@ -42,7 +42,7 @@ npx -y @mvanhorn/printing-press-library install arcmira --agent claude-code --ag
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.10 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.11 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/arcmira/cmd/arcmira-pp-cli@latest

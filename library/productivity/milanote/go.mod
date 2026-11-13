@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/productivity/milanote
 
-go 1.26.10
+go 1.26.11
 
 require (
 	github.com/gorilla/websocket v1.5.3

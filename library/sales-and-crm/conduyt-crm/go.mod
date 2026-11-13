@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/sales-and-crm/conduyt-crm
 
-go 1.26.10
+go 1.26.11
 
 require (
 	github.com/google/jsonschema-go v0.4.2

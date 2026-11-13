@@ -6,7 +6,7 @@ Discover the correct business assets, inspect actual setup state, and prepare sc
 
 ## Source build
 
-Build from this module with Go 1.26.10 or newer. The module selects the corrected Go 1.27.3 toolchain automatically:
+Build from this module with Go 1.26.11 or newer. The module selects the corrected Go 1.27.3 toolchain automatically:
 
 ```bash
 go build -o whatsapp-business-pp-cli ./cmd/whatsapp-business-pp-cli
@@ -49,7 +49,7 @@ npx -y @mvanhorn/printing-press-library install whatsapp-business --agent claude
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.10 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.11 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/whatsapp-business/cmd/whatsapp-business-pp-cli@latest

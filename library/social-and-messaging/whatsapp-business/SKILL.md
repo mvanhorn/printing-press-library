@@ -16,7 +16,7 @@ metadata:
         module: github.com/mvanhorn/printing-press-library/library/social-and-messaging/whatsapp-business/cmd/whatsapp-business-pp-cli
 ---
 
-Verify an installed binary, or build the current module from source with Go 1.26.10 or newer; it selects the corrected Go 1.27.3 toolchain. Public-install commands require a merged catalog release.
+Verify an installed binary, or build the current module from source with Go 1.26.11 or newer; it selects the corrected Go 1.27.3 toolchain. Public-install commands require a merged catalog release.
 
 # WhatsApp Business Tools — Printing Press CLI
 
@@ -31,7 +31,7 @@ This skill drives the `whatsapp-business-pp-cli` binary. **You must verify the C
 2. Verify: `whatsapp-business-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.10 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.11 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/whatsapp-business/cmd/whatsapp-business-pp-cli@latest

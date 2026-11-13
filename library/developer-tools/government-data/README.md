@@ -41,7 +41,7 @@ npx -y @mvanhorn/printing-press-library install government-data --agent claude-c
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.10 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.11 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/government-data/cmd/government-data-pp-cli@latest
