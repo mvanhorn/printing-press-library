@@ -24,15 +24,16 @@ This skill drives the `airframe-pp-cli` binary. **You must verify the CLI is ins
 
 1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press-library install airframe --cli-only
+   npx -y @mvanhorn/printing-press-library@0.1.27 install airframe --cli-only
    ```
 2. Verify: `airframe-pp-cli --version`
+Expected output: `airframe-pp-cli 2026.8.2`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/airframe/cmd/airframe-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/airframe/cmd/airframe-pp-cli@c77428f67014093b620fc79b4e03fa9aac727902
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
