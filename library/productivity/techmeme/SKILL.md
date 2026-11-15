@@ -157,9 +157,10 @@ Find all recent Techmeme headlines about Apple
 
 ```bash
 techmeme-pp-cli search 'Apple' --days 30 --json
+techmeme-pp-cli search 'Apple' --days 30 --pages 5 --json
 ```
 
-`search` queries Techmeme's live archive (back to ~2005). Each JSON record carries a `date` field (ISO `YYYY-MM-DD`, empty string when the results page shows no parseable date). `--days N` keeps only results dated within the last N days (undated records are dropped when the filter is active). Zero hits in JSON mode emit an empty JSON array `[]` on stdout, so piped consumers always get valid JSON.
+`search` queries Techmeme's live archive (back to ~2005). Each JSON record carries a `date` field (ISO `YYYY-MM-DD`, empty string when the results page shows no parseable date). `--days N` keeps only results dated within the last N days (undated records are dropped when the filter is active). Results come newest first, 10 per page; `--pages N` (1-10) reads up to N pages, stopping early at the last page or, with `--days`, once a page reaches past the window, and `--start N` begins at result offset N. Zero hits in JSON mode emit an empty JSON array `[]` on stdout, so piped consumers always get valid JSON.
 
 ### Media landscape
 
