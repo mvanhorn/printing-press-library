@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "techmeme",
   "cli_name": "techmeme-pp-cli",
-  "version": "2026.9.1",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
+  "version": "2026.11.1",
+  "released_at": "2026-11-15T19:40:34Z",
+  "source_commit": "2119b94e27711c5b96ae50fa9aee49727aadedcb",
   "printing_press_version": "4.0.3",
   "run_id": "20260509-193944",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "feat(techmeme): search --pages and --start read past the first results page",
+      "pr": 2470,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2470",
+      "commit": "2119b94e27711c5b96ae50fa9aee49727aadedcb"
     }
   ]
 }
