@@ -288,6 +288,9 @@ techmeme-pp-cli search 'Apple AI' --json
 # Only archive results from the last 30 days (undated records are dropped)
 techmeme-pp-cli search 'Apple AI' --days 30 --json
 
+# Read up to 5 pages of 10 (stops early once past the --days window)
+techmeme-pp-cli search 'Apple AI' --days 30 --pages 5 --json
+
 # Find all headlines by a specific journalist
 techmeme-pp-cli author 'Kara Swisher'
 
@@ -349,6 +352,7 @@ No API key is required. Techmeme's public feeds are openly accessible.
 **Empty results from `search`**
 - `search` queries Techmeme's live archive, not the local cache. Zero hits print `No results for "<query>"` in human mode and a valid empty JSON array `[]` in `--json`/`--agent` mode (exit code 0)
 - With `--days N`, results without a parseable date are dropped along with anything older than N days
+- One call reads one page of 10 results by default; add `--pages N` (up to 10) for more
 
 **Only 15 headlines from `headlines`**
 - The RSS feed carries only the top 15 items. Use `river` or `sync` for the full 5-day archive (150+ headlines)

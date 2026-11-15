@@ -47,8 +47,17 @@ type searchResult struct {
 	Date     string `json:"date"`
 }
 
+// searchPageSize is how many results Techmeme's archive search returns per
+// page; the next page is requested with start=<offset>.
+const searchPageSize = 10
+
+// searchMaxPages bounds --pages so one call cannot crawl the whole archive.
+const searchMaxPages = 10
+
 func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var days int
+	var pages int
+	var start int
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
@@ -56,9 +65,11 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 		Long: `Search Techmeme for headlines matching a query.
 Supports quoted phrases, wildcards, +/-, AND/OR/NOT, sourcename:X.
 
-Results come from Techmeme's live archive search (back to ~2005) and each
-record carries a date field (ISO YYYY-MM-DD, empty when unparseable).
-Use --days N to keep only results from the last N days.`,
+Results come from Techmeme's live archive search (back to ~2005), newest
+first, 10 per page, and each record carries a date field (ISO YYYY-MM-DD,
+empty when unparseable). Use --days N to keep only results from the last N
+days, --pages N to read up to N pages (max 10), and --start N to begin at
+result offset N.`,
 		Example: `  # Search for a topic
   techmeme-pp-cli search "artificial intelligence"
 
@@ -69,7 +80,10 @@ Use --days N to keep only results from the last N days.`,
   techmeme-pp-cli search "Apple" --json
 
   # Only results from the last 30 days
-  techmeme-pp-cli search "Apple" --days 30 --json`,
+  techmeme-pp-cli search "Apple" --days 30 --json
+
+  # Read up to 5 pages (50 results)
+  techmeme-pp-cli search "Apple" --pages 5 --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -78,33 +92,96 @@ Use --days N to keep only results from the last N days.`,
 			}
 
 			query := strings.Join(args, " ")
+			if pages < 1 || pages > searchMaxPages {
+				return usageErr(fmt.Errorf("--pages must be between 1 and %d", searchMaxPages))
+			}
+			if start < 0 {
+				return usageErr(fmt.Errorf("--start must be 0 or more"))
+			}
 
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			params := map[string]string{
-				"q":  query,
-				"wm": "false",
+			now := time.Now()
+			fetch := func(params map[string]string) ([]byte, error) {
+				return c.Get("/search/d3results.jsp", params)
 			}
-
-			data, err := c.Get("/search/d3results.jsp", params)
+			results, markupShift, partial, err := fetchSearchPages(fetch, query, start, pages, days, now)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-
-			results, markupShift := parseSearchResults(string(data))
+			if partial != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: stopped after %d results; a later page failed: %v\n", len(results), partial)
+			}
 			if days > 0 {
-				results = filterSearchByDays(results, days, time.Now())
+				results = filterSearchByDays(results, days, now)
 			}
 			return renderSearchResults(cmd, flags, query, results, markupShift)
 		},
 	}
 
 	cmd.Flags().IntVar(&days, "days", 0, "Only include results dated within the last N days (0 = no filter; undated results are dropped when set)")
+	cmd.Flags().IntVar(&pages, "pages", 1, "Read up to N result pages of 10 (1-10); stops early at the last page or, with --days, once a page reaches past the window")
+	cmd.Flags().IntVar(&start, "start", 0, "Begin at this result offset (0 = newest)")
 
 	return cmd
+}
+
+// fetchSearchPages reads up to pages result pages starting at offset start
+// and returns their records in order, renumbered, with duplicate links
+// dropped. It stops early after a short page (the last one) and, when days is
+// set, after a page whose oldest dated record is already before the window:
+// results are newest first, so later pages cannot be in range. The first
+// page's request carries no start parameter when start is 0, matching the
+// single-page request. The markup-shift flag is reported if any page set it.
+// A failure on the first page is returned as err; a failure on a later page
+// keeps the earlier pages' records and is returned as partial.
+func fetchSearchPages(
+	fetch func(map[string]string) ([]byte, error),
+	query string, start, pages, days int, now time.Time,
+) (results []searchResult, shift bool, partial error, err error) {
+	var cutoff time.Time
+	if days > 0 {
+		y, m, d := now.UTC().Date()
+		cutoff = time.Date(y, m, d, 0, 0, 0, 0, time.UTC).AddDate(0, 0, -days)
+	}
+	results = []searchResult{}
+	seen := map[string]bool{}
+	for page := 0; page < pages; page++ {
+		params := map[string]string{"q": query, "wm": "false"}
+		if offset := start + page*searchPageSize; offset > 0 {
+			params["start"] = fmt.Sprintf("%d", offset)
+		}
+		data, fetchErr := fetch(params)
+		if fetchErr != nil {
+			if page > 0 {
+				return results, shift, fetchErr, nil
+			}
+			return nil, false, nil, fetchErr
+		}
+		pageResults, pageShift := parseSearchResults(string(data))
+		shift = shift || pageShift
+		pastWindow := false
+		for _, r := range pageResults {
+			if days > 0 && r.Date != "" {
+				if t, parseErr := time.Parse("2006-01-02", r.Date); parseErr == nil && t.Before(cutoff) {
+					pastWindow = true
+				}
+			}
+			if r.Link != "" && seen[r.Link] {
+				continue
+			}
+			seen[r.Link] = true
+			r.Num = len(results) + 1
+			results = append(results, r)
+		}
+		if len(pageResults) < searchPageSize || pastWindow {
+			break
+		}
+	}
+	return results, shift, nil, nil
 }
 
 // parseSearchResults extracts story records from a Techmeme search results
