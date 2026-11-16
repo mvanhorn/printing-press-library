@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-085842-3207179d",
+  "base_printing_press_version": "4.35.6",
+  "id": "autom-fields-extra-params",
+  "summary": "Restore Autom's global fields projection as one root --fields flag, merged into every request by the client.",
+  "reason": "The generator filters the shared fields parameter out of each command; the client needed a hook to send it.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/autom_hooks.go",
+    "internal/cli/autom_fields.go"
+  ],
+  "call_sites": [
+    "withExtraParams(path, params)"
+  ],
+  "validated_outcome": "Live dogfood with --fields on search commands."
+}

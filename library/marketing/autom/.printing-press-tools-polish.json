@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-11-16T10:04:57.163997Z",
+  "cli_dir": "\u003ccli-dir\u003e/autom-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-11-16T10:01:38.827784Z"
+  }
+}

@@ -1,0 +1,55 @@
+version: 2
+project_name: autom-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: autom-pp-cli
+    main: ./cmd/autom-pp-cli
+    binary: autom-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/autom/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: autom-pp-mcp
+    main: ./cmd/autom-pp-mcp
+    binary: autom-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: autom-pp-cli
+    repository:
+      owner: josselinlbe
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Autom search engine from the terminal, plus saved rank history, cross-engine and cross-country comparison, and per-engine credit spend from a local ledger."
+    install: |
+      bin.install "autom-pp-cli"
+      bin.install "autom-pp-mcp"

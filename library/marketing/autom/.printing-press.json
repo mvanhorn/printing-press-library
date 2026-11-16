@@ -1,0 +1,111 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-16T10:07:00.086715Z",
+  "printing_press_version": "4.35.6",
+  "api_name": "autom",
+  "display_name": "Autom",
+  "cli_name": "autom-pp-cli",
+  "creator": {
+    "handle": "josselinlbe",
+    "name": "Josselin"
+  },
+  "owner": "josselinlbe",
+  "printer": "josselinlbe",
+  "printer_name": "Josselin",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:cf76524efe6d032d180d20cfc574b9b5000475c7bd3d8f580b25990e78cbe1a8",
+  "run_id": "20261116-085842-3207179d",
+  "category": "marketing",
+  "description": "Every Autom search engine from the terminal, plus saved rank history, cross-engine and cross-country comparison, and per-engine credit spend from a local ledger.",
+  "homepage": "https://autom.dev",
+  "mcp_binary": "autom-pp-mcp",
+  "mcp_tool_count": 22,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_preference": "ApiKeyAuth",
+  "auth_env_vars": [
+    "AUTOM_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-engine compare",
+      "command": "engines compare",
+      "description": "See how one query ranks across Google, Bing, Brave, DuckDuckGo and Yahoo: shared domains, domains unique to each engine, and your domain's position on each. Costs 1 credit per engine."
+    },
+    {
+      "name": "Rank movers",
+      "command": "rank movers",
+      "description": "List what moved across every tracked keyword since a cutoff: gains, drops, and entries into or exits from the top results. Reads the pages saved earlier by rank check, batch run or compare --save."
+    },
+    {
+      "name": "Geo compare",
+      "command": "geo compare",
+      "description": "Run one query on one engine across several countries and see your domain's position and the shared results per country. Costs 1 credit per country."
+    },
+    {
+      "name": "Credit ledger",
+      "command": "credits",
+      "description": "See your remaining quota, packs and credits plus where your credits went, by keyword, command or engine, with burn rate and days left. Spend covers only the calls made by this CLI; async searches show as pending."
+    },
+    {
+      "name": "Domain visibility",
+      "command": "visibility",
+      "description": "See one domain's footprint across every saved keyword: where it appears, average and best position, and top-3 and top-N (--top) counts, optionally against rival domains given with --vs. Reads the pages saved by rank check, batch run or compare --save."
+    },
+    {
+      "name": "News watch",
+      "command": "news watch",
+      "description": "Get only the news articles about a brand or keyword that earlier watches have not shown. Returned articles are marked as seen; --peek previews without marking. Costs 1 credit."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-engine compare",
+      "command": "engines compare",
+      "description": "See how one query ranks across Google, Bing, Brave, DuckDuckGo and Yahoo: shared domains, domains unique to each engine, and your domain's position on each. Costs 1 credit per engine."
+    },
+    {
+      "name": "Rank movers",
+      "command": "rank movers",
+      "description": "List what moved across every tracked keyword since a cutoff: gains, drops, and entries into or exits from the top results. Reads the pages saved earlier by rank check, batch run or compare --save."
+    },
+    {
+      "name": "Geo compare",
+      "command": "geo compare",
+      "description": "Run one query on one engine across several countries and see your domain's position and the shared results per country. Costs 1 credit per country."
+    },
+    {
+      "name": "Credit ledger",
+      "command": "credits",
+      "description": "See your remaining quota, packs and credits plus where your credits went, by keyword, command or engine, with burn rate and days left. Spend covers only the calls made by this CLI; async searches show as pending."
+    },
+    {
+      "name": "Domain visibility",
+      "command": "visibility",
+      "description": "See one domain's footprint across every saved keyword: where it appears, average and best position, and top-3 and top-N (--top) counts, optionally against rival domains given with --vs. Reads the pages saved by rank check, batch run or compare --save."
+    },
+    {
+      "name": "News watch",
+      "command": "news watch",
+      "description": "Get only the news articles about a brand or keyword that earlier watches have not shown. Returned articles are marked as seen; --peek previews without marking. Costs 1 credit."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 57,
+    "total": 57,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 92,
+      "grade": "A",
+      "total": 92
+    }
+  }
+}

@@ -1,0 +1,259 @@
+{
+  "api_name": "autom",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "seo-position-tracker",
+      "url": "https://github.com/dimitryzub/seo-position-tracker",
+      "language": "Python",
+      "install_method": "",
+      "stars": 22,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Decodo rank-tracker",
+      "url": "https://github.com/Decodo/rank-tracker",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Serply CLI",
+      "url": "https://github.com/mvanhorn/printing-press-library/tree/main/library/ai/serply",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-16T08:05:29Z",
+  "novel_features": [
+    {
+      "name": "Cross-engine compare",
+      "command": "engines compare",
+      "description": "See how one query ranks across Google, Bing, Brave, DuckDuckGo and Yahoo: shared domains, domains unique to each engine, and your domain's position on each. Costs 1 credit per engine.",
+      "rationale": "Joins several engine responses into one overlap matrix that no single Autom call returns.",
+      "example": "autom-pp-cli engines compare \"serp api pricing\" --engines google,bing,brave --domain autom.dev --agent",
+      "why_it_matters": "Reach for this when a question is about visibility beyond Google or about which engines disagree.",
+      "group": "Search across engines and countries"
+    },
+    {
+      "name": "Rank movers",
+      "command": "rank movers",
+      "description": "List what moved across every tracked keyword since a cutoff: gains, drops, and entries into or exits from the top results. Reads the pages saved earlier by rank check, batch run or compare --save.",
+      "rationale": "Compares saved snapshots in the local store; the API only returns the current page.",
+      "example": "autom-pp-cli rank movers --since 7d --domain autom.dev --agent",
+      "why_it_matters": "Use this for a weekly ranking report once pages have been saved on both sides of the cutoff; on a fresh store it returns a note.",
+      "group": "Rank tracking from saved pages"
+    },
+    {
+      "name": "Geo compare",
+      "command": "geo compare",
+      "description": "Run one query on one engine across several countries and see your domain's position and the shared results per country. Costs 1 credit per country.",
+      "rationale": "Fans out per-country calls (country codes checked against the free finder first) and joins them into one table.",
+      "example": "autom-pp-cli geo compare \"serp api pricing\" --countries fr,be,ca --domain autom.dev --agent",
+      "why_it_matters": "Use this when the question is how rankings differ between markets.",
+      "group": "Search across engines and countries"
+    },
+    {
+      "name": "Credit ledger",
+      "command": "credits",
+      "description": "See your remaining quota, packs and credits plus where your credits went, by keyword, command or engine, with burn rate and days left. Spend covers only the calls made by this CLI; async searches show as pending.",
+      "rationale": "Joins the free usage endpoint with a local ledger of the billed calls this CLI made.",
+      "example": "autom-pp-cli credits --by engine --since 30d --agent",
+      "why_it_matters": "Check this before and after large batches to predict spend and find the expensive workload.",
+      "group": "Credit control"
+    },
+    {
+      "name": "Domain visibility",
+      "command": "visibility",
+      "description": "See one domain's footprint across every saved keyword: where it appears, average and best position, and top-3 and top-N (--top) counts, optionally against rival domains given with --vs. Reads the pages saved by rank check, batch run or compare --save.",
+      "rationale": "Aggregates every saved snapshot in the local store; no single API call covers more than one query.",
+      "example": "autom-pp-cli visibility autom.dev --top 10 --agent",
+      "why_it_matters": "Use this to compare a brand with competitors across a whole keyword set that you have already saved.",
+      "group": "Rank tracking from saved pages"
+    },
+    {
+      "name": "News watch",
+      "command": "news watch",
+      "description": "Get only the news articles about a brand or keyword that earlier watches have not shown. Returned articles are marked as seen; --peek previews without marking. Costs 1 credit.",
+      "rationale": "Deduplicates Google News results against the articles already stored locally.",
+      "example": "autom-pp-cli news watch \"Autom\" --country fr --agent",
+      "why_it_matters": "Schedule this for brand monitoring without re-reading the same articles.",
+      "group": "Monitoring"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-engine compare",
+      "command": "engines compare",
+      "description": "See how one query ranks across Google, Bing, Brave, DuckDuckGo and Yahoo: shared domains, domains unique to each engine, and your domain's position on each. Costs 1 credit per engine.",
+      "rationale": "Joins several engine responses into one overlap matrix that no single Autom call returns.",
+      "example": "autom-pp-cli engines compare \"serp api pricing\" --engines google,bing,brave --domain autom.dev --agent",
+      "why_it_matters": "Reach for this when a question is about visibility beyond Google or about which engines disagree.",
+      "group": "Search across engines and countries"
+    },
+    {
+      "name": "Rank movers",
+      "command": "rank movers",
+      "description": "List what moved across every tracked keyword since a cutoff: gains, drops, and entries into or exits from the top results. Reads the pages saved earlier by rank check, batch run or compare --save.",
+      "rationale": "Compares saved snapshots in the local store; the API only returns the current page.",
+      "example": "autom-pp-cli rank movers --since 7d --domain autom.dev --agent",
+      "why_it_matters": "Use this for a weekly ranking report once pages have been saved on both sides of the cutoff; on a fresh store it returns a note.",
+      "group": "Rank tracking from saved pages"
+    },
+    {
+      "name": "Geo compare",
+      "command": "geo compare",
+      "description": "Run one query on one engine across several countries and see your domain's position and the shared results per country. Costs 1 credit per country.",
+      "rationale": "Fans out per-country calls (country codes checked against the free finder first) and joins them into one table.",
+      "example": "autom-pp-cli geo compare \"serp api pricing\" --countries fr,be,ca --domain autom.dev --agent",
+      "why_it_matters": "Use this when the question is how rankings differ between markets.",
+      "group": "Search across engines and countries"
+    },
+    {
+      "name": "Credit ledger",
+      "command": "credits",
+      "description": "See your remaining quota, packs and credits plus where your credits went, by keyword, command or engine, with burn rate and days left. Spend covers only the calls made by this CLI; async searches show as pending.",
+      "rationale": "Joins the free usage endpoint with a local ledger of the billed calls this CLI made.",
+      "example": "autom-pp-cli credits --by engine --since 30d --agent",
+      "why_it_matters": "Check this before and after large batches to predict spend and find the expensive workload.",
+      "group": "Credit control"
+    },
+    {
+      "name": "Domain visibility",
+      "command": "visibility",
+      "description": "See one domain's footprint across every saved keyword: where it appears, average and best position, and top-3 and top-N (--top) counts, optionally against rival domains given with --vs. Reads the pages saved by rank check, batch run or compare --save.",
+      "rationale": "Aggregates every saved snapshot in the local store; no single API call covers more than one query.",
+      "example": "autom-pp-cli visibility autom.dev --top 10 --agent",
+      "why_it_matters": "Use this to compare a brand with competitors across a whole keyword set that you have already saved.",
+      "group": "Rank tracking from saved pages"
+    },
+    {
+      "name": "News watch",
+      "command": "news watch",
+      "description": "Get only the news articles about a brand or keyword that earlier watches have not shown. Returned articles are marked as seen; --peek previews without marking. Costs 1 credit.",
+      "rationale": "Deduplicates Google News results against the articles already stored locally.",
+      "example": "autom-pp-cli news watch \"Autom\" --country fr --agent",
+      "why_it_matters": "Schedule this for brand monitoring without re-reading the same articles.",
+      "group": "Monitoring"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "AUTOM_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Autom",
+    "headline": "Every Autom search engine from the terminal, plus saved rank history, cross-engine and cross-country comparison, and per-engine credit spend from a local ledger.",
+    "value_prop": "Search Google, Bing, Brave, DuckDuckGo and Yahoo through one key, with every documented parameter as a flag. rank check, batch run and the --save flag of the compare commands save each results page locally, so rank movers and visibility can answer what changed and where a domain stands, and credits shows where your credits went. Read-only: it searches and reads account usage; nothing on the Autom account is created or changed.",
+    "quickstart": [
+      {
+        "command": "autom-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI is installed (no network, no credits)"
+      },
+      {
+        "command": "autom-pp-cli usage",
+        "comment": "Free: see your remaining quota, packs and credits"
+      },
+      {
+        "command": "autom-pp-cli rank check autom.dev --query \"serp api pricing\" --country fr",
+        "comment": "Where a domain ranks for a keyword, saved for later comparisons"
+      },
+      {
+        "command": "autom-pp-cli engines compare \"serp api pricing\" --engines google,bing,brave --domain autom.dev",
+        "comment": "Same query on several engines at once"
+      },
+      {
+        "command": "autom-pp-cli rank movers --since 7d",
+        "comment": "What moved since last week, from the local history"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 401 with \"Rate limit exceeded\"",
+        "fix": "Autom signals rate limits with 401, and the CLI exits 7 rather than 4: wait and retry, or lower batch concurrency with --concurrency 1"
+      },
+      {
+        "symptom": "HTTP 401 \"Invalid API Key\"",
+        "fix": "Set AUTOM_API_KEY to a valid key from the Autom dashboard, then run autom-pp-cli usage (free) to confirm the key"
+      },
+      {
+        "symptom": "HTTP 402 Payment required",
+        "fix": "Out of credits: check autom-pp-cli credits, top up, or enable Auto Top-Up in the dashboard"
+      },
+      {
+        "symptom": "Bing returns HTTP 500 when paging",
+        "fix": "Drop --page on autom-pp-cli bing; the Autom endpoint currently fails when page is set"
+      },
+      {
+        "symptom": "Requests time out before 60 seconds",
+        "fix": "Autom can take up to 60 seconds; raise --timeout, or add --is-async and poll autom-pp-cli jobs get \u003cjob-id\u003e --wait"
+      },
+      {
+        "symptom": "sync does nothing and search costs credits",
+        "fix": "Every Autom endpoint needs a query, so sync has nothing to crawl and search runs a billed live web-search in the default auto mode; pass --data-source local to read only saved data, and use rank history, rank movers, visibility or serp diff for offline work"
+      }
+    ],
+    "when_to_use": "Use this CLI to fetch live search engine results from Google, Bing, Brave, DuckDuckGo or Yahoo, to track where a domain ranks over time, to compare rankings across engines or countries, or to monitor news about a brand. It is also the right tool to check Autom credit balance and spend before running large batches.",
+    "anti_triggers": [
+      "Crawling or scraping the content of the result pages themselves; use a scraping API for that",
+      "Keyword search volume or backlink data; Autom returns results pages only",
+      "Writing or changing anything on an Autom account; the API is read-only apart from billing in the dashboard"
+    ],
+    "recipes": [
+      {
+        "title": "Narrow a Google search to links",
+        "command": "autom-pp-cli google search --query \"model context protocol\" --agent --select organic_results.position,organic_results.link",
+        "explanation": "Keep only positions and links from a large results payload. Costs 1 credit."
+      },
+      {
+        "title": "Check and save a ranking",
+        "command": "autom-pp-cli rank check autom.dev --query \"serp api pricing\" --country fr",
+        "explanation": "Position of a domain for one keyword; the page is saved for rank history and movers. Costs 1 credit."
+      },
+      {
+        "title": "Track a keyword list",
+        "command": "autom-pp-cli batch run --keywords \"serp api pricing,google search scraper\" --domain autom.dev --agent",
+        "explanation": "Checks the balance first, then saves every page. Costs 1 credit per distinct keyword/engine/country/lang."
+      },
+      {
+        "title": "Weekly ranking report",
+        "command": "autom-pp-cli rank movers --since 7d --domain autom.dev --agent",
+        "explanation": "Gains, drops, entries and exits versus pages saved 7+ days ago by rank check or batch run. Free: reads saved pages."
+      },
+      {
+        "title": "Compare markets",
+        "command": "autom-pp-cli geo compare \"serp api pricing\" --countries fr,be,ca --domain autom.dev",
+        "explanation": "Position per country and the results the countries share. Costs 3 credits (one per country)."
+      },
+      {
+        "title": "Brand news without repeats",
+        "command": "autom-pp-cli news watch \"Autom\" --country fr",
+        "explanation": "Only articles earlier watches have not shown, then marks them as seen. Costs 1 credit."
+      }
+    ],
+    "trigger_phrases": [
+      "where does my site rank on Google",
+      "compare search results across engines",
+      "track keyword rankings",
+      "search Bing and Brave for",
+      "how many Autom credits are left",
+      "use autom",
+      "run autom"
+    ]
+  },
+  "homepage": "https://autom.dev"
+}
