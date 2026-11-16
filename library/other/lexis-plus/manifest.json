@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "lexis-plus-pp-mcp",
+  "display_name": "Lexis+",
+  "version": "0.1.0",
+  "description": "Pull California cases and annotated statutes from your own Lexis+ subscription straight into Word, by citation.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/lexis-plus-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/lexis-plus-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

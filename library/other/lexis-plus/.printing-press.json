@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-16T19:59:29.398317Z",
+  "printing_press_version": "4.35.4",
+  "api_name": "lexis-plus",
+  "display_name": "Lexis+",
+  "cli_name": "lexis-plus-pp-cli",
+  "creator": {
+    "handle": "bbenjyesq",
+    "name": "Bob Benjy"
+  },
+  "owner": "bbenjyesq",
+  "printer": "bbenjyesq",
+  "printer_name": "Bob Benjy",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:dfd8c3eee9c23259ed521035e1b5d0b54f42d484f2747870e6cdfce6ec172fed",
+  "run_id": "20261109-112847-01f2138d",
+  "category": "other",
+  "description": "Pull California cases and annotated statutes from your own Lexis+ subscription straight into Word, by citation.",
+  "homepage": "https://www.lexisnexis.com/en-us/products/lexis-plus.page",
+  "mcp_binary": "lexis-plus-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Brief cite extractor",
+      "command": "brief cites",
+      "description": "List every California case and statute cited in your draft brief (.docx or .txt), de-duplicated."
+    },
+    {
+      "name": "Brief cite verifier",
+      "command": "brief check",
+      "description": "Check every citation in a draft against Lexis+ and flag the ones it does not recognize."
+    },
+    {
+      "name": "Brief gaps",
+      "command": "brief gaps",
+      "description": "See which cited authorities you have not pulled yet, and which pulled ones the draft no longer cites."
+    },
+    {
+      "name": "Matter ledger",
+      "command": "matter list",
+      "description": "Browse everything you pulled for each matter, with date, format, and file path."
+    },
+    {
+      "name": "Statute annotation diff",
+      "command": "statute whatsnew",
+      "description": "Re-pull an annotated statute and see which annotations were added or removed since your last pull."
+    },
+    {
+      "name": "Authority binder",
+      "command": "matter binder",
+      "description": "Copy a matter's files into one ordered folder (cases, then statutes) with an index.csv."
+    },
+    {
+      "name": "Brief source packet",
+      "command": "citecheck packet",
+      "description": "Pull the Lexis+ text and Shepard's status for every authority a brief cites, with each pin cite and the text around it, into one folder with a manifest."
+    },
+    {
+      "name": "Quote and pin checker",
+      "command": "citecheck quote",
+      "description": "Check a brief's quotation against the Lexis+ copy: verbatim or not, every un-signaled difference, the official reporter page, and whether the words are the majority's, a concurrence's, a dissent's, or a footnote's."
+    },
+    {
+      "name": "Page-marked source text",
+      "command": "citecheck text",
+      "description": "Plain text of a case or statute with official reporter page markers and speaker labels; --pages prints only the opinion text on those pages."
+    }
+  ],
+  "owner_name": "Bob Benjy"
+}

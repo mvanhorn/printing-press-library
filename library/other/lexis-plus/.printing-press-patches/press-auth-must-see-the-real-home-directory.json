@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261109-112847-01f2138d",
+  "base_printing_press_version": "4.35.4",
+  "id": "press-auth-must-see-the-real-home-directory",
+  "summary": "Run press-auth with the account's real home directory, not whatever $HOME a sandbox set.",
+  "reason": "Live dogfood and containers rewrite $HOME, after which press-auth cannot find its captured session and every authenticated command fails with an auth error.",
+  "files": [
+    "internal/cli/auth.go"
+  ]
+}
