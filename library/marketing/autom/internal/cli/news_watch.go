@@ -4,7 +4,9 @@
 package cli
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"slices"
 	"strings"
 	"time"
@@ -119,37 +121,34 @@ Do NOT use this command for a cited, deduplicated source list that answers a que
 				fresh = append(fresh, keys)
 				view.New = append(view.New, a)
 			}
-			if !peek && db != nil && !localDataDisabled() {
+			if err := writeNewsWatch(cmd.OutOrStdout(), flags, view); err != nil {
+				return err
+			}
+			// Mark articles as seen only once the report went out, so a failed
+			// output or delivery leaves them for the next run.
+			if peek || db == nil || localDataDisabled() || len(view.New) == 0 {
+				return nil
+			}
+			mark := func(ctx context.Context, st newsMarker) error {
 				for i, a := range view.New {
-					if err := db.MarkNewsSeen(ctx, scope, a, fresh[i], now); err != nil {
+					if err := st.MarkNewsSeen(ctx, scope, a, fresh[i], now); err != nil {
 						return err
 					}
 				}
-			}
-			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
-			}
-			w := cmd.OutOrStdout()
-			if len(view.New) == 0 {
-				fmt.Fprintf(w, "No new articles for %q (%d already seen).\n", query, view.SeenSkips)
 				return nil
 			}
-			fmt.Fprintf(w, "%d new article(s) for %q", len(view.New), query)
-			if view.SeenSkips > 0 {
-				fmt.Fprintf(w, ", %d already seen", view.SeenSkips)
+			if flags.deliverBuf == nil {
+				return mark(ctx, db)
 			}
-			fmt.Fprintln(w)
-			for _, a := range view.New {
-				src := a.Source
-				if src == "" {
-					src = a.Domain
+			// --deliver ships the buffered report after this command returns.
+			afterDelivery(func() error {
+				st, err := openSerpStore(context.Background(), dbPath)
+				if err != nil {
+					return err
 				}
-				line := fmt.Sprintf("- %s (%s", a.Title, src)
-				if a.Date != "" {
-					line += ", " + a.Date
-				}
-				fmt.Fprintf(w, "%s)\n  %s\n", line, a.URL)
-			}
+				defer st.Close()
+				return mark(context.Background(), st)
+			})
 			return nil
 		},
 	}
@@ -158,6 +157,39 @@ Do NOT use this command for a cited, deduplicated source list that answers a que
 	cmd.Flags().BoolVar(&peek, "peek", false, "Show new articles without marking them as seen")
 	addDBFlag(cmd, &dbPath)
 	return cmd
+}
+
+type newsMarker interface {
+	MarkNewsSeen(ctx context.Context, scope string, a serp.Result, keys []string, at time.Time) error
+}
+
+func writeNewsWatch(w io.Writer, flags *rootFlags, view newsWatchView) error {
+	if !wantsHumanTable(w, flags) {
+		return printJSONFiltered(w, view, flags)
+	}
+	if len(view.New) == 0 {
+		_, err := fmt.Fprintf(w, "No new articles for %q (%d already seen).\n", view.Query, view.SeenSkips)
+		return err
+	}
+	fmt.Fprintf(w, "%d new article(s) for %q", len(view.New), view.Query)
+	if view.SeenSkips > 0 {
+		fmt.Fprintf(w, ", %d already seen", view.SeenSkips)
+	}
+	fmt.Fprintln(w)
+	for _, a := range view.New {
+		src := a.Source
+		if src == "" {
+			src = a.Domain
+		}
+		line := fmt.Sprintf("- %s (%s", a.Title, src)
+		if a.Date != "" {
+			line += ", " + a.Date
+		}
+		if _, err := fmt.Fprintf(w, "%s)\n  %s\n", line, a.URL); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // newsScope identifies one watch: the query and the news edition.

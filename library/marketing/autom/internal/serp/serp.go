@@ -86,6 +86,15 @@ func ParseEngineList(csv string) ([]Engine, error) {
 // Params builds the query parameters for one search.
 func (e Engine) Params(query, country, lang string, page int) map[string]string {
 	p := map[string]string{"query": query}
+	// Bing's mkt (market) and cc (country) cannot be combined: with both a
+	// country and a language, send the market alone; cc only without one.
+	if e.Name == "bing" && country != "" && lang != "" && e.LangParam == "" {
+		p["mkt"] = strings.ToLower(lang) + "-" + strings.ToUpper(country)
+		if page > 1 && e.SupportsPage {
+			p["page"] = fmt.Sprintf("%d", page)
+		}
+		return p
+	}
 	if country != "" && e.CountryParam != "" {
 		c := strings.ToLower(country)
 		if e.CountryParam == "cc" {
@@ -93,12 +102,8 @@ func (e Engine) Params(query, country, lang string, page int) map[string]string 
 		}
 		p[e.CountryParam] = c
 	}
-	if lang != "" {
-		if e.LangParam != "" {
-			p[e.LangParam] = strings.ToLower(lang)
-		} else if e.Name == "bing" && country != "" {
-			p["mkt"] = strings.ToLower(lang) + "-" + strings.ToUpper(country)
-		}
+	if lang != "" && e.LangParam != "" {
+		p[e.LangParam] = strings.ToLower(lang)
 	}
 	if page > 1 && e.SupportsPage {
 		p["page"] = fmt.Sprintf("%d", page)

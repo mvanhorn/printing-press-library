@@ -1225,6 +1225,10 @@ func (c *Client) GetWithHeaders(ctx context.Context, path string, params map[str
 	if cacheEnabled && c.plaintextCredentialTarget(path, params, headers) {
 		cacheEnabled = false
 	}
+	// Async submissions and job reads must reach Autom on every call.
+	if cacheEnabled && uncacheableRequest(path, params) {
+		cacheEnabled = false
+	}
 	// Check cache for GET requests
 	if cacheEnabled {
 		if cached, ok := c.readCacheWithHeaders(path, params, headers); ok {
@@ -1276,7 +1280,7 @@ func (c *Client) GetWithHeadersNoCache(ctx context.Context, path string, params 
 	}
 	binaryResponse := c.wantsBinaryResponse(headers)
 	result, _, err := c.do(ctx, "GET", path, params, nil, headers)
-	if err == nil && c.responseCacheEnabled(binaryResponse) {
+	if err == nil && c.responseCacheEnabled(binaryResponse) && !uncacheableRequest(path, params) {
 		c.writeCacheWithHeaders(path, params, headers, result)
 	}
 	return result, err

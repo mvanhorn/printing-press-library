@@ -227,9 +227,14 @@ func Execute() (retErr error) {
 	}
 	if err == nil && flags.deliverBuf != nil {
 		if derr := deliverCapturedOutput(&flags); derr != nil {
+			_ = runDeliveryHooks(true)
 			return derr
 		}
+		if herr := runDeliveryHooks(flags.dryRun); herr != nil {
+			return herr
+		}
 	}
+	_ = runDeliveryHooks(true)
 	if err != nil && isCobraUsageError(err) {
 		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
 		// missing required, etc.) never flow through usageErr() because

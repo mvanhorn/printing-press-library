@@ -55,9 +55,15 @@ func TestEngineParams(t *testing.T) {
 	}
 	b, _ := LookupEngine("bing")
 	got := b.Params("coffee", "fr", "fr", 3)
-	want := map[string]string{"query": "coffee", "cc": "FR", "mkt": "fr-FR"}
+	want := map[string]string{"query": "coffee", "mkt": "fr-FR"}
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("bing params = %v, want %v (no page: Bing fails on page)", got, want)
+		t.Errorf("bing params = %v, want %v (mkt alone: Bing rejects mkt with cc; no page: Bing fails on page)", got, want)
+	}
+	if got := b.Params("coffee", "fr", "", 1); !reflect.DeepEqual(got, map[string]string{"query": "coffee", "cc": "FR"}) {
+		t.Errorf("bing params without lang = %v, want cc only", got)
+	}
+	if got := b.Params("coffee", "", "fr", 1); !reflect.DeepEqual(got, map[string]string{"query": "coffee"}) {
+		t.Errorf("bing params without country = %v, want no locale", got)
 	}
 }
 

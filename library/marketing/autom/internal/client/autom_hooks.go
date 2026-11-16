@@ -7,6 +7,8 @@ package client
 import (
 	"bytes"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 // ResponseObserver, when set, is called after every response that reached the
@@ -58,4 +60,29 @@ func isRateLimit401(status int, body []byte) bool {
 	}
 	lower := bytes.ToLower(body)
 	return bytes.Contains(lower, []byte("rate limit")) && !bytes.Contains(lower, []byte("quota"))
+}
+
+// uncacheableRequest reports Autom requests whose answer changes between two
+// identical calls, so the response cache must neither serve nor store them:
+// async submissions (each call starts a new job and returns a new job_id) and
+// job reads (a job moves from queued to running to done).
+func uncacheableRequest(path string, params map[string]string) bool {
+	route, rawQuery, _ := strings.Cut(path, "?")
+	if route == "/v1/jobs" || strings.HasPrefix(route, "/v1/jobs/") {
+		return true
+	}
+	if isTrueParam(params["is_async"]) {
+		return true
+	}
+	if rawQuery != "" {
+		if q, err := url.ParseQuery(rawQuery); err == nil && isTrueParam(q.Get("is_async")) {
+			return true
+		}
+	}
+	return false
+}
+
+func isTrueParam(v string) bool {
+	v = strings.TrimSpace(v)
+	return strings.EqualFold(v, "true") || v == "1"
 }
