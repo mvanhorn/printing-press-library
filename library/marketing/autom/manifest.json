@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "autom-pp-mcp",
+  "display_name": "Autom",
+  "version": "1.0.0",
+  "description": "Every Autom search engine from the terminal, plus saved rank history, cross-engine and cross-country comparison, and per-engine credit spend from a local ledger.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/autom-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/autom-pp-mcp",
+      "args": [],
+      "env": {
+        "AUTOM_API_KEY": "${user_config.autom_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "autom_api_key": {
+      "type": "string",
+      "title": "AUTOM_API_KEY",
+      "description": "Sets AUTOM_API_KEY for the Autom MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

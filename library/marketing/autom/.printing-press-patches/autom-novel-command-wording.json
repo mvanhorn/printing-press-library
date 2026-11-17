@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-085842-3207179d",
+  "base_printing_press_version": "4.35.6",
+  "id": "autom-novel-command-wording",
+  "summary": "Align the generated root help and which index with the final novel-command descriptions (top-N wording).",
+  "reason": "Descriptions were refined after generation; the generated surfaces kept the earlier text.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/which.go"
+  ],
+  "markers": [
+    "top-N"
+  ]
+}

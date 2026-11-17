@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-085842-3207179d",
+  "base_printing_press_version": "4.35.6",
+  "id": "autom-uncacheable-async-jobs",
+  "summary": "Never serve or store cached responses for async submissions (is_async=true) or job reads (/v1/jobs/...).",
+  "reason": "A cached async call returned an old job_id without starting a search, and a cached job read kept showing queued.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/autom_hooks.go"
+  ],
+  "call_sites": [
+    "uncacheableRequest(path, params)"
+  ],
+  "validated_outcome": "TestResponseCacheSkipsAsyncAndJobs: job and async reads reach the server on every call; plain searches stay cached."
+}

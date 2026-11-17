@@ -1,0 +1,1148 @@
+{
+  "api_name": "autom",
+  "base_url": "https://api.autom.dev",
+  "description": "Every Autom search engine from the terminal, plus saved rank history, cross-engine and cross-country comparison, and per-engine credit spend from a local ledger.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "in": "header",
+    "env_vars": [
+      "AUTOM_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AUTOM_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bing_get-search",
+      "description": "Query Bing Search via API and retrieve structured organic results (title, link, snippet, position). Costs 1 credit per successful call. Required: query. Optional: page (default: 1), num (default: 10), location (plus 6 more). Returns the BingGetSearchResponse.",
+      "method": "GET",
+      "path": "/v1/bing/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query you want to run on Bing.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number for pagination (1 = first page)."
+        },
+        {
+          "name": "num",
+          "type": "float",
+          "location": "query",
+          "description": "Number of results per page (for example 10, 20, 50). This value is a suggestion."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Search origin location (for example city)."
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "GPS latitude for the search origin."
+        },
+        {
+          "name": "lon",
+          "type": "float",
+          "location": "query",
+          "description": "GPS longitude for the search origin."
+        },
+        {
+          "name": "mkt",
+          "type": "string",
+          "location": "query",
+          "description": "Market code where results come from (for example en-US). Cannot be used together with cc."
+        },
+        {
+          "name": "cc",
+          "type": "string",
+          "location": "query",
+          "description": "Country code to search from (2-letter ISO 3166-1). Cannot be used together with mkt."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "brave_images",
+      "description": "Search Brave Images via API and retrieve structured image results with pagination and SafeSearch. Costs 1 credit per successful call. Required: query. Optional: page (default: 1), gl, hl (plus 3 more). Returns the BraveImagesResponse.",
+      "method": "GET",
+      "path": "/v1/brave/images",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query you want to run on Brave Images.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number for pagination (50 results per page)."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code (for example fr, us). Mapped to Brave country."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language code (for example fr, en). Mapped to Brave lang."
+        },
+        {
+          "name": "safe",
+          "type": "string",
+          "location": "query",
+          "description": "SafeSearch: active | off | moderate | strict. Google-style active maps to Brave strict."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "brave_search",
+      "description": "Search Brave Search via API and retrieve structured organic results with pagination. Costs 1 credit per successful call. Required: query. Optional: page (default: 1), gl (default: us), hl (default: en) (plus 2 more). Returns the BraveSearchResponse.",
+      "method": "GET",
+      "path": "/v1/brave/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query you want to run on Brave Search.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number for pagination."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code, for example us, fr, gb, de."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language code, for example en, fr, de."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "brave_videos",
+      "description": "Search Brave Videos via API and retrieve structured video results with pagination and SafeSearch. Costs 1 credit per successful call. Required: query. Optional: page (default: 1), gl, hl (plus 3 more). Returns the BraveVideosResponse.",
+      "method": "GET",
+      "path": "/v1/brave/videos",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query you want to run on Brave Videos.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number for pagination."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code (for example fr, us). Mapped to Brave country."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language code (for example fr, en). Mapped to Brave lang."
+        },
+        {
+          "name": "safe",
+          "type": "string",
+          "location": "query",
+          "description": "SafeSearch: active | off | moderate | strict. Google-style active maps to Brave strict."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "duckduckgo_get-search",
+      "description": "Query DuckDuckGo via API and retrieve structured organic results with region and language. Costs 1 credit per successful call. Required: query. Optional: page (default: 1), gl, hl (plus 2 more). Returns the DuckduckgoGetSearchResponse.",
+      "method": "GET",
+      "path": "/v1/duckduckgo/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query sent to DuckDuckGo Search.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number. Page 1 is the first page of results."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code, for example us, fr, gb, de, jp."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language code, for example en, fr, de, ja, zh."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "finder_google-countries",
+      "description": "Search Google countries and retrieve country codes (free Finder endpoint). Required: query. Optional: is_async (default: false), soft_fail (default: false). Returns array of FinderGoogleCountriesItem.",
+      "method": "GET",
+      "path": "/v1/finder/google-countries",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Filter countries by a search string (case-insensitive). Returns all countries whose code or name matches the specified query.",
+          "required": true
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "finder_google-languages",
+      "description": "Search Google languages and retrieve language codes (free Finder endpoint). Required: query. Optional: is_async (default: false), soft_fail (default: false). Returns array of FinderGoogleLanguagesItem.",
+      "method": "GET",
+      "path": "/v1/finder/google-languages",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Filter languages by a search string (case-insensitive). Returns all languages whose names contain the specified string.",
+          "required": true
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "finder_google-locations",
+      "description": "Find supported Google locations and retrieve location IDs and country codes (free endpoint). Required: query. Optional: is_async (default: false), soft_fail (default: false). Returns array of FinderGoogleLocationsItem.",
+      "method": "GET",
+      "path": "/v1/finder/google-locations",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search locations supported by Piloterr (cities, countries, etc.) by providing a query string. Returns matching locations ordered by reach.",
+          "required": true
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "google_autocomplete",
+      "description": "Get Google Search autocomplete suggestions via API for a given query. Costs 1 credit per successful call. Required: query. Optional: cp (default: 0), google_domain (default: google.com), gl (plus 5 more). Returns array of string.",
+      "method": "GET",
+      "path": "/v1/google/search/autocomplete",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query for which you want to get autocomplete suggestions.",
+          "required": true
+        },
+        {
+          "name": "cp",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor position in the search query where you want to get autocomplete suggestions."
+        },
+        {
+          "name": "google_domain",
+          "type": "string",
+          "location": "query",
+          "description": "Google domain to use for the search."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country to use for the Google search."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language to use for the Google search."
+        },
+        {
+          "name": "cr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more countries."
+        },
+        {
+          "name": "lr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more languages."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "google_images",
+      "description": "Search Google Images via API and retrieve image results (URLs, titles, sources, dimensions). Costs 1 credit per successful call. Required: query. Optional: page (default: 1), google_domain (default: google.com), gl (plus 7 more). Returns the GoogleImagesResponse.",
+      "method": "GET",
+      "path": "/v1/google/images",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query you want to search on Google Images (for example 'lion', 'nike logo', 'modern house exterior').",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number for pagination (1 = first page)."
+        },
+        {
+          "name": "google_domain",
+          "type": "string",
+          "location": "query",
+          "description": "Google domain to use for the search."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country to use for the Google search."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language to use for the Google search."
+        },
+        {
+          "name": "cr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more countries."
+        },
+        {
+          "name": "lr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more languages."
+        },
+        {
+          "name": "async",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, returns a job and lets you fetch results asynchronously."
+        },
+        {
+          "name": "safe",
+          "type": "string",
+          "location": "query",
+          "description": "Adult content filter. active enables Google SafeSearch; off disables it. Omit to use Google..."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "google_maps",
+      "description": "Search Google Maps via API and retrieve structured place results (address, website, phone). Costs 1 credit per successful call. Required: query. Optional: page (default: 1), google_domain (default: google.com), gl (plus 6 more). Returns array of GoogleMapsItem.",
+      "method": "GET",
+      "path": "/v1/google/maps",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query for Google Maps (for example business type, brand, or place name).",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number for pagination (1 = first page)."
+        },
+        {
+          "name": "google_domain",
+          "type": "string",
+          "location": "query",
+          "description": "Google domain to use for the search."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country to use for the Google search."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language to use for the Google search."
+        },
+        {
+          "name": "cr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more countries."
+        },
+        {
+          "name": "lr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more languages."
+        },
+        {
+          "name": "ll",
+          "type": "string",
+          "location": "query",
+          "description": "Map center / geo hint in Google format (for example @43.5131985,1.4600501,60m). Helps focus results around a coordinate and zoom radius."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "google_news",
+      "description": "Search Google News via API and retrieve structured news results with pagination. Costs 1 credit per successful call. Required: query. Optional: page (default: 1), num (default: 10), google_domain (default: google.com) (plus 6 more). Returns the GoogleNewsResponse.",
+      "method": "GET",
+      "path": "/v1/google/news",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query to search on Google News (keywords, company, topic).",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number for pagination (1 = first page)."
+        },
+        {
+          "name": "num",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum number of results per page (for example 10)."
+        },
+        {
+          "name": "google_domain",
+          "type": "string",
+          "location": "query",
+          "description": "Google domain to use for the search."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country to use for the Google search."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language to use for the Google search."
+        },
+        {
+          "name": "cr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more countries."
+        },
+        {
+          "name": "lr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more languages."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "google_resolve",
+      "description": "Resolve google.com/goto links from organic search results. Destinations replace /goto URLs; unresolved links stay with retryAfter. Status: Experimental. Optional: is_async (default: false), soft_fail (default: false). Returns array of GoogleResolveItem.",
+      "method": "POST",
+      "path": "/v1/google/resolve",
+      "params": [
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "google_search",
+      "description": "Scrape Google Search results via API and retrieve structured SERP data with pagination. Costs 1 credit per successful call. Required: query. Optional: tbs, safe, location (plus 10 more). Returns the GoogleSearchResponse.",
+      "method": "GET",
+      "path": "/v1/google/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query you want to run on Google (supports advanced operators like site:, inurl:, intitle:).",
+          "required": true
+        },
+        {
+          "name": "tbs",
+          "type": "string",
+          "location": "query",
+          "description": "Advanced search filters string (for example time ranges: qdr:h last hour, qdr:d last day, qdr:w last week, qdr:m last month, qdr:y last year)."
+        },
+        {
+          "name": "safe",
+          "type": "string",
+          "location": "query",
+          "description": "Adult content filter. active enables Google SafeSearch; off disables it. Omit to use Google..."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Human-readable location to originate the search from (for example New York, NY, Paris, France). If several locations match, the most popular one is used. Note: location and uule cannot be used together."
+        },
+        {
+          "name": "uule",
+          "type": "string",
+          "location": "query",
+          "description": "Google encoded location parameter. Use for precise geo targeting. Note: uule and location cannot be used together."
+        },
+        {
+          "name": "google_domain",
+          "type": "string",
+          "location": "query",
+          "description": "Google domain to use for the search."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country to use for the Google search."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language to use for the Google search."
+        },
+        {
+          "name": "cr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more countries."
+        },
+        {
+          "name": "lr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more languages."
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number / offset used for pagination."
+        },
+        {
+          "name": "num",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum number of results to return per page (deprecated)."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "google_search-light",
+      "description": "Scrape lightweight Google Search results via API: fast, cost-efficient, organic results only. Costs 1 credit per successful call. Required: query. Optional: google_domain (default: google.com), gl, hl (plus 4 more). Returns the GoogleSearchLightResponse.",
+      "method": "GET",
+      "path": "/v1/google/search/light",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query you want to run on Google (supports advanced operators like site:, inurl:, intitle:).",
+          "required": true
+        },
+        {
+          "name": "google_domain",
+          "type": "string",
+          "location": "query",
+          "description": "Google domain to use for the search."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country to use for the Google search."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language to use for the Google search."
+        },
+        {
+          "name": "cr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more countries."
+        },
+        {
+          "name": "lr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more languages."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "google_shopping",
+      "description": "Scrape Google Shopping results via API and retrieve structured product listings with prices, ratings, and merchant data. Costs 1 credit per successful call. Required: query. Optional: page (default: 1), location, uule (plus 8 more). Returns the GoogleShoppingResponse.",
+      "method": "GET",
+      "path": "/v1/google/shopping",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query to search on Google Shopping (product name, brand, category).",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number for pagination (1 = first page)."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Location to localize results (for example New York, United States). Generates a UULE parameter automatically."
+        },
+        {
+          "name": "uule",
+          "type": "string",
+          "location": "query",
+          "description": "Encoded location parameter (UULE). Use location instead if you don't have a pre-encoded value."
+        },
+        {
+          "name": "google_domain",
+          "type": "string",
+          "location": "query",
+          "description": "Google domain to use for the search."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country to use for the Google search."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language to use for the Google search."
+        },
+        {
+          "name": "cr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more countries."
+        },
+        {
+          "name": "lr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more languages."
+        },
+        {
+          "name": "safe",
+          "type": "string",
+          "location": "query",
+          "description": "Adult content filter. active enables Google SafeSearch; off disables it. Omit to use Google..."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "google_videos",
+      "description": "Search Google Videos via API and retrieve structured video results with metadata. Costs 1 credit per successful call. Required: query, page (default: 1). Optional: location, uule, google_domain (default: google.com) (plus 8 more). Returns the GoogleVideosResponse.",
+      "method": "GET",
+      "path": "/v1/google/videos",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query you want to run on Google Videos.",
+          "required": true
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Human-readable location to originate the search from. Note: location and uule cannot be used together."
+        },
+        {
+          "name": "uule",
+          "type": "string",
+          "location": "query",
+          "description": "Google encoded location parameter. Note: uule and location cannot be used together."
+        },
+        {
+          "name": "google_domain",
+          "type": "string",
+          "location": "query",
+          "description": "Google domain to use for the search."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country to use for the Google search."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language to use for the Google search."
+        },
+        {
+          "name": "cr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more countries."
+        },
+        {
+          "name": "lr",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to one or more languages."
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number for pagination (1 = first page).",
+          "required": true
+        },
+        {
+          "name": "num",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum number of results per page (for example 10)."
+        },
+        {
+          "name": "safe",
+          "type": "string",
+          "location": "query",
+          "description": "Adult content filter. active enables Google SafeSearch; off disables it. Omit to use Google..."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "job_results_jobs-id",
+      "description": "Poll the status, progress (0–100) and result of a job started with is_async=true. Polling is free. Poll until status is terminal: CompletedJob, Error, NotFound or BadRequest. Required: id. Returns the JobResultsJobsIdResponse.",
+      "method": "GET",
+      "path": "/v1/jobs/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The job_id returned by an endpoint called with is_async=true.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stats_stats",
+      "description": "Infrastructure health for an engine or endpoint over the last hour. Not scoped to your account or tenant. Enabled per account: HTTP 403 means contact support to activate it. Optional: engine, path. Returns the StatsStatsResponse.",
+      "method": "GET",
+      "path": "/v1/stats",
+      "params": [
+        {
+          "name": "engine",
+          "type": "string",
+          "location": "query",
+          "description": "API family to check, for example google. Provide at least engine or path."
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "Specific endpoint to check, for example /v1/google/search. If you also pass engine, use an endpoint from that API."
+        }
+      ]
+    },
+    {
+      "name": "usage_usage",
+      "description": "Retrieve real-time usage statistics and credit balance for your Autom account. Returns the UsageUsageResponse.",
+      "method": "GET",
+      "path": "/v1/usage",
+      "params": []
+    },
+    {
+      "name": "web_search_get-search",
+      "description": "One call walks engines in order and returns the first organic results. engines=auto tries Google, then Brave, Bing, DuckDuckGo, Yahoo, and Baidu. Omitted gl is us and omitted hl is en. There is no page parameter: the response is always page 1. An empty query returns 400. If every engine misses, the call returns 404. Send header x-api-key. 1 credit on HTTP 200. Costs 1 credit per successful call. Required: query. Optional: engines (default: auto), gl, hl (plus 2 more).",
+      "method": "GET",
+      "path": "/v1/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query.",
+          "required": true
+        },
+        {
+          "name": "engines",
+          "type": "string",
+          "location": "query",
+          "description": "Engine order. Default auto tries google, brave, bing, duckduckgo, yahoo, then baidu. A comma-separated list is followed as given. ddg and duck mean duckduckgo. Unknown names are ignored."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code. Defaults to us when omitted. For example us, fr, gb, de."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language code. Defaults to en when omitted. For example en, fr, de."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    },
+    {
+      "name": "yahoo_get-search",
+      "description": "Query Yahoo via API and retrieve structured organic results with country and language. Costs 1 credit per successful call. Required: query. Optional: page (default: 1), gl, hl (plus 2 more). Returns the YahooGetSearchResponse.",
+      "method": "GET",
+      "path": "/v1/yahoo/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query sent to Yahoo Search.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number. Page 1 is the first page of results."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code, for example us, fr, gb, de, jp."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Language code, for example en, fr, de, ja, zh."
+        },
+        {
+          "name": "is_async",
+          "type": "bool",
+          "location": "query",
+          "description": "Run the request as a background job: the API answers 202 with a job_id to poll on GET..."
+        },
+        {
+          "name": "soft_fail",
+          "type": "bool",
+          "location": "query",
+          "description": "Return HTTP 200 even when the request fails; the error is in the error field of the body."
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-engine compare",
+      "command": "engines compare",
+      "description": "See how one query ranks across Google, Bing, Brave, DuckDuckGo and Yahoo: shared domains, domains unique to each engine, and your domain's position on each. Costs 1 credit per engine."
+    },
+    {
+      "name": "Rank movers",
+      "command": "rank movers",
+      "description": "List what moved across every tracked keyword since a cutoff: gains, drops, and entries into or exits from the top results. Reads the pages saved earlier by rank check, batch run or compare --save."
+    },
+    {
+      "name": "Geo compare",
+      "command": "geo compare",
+      "description": "Run one query on one engine across several countries and see your domain's position and the shared results per country. Costs 1 credit per country."
+    },
+    {
+      "name": "Credit ledger",
+      "command": "credits",
+      "description": "See your remaining quota, packs and credits plus where your credits went, by keyword, command or engine, with burn rate and days left. Spend covers only the calls made by this CLI; async searches show as pending."
+    },
+    {
+      "name": "Domain visibility",
+      "command": "visibility",
+      "description": "See one domain's footprint across every saved keyword: where it appears, average and best position, and top-3 and top-N (--top) counts, optionally against rival domains given with --vs. Reads the pages saved by rank check, batch run or compare --save."
+    },
+    {
+      "name": "News watch",
+      "command": "news watch",
+      "description": "Get only the news articles about a brand or keyword that earlier watches have not shown. Returned articles are marked as seen; --peek previews without marking. Costs 1 credit."
+    }
+  ]
+}

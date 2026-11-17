@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-085842-3207179d",
+  "base_printing_press_version": "4.35.6",
+  "id": "autom-response-observer",
+  "summary": "Notify an observer after each successful API call so the local credit ledger records spend per command and engine.",
+  "reason": "The credits command needs per-call accounting that the generated client does not expose.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/autom_hooks.go",
+    "internal/cli/autom_common.go"
+  ],
+  "call_sites": [
+    "notifyResponseObserver("
+  ],
+  "validated_outcome": "Ledger unit tests and live dogfood of credits."
+}

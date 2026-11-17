@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/autom-pp-cli
+/autom-pp-cli.exe
+/autom-pp-mcp
+/autom-pp-mcp.exe
+/bin/
+/build/
+/dist/

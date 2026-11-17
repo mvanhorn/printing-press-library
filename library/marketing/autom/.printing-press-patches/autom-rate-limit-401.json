@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-085842-3207179d",
+  "base_printing_press_version": "4.35.6",
+  "id": "autom-rate-limit-401",
+  "summary": "Treat HTTP 401 'Rate limit exceeded' as a rate limit (retry and a typed error) while quota 401s stay auth errors.",
+  "reason": "Autom returns rate limits as 401, not 429; the generated client and error classifier treated them as bad credentials.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/autom_hooks.go",
+    "internal/cli/helpers.go"
+  ],
+  "call_sites": [
+    "isRateLimit401(",
+    "automRateLimit401Err"
+  ],
+  "validated_outcome": "Unit tests for the 401 classification and the full live dogfood (153/153)."
+}

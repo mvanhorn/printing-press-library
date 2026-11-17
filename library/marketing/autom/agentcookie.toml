@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "autom-pp-cli"
+display_name = "Autom"
+description = "Every Autom search engine from the terminal, plus saved rank history, cross-engine and cross-country comparison, and per-engine credit spend from a local ledger."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/autom-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+AUTOM_API_KEY = true

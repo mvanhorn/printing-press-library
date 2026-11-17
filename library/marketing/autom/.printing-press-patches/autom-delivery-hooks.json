@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-085842-3207179d",
+  "base_printing_press_version": "4.35.6",
+  "id": "autom-delivery-hooks",
+  "summary": "Run side effects that depend on the report (news watch marking articles as seen) only after the output or --deliver succeeded.",
+  "reason": "news watch marked articles before printing and before delivery, so a failed output hid them from the next run.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/autom_delivery.go",
+    "internal/cli/news_watch.go"
+  ],
+  "call_sites": [
+    "runDeliveryHooks(",
+    "afterDelivery("
+  ],
+  "validated_outcome": "TestDeliveryHooks and TestWriteNewsWatchReportsOutputError."
+}
