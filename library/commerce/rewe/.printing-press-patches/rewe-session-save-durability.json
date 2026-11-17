@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261117-015745-63def5e3",
+  "base_printing_press_version": "4.35.6",
+  "id": "rewe-session-save-durability",
+  "summary": "Session.Save must write through a unique temp file under cliutil.WithFileLock, and Shop must capture raw Set-Cookie headers (via an http.RoundTripper wrapper) so a renewed KEYCLOAK_IDENTITY's extended expiry is persisted, because cookiejar.Jar exposes cookie values but never expiry.",
+  "reason": "Two concurrent CLI invocations saving session.json at once could interleave a torn write or race the rename since both used the same fixed '.tmp' name with no locking; separately, MergeFromJar only ever saw cookie values (the jar has no exported way to read back a stored cookie's expiry), so a renewed single-sign-on cookie kept its original expiry and users needed another browser login despite renewing regularly.",
+  "files": [
+    "internal/rewe/session.go",
+    "internal/rewe/shop.go"
+  ],
+  "validated_outcome": "go test ./internal/rewe/... passes with the existing TestSessionCookies/TestSessionSaveLoadAndPath coverage plus the transport-level cookie capture wired into OpenWith/NewShopWithClient."
+}

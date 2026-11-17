@@ -10,6 +10,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/rewe/internal/rewe"
 )
 
 func newProductsSearchCmd(flags *rootFlags) *cobra.Command {
@@ -71,6 +73,11 @@ func newProductsSearchCmd(flags *rootFlags) *cobra.Command {
 			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "products", false, path, params, nil, "_embedded.products", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			if prov.Source == "live" {
+				if products, perr := rewe.ParseProducts([]byte(`{"_embedded":{"products":` + string(data) + `}}`)); perr == nil {
+					recordPrices(cmd.Context(), products, "")
+				}
 			}
 			outputData := data
 			// Print provenance to stderr for human-facing output only.

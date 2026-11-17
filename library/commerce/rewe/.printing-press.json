@@ -4,6 +4,10 @@
   "printing_press_version": "4.35.6",
   "api_name": "rewe",
   "cli_name": "rewe-pp-cli",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:847fab585431e5e5edbb64bc038a7d73f1f04b2e4574271eec11399e9c6a1fe6",
   "creator": {
     "handle": "jimpresting",
     "name": "JimPresting"

@@ -14,6 +14,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/rewe/internal/cliutil"
 )
 
 // Cookie is one browser cookie as exported by Playwright, CDP
@@ -71,7 +73,10 @@ func LoadSession(path string) (*Session, error) {
 	return &s, nil
 }
 
-// Save writes the session file with owner-only permissions.
+// Save writes the session file with owner-only permissions. The write goes
+// through a uniquely-named temp file and cliutil.WithFileLock so two CLI
+// invocations saving at the same time cannot truncate/interleave each
+// other's write or race the rename into path.
 func (s *Session) Save(path string) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return err
@@ -81,11 +86,22 @@ func (s *Session) Save(path string) error {
 	if err != nil {
 		return err
 	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, b, 0o600); err != nil {
-		return err
-	}
-	return os.Rename(tmp, path)
+	return cliutil.WithFileLock(path, func() error {
+		tmp, err := os.CreateTemp(filepath.Dir(path), filepath.Base(path)+".tmp-*")
+		if err != nil {
+			return err
+		}
+		tmpPath := tmp.Name()
+		defer os.Remove(tmpPath)
+		if _, err := tmp.Write(b); err != nil {
+			tmp.Close()
+			return err
+		}
+		if err := tmp.Close(); err != nil {
+			return err
+		}
+		return os.Rename(tmpPath, path)
+	})
 }
 
 // ParseCookieExport accepts a JSON array of cookies, an object with a
@@ -198,6 +214,48 @@ func (s *Session) MergeFromJar(jar http.CookieJar) {
 			}
 		}
 	}
+}
+
+// setCookieUpdate is one raw Set-Cookie response header the shop observed,
+// kept with the host it came from so it can be matched back to a session
+// cookie by domain.
+type setCookieUpdate struct {
+	Host   string
+	Cookie *http.Cookie
+}
+
+// ApplySetCookies updates known session cookies' value and expiry from raw
+// Set-Cookie headers. cookiejar.Jar stores a cookie's expiry internally once
+// set but has no exported way to read it back out, so MergeFromJar alone
+// never sees a KEYCLOAK_IDENTITY expiry that single-sign-on renewal just
+// extended; these raw headers are the only place that new expiry is visible.
+func (s *Session) ApplySetCookies(updates []setCookieUpdate) {
+	for _, u := range updates {
+		exp := setCookieExpiry(u.Cookie)
+		for i := range s.Cookies {
+			if s.Cookies[i].Name != u.Cookie.Name || !domainMatches(u.Host, s.Cookies[i].Domain) {
+				continue
+			}
+			s.Cookies[i].Value = u.Cookie.Value
+			if exp > 0 {
+				s.Cookies[i].Expires = exp
+			}
+		}
+	}
+}
+
+// setCookieExpiry resolves a parsed Set-Cookie's effective expiry as a Unix
+// timestamp. Max-Age wins over Expires per RFC 6265 §5.3; a session cookie
+// (neither attribute set) or a deletion (Max-Age <= 0) returns 0, leaving any
+// existing expiry untouched.
+func setCookieExpiry(c *http.Cookie) float64 {
+	if c.MaxAge > 0 {
+		return float64(time.Now().Add(time.Duration(c.MaxAge) * time.Second).Unix())
+	}
+	if c.MaxAge == 0 && !c.Expires.IsZero() {
+		return float64(c.Expires.Unix())
+	}
+	return 0
 }
 
 // domainMatches reports whether a cookie domain applies to host.

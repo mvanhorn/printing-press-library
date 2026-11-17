@@ -41,19 +41,18 @@ func newNovelDealsMineCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx := cmd.Context()
 			names := map[string]string{} // product name -> source
-			var fav []struct {
+			var fav struct {
 				Items []struct {
-					ProductID string `json:"productId"`
-					Title     string `json:"title"`
-					Name      string `json:"name"`
+					ProductID   string `json:"productId"`
+					ProductName string `json:"productName"`
+					Title       string `json:"title"`
+					Name        string `json:"name"`
 				} `json:"items"`
 			}
 			if err := sh.JSON(ctx, http.MethodGet, "/shop/api/favorites", nil, &fav, nil); err == nil {
-				for _, l := range fav {
-					for _, it := range l.Items {
-						if n := firstNonEmpty(it.Title, it.Name); n != "" {
-							names[n] = "favorite"
-						}
+				for _, it := range fav.Items {
+					if n := firstNonEmpty(it.ProductName, it.Title, it.Name); n != "" {
+						names[n] = "favorite"
 					}
 				}
 			}

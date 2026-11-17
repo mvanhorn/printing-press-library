@@ -29,7 +29,7 @@ func newNovelListAddCmd(flags *rootFlags) *cobra.Command {
 			"the selected market, the best match is chosen, and all matches go into the basket in one call.\n" +
 			"--dry-run shows the matches only. Unmatched lines are reported, never silently dropped.",
 		Example:     "  rewe-pp-cli list add --text \"2x Hafermilch\" --json\n  rewe-pp-cli list add --file einkauf.txt --dry-run",
-		Annotations: map[string]string{"pp:data-source": "live", "pp:happy-args": "--text=Hafermilch", "pp:live-happy-path": "true"},
+		Annotations: map[string]string{"pp:data-source": "live", "pp:happy-args": "--text=Hafermilch", "pp:live-happy-path": "true", "mcp:read-flags": "file"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if done, err := verifyDryRun(cmd, flags, "list add"); done {
 				return err

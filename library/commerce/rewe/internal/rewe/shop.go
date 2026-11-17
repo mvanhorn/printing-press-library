@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/rewe/internal/client"
@@ -29,6 +30,49 @@ type Shop struct {
 	Path    string
 	limiter *cliutil.AdaptiveLimiter
 	renewed bool
+	cookies *cookieCapture
+}
+
+// cookieCapture is an http.RoundTripper wrapper that remembers every raw
+// Set-Cookie header seen, including ones from the intermediate account.rewe.de
+// hops that SSO renewal follows automatically: http.Client applies those to
+// the cookiejar.Jar itself before following the redirect, and the jar keeps
+// no exported way to read a cookie's expiry back out afterwards.
+type cookieCapture struct {
+	next http.RoundTripper
+	mu   sync.Mutex
+	seen []setCookieUpdate
+}
+
+func newCookieCapture(next http.RoundTripper) *cookieCapture {
+	if next == nil {
+		next = http.DefaultTransport
+	}
+	return &cookieCapture{next: next}
+}
+
+func (c *cookieCapture) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp, err := c.next.RoundTrip(req)
+	if resp != nil {
+		host := req.URL.Hostname()
+		cookies := resp.Cookies()
+		if len(cookies) > 0 {
+			c.mu.Lock()
+			for _, hc := range cookies {
+				c.seen = append(c.seen, setCookieUpdate{Host: host, Cookie: hc})
+			}
+			c.mu.Unlock()
+		}
+	}
+	return resp, err
+}
+
+func (c *cookieCapture) snapshot() []setCookieUpdate {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	out := make([]setCookieUpdate, len(c.seen))
+	copy(out, c.seen)
+	return out
 }
 
 // HTTPError is a non-2xx answer from REWE.
@@ -75,20 +119,28 @@ func OpenWith(s *Session, path string) (*Shop, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Shop{HTTP: hc, Session: s, Path: path, limiter: cliutil.NewAdaptiveLimiter(2)}, nil
+	capture := newCookieCapture(hc.Transport)
+	hc.Transport = capture
+	return &Shop{HTTP: hc, Session: s, Path: path, limiter: cliutil.NewAdaptiveLimiter(2), cookies: capture}, nil
 }
 
 // NewShopWithClient is used by tests (httptest servers cannot use the rewe.de-only client).
 func NewShopWithClient(hc *http.Client, s *Session) *Shop {
-	return &Shop{HTTP: hc, Session: s, limiter: cliutil.NewAdaptiveLimiter(50)}
+	capture := newCookieCapture(hc.Transport)
+	hc.Transport = capture
+	return &Shop{HTTP: hc, Session: s, limiter: cliutil.NewAdaptiveLimiter(50), cookies: capture}
 }
 
-// Persist writes cookies the server rotated back into the session file.
+// Persist writes cookies the server rotated back into the session file,
+// including any expiry single-sign-on renewal just extended.
 func (sh *Shop) Persist() error {
 	if sh.Path == "" || sh.HTTP.Jar == nil {
 		return nil
 	}
 	sh.Session.MergeFromJar(sh.HTTP.Jar)
+	if sh.cookies != nil {
+		sh.Session.ApplySetCookies(sh.cookies.snapshot())
+	}
 	return sh.Session.Save(sh.Path)
 }
 
