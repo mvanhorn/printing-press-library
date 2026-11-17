@@ -2837,6 +2837,55 @@
       }
     },
     {
+      "name": "autom",
+      "category": "marketing",
+      "api": "Autom",
+      "description": "Every Autom search engine from the terminal, plus saved rank history, cross-engine and cross-country comparison, and per-engine credit spend from a local ledger.",
+      "homepage": "https://autom.dev",
+      "search_terms": [
+        "autom",
+        "autom-pp-cli",
+        "Every Autom search engine from the terminal, plus saved rank history, cross-engine and cross-country comparison, and per-engine credit spend from a local ledger.",
+        "Cross-engine compare",
+        "engines compare",
+        "See how one query ranks across Google, Bing, Brave, DuckDuckGo and Yahoo: shared domains, domains unique to each engine, and your domain's position on each. Costs 1 credit per engine.",
+        "Rank movers",
+        "List what moved across every tracked keyword since a cutoff: gains, drops, and entries into or exits from the top results. Reads the pages saved earlier by rank check, batch run or compare --save.",
+        "Geo compare",
+        "Run one query on one engine across several countries and see your domain's position and the shared results per country. Costs 1 credit per country.",
+        "Credit ledger",
+        "credits",
+        "See your remaining quota, packs and credits plus where your credits went, by keyword, command or engine, with burn rate and days left. Spend covers only the calls made by this CLI; async searches show as pending.",
+        "Domain visibility",
+        "visibility",
+        "See one domain's footprint across every saved keyword: where it appears, average and best position, and top-3 and top-N (--top) counts, optionally against rival domains given with --vs. Reads the pages saved by rank check, batch run or compare --save.",
+        "News watch",
+        "Get only the news articles about a brand or keyword that earlier watches have not shown. Returned articles are marked as seen; --peek previews without marking. Costs 1 credit."
+      ],
+      "path": "library/marketing/autom",
+      "printer": "josselinlbe",
+      "printer_name": "Josselin",
+      "creator": {
+        "handle": "josselinlbe",
+        "name": "Josselin"
+      },
+      "mcp": {
+        "binary": "autom-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 22,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "AUTOM_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "autotempest",
       "category": "commerce",
       "api": "AutoTempest",
