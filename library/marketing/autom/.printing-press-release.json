@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "autom",
+  "cli_name": "autom-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-17T09:49:17Z",
+  "source_commit": "2c6125b66f8943bfa9782f6feed089bc0e7f6b1d",
+  "printing_press_version": "4.35.6",
+  "run_id": "20261116-085842-3207179d",
+  "changes": [
+    {
+      "title": "feat(autom): add autom",
+      "pr": 2471,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2471",
+      "commit": "2c6125b66f8943bfa9782f6feed089bc0e7f6b1d"
+    }
+  ]
+}
