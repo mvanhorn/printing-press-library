@@ -39,16 +39,8 @@ rewe-pp-cli replays the logged-in REWE web shop: search your market's catalogue,
 
 Use for REWE grocery tasks in Germany: offers of a market, building a pickup basket, finding the earliest pickup slot, turning recipes into a basket and placing the order after the person confirmed.
 
+
 ## Unique Capabilities
-
-### Session that stays alive
-- **`auth renew`** — Keep the REWE shop session alive without a password by replaying the 30-day single-sign-on cookie.
-
-  _Agents run unattended; run this when auth session says the shop session is gone._
-
-  ```bash
-  rewe-pp-cli auth renew --json
-  ```
 
 ### Shopping intelligence
 - **`offers`** — Current offers of your market (and next week's once REWE publishes them) as rows with title, price and category.
@@ -93,7 +85,7 @@ Use for REWE grocery tasks in Germany: offers of a market, building a pickup bas
   _The only command that spends money; agents must show the preview and get a yes first._
 
   ```bash
-  rewe-pp-cli order place --slot earliest --phone +4915112345678
+  rewe-pp-cli order place --slot earliest --phone +4915112345678 --dry-run
   ```
 - **`basket add`** — Add products by search text and quantity without knowing listing ids.
 
@@ -107,7 +99,7 @@ Use for REWE grocery tasks in Germany: offers of a market, building a pickup bas
   _Feed a transcribed voice note directly._
 
   ```bash
-  rewe-pp-cli list add --text "2x Hafermilch" --json
+  rewe-pp-cli list add --file einkauf.txt --dry-run --json
   ```
 
 ## HTTP Transport
@@ -239,6 +231,7 @@ rewe-pp-cli which "<capability in your own words>"
 ```
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query. `--json` (and other machine formats) keep that exit-2 contract and write `{"matches":[]}` on stdout so agents can inspect the envelope without treating a miss as success.
+
 
 ## Recipes
 

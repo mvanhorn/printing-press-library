@@ -127,7 +127,6 @@ rewe-pp-mcp --transport http
 
 Set `REWE_MCP_READ_ONLY=1` (exactly `1`) to drop mirrored commands that are not marked read-only and make the raw execute tool refuse state-changing calls. Commands marked local-write, which write only this CLI's own learn store, stay available.
 
-
 ## Authentication
 
 Log in once to rewe.de in a browser (REWE requires a captcha and two-factor login), then run rewe-pp-cli auth import --cdp http://127.0.0.1:9222 or --file cookies.json. The CLI keeps the shop session alive with REWE's 30-day single-sign-on cookie (auth renew, also done automatically) and says when a fresh browser login is needed.
@@ -151,20 +150,11 @@ rewe-pp-cli basket add hafermilch --qty 2
 rewe-pp-cli slots earliest
 
 # preview before ordering
-rewe-pp-cli order place --slot earliest --phone +4915112345678
+rewe-pp-cli order place --slot earliest --phone +4915112345678 --dry-run
 
 ```
 
 ## Unique Features
-
-### Session that stays alive
-- **`auth renew`** — Keep the REWE shop session alive without a password by replaying the 30-day single-sign-on cookie.
-
-  _Agents run unattended; run this when auth session says the shop session is gone._
-
-  ```bash
-  rewe-pp-cli auth renew --json
-  ```
 
 ### Shopping intelligence
 - **`offers`** — Current offers of your market (and next week's once REWE publishes them) as rows with title, price and category.
@@ -209,7 +199,7 @@ rewe-pp-cli order place --slot earliest --phone +4915112345678
   _The only command that spends money; agents must show the preview and get a yes first._
 
   ```bash
-  rewe-pp-cli order place --slot earliest --phone +4915112345678
+  rewe-pp-cli order place --slot earliest --phone +4915112345678 --dry-run
   ```
 - **`basket add`** — Add products by search text and quantity without knowing listing ids.
 
@@ -223,7 +213,7 @@ rewe-pp-cli order place --slot earliest --phone +4915112345678
   _Feed a transcribed voice note directly._
 
   ```bash
-  rewe-pp-cli list add --text "2x Hafermilch" --json
+  rewe-pp-cli list add --file einkauf.txt --dry-run --json
   ```
 
 ## Recipes
@@ -520,7 +510,6 @@ Static request headers can be configured under `headers`; per-command header ove
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
-
 
 ### API-specific
 - **exit code 4 / re-login needed** — Log in to rewe.de in a browser again, then run rewe-pp-cli auth import

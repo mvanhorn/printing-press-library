@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/rewe/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/rewe/internal/rewe"
 )
 
@@ -36,6 +37,10 @@ func newNovelListAddCmd(flags *rootFlags) *cobra.Command {
 			}
 			if file == "" && text == "" {
 				return cmd.Help()
+			}
+			if file != "" && file != "-" && cliutil.IsMCPChildEnv() {
+				// An MCP caller must not make this process read arbitrary local files.
+				return usageErr(fmt.Errorf("--file is not available through MCP; pass the list with --text"))
 			}
 			src := text
 			if file != "" {

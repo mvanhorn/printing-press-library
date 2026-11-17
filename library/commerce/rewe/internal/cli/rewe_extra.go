@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/rewe/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/rewe/internal/rewe"
 )
 
@@ -38,8 +39,12 @@ func newAuthImportCmd(flags *rootFlags) *cobra.Command {
 			"  --cdp   a Chromium started with --remote-debugging-port (loopback only)\n" +
 			"  --file  a JSON cookie export (array, Playwright storage state or CDP cookies); '-' reads stdin\n" +
 			"The session is stored at the REWE_SESSION_FILE path (default: user config dir) with owner-only permissions.",
-		Example: "  rewe-pp-cli auth import --cdp http://127.0.0.1:9222\n  rewe-pp-cli auth import --file cookies.json",
+		Example:     "  rewe-pp-cli auth import --cdp http://127.0.0.1:9222\n  rewe-pp-cli auth import --file cookies.json",
+		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cliutil.IsMCPChildEnv() {
+				return usageErr(errors.New("auth import is an operator action and is not available through MCP"))
+			}
 			if file == "" && cdp == "" {
 				return cmd.Help()
 			}

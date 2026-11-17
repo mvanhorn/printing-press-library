@@ -22,7 +22,7 @@ func newNovelAuthRenewCmd(flags *rootFlags) *cobra.Command {
 			"this automatically when the session is gone; run it from a daily job to keep the 30-day\n" +
 			"window rolling. Exit code 4 means a human must log in to rewe.de again (captcha + 2FA).",
 		Example:     "  rewe-pp-cli auth renew --json",
-		Annotations: map[string]string{"pp:data-source": "live", "pp:live-happy-path": "true", "pp:happy-args": "--json"},
+		Annotations: map[string]string{"pp:data-source": "live", "pp:live-happy-path": "true", "pp:happy-args": "--json", "pp:verified-by-proof": "auth-renew-lifecycle.md"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "auth renew")

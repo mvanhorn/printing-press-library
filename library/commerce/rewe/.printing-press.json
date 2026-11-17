@@ -19,11 +19,6 @@
   "category": "commerce",
   "novel_features": [
     {
-      "name": "Self-renewing session",
-      "command": "auth renew",
-      "description": "Keep the REWE shop session alive without a password by replaying the 30-day single-sign-on cookie."
-    },
-    {
       "name": "Structured market offers",
       "command": "offers",
       "description": "Current offers of your market (and next week's once REWE publishes them) as rows with title, price and category."

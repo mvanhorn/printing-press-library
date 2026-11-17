@@ -326,9 +326,7 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Short: `Order REWE groceries for pickup from the terminal or an agent - offers, basket, earliest pickup slot, recipes to basket.`,
 		Long: `Order REWE groceries for pickup from the terminal or an agent - offers, basket, earliest pickup slot, recipes to basket.
 
-
 Highlights (not in the official API docs):
-  • auth renew   Keep the REWE shop session alive without a password by replaying the 30-day single-sign-on cookie.
   • offers   Current offers of your market (and next week's once REWE publishes them) as rows with title, price and category.
   • deals mine   Offers that match products you bought before or saved as favourites.
   • slots earliest   The earliest free pickup slot with its fee, optionally reserved right away.

@@ -27,7 +27,6 @@ type whichEntry struct {
 // Novel hero features come first (declaration-order ties); promoted
 // endpoint commands follow so natural-language queries can find them.
 var whichIndex = []whichEntry{
-	{Command: "auth renew", Description: "Keep the REWE shop session alive without a password by replaying the 30-day single-sign-on cookie.", Group: "Session that stays alive", WhyItMatters: "Agents run unattended; run this when auth session says the shop session is gone."},
 	{Command: "offers", Description: "Current offers of your market (and next week's once REWE publishes them) as rows with title, price and category.", Group: "Shopping intelligence", WhyItMatters: "Use it to answer what is on offer or to propose deals."},
 	{Command: "deals mine", Description: "Offers that match products you bought before or saved as favourites.", Group: "Shopping intelligence", WhyItMatters: "Basis for proactive offer suggestions."},
 	{Command: "slots earliest", Description: "The earliest free pickup slot with its fee, optionally reserved right away.", Group: "Order flow", WhyItMatters: "Propose the earliest pickup before ordering."},
@@ -37,7 +36,7 @@ var whichIndex = []whichEntry{
 	{Command: "list add", Description: "Turn a shopping list (one item per line, optional quantity) into basket items.", Group: "Order flow", WhyItMatters: "Feed a transcribed voice note directly."},
 	{Command: "price history", Description: "Price changes of a product seen in searches and offers over time.", Group: "Shopping intelligence", WhyItMatters: "Tell whether an offer is really cheap."},
 	{Command: "payment", Description: "List enabled and disabled payment methods for an order total (MARKET_PAYMENT = pay at pickup).", Group: "payment", WhyItMatters: "List enabled and disabled payment methods for an order total (MARKET_PAYMENT = pay at pickup)."}, // pp:which-promoted
-	{Command: "purchased", Description: "List previously bought products with categories and current offers among them.", Group: "purchased", WhyItMatters: "List previously bought products with categories and current offers among them."},                             // pp:which-promoted
+	{Command: "purchased", Description: "List previously bought products with categories and current offers among them.", Group: "purchased", WhyItMatters: "List previously bought products with categories and current offers among them."}, // pp:which-promoted
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.

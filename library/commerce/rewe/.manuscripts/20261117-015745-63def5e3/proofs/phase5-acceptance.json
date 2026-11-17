@@ -4,26 +4,26 @@
   "run_id": "20261117-015745-63def5e3",
   "status": "pass",
   "level": "full",
-  "matrix_size": 227,
-  "tests_passed": 227,
-  "tests_skipped": 138,
-  "tests_unverified": 138,
+  "matrix_size": 221,
+  "tests_passed": 221,
+  "tests_skipped": 144,
+  "tests_unverified": 144,
   "live_happy_path_runs": [
     {
       "command": "basket add",
-      "source_fingerprint": "2d0713c086e07d1e95ac0a43a077a36d2771490b4cb02f93929d2e1a9a975cca",
-      "ran_at": "2026-11-17T16:08:52.2695607Z"
+      "source_fingerprint": "75cf6c62a1c0b982bf3ac709785b745271538f2ae8b723ec8d9dd3832667d086",
+      "ran_at": "2026-11-17T16:54:56.3827118Z"
     },
     {
       "command": "list add",
-      "source_fingerprint": "2d0713c086e07d1e95ac0a43a077a36d2771490b4cb02f93929d2e1a9a975cca",
-      "ran_at": "2026-11-17T16:08:52.2695607Z"
+      "source_fingerprint": "75cf6c62a1c0b982bf3ac709785b745271538f2ae8b723ec8d9dd3832667d086",
+      "ran_at": "2026-11-17T16:54:56.3827118Z"
     }
   ],
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "2d0713c086e07d1e95ac0a43a077a36d2771490b4cb02f93929d2e1a9a975cca",
+  "source_fingerprint": "75cf6c62a1c0b982bf3ac709785b745271538f2ae8b723ec8d9dd3832667d086",
   "source_files": {
     "cmd/rewe-pp-cli/main.go": "bd832d0e48e26c9ce5fa5c1ee7df8f5e61ec60b01d742736d7334b39d0649e8f",
     "cmd/rewe-pp-mcp/http_auth_test.go": "774ee812a37b18b80ce5e5fb614f01ef4bc9f07caa3978b7a6d67af7b94af395",
@@ -34,7 +34,7 @@
     "internal/cli/agent_context.go": "7e0e69e90c33a4ca48d147037208d7218f65ec18c9433511e8fbea34a75f8b89",
     "internal/cli/api_discovery.go": "278fd2dcf7a879677fa7e9225b6fe6768bd7294f2203ce6535d42ab893480a7f",
     "internal/cli/auth.go": "ce35050a9fe704c3b10df19f10dfb3b5d03a562a460afffa1580a7206f713916",
-    "internal/cli/auth_renew.go": "623efdd4788ce11de40ef3b20f03a4ebe402723f3d2c69cefcda1a891cbaefb6",
+    "internal/cli/auth_renew.go": "2f49a82a0de108f747a5c139256369ba8753815124d9f92d4ab91c65ddeee8b4",
     "internal/cli/auth_renew_test.go": "b30261e0b8abf462418e5672d308379cd6f7b8cb17a986f7ce57bf2edd277e6e",
     "internal/cli/basket.go": "82fe7c48d2a278fe56dc4d63755c91caae49e32a7bb9f75ef95504301e2e68f2",
     "internal/cli/basket_add-many.go": "5c818aa3dc66a38445f89a023d78b0619da29a409660bc372027c2acbe234079",
@@ -47,8 +47,8 @@
     "internal/cli/channel_workflow.go": "9a126c866c975283eeed198a62b7c8033d796494b07fcb83b210d352ecc7df97",
     "internal/cli/data_source.go": "f3de021f8a2f58e6d7693ac9ac5c17f4b135a7a3cde8ab8ddacd01c474e0a460",
     "internal/cli/deals.go": "a4369c656f820b96908e58ead4a52002efd14eb2e277aba38b9c0ae04126f31d",
-    "internal/cli/deals_mine.go": "117f9a4ff6f8244856598ddd0774581e10abe59fc5541d45ceeb0e975009f813",
-    "internal/cli/deals_mine_test.go": "812b0143679f1416588d38c90f2afd888972108ae8f0914e4faf83df3f86f3c8",
+    "internal/cli/deals_mine.go": "14e18f6a1bd19ac19749399bd7cb41c254db5baa49b4488b60399cbacf3fd504",
+    "internal/cli/deals_mine_test.go": "de70ddc0715b4d6a05b1402df692bd0bc72d36141e1362ff89ce99a4e2c86e44",
     "internal/cli/deliver.go": "f2d388d791ee1f1fb2cdac64ede3a95b9d389bae2d3ca9b74d02379da8fbb245",
     "internal/cli/deliver_download_test.go": "829a82de10c53c11b06a596a408c03b00ad31a1b7b80503d0870dee1319d6717",
     "internal/cli/deliver_spacefast.go": "622985bf3a8d54d88a5e5aa800cd1bd9b6a6c67fcc797efdf310c6259f20cf52",
@@ -70,7 +70,7 @@
     "internal/cli/learnings_stats.go": "e4a42549b6d6582e906963252bd9048962ac622acf1b9177d52b4e46567fe0b0",
     "internal/cli/learnings_stats_test.go": "c1e57b4c9862e371bec6841419d30402fee4daf1c8369e2cc6050fa1a4a53fc4",
     "internal/cli/list.go": "95f6f222a6ae2fc5c02a6c555f8a9589697aeff53139274e21b6818607431895",
-    "internal/cli/list_add.go": "b33c932c070f88a26e464aedfe620bebcd1e3217b97e00491f1f8cfef2d47ece",
+    "internal/cli/list_add.go": "c3c8800f91fbec316cf47f95c2ce59165a29e1935e5ccbd94ca11bffe40baeec",
     "internal/cli/list_add_test.go": "eda8f7d2fd193dc32d997b6236e8b42c6c20d4c10d3e3451b7b07e22bc86b991",
     "internal/cli/local_data.go": "c78ba75423b71195b84038d3949a5133a6bdc322ec775ba9c6b3d70b0eb49da2",
     "internal/cli/markets.go": "f981b6d8c68640889595ba8e7fac965f79e2a666cdfa881a3e4e87c926d25480",
@@ -93,11 +93,11 @@
     "internal/cli/playbook_init_test.go": "a607693107e96b6c0b0cb619a636835b370c1cbf36397bc259dacc1d1df07c55",
     "internal/cli/playbooks/embed.go": "b76095152bc7a20d73601faca4beaf853a91d9fbc74cdf3eafd159cf2d7ed320",
     "internal/cli/price.go": "ce5013330b42fc50aa92624c55d26c4a5a6ca761487792ef116b0072497cedfc",
-    "internal/cli/price_history.go": "84d11c34b1981876444b00660600fef97d962dcdca5bba99190b6de7c88a98c9",
+    "internal/cli/price_history.go": "18c0fd41f4abf475516e83d7e4710ce50677f95e7b863639076e697a596292d1",
     "internal/cli/price_history_test.go": "21f7230f75dfc5820b96100de6411dbe06a0ec2c49c118c37c3641d0fa7c65fa",
     "internal/cli/products.go": "bab9bf847766f620e7e68cbd704d9caa6826c2f00dd0bb66bff74619bd697e94",
     "internal/cli/products_predictions.go": "d4c87aa0c835b729bd4bced08d282ae79f90e2299b1092ad207efb356b2fd9d7",
-    "internal/cli/products_search.go": "0bb74588a109025ac33d47b54cb28e0b6c157a03cbe55656ae22f027edb4eb01",
+    "internal/cli/products_search.go": "7b13a2660e63bb1586002c8062326d9e9afe0c978d9bd9153a97052b595c8491",
     "internal/cli/profile.go": "23d874f9d8cde8b472dc0fc7e9f83b1316f1730be818293ec9caf1216bb18d4a",
     "internal/cli/promoted_payment.go": "138c77d69ba98b51430dd1d06d998db4a424b3e74beb4f3a220f42537cfe7a77",
     "internal/cli/promoted_purchased.go": "1f6bed04ade5f370eb88bd7e14a91a59c01dcd27816b5088fd0dd8eada065183",
@@ -110,9 +110,9 @@
     "internal/cli/recipes_tiles.go": "076066d30d5ebc17a299bea029299c835b04c81663953b465ca415f5c0ddc466",
     "internal/cli/resource_paths.go": "3296e35cdbdb3347875252410b4a3712f5e089d70cd163a1b14181cddced5f3e",
     "internal/cli/rewe_common.go": "ed00431e7c838fc1377c12d72908f1e90c4ac2f420f8fdbce6f9d71109e13798",
-    "internal/cli/rewe_extra.go": "e729d77fb3b17ad0f15d76db28cefafd6b2700988ae3532cf328aad1d98ef4ce",
+    "internal/cli/rewe_extra.go": "4a55438648a090aa554f743f86e014473e0e2c9ee7d3a642f483064d8232ecfe",
     "internal/cli/rewe_session_hook.go": "8eef86c85fe1d88881f4dfb85e121ef41e97bfb3c19fa079c6d3bb8e04a38f3e",
-    "internal/cli/root.go": "b8b39bd3644a16d48cc255c72bc376489c2847923c01ce84c982c3170c54379c",
+    "internal/cli/root.go": "774641f3fa4ec797269348921e8faaf944a3241e7583c637573a873b954da9a2",
     "internal/cli/root_test.go": "c023a9fd5de01b0b4acec307ee1fd1d7c8f3cd420efba8ec863f5dd7396343b5",
     "internal/cli/search.go": "6500563833f0f61a681c49b081c8a0e3d8b81162f92061f1b2fc82dfa15d28d1",
     "internal/cli/slots.go": "ef1db58758b746d84d70009c4e16657ad03f277d177907c7a38948fc5e2a167c",
@@ -134,7 +134,7 @@
     "internal/cli/teach_playbook_test.go": "e5a9f38d76596ef218f5a957b02de6c33858023a11b412634c2a9f56a02bc9a3",
     "internal/cli/teach_test.go": "60dce3c711c16a54da2db6f5dca840cb0c8b7c1971540104ec1b7c59d3745d23",
     "internal/cli/version.go": "cb077997251c1fece1af42b30c9d16ef2ff364dc02d7b8a41595241279eee5f3",
-    "internal/cli/which.go": "1258476270247382677c63ab1d37924533316544ae83e47aca62379564012620",
+    "internal/cli/which.go": "0081130c9eac3199fbcdc9f387e2eca4bfc9e422e25a0482849e0ffbdeef19b1",
     "internal/cli/which_test.go": "c18500dd217762af3866359c49c0a181c2e6fd4200500d2d72d2bb7a78ff1ba2",
     "internal/client/chrome.go": "ac8c3b4be76bfa91d93b2f18490d09b77f183394b1e2a2155063cd35d1e112a8",
     "internal/client/chrome_profile.go": "06e2c1bf4709b17ae4616f61f3461b09b3b7bfb0f78b5704b243cc0e24a5ee0a",
@@ -257,9 +257,9 @@
     "internal/rewe/orders.go": "f6e4ade402bd15192797493fe124db2ba562cc9c15abf5d515fed15872dae377",
     "internal/rewe/products.go": "4a408575462f947c06376ee129712594f661891753de0af8ac99d8b917cfe2ff",
     "internal/rewe/recipe.go": "c2b8867aa5875f7ea8f420c3c5dbe060192d93f629db738b83994c3a6a272872",
-    "internal/rewe/rewe_test.go": "b3b2ff666eef222b490f96152b902afed82b03ce62bc0da45c817b93c50d9b4b",
-    "internal/rewe/session.go": "f0c21a1464ae269296455ea6b3521999b89fc41a24bb3b7d1bafd531cd302304",
-    "internal/rewe/shop.go": "c1be2474bffc731e939dcc5e6f68fe46cf3a469e843c3062705eb08f3270f5e1",
+    "internal/rewe/rewe_test.go": "bdb856f11bf1304b8721b627840435b9e997317544297b3bf67fcd33242b5385",
+    "internal/rewe/session.go": "d173808d3dc0f865dfb968780c470ab4ee8f4580d894c153a6ef7aa8a7a7b020",
+    "internal/rewe/shop.go": "837d6842bf0eb7742d1ecae6e42449b3f0693ee9fb2ac2a6e5aa23c8877ad4c8",
     "internal/store/candidates.go": "eb8e5dee207e4a836fe6329240231088f255a79bd2bee8cd5d393b81ea71f8d8",
     "internal/store/candidates_test.go": "527b56baafb56935c913fa1f537349ba012026cbb142b73777f21b34605f09e7",
     "internal/store/events.go": "d6f48e0512d11e46956f56b503672db78b944db603978e406adb35356185c085",
@@ -272,6 +272,7 @@
     "internal/store/schema_version_test.go": "039c3aa482c5fe6c041c4bf60b95f2611836ae6b0186781fcba4832ed5023fae",
     "internal/store/store.go": "08fdd6621e8d03533cda20728bc0a60d688c00756aec18bfb6a2b154f69ac492",
     "internal/store/upsert_batch_test.go": "ce886d94ee3e89521e47064e45829ff2ed9e187b4acd8253d5ac9322fa5f6486",
-    "internal/types/types.go": "a6177d2892b395ed5d6717afa51fd7b2e0af97bf8e48506b606201c4f06e0fbe"
+    "internal/types/types.go": "a6177d2892b395ed5d6717afa51fd7b2e0af97bf8e48506b606201c4f06e0fbe",
+    "spec.yaml": "847fab585431e5e5edbb64bc038a7d73f1f04b2e4574271eec11399e9c6a1fe6"
   }
 }
