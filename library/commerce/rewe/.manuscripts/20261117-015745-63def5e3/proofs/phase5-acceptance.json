@@ -11,19 +11,19 @@
   "live_happy_path_runs": [
     {
       "command": "basket add",
-      "source_fingerprint": "75cf6c62a1c0b982bf3ac709785b745271538f2ae8b723ec8d9dd3832667d086",
-      "ran_at": "2026-11-17T16:54:56.3827118Z"
+      "source_fingerprint": "999259c769ea846e135bcea0961e3716641fc7e73b09dc6ca139556c7bc0f681",
+      "ran_at": "2026-11-17T17:05:15.9318702Z"
     },
     {
       "command": "list add",
-      "source_fingerprint": "75cf6c62a1c0b982bf3ac709785b745271538f2ae8b723ec8d9dd3832667d086",
-      "ran_at": "2026-11-17T16:54:56.3827118Z"
+      "source_fingerprint": "999259c769ea846e135bcea0961e3716641fc7e73b09dc6ca139556c7bc0f681",
+      "ran_at": "2026-11-17T17:05:15.9318702Z"
     }
   ],
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "75cf6c62a1c0b982bf3ac709785b745271538f2ae8b723ec8d9dd3832667d086",
+  "source_fingerprint": "999259c769ea846e135bcea0961e3716641fc7e73b09dc6ca139556c7bc0f681",
   "source_files": {
     "cmd/rewe-pp-cli/main.go": "bd832d0e48e26c9ce5fa5c1ee7df8f5e61ec60b01d742736d7334b39d0649e8f",
     "cmd/rewe-pp-mcp/http_auth_test.go": "774ee812a37b18b80ce5e5fb614f01ef4bc9f07caa3978b7a6d67af7b94af395",
@@ -94,7 +94,7 @@
     "internal/cli/playbooks/embed.go": "b76095152bc7a20d73601faca4beaf853a91d9fbc74cdf3eafd159cf2d7ed320",
     "internal/cli/price.go": "ce5013330b42fc50aa92624c55d26c4a5a6ca761487792ef116b0072497cedfc",
     "internal/cli/price_history.go": "18c0fd41f4abf475516e83d7e4710ce50677f95e7b863639076e697a596292d1",
-    "internal/cli/price_history_test.go": "21f7230f75dfc5820b96100de6411dbe06a0ec2c49c118c37c3641d0fa7c65fa",
+    "internal/cli/price_history_test.go": "810e179f84a721bee96a6f49e1d890f50760cb71693fefecf21e1334f37e7b67",
     "internal/cli/products.go": "bab9bf847766f620e7e68cbd704d9caa6826c2f00dd0bb66bff74619bd697e94",
     "internal/cli/products_predictions.go": "d4c87aa0c835b729bd4bced08d282ae79f90e2299b1092ad207efb356b2fd9d7",
     "internal/cli/products_search.go": "7b13a2660e63bb1586002c8062326d9e9afe0c978d9bd9153a97052b595c8491",
@@ -109,7 +109,7 @@
     "internal/cli/recipes_search.go": "6f5086751f00b966030aea2351fe9223126eb24cc181165995dc0783edb23fde",
     "internal/cli/recipes_tiles.go": "076066d30d5ebc17a299bea029299c835b04c81663953b465ca415f5c0ddc466",
     "internal/cli/resource_paths.go": "3296e35cdbdb3347875252410b4a3712f5e089d70cd163a1b14181cddced5f3e",
-    "internal/cli/rewe_common.go": "ed00431e7c838fc1377c12d72908f1e90c4ac2f420f8fdbce6f9d71109e13798",
+    "internal/cli/rewe_common.go": "d0540a00cf1ed7b026e5e7b558686fa9a3515f68783ca956ee1c22594a282196",
     "internal/cli/rewe_extra.go": "4a55438648a090aa554f743f86e014473e0e2c9ee7d3a642f483064d8232ecfe",
     "internal/cli/rewe_session_hook.go": "8eef86c85fe1d88881f4dfb85e121ef41e97bfb3c19fa079c6d3bb8e04a38f3e",
     "internal/cli/root.go": "774641f3fa4ec797269348921e8faaf944a3241e7583c637573a873b954da9a2",

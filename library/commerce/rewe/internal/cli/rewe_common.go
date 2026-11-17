@@ -107,6 +107,9 @@ CREATE TABLE IF NOT EXISTS rewe_offers (nan TEXT NOT NULL, week TEXT NOT NULL, m
 
 // recordPrices stores product prices seen in a search (best effort).
 func recordPrices(ctx context.Context, products []rewe.Product, market string) {
+	if localDataDisabled() {
+		return // the user opted out of local copies (REWE_NO_LOCAL_DATA=1)
+	}
 	db, err := openReweDB(ctx)
 	if err != nil {
 		return
@@ -128,6 +131,9 @@ func recordPrices(ctx context.Context, products []rewe.Product, market string) {
 
 // recordOffers upserts offers into the local store.
 func recordOffers(ctx context.Context, offers []rewe.Offer) error {
+	if localDataDisabled() {
+		return nil // the user opted out of local copies (REWE_NO_LOCAL_DATA=1)
+	}
 	db, err := openReweDB(ctx)
 	if err != nil {
 		return err

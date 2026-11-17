@@ -9,7 +9,10 @@ import (
 	"strings"
 	"testing"
 
+	"context"
 	"github.com/mvanhorn/printing-press-library/library/commerce/rewe/internal/cliutil/testenv"
+	"github.com/mvanhorn/printing-press-library/library/commerce/rewe/internal/rewe"
+	"os"
 )
 
 // TestNovelPriceHistoryHelpWires smoke-tests that the price history command
@@ -31,5 +34,20 @@ func TestNovelPriceHistoryHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("price history --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestRecordPricesHonoursLocalDataOptOut(t *testing.T) {
+	testenv.Isolate(t)
+	t.Setenv("REWE_NO_LOCAL_DATA", "1")
+	recordPrices(context.Background(), []rewe.Product{{ProductID: "7381513", Name: "Hafer Drink", PriceCents: 189}}, "3200008")
+	if _, err := os.Stat(defaultDBPath("rewe-pp-cli")); err == nil {
+		t.Fatal("recordPrices wrote the local store although REWE_NO_LOCAL_DATA=1")
+	}
+	if err := recordOffers(context.Background(), []rewe.Offer{{NAN: "1", Week: "2026/47", Market: "3200008", Title: "x", PriceCents: 99}}); err != nil {
+		t.Fatalf("recordOffers with opt-out: %v", err)
+	}
+	if _, err := os.Stat(defaultDBPath("rewe-pp-cli")); err == nil {
+		t.Fatal("recordOffers wrote the local store although REWE_NO_LOCAL_DATA=1")
 	}
 }
