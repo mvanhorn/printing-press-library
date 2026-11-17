@@ -2863,6 +2863,12 @@
         "Get only the news articles about a brand or keyword that earlier watches have not shown. Returned articles are marked as seen; --peek previews without marking. Costs 1 credit."
       ],
       "path": "library/marketing/autom",
+      "release": {
+        "cli_name": "autom-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-17T09:49:17Z",
+        "source_commit": "a9c1eed9e9d2a64db7cd3180486eb0b6101a53e0"
+      },
       "printer": "josselinlbe",
       "printer_name": "Josselin",
       "creator": {
