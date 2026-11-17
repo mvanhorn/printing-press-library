@@ -1,0 +1,174 @@
+{
+  "api_name": "rewe",
+  "base_url": "https://www.rewe.de",
+  "description": "Order REWE groceries for pickup from the terminal or an agent - offers, basket, earliest slot and recipes, with a session that renews itself.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "cookie",
+    "cookie_domain": ".rewe.de",
+    "cookies": [
+      "rstp",
+      "mtc",
+      "cso_jsid",
+      "cf_clearance",
+      "__cf_bm",
+      "_cfuvid",
+      "wksMarketsCookie"
+    ],
+    "requires_browser_session": true,
+    "browser_session_validation_path": "/shop/api/favorites",
+    "browser_session_validation_method": "GET"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "markets_pickup",
+      "description": "List markets with pickup service (Abholservice) for a German postal code, nearest first. Required: zip.",
+      "method": "GET",
+      "path": "/api/marketselection/zipcodes/{zip}/services/pickup",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "zip",
+          "type": "string",
+          "location": "path",
+          "description": "German postal code, for example 50667.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "markets_search",
+      "description": "Search REWE markets by postal code, city or street, with opening status. Required: query.",
+      "method": "GET",
+      "path": "/api/wksmarketsearch",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "searchTerm",
+          "type": "string",
+          "location": "query",
+          "description": "Postal code, city or street, for example 'Koeln'.",
+          "required": true,
+          "aliases": [
+            "search-term"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "markets_services",
+      "description": "Show whether pickup and delivery are available for a postal code. Required: zip.",
+      "method": "GET",
+      "path": "/api/marketselection/zipcodes/{zip}/services",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "zip",
+          "type": "string",
+          "location": "path",
+          "description": "German postal code, for example 50667.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recipes_search",
+      "description": "Search recipes; returns recipe ids, total count and facets. Optional: query, match-all (default: true), limit (default: 10).",
+      "method": "GET",
+      "path": "/api/recipe-search/recipe-uid-list",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "term",
+          "type": "string",
+          "location": "query",
+          "description": "Search text, for example 'lasagne'."
+        },
+        {
+          "name": "match-all",
+          "wire_name": "matchAll",
+          "type": "boolean",
+          "location": "query",
+          "description": "Require all words."
+        },
+        {
+          "name": "limit",
+          "wire_name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of recipe ids."
+        }
+      ]
+    },
+    {
+      "name": "recipes_tiles",
+      "description": "Recipe cards (title, rating, time, difficulty, url) for recipe ids. Required: ids.",
+      "method": "GET",
+      "path": "/api/recipe-container",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ids",
+          "wire_name": "recipeIdsCommaSeparated",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated recipe ids from `recipes search`.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Self-renewing session",
+      "command": "auth renew",
+      "description": "Keep the REWE shop session alive without a password by replaying the 30-day single-sign-on cookie."
+    },
+    {
+      "name": "Structured market offers",
+      "command": "offers",
+      "description": "Current offers of your market (and next week's once REWE publishes them) as rows with title, price and category."
+    },
+    {
+      "name": "Deals on my products",
+      "command": "deals mine",
+      "description": "Offers that match products you bought before or saved as favourites."
+    },
+    {
+      "name": "Earliest pickup slot",
+      "command": "slots earliest",
+      "description": "The earliest free pickup slot with its fee, optionally reserved right away."
+    },
+    {
+      "name": "Full checkout with confirmation gate",
+      "command": "order place",
+      "description": "Place the pickup order: refresh basket, reserve slot, pay in market, submit - only with --confirm."
+    },
+    {
+      "name": "Recipe to basket",
+      "command": "recipe basket",
+      "description": "Map a REWE recipe's ingredients to shop products for N servings and add the recommended ones."
+    },
+    {
+      "name": "Basket by text",
+      "command": "basket add",
+      "description": "Add products by search text and quantity without knowing listing ids."
+    },
+    {
+      "name": "Shopping list to basket",
+      "command": "list add",
+      "description": "Turn a shopping list (one item per line, optional quantity) into basket items."
+    },
+    {
+      "name": "Price history",
+      "command": "price history",
+      "description": "Price changes of a product seen in searches and offers over time."
+    }
+  ]
+}

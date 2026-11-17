@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261117-015745-63def5e3",
+  "base_printing_press_version": "4.35.6",
+  "id": "rewe-help-examples",
+  "summary": "Examples added to 12 spec-generated commands.",
+  "reason": "Live dogfood requires an Examples section on every command.",
+  "files": [
+    "internal/cli/basket_add-many.go",
+    "internal/cli/basket_get.go",
+    "internal/cli/basket_remove.go",
+    "internal/cli/basket_set.go",
+    "internal/cli/favorites_add.go",
+    "internal/cli/favorites_remove.go",
+    "internal/cli/markets_select.go",
+    "internal/cli/promoted_payment.go",
+    "internal/cli/products_predictions.go",
+    "internal/cli/recipes_mapping.go",
+    "internal/cli/recipes_tiles.go",
+    "internal/cli/slots_reserve.go"
+  ]
+}

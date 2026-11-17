@@ -1,0 +1,196 @@
+{
+ "type": "SEARCH_RESULT",
+ "_embedded": {
+  "products": [
+   {
+    "id": "7381513",
+    "productName": "Alnatura Bio Hafer Drink ohne Zucker 1l",
+    "brand": {
+     "name": "Alnatura"
+    },
+    "_embedded": {
+     "articles": [
+      {
+       "id": "EI8DRBEM",
+       "_embedded": {
+        "listing": {
+         "id": "8-EI8DRBEM-00000000-0000-4000-8000-0000000000aa",
+         "pricing": {
+          "currentRetailPrice": 189,
+          "currency": "EUR",
+          "grammage": "1l"
+         },
+         "limitations": {
+          "orderLimit": 99
+         }
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "id": "8204613",
+    "productName": "Alpro Hafer-Drink Ohne Zucker vegan 1l",
+    "brand": {
+     "name": "Alpro"
+    },
+    "_embedded": {
+     "articles": [
+      {
+       "id": "5411188124689",
+       "_embedded": {
+        "listing": {
+         "id": "13-5411188124689-00000000-0000-4000-8000-0000000000aa",
+         "pricing": {
+          "currentRetailPrice": 289,
+          "currency": "EUR",
+          "grammage": "1l"
+         },
+         "limitations": {
+          "orderLimit": 99
+         }
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "id": "8597384",
+    "productName": "Alpro Not Mlk Haferdrink 1,8% vegan 1l",
+    "brand": {
+     "name": "Alpro"
+    },
+    "_embedded": {
+     "articles": [
+      {
+       "id": "JPQ9WRJK",
+       "_embedded": {
+        "listing": {
+         "id": "8-JPQ9WRJK-00000000-0000-4000-8000-0000000000aa",
+         "pricing": {
+          "currentRetailPrice": 249,
+          "currency": "EUR",
+          "grammage": "1l"
+         },
+         "limitations": {
+          "orderLimit": 99
+         }
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "id": "8204613",
+    "productName": "Alpro Hafer-Drink Ohne Zucker vegan 1l",
+    "brand": {
+     "name": "Alpro"
+    },
+    "_embedded": {
+     "articles": [
+      {
+       "id": "5411188124689",
+       "_embedded": {
+        "listing": {
+         "id": "13-5411188124689-00000000-0000-4000-8000-0000000000aa",
+         "pricing": {
+          "currentRetailPrice": 289,
+          "currency": "EUR",
+          "grammage": "1l"
+         },
+         "limitations": {
+          "orderLimit": 99
+         }
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "id": "8597787",
+    "productName": "Alpro Not Mlk Haferdrink 3,5% vegan 1l",
+    "brand": {
+     "name": "Alpro"
+    },
+    "_embedded": {
+     "articles": [
+      {
+       "id": "5MRF4JXM",
+       "_embedded": {
+        "listing": {
+         "id": "8-5MRF4JXM-00000000-0000-4000-8000-0000000000aa",
+         "pricing": {
+          "currentRetailPrice": 249,
+          "currency": "EUR",
+          "grammage": "1l"
+         },
+         "limitations": {
+          "orderLimit": 99
+         }
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "id": "8358463",
+    "productName": "Alpro Hafer-Drink Barista vegan 1l",
+    "brand": {
+     "name": "Alpro"
+    },
+    "_embedded": {
+     "articles": [
+      {
+       "id": "5411188127697",
+       "_embedded": {
+        "listing": {
+         "id": "13-5411188127697-00000000-0000-4000-8000-0000000000aa",
+         "pricing": {
+          "currentRetailPrice": 289,
+          "currency": "EUR",
+          "grammage": "1l"
+         },
+         "limitations": {
+          "orderLimit": 99
+         }
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "id": "7079364",
+    "productName": "Alpro Hafer-Mandel-Drink vegan 1l",
+    "brand": {
+     "name": "Alpro"
+    },
+    "_embedded": {
+     "articles": [
+      {
+       "id": "5411188124726",
+       "_embedded": {
+        "listing": {
+         "id": "13-5411188124726-00000000-0000-4000-8000-0000000000aa",
+         "pricing": {
+          "currentRetailPrice": 289,
+          "currency": "EUR",
+          "grammage": "1l"
+         },
+         "limitations": {
+          "orderLimit": 99
+         }
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ }
+}

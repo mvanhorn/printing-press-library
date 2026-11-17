@@ -1,0 +1,335 @@
+{
+ "type": "SEARCH_RESULT",
+ "pagination": {
+  "page": 1,
+  "totalPages": 46,
+  "objectsPerPage": 3,
+  "totalResultCount": 137
+ },
+ "search": {
+  "term": "hafermilch"
+ },
+ "_embedded": {
+  "products": [
+   {
+    "id": "8358463",
+    "nan": "8358463",
+    "version": 97610,
+    "productName": "Alpro Hafer-Drink Barista vegan 1l",
+    "attributes": {
+     "tags": {
+      "lactosefree": {
+       "label": "Laktosefrei"
+      },
+      "vegan": {
+       "label": "Vegan"
+      },
+      "vegetarian": {
+       "label": "Vegetarisch"
+      }
+     }
+    },
+    "brand": {
+     "name": "Alpro"
+    },
+    "media": {
+     "images": [
+      {
+       "_links": {
+        "self": {
+         "href": "https://img.rewe-static.de/8358463/32623823_digital-image.png"
+        }
+       }
+      }
+     ]
+    },
+    "_embedded": {
+     "articles": [],
+     "categories": [
+      {
+       "id": "3684",
+       "primary": false
+      },
+      {
+       "id": "3862",
+       "primary": false
+      },
+      {
+       "id": "3862",
+       "primary": false
+      },
+      {
+       "id": "177",
+       "primary": false
+      },
+      {
+       "id": "3666",
+       "primary": false
+      },
+      {
+       "id": "3868",
+       "primary": false
+      },
+      {
+       "id": "3666",
+       "primary": false
+      },
+      {
+       "id": "3868",
+       "primary": false
+      },
+      {
+       "id": "178",
+       "primary": false
+      },
+      {
+       "id": "3667",
+       "primary": false
+      },
+      {
+       "id": "3869",
+       "primary": false
+      },
+      {
+       "id": "3667",
+       "primary": false
+      },
+      {
+       "id": "3869",
+       "primary": false
+      }
+     ],
+     "categoryPath": "Käse, Eier & Molkerei/Milchalternativen/Haferdrinks/"
+    },
+    "hasVariants": false,
+    "hasDiverseVariantPrices": false,
+    "shouldDetailsLinkBeMasked": false,
+    "freeShipping": false,
+    "_links": {
+     "detail": {
+      "href": "/p/alpro-hafer-drink-barista-vegan-1l/8358463"
+     }
+    },
+    "bulkyGoodsPoints": 8.33334,
+    "boostings": [
+     {
+      "source": "PRODUCT_TOPSELLER",
+      "field": "productTopseller",
+      "values": [],
+      "boost": 1.0
+     },
+     {
+      "source": "LISTING_TOPSELLER",
+      "field": "listingTopseller",
+      "values": [],
+      "boost": 1.0
+     }
+    ]
+   },
+   {
+    "id": "9562991",
+    "nan": "9562991",
+    "version": 236,
+    "productName": "Oatly Haferdrink Barista Edition 1l",
+    "attributes": {
+     "tags": {
+      "lowestprice": {
+       "label": "Tiefpreis"
+      },
+      "vegan": {
+       "label": "Vegan"
+      },
+      "vegetarian": {
+       "label": "Vegetarisch"
+      }
+     }
+    },
+    "brand": {
+     "name": "Oatly"
+    },
+    "media": {
+     "images": [
+      {
+       "_links": {
+        "self": {
+         "href": "https://img.rewe-static.de/9562991/50488192_digital-image.png"
+        }
+       }
+      }
+     ]
+    },
+    "_embedded": {
+     "articles": [],
+     "categories": [
+      {
+       "id": "3684",
+       "primary": false
+      },
+      {
+       "id": "3862",
+       "primary": false
+      },
+      {
+       "id": "177",
+       "primary": false
+      },
+      {
+       "id": "3666",
+       "primary": false
+      },
+      {
+       "id": "178",
+       "primary": false
+      },
+      {
+       "id": "3667",
+       "primary": true
+      }
+     ],
+     "categoryPath": "Käse, Eier & Molkerei/Milchalternativen/Haferdrinks/"
+    },
+    "hasVariants": false,
+    "hasDiverseVariantPrices": false,
+    "shouldDetailsLinkBeMasked": false,
+    "freeShipping": false,
+    "_links": {
+     "detail": {
+      "href": "/p/oatly-haferdrink-barista-edition-1l/9562991"
+     }
+    },
+    "bulkyGoodsPoints": 8.33334,
+    "boostings": [
+     {
+      "source": "PRODUCT_TOPSELLER",
+      "field": "productTopseller",
+      "values": [],
+      "boost": 1.0
+     },
+     {
+      "source": "LISTING_TOPSELLER",
+      "field": "listingTopseller",
+      "values": [],
+      "boost": 1.0
+     }
+    ]
+   },
+   {
+    "id": "8013720",
+    "nan": "8013720",
+    "version": 117203,
+    "productName": "Oatly Haferdrink Deluxe gekühlt 1l",
+    "attributes": {
+     "tags": {
+      "cool": {
+       "label": "Gekühlt"
+      },
+      "lactosefree": {
+       "label": "Laktosefrei"
+      },
+      "vegan": {
+       "label": "Vegan"
+      },
+      "vegetarian": {
+       "label": "Vegetarisch"
+      }
+     }
+    },
+    "brand": {
+     "name": "Oatly"
+    },
+    "media": {
+     "images": [
+      {
+       "_links": {
+        "self": {
+         "href": "https://img.rewe-static.de/8013720/30511388_digital-image.png"
+        }
+       }
+      }
+     ]
+    },
+    "_embedded": {
+     "articles": [],
+     "categories": [
+      {
+       "id": "3684",
+       "primary": false
+      },
+      {
+       "id": "3862",
+       "primary": false
+      },
+      {
+       "id": "3862",
+       "primary": false
+      },
+      {
+       "id": "177",
+       "primary": false
+      },
+      {
+       "id": "3666",
+       "primary": false
+      },
+      {
+       "id": "3868",
+       "primary": false
+      },
+      {
+       "id": "3666",
+       "primary": false
+      },
+      {
+       "id": "3868",
+       "primary": false
+      },
+      {
+       "id": "178",
+       "primary": false
+      },
+      {
+       "id": "3667",
+       "primary": false
+      },
+      {
+       "id": "3869",
+       "primary": false
+      },
+      {
+       "id": "3667",
+       "primary": false
+      },
+      {
+       "id": "3869",
+       "primary": false
+      }
+     ],
+     "categoryPath": "Käse, Eier & Molkerei/Milchalternativen/Haferdrinks/"
+    },
+    "hasVariants": false,
+    "hasDiverseVariantPrices": false,
+    "shouldDetailsLinkBeMasked": false,
+    "freeShipping": false,
+    "_links": {
+     "detail": {
+      "href": "/p/oatly-haferdrink-deluxe-gekuehlt-1l/8013720"
+     }
+    },
+    "boostings": [
+     {
+      "source": "PRODUCT_TOPSELLER",
+      "field": "productTopseller",
+      "values": [],
+      "boost": 1.0
+     },
+     {
+      "source": "LISTING_TOPSELLER",
+      "field": "listingTopseller",
+      "values": [],
+      "boost": 1.0
+     }
+    ]
+   }
+  ]
+ }
+}

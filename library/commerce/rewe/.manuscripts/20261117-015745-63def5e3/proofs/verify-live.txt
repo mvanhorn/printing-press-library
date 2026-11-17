@@ -1,0 +1,66 @@
+Runtime Verification: <runstate>\onedone-f8490d97\runs\20261117-015745-63def5e3\working\rewe-pp-cli\rewe-pp-cli.exe
+Mode: live
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+auth-env:REWE_SKIP_TLS_VERIFY  auth         FAIL   FAIL     FAIL     0/3
+agent-context                  write        PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+basket                         read         PASS   PASS     PASS     3/3
+deals                          read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+favorites                      read         PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+list                           read         PASS   PASS     PASS     3/3
+local-data                     write        PASS   PASS     PASS     3/3
+markets                        read         PASS   PASS     PASS     3/3
+offers                         write        PASS   PASS     PASS     3/3
+order                          read         PASS   PASS     PASS     3/3
+payment                        write        PASS   PASS     PASS     3/3
+playbook                       write        PASS   PASS     PASS     3/3
+price                          read         PASS   PASS     PASS     3/3
+products                       read         PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     PASS     3/3
+purchased                      write        PASS   PASS     PASS     3/3
+recall                         read         PASS   PASS     PASS     3/3
+recipe                         read         PASS   PASS     PASS     3/3
+recipes                        read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+slots                          read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS basket get
+  PASS basket remove
+  PASS basket set
+  PASS favorites add
+  PASS favorites remove
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS markets pickup
+  PASS markets services
+  PASS order cancel
+  PASS order show
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS recipe basket
+  PASS recipe get
+  PASS recipes mapping
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped) [sync --resources favorites]
+Pass Rate: 98% (55/56 passed, 1 critical)
+Verdict: WARN

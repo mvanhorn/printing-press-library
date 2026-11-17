@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-17T16:10:39.2316425Z",
+  "printing_press_version": "4.35.6",
+  "api_name": "rewe",
+  "cli_name": "rewe-pp-cli",
+  "creator": {
+    "handle": "jimpresting",
+    "name": "JimPresting"
+  },
+  "owner": "jimpresting",
+  "printer": "jimpresting",
+  "printer_name": "JimPresting",
+  "run_id": "20261117-015745-63def5e3",
+  "category": "commerce",
+  "novel_features": [
+    {
+      "name": "Self-renewing session",
+      "command": "auth renew",
+      "description": "Keep the REWE shop session alive without a password by replaying the 30-day single-sign-on cookie."
+    },
+    {
+      "name": "Structured market offers",
+      "command": "offers",
+      "description": "Current offers of your market (and next week's once REWE publishes them) as rows with title, price and category."
+    },
+    {
+      "name": "Deals on my products",
+      "command": "deals mine",
+      "description": "Offers that match products you bought before or saved as favourites."
+    },
+    {
+      "name": "Earliest pickup slot",
+      "command": "slots earliest",
+      "description": "The earliest free pickup slot with its fee, optionally reserved right away."
+    },
+    {
+      "name": "Full checkout with confirmation gate",
+      "command": "order place",
+      "description": "Place the pickup order: refresh basket, reserve slot, pay in market, submit - only with --confirm."
+    },
+    {
+      "name": "Recipe to basket",
+      "command": "recipe basket",
+      "description": "Map a REWE recipe's ingredients to shop products for N servings and add the recommended ones."
+    },
+    {
+      "name": "Basket by text",
+      "command": "basket add",
+      "description": "Add products by search text and quantity without knowing listing ids."
+    },
+    {
+      "name": "Shopping list to basket",
+      "command": "list add",
+      "description": "Turn a shopping list (one item per line, optional quantity) into basket items."
+    },
+    {
+      "name": "Price history",
+      "command": "price history",
+      "description": "Price changes of a product seen in searches and offers over time."
+    }
+  ]
+}

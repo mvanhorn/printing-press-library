@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261117-015745-63def5e3",
+  "base_printing_press_version": "4.35.6",
+  "id": "rewe-session-client-hook",
+  "summary": "Generated commands get the live, self-renewing REWE session through a client hook instead of a stored cookie copy.",
+  "reason": "REWE rotates its session cookie, so the credential saved at import went stale (403); on Windows the generated credentials file was also refused in temp dirs.",
+  "files": [
+    "internal/cli/rewe_session_hook.go",
+    "internal/cli/rewe_common.go",
+    "internal/client/rewe_browser.go"
+  ]
+}

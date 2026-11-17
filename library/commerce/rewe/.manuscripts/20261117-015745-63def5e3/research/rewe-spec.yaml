@@ -1,0 +1,402 @@
+name: rewe
+display_name: REWE
+description: REWE online shop (Abholservice / pickup and delivery) from the terminal and from agents - markets, products, offers, basket, pickup slots, checkout, favourites and recipes, replayed from the logged-in web shop.
+cli_description: Order REWE groceries for pickup from the terminal or an agent - offers, basket, earliest pickup slot, recipes to basket.
+version: 0.1.0
+base_url: https://www.rewe.de
+spec_source: sniffed
+http_transport: browser-chrome
+health_check_path: /api/marketselection/configuration?checkMarketSelection=false
+auth:
+  type: cookie
+  header: Cookie
+  cookie_domain: ".rewe.de"
+  cookies: [rstp, mtc, cso_jsid, cf_clearance, __cf_bm, _cfuvid, wksMarketsCookie]
+  login_url: https://www.rewe.de/mydata/login
+  in: cookie
+  env_vars: []
+config:
+  format: toml
+  path: ~/.config/rewe-pp-cli/config.toml
+resources:
+  markets:
+    description: Find REWE markets that offer pickup or delivery and select the market the shop works with.
+    endpoints:
+      pickup:
+        method: GET
+        path: /api/marketselection/zipcodes/{zip}/services/pickup
+        description: List markets with pickup service (Abholservice) for a German postal code, nearest first.
+        no_auth: true
+        example: "  rewe-pp-cli markets pickup 50667"
+        params:
+          - name: zip
+            type: string
+            required: true
+            positional: true
+            description: German postal code, for example 50667.
+      services:
+        method: GET
+        path: /api/marketselection/zipcodes/{zip}/services
+        description: Show whether pickup and delivery are available for a postal code.
+        no_auth: true
+        params:
+          - name: zip
+            type: string
+            required: true
+            positional: true
+            description: German postal code, for example 50667.
+      search:
+        method: GET
+        path: /api/wksmarketsearch
+        description: Search REWE markets by postal code, city or street, with opening status.
+        no_auth: true
+        response_path: markets
+        params:
+          - name: searchTerm
+            flag_name: query
+            aliases: [search-term]
+            type: string
+            required: true
+            description: Postal code, city or street, for example "Koeln".
+      current:
+        method: GET
+        path: /api/marketselection/configuration
+        description: Show the selected market, service type, postal code and whether the session is logged in.
+        params:
+          - name: checkMarketSelection
+            flag_name: check-market-selection
+            type: boolean
+            default: false
+            description: Ask the server to validate the market selection.
+      select:
+        method: POST
+        path: /api/marketselection/userselections
+        description: Select the market and service (PICKUP or DELIVERY) that prices, basket and slots refer to.
+        body:
+          - name: selectedService
+            flag_name: service
+            type: string
+            required: true
+            default: PICKUP
+            enum: [PICKUP, DELIVERY]
+            description: Service type, PICKUP for Abholservice.
+          - name: customerZipCode
+            flag_name: zip
+            type: string
+            required: true
+            description: Postal code of the customer.
+          - name: wwIdent
+            flag_name: market-id
+            aliases: [ww-ident]
+            type: string
+            required: true
+            description: REWE market id (wwIdent), for example 3200008.
+  products:
+    description: Search the catalogue of the selected market with current prices.
+    endpoints:
+      search:
+        method: GET
+        path: /shop/api/products
+        description: Search products of the selected market; returns listing ids (needed for the basket) and prices in cents.
+        response_path: _embedded.products
+        example: "  rewe-pp-cli products search --query hafermilch --per-page 10"
+        params:
+          - name: search
+            flag_name: query
+            aliases: [search]
+            type: string
+            required: false
+            description: Search text, for example "hafermilch".
+          - name: serviceTypes
+            flag_name: service
+            type: string
+            default: PICKUP
+            description: Service type the prices refer to.
+          - name: objectsPerPage
+            flag_name: per-page
+            type: int
+            default: 20
+            description: Results per page (max 80).
+          - name: page
+            type: int
+            default: 1
+            description: Page number, starting at 1.
+          - name: sorting
+            type: string
+            required: false
+            enum: [RELEVANCE_DESC, PRICE_ASC, PRICE_DESC, NAME_ASC, TOPSELLER_DESC]
+            description: Sort order.
+          - name: attribute
+            type: string
+            required: false
+            description: Filter by attribute, for example organic, regional, vegan, vegetarian, offer.
+          - name: categorySlug
+            flag_name: category
+            type: string
+            required: false
+            description: Category slug, for example kaese-eier-molkerei.
+      predictions:
+        method: GET
+        path: /shop/api/predictions/terms
+        description: Suggested follow-up search terms for products already chosen (cross-sell).
+        response_path: predictions
+        params:
+          - name: contextProductId
+            flag_name: product-id
+            type: string
+            required: true
+            description: Product id the suggestions are based on, for example 7381513.
+          - name: marketId
+            flag_name: market-id
+            type: string
+            required: true
+            description: REWE market id (wwIdent).
+          - name: serviceType
+            flag_name: service
+            type: string
+            default: PICKUP
+            description: Service type.
+  basket:
+    description: The shop basket of the logged-in customer (versioned; every change returns the whole basket).
+    endpoints:
+      get:
+        method: GET
+        path: /shop/api/baskets/{basketId}
+        description: Show a basket with line items, totals, fees and the reserved pickup slot.
+        required_headers:
+          - name: Accept
+            value: application/vnd.com.rewe.digital.basket-v2+json
+        params:
+          - name: basketId
+            flag_name: basket-id
+            type: string
+            required: true
+            positional: true
+            description: Basket id (see `basket show`, which finds it for you).
+          - name: includeTimeslot
+            flag_name: include-timeslot
+            type: boolean
+            default: true
+            description: Include the reserved timeslot.
+      set:
+        method: POST
+        path: /shop/api/baskets/listings/{listingId}
+        description: Set the quantity of a listing in the basket (adds it when missing). Quantity 0 removes it.
+        required_headers:
+          - name: Accept
+            value: application/vnd.com.rewe.digital.basket-v2+json
+          - name: x-application-id
+            value: rewe-basket
+        params:
+          - name: listingId
+            flag_name: listing-id
+            type: string
+            required: true
+            positional: true
+            description: Listing id from `products search` (articleId plus market store id).
+        body:
+          - name: quantity
+            type: int
+            required: true
+            default: 1
+            description: New quantity.
+          - name: includeTimeslot
+            flag_name: include-timeslot
+            type: boolean
+            default: true
+            description: Include the reserved timeslot in the response.
+          - name: context
+            type: string
+            default: product-list-search
+            description: Shop context label sent by the web shop.
+      remove:
+        method: DELETE
+        path: /shop/api/baskets/{basketId}/listings/{listingId}
+        description: Remove a listing from the basket.
+        required_headers:
+          - name: Accept
+            value: application/vnd.com.rewe.digital.basket-v2+json
+        params:
+          - name: basketId
+            flag_name: basket-id
+            type: string
+            required: true
+            positional: true
+            description: Basket id.
+          - name: listingId
+            flag_name: listing-id
+            type: string
+            required: true
+            positional: true
+            description: Listing id to remove.
+      add-many:
+        method: POST
+        path: /shop/api/baskets/listings
+        description: Add several listings at once (used after recipe mapping).
+        required_headers:
+          - name: Accept
+            value: application/vnd.com.rewe.digital.basket-v2+json
+        body:
+          - name: context
+            type: string
+            default: ingredient-mapper
+            description: Shop context label.
+          - name: lineItems
+            flag_name: line-items
+            type: string
+            required: true
+            description: 'JSON array of {"listingId","quantity"} objects.'
+  slots:
+    description: Pickup timeslots of the selected market.
+    endpoints:
+      list:
+        method: GET
+        path: /shop/api/timeslots/pickup/checkout
+        description: List all pickup slots with start, end, fee and whether they are selected.
+      overview:
+        method: GET
+        path: /shop/api/timeslots/pickup/overview
+        description: Short overview of the next pickup slots (header widget).
+      reserve:
+        method: POST
+        path: /shop/api/timeslot-reservations
+        description: Reserve a pickup slot for the basket (expires after about 1 hour unless the order is placed).
+        body:
+          - name: slotId
+            flag_name: slot-id
+            type: string
+            required: true
+            description: Slot id from `slots list`.
+          - name: customerId
+            flag_name: customer-id
+            type: string
+            required: true
+            description: Customer UUID (the basket's customerUuid).
+          - name: wwIdent
+            flag_name: market-id
+            type: string
+            required: true
+            description: REWE market id.
+          - name: zipCode
+            flag_name: zip
+            type: string
+            required: true
+            description: Postal code.
+  payment:
+    description: Payment options for the current checkout.
+    endpoints:
+      options:
+        method: GET
+        path: /shop/api/payment-options
+        description: List enabled and disabled payment methods for an order total (MARKET_PAYMENT = pay at pickup).
+        params:
+          - name: totalOrderAmount
+            flag_name: total-cents
+            type: int
+            required: true
+            description: Order total in cents.
+          - name: overchargeAmount
+            flag_name: overcharge-cents
+            type: int
+            default: 900
+            description: Allowed overcharge in cents for weighed goods.
+          - name: shippingAmount
+            flag_name: shipping-cents
+            type: int
+            default: 0
+            description: Shipping or service fee in cents.
+  favorites:
+    description: '"Deine Produkte": favourite lists.'
+    endpoints:
+      list:
+        method: GET
+        path: /shop/api/favorites
+        description: List favourite lists and their items.
+      add:
+        method: POST
+        path: /shop/api/favorites/{listId}/lineitems
+        description: Add a product to a favourite list.
+        params:
+          - name: listId
+            flag_name: list-id
+            type: string
+            required: true
+            positional: true
+            description: Favourite list id from `favorites list`.
+        body:
+          - name: productId
+            flag_name: product-id
+            type: string
+            required: true
+            description: Product id, for example 7381513.
+      remove:
+        method: DELETE
+        path: /shop/api/favorites/{listId}/lineitems/{lineItemId}
+        description: Remove an item from a favourite list.
+        params:
+          - name: listId
+            flag_name: list-id
+            type: string
+            required: true
+            positional: true
+            description: Favourite list id.
+          - name: lineItemId
+            flag_name: line-item-id
+            type: string
+            required: true
+            positional: true
+            description: Line item id from the list.
+  purchased:
+    description: '"Bereits gekauft": products bought before in the online shop.'
+    endpoints:
+      list:
+        method: GET
+        path: /shop/api/myproducts
+        description: List previously bought products with categories and current offers among them.
+  recipes:
+    description: REWE recipes (Rezeptwelt).
+    endpoints:
+      search:
+        method: GET
+        path: /api/recipe-search/recipe-uid-list
+        description: Search recipes; returns recipe ids, total count and facets.
+        no_auth: true
+        params:
+          - name: term
+            flag_name: query
+            type: string
+            required: false
+            description: Search text, for example "lasagne".
+          - name: matchAll
+            flag_name: match-all
+            type: boolean
+            default: true
+            description: Require all words.
+          - name: size
+            flag_name: limit
+            type: int
+            default: 10
+            description: Number of recipe ids.
+      tiles:
+        method: GET
+        path: /api/recipe-container
+        description: Recipe cards (title, rating, time, difficulty, url) for recipe ids.
+        no_auth: true
+        response_path: recipeTileDtos
+        params:
+          - name: recipeIdsCommaSeparated
+            flag_name: ids
+            type: string
+            required: true
+            description: Comma-separated recipe ids from `recipes search`.
+      mapping:
+        method: GET
+        path: /shop/api/v2/recipes/mapping/{mappingId}
+        description: Result of an ingredient-to-product mapping (poll until processed is true).
+        params:
+          - name: mappingId
+            flag_name: mapping-id
+            type: string
+            required: true
+            positional: true
+            description: Mapping id returned by `recipe basket`.
