@@ -25801,6 +25801,46 @@
       }
     },
     {
+      "name": "rewe",
+      "category": "commerce",
+      "api": "rewe",
+      "description": "Order REWE groceries for pickup from the terminal or an agent - offers, basket, earliest slot and recipes, with a session that renews itself.",
+      "search_terms": [
+        "rewe",
+        "rewe-pp-cli",
+        "Structured market offers",
+        "offers",
+        "Current offers of your market (and next week's once REWE publishes them) as rows with title, price and category.",
+        "Deals on my products",
+        "deals mine",
+        "Offers that match products you bought before or saved as favourites.",
+        "Earliest pickup slot",
+        "slots earliest",
+        "The earliest free pickup slot with its fee, optionally reserved right away.",
+        "Full checkout with confirmation gate",
+        "order place",
+        "Place the pickup order: refresh basket, reserve slot, pay in market, submit - only with --confirm.",
+        "Recipe to basket",
+        "recipe basket",
+        "Map a REWE recipe's ingredients to shop products for N servings and add the recommended ones.",
+        "Basket by text",
+        "basket add",
+        "Add products by search text and quantity without knowing listing ids.",
+        "Shopping list to basket",
+        "list add",
+        "Turn a shopping list (one item per line, optional quantity) into basket items.",
+        "Price history",
+        "Price changes of a product seen in searches and offers over time."
+      ],
+      "path": "library/commerce/rewe",
+      "printer": "jimpresting",
+      "printer_name": "JimPresting",
+      "creator": {
+        "handle": "jimpresting",
+        "name": "JimPresting"
+      }
+    },
+    {
       "name": "ridewithgps",
       "category": "travel",
       "api": "Ride with GPS",
