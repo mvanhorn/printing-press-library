@@ -4,7 +4,7 @@
   "base_run_id": "20261117-201852-046bd390",
   "base_printing_press_version": "4.35.6",
   "id": "edeka-root-command-wiring",
-  "summary": "root.go wires the hand-written EDEKA commands (auth import/session, markets search/select/current, slots earliest/list/reserve/release, basket show/set/remove/clear, order list, products, offers, categories, payment) next to the generated novel commands.",
+  "summary": "root.go wires the hand-written EDEKA commands (auth import/connect/session, markets search/select/current, slots earliest/list/reserve/release, basket show/set/remove/clear, order list, products, offers, categories, payment) next to the generated novel commands.",
   "reason": "verify-skill only recognises commands wired with addNovelCommandIfAbsent/AddCommand in root wiring, and it resolves each rootCmd.Find parent by variable name, so every Find block uses its own variable.",
   "files": [
     "internal/cli/root.go",

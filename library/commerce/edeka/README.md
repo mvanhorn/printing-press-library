@@ -87,10 +87,10 @@ Restart the OpenClaw session or gateway if the newly installed skill is not visi
 
 This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
 
-The bundle uses the EDEKA session file — import it first from a logged-in browser (auth import is not available through MCP; point EDEKA_SESSION_FILE at the same file for the MCP server):
+The bundle uses the EDEKA session file — create it first (a browser window opens for you to log in; auth connect and auth import are not available through MCP; point EDEKA_SESSION_FILE at the same file for the MCP server):
 
 ```bash
-edeka-pp-cli auth import --cdp http://127.0.0.1:9222
+edeka-pp-cli auth connect --market <market>
 ```
 
 To install:
@@ -137,7 +137,7 @@ Set `EDEKA_MCP_READ_ONLY=1` (exactly `1`) to drop mirrored commands that are not
 
 ## Authentication
 
-EDEKA has no public API. Log in to your market's shop (https://<market>.edeka.shop) once in a browser, then run 'edeka-pp-cli auth import --cdp http://127.0.0.1:<port>' or 'auth import --file cookies.json'. The CLI keeps the cookies in a session file (EDEKA_SESSION_FILE overrides the path) and renews the shop session through the remember-me cookie oxid_1. When that cookie is gone, commands exit with code 4: log in again and re-import.
+EDEKA has no public API. Run 'edeka-pp-cli auth connect --market <market>': it opens a browser window on your market's shop login, you log in yourself, and the CLI keeps that session. Alternatively log in to your market's shop (https://<market>.edeka.shop) once in a browser, then run 'edeka-pp-cli auth import --cdp http://127.0.0.1:<port>' or 'auth import --file cookies.json'. The CLI keeps the cookies in a session file (EDEKA_SESSION_FILE overrides the path) and renews the shop session through the remember-me cookie oxid_1. When that cookie is gone, commands exit with code 4: log in again and re-import.
 
 ## Quick Start
 
@@ -327,7 +327,7 @@ None of it is encrypted. New files are created owner-only; beyond that the data 
 
 ## Commands
 
-Every command takes `--json`, `--agent` and `--select`. Shop commands take `--market <subdomain>` (default: `EDEKA_MARKET`, then `markets select`). Commands marked *login* need an imported session (`auth import`); the rest work for any market without login.
+Every command takes `--json`, `--agent` and `--select`. Shop commands take `--market <subdomain>` (default: `EDEKA_MARKET`, then `markets select`). Commands marked *login* need a session (`auth connect` or `auth import`); the rest work for any market without login.
 
 ### markets
 
@@ -373,6 +373,7 @@ Every command takes `--json`, `--agent` and `--select`. Shop commands take `--ma
 
 ### auth
 
+- **`edeka-pp-cli auth connect --market <market>`** - Open a browser window to log in to your EDEKA market shop yourself, then keep that session for this CLI (not available through MCP).
 - **`edeka-pp-cli auth import --cdp <loopback-url> | --file <cookies.json>`** - Import the cookies of a logged-in browser (not available through MCP).
 - **`edeka-pp-cli auth session`** - Logged in or not, remember-me expiry; exit code 4 when a new login is needed.
 
@@ -396,7 +397,7 @@ The local store's schema version stamp is one-way: once this version of `edeka-p
 
 ## Sessions, markets and order safety
 
-- **No password in the CLI.** The customer logs in once in a browser; `auth import` copies the cookies into a session file (owner-only permissions). The shop's remember-me cookie `oxid_1` (one year) gives every later call a fresh shop session without a password. When it is gone, commands exit with code 4 and the customer logs in again.
+- **No password in the CLI.** The customer logs in once in a browser (`auth connect` opens one); `auth connect` or `auth import` copies the cookies into a session file (owner-only permissions). The shop's remember-me cookie `oxid_1` (one year) gives every later call a fresh shop session without a password. When it is gone, commands exit with code 4 and the customer logs in again.
 - **One session file per customer.** `EDEKA_SESSION_FILE` points a call at that customer's file, so one server can serve many customers. The file also stores the customer's market.
 - **Any market.** Each EDEKA retailer runs its own shop on `<market>.edeka.shop`; `--market` or `EDEKA_MARKET` switches between them. Cookies are per market, so a login is per market too.
 - **Orders only with `--confirm`.** `order place` previews by default and walks the checkout only up to the shop's final review page. Show the preview to the customer and add `--confirm --expect-total <total_cents>` (plus `--slot '<confirm_slot>'` when the preview chose a slot) only after a clear yes; the order is refused when the basket total changed in between, and `--slot earliest` is refused with `--confirm` because it could pick a different time. Payment is limited to cash or card at handover.
@@ -456,12 +457,12 @@ Static request headers can be configured under `headers`; per-command header ove
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**
-- Run `edeka-pp-cli auth session` to see whether the session is logged in; re-import with `edeka-pp-cli auth import` after a browser login
+- Run `edeka-pp-cli auth session` to see whether the session is logged in; log in again with `edeka-pp-cli auth connect`, or re-import with `edeka-pp-cli auth import` after a browser login
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run `edeka-pp-cli products search <words>` or `edeka-pp-cli basket show` to see valid article ids
 
 ### API-specific
-- **exit code 4 / re-login needed** — Log in to <market>.edeka.shop in a browser, then run edeka-pp-cli auth import --cdp <url> (or --file cookies.json)
+- **exit code 4 / re-login needed** — Run edeka-pp-cli auth connect --market <market>, or log in to <market>.edeka.shop in a browser, then run edeka-pp-cli auth import --cdp <url> (or --file cookies.json)
 - **no market selected** — Run 'edeka-pp-cli markets select <subdomain>' once, or set EDEKA_MARKET=<subdomain>
 - **basket call returns an HTML page instead of JSON** — The shop's form token expired; run the command again (the CLI fetches a fresh token once automatically)

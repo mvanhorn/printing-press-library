@@ -527,6 +527,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	// Hand-written EDEKA commands (internal/cli/edeka_extra.go, slots_earliest.go).
 	if authParent, _, err := rootCmd.Find(strings.Fields("auth")); err == nil {
 		addNovelCommandIfAbsent(authParent, newAuthImportCmd(flags))
+		addNovelCommandIfAbsent(authParent, newAuthConnectCmd(flags))
 		addNovelCommandIfAbsent(authParent, newAuthSessionCmd(flags))
 	}
 	if marketsParent, _, err := rootCmd.Find(strings.Fields("markets")); err == nil {

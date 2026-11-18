@@ -110,7 +110,7 @@ These capabilities aren't available in any other tool for this API.
 
 ## Command Reference
 
-Every command takes `--json`, `--agent` and `--select`. Shop commands take `--market <subdomain>` (default: `EDEKA_MARKET`, then `markets select`). Commands marked *login* need an imported session (`auth import`); the rest work for any market without login.
+Every command takes `--json`, `--agent` and `--select`. Shop commands take `--market <subdomain>` (default: `EDEKA_MARKET`, then `markets select`). Commands marked *login* need a session (`auth connect` or `auth import`); the rest work for any market without login.
 
 ### markets
 
@@ -156,6 +156,7 @@ Every command takes `--json`, `--agent` and `--select`. Shop commands take `--ma
 
 ### auth
 
+- **`edeka-pp-cli auth connect --market <market>`** - Open a browser window to log in to your EDEKA market shop yourself, then keep that session for this CLI (not available through MCP).
 - **`edeka-pp-cli auth import --cdp <loopback-url> | --file <cookies.json>`** - Import the cookies of a logged-in browser (not available through MCP).
 - **`edeka-pp-cli auth session`** - Logged in or not, remember-me expiry; exit code 4 when a new login is needed.
 
@@ -216,7 +217,7 @@ Never run `order place --confirm` without the customer's explicit yes to the pre
 
 ## Auth Setup
 
-EDEKA has no public API. Log in to your market's shop (https://<market>.edeka.shop) once in a browser, then run 'edeka-pp-cli auth import --cdp http://127.0.0.1:<port>' or 'auth import --file cookies.json'. The CLI keeps the cookies in a session file (EDEKA_SESSION_FILE overrides the path) and renews the shop session through the remember-me cookie oxid_1. When that cookie is gone, commands exit with code 4: log in again and re-import.
+EDEKA has no public API. Run 'edeka-pp-cli auth connect --market <market>': it opens a browser window on your market's shop login, you log in yourself, and the CLI keeps that session. Alternatively log in to your market's shop (https://<market>.edeka.shop) once in a browser, then run 'edeka-pp-cli auth import --cdp http://127.0.0.1:<port>' or 'auth import --file cookies.json'. The CLI keeps the cookies in a session file (EDEKA_SESSION_FILE overrides the path) and renews the shop session through the remember-me cookie oxid_1. When that cookie is gone, commands exit with code 4: log in again and re-import.
 
 Run `edeka-pp-cli doctor` to verify setup.
 

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -870,55 +871,119 @@ func newAuthImportCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(err)
 			}
-			s := &edeka.Session{Cookies: cookies}
-			ms := s.Markets()
-			if len(ms) == 0 {
-				return authErr(errors.New("the export holds no EDEKA login (no oxid_1 remember-me cookie on a <market>.edeka.shop host): log in to the market's shop in that browser first, with 'stay logged in'"))
-			}
-			path, err := edeka.SessionPath()
-			if err != nil {
-				return configErr(err)
-			}
-			if old, err := edeka.LoadSession(path); err == nil && old.Market != "" {
-				s.Market = old.Market
-			}
-			if market != "" {
-				if _, err := edeka.NormalizeMarket(market); err != nil {
-					return usageErr(err)
-				}
-			}
-			host, err := edeka.ResolveMarket(market, s)
-			if err != nil {
-				host = ms[0]
-			}
-			s.Market = edeka.MarketSlug(host)
-			if err := s.Save(path); err != nil {
-				return configErr(err)
-			}
-			if err := applyShopConn(flags); err != nil {
-				return err
-			}
-			sh, err := edeka.OpenWith(s, path, host)
-			if err != nil {
-				return err
-			}
-			ok, lerr := sh.LoggedIn(cmd.Context())
-			_ = sh.Persist()
-			out := map[string]any{"imported": len(cookies), "markets_with_login": ms, "market": s.Market, "logged_in": ok, "session_file": path}
-			if exp := s.RememberExpiry(host); !exp.IsZero() {
-				out["remember_me_expires"] = exp.Format(time.RFC3339)
-			}
-			if lerr != nil {
-				out["check_error"] = lerr.Error()
-			}
-			return emit(cmd, flags, out, func(w io.Writer) {
-				fmt.Fprintf(w, "Imported %d EDEKA cookies. Market %s, logged in: %v. Session file %s\n", len(cookies), s.Market, ok, path)
-			})
+			return saveImportedEDEKA(cmd, flags, cookies, market)
 		},
 	}
 	cmd.Flags().StringVar(&file, "file", "", "JSON cookie export ('-' for stdin)")
 	cmd.Flags().StringVar(&cdp, "cdp", "", "Chromium DevTools endpoint, e.g. http://127.0.0.1:9222")
 	cmd.Flags().StringVar(&market, "market", "", "Market subdomain to use (default: the market the cookies belong to)")
+	return cmd
+}
+
+// saveImportedEDEKA stores imported cookies as the EDEKA session, checks the
+// login at the market and prints the result.
+func saveImportedEDEKA(cmd *cobra.Command, flags *rootFlags, cookies []edeka.Cookie, market string) error {
+	s := &edeka.Session{Cookies: cookies}
+	ms := s.Markets()
+	if len(ms) == 0 {
+		return authErr(errors.New("the export holds no EDEKA login (no oxid_1 remember-me cookie on a <market>.edeka.shop host): log in to the market's shop in that browser first, with 'stay logged in'"))
+	}
+	path, err := edeka.SessionPath()
+	if err != nil {
+		return configErr(err)
+	}
+	if old, err := edeka.LoadSession(path); err == nil && old.Market != "" {
+		s.Market = old.Market
+	}
+	if market != "" {
+		if _, err := edeka.NormalizeMarket(market); err != nil {
+			return usageErr(err)
+		}
+	}
+	host, err := edeka.ResolveMarket(market, s)
+	if err != nil {
+		host = ms[0]
+	}
+	s.Market = edeka.MarketSlug(host)
+	if err := s.Save(path); err != nil {
+		return configErr(err)
+	}
+	if err := applyShopConn(flags); err != nil {
+		return err
+	}
+	sh, err := edeka.OpenWith(s, path, host)
+	if err != nil {
+		return err
+	}
+	ok, lerr := sh.LoggedIn(cmd.Context())
+	_ = sh.Persist()
+	out := map[string]any{"imported": len(cookies), "markets_with_login": ms, "market": s.Market, "logged_in": ok, "session_file": path}
+	if exp := s.RememberExpiry(host); !exp.IsZero() {
+		out["remember_me_expires"] = exp.Format(time.RFC3339)
+	}
+	if lerr != nil {
+		out["check_error"] = lerr.Error()
+	}
+	return emit(cmd, flags, out, func(w io.Writer) {
+		fmt.Fprintf(w, "Imported %d EDEKA cookies. Market %s, logged in: %v. Session file %s\n", len(cookies), s.Market, ok, path)
+	})
+}
+
+func newAuthConnectCmd(flags *rootFlags) *cobra.Command {
+	var browser, market string
+	var wait time.Duration
+	cmd := &cobra.Command{
+		Use:   "connect",
+		Short: "Open a browser window to log in to your EDEKA market shop yourself, then keep that session for this CLI.",
+		Long: "Opens Chrome, Edge or Chromium with a fresh temporary profile on the market's account page.\n" +
+			"Log in there yourself and tick 'Angemeldet bleiben' (stay logged in): its one-year cookie is what\n" +
+			"the CLI waits for and later renews the shop session with. The session is stored like `auth import`,\n" +
+			"the window closes again and its temporary profile is deleted. DevTools listens on 127.0.0.1 only.",
+		Example:     "  edeka-pp-cli auth connect --market doerflinger-ulm\n  edeka-pp-cli auth connect --market ec-ulm-lehr --wait 15m",
+		Annotations: map[string]string{"mcp:hidden": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if cliutil.IsMCPChildEnv() {
+				return usageErr(errors.New("auth connect needs a person at the screen and is not available through MCP"))
+			}
+			if dryRunOK(flags) {
+				return writeDryRun(cmd.OutOrStdout(), flags, "auth connect")
+			}
+			var known *edeka.Session
+			if path, err := edeka.SessionPath(); err == nil {
+				known, _ = edeka.LoadSession(path)
+			}
+			if known == nil {
+				known = &edeka.Session{}
+			}
+			host, err := edeka.ResolveMarket(market, known)
+			if err != nil {
+				return usageErr(fmt.Errorf("choose the market to log in to with --market (see `markets search <postal code>`): %w", err))
+			}
+			exe := browser
+			if exe == "" {
+				if exe, err = edeka.FindBrowser(); err != nil {
+					return configErr(err)
+				}
+			}
+			b, err := edeka.StartLoginBrowser(cmd.Context(), exe, edeka.LoginURL(host))
+			if err != nil {
+				return configErr(err)
+			}
+			defer b.Close()
+			fmt.Fprintf(cmd.ErrOrStderr(), "A browser window with the %s login is open. Log in there with 'Angemeldet bleiben' ticked (up to %s); this command continues by itself.\n", host, wait)
+			ctx, cancel := context.WithTimeout(cmd.Context(), wait)
+			defer cancel()
+			cookies, err := edeka.WaitForLogin(ctx, b.Endpoint, b.Closed, 2*time.Second)
+			if err != nil {
+				return authErr(err)
+			}
+			b.Close()
+			return saveImportedEDEKA(cmd, flags, edeka.FilterEDEKA(cookies), edeka.MarketSlug(host))
+		},
+	}
+	cmd.Flags().StringVar(&browser, "browser", "", "browser executable (default: Chrome, Edge or Chromium found on this computer, or EDEKA_BROWSER)")
+	cmd.Flags().StringVar(&market, "market", "", "market subdomain to log in to, e.g. doerflinger-ulm (default: the selected market)")
+	cmd.Flags().DurationVar(&wait, "wait", 10*time.Minute, "how long to wait for the login")
 	return cmd
 }
 
