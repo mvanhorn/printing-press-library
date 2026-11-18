@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -929,6 +931,10 @@ func saveImportedEDEKA(cmd *cobra.Command, flags *rootFlags, cookies []edeka.Coo
 	})
 }
 
+// errLoginInterrupted is returned when auth connect is stopped with Ctrl+C or
+// SIGTERM; the login window is closed and nothing is stored.
+var errLoginInterrupted = errors.New("auth connect was interrupted: the login window was closed and no session was stored")
+
 func newAuthConnectCmd(flags *rootFlags) *cobra.Command {
 	var browser, market string
 	var wait time.Duration
@@ -965,15 +971,25 @@ func newAuthConnectCmd(flags *rootFlags) *cobra.Command {
 					return configErr(err)
 				}
 			}
-			b, err := edeka.StartLoginBrowser(cmd.Context(), exe, edeka.LoginURL(host))
+			// Ctrl+C or SIGTERM cancels the login instead of ending the process,
+			// so the deferred Close still ends the browser and deletes its profile.
+			runCtx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
+			defer stop()
+			b, err := edeka.StartLoginBrowser(runCtx, exe, edeka.LoginURL(host))
 			if err != nil {
+				if runCtx.Err() != nil {
+					return authErr(errLoginInterrupted)
+				}
 				return configErr(err)
 			}
 			defer b.Close()
 			fmt.Fprintf(cmd.ErrOrStderr(), "A browser window with the %s login is open. Log in there with 'Angemeldet bleiben' ticked (up to %s); this command continues by itself.\n", host, wait)
-			ctx, cancel := context.WithTimeout(cmd.Context(), wait)
+			ctx, cancel := context.WithTimeout(runCtx, wait)
 			defer cancel()
 			cookies, err := edeka.WaitForLogin(ctx, b.Endpoint, b.Closed, 2*time.Second)
+			if runCtx.Err() != nil {
+				return authErr(errLoginInterrupted)
+			}
 			if err != nil {
 				return authErr(err)
 			}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "edeka-auth-connect-browser-login",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261117-201852-046bd390",
+  "base_printing_press_version": "4.35.6",
+  "summary": "auth connect opens Chrome, Edge or Chromium (EDEKA_BROWSER or --browser overrides) with a fresh temporary profile and a 127.0.0.1-only DevTools port on the EDEKA login, polls the cookies until the login cookie appears, stores them through the same path as auth import, then closes the browser via Browser.close (kill as fallback) and deletes the profile. Ctrl+C/SIGTERM cancel the wait so that cleanup still runs; every startup probe is bounded by the 20-second start deadline. Hidden from MCP and refused inside an MCP child.",
+  "reason": "EDEKA login needs a captcha and two-factor answered by the person, so the CLI cannot log in itself; auth import alone required a hand-started DevTools browser or a cookie export, which agent and plugin users rarely have.",
+  "files": [
+    "internal/edeka/connect.go",
+    "internal/edeka/connect_test.go",
+    "internal/cli/edeka_extra.go",
+    "internal/cli/root.go"
+  ],
+  "markers": [
+    "func StartLoginBrowser",
+    "func WaitForLogin",
+    "\"Browser.close\"",
+    "errLoginInterrupted",
+    "newAuthConnectCmd(flags)"
+  ],
+  "validated_outcome": "TestWaitForLoginReturnsOnceLoggedIn, TestWaitForLoginTimesOut, TestWaitForLoginWindowClosed and TestStartLoginBrowserCanceledCleansUp; a live end-to-end login (EDEKA) and the live timeout and window-closed paths (REWE)."
+}

@@ -104,9 +104,12 @@ func StartLoginBrowser(ctx context.Context, exe, startURL string) (*LoginBrowser
 	closed := make(chan struct{})
 	go func() { _ = cmd.Wait(); close(closed) }()
 	b := &LoginBrowser{Endpoint: "http://127.0.0.1:" + strconv.Itoa(port), Closed: closed, cmd: cmd, dir: dir}
-	deadline := time.Now().Add(20 * time.Second)
+	// The startup deadline bounds each probe too, so a DevTools port that
+	// accepts connections but never answers still ends in cleanup.
+	startCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
 	for {
-		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, b.Endpoint+"/json/version", nil)
+		req, _ := http.NewRequestWithContext(startCtx, http.MethodGet, b.Endpoint+"/json/version", nil)
 		if resp, err := http.DefaultClient.Do(req); err == nil {
 			resp.Body.Close()
 			return b, nil
@@ -115,14 +118,13 @@ func StartLoginBrowser(ctx context.Context, exe, startURL string) (*LoginBrowser
 		case <-closed:
 			b.Close()
 			return nil, errors.New("the browser exited right after start; close other windows of it that use the same profile, or set EDEKA_BROWSER")
-		case <-ctx.Done():
+		case <-startCtx.Done():
 			b.Close()
-			return nil, ctx.Err()
-		case <-time.After(250 * time.Millisecond):
-		}
-		if time.Now().After(deadline) {
-			b.Close()
+			if err := ctx.Err(); err != nil {
+				return nil, err
+			}
 			return nil, errors.New("the browser's DevTools port did not answer within 20 seconds")
+		case <-time.After(250 * time.Millisecond):
 		}
 	}
 }
