@@ -1,0 +1,1922 @@
+name: rewe
+description: Discovered API spec for rewe
+version: 0.1.0
+base_url: https://www.rewe.de
+spec_source: sniffed
+http_transport: browser-chrome-h2
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+    browser_session_reason: browser clearance is required to replay captured website traffic
+    browser_session_validation_path: /api/global-search/popular-searches
+    browser_session_validation_method: GET
+auth_warnings:
+    - 'rejected auth candidate "query" from body: search input'
+config:
+    format: toml
+    path: ~/.config/rewe-pp-cli/config.toml
+resources:
+    angebote:
+        description: Operations on rewe-neumarkt-35-37
+        endpoints:
+            get_rewe_hummelstr_7_11:
+                method: GET
+                path: /angebote/koeln/{koeln_id}/rewe-neumarkt-35-37/
+                description: Fetch structured metadata from /angebote/koeln/{koeln_id}/rewe-neumarkt-35-37/
+                params:
+                    - name: koeln_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The koeln_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    frontend-includes:
+        description: Operations on frontend-includes
+        endpoints:
+            create_frontend_includes:
+                method: POST
+                path: /api/frontend-includes
+                description: POST /api/frontend-includes
+                params: []
+                body:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: namespace
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: params
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: crossOutPriceArrowStyle
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: enableDetailDeeplink
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: nan
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: showDuration
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: week
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: wwIdent
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: query
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: context
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: listingId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: orderLimit
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: responsive
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: showFavoriteButton
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: sponsored
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                request_content_type: application/json
+                response:
+                    type: array
+                    item: FrontendIncludeScript
+                pagination: null
+                response_path: scripts
+    global-search:
+        description: Operations on popular-searches
+        endpoints:
+            list_popular_searches:
+                method: GET
+                path: /api/global-search/popular-searches
+                description: GET /api/global-search/popular-searches
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: popular_searches
+                pagination: null
+    marketselection:
+        description: Operations on configuration
+        endpoints:
+            create_userselections:
+                method: POST
+                path: /api/marketselection/userselections
+                description: POST /api/marketselection/userselections
+                params: []
+                body:
+                    - name: customerZipCode
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: selectedService
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: wwIdent
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: userselections
+                pagination: null
+            list_configuration:
+                method: GET
+                path: /api/marketselection/configuration
+                description: GET /api/marketselection/configuration
+                params:
+                    - name: checkMarketSelection
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Configuration
+                pagination: null
+    realms:
+        description: Operations on authenticate
+        endpoints:
+            create_authenticate:
+                method: POST
+                path: /realms/sso/login-actions/authenticate
+                base_url: https://account.rewe.de
+                description: POST /realms/sso/login-actions/authenticate
+                params:
+                    - name: client_data
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: client_id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: execution
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: session_code
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: tab_id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: login
+                      type: string
+                      required: true
+                      positional: false
+                      default: ""
+                      description: ""
+                      fields: []
+                request_content_type: application/x-www-form-urlencoded
+                response:
+                    type: object
+                    item: authenticate
+                pagination: null
+    recipe-feedback:
+        description: Operations on recipe-reviews
+        endpoints:
+            list_recipe_reviews:
+                method: GET
+                path: /api/recipe-feedback/recipe-reviews/
+                description: GET /api/recipe-feedback/recipe-reviews/
+                params:
+                    - name: recipeId
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: RecipeReview
+                pagination: null
+    recipefavorites:
+        description: Operations on bltadf015ccacf17fe0
+        endpoints:
+            list_blt7b99a28fae9a9dfc:
+                method: GET
+                path: /api/recipefavorites/blt7b99a28fae9a9dfc
+                description: GET /api/recipefavorites/blt7b99a28fae9a9dfc
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: blt7b99a28fae9a9dfc
+                pagination: null
+            list_blt9c3b833ffa51abb2:
+                method: GET
+                path: /api/recipefavorites/blt9c3b833ffa51abb2
+                description: GET /api/recipefavorites/blt9c3b833ffa51abb2
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: blt9c3b833ffa51abb2
+                pagination: null
+            list_blt517d1d3ddcf12679:
+                method: GET
+                path: /api/recipefavorites/blt517d1d3ddcf12679
+                description: GET /api/recipefavorites/blt517d1d3ddcf12679
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: blt517d1d3ddcf12679
+                pagination: null
+            list_blt739aeaff2fa243e2:
+                method: GET
+                path: /api/recipefavorites/blt739aeaff2fa243e2
+                description: GET /api/recipefavorites/blt739aeaff2fa243e2
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: blt739aeaff2fa243e2
+                pagination: null
+            list_blt81879037ef24ab99:
+                method: GET
+                path: /api/recipefavorites/blt81879037ef24ab99
+                description: GET /api/recipefavorites/blt81879037ef24ab99
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: blt81879037ef24ab99
+                pagination: null
+            list_blta58ae92975050b50:
+                method: GET
+                path: /api/recipefavorites/blta58ae92975050b50
+                description: GET /api/recipefavorites/blta58ae92975050b50
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: blta58ae92975050b50
+                pagination: null
+            list_bltadf015ccacf17fe0:
+                method: GET
+                path: /api/recipefavorites/bltadf015ccacf17fe0
+                description: GET /api/recipefavorites/bltadf015ccacf17fe0
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: bltadf015ccacf17fe0
+                pagination: null
+            list_bltaf1ad4b840056b21:
+                method: GET
+                path: /api/recipefavorites/bltaf1ad4b840056b21
+                description: GET /api/recipefavorites/bltaf1ad4b840056b21
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: bltaf1ad4b840056b21
+                pagination: null
+            list_bltcf67980f8d5462fe:
+                method: GET
+                path: /api/recipefavorites/bltcf67980f8d5462fe
+                description: GET /api/recipefavorites/bltcf67980f8d5462fe
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: bltcf67980f8d5462fe
+                pagination: null
+    recipes:
+        description: Operations on mapping
+        endpoints:
+            create_mapping:
+                method: POST
+                path: /api/v2/recipes/mapping
+                description: POST /api/v2/recipes/mapping
+                params:
+                    - name: servings
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: data
+                      type: string
+                      required: true
+                      positional: false
+                      default: '{"@context":"http://schema.org","@type":"Recipe","@id":"https://www.rewe.de/rezepte/gnocchi-spinat-auflauf-hirtenkaese/","name":"Gnocchi-Spinat-Auflauf mit Hirtenkäse","recipeIngredient":["400.0 g ja! TK Rahmspinat","1.0 Zwiebel","1.0 Zehe(n) Knoblauch","1.0 EL ja! Butter","800.0 g ja! Gnocchi","200.0 g ja! Schlagsahne","ja! Salz","ja! Pfeffer","0.5 TL ja! Oregano (getrocknet)","250.0 g ja! Hirtenkäse"],"recipeYield":"4","image":["https://c.rewe-static.de/50361180/2/50361180.png?impolicy=recipe-detail-page-header","https://c.rewe-static.de/50361180/2/50361180.png?impolicy=rds&im=Resize,height=764;Crop,width=764,height=764,gravity=Center"],"publisher":{"@type":"Organization","name":"REWE","@id":"https://www.rewe.de/#REWE"},"description":"Gnocchi, Spinat & Hirtenkäse verschmelzen zu purem Auflaufglück: Das vegetarische REWE Rezept ist einfach gemacht – probier es gleich aus!","keywords":"Ofengericht","author":{"@type":"Organization","name":"REWE","@id":"https://www.rewe.de/#REWE"},"prepTime":"PT20M","cookTime":"PT20M","totalTime":"PT40M","recipeCategory":"Hauptspeise, Mittagessen, Auflauf, Abendessen","recipeCuisine":"Mediterran","nutrition":{"@type":"NutritionInformation","servingSize":"4 Portionen","calories":"703 kcal"},"recipeInstructions":[{"@type":"HowToStep","text":"Spinat auftauen lassen. Zwiebel und Knoblauch schälen und fein würfeln.","name":"Schritt 1","url":"https://www.rewe.de/rezepte/gnocchi-spinat-auflauf-hirtenkaese/#step_1"},{"@type":"HowToStep","text":"In einer großen Pfanne die Butter bei hoher Temperatur erhitzen und die Gnocchi darin einmal kurz anbraten, bis sie leicht gebräunt sind. Hitze reduzieren. Zwiebel und Knoblauch dazugeben und wenige Minuten andünsten, bis sie weich sind. Dann Rahmspinat und Schlagsahne unterrühren. Mit Salz, Pfeffer und Oregano würzen.","name":"Schritt 2","url":"https://www.rewe.de/rezepte/gnocchi-spinat-auflauf-hirtenkaese/#step_2"},{"@type":"HowToStep","text":"Backofen auf 200 °C Ober- und Unterhitze vorheizen und die Auflaufform (38 x 26 cm) mit etwas Butter einreiben.","name":"Schritt 3","url":"https://www.rewe.de/rezepte/gnocchi-spinat-auflauf-hirtenkaese/#step_3"},{"@type":"HowToStep","text":"Den Inhalt aus der Pfanne in die Auflaufform geben und den Hirtenkäse über den Auflauf bröseln.","name":"Schritt 4","url":"https://www.rewe.de/rezepte/gnocchi-spinat-auflauf-hirtenkaese/#step_4"},{"@type":"HowToStep","text":"Im Backofen ca. 20 Minuten backen, bis der Käse goldbraun ist.","name":"Schritt 5","url":"https://www.rewe.de/rezepte/gnocchi-spinat-auflauf-hirtenkaese/#step_5"}],"servingType":"portions","datePublished":"2025-05-22"}'
+                      description: ""
+                      fields: []
+                request_content_type: application/x-www-form-urlencoded
+                response:
+                    type: object
+                    item: mapping
+                pagination: null
+    rezepte:
+        description: Operations on gnocchi-spinat-auflauf-hirtenkaese
+        endpoints:
+            list_gnocchi_spinat_auflauf_hirtenkaese:
+                method: GET
+                path: /rezepte/gnocchi-spinat-auflauf-hirtenkaese/
+                description: Fetch structured links from /rezepte/gnocchi-spinat-auflauf-hirtenkaese/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    shop:
+        description: Operations on baskets
+        endpoints:
+            create_changes:
+                method: POST
+                path: /shop/api/baskets/{basket_id}/changes
+                description: POST /shop/api/baskets/{basket_id}/changes
+                params:
+                    - name: basket_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The basket_id path segment
+                      fields: []
+                body:
+                    - name: includeTimeslot
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: array
+                    item: ChangeLineItem
+                pagination: null
+                response_path: lineItems
+            create_lineitems:
+                method: POST
+                path: /shop/api/favorites/{favorite_id}/lineitems
+                description: POST /shop/api/favorites/{favorite_id}/lineitems
+                params:
+                    - name: favorite_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The favorite_id path segment
+                      fields: []
+                body:
+                    - name: productId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: array
+                    item: LineitemItem
+                pagination: null
+                response_path: items
+            create_listings:
+                method: POST
+                path: /shop/api/baskets/listings/{listing_id}
+                description: POST /shop/api/baskets/listings/{listing_id}
+                params:
+                    - name: includeTimeslot
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: listing_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The listing_id path segment
+                      fields: []
+                body:
+                    - name: context
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: includeTimeslot
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: quantity
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: array
+                    item: ListingLineItem
+                pagination: null
+                response_path: lineItems
+            create_listings_2:
+                method: POST
+                path: /shop/api/baskets/listings
+                description: POST /shop/api/baskets/listings
+                params: []
+                body:
+                    - name: context
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: lineItems
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: listingId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: quantity
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                request_content_type: application/json
+                response:
+                    type: array
+                    item: ListingProcessedLineItem
+                pagination: null
+                response_path: processedLineItems
+            create_multi_product_bonus_badges:
+                method: POST
+                path: /shop/api/multi-product-bonus-badges
+                description: POST /shop/api/multi-product-bonus-badges
+                params:
+                    - name: forceMGP
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: listingIds
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: array
+                    item: MultiProductBonusBadgeListingBadge
+                pagination: null
+                response_path: listingBadges
+            create_submit:
+                method: POST
+                path: /shop/checkout/timeslot/submit
+                description: POST /shop/checkout/timeslot/submit
+                params: []
+                body:
+                    - name: basketId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: timeslotId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/x-www-form-urlencoded
+                response:
+                    type: object
+                    item: submit
+                pagination: null
+            create_submit_2:
+                method: POST
+                path: /shop/checkout/payment-options/submit
+                description: POST /shop/checkout/payment-options/submit
+                params: []
+                body:
+                    - name: dateOfBirth
+                      type: string
+                      required: true
+                      positional: false
+                      default: ""
+                      description: ""
+                      fields: []
+                    - name: invoiceAddressId
+                      type: string
+                      required: true
+                      positional: false
+                      default: ""
+                      description: ""
+                      fields: []
+                    - name: invoiceAddressVersion
+                      type: string
+                      required: true
+                      positional: false
+                      default: ""
+                      description: ""
+                      fields: []
+                    - name: paymentOption
+                      type: string
+                      required: true
+                      positional: false
+                      default: MARKET_PAYMENT
+                      description: ""
+                      fields: []
+                    - name: reusePaymentDataOption
+                      type: string
+                      required: true
+                      positional: false
+                      default: NONE
+                      description: ""
+                      fields: []
+                request_content_type: application/x-www-form-urlencoded
+                response:
+                    type: object
+                    item: submit
+                pagination: null
+            create_timeslot_reservations:
+                method: POST
+                path: /shop/api/timeslot-reservations
+                description: POST /shop/api/timeslot-reservations
+                params: []
+                body:
+                    - name: customerId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: slotId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                    - name: wwIdent
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: zipCode
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: TimeslotReservation
+                pagination: null
+            delete_13_5411188124726_00000000_0000_4000_8000_0000000000aa:
+                method: DELETE
+                path: /shop/api/baskets/{basket_id}/listings/13-5411188124726-00000000-0000-4000-8000-0000000000aa
+                description: DELETE /shop/api/baskets/{basket_id}/listings/13-5411188124726-00000000-0000-4000-8000-0000000000aa
+                params:
+                    - name: basket_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The basket_id path segment
+                      fields: []
+                    - name: includeTimeslot
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: T135411188124726D723cc5c4f7849e79cbcF40137dd07fdLineItem
+                pagination: null
+                response_path: lineItems
+            delete_lineitems:
+                method: DELETE
+                path: /shop/api/favorites/{favorite_id}/lineitems/{lineitem_id}
+                description: DELETE /shop/api/favorites/{favorite_id}/lineitems/{lineitem_id}
+                params:
+                    - name: favorite_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The favorite_id path segment
+                      fields: []
+                    - name: lineitem_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The lineitem_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: lineitems
+                pagination: null
+            get_alnatura_bio_hafer_drink_ohne_zucker_1l:
+                method: GET
+                path: /shop/p/alnatura-bio-hafer-drink-ohne-zucker-1l/{alnatura_bio_hafer_drink_ohne_zucker_1l_id}
+                description: Fetch structured metadata from /shop/p/alnatura-bio-hafer-drink-ohne-zucker-1l/{alnatura_bio_hafer_drink_ohne_zucker_1l_id}
+                params:
+                    - name: alnatura_bio_hafer_drink_ohne_zucker_1l_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The alnatura_bio_hafer_drink_ohne_zucker_1l_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            get_baskets:
+                method: GET
+                path: /shop/api/baskets/{basket_id}
+                description: GET /shop/api/baskets/{basket_id}
+                params:
+                    - name: basket_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The basket_id path segment
+                      fields: []
+                    - name: includeTimeslot
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: BasketLineItem
+                pagination: null
+                response_path: lineItems
+            get_coupons:
+                method: GET
+                path: /shop/api/baskets/{basket_id}/coupons
+                description: GET /shop/api/baskets/{basket_id}/coupons
+                params:
+                    - name: basket_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The basket_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Coupon
+                pagination: null
+            get_mapping:
+                method: GET
+                path: /shop/api/v2/recipes/mapping/{mapping_id}
+                description: GET /shop/api/v2/recipes/mapping/{mapping_id}
+                params:
+                    - name: mapping_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The mapping_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: MappingIngredient
+                pagination: null
+                response_path: ingredients
+            get_mappings:
+                method: GET
+                path: /shop/recipes/gnocchi-spinat-auflauf-hirtenkaese/mappings/{mapping_id}
+                description: Fetch structured metadata from /shop/recipes/gnocchi-spinat-auflauf-hirtenkaese/mappings/{mapping_id}
+                params:
+                    - name: mapping_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The mapping_id path segment
+                      fields: []
+                    - name: ref
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            get_wallet_coupons:
+                method: GET
+                path: /shop/api/customers/{customer_id}/wallet-coupons
+                description: GET /shop/api/customers/{customer_id}/wallet-coupons
+                params:
+                    - name: customer_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The customer_id path segment
+                      fields: []
+                    - name: validateForCheckout
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: WalletCoupon
+                pagination: null
+            list_basket:
+                method: GET
+                path: /shop/checkout/basket
+                description: Fetch structured links from /shop/checkout/basket
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_checkout:
+                method: GET
+                path: /shop/api/timeslots/pickup/checkout
+                description: GET /shop/api/timeslots/pickup/checkout
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: Checkout
+                pagination: null
+            list_confirmation:
+                method: GET
+                path: /shop/checkout/confirmation
+                description: Fetch structured links from /shop/checkout/confirmation
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_deine_produkte:
+                method: GET
+                path: /shop/deine-produkte
+                description: Fetch structured links from /shop/deine-produkte
+                params:
+                    - name: loggedIn
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_favorites:
+                method: GET
+                path: /shop/api/favorites
+                description: GET /shop/api/favorites
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: FavoriteItem
+                pagination: null
+                response_path: items
+            list_im_markt:
+                method: GET
+                path: /shop/mydata/meine-einkaeufe/im-markt
+                description: Fetch structured links from /shop/mydata/meine-einkaeufe/im-markt
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_meine_einkaeufe:
+                method: GET
+                path: /shop/mydata/meine-einkaeufe
+                description: Fetch structured links from /shop/mydata/meine-einkaeufe
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_myproducts:
+                method: GET
+                path: /shop/api/myproducts
+                description: GET /shop/api/myproducts
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: MyproductMyCategory
+                pagination: null
+                response_path: myCategories
+            list_newproducts:
+                method: GET
+                path: /shop/api/newproducts
+                description: GET /shop/api/newproducts
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: newproducts
+                pagination: null
+            list_overview:
+                method: GET
+                path: /shop/api/timeslots/pickup/overview
+                description: GET /shop/api/timeslots/pickup/overview
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: Overview
+                pagination: null
+            list_payment_options:
+                method: GET
+                path: /shop/api/payment-options
+                description: GET /shop/api/payment-options
+                params:
+                    - name: overchargeAmount
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: shippingAmount
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: totalOrderAmount
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: PaymentOption
+                pagination: null
+            list_paymentoptions:
+                method: GET
+                path: /shop/checkout/paymentoptions
+                description: Fetch structured links from /shop/checkout/paymentoptions
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_productList:
+                method: GET
+                path: /shop/productList
+                description: Fetch structured links from /shop/productList
+                params:
+                    - name: term
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_shop:
+                method: GET
+                path: /shop/
+                description: Fetch structured links from /shop/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_terms:
+                method: GET
+                path: /shop/api/predictions/terms
+                description: GET /shop/api/predictions/terms
+                params:
+                    - name: contextProductId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: excludeTerm
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: marketId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: serviceType
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: TermPrediction
+                pagination: null
+                response_path: predictions
+            list_timeslot:
+                method: GET
+                path: /shop/checkout/timeslot
+                description: Fetch structured links from /shop/checkout/timeslot
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    wksmarketsearch:
+        description: Operations on wksmarketsearch
+        endpoints:
+            list_wksmarketsearch:
+                method: GET
+                path: /api/wksmarketsearch
+                description: GET /api/wksmarketsearch
+                params:
+                    - name: searchTerm
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: WksmarketsearchMarket
+                pagination: null
+                response_path: markets
+types:
+    BasketLineItem:
+        fields:
+            - name: creationDate
+              type: string
+              format: date-time
+            - name: grammage
+              type: string
+            - name: modificationDate
+              type: string
+              format: date-time
+            - name: price
+              type: integer
+            - name: product
+              type: ref:Product
+            - name: quantity
+              type: integer
+            - name: totalPrice
+              type: integer
+    Category:
+        fields:
+            - name: isWarehouse
+              type: bool
+            - name: marketTypeDisplayName
+              type: string
+            - name: template
+              type: string
+            - name: type
+              type: string
+    ChangeLineItem:
+        fields:
+            - name: creationDate
+              type: string
+              format: date-time
+            - name: grammage
+              type: string
+            - name: modificationDate
+              type: string
+              format: date-time
+            - name: price
+              type: integer
+            - name: product
+              type: ref:Product4
+            - name: quantity
+              type: integer
+            - name: totalPrice
+              type: integer
+    Checkout:
+        fields:
+            - name: endTime
+              type: string
+              format: date-time
+            - name: id
+              type: string
+              format: uuid
+            - name: labels
+              type: array
+            - name: selected
+              type: bool
+            - name: serviceFee
+              type: integer
+            - name: startTime
+              type: string
+              format: date-time
+    Configuration:
+        fields:
+            - name: customerZipCode
+              type: string
+            - name: intention
+              type: string
+            - name: isLoggedIn
+              type: bool
+            - name: isOrderModificationEnabled
+              type: bool
+            - name: selectedMarket
+              type: string
+            - name: selectedService
+              type: string
+    Coupon:
+        fields:
+            - name: basketId
+              type: string
+              format: uuid
+            - name: coupons
+              type: array
+            - name: customerUUID
+              type: string
+              format: uuid
+    Customer:
+        fields:
+            - name: firstName
+              type: string
+            - name: id
+              type: string
+              format: uuid
+    CustomerInfo:
+        fields:
+            - name: customerType
+              type: string
+            - name: lastSelectedPaymentMethod
+              type: string
+    DisabledOnlinePaymentMethod:
+        fields:
+            - name: key
+              type: string
+            - name: variants
+              type: array
+    EnabledOfflinePaymentMethod:
+        fields:
+            - name: key
+              type: string
+            - name: variants
+              type: array
+    FavoriteItem:
+        fields:
+            - name: articleId
+              type: string
+              omit_empty: true
+            - name: bio
+              type: bool
+              omit_empty: true
+            - name: biocide
+              type: bool
+              omit_empty: true
+            - name: discounted
+              type: bool
+              omit_empty: true
+            - name: isBuyable
+              type: bool
+              omit_empty: true
+            - name: isNew
+              type: bool
+              omit_empty: true
+            - name: itemId
+              type: string
+              omit_empty: true
+              format: uuid
+            - name: limitationInformation
+              type: ref:LimitationInformation
+              omit_empty: true
+            - name: listingId
+              type: string
+              omit_empty: true
+            - name: listingVersion
+              type: integer
+              omit_empty: true
+            - name: merchantName
+              type: string
+              omit_empty: true
+            - name: merchantType
+              type: string
+              omit_empty: true
+            - name: offer
+              type: bool
+              omit_empty: true
+            - name: priceInformation
+              type: ref:PriceInformation
+              omit_empty: true
+            - name: productDescription
+              type: string
+              omit_empty: true
+            - name: productId
+              type: string
+              omit_empty: true
+            - name: productMediaInformation
+              type: ref:ProductMediaInformation
+              omit_empty: true
+            - name: productName
+              type: string
+              omit_empty: true
+            - name: productUrl
+              type: string
+              omit_empty: true
+            - name: quantity
+              type: integer
+              omit_empty: true
+            - name: quantityDiscounted
+              type: bool
+              omit_empty: true
+            - name: regional
+              type: bool
+              omit_empty: true
+            - name: toplevelcategoryId
+              type: string
+              omit_empty: true
+            - name: type
+              type: string
+              omit_empty: true
+    FrontendIncludeScript:
+        fields:
+            - name: extraAttributes
+              type: string
+              omit_empty: true
+            - name: src
+              type: string
+              omit_empty: true
+              format: url
+    LimitationInformation:
+        fields:
+            - name: bulkyGoodsPoints
+              type: integer
+            - name: orderLimit
+              type: integer
+    LimitationInformation2:
+        fields:
+            - name: bulkyGoodsPoints
+              type: integer
+            - name: orderLimit
+              type: integer
+    LineitemItem:
+        fields:
+            - name: articleId
+              type: string
+            - name: bio
+              type: bool
+            - name: biocide
+              type: bool
+            - name: discounted
+              type: bool
+            - name: isBuyable
+              type: bool
+            - name: isNew
+              type: bool
+            - name: itemId
+              type: string
+              format: uuid
+            - name: limitationInformation
+              type: ref:LimitationInformation2
+            - name: listingId
+              type: string
+            - name: listingVersion
+              type: integer
+            - name: merchantName
+              type: string
+            - name: merchantType
+              type: string
+            - name: offer
+              type: bool
+            - name: priceInformation
+              type: ref:PriceInformation2
+            - name: productDescription
+              type: string
+            - name: productId
+              type: string
+            - name: productMediaInformation
+              type: ref:ProductMediaInformation2
+            - name: productName
+              type: string
+            - name: productUrl
+              type: string
+            - name: quantity
+              type: integer
+            - name: quantityDiscounted
+              type: bool
+            - name: regional
+              type: bool
+            - name: toplevelcategoryId
+              type: string
+            - name: type
+              type: string
+    ListingLineItem:
+        fields:
+            - name: creationDate
+              type: string
+              format: date-time
+            - name: grammage
+              type: string
+            - name: modificationDate
+              type: string
+              format: date-time
+            - name: price
+              type: integer
+            - name: product
+              type: ref:Product2
+            - name: quantity
+              type: integer
+            - name: totalPrice
+              type: integer
+    ListingProcessedLineItem:
+        fields:
+            - name: listingId
+              type: string
+            - name: quantityAdded
+              type: integer
+    Location:
+        fields:
+            - name: latitude
+              type: number
+            - name: longitude
+              type: number
+    MappingIngredient:
+        fields:
+            - name: basic
+              type: bool
+              omit_empty: true
+            - name: displayName
+              type: string
+              omit_empty: true
+            - name: normalizedSearchTerm
+              type: string
+              omit_empty: true
+            - name: originalSearchTerm
+              type: string
+              omit_empty: true
+            - name: productRecommendations
+              type: '[]ref:ProductRecommendation'
+              omit_empty: true
+    MultiProductBonusBadgeListingBadge:
+        fields:
+            - name: analyticsTags
+              type: array
+              omit_empty: true
+            - name: incentives
+              type: array
+              omit_empty: true
+            - name: listingId
+              type: string
+              omit_empty: true
+            - name: text
+              type: string
+              omit_empty: true
+    MyproductMyCategory:
+        fields:
+            - name: id
+              type: string
+            - name: name
+              type: string
+            - name: productCount
+              type: integer
+    OfflinePaymentMethod:
+        fields:
+            - name: key
+              type: string
+            - name: variants
+              type: array
+    OfflinePaymentOptionsHeader:
+        fields:
+            - name: enabled
+              type: bool
+            - name: text
+              type: string
+    OnlinePaymentOptionsHeader:
+        fields:
+            - name: enabled
+              type: bool
+            - name: text
+              type: string
+    OpeningInfo:
+        fields:
+            - name: days
+              type: string
+            - name: hours
+              type: string
+            - name: openingType
+              type: string
+    OpeningStatus:
+        fields:
+            - name: infoText
+              type: string
+            - name: openState
+              type: string
+            - name: statusText
+              type: string
+    Overview:
+        fields:
+            - name: errorMessage
+              type: string
+            - name: status
+              type: string
+            - name: title
+              type: string
+    PageLayoutConfiguration:
+        fields:
+            - name: offlinePaymentOptionsHeader
+              type: ref:OfflinePaymentOptionsHeader
+            - name: onlinePaymentOptionsHeader
+              type: ref:OnlinePaymentOptionsHeader
+            - name: showInvoiceAddress
+              type: bool
+            - name: showOfflinePaymentOptions
+              type: bool
+            - name: showOnlinePaymentOptions
+              type: bool
+    PaymentOption:
+        fields:
+            - name: code
+              type: string
+              omit_empty: true
+            - name: customerInfo
+              type: ref:CustomerInfo
+              omit_empty: true
+            - name: pageLayoutConfiguration
+              type: ref:PageLayoutConfiguration
+              omit_empty: true
+            - name: paymentOptions
+              type: ref:PaymentOptions
+              omit_empty: true
+            - name: selectedPaymentOption
+              type: string
+              omit_empty: true
+            - name: status
+              type: integer
+              omit_empty: true
+            - name: title
+              type: string
+              omit_empty: true
+            - name: validationErrors
+              type: array
+              omit_empty: true
+    PaymentOptions:
+        fields:
+            - name: disabledOfflinePaymentMethods
+              type: array
+            - name: disabledOnlinePaymentMethods
+              type: '[]ref:DisabledOnlinePaymentMethod'
+            - name: enabledOfflinePaymentMethods
+              type: '[]ref:EnabledOfflinePaymentMethod'
+            - name: enabledOnlinePaymentMethods
+              type: array
+            - name: offlinePaymentMethods
+              type: '[]ref:OfflinePaymentMethod'
+    PriceInformation:
+        fields:
+            - name: discountInformation
+              type: object
+            - name: grammage
+              type: string
+            - name: price
+              type: integer
+            - name: regularPrice
+              type: integer
+    PriceInformation2:
+        fields:
+            - name: discountInformation
+              type: object
+            - name: grammage
+              type: string
+            - name: price
+              type: integer
+            - name: regularPrice
+              type: integer
+    Product:
+        fields:
+            - name: articleId
+              type: string
+            - name: attributes
+              type: object
+            - name: categories
+              type: array
+            - name: detailsViewRequired
+              type: bool
+            - name: fullCategory
+              type: string
+            - name: gtin
+              type: string
+            - name: imageURL
+              type: string
+              format: url
+            - name: listing
+              type: object
+            - name: nan
+              type: string
+            - name: orderLimit
+              type: integer
+            - name: packaging
+              type: object
+            - name: productCategories
+              type: array
+            - name: productId
+              type: string
+            - name: productURL
+              type: string
+            - name: taxCategory
+              type: object
+            - name: title
+              type: string
+    Product2:
+        fields:
+            - name: articleId
+              type: string
+            - name: attributes
+              type: object
+            - name: categories
+              type: array
+            - name: detailsViewRequired
+              type: bool
+            - name: fullCategory
+              type: string
+            - name: gtin
+              type: string
+            - name: imageURL
+              type: string
+              format: url
+            - name: listing
+              type: object
+            - name: nan
+              type: string
+            - name: orderLimit
+              type: integer
+            - name: packaging
+              type: object
+            - name: productCategories
+              type: array
+            - name: productId
+              type: string
+            - name: productURL
+              type: string
+            - name: taxCategory
+              type: object
+            - name: title
+              type: string
+    Product3:
+        fields:
+            - name: articleId
+              type: string
+            - name: attributes
+              type: object
+            - name: categories
+              type: array
+            - name: detailsViewRequired
+              type: bool
+            - name: fullCategory
+              type: string
+            - name: gtin
+              type: string
+            - name: imageURL
+              type: string
+              format: url
+            - name: listing
+              type: object
+            - name: nan
+              type: string
+            - name: orderLimit
+              type: integer
+            - name: packaging
+              type: object
+            - name: productCategories
+              type: array
+            - name: productId
+              type: string
+            - name: productURL
+              type: string
+            - name: taxCategory
+              type: object
+            - name: title
+              type: string
+    Product4:
+        fields:
+            - name: articleId
+              type: string
+            - name: attributes
+              type: object
+            - name: categories
+              type: array
+            - name: detailsViewRequired
+              type: bool
+            - name: fullCategory
+              type: string
+            - name: gtin
+              type: string
+            - name: imageURL
+              type: string
+              format: url
+            - name: listing
+              type: object
+            - name: nan
+              type: string
+            - name: orderLimit
+              type: integer
+            - name: packaging
+              type: object
+            - name: productCategories
+              type: array
+            - name: productId
+              type: string
+            - name: productURL
+              type: string
+            - name: taxCategory
+              type: object
+            - name: title
+              type: string
+    ProductMediaInformation:
+        fields:
+            - name: imageUrl
+              type: string
+              format: url
+    ProductMediaInformation2:
+        fields:
+            - name: imageUrl
+              type: string
+              format: url
+    ProductRecommendation:
+        fields:
+            - name: articleId
+              type: string
+            - name: baseQuantity
+              type: integer
+            - name: calculatedAmountFactor
+              type: integer
+              omit_empty: true
+            - name: categories
+              type: array
+            - name: detailsUrl
+              type: string
+            - name: gtin
+              type: string
+            - name: id
+              type: string
+            - name: imageURL
+              type: string
+              format: url
+            - name: listingId
+              type: string
+            - name: listingVersion
+              type: integer
+            - name: orderLimit
+              type: integer
+            - name: pricing
+              type: object
+            - name: productId
+              type: string
+            - name: quantityType
+              type: string
+            - name: serviceType
+              type: string
+            - name: tags
+              type: array
+            - name: title
+              type: string
+            - name: viewInfo
+              type: object
+            - name: volumeCode
+              type: string
+    RecipeReview:
+        fields:
+            - name: approvedReviewsCount
+              type: integer
+            - name: customer
+              type: ref:Customer
+            - name: hasEmailMarketingConsent
+              type: bool
+            - name: ratingsCount
+              type: integer
+            - name: recipeId
+              type: string
+            - name: recipeTitle
+              type: string
+    T135411188124726D723cc5c4f7849e79cbcF40137dd07fdLineItem:
+        fields:
+            - name: creationDate
+              type: string
+              format: date-time
+            - name: grammage
+              type: string
+            - name: modificationDate
+              type: string
+              format: date-time
+            - name: price
+              type: integer
+            - name: product
+              type: ref:Product3
+            - name: quantity
+              type: integer
+            - name: totalPrice
+              type: integer
+    TermPrediction:
+        fields:
+            - name: score
+              type: number
+            - name: source
+              type: string
+            - name: term
+              type: string
+    TimeslotReservation:
+        fields:
+            - name: expireTime
+              type: string
+              format: date-time
+            - name: slotCutoffTime
+              type: string
+              format: date-time
+            - name: slotEndTime
+              type: string
+              format: date-time
+            - name: slotId
+              type: string
+              format: uuid
+            - name: slotStartTime
+              type: string
+              format: date-time
+    WalletCoupon:
+        fields:
+            - name: coupons
+              type: array
+            - name: customerUUID
+              type: string
+              format: uuid
+    WksmarketsearchMarket:
+        fields:
+            - name: category
+              type: ref:Category
+            - name: city
+              type: string
+            - name: companyName
+              type: string
+            - name: location
+              type: ref:Location
+            - name: name
+              type: string
+            - name: openingInfo
+              type: '[]ref:OpeningInfo'
+            - name: openingStatus
+              type: ref:OpeningStatus
+            - name: street
+              type: string
+            - name: wwIdent
+              type: string
+            - name: zipCode
+              type: string

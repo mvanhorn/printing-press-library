@@ -1,0 +1,197 @@
+
+=== verify ===
+
+Verification verdict FAIL (pass rate 100%, threshold 80%). Running fix loop (max 3 iterations)...
+
+2026/11/17 15:49:10 fix loop: execution failure for payment requires manual fix
+2026/11/17 15:49:10 fix loop: skip exec_fail for payment: manual execution fix required
+2026/11/17 15:49:10 fix loop: execution failure for purchased requires manual fix
+2026/11/17 15:49:10 fix loop: skip exec_fail for purchased: manual execution fix required
+Runtime Verification: <runstate>\onedone-f8490d97\runs\20261117-015745-63def5e3\working\rewe-pp-cli\rewe-pp-cli.exe
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+basket                         read         PASS   PASS     PASS     3/3
+deals                          read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+favorites                      read         PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+list                           read         PASS   PASS     PASS     3/3
+local-data                     write        PASS   PASS     PASS     3/3
+markets                        read         PASS   PASS     PASS     3/3
+offers                         write        PASS   PASS     PASS     3/3
+order                          read         PASS   PASS     PASS     3/3
+payment                        write        PASS   PASS     FAIL     2/3
+playbook                       write        PASS   PASS     PASS     3/3
+price                          read         PASS   PASS     PASS     3/3
+products                       read         PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     PASS     3/3
+purchased                      write        PASS   PASS     FAIL     2/3
+recall                         read         PASS   PASS     PASS     3/3
+recipe                         read         PASS   PASS     PASS     3/3
+recipes                        read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+slots                          read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS basket get
+  PASS basket remove
+  PASS basket set
+  PASS favorites add
+  PASS favorites remove
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS markets pickup
+  PASS markets services
+  PASS order cancel
+  PASS order show
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS recipe basket
+  PASS recipe get
+  PASS recipes mapping
+
+Data Pipeline: FAIL: sync crashed
+Pass Rate: 100% (55/55 passed, 0 critical)
+Verdict: FAIL
+
+Fix Loop: 1 iterations, improved: false
+  Iteration 1: 100% -> 100% (+0%), 2 fixes applied
+
+=== validate-narrative ===
+FAILED [quickstart]: rewe-pp-cli auth status --json → full example failed: <runstate>\onedone-f8490d97\runs\20261117-015745-63def5e3\working\rewe-pp-cli\rewe-pp-cli.exe auth status --json --dry-run: exit status 4: Not authenticated
+
+Log in from your browser session:
+  rewe-pp-cli auth login --chrome
+Error: no credentials configured
+DONE: 8 ok, 0 missing, 0 empty-words, 1 failed-examples, 0 unsupported
+narrative validation failed
+
+=== dogfood ===
+dogfood: using spec <runstate>\onedone-f8490d97\runs\20261117-015745-63def5e3\research\rewe-spec.yaml (--spec)
+dogfood: synced internal\cli\which.go (whichIndex) from novel_features_built
+Dogfood Report: rewe-pp-cli
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: internal-yaml spec: paths validated at parse time
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    1 dead (WARN)
+  - retainCLIQueryParams (defined, never called)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    9/9 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 1 dead helper functions found
+  - 1/9 novel features look reimplemented: slots earliest (slots_earliest.go) — hand-rolled response: no API client call, no store access
+  - 1 source client file(s) without rate-limit handling: internal/rewe/cdp.go — outbound HTTP without rate limiter or typed 429 handling
+
+=== workflow-verify ===
+Workflow Verification: rewe-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== rewe-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+
+=== scorecard ===
+Quality Scorecard: rewe
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               4/5
+
+  Total: 94/100 - Grade A
+  Denominator: infrastructure 180, domain 50
+  Note: omitted from denominator: mcp_tool_design, mcp_surface_strategy, live_api_verification
+
+Gaps:
+  - insight scored 4/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            FAIL    1         32.149s
+  validate-narrative  FAIL    1         1.105s
+  dogfood           PASS    0         4.866s
+  workflow-verify   PASS    0         57ms
+  apify-audit       PASS    0         152ms
+  verify-skill      PASS    0         1.299s
+  scorecard         HOLD    3         1.565s
+    hold: scorecard hold: manifest evidence unavailable
+
+Verdict: FAIL (2/7 legs failed)

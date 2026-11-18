@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261117-015745-63def5e3",
+  "base_printing_press_version": "4.35.6",
+  "id": "rewe-recipes-term",
+  "summary": "Recipe search always sends a term (a single space for 'all') and recipes are left out of default sync.",
+  "reason": "REWE answers 400 without a term, the client drops empty values, and the id-only result has no rows to store.",
+  "files": [
+    "internal/cli/recipes_search.go",
+    "internal/cli/sync.go"
+  ]
+}

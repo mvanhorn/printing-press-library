@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "rewe-pp-mcp",
+  "display_name": "rewe",
+  "version": "4.35.6",
+  "description": "rewe API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/rewe-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/rewe-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

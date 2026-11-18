@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261117-015745-63def5e3",
+  "base_printing_press_version": "4.35.6",
+  "id": "rewe-local-data-opt-out-recorders",
+  "summary": "recordPrices and recordOffers return early when REWE_NO_LOCAL_DATA=1, so searches and offers fetches never write product prices to the local SQLite store after the user opts out.",
+  "reason": "products search was changed to record price snapshots, and with REWE_NO_LOCAL_DATA=1 that path still opened the local store and wrote names and prices. Guarding inside the recorders makes every caller respect the opt-out. Covered by TestRecordPricesHonoursLocalDataOptOut.",
+  "files": [
+    "internal/cli/rewe_common.go",
+    "internal/cli/price_history_test.go"
+  ]
+}

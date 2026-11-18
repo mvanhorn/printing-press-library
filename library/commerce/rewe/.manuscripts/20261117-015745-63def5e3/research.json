@@ -1,0 +1,251 @@
+{
+  "api_name": "rewe",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "korb",
+      "url": "https://github.com/yannick-cw/korb",
+      "language": "Haskell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rewerse-engineering",
+      "url": "https://github.com/ByteSizedMarius/rewerse-engineering",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-17T02:30:00Z",
+  "novel_features": [
+    {
+      "name": "Structured market offers",
+      "command": "offers",
+      "description": "Current offers of your market (and next week's once REWE publishes them) as rows with title, price and category.",
+      "rationale": "Parses the offers page and stores it per ISO week for offline search.",
+      "example": "rewe-pp-cli offers --search kaffee --json",
+      "why_it_matters": "Use it to answer what is on offer or to propose deals.",
+      "group": "Shopping intelligence"
+    },
+    {
+      "name": "Deals on my products",
+      "command": "deals mine",
+      "description": "Offers that match products you bought before or saved as favourites.",
+      "rationale": "Joins live offers with purchased products and favourites.",
+      "example": "rewe-pp-cli deals mine --json",
+      "why_it_matters": "Basis for proactive offer suggestions.",
+      "group": "Shopping intelligence"
+    },
+    {
+      "name": "Earliest pickup slot",
+      "command": "slots earliest",
+      "description": "The earliest free pickup slot with its fee, optionally reserved right away.",
+      "rationale": "Filters the full slot list and calls the reservation endpoint with the basket's customer id.",
+      "example": "rewe-pp-cli slots earliest --json",
+      "why_it_matters": "Propose the earliest pickup before ordering.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Full checkout with confirmation gate",
+      "command": "order place",
+      "description": "Place the pickup order: refresh basket, reserve slot, pay in market, submit - only with --confirm.",
+      "rationale": "Chains five web-shop steps that no other client exposes as one call.",
+      "example": "rewe-pp-cli order place --slot earliest --phone +4915112345678 --dry-run",
+      "why_it_matters": "The only command that spends money; agents must show the preview and get a yes first.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Recipe to basket",
+      "command": "recipe basket",
+      "description": "Map a REWE recipe's ingredients to shop products for N servings and add the recommended ones.",
+      "rationale": "Uses REWE's own ingredient mapper behind the recipe page's order button.",
+      "example": "rewe-pp-cli recipe basket gemuese-lasagne --servings 4 --json",
+      "why_it_matters": "Recipe planning: pick recipes, get one basket.",
+      "group": "Shopping intelligence"
+    },
+    {
+      "name": "Basket by text",
+      "command": "basket add",
+      "description": "Add products by search text and quantity without knowing listing ids.",
+      "rationale": "Resolves the basket id from the shop and the best product match from search.",
+      "example": "rewe-pp-cli basket add hafermilch --qty 2 --json",
+      "why_it_matters": "Natural-language orders map straight onto this.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Shopping list to basket",
+      "command": "list add",
+      "description": "Turn a shopping list (one item per line, optional quantity) into basket items.",
+      "rationale": "Batch search plus best-match selection plus one multi-add call.",
+      "example": "rewe-pp-cli list add --file einkauf.txt --dry-run --json",
+      "why_it_matters": "Feed a transcribed voice note directly.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Price history",
+      "command": "price history",
+      "description": "Price changes of a product seen in searches and offers over time.",
+      "rationale": "Local snapshots in SQLite; REWE shows only today's price.",
+      "example": "rewe-pp-cli price history 7381513 --json",
+      "why_it_matters": "Tell whether an offer is really cheap.",
+      "group": "Shopping intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Structured market offers",
+      "command": "offers",
+      "description": "Current offers of your market (and next week's once REWE publishes them) as rows with title, price and category.",
+      "rationale": "Parses the offers page and stores it per ISO week for offline search.",
+      "example": "rewe-pp-cli offers --search kaffee --json",
+      "why_it_matters": "Use it to answer what is on offer or to propose deals.",
+      "group": "Shopping intelligence"
+    },
+    {
+      "name": "Deals on my products",
+      "command": "deals mine",
+      "description": "Offers that match products you bought before or saved as favourites.",
+      "rationale": "Joins live offers with purchased products and favourites.",
+      "example": "rewe-pp-cli deals mine --json",
+      "why_it_matters": "Basis for proactive offer suggestions.",
+      "group": "Shopping intelligence"
+    },
+    {
+      "name": "Earliest pickup slot",
+      "command": "slots earliest",
+      "description": "The earliest free pickup slot with its fee, optionally reserved right away.",
+      "rationale": "Filters the full slot list and calls the reservation endpoint with the basket's customer id.",
+      "example": "rewe-pp-cli slots earliest --json",
+      "why_it_matters": "Propose the earliest pickup before ordering.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Full checkout with confirmation gate",
+      "command": "order place",
+      "description": "Place the pickup order: refresh basket, reserve slot, pay in market, submit - only with --confirm.",
+      "rationale": "Chains five web-shop steps that no other client exposes as one call.",
+      "example": "rewe-pp-cli order place --slot earliest --phone +4915112345678 --dry-run",
+      "why_it_matters": "The only command that spends money; agents must show the preview and get a yes first.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Recipe to basket",
+      "command": "recipe basket",
+      "description": "Map a REWE recipe's ingredients to shop products for N servings and add the recommended ones.",
+      "rationale": "Uses REWE's own ingredient mapper behind the recipe page's order button.",
+      "example": "rewe-pp-cli recipe basket gemuese-lasagne --servings 4 --json",
+      "why_it_matters": "Recipe planning: pick recipes, get one basket.",
+      "group": "Shopping intelligence"
+    },
+    {
+      "name": "Basket by text",
+      "command": "basket add",
+      "description": "Add products by search text and quantity without knowing listing ids.",
+      "rationale": "Resolves the basket id from the shop and the best product match from search.",
+      "example": "rewe-pp-cli basket add hafermilch --qty 2 --json",
+      "why_it_matters": "Natural-language orders map straight onto this.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Shopping list to basket",
+      "command": "list add",
+      "description": "Turn a shopping list (one item per line, optional quantity) into basket items.",
+      "rationale": "Batch search plus best-match selection plus one multi-add call.",
+      "example": "rewe-pp-cli list add --file einkauf.txt --dry-run --json",
+      "why_it_matters": "Feed a transcribed voice note directly.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Price history",
+      "command": "price history",
+      "description": "Price changes of a product seen in searches and offers over time.",
+      "rationale": "Local snapshots in SQLite; REWE shows only today's price.",
+      "example": "rewe-pp-cli price history 7381513 --json",
+      "why_it_matters": "Tell whether an offer is really cheap.",
+      "group": "Shopping intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "REWE",
+    "headline": "Order REWE groceries for pickup from the terminal or an agent - offers, basket, earliest slot and recipes, with a session that renews itself.",
+    "value_prop": "rewe-pp-cli replays the logged-in REWE web shop: search your market's catalogue, build the basket by text, pick the earliest pickup slot and place the order with pay-at-pickup behind an explicit --confirm. offers, deals mine and recipe basket turn the shop into a weekly planner.",
+    "auth_narrative": "Log in once to rewe.de in a browser (REWE requires a captcha and two-factor login), then run rewe-pp-cli auth import --cdp http://127.0.0.1:9222 or --file cookies.json. The CLI keeps the shop session alive with REWE's 30-day single-sign-on cookie (auth renew, also done automatically) and says when a fresh browser login is needed.",
+    "quickstart": [
+      {
+        "command": "rewe-pp-cli markets pickup 50667",
+        "comment": "find a pickup market near you"
+      },
+      {
+        "command": "rewe-pp-cli auth session --json",
+        "comment": "check the imported session"
+      },
+      {
+        "command": "rewe-pp-cli products search --query hafermilch --per-page 5",
+        "comment": "prices of your market"
+      },
+      {
+        "command": "rewe-pp-cli basket add hafermilch --qty 2",
+        "comment": "add by text"
+      },
+      {
+        "command": "rewe-pp-cli slots earliest",
+        "comment": "earliest pickup"
+      },
+      {
+        "command": "rewe-pp-cli order place --slot earliest --phone +4915112345678 --dry-run",
+        "comment": "preview before ordering"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "exit code 4 / re-login needed",
+        "fix": "Log in to rewe.de in a browser again, then run rewe-pp-cli auth import"
+      },
+      {
+        "symptom": "403 with Cloudflare challenge",
+        "fix": "Wait a few minutes and retry; keep request volume low; re-import cookies to refresh cf_clearance"
+      },
+      {
+        "symptom": "prices look national, not your market",
+        "fix": "rewe-pp-cli markets select --zip 50667 --market-id 3200008"
+      }
+    ],
+    "when_to_use": "Use for REWE grocery tasks in Germany: offers of a market, building a pickup basket, finding the earliest pickup slot, turning recipes into a basket and placing the order after the person confirmed.",
+    "recipes": [
+      {
+        "title": "Offers on coffee this week",
+        "command": "rewe-pp-cli offers --search kaffee --agent --select title,price,category",
+        "explanation": "Compact rows for an agent reply."
+      },
+      {
+        "title": "Recipe to basket",
+        "command": "rewe-pp-cli recipe basket gemuese-lasagne --servings 4 --json",
+        "explanation": "Recommended products per ingredient."
+      },
+      {
+        "title": "Earliest slot",
+        "command": "rewe-pp-cli slots earliest --json",
+        "explanation": "Slot id, start, end and fee."
+      }
+    ],
+    "trigger_phrases": [
+      "what is on offer at REWE",
+      "order groceries for pickup",
+      "add milk to my REWE basket",
+      "earliest REWE pickup slot",
+      "use rewe-pp-cli"
+    ]
+  }
+}

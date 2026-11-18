@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/rewe-pp-cli
+/rewe-pp-cli.exe
+/rewe-pp-mcp
+/rewe-pp-mcp.exe
+/bin/
+/build/
+/dist/
