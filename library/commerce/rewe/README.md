@@ -81,10 +81,10 @@ Restart the OpenClaw session or gateway if the newly installed skill is not visi
 
 This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
 
-The bundle reuses the REWE session file — import it first if you haven't (log in to rewe.de once in a browser, then):
+The bundle reuses the REWE session file — create it first if you haven't (a browser window opens for you to log in):
 
 ```bash
-rewe-pp-cli auth import --file cookies.json
+rewe-pp-cli auth connect
 ```
 
 To install:
@@ -129,7 +129,7 @@ Set `REWE_MCP_READ_ONLY=1` (exactly `1`) to drop mirrored commands that are not 
 
 ## Authentication
 
-Log in once to rewe.de in a browser (REWE requires a captcha and two-factor login), then run rewe-pp-cli auth import --cdp http://127.0.0.1:9222 or --file cookies.json. The CLI keeps the shop session alive with REWE's 30-day single-sign-on cookie (auth renew, also done automatically) and says when a fresh browser login is needed.
+Run rewe-pp-cli auth connect: it opens a browser window on the REWE login, you log in yourself (REWE requires a captcha and two-factor login), and the CLI keeps that session. Alternatively log in once to rewe.de in a browser, then run rewe-pp-cli auth import --cdp http://127.0.0.1:9222 or --file cookies.json. The CLI keeps the shop session alive with REWE's 30-day single-sign-on cookie (auth renew, also done automatically) and says when a fresh browser login is needed.
 
 ## Quick Start
 
@@ -382,6 +382,7 @@ Pickup timeslots of the selected market.
 ### auth
 
 
+- **`rewe-pp-cli auth connect`** - Open a browser window to log in to REWE yourself, then keep that session for this CLI.
 - **`rewe-pp-cli auth renew`** - Keep the REWE shop session alive without a password by replaying the 30-day single-sign-on cookie.
 
 
@@ -512,7 +513,7 @@ Static request headers can be configured under `headers`; per-command header ove
 - Run the `list` command to see available items
 
 ### API-specific
-- **exit code 4 / re-login needed** — Log in to rewe.de in a browser again, then run rewe-pp-cli auth import
+- **exit code 4 / re-login needed** — Run rewe-pp-cli auth connect (or log in to rewe.de in a browser again, then run rewe-pp-cli auth import)
 - **403 with Cloudflare challenge** — Wait a few minutes and retry; keep request volume low; re-import cookies to refresh cf_clearance
 - **prices look national, not your market** — rewe-pp-cli markets select --zip 50667 --market-id 3200008
 

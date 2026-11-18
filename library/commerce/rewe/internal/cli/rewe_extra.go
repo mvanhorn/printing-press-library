@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -69,35 +70,88 @@ func newAuthImportCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(err)
 			}
-			s := &rewe.Session{Cookies: cookies}
-			if !s.Has("KEYCLOAK_IDENTITY") && !s.Has("rstp") {
-				return authErr(errors.New("the export holds no REWE login cookies (KEYCLOAK_IDENTITY or rstp): log in to rewe.de in that browser first"))
-			}
-			path, err := rewe.SessionPath()
-			if err != nil {
-				return configErr(err)
-			}
-			if err := s.Save(path); err != nil {
-				return configErr(err)
-			}
-			sh, err := rewe.OpenWith(s, path)
-			if err != nil {
-				return err
-			}
-			c, err := sh.Ensure(cmd.Context())
-			if err != nil {
-				return reweErr(err)
-			}
-			_ = sh.Persist()
-			syncGeneratedCredential(flags, sh.Session)
-			out := map[string]any{"imported": len(cookies), "logged_in": c.IsLoggedIn, "market": c.SelectedMarket, "service": c.SelectedService, "zip": c.CustomerZipCode, "session_file": path, "sso_expires": s.SSOExpiry().Format(time.RFC3339)}
-			return emit(cmd, flags, out, func(w io.Writer) {
-				fmt.Fprintf(w, "Imported %d REWE cookies. Logged in: %v. Market %s (%s, %s).\n", len(cookies), c.IsLoggedIn, c.SelectedMarket, c.SelectedService, c.CustomerZipCode)
-			})
+			return saveImportedSession(cmd, flags, cookies)
 		},
 	}
 	cmd.Flags().StringVar(&file, "file", "", "JSON cookie export ('-' for stdin)")
 	cmd.Flags().StringVar(&cdp, "cdp", "", "Chromium DevTools endpoint, e.g. http://127.0.0.1:9222")
+	return cmd
+}
+
+// saveImportedSession stores imported cookies as the REWE session, renews the
+// shop session once to prove it works and prints the result.
+func saveImportedSession(cmd *cobra.Command, flags *rootFlags, cookies []rewe.Cookie) error {
+	s := &rewe.Session{Cookies: cookies}
+	if !s.Has("KEYCLOAK_IDENTITY") && !s.Has("rstp") {
+		return authErr(errors.New("the export holds no REWE login cookies (KEYCLOAK_IDENTITY or rstp): log in to rewe.de in that browser first"))
+	}
+	path, err := rewe.SessionPath()
+	if err != nil {
+		return configErr(err)
+	}
+	if err := s.Save(path); err != nil {
+		return configErr(err)
+	}
+	sh, err := rewe.OpenWith(s, path)
+	if err != nil {
+		return err
+	}
+	c, err := sh.Ensure(cmd.Context())
+	if err != nil {
+		return reweErr(err)
+	}
+	_ = sh.Persist()
+	syncGeneratedCredential(flags, sh.Session)
+	out := map[string]any{"imported": len(cookies), "logged_in": c.IsLoggedIn, "market": c.SelectedMarket, "service": c.SelectedService, "zip": c.CustomerZipCode, "session_file": path, "sso_expires": s.SSOExpiry().Format(time.RFC3339)}
+	return emit(cmd, flags, out, func(w io.Writer) {
+		fmt.Fprintf(w, "Imported %d REWE cookies. Logged in: %v. Market %s (%s, %s).\n", len(cookies), c.IsLoggedIn, c.SelectedMarket, c.SelectedService, c.CustomerZipCode)
+	})
+}
+
+func newAuthConnectCmd(flags *rootFlags) *cobra.Command {
+	var browser string
+	var wait time.Duration
+	cmd := &cobra.Command{
+		Use:   "connect",
+		Short: "Open a browser window to log in to REWE yourself, then keep that session for this CLI.",
+		Long: "Opens Chrome, Edge or Chromium with a fresh temporary profile on the REWE login page.\n" +
+			"You log in there yourself (captcha and two-factor are yours to answer). The CLI waits until\n" +
+			"the login is complete, stores the session like `auth import`, and closes the window again.\n" +
+			"The browser's DevTools port listens on 127.0.0.1 only; the temporary profile is deleted.",
+		Example:     "  rewe-pp-cli auth connect\n  rewe-pp-cli auth connect --wait 15m",
+		Annotations: map[string]string{"mcp:hidden": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if cliutil.IsMCPChildEnv() {
+				return usageErr(errors.New("auth connect needs a person at the screen and is not available through MCP"))
+			}
+			if dryRunOK(flags) {
+				return writeDryRun(cmd.OutOrStdout(), flags, "auth connect")
+			}
+			exe := browser
+			if exe == "" {
+				var err error
+				if exe, err = rewe.FindBrowser(); err != nil {
+					return configErr(err)
+				}
+			}
+			b, err := rewe.StartLoginBrowser(cmd.Context(), exe, rewe.LoginURL)
+			if err != nil {
+				return configErr(err)
+			}
+			defer b.Close()
+			fmt.Fprintf(cmd.ErrOrStderr(), "A browser window with the REWE login is open. Log in there (up to %s); this command continues by itself.\n", wait)
+			ctx, cancel := context.WithTimeout(cmd.Context(), wait)
+			defer cancel()
+			cookies, err := rewe.WaitForLogin(ctx, b.Endpoint, b.Closed, 2*time.Second)
+			if err != nil {
+				return authErr(err)
+			}
+			b.Close()
+			return saveImportedSession(cmd, flags, rewe.FilterREWE(cookies))
+		},
+	}
+	cmd.Flags().StringVar(&browser, "browser", "", "browser executable (default: Chrome, Edge or Chromium found on this computer, or REWE_BROWSER)")
+	cmd.Flags().DurationVar(&wait, "wait", 10*time.Minute, "how long to wait for the login")
 	return cmd
 }
 

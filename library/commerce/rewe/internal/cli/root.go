@@ -545,6 +545,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	if parent, _, err := rootCmd.Find(strings.Fields("auth")); err == nil {
 		addNovelCommandIfAbsent(parent, newNovelAuthRenewCmd(flags))
 		addNovelCommandIfAbsent(parent, newAuthImportCmd(flags))
+		addNovelCommandIfAbsent(parent, newAuthConnectCmd(flags))
 		addNovelCommandIfAbsent(parent, newAuthSessionCmd(flags))
 	}
 	addNovelCommandIfAbsent(rootCmd, newNovelDealsCmd(flags))
