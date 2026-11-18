@@ -163,6 +163,9 @@ func newAuthConnectCmd(flags *rootFlags) *cobra.Command {
 				return authErr(err)
 			}
 			b.Close()
+			// The browser is gone, so nothing is left to clean up: give Ctrl+C its
+			// default meaning back for the network check while saving.
+			stop()
 			return saveImportedSession(cmd, flags, rewe.FilterREWE(cookies))
 		},
 	}
