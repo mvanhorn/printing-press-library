@@ -25833,6 +25833,12 @@
         "Price changes of a product seen in searches and offers over time."
       ],
       "path": "library/commerce/rewe",
+      "release": {
+        "cli_name": "rewe-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-18T10:00:23Z",
+        "source_commit": "aec77fed6ace71b21279b9043d704eea1508b4d3"
+      },
       "printer": "jimpresting",
       "printer_name": "JimPresting",
       "creator": {
