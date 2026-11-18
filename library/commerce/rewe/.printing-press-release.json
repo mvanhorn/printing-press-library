@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "rewe",
+  "cli_name": "rewe-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-18T10:00:23Z",
+  "source_commit": "3e4c675ab825d57923f7242fad9d6b3683409aca",
+  "printing_press_version": "4.35.6",
+  "run_id": "20261117-015745-63def5e3",
+  "changes": [
+    {
+      "title": "feat(rewe): add rewe",
+      "pr": 2473,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2473",
+      "commit": "3e4c675ab825d57923f7242fad9d6b3683409aca"
+    }
+  ]
+}
