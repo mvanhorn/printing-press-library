@@ -105,9 +105,13 @@ func StartLoginBrowser(ctx context.Context, exe, startURL string) (*LoginBrowser
 	closed := make(chan struct{})
 	go func() { _ = cmd.Wait(); close(closed) }()
 	b := &LoginBrowser{Endpoint: "http://127.0.0.1:" + strconv.Itoa(port), Closed: closed, cmd: cmd, dir: dir}
-	deadline := time.Now().Add(20 * time.Second)
+	// A deadline on the startup context itself bounds each DevTools probe: if
+	// the browser accepts the connection but never answers, http.Client.Do
+	// returns when the context expires instead of blocking forever.
+	startupCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
 	for {
-		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, b.Endpoint+"/json/version", nil)
+		req, _ := http.NewRequestWithContext(startupCtx, http.MethodGet, b.Endpoint+"/json/version", nil)
 		if resp, err := http.DefaultClient.Do(req); err == nil {
 			resp.Body.Close()
 			return b, nil
@@ -116,14 +120,13 @@ func StartLoginBrowser(ctx context.Context, exe, startURL string) (*LoginBrowser
 		case <-closed:
 			b.Close()
 			return nil, errors.New("the browser exited right after start; close other windows of it that use the same profile, or set REWE_BROWSER")
-		case <-ctx.Done():
+		case <-startupCtx.Done():
 			b.Close()
-			return nil, ctx.Err()
-		case <-time.After(250 * time.Millisecond):
-		}
-		if time.Now().After(deadline) {
-			b.Close()
+			if ctx.Err() != nil {
+				return nil, ctx.Err()
+			}
 			return nil, errors.New("the browser's DevTools port did not answer within 20 seconds")
+		case <-time.After(250 * time.Millisecond):
 		}
 	}
 }

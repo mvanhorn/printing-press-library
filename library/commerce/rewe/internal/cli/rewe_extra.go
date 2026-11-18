@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -134,15 +136,22 @@ func newAuthConnectCmd(flags *rootFlags) *cobra.Command {
 					return configErr(err)
 				}
 			}
-			b, err := rewe.StartLoginBrowser(cmd.Context(), exe, rewe.LoginURL)
+			// Ctrl+C would otherwise kill the process via the OS default
+			// signal disposition without running any defer, leaving the
+			// browser and its temporary profile behind. Routing SIGINT/SIGTERM
+			// through context cancellation instead means RunE returns
+			// normally and b.Close() below still runs.
+			ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
+			defer stop()
+			b, err := rewe.StartLoginBrowser(ctx, exe, rewe.LoginURL)
 			if err != nil {
 				return configErr(err)
 			}
 			defer b.Close()
 			fmt.Fprintf(cmd.ErrOrStderr(), "A browser window with the REWE login is open. Log in there (up to %s); this command continues by itself.\n", wait)
-			ctx, cancel := context.WithTimeout(cmd.Context(), wait)
+			waitCtx, cancel := context.WithTimeout(ctx, wait)
 			defer cancel()
-			cookies, err := rewe.WaitForLogin(ctx, b.Endpoint, b.Closed, 2*time.Second)
+			cookies, err := rewe.WaitForLogin(waitCtx, b.Endpoint, b.Closed, 2*time.Second)
 			if err != nil {
 				return authErr(err)
 			}
