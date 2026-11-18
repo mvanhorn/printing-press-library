@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -108,5 +110,34 @@ func TestWaitForLoginWindowClosed(t *testing.T) {
 	close(closed)
 	if _, err := WaitForLogin(context.Background(), srv.URL, closed, 30*time.Millisecond); !errors.Is(err, ErrLoginWindowClosed) {
 		t.Fatalf("want ErrLoginWindowClosed, got %v", err)
+	}
+}
+
+func init() {
+	// The test binary doubles as a browser that never opens its DevTools port.
+	if os.Getenv("REWE_TEST_FAKE_BROWSER") == "1" {
+		time.Sleep(time.Minute)
+		os.Exit(0)
+	}
+}
+
+func TestStartLoginBrowserCanceledCleansUp(t *testing.T) {
+	tmp := t.TempDir()
+	for _, k := range []string{"TMPDIR", "TMP", "TEMP"} {
+		t.Setenv(k, tmp)
+	}
+	t.Setenv("REWE_TEST_FAKE_BROWSER", "1")
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	started := time.Now()
+	b, err := StartLoginBrowser(ctx, os.Args[0], "about:blank")
+	if b != nil || !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("StartLoginBrowser = %v, %v; want nil, context.DeadlineExceeded", b, err)
+	}
+	if d := time.Since(started); d > 15*time.Second {
+		t.Fatalf("cancel took %s", d)
+	}
+	if left, _ := filepath.Glob(filepath.Join(tmp, "rewe-login-*")); len(left) > 0 {
+		t.Fatalf("temporary profile left behind: %v", left)
 	}
 }
