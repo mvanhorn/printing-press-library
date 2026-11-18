@@ -1,0 +1,110 @@
+{
+  "api_name": "edeka",
+  "base_url": "https://edeka.shop",
+  "description": "Shop your local EDEKA market from the terminal or an agent: offers, basket by text, earliest pickup slot, checkout with a confirmation gate.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "cookie",
+    "cookie_domain": ".edeka.shop",
+    "cookies": [
+      "sid",
+      "sid_key",
+      "oxid_1",
+      "oxid_1_autologin"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "markets_cities",
+      "description": "The portal's town list with postal code and market count (unfiltered; 'markets search \u003ctown\u003e' filters it for you). Required: query. Returns array of City.",
+      "method": "GET",
+      "path": "/index.php?cl=MxMarketSearch\u0026fnc=searchCity",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "search",
+          "type": "string",
+          "location": "path",
+          "description": "Town name, for example Ulm.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "markets_zip",
+      "description": "Raw market finder rows for a postal code (host, address, pickup/delivery flags, delivery postal codes); 'markets search' gives cleaned rows and also takes a town. Required: query. Returns array of Market.",
+      "method": "GET",
+      "path": "/index.php?cl=MxMarketSearch\u0026fnc=searchMarketsByZipOrText",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "search",
+          "type": "string",
+          "location": "path",
+          "description": "German postal code or town, for example 89073 or Ulm.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "suggest_products",
+      "description": "Search suggestions of the selected market (words, brands, categories and up to five products with price). Required: term. Returns array of Suggestion.",
+      "method": "GET",
+      "path": "/index.php?cl=ith_oxelastic_suggester\u0026elastic_type=json",
+      "base_url": "https://market.edeka.shop",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "path",
+          "description": "Search words, for example milch.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Basket by text",
+      "command": "basket add",
+      "description": "Add a product by id or by plain words; the CLI picks the best match in your market and adds it."
+    },
+    {
+      "name": "Earliest pickup slot",
+      "command": "slots earliest",
+      "description": "The first free pickup slot of your market in one call."
+    },
+    {
+      "name": "Checkout with confirmation gate",
+      "command": "order place",
+      "description": "Preview the order (slot, payment, items, total) and place it only with --confirm."
+    },
+    {
+      "name": "Shopping list to basket",
+      "command": "list add",
+      "description": "Add many free-text lines with quantities at once and see what matched."
+    },
+    {
+      "name": "Offer check for staples",
+      "command": "deals check",
+      "description": "Which of these items are on offer in your market this week."
+    },
+    {
+      "name": "Price history",
+      "command": "price history",
+      "description": "Prices an article had over time in your markets, from your own searches and offer lookups."
+    },
+    {
+      "name": "Compare markets",
+      "command": "compare markets",
+      "description": "The same search on several EDEKA markets side by side."
+    }
+  ]
+}

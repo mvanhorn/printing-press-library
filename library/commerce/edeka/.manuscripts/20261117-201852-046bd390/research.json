@@ -1,0 +1,223 @@
+{
+  "api_name": "edeka",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-17T19:43:27Z",
+  "novel_features": [
+    {
+      "name": "Basket by text",
+      "command": "basket add",
+      "description": "Add a product by id or by plain words; the CLI picks the best match in your market and adds it.",
+      "rationale": "Search, ranking and the CSRF-protected basket call run as one step; the web shop needs three screens.",
+      "example": "edeka-pp-cli basket add hafermilch --qty 2 --dry-run",
+      "why_it_matters": "Use it when a customer names an item in their own words.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Earliest pickup slot",
+      "command": "slots earliest",
+      "description": "The first free pickup slot of your market in one call.",
+      "rationale": "Parses the slot JSON embedded in the shop's calendar widget.",
+      "example": "edeka-pp-cli slots earliest --market doerflinger-ulm --json",
+      "why_it_matters": "Use it to propose a pickup time before ordering.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Checkout with confirmation gate",
+      "command": "order place",
+      "description": "Preview the order (slot, payment, items, total) and place it only with --confirm.",
+      "rationale": "Walks the shop's checkout steps over HTTP and stops before the final button unless confirmed.",
+      "example": "edeka-pp-cli order place --payment mxcash --dry-run",
+      "why_it_matters": "Use it after the customer said yes to the preview.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Shopping list to basket",
+      "command": "list add",
+      "description": "Add many free-text lines with quantities at once and see what matched.",
+      "rationale": "Runs best-match resolution per line against the market's search.",
+      "example": "edeka-pp-cli list add milch butter '2x kaffee' --dry-run",
+      "why_it_matters": "Use it for a whole shopping list from one message.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Offer check for staples",
+      "command": "deals check",
+      "description": "Which of these items are on offer in your market this week.",
+      "rationale": "Reads the offer badge on search hits per term in one call.",
+      "example": "edeka-pp-cli deals check milch kaffee butter --market doerflinger-ulm --json",
+      "why_it_matters": "Use it to tell the customer about offers on their usual items.",
+      "group": "Shopping intelligence"
+    },
+    {
+      "name": "Price history",
+      "command": "price history",
+      "description": "Prices an article had over time in your markets, from your own searches and offer lookups.",
+      "rationale": "Every search and offers call records prices in a local SQLite store.",
+      "example": "edeka-pp-cli price history 5915407005MXST --json",
+      "why_it_matters": "Use it to judge whether an offer is really cheap.",
+      "group": "Shopping intelligence"
+    },
+    {
+      "name": "Compare markets",
+      "command": "compare markets",
+      "description": "The same search on several EDEKA markets side by side.",
+      "rationale": "Each EDEKA market runs its own shop; only a client that speaks all of them can compare.",
+      "example": "edeka-pp-cli compare markets milch --market doerflinger-ulm --json",
+      "why_it_matters": "Use it when the customer can choose between nearby markets.",
+      "group": "Shopping intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Basket by text",
+      "command": "basket add",
+      "description": "Add a product by id or by plain words; the CLI picks the best match in your market and adds it.",
+      "rationale": "Search, ranking and the CSRF-protected basket call run as one step; the web shop needs three screens.",
+      "example": "edeka-pp-cli basket add hafermilch --qty 2 --dry-run",
+      "why_it_matters": "Use it when a customer names an item in their own words.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Earliest pickup slot",
+      "command": "slots earliest",
+      "description": "The first free pickup slot of your market in one call.",
+      "rationale": "Parses the slot JSON embedded in the shop's calendar widget.",
+      "example": "edeka-pp-cli slots earliest --market doerflinger-ulm --json",
+      "why_it_matters": "Use it to propose a pickup time before ordering.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Checkout with confirmation gate",
+      "command": "order place",
+      "description": "Preview the order (slot, payment, items, total) and place it only with --confirm.",
+      "rationale": "Walks the shop's checkout steps over HTTP and stops before the final button unless confirmed.",
+      "example": "edeka-pp-cli order place --payment mxcash --dry-run",
+      "why_it_matters": "Use it after the customer said yes to the preview.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Shopping list to basket",
+      "command": "list add",
+      "description": "Add many free-text lines with quantities at once and see what matched.",
+      "rationale": "Runs best-match resolution per line against the market's search.",
+      "example": "edeka-pp-cli list add milch butter '2x kaffee' --dry-run",
+      "why_it_matters": "Use it for a whole shopping list from one message.",
+      "group": "Order flow"
+    },
+    {
+      "name": "Offer check for staples",
+      "command": "deals check",
+      "description": "Which of these items are on offer in your market this week.",
+      "rationale": "Reads the offer badge on search hits per term in one call.",
+      "example": "edeka-pp-cli deals check milch kaffee butter --market doerflinger-ulm --json",
+      "why_it_matters": "Use it to tell the customer about offers on their usual items.",
+      "group": "Shopping intelligence"
+    },
+    {
+      "name": "Price history",
+      "command": "price history",
+      "description": "Prices an article had over time in your markets, from your own searches and offer lookups.",
+      "rationale": "Every search and offers call records prices in a local SQLite store.",
+      "example": "edeka-pp-cli price history 5915407005MXST --json",
+      "why_it_matters": "Use it to judge whether an offer is really cheap.",
+      "group": "Shopping intelligence"
+    },
+    {
+      "name": "Compare markets",
+      "command": "compare markets",
+      "description": "The same search on several EDEKA markets side by side.",
+      "rationale": "Each EDEKA market runs its own shop; only a client that speaks all of them can compare.",
+      "example": "edeka-pp-cli compare markets milch --market doerflinger-ulm --json",
+      "why_it_matters": "Use it when the customer can choose between nearby markets.",
+      "group": "Shopping intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "EDEKA",
+    "headline": "Shop your local EDEKA market from the terminal or an agent: offers, basket by text, earliest pickup slot, checkout with a confirmation gate.",
+    "value_prop": "Works with every market on edeka.shop by its subdomain. Markets, offers and product search need no login; basket, slots and checkout use your imported browser session, which renews itself through the shop's one-year remember-me cookie.",
+    "auth_narrative": "EDEKA has no public API. Log in to your market's shop (https://\u003cmarket\u003e.edeka.shop) once in a browser, then run 'edeka-pp-cli auth import --cdp http://127.0.0.1:\u003cport\u003e' or 'auth import --file cookies.json'. The CLI keeps the cookies in a session file (EDEKA_SESSION_FILE overrides the path) and renews the shop session through the remember-me cookie oxid_1. When that cookie is gone, commands exit with code 4: log in again and re-import.",
+    "quickstart": [
+      {
+        "command": "edeka-pp-cli doctor --dry-run",
+        "comment": "check the install without network"
+      },
+      {
+        "command": "edeka-pp-cli markets search 89073",
+        "comment": "find EDEKA markets near a postal code"
+      },
+      {
+        "command": "edeka-pp-cli markets select doerflinger-ulm",
+        "comment": "work with that market"
+      },
+      {
+        "command": "edeka-pp-cli offers --limit 10",
+        "comment": "this week's offers"
+      },
+      {
+        "command": "edeka-pp-cli basket add hafermilch --qty 2 --dry-run",
+        "comment": "basket by text (needs an imported session)"
+      },
+      {
+        "command": "edeka-pp-cli slots earliest",
+        "comment": "earliest pickup slot"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "exit code 4 / re-login needed",
+        "fix": "Log in to \u003cmarket\u003e.edeka.shop in a browser, then run edeka-pp-cli auth import --cdp \u003curl\u003e (or --file cookies.json)"
+      },
+      {
+        "symptom": "no market selected",
+        "fix": "Run 'edeka-pp-cli markets select \u003csubdomain\u003e' once, or set EDEKA_MARKET=\u003csubdomain\u003e"
+      },
+      {
+        "symptom": "basket call returns an HTML page instead of JSON",
+        "fix": "The shop's form token expired; run the command again (the CLI fetches a fresh token once automatically)"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or a person shops at an EDEKA market that sells online on edeka.shop: finding markets, reading offers, searching products with prices, filling the basket, choosing a pickup slot and placing the order after an explicit yes.",
+    "anti_triggers": [
+      "Do not use it for EDEKA's national flyer site edeka.de or the EDEKA app; it only speaks the per-market shops on edeka.shop",
+      "Do not use it to place an order without the customer's explicit confirmation",
+      "Do not use it to cancel an order; the customer contacts the market",
+      "Do not use it for online card or direct-debit payment; it supports pay-at-handover methods only"
+    ],
+    "recipes": [
+      {
+        "title": "Offers in one category",
+        "command": "edeka-pp-cli offers --category Kuehlprodukte --agent --select title,price,unit_price",
+        "explanation": "Compact offer rows for an agent reply."
+      },
+      {
+        "title": "Are my staples on offer",
+        "command": "edeka-pp-cli deals check milch kaffee butter --market doerflinger-ulm --json",
+        "explanation": "Offer-badged hits per term."
+      },
+      {
+        "title": "Basket by voice note",
+        "command": "edeka-pp-cli list add milch '2x butter' bananen --dry-run --json",
+        "explanation": "Shows what each line would add before changing the basket."
+      },
+      {
+        "title": "Preview the order",
+        "command": "edeka-pp-cli order place --slot earliest --payment mxcash --json",
+        "explanation": "Reserves the earliest pickup slot and prints slot, payment, items and total from the shop review page without ordering; needs items in the basket. Add --confirm --expect-total \u003ctotal_cents\u003e only after the customer said yes."
+      }
+    ],
+    "trigger_phrases": [
+      "what is on offer at EDEKA",
+      "add milk to my EDEKA basket",
+      "earliest EDEKA pickup slot",
+      "order my EDEKA groceries",
+      "use edeka-pp-cli",
+      "run edeka"
+    ]
+  },
+  "homepage": "https://edeka.shop"
+}

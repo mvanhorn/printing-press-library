@@ -1,0 +1,11 @@
+{
+  "run_id": "20261117-201852-046bd390",
+  "sources": [
+    {
+      "source_name": "edeka",
+      "decision": "pre-approved",
+      "reason": "phase-0-website-choice: the task names the website https://<market>.edeka.shop and orders an authenticated browser sniff in the AWG agent browser",
+      "asked_at": "2026-11-17T19:36:21Z"
+    }
+  ]
+}

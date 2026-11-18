@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "edeka-file-reads-blocked-under-mcp",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261117-201852-046bd390",
+  "base_printing_press_version": "4.35.6",
+  "summary": "list add keeps --file declared under mcp:read-flags and refuses a path when EDEKA_MCP_CHILD=1 (stdin '-' stays allowed); auth import is mcp:hidden and refuses to run in an MCP child.",
+  "reason": "An agent driving the MCP server must not be able to make the CLI read arbitrary local files (cookie exports, other users' files) through a flag.",
+  "files": [
+    "internal/cli/list_add.go",
+    "internal/cli/edeka_extra.go"
+  ],
+  "markers": [
+    "\"mcp:read-flags\": \"file\"",
+    "cliutil.IsMCPChildEnv()"
+  ]
+}

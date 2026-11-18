@@ -1,0 +1,832 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://edeka.shop/",
+    "entry_count": 66,
+    "api_entry_count": 1,
+    "noise_entry_count": 65,
+    "host_distribution": {
+      "doerflinger-ulm.edeka.shop": 64,
+      "edeka.shop": 2
+    },
+    "http_version_distribution": {
+      "http/1.1": 66
+    },
+    "time_start": "2026-11-17T19:21:57.875Z",
+    "time_end": "2026-11-17T19:29:06.28Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 15,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 19,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 24,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 25,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 34,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 35,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 38,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 41,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 43,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 45,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 49,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 51,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 54,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 57,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 59,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 63,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 65,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    },
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "edeka.shop",
+          "path": "/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/Angebote/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/Kuehlprodukte-EDEKA/Eier-Kaese-Molkereiprodukte/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 15,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/widget.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 18,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/widget.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 19,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/widget.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/widget.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 23,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 24,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 25,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/widget.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 28,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/widget.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/warenkorb/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/warenkorb/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 34,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 35,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 37,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/warenkorb/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 38,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 40,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/warenkorb/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 41,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 42,
+          "method": "POST",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 43,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 44,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 45,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 48,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 49,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 50,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 51,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 54,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 55,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 301,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 56,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/bestellhistorie/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 57,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 58,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 59,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 60,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/Kuehlprodukte-EDEKA/Eier-Kaese-Molkereiprodukte/Milch/Weide-Milch.html",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/Angebote/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 63,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 65,
+          "method": "GET",
+          "host": "doerflinger-ulm.edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "endpoint_clusters": [
+    {
+      "host": "edeka.shop",
+      "method": "GET",
+      "path": "/index.php",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "list_index.php",
+      "resource": "index.php",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /index.php traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "edeka.shop",
+          "path": "/index.php",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ]
+}

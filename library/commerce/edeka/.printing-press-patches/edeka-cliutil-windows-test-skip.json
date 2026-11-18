@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261117-201852-046bd390",
+  "base_printing_press_version": "4.35.6",
+  "id": "edeka-cliutil-windows-test-skip",
+  "summary": "Two generated credential-permission tests skip on Windows with a placeholder reason.",
+  "reason": "On Windows the config file is still locked by the open descriptor (rename fails) and temp dirs inherit a DACL that grants a non-owner principal, so both POSIX-oriented checks fail regardless of the CLI code.",
+  "files": [
+    "internal/cliutil/credentials_perms_test.go"
+  ]
+}

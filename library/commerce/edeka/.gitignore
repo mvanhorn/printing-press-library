@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/edeka-pp-cli
+/edeka-pp-cli.exe
+/edeka-pp-mcp
+/edeka-pp-mcp.exe
+/bin/
+/build/
+/dist/
