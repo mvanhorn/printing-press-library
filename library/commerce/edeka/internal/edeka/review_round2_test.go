@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 // TestSessionPathFollowsConfigDir: without EDEKA_SESSION_FILE the session and
@@ -87,7 +88,7 @@ func TestSessionWriteBackMergesIntoFile(t *testing.T) {
 
 func TestShopUsesConnSettings(t *testing.T) {
 	t.Cleanup(func() { Configure(ConnSettings{Rate: -1}) })
-	Configure(ConnSettings{TLS: &tls.Config{MinVersion: tls.VersionTLS12, ServerName: "proxy.example"}, Rate: 0})
+	Configure(ConnSettings{Transport: &http.Transport{TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12, ServerName: "proxy.example"}}, Timeout: 5 * time.Second, Rate: 0})
 	sh, err := OpenWith(&Session{}, "", "test-market.edeka.shop")
 	if err != nil {
 		t.Fatal(err)
@@ -95,6 +96,9 @@ func TestShopUsesConnSettings(t *testing.T) {
 	tr := sh.rec.next.(shopOnlyTransport).next.(*http.Transport)
 	if tr.TLSClientConfig == nil || tr.TLSClientConfig.ServerName != "proxy.example" {
 		t.Fatalf("TLS settings not applied: %+v", tr.TLSClientConfig)
+	}
+	if sh.HTTP.Timeout != 5*time.Second {
+		t.Fatalf("--timeout not applied: %s", sh.HTTP.Timeout)
 	}
 	if sh.limiter != nil {
 		t.Fatal("--rate-limit 0 must turn pacing off")
@@ -136,5 +140,28 @@ func TestParseProductDetailWeightArticle(t *testing.T) {
 	d, err = ParseProductDetail(pieceDetailHTML)
 	if err != nil || d.WeightArticle || d.ID != "1000001MXST" {
 		t.Fatalf("piece page: %+v %v", d, err)
+	}
+}
+
+// TestPersistAfterLogoutDoesNotRestoreSession: a command that was already
+// running when 'auth logout' removed the session must not write it back.
+func TestPersistAfterLogoutDoesNotRestoreSession(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "session.json")
+	s := &Session{Market: "a", Cookies: []Cookie{{Name: "sid", Value: "v1", Domain: "a.edeka.shop", Path: "/"}}}
+	if err := s.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	sh, err := OpenWith(s, path, "a.edeka.shop")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ClearSession(path); err != nil {
+		t.Fatal(err)
+	}
+	if err := sh.Persist(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		t.Fatalf("Persist restored the cleared session: %v", err)
 	}
 }

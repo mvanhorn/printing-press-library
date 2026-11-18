@@ -189,14 +189,20 @@ func UpdateMarket(path, market string) (*Session, error) {
 // SaveMerged re-reads the session file under the lock, applies this run's
 // Set-Cookie updates to it and writes it back, so two CLI runs saving at the
 // same time keep each other's rotated cookies. market and stoken overwrite
-// the stored values when set.
+// the stored values when set. When the file is gone ('auth logout' ran while
+// this command was busy) nothing is written, so a running command cannot
+// bring a cleared login back.
 func (s *Session) SaveMerged(path string, updates []setCookieUpdate, market, stoken string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		return err
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		return nil
 	}
 	return cliutil.WithFileLock(path, func() error {
 		cur := s
-		if disk, err := LoadSession(path); err == nil {
+		disk, err := LoadSession(path)
+		switch {
+		case errors.Is(err, ErrNoSession):
+			return nil
+		case err == nil:
 			disk.ApplySetCookies(updates)
 			if market != "" {
 				disk.Market = market
@@ -206,6 +212,7 @@ func (s *Session) SaveMerged(path string, updates []setCookieUpdate, market, sto
 			}
 			cur = disk
 		}
+		// an unreadable file is replaced by this run's complete session
 		return cur.writeFile(path)
 	})
 }

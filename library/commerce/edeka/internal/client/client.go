@@ -354,6 +354,23 @@ func applyTrust(tr *http.Transport, pool *x509.CertPool, serverName string) {
 	}
 }
 
+// TrustedTransport returns a transport with the proxy, trust-root and server
+// name settings the generated client uses, so hand-written clients for other
+// hosts of the same service connect the same way.
+// PATCH(edeka-shop-honours-connection-flags)
+func TrustedTransport(cfg *config.Config) (*http.Transport, error) {
+	resolved, err := resolveTLS(tlsSettingsFromConfig(cfg))
+	if err != nil {
+		return nil, err
+	}
+	tr, err := cloneDefaultHTTPTransport()
+	if err != nil {
+		return nil, err
+	}
+	applyTrust(tr, resolved.pool, resolved.serverName)
+	return tr, nil
+}
+
 func newHTTPClient(timeout time.Duration, jar http.CookieJar, trust tlsSettings) (*http.Client, error) {
 	resolved, err := resolveTLS(trust)
 	if err != nil {

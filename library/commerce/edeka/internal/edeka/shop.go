@@ -2,7 +2,6 @@ package edeka
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -75,7 +74,11 @@ func Open(market string, requireSession bool) (*Shop, error) {
 // this process, so --ca-cert, --tls-server-name and --rate-limit apply to the
 // shopping commands as they do to the generated ones.
 type ConnSettings struct {
-	TLS *tls.Config
+	// Transport carries proxy, trust roots and TLS server name; nil uses
+	// a clone of http.DefaultTransport.
+	Transport *http.Transport
+	// Timeout is the per-request timeout (--timeout); 0 means 60 seconds.
+	Timeout time.Duration
 	// Rate mirrors --rate-limit: below 0 keeps the default adaptive pace,
 	// 0 turns pacing off, above 0 caps requests per second.
 	Rate float64
@@ -119,13 +122,19 @@ func OpenWith(s *Session, path, host string) (*Shop, error) {
 		return nil, err
 	}
 	cs := currentConn()
-	base := http.DefaultTransport.(*http.Transport).Clone()
-	if cs.TLS != nil {
-		base.TLSClientConfig = cs.TLS.Clone()
+	var base *http.Transport
+	if cs.Transport != nil {
+		base = cs.Transport.Clone()
+	} else {
+		base = http.DefaultTransport.(*http.Transport).Clone()
+	}
+	timeout := cs.Timeout
+	if timeout <= 0 {
+		timeout = 60 * time.Second
 	}
 	rec := &recordingTransport{next: shopOnlyTransport{next: base}}
 	hc := &http.Client{
-		Timeout:   60 * time.Second,
+		Timeout:   timeout,
 		Jar:       jar,
 		Transport: rec,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {

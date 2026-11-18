@@ -4,16 +4,19 @@
   "applied_at": "2026-11-18",
   "base_run_id": "20261117-201852-046bd390",
   "base_printing_press_version": "4.35.6",
-  "summary": "auth logout also deletes the imported EDEKA session file (under its lock), not only the generated credentials and cookie jar.",
-  "reason": "The shopping commands log in from the imported session file; leaving it in place kept basket changes and confirmed orders available after logout reported success.",
+  "summary": "auth logout also deletes the imported EDEKA session file (under its lock), and a session save from a command that was already running never recreates a removed file.",
+  "reason": "The shopping commands log in from the imported session file; leaving it in place, or letting an in-flight command write it back, kept basket changes and confirmed orders available after logout reported success.",
   "files": [
     "internal/cli/auth.go",
     "internal/cli/edeka_common.go",
-    "internal/cli/edeka_review_test.go"
+    "internal/edeka/session.go",
+    "internal/cli/edeka_review_test.go",
+    "internal/edeka/review_round2_test.go"
   ],
   "markers": [
     "clearImportedSession()",
-    "edeka.ClearSession"
+    "func ClearSession",
+    "a running command cannot"
   ],
-  "validated_outcome": "TestLogoutClearsImportedSession."
+  "validated_outcome": "TestLogoutClearsImportedSession and TestPersistAfterLogoutDoesNotRestoreSession."
 }

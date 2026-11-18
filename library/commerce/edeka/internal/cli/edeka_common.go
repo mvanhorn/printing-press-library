@@ -2,19 +2,17 @@ package cli
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/edeka/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/edeka/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/edeka/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/edeka/internal/edeka"
@@ -49,9 +47,10 @@ func edekaErr(err error) error {
 // marketFlagUsage is the help text of every --market flag.
 const marketFlagUsage = "Market subdomain, e.g. doerflinger-ulm (default: EDEKA_MARKET or 'markets select')"
 
-// applyShopConn hands the root connection flags (--ca-cert, --tls-server-name,
-// config-file trust settings and --rate-limit) to the EDEKA shop client, so
-// shopping commands connect the same way the generated commands do.
+// applyShopConn hands the root connection flags (--ca-cert, --tls-server-name
+// and their config-file values, --timeout, --rate-limit) to the EDEKA shop
+// client. The transport comes from the generated client's own builder, so
+// shopping commands connect exactly the way the generated commands do.
 func applyShopConn(flags *rootFlags) error {
 	if flags == nil {
 		return nil
@@ -61,27 +60,11 @@ func applyShopConn(flags *rootFlags) error {
 		return configErr(err)
 	}
 	flags.applyTLSFlags(cfg)
-	cs := edeka.ConnSettings{Rate: flags.rateLimit}
-	ca, name := strings.TrimSpace(cfg.CACert), strings.TrimSpace(cfg.TLSServerName)
-	if ca != "" || name != "" {
-		tc := &tls.Config{MinVersion: tls.VersionTLS12, ServerName: name}
-		if ca != "" {
-			pemBytes, err := os.ReadFile(filepath.Clean(ca))
-			if err != nil {
-				return configErr(fmt.Errorf("reading CA bundle %s: %w", ca, err))
-			}
-			pool, err := x509.SystemCertPool()
-			if err != nil || pool == nil {
-				pool = x509.NewCertPool()
-			}
-			if !pool.AppendCertsFromPEM(pemBytes) {
-				return configErr(fmt.Errorf("no certificates in CA bundle %s", ca))
-			}
-			tc.RootCAs = pool
-		}
-		cs.TLS = tc
+	tr, err := client.TrustedTransport(cfg)
+	if err != nil {
+		return configErr(err)
 	}
-	edeka.Configure(cs)
+	edeka.Configure(edeka.ConnSettings{Transport: tr, Timeout: flags.timeout, Rate: flags.rateLimit})
 	return nil
 }
 
