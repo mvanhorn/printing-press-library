@@ -453,6 +453,12 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			if err := client.ClearCookieJar(); err != nil {
 				return configErr(fmt.Errorf("clearing cookie jar: %w", err))
 			}
+			// PATCH(edeka-logout-clears-imported-session): the shopping
+			// commands log in from the imported session file, so logout
+			// must remove it too.
+			if err := clearImportedSession(); err != nil {
+				return configErr(fmt.Errorf("clearing the imported EDEKA session: %w", err))
+			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")
 			return nil
 		},

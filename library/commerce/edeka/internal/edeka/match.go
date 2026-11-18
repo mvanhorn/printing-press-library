@@ -127,13 +127,14 @@ func BestMatch(query string, products []Product) (Product, bool) {
 }
 
 // WordMatch reports whether a query word equals, starts or ends a title word
-// (German compounds: "milch" matches "Vollmilch"). Words under three letters
-// are ignored. Unlike MatchScore it ignores matches inside a word
+// (German compounds: "milch" matches "Vollmilch"). Single letters are
+// ignored; two-letter words such as "ei" match a title word only exactly or
+// at its start ("Eier"). Unlike MatchScore it ignores matches inside a word
 // ("press" does not match "Espresso").
 func WordMatch(query, title string) bool {
 	tt := tokens(title)
 	for _, w := range tokens(query) {
-		if len(w) < 3 {
+		if len(w) < 2 {
 			continue
 		}
 		for _, t := range tt {

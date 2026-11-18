@@ -68,7 +68,7 @@ func newNovelListAddCmd(flags *rootFlags) *cobra.Command {
 			if len(lines) > 60 {
 				return usageErr(fmt.Errorf("at most 60 lines per call (got %d)", len(lines)))
 			}
-			sh, err := openShop(cmd, market)
+			sh, err := openShop(cmd, flags, market)
 			if err != nil {
 				return err
 			}

@@ -391,6 +391,9 @@ type ProductDetail struct {
 	Description  string `json:"description,omitempty"`
 	Image        string `json:"image,omitempty"`
 	URL          string `json:"url"`
+	// WeightArticle is set when the product's own basket form asks for a
+	// weight (meat and cheese counter); adding it needs grams.
+	WeightArticle bool `json:"weight_article"`
 }
 
 // ParseProductDetail reads schema.org microdata from a product page.
@@ -440,6 +443,14 @@ func ParseProductDetail(page string) (*ProductDetail, error) {
 	}
 	if n := findFirst(doc, byTagAttr("input", "name", "aid")); n != nil {
 		d.ID = attr(n, "value")
+		// only the product's own form counts: recommendation tiles on the
+		// same page carry weight inputs for other articles
+		for f := n.Parent; f != nil; f = f.Parent {
+			if f.Type == html.ElementNode && f.Data == "form" {
+				d.WeightArticle = findFirst(f, byTagAttr("input", "name", "persparam[Gewicht]")) != nil
+				break
+			}
+		}
 	}
 	if n := findFirst(doc, byID("productPriceUnit")); n != nil {
 		d.UnitPrice = strings.ReplaceAll(text(n), " / ", "/")

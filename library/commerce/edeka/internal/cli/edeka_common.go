@@ -2,17 +2,21 @@ package cli
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/edeka/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/edeka/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/edeka/internal/edeka"
 	"github.com/mvanhorn/printing-press-library/library/commerce/edeka/internal/store"
 )
@@ -45,9 +49,48 @@ func edekaErr(err error) error {
 // marketFlagUsage is the help text of every --market flag.
 const marketFlagUsage = "Market subdomain, e.g. doerflinger-ulm (default: EDEKA_MARKET or 'markets select')"
 
+// applyShopConn hands the root connection flags (--ca-cert, --tls-server-name,
+// config-file trust settings and --rate-limit) to the EDEKA shop client, so
+// shopping commands connect the same way the generated commands do.
+func applyShopConn(flags *rootFlags) error {
+	if flags == nil {
+		return nil
+	}
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		return configErr(err)
+	}
+	flags.applyTLSFlags(cfg)
+	cs := edeka.ConnSettings{Rate: flags.rateLimit}
+	ca, name := strings.TrimSpace(cfg.CACert), strings.TrimSpace(cfg.TLSServerName)
+	if ca != "" || name != "" {
+		tc := &tls.Config{MinVersion: tls.VersionTLS12, ServerName: name}
+		if ca != "" {
+			pemBytes, err := os.ReadFile(filepath.Clean(ca))
+			if err != nil {
+				return configErr(fmt.Errorf("reading CA bundle %s: %w", ca, err))
+			}
+			pool, err := x509.SystemCertPool()
+			if err != nil || pool == nil {
+				pool = x509.NewCertPool()
+			}
+			if !pool.AppendCertsFromPEM(pemBytes) {
+				return configErr(fmt.Errorf("no certificates in CA bundle %s", ca))
+			}
+			tc.RootCAs = pool
+		}
+		cs.TLS = tc
+	}
+	edeka.Configure(cs)
+	return nil
+}
+
 // openShop opens the selected market with the imported session and makes sure
 // it is logged in (the remember-me cookie renews the shop session silently).
-func openShop(cmd *cobra.Command, market string) (*edeka.Shop, error) {
+func openShop(cmd *cobra.Command, flags *rootFlags, market string) (*edeka.Shop, error) {
+	if err := applyShopConn(flags); err != nil {
+		return nil, err
+	}
 	sh, err := edeka.Open(market, true)
 	if err != nil {
 		return nil, edekaErr(err)
@@ -60,13 +103,19 @@ func openShop(cmd *cobra.Command, market string) (*edeka.Shop, error) {
 
 // openPublicShop opens the selected market with the session when there is
 // one, otherwise anonymously (markets, offers, search work without login).
-func openPublicShop(market string) (*edeka.Shop, error) {
+func openPublicShop(flags *rootFlags, market string) (*edeka.Shop, error) {
+	if err := applyShopConn(flags); err != nil {
+		return nil, err
+	}
 	sh, err := edeka.Open(market, false)
 	return sh, edekaErr(err)
 }
 
 // openPortal opens the edeka.shop portal (market finder) without a market.
-func openPortal() (*edeka.Shop, error) {
+func openPortal(flags *rootFlags) (*edeka.Shop, error) {
+	if err := applyShopConn(flags); err != nil {
+		return nil, err
+	}
 	s := &edeka.Session{}
 	if path, err := edeka.SessionPath(); err == nil {
 		if loaded, err := edeka.LoadSession(path); err == nil {
@@ -93,6 +142,16 @@ func verifyDryRun(cmd *cobra.Command, flags *rootFlags, action string) (bool, er
 		return true, writeDryRun(cmd.OutOrStdout(), flags, action)
 	}
 	return false, nil
+}
+
+// clearImportedSession deletes the session file 'auth import' wrote (under its
+// lock), so no shopping command can log in after 'auth logout'.
+func clearImportedSession() error {
+	path, err := edeka.SessionPath()
+	if err != nil {
+		return err
+	}
+	return edeka.ClearSession(path)
 }
 
 // edekaDBMissing reports whether the local store has not been created yet.

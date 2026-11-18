@@ -50,7 +50,7 @@ func newNovelCompareMarketsCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if zip != "" {
-				portal, err := openPortal()
+				portal, err := openPortal(flags)
 				if err != nil {
 					return err
 				}
@@ -63,7 +63,7 @@ func newNovelCompareMarketsCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if len(hosts) == 0 {
-				sh, err := openPublicShop("")
+				sh, err := openPublicShop(flags, "")
 				if err != nil {
 					return err
 				}

@@ -48,7 +48,7 @@ func newEdekaMarketsSearchCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "markets search")
 			}
-			portal, err := openPortal()
+			portal, err := openPortal(flags)
 			if err != nil {
 				return err
 			}
@@ -139,7 +139,7 @@ func newMarketsCurrentCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "markets current")
 			}
-			sh, err := openPublicShop("")
+			sh, err := openPublicShop(flags, "")
 			if err != nil {
 				return err
 			}
@@ -180,7 +180,7 @@ func newProductsSearchCmd(flags *rootFlags) *cobra.Command {
 			if limit < 1 || limit > 320 {
 				return usageErr(errors.New("--limit must be between 1 and 320"))
 			}
-			sh, err := openPublicShop(market)
+			sh, err := openPublicShop(flags, market)
 			if err != nil {
 				return err
 			}
@@ -221,7 +221,7 @@ func newProductsShowCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "products show")
 			}
-			sh, err := openPublicShop(market)
+			sh, err := openPublicShop(flags, market)
 			if err != nil {
 				return err
 			}
@@ -246,11 +246,12 @@ func newProductsShowCmd(flags *rootFlags) *cobra.Command {
 
 func newOffersCmd(flags *rootFlags) *cobra.Command {
 	var market, category, search string
-	var limit, page int
+	var limit, page, skip int
 	cmd := &cobra.Command{
 		Use:   "offers",
 		Short: "This week's offers of the selected market, optionally one offer category or a word filter.",
-		Long: "Reads the market's offer category (/Angebote/, 32 articles per page) up to --limit articles, starting at --page.\n" +
+		Long: "Reads the market's offer category (/Angebote/, 32 articles per page) up to --limit articles, starting at --page\n" +
+			"after skipping --skip matching offers on that page. To continue, pass the answer's next_page and next_skip.\n" +
 			"--category takes the offer sub-category path segment shown by 'categories --offers' (e.g. Kuehlprodukte).\n" +
 			"--search keeps only offers whose title matches the words. Works without login; prices are recorded for 'price history'.",
 		Example:     "  edeka-pp-cli offers --limit 10\n  edeka-pp-cli offers --category Kuehlprodukte --agent --select title,price,unit_price",
@@ -265,41 +266,25 @@ func newOffersCmd(flags *rootFlags) *cobra.Command {
 			if limit < 1 || limit > 640 {
 				return usageErr(errors.New("--limit must be between 1 and 640"))
 			}
-			sh, err := openPublicShop(market)
+			if page < 0 || skip < 0 {
+				return usageErr(errors.New("--page and --skip must not be negative"))
+			}
+			sh, err := openPublicShop(flags, market)
 			if err != nil {
 				return err
 			}
-			var out []edeka.Product
-			hasNext := false
-			last := page
-			for p := page; p < page+20 && len(out) < limit; p++ {
-				last = p
+			win, err := collectOffers(func(p int) (edeka.Grid, error) {
 				g, err := sh.Offers(cmd.Context(), category, p)
-				if err != nil {
-					return edekaErr(err)
+				if err == nil {
+					recordPrices(cmd.Context(), g.Products, sh.Host, "offers")
 				}
-				recordPrices(cmd.Context(), g.Products, sh.Host, "offers")
-				for _, pr := range g.Products {
-					pr.OnOffer = true
-					if search == "" || edeka.MatchScore(search, pr.Title) > 0 {
-						out = append(out, pr)
-					}
-				}
-				hasNext = g.HasNext
-				if !g.HasNext || len(g.Products) == 0 {
-					break
-				}
+				return g, err
+			}, page, skip, limit, search)
+			if err != nil {
+				return edekaErr(err)
 			}
-			if len(out) > limit {
-				out = out[:limit]
-			}
-			if out == nil {
-				out = []edeka.Product{}
-			}
-			res := map[string]any{"market": sh.Host, "category": category, "count": len(out), "offers": out, "next_page": nil}
-			if hasNext {
-				res["next_page"] = last + 1
-			}
+			out := win.Offers
+			res := map[string]any{"market": sh.Host, "category": category, "count": len(out), "offers": out, "next_page": win.NextPage, "next_skip": win.NextSkip}
 			return emit(cmd, flags, res, func(w io.Writer) { printProducts(w, out) })
 		},
 	}
@@ -307,8 +292,65 @@ func newOffersCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&search, "search", "", "Keep only offers whose title matches these words")
 	cmd.Flags().IntVar(&limit, "limit", 32, "Maximum offers (1-640)")
 	cmd.Flags().IntVar(&page, "page", 0, "First page to read (zero-based)")
+	cmd.Flags().IntVar(&skip, "skip", 0, "Matching offers to skip on the first page (from a previous answer's next_skip)")
 	cmd.Flags().StringVar(&market, "market", "", marketFlagUsage)
 	return cmd
+}
+
+// offerWindow is one --limit sized slice of the offers and where the next
+// slice starts (NextPage nil: nothing left).
+type offerWindow struct {
+	Offers   []edeka.Product
+	NextPage *int
+	NextSkip int
+}
+
+// collectOffers reads offer pages from page on, skipping the first skip
+// matching offers of that page, until limit offers are collected. A cut
+// inside a page is reported as NextPage plus NextSkip, so following the
+// continuation never skips an offer.
+func collectOffers(fetch func(page int) (edeka.Grid, error), page, skip, limit int, search string) (offerWindow, error) {
+	type pos struct{ page, idx int }
+	var out []edeka.Product
+	var at []pos
+	hasNext, last := false, page
+	for p := page; p < page+20 && len(out) < limit; p++ {
+		last = p
+		g, err := fetch(p)
+		if err != nil {
+			return offerWindow{}, err
+		}
+		idx := 0
+		for _, pr := range g.Products {
+			if search != "" && edeka.MatchScore(search, pr.Title) <= 0 {
+				continue
+			}
+			if p > page || idx >= skip {
+				pr.OnOffer = true
+				out = append(out, pr)
+				at = append(at, pos{p, idx})
+			}
+			idx++
+		}
+		hasNext = g.HasNext
+		if !g.HasNext || len(g.Products) == 0 {
+			break
+		}
+	}
+	w := offerWindow{Offers: out}
+	switch {
+	case len(out) > limit:
+		next := at[limit].page
+		w.NextPage, w.NextSkip = &next, at[limit].idx
+		w.Offers = out[:limit]
+	case hasNext:
+		next := last + 1
+		w.NextPage = &next
+	}
+	if w.Offers == nil {
+		w.Offers = []edeka.Product{}
+	}
+	return w, nil
 }
 
 func newCategoriesCmd(flags *rootFlags) *cobra.Command {
@@ -327,7 +369,7 @@ func newCategoriesCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "categories")
 			}
-			sh, err := openPublicShop(market)
+			sh, err := openPublicShop(flags, market)
 			if err != nil {
 				return err
 			}
@@ -379,7 +421,7 @@ func newBasketShowCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "basket show")
 			}
-			sh, err := openShop(cmd, market)
+			sh, err := openShop(cmd, flags, market)
 			if err != nil {
 				return err
 			}
@@ -464,7 +506,7 @@ func changeBasketItem(cmd *cobra.Command, flags *rootFlags, market, id string, q
 	if !edeka.LooksLikeArticleID(id) {
 		return usageErr(fmt.Errorf("%q is not an article id (see 'basket show' or 'products search')", id))
 	}
-	sh, err := openShop(cmd, market)
+	sh, err := openShop(cmd, flags, market)
 	if err != nil {
 		return err
 	}
@@ -524,7 +566,7 @@ func newBasketClearCmd(flags *rootFlags) *cobra.Command {
 			if done, err := verifyDryRun(cmd, flags, "basket clear"); done {
 				return err
 			}
-			sh, err := openShop(cmd, market)
+			sh, err := openShop(cmd, flags, market)
 			if err != nil {
 				return err
 			}
@@ -576,7 +618,7 @@ func newSlotsListCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "slots list")
 			}
-			sh, err := openPublicShop(market)
+			sh, err := openPublicShop(flags, market)
 			if err != nil {
 				return err
 			}
@@ -642,7 +684,7 @@ func newSlotsReserveCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			sh, err := openShop(cmd, market)
+			sh, err := openShop(cmd, flags, market)
 			if err != nil {
 				return err
 			}
@@ -687,7 +729,7 @@ func newSlotsReleaseCmd(flags *rootFlags) *cobra.Command {
 			if flags.dryRun {
 				return writeDryRun(cmd.OutOrStdout(), flags, "slots release")
 			}
-			sh, err := openShop(cmd, market)
+			sh, err := openShop(cmd, flags, market)
 			if err != nil {
 				return err
 			}
@@ -725,7 +767,7 @@ func newPaymentOptionsCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "payment options")
 			}
-			sh, err := openShop(cmd, market)
+			sh, err := openShop(cmd, flags, market)
 			if err != nil {
 				return err
 			}
@@ -759,7 +801,7 @@ func newOrderListCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "order list")
 			}
-			sh, err := openShop(cmd, market)
+			sh, err := openShop(cmd, flags, market)
 			if err != nil {
 				return err
 			}
@@ -793,7 +835,7 @@ func newAuthImportCmd(flags *rootFlags) *cobra.Command {
 		Long: "Log in to your market's shop (https://<market>.edeka.shop) once in a browser, then import the cookies:\n" +
 			"  --cdp   a Chromium started with --remote-debugging-port (loopback only)\n" +
 			"  --file  a JSON cookie export (array, Playwright storage state or CDP cookies); '-' reads stdin\n" +
-			"The session is stored at EDEKA_SESSION_FILE (default: user config dir) with owner-only permissions.\n" +
+			"The session is stored at EDEKA_SESSION_FILE (default: session.json in the CLI config dir, which --home moves) with owner-only permissions.\n" +
 			"The shop's one-year remember-me cookie (oxid_1) renews the shop session automatically.",
 		Example:     "  edeka-pp-cli auth import --cdp http://127.0.0.1:9222\n  edeka-pp-cli auth import --file cookies.json --market doerflinger-ulm",
 		Annotations: map[string]string{"mcp:hidden": "true"},
@@ -853,6 +895,9 @@ func newAuthImportCmd(flags *rootFlags) *cobra.Command {
 			if err := s.Save(path); err != nil {
 				return configErr(err)
 			}
+			if err := applyShopConn(flags); err != nil {
+				return err
+			}
 			sh, err := edeka.OpenWith(s, path, host)
 			if err != nil {
 				return err
@@ -890,6 +935,9 @@ func newAuthSessionCmd(flags *rootFlags) *cobra.Command {
 			cmd.SetContext(ctx)
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "auth session")
+			}
+			if err := applyShopConn(flags); err != nil {
+				return err
 			}
 			sh, err := edeka.Open(market, true)
 			if err != nil {

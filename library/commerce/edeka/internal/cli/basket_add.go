@@ -38,7 +38,7 @@ func newNovelBasketAddCmd(flags *rootFlags) *cobra.Command {
 			if qty < 1 || qty > 99 {
 				return usageErr(fmt.Errorf("--qty must be between 1 and 99"))
 			}
-			sh, err := openShop(cmd, market)
+			sh, err := openShop(cmd, flags, market)
 			if err != nil {
 				return err
 			}
@@ -82,16 +82,15 @@ func addToBasket(ctx context.Context, sh *edeka.Shop, query string, qty, grams i
 		for _, it := range b.Items {
 			if it.ID == query {
 				p.InBasket = it.Quantity
-				p.Title = it.Title
 			}
 		}
-		if p.Title == "" {
-			if d, err := sh.Product(ctx, query); err == nil {
-				p.Title, p.PriceCents, p.Price, p.URL = d.Title, d.PriceCents, d.Price, d.URL
-			} else {
-				return nil, notFoundErr(fmt.Errorf("article %s not found in market %s", query, sh.Host))
-			}
+		// the product page tells whether the article is sold by weight, so
+		// an id gets the same --grams check as a text match
+		d, err := sh.Product(ctx, query)
+		if err != nil {
+			return nil, notFoundErr(fmt.Errorf("article %s not found in market %s", query, sh.Host))
 		}
+		p.Title, p.PriceCents, p.Price, p.URL, p.WeightArticle = d.Title, d.PriceCents, d.Price, d.URL, d.WeightArticle
 	} else {
 		g, err := sh.Search(ctx, query, 0)
 		if err != nil {

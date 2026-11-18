@@ -49,11 +49,7 @@ func MarketSlug(host string) string { return strings.TrimSuffix(host, ".edeka.sh
 
 // statePath is the file holding the selected market when no session file is used.
 func statePath() (string, error) {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(dir, "edeka-pp-cli", "market.txt"), nil
+	return configFile("market.txt")
 }
 
 // ResolveMarket picks the market host in this order: explicit value (flag),

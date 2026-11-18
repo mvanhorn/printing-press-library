@@ -54,15 +54,88 @@ var ErrNoSession = errors.New("no EDEKA session imported yet: log in to https://
 
 // SessionPath returns the session file path. EDEKA_SESSION_FILE overrides it
 // so one machine can serve several customers (one file per customer).
+// Otherwise the file lives in the CLI's resolved config directory, so --home
+// and the EDEKA_HOME / EDEKA_CONFIG_DIR overrides keep customers apart.
 func SessionPath() (string, error) {
 	if p := strings.TrimSpace(os.Getenv("EDEKA_SESSION_FILE")); p != "" {
 		return p, nil
 	}
-	dir, err := os.UserConfigDir()
+	return configFile("session.json")
+}
+
+// configFile resolves name inside the CLI's config directory.
+func configFile(name string) (string, error) {
+	dir, err := cliutil.ConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "edeka-pp-cli", "session.json"), nil
+	return filepath.Join(dir, name), nil
+}
+
+// ClearSession deletes the imported session file under the same lock its
+// writers use. A missing file is not an error.
+func ClearSession(path string) error {
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	return cliutil.WithFileLock(path, func() error {
+		if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+		return nil
+	})
+}
+
+// MergeSetCookies writes Set-Cookie headers one response carried into the
+// session file as it is on disk (under the lock). Without a session file it
+// does nothing: a response must never create a login on its own.
+func MergeSetCookies(path, host string, cookies []*http.Cookie) error {
+	if path == "" || len(cookies) == 0 || !IsShopHost(host) {
+		return nil
+	}
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	updates := make([]setCookieUpdate, 0, len(cookies))
+	for _, c := range cookies {
+		updates = append(updates, setCookieUpdate{Host: host, Cookie: c})
+	}
+	return cliutil.WithFileLock(path, func() error {
+		disk, err := LoadSession(path)
+		if err != nil {
+			if errors.Is(err, ErrNoSession) {
+				return nil
+			}
+			return err
+		}
+		disk.ApplySetCookies(updates)
+		return disk.writeFile(path)
+	})
+}
+
+// SessionWriteBack wraps next so every Set-Cookie a shop host answers with is
+// merged into the session file at path. Generated commands use it so a
+// renewed shop session reaches the file the shopping commands read.
+func SessionWriteBack(next http.RoundTripper, path string) http.RoundTripper {
+	if next == nil {
+		next = http.DefaultTransport
+	}
+	return writeBackTransport{next: next, path: path}
+}
+
+type writeBackTransport struct {
+	next http.RoundTripper
+	path string
+}
+
+func (t writeBackTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp, err := t.next.RoundTrip(req)
+	if resp != nil {
+		if cs := resp.Cookies(); len(cs) > 0 {
+			_ = MergeSetCookies(t.path, req.URL.Hostname(), cs)
+		}
+	}
+	return resp, err
 }
 
 // LoadSession reads the session file.

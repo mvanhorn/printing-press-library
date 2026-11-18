@@ -28,7 +28,7 @@ func newNovelOrderPlaceCmd(flags *rootFlags) *cobra.Command {
 			"With --confirm and --expect-total (the preview's total) it presses the shop's final order button; it refuses\n" +
 			"when the total changed since the preview. Only pay-at-handover methods are supported: mxcash (cash) and\n" +
 			"mxlocalcashcard (card at handover). Ask the customer before using --confirm. --dry-run sends nothing.",
-		Example:     "  edeka-pp-cli order place --payment mxcash --dry-run\n  edeka-pp-cli order place --slot earliest --payment mxcash\n  edeka-pp-cli order place --slot earliest --payment mxcash --confirm --expect-total 597",
+		Example:     "  edeka-pp-cli order place --payment mxcash --dry-run\n  edeka-pp-cli order place --slot earliest --payment mxcash\n  edeka-pp-cli order place --slot '2030-01-02 10:00' --payment mxcash --confirm --expect-total 597",
 		Annotations: map[string]string{"mcp:read-only": "false", "pp:data-source": "live", "pp:happy-args": "--payment=mxcash;--slot=earliest", "pp:preview-happy-path": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := boundCtx(cmd.Context(), flags)
@@ -43,6 +43,9 @@ func newNovelOrderPlaceCmd(flags *rootFlags) *cobra.Command {
 			if confirm && flags.dryRun {
 				return usageErr(errors.New("--confirm and --dry-run contradict each other"))
 			}
+			if confirm && strings.EqualFold(strings.TrimSpace(slot), "earliest") {
+				return usageErr(errors.New("--confirm needs the exact slot the customer accepted: pass --slot 'YYYY-MM-DD HH:MM' from the preview's confirm_slot, or leave --slot out to keep the slot reserved in the session ('earliest' can pick a different time)"))
+			}
 			if flags.dryRun {
 				plan := map[string]any{"dry_run": true, "payment": payment, "slot": slot, "would": "check the basket, choose the slot if --slot is set, walk the checkout to the shop's review page and print the preview; no order"}
 				return emit(cmd, flags, plan, func(w io.Writer) {
@@ -50,7 +53,7 @@ func newNovelOrderPlaceCmd(flags *rootFlags) *cobra.Command {
 				})
 			}
 			ctx = cmd.Context()
-			sh, err := openShop(cmd, market)
+			sh, err := openShop(cmd, flags, market)
 			if err != nil {
 				return err
 			}
@@ -82,9 +85,13 @@ func newNovelOrderPlaceCmd(flags *rootFlags) *cobra.Command {
 			out := map[string]any{"market": sh.Host, "review": review, "placed": false}
 			if chosen != nil {
 				out["slot"] = chosen
+				out["confirm_slot"] = chosen.Date + " " + chosen.From
 			}
 			if !confirm {
-				out["next_step"] = "show this preview to the customer; run again with --confirm only after a clear yes"
+				out["next_step"] = fmt.Sprintf("show this preview to the customer; only after a clear yes run again with --confirm --expect-total %d", review.TotalCents)
+				if chosen != nil {
+					out["next_step"] = fmt.Sprintf("%s --slot '%s'", out["next_step"], out["confirm_slot"])
+				}
 				return emit(cmd, flags, out, func(w io.Writer) { printReview(w, review, false) })
 			}
 			if expectTotal == "" {

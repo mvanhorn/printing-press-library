@@ -206,7 +206,7 @@ Reserves the earliest pickup slot and prints slot, payment, items and total from
 
 ## Order safety
 
-Never run `order place --confirm` without the customer's explicit yes to the preview that `order place` (without `--confirm`) printed. Pass that preview's `total_cents` as `--expect-total`; the CLI refuses when the total changed. Basket and slot changes are reversible; an order is not.
+Never run `order place --confirm` without the customer's explicit yes to the preview that `order place` (without `--confirm`) printed. Pass that preview's `total_cents` as `--expect-total` and its `confirm_slot` as `--slot` (or leave `--slot` out to keep the reserved slot); the CLI refuses when the total changed and refuses `--slot earliest` with `--confirm`, because the earliest slot can change between preview and confirmation. Basket and slot changes are reversible; an order is not.
 
 - The preview needs items in the basket and a slot (`--slot earliest` reserves one); it sets the slot and payment method in the shop session but never orders.
 - Payment is cash (`mxcash`) or card at handover (`mxlocalcashcard`) only.

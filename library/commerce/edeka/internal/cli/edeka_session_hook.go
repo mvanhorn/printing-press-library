@@ -2,6 +2,7 @@ package cli
 
 import (
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strings"
 
@@ -12,9 +13,11 @@ import (
 
 // The spec-generated market commands (suggest, slots selected/reservation)
 // call the placeholder host market.edeka.shop. This hook sends them to the
-// selected market and gives them the imported session cookies, instead of a
-// second cookie copy in the generated credential store (which would go stale
-// as the shop rotates its session cookie).
+// selected market and gives them the imported session as the only login
+// state: the generated persistent cookie jar is swapped for an in-memory jar
+// seeded from the session file, and every Set-Cookie the market answers with
+// is merged back into that file. A second cookie copy would go stale as the
+// shop rotates its session cookie.
 func init() {
 	registerClientHook(func(c *client.Client) error {
 		if c == nil || c.HTTPClient == nil || cliutil.IsVerifyEnv() {
@@ -23,7 +26,7 @@ func init() {
 		path, _ := edeka.SessionPath()
 		s, err := edeka.LoadSession(path)
 		if err != nil {
-			s = &edeka.Session{}
+			s, path = &edeka.Session{}, ""
 		}
 		host, err := edeka.ResolveMarket("", s)
 		if err != nil {
@@ -33,11 +36,15 @@ func init() {
 		if next == nil {
 			next = http.DefaultTransport
 		}
-		c.HTTPClient.Transport = marketRewriteTransport{next: next, host: host}
-		if c.HTTPClient.Jar != nil {
-			u, _ := url.Parse("https://" + edeka.PlaceholderHost + "/")
-			c.HTTPClient.Jar.SetCookies(u, s.HostCookies(host))
+		// the rewrite runs first, so the write-back sees the real market host
+		c.HTTPClient.Transport = marketRewriteTransport{next: edeka.SessionWriteBack(next, path), host: host}
+		jar, err := cookiejar.New(nil)
+		if err != nil {
+			return err
 		}
+		u, _ := url.Parse("https://" + edeka.PlaceholderHost + "/")
+		jar.SetCookies(u, s.HostCookies(host))
+		c.HTTPClient.Jar = jar
 		return nil
 	})
 }

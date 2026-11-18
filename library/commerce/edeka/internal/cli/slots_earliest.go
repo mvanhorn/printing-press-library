@@ -32,7 +32,7 @@ func newNovelSlotsEarliestCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "slots earliest")
 			}
-			sh, err := openPublicShop(market)
+			sh, err := openPublicShop(flags, market)
 			if err != nil {
 				return err
 			}

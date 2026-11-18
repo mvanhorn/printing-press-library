@@ -2,6 +2,7 @@ package edeka
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -70,13 +71,59 @@ func Open(market string, requireSession bool) (*Shop, error) {
 	return OpenWith(s, path, host)
 }
 
+// ConnSettings are the connection settings the root flags give every Shop of
+// this process, so --ca-cert, --tls-server-name and --rate-limit apply to the
+// shopping commands as they do to the generated ones.
+type ConnSettings struct {
+	TLS *tls.Config
+	// Rate mirrors --rate-limit: below 0 keeps the default adaptive pace,
+	// 0 turns pacing off, above 0 caps requests per second.
+	Rate float64
+}
+
+var (
+	connMu sync.Mutex
+	conn   = ConnSettings{Rate: -1}
+)
+
+// Configure sets the connection settings for Shops opened afterwards.
+func Configure(c ConnSettings) {
+	connMu.Lock()
+	conn = c
+	connMu.Unlock()
+}
+
+func currentConn() ConnSettings {
+	connMu.Lock()
+	defer connMu.Unlock()
+	return conn
+}
+
+// defaultShopRate is the pace used unless --rate-limit sets one.
+const defaultShopRate = 3
+
+func shopLimiter(rate float64) *cliutil.AdaptiveLimiter {
+	switch {
+	case rate == 0:
+		return nil
+	case rate > 0:
+		return cliutil.NewAdaptiveLimiter(rate)
+	}
+	return cliutil.NewAdaptiveLimiter(defaultShopRate)
+}
+
 // OpenWith builds a Shop for a session, session file and market host.
 func OpenWith(s *Session, path, host string) (*Shop, error) {
 	jar, err := s.Jar()
 	if err != nil {
 		return nil, err
 	}
-	rec := &recordingTransport{next: shopOnlyTransport{next: http.DefaultTransport.(*http.Transport).Clone()}}
+	cs := currentConn()
+	base := http.DefaultTransport.(*http.Transport).Clone()
+	if cs.TLS != nil {
+		base.TLSClientConfig = cs.TLS.Clone()
+	}
+	rec := &recordingTransport{next: shopOnlyTransport{next: base}}
 	hc := &http.Client{
 		Timeout:   60 * time.Second,
 		Jar:       jar,
@@ -91,7 +138,7 @@ func OpenWith(s *Session, path, host string) (*Shop, error) {
 			return nil
 		},
 	}
-	return &Shop{HTTP: hc, Session: s, Path: path, Host: host, base: "https://" + host, portal: PortalURL, limiter: cliutil.NewAdaptiveLimiter(3), rec: rec}, nil
+	return &Shop{HTTP: hc, Session: s, Path: path, Host: host, base: "https://" + host, portal: PortalURL, limiter: shopLimiter(cs.Rate), rec: rec}, nil
 }
 
 // NewTestShop builds a Shop against a test server (both market and portal).

@@ -41,7 +41,7 @@ func newNovelDealsCheckCmd(flags *rootFlags) *cobra.Command {
 			if len(args) > 20 {
 				return usageErr(fmt.Errorf("at most 20 terms per call"))
 			}
-			sel, err := openPublicShop(market)
+			sel, err := openPublicShop(flags, market)
 			if err != nil {
 				return err
 			}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "edeka-session-path-follows-config-dir",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261117-201852-046bd390",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Without EDEKA_SESSION_FILE, the session file and the saved market selection resolve through cliutil.ConfigDir, so --home, EDEKA_HOME and EDEKA_CONFIG_DIR keep customers apart.",
+  "reason": "os.UserConfigDir ignored the CLI's path overrides, so two --home directories read and overwrote the same customer login.",
+  "files": [
+    "internal/edeka/session.go",
+    "internal/edeka/market.go",
+    "internal/edeka/review_round2_test.go"
+  ],
+  "markers": [
+    "cliutil.ConfigDir()",
+    "configFile(\"market.txt\")"
+  ],
+  "validated_outcome": "TestSessionPathFollowsConfigDir."
+}
