@@ -445,7 +445,7 @@ Resource scoping:
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
-	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
+	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh the head of each resource only (1 page); ignores and preserves any resume cursor and never advances the sync watermark. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
 	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
 	cmd.Flags().StringArrayVar(&resourceParamFlags, "resource-param", nil, "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.")
@@ -2832,6 +2832,9 @@ func runReadwiseReaderFullSync(cmd *cobra.Command, flags *rootFlags, resources [
 		}
 	}
 	for _, resource := range resetResources {
+		if readwiseWalkFiltered(params, resource) || (latestOnly && sinceTS == "") {
+			continue
+		}
 		if err := db.ResetReadwiseSyncState(resource); err != nil {
 			return err
 		}
@@ -2839,7 +2842,7 @@ func runReadwiseReaderFullSync(cmd *cobra.Command, flags *rootFlags, resources [
 	if cliutil.IsDogfoodEnv() && !cmd.Flags().Changed("max-pages") {
 		maxPages = 1
 	}
-	if latestOnly && sinceTS == "" && maxPages == 0 {
+	if latestOnly && sinceTS == "" {
 		maxPages = 1
 	}
 	syncCtx := cmd.Context()

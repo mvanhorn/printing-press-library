@@ -1572,7 +1572,7 @@ const (
 // hard wall-clock cutoff. fn must use conn (not s.db) so its writes
 // participate in the held transaction.
 func withMigrationLock(ctx context.Context, conn *sql.Conn, deadline time.Time, fn func() error) error {
-	if err := execWithBusyRetry(ctx, conn, "BEGIN IMMEDIATE", "begin migration transaction", deadline); err != nil {
+	if err := execWithBusyRetry(ctx, conn, "BEGIN IMMEDIATE", "begin store transaction", deadline); err != nil {
 		return err
 	}
 	committed := false
@@ -1587,7 +1587,7 @@ func withMigrationLock(ctx context.Context, conn *sql.Conn, deadline time.Time, 
 		// pinned connection returned to the pool with state that will
 		// confuse later queries.
 		if _, rerr := conn.ExecContext(context.Background(), "ROLLBACK"); rerr != nil {
-			fmt.Fprintf(os.Stderr, "warning: store migration rollback failed: %v\n", rerr)
+			fmt.Fprintf(os.Stderr, "warning: store transaction rollback failed: %v\n", rerr)
 		}
 	}()
 
@@ -1595,7 +1595,7 @@ func withMigrationLock(ctx context.Context, conn *sql.Conn, deadline time.Time, 
 		return err
 	}
 
-	if err := execWithBusyRetry(ctx, conn, "COMMIT", "commit migration transaction", deadline); err != nil {
+	if err := execWithBusyRetry(ctx, conn, "COMMIT", "commit store transaction", deadline); err != nil {
 		return err
 	}
 	committed = true
@@ -4219,7 +4219,39 @@ func (s *Store) SearchDocuments(query string, limit int) ([]json.RawMessage, err
 		`SELECT t.data FROM "documents" t
 		 JOIN "documents_fts" ON "documents_fts".rowid = t.rowid
 		 WHERE "documents_fts" MATCH ?
-		 ORDER BY "documents_fts".rank LIMIT ?`,
+		 ORDER BY "documents_fts".rank, t.rowid LIMIT ?`,
+		matchQuery, limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []json.RawMessage
+	for rows.Next() {
+		var data string
+		if err := rows.Scan(&data); err != nil {
+			return nil, err
+		}
+		results = append(results, json.RawMessage(data))
+	}
+	return results, rows.Err()
+}
+
+// SearchTopLevelDocuments excludes Reader children before applying the passage limit.
+func (s *Store) SearchTopLevelDocuments(query string, limit int) ([]json.RawMessage, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	matchQuery := FTSMatchQuery(query)
+	if matchQuery == "" {
+		return nil, nil
+	}
+	rows, err := s.db.Query(
+		`SELECT t.data FROM "documents" t
+		 JOIN "documents_fts" ON "documents_fts".rowid = t.rowid
+		 WHERE "documents_fts" MATCH ? AND COALESCE(json_extract(t.data, '$.parent_id'), '') = ''
+		 ORDER BY "documents_fts".rank, t.rowid LIMIT ?`,
 		matchQuery, limit,
 	)
 	if err != nil {

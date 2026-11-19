@@ -23,6 +23,7 @@ var homeVars = []string{"HOME", "USERPROFILE"}
 // clearedVars are the per-CLI and XDG overrides that would otherwise
 // point a lookup back out of the sandbox.
 var clearedVars = []string{
+	"READWISE_BASE_URL",
 	"READWISE_CONFIG",
 	"READWISE_CONFIG_DIR",
 	"READWISE_DATA_DIR",
@@ -34,6 +35,10 @@ var clearedVars = []string{
 	"XDG_STATE_HOME",
 	"XDG_CACHE_HOME",
 }
+
+// ResetProcessState lets a package clear directory-related process state when isolating.
+// Set it once in TestMain before running tests.
+var ResetProcessState func()
 
 // Isolate redirects user-directory lookups into a throwaway home and
 // returns it. Each resolver passed in is called and its result must
@@ -51,6 +56,9 @@ var clearedVars = []string{
 // under.
 func Isolate(t *testing.T, resolvers ...func() (string, error)) string {
 	t.Helper()
+	if ResetProcessState != nil {
+		ResetProcessState()
+	}
 	home := t.TempDir()
 	lockSandbox(t, home)
 	for _, name := range homeVars {

@@ -264,7 +264,7 @@ func TestSyncReadwiseExportFollowsCursorAndStoresRows(t *testing.T) {
 			defer db.Close()
 
 			client := &stubReadwiseGetter{responses: tt.responses}
-			results := syncReadwiseExport(context.Background(), client, nil, db, "", false, 0, false, nil, nil)
+			results := syncReadwiseExport(context.Background(), client, r4EmptyList(), db, "", false, 0, false, nil, nil)
 			if len(results) != 2 {
 				t.Fatalf("results len = %d, want 2", len(results))
 			}
@@ -327,7 +327,7 @@ func TestSyncReadwiseExportSkipsMalformedBookAndContinues(t *testing.T) {
 		t.Fatal(err)
 	}
 	os.Stderr = w
-	results := syncReadwiseExport(context.Background(), client, nil, db, "", false, 0, false, nil, io.Discard)
+	results := syncReadwiseExport(context.Background(), client, r4EmptyList(), db, "", false, 0, false, nil, io.Discard)
 	_ = w.Close()
 	os.Stderr = oldStderr
 	warnRaw, _ := io.ReadAll(r)
@@ -385,8 +385,8 @@ func TestSyncReadwiseExportAlsoUpsertsBooksListZeroHighlightAndEnrichment(t *tes
 	if bookCount != 2 {
 		t.Fatalf("books count = %d, want 2", bookCount)
 	}
-	if got := results[0].Count; got != 3 {
-		t.Fatalf("books sync count = %d, want export plus list upserts", got)
+	if got := results[0].Count; got != 2 {
+		t.Fatalf("books sync count = %d, want stored books count", got)
 	}
 
 	var zeroTitle string
@@ -426,9 +426,23 @@ func TestSyncReadwiseBooksListFollowsPageNextAndStopsOnEmpty(t *testing.T) {
 		json.RawMessage(`{"count":3,"next":"https://readwise.io/api/v2/books/?page=4&page_size=1000","previous":null,"results":[]}`),
 	}}
 
-	count, err := syncReadwiseBooksList(context.Background(), client, db, "2026-06-01T00:00:00Z", 0, nil, io.Discard)
+	count, capped, err := syncReadwiseBooksList(context.Background(), client, db, "2026-06-01T00:00:00Z", 3, nil, io.Discard, false)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if capped {
+		t.Fatal("empty page counted as capped")
+	}
+	// The list walker leaves continuation cleanup to the atomic export checkpoint.
+	if cursor, _, _, err := db.GetSyncState("readwise-books-list"); err != nil || cursor == "" {
+		t.Fatalf("continuation removed before checkpoint commit: %q %v", cursor, err)
+	}
+	if err := db.SaveReadwiseExportCheckpoint("", "", count, count, 0, time.Now(), true); err != nil {
+		t.Fatal(err)
+	}
+	cursor, _, _, err := db.GetSyncState("readwise-books-list")
+	if err != nil || cursor != "" {
+		t.Fatalf("terminal list retained cursor: %q %v", cursor, err)
 	}
 	if count != 2 {
 		t.Fatalf("count = %d, want 2", count)
@@ -506,7 +520,7 @@ func TestE2ResumePreservesFilter(t *testing.T) {
 	defer db.Close()
 	since := "2020-01-01T00:00:00Z"
 	c := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(`{"nextPageCursor":"next","results":[]}`)}}
-	for _, res := range syncReadwiseExport(context.Background(), c, nil, db, since, false, 1, false, nil, nil) {
+	for _, res := range syncReadwiseExport(context.Background(), c, r4EmptyList(), db, since, false, 1, false, nil, nil) {
 		if res.Err != nil {
 			t.Fatal(res.Err)
 		}
@@ -516,7 +530,7 @@ func TestE2ResumePreservesFilter(t *testing.T) {
 		t.Fatalf("partial watermark=%v err=%v", at, err)
 	}
 	c = &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(`{"results":[]}`)}}
-	for _, res := range syncReadwiseExport(context.Background(), c, nil, db, "", false, 0, false, nil, nil) {
+	for _, res := range syncReadwiseExport(context.Background(), c, r4EmptyList(), db, "", false, 0, false, nil, nil) {
 		if res.Err != nil {
 			t.Fatal(res.Err)
 		}
@@ -541,7 +555,7 @@ func TestE2DefaultAndFullTombstones(t *testing.T) {
 				t.Fatal(err)
 			}
 			c := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(`{"results":[{"user_book_id":1,"highlights":[{"id":2,"is_deleted":true}]}]}`)}}
-			results := syncReadwiseExport(context.Background(), c, nil, db, "", full, 0, false, nil, nil)
+			results := syncReadwiseExport(context.Background(), c, r4EmptyList(), db, "", full, 0, false, nil, nil)
 			if c.calls[0]["includeDeleted"] != "true" {
 				t.Fatalf("tombstone query=%v", c.calls[0])
 			}
@@ -637,24 +651,80 @@ func TestE2ArchiveCommandTimeout(t *testing.T) {
 		t.Fatalf("archive exit=%d stderr=%s", code, stderr)
 	}
 }
-func TestE2LatestOnlyClearsCursor(t *testing.T) {
-	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+
+// Snapshot every sync_state field, including readiness and the chain's lower bound.
+func r2bSyncStateSnapshot(t *testing.T, db *store.Store) string {
+	t.Helper()
+	rows, err := db.DB().Query(`SELECT resource_type, last_cursor, COALESCE(CAST(last_synced_at AS TEXT), ''), total_count, last_attempt_complete, scope_key, readwise_chain_started FROM sync_state ORDER BY resource_type`)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
-	if err := db.SaveReadwiseSyncProgress("readwise-export", "stale", 1, "2020-01-01T00:00:00Z"); err != nil {
+	defer rows.Close()
+	var out strings.Builder
+	for rows.Next() {
+		var key, cursor, at, scope, chain string
+		var count, complete int
+		if err := rows.Scan(&key, &cursor, &at, &count, &complete, &scope, &chain); err != nil {
+			t.Fatal(err)
+		}
+		fmt.Fprintf(&out, "%q %q %q %d %d %q %q\n", key, cursor, at, count, complete, scope, chain)
+	}
+	if err := rows.Err(); err != nil {
 		t.Fatal(err)
 	}
-	c := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(`{"nextPageCursor":"next","results":[]}`)}}
-	for _, res := range syncReadwiseExport(context.Background(), c, nil, db, "", false, 1, true, nil, nil) {
-		if res.Err != nil {
-			t.Fatal(res.Err)
+	return out.String()
+}
+
+func TestR2LatestOnlyReadsHeadAndPreservesResumeState(t *testing.T) {
+	for _, full := range []bool{false, true} {
+		for _, next := range []string{`null`, `"next"`} {
+			t.Run(fmt.Sprintf("full_%t_next_%t", full, next != `null`), func(t *testing.T) {
+				db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer db.Close()
+				at := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+				for i, key := range []string{"readwise-export", "books", "highlights", "readwise-books-list", "documents", "reader-tags"} {
+					if err := db.SaveSyncStateAt(key, "stale", 17, at); err != nil {
+						t.Fatal(err)
+					}
+					if _, err := db.DB().Exec(`UPDATE sync_state SET last_attempt_complete=?, scope_key='saved-since', readwise_chain_started='saved-chain' WHERE resource_type=?`, i%2, key); err != nil {
+						t.Fatal(err)
+					}
+				}
+				before := r2bSyncStateSnapshot(t, db)
+				c := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(fmt.Sprintf(`{"nextPageCursor":%s,"results":[{"user_book_id":1,"title":"head"}]}`, next))}}
+				list := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(`{"next":"more","results":[{"id":2,"title":"list head"}]}`)}}
+				for _, res := range syncReadwiseExport(context.Background(), c, list, db, "", full, 8, true, nil, io.Discard) {
+					if res.Err != nil {
+						t.Fatal(res.Err)
+					}
+				}
+				if len(c.calls) != 1 || c.calls[0]["pageCursor"] != "" || c.calls[0]["updatedAfter"] != "" {
+					t.Fatalf("export did not fetch head: %v", c.calls)
+				}
+				if len(list.calls) != 1 || list.calls[0]["page"] != "1" || list.calls[0]["updated__gt"] != "" {
+					t.Fatalf("list did not fetch head: %v", list.calls)
+				}
+				for _, resource := range []string{"documents", "reader-tags"} {
+					reader := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(fmt.Sprintf(`{"nextPageCursor":%s,"results":[{"id":"head"}]}`, next))}}
+					res := syncReadwiseCursorResource(context.Background(), reader, db, resource, "/list/", "", full, 8, true, nil, io.Discard, true)
+					if res.Err != nil {
+						t.Fatal(res.Err)
+					}
+					if len(reader.calls) != 1 || reader.calls[0]["pageCursor"] != "" || reader.calls[0]["updatedAfter"] != "" {
+						t.Fatalf("reader did not fetch head: %v", reader.calls)
+					}
+				}
+				if after := r2bSyncStateSnapshot(t, db); after != before {
+					t.Fatalf("resume state changed\nbefore: %s\nafter: %s", before, after)
+				}
+				if n, err := db.Count("books"); err != nil || n != 2 {
+					t.Fatalf("head rows not stored: %d %v", n, err)
+				}
+			})
 		}
-	}
-	cursor, _, _, err := db.GetSyncState("readwise-export")
-	if err != nil || cursor != "" || c.calls[0]["pageCursor"] != "" {
-		t.Fatalf("latestOnly resumed or retained cursor: %s %v %v", cursor, c.calls, err)
 	}
 }
 func TestE2FullSummaryAndIncrementalBookCount(t *testing.T) {
@@ -703,7 +773,7 @@ func TestE2WatermarkUsesRunStart(t *testing.T) {
 	c := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(`{"nextPageCursor":"next","results":[]}`), json.RawMessage(`{"results":[]}`)}}
 	start := time.Date(2020, 1, 2, 3, 4, 5, 0, time.UTC)
 	ctx := context.WithValue(context.Background(), readwiseRunStartKey{}, start)
-	results := syncReadwiseExport(ctx, c, nil, db, "", false, 0, false, nil, nil)
+	results := syncReadwiseExport(ctx, c, r4EmptyList(), db, "", false, 0, false, nil, nil)
 	for _, res := range results {
 		if res.Err != nil {
 			t.Fatal(res.Err)
@@ -748,7 +818,7 @@ func TestE2TombstoneErrorEvent(t *testing.T) {
 	defer db.Close()
 	c := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(`{"results":[{"user_book_id":1,"highlights":[{"is_deleted":true}]}]}`)}}
 	var out bytes.Buffer
-	results := syncReadwiseExport(context.Background(), c, nil, db, "", false, 0, false, nil, &out)
+	results := syncReadwiseExport(context.Background(), c, r4EmptyList(), db, "", false, 0, false, nil, &out)
 	if len(results) != 1 || results[0].Err == nil || !strings.Contains(out.String(), `"event":"sync_error"`) {
 		t.Fatalf("silent tombstone error: %v %s", results, out.String())
 	}
@@ -784,5 +854,32 @@ func TestE2FilteredReaderNeverPrunes(t *testing.T) {
 		if err != nil || n != 1 {
 			t.Fatalf("unsafe prune mode=%s count=%d err=%v", mode, n, err)
 		}
+	}
+}
+
+func TestSyncReadwiseBooksListNonemptyPageWithoutNextCompletes(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if err := db.SaveReadwiseSyncProgress("readwise-books-list", "3", 7, ""); err != nil {
+		t.Fatal(err)
+	}
+	client := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(`{"next":null,"results":[{"id":1,"title":"Last"}]}`)}}
+	count, capped, err := syncReadwiseBooksList(context.Background(), client, db, "", 1, nil, io.Discard, false)
+	if err != nil || capped || count != 1 || len(client.calls) != 1 {
+		t.Fatalf("count=%d capped=%t calls=%v err=%v", count, capped, client.calls, err)
+	}
+	// The list walker leaves continuation cleanup to the atomic export checkpoint.
+	if cursor, _, _, err := db.GetSyncState("readwise-books-list"); err != nil || cursor == "" {
+		t.Fatalf("continuation removed before checkpoint commit: %q %v", cursor, err)
+	}
+	if err := db.SaveReadwiseExportCheckpoint("", "", count, count, 0, time.Now(), true); err != nil {
+		t.Fatal(err)
+	}
+	cursor, _, _, err := db.GetSyncState("readwise-books-list")
+	if err != nil || cursor != "" {
+		t.Fatalf("terminal list retained cursor: %q %v", cursor, err)
 	}
 }

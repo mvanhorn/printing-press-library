@@ -3,7 +3,8 @@
 # Version is read from manifest.json and injected via ldflags so the binaries
 # report the real release version instead of the hardcoded source defaults.
 VERSION := $(shell sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' manifest.json | head -1)
-CLI_LDFLAGS := -X 'readwise-pp-cli/internal/cli.version=$(VERSION)'
+MODULE := $(shell GOWORK=off go list -m)
+CLI_LDFLAGS := -X '$(MODULE)/internal/cli.version=$(VERSION)'
 MCP_LDFLAGS := -X 'main.version=$(VERSION)'
 BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
 

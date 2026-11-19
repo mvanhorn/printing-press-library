@@ -8,11 +8,12 @@ import (
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/productivity/readwise/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/readwise/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/readwise/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/readwise/internal/store"
 	"io"
 	"os"
 	"sort"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -129,7 +130,7 @@ func runReadwiseExportSyncCmd(cmd *cobra.Command, flags *rootFlags, resources []
 		sinceTS = ts.Format(time.RFC3339)
 	}
 
-	if full {
+	if full && !(latestOnly && since == "") {
 		for _, resource := range resources {
 			if err := db.ResetReadwiseSyncState(resource); err != nil {
 				return err
@@ -139,7 +140,7 @@ func runReadwiseExportSyncCmd(cmd *cobra.Command, flags *rootFlags, resources []
 			return err
 		}
 	}
-	if latestOnly && since == "" && maxPages == 0 {
+	if latestOnly && since == "" {
 		maxPages = 1
 	}
 
@@ -210,13 +211,14 @@ func runReadwiseSyncResources(ctx context.Context, flags *rootFlags, db *store.S
 }
 
 func newReadwiseSyncClient(flags *rootFlags, rate float64) (readwiseGetter, error) {
-	cfg, err := config.Load(flags.configPath)
+	// Share TLS validation, explicit timeout, verified platform binding and hooks.
+	syncFlags := *flags
+	syncFlags.rateLimit = 0 // Fixed pacing below owns sync request spacing.
+	syncFlags.noCache = true
+	c, err := syncFlags.newClient()
 	if err != nil {
-		return nil, configErr(err)
+		return nil, err
 	}
-	c := client.New(cfg, flags.timeout, 0)
-	c.DryRun = flags.dryRun
-	c.NoCache = true
 	return newFixedPacedClient(c, rate), nil
 }
 
@@ -278,8 +280,38 @@ func syncReadwiseExport(ctx context.Context, c readwiseGetter, booksListClient r
 	emitSyncStart(syncEvents, "books")
 	emitSyncStart(syncEvents, "highlights")
 
-	existingCursor, lastSynced, _, _ := db.GetSyncState("readwise-export")
-	if full {
+	filtered := readwiseWalkFiltered(userParams, "books")
+	// Head refreshes share the read-only checkpoint path with filtered walks.
+	if latestOnly {
+		filtered = true
+		maxPages = 1
+	}
+	if latestOnly {
+		fmt.Fprintln(os.Stderr, "books: head refresh — checkpoint not advanced")
+	} else if filtered {
+		fmt.Fprintln(os.Stderr, "books: filtered walk — checkpoint not advanced")
+	}
+
+	if full && !filtered {
+		if err := db.ClearReadwiseBooksList(); err != nil {
+			return []syncResult{{Resource: "books", Err: err}}
+		}
+	}
+	listCursor, _, _, _ := db.GetSyncState("readwise-books-list")
+	listScope, validListChain, listErr := db.ReadwiseBooksListResumeScope()
+	if listErr != nil {
+		return []syncResult{{Resource: "books", Err: listErr}}
+	}
+	resumeList := booksListClient != nil && !full && !filtered && listCursor != "" && validListChain
+	if !full && !filtered && listCursor != "" && !validListChain {
+		if err := db.ClearReadwiseBooksList(); err != nil {
+			return []syncResult{{Resource: "books", Err: err}}
+		}
+	}
+	existingCursor, lastSynced, savedExportCount, _ := db.GetSyncState("readwise-export")
+	_, _, savedBookCount, _ := db.GetSyncState("books")
+	_, _, savedHighlightCount, _ := db.GetSyncState("highlights")
+	if full || filtered {
 		existingCursor = ""
 		lastSynced = time.Time{}
 	}
@@ -290,33 +322,50 @@ func syncReadwiseExport(ctx context.Context, c readwiseGetter, booksListClient r
 	if effectiveSince == "" && !lastSynced.IsZero() && !full {
 		effectiveSince = lastSynced.Format(time.RFC3339)
 	}
-	if latestOnly {
-		existingCursor = ""
-	}
-	if existingCursor != "" {
+
+	if existingCursor != "" || resumeList {
 		if saved, err := db.ReadwiseSyncSince("readwise-export"); err == nil {
 			effectiveSince = saved
 		}
 	}
 
-	chainStarted, chainErr := db.ReadwiseChainStart("readwise-export", existingCursor != "", started)
+	if resumeList {
+		if sinceTS != "" {
+			fmt.Fprintln(os.Stderr, "resuming capped books-list chain; --since ignored until it completes")
+		}
+		effectiveSince = listScope
+	}
+
+	chainStarted, chainErr := readwiseWalkChainStart(db, filtered, "readwise-export", existingCursor != "" || resumeList, started)
 	if chainErr != nil {
 		return []syncResult{{Resource: "books", Err: chainErr}}
 	}
-	if err := db.SaveReadwiseSyncProgress("readwise-export", existingCursor, 0, effectiveSince); err != nil {
+	progressCount := 0
+	if resumeList {
+		progressCount = savedExportCount
+	}
+	if err := readwiseWalkProgress(db, filtered, "readwise-export", existingCursor, progressCount, effectiveSince); err != nil {
 		emitSyncError(syncEvents, "books", err)
 		return []syncResult{{Resource: "books", Err: err}}
 	}
 	var bookCount, highlightCount, deletedCount, pages int
+	if resumeList {
+		bookCount = savedBookCount
+		highlightCount = savedHighlightCount
+	}
 	cursor := existingCursor
 	capHit := false
-	for {
+	for !resumeList {
 		params := map[string]string{}
 		if cursor != "" {
 			params["pageCursor"] = cursor
 		}
 		if effectiveSince != "" {
 			params["updatedAfter"] = effectiveSince
+		}
+		if latestOnly {
+			delete(params, "pageCursor")
+			delete(params, "updatedAfter")
 		}
 		userParams.applyTo("books", params, false)
 		params["includeDeleted"] = "true"
@@ -398,12 +447,10 @@ func syncReadwiseExport(ctx context.Context, c readwiseGetter, booksListClient r
 		emitSyncProgress(syncEvents, c, "highlights", highlightCount)
 		pages++
 		next := env.NextPageCursor.String()
-		if next != "" {
-			for key, count := range map[string]int{"readwise-export": bookCount + highlightCount, "books": bookCount, "highlights": highlightCount} {
-				if err := db.SaveReadwiseSyncProgress(key, next, count, effectiveSince); err != nil {
-					emitSyncError(syncEvents, key, err)
-					return []syncResult{{Resource: key, Err: err}}
-				}
+		if !filtered {
+			if err := db.SaveReadwiseExportCheckpoint(next, effectiveSince, bookCount+highlightCount, bookCount, highlightCount, chainStarted, false); err != nil {
+				emitSyncError(syncEvents, "books", err)
+				return []syncResult{{Resource: "books", Err: err}}
 			}
 		}
 		if maxPages > 0 && pages >= maxPages {
@@ -421,9 +468,12 @@ func syncReadwiseExport(ctx context.Context, c readwiseGetter, booksListClient r
 	if capHit {
 		finalCursor = cursor
 	}
-	exportBookCount := bookCount
-	if booksListClient != nil {
-		listCount, err := syncReadwiseBooksList(ctx, booksListClient, db, effectiveSince, maxPages, userParams, syncEvents)
+	exportTotalCount := bookCount + highlightCount
+	if resumeList {
+		exportTotalCount = savedExportCount
+	}
+	if booksListClient != nil && (!capHit || latestOnly) {
+		listCount, listCap, err := syncReadwiseBooksList(ctx, booksListClient, db, effectiveSince, maxPages, userParams, syncEvents, latestOnly)
 		if err != nil {
 			emitSyncError(syncEvents, "books", err)
 			return []syncResult{
@@ -432,20 +482,23 @@ func syncReadwiseExport(ctx context.Context, c readwiseGetter, booksListClient r
 			}
 		}
 		bookCount += listCount
+		capHit = capHit || listCap
 	}
-	if latestOnly {
-		finalCursor = ""
-	}
-	for key, count := range map[string]int{"readwise-export": exportBookCount + highlightCount, "books": bookCount, "highlights": highlightCount} {
-		var err error
-		if capHit {
-			err = db.SaveReadwiseSyncProgress(key, finalCursor, count, effectiveSince)
-		} else {
-			err = db.SaveSyncStateAt(key, finalCursor, count, chainStarted)
+	if !filtered {
+		if !capHit {
+			if booksListClient == nil {
+				return []syncResult{{Resource: "books", Err: fmt.Errorf("books-list client is required to complete export sync")}}
+			}
+			// Completion reports cached books, not overlap or restart fetches.
+			var err error
+			bookCount, err = db.Count("books")
+			if err != nil {
+				return []syncResult{{Resource: "books", Err: err}}
+			}
 		}
-		if err != nil {
-			emitSyncError(syncEvents, key, err)
-			return []syncResult{{Resource: key, Err: err}}
+		if err := db.SaveReadwiseExportCheckpoint(finalCursor, effectiveSince, exportTotalCount, bookCount, highlightCount, chainStarted, !capHit); err != nil {
+			emitSyncError(syncEvents, "books", err)
+			return []syncResult{{Resource: "books", Err: err}}
 		}
 	}
 	emitSyncComplete(syncEvents, "books", bookCount, started)
@@ -456,8 +509,36 @@ func syncReadwiseExport(ctx context.Context, c readwiseGetter, booksListClient r
 	}
 }
 
-func syncReadwiseBooksList(ctx context.Context, c readwiseGetter, db *store.Store, effectiveSince string, maxPages int, userParams *syncUserParams, syncEvents io.Writer) (int, error) {
+func syncReadwiseBooksList(ctx context.Context, c readwiseGetter, db *store.Store, effectiveSince string, maxPages int, userParams *syncUserParams, syncEvents io.Writer, latestOnly bool) (int, bool, error) {
 	page := 1
+	filtered := readwiseWalkFiltered(userParams, "books") || latestOnly
+	if latestOnly {
+		maxPages = 1
+		effectiveSince = ""
+	}
+	sizeParams := map[string]string{"page_size": strconv.Itoa(readwiseBooksListPageSize)}
+	userParams.applyTo("books", sizeParams, false)
+	pageSize := sizeParams["page_size"]
+	resumed := false
+	requestedMaxPages := maxPages
+	if !filtered {
+		cursor, _, _, err := db.GetSyncState("readwise-books-list")
+		if err != nil {
+			return 0, false, err
+		}
+		savedPage, savedSize, ok := strings.Cut(cursor, ":")
+		if ok && savedSize == pageSize {
+			if saved, err := strconv.Atoi(savedPage); err == nil && saved > 0 {
+				page = saved
+				resumed = true
+				// The overlap is extra work so even a one-page cap makes forward progress.
+				if maxPages > 0 {
+					maxPages++
+				}
+			}
+		}
+	}
+
 	var total, pages int
 	for {
 		params := map[string]string{
@@ -467,49 +548,79 @@ func syncReadwiseBooksList(ctx context.Context, c readwiseGetter, db *store.Stor
 		if effectiveSince != "" {
 			params["updated__gt"] = effectiveSince
 		}
+		if latestOnly {
+			params["page"] = "1"
+			delete(params, "updated__gt")
+		}
 		userParams.applyTo("books", params, false)
 
 		data, err := c.Get(ctx, "/books/", params)
 		if err != nil {
-			return total, fmt.Errorf("fetching readwise books list: %w", err)
+			var apiErr *client.APIError
+			if resumed && page > 1 && errors.As(err, &apiErr) && apiErr.StatusCode == 404 {
+				page = 1
+				maxPages = requestedMaxPages
+				resumed = false
+				continue
+			}
+			return total, false, fmt.Errorf("fetching readwise books list: %w", err)
 		}
 		if isDryRunResponseForClient(c, data) {
 			emitSyncDryRun(syncEvents, "books")
-			return total, nil
+			return total, false, nil
 		}
 
 		var env readwiseBooksListEnvelope
 		if err := json.Unmarshal(data, &env); err != nil {
-			return total, fmt.Errorf("decoding readwise books list: %w", err)
+			return total, false, fmt.Errorf("decoding readwise books list: %w", err)
 		}
+
+		resumed = false
+
+		// Empty pages are terminal even when the API advertises a next page.
 		if len(env.Results) == 0 {
-			emitSyncProgress(syncEvents, c, "books", total)
-			return total, nil
+			env.Next = ""
 		}
 
 		stored, _, _, err := upsertResourceBatch(db, "books", env.Results)
 		if err != nil {
-			return total, fmt.Errorf("upserting readwise books list: %w", err)
+			return total, false, fmt.Errorf("upserting readwise books list: %w", err)
 		}
 		total += stored
 		emitSyncProgress(syncEvents, c, "books", total)
 
 		pages++
+		if !filtered {
+			if env.Next != "" {
+				if err := db.SaveReadwiseSyncProgress("readwise-books-list", strconv.Itoa(page)+":"+pageSize, total, effectiveSince); err != nil {
+					return total, false, err
+				}
+			}
+		}
 		if maxPages > 0 && pages >= maxPages {
-			return total, nil
+			return total, env.Next != "", nil
 		}
 		if env.Next == "" {
-			return total, nil
+			return total, false, nil
 		}
 		page++
 	}
 }
 
 func syncReadwiseCursorResource(ctx context.Context, c readwiseGetter, db *store.Store, resource, path, sinceTS string, full bool, maxPages int, latestOnly bool, userParams *syncUserParams, syncEvents io.Writer, pruneAllowed bool) syncResult {
+	filtered := readwiseWalkFiltered(userParams, resource) || latestOnly
+	if latestOnly {
+		maxPages = 1
+	}
+	if latestOnly {
+		fmt.Fprintf(os.Stderr, "%s: head refresh — checkpoint not advanced\n", resource)
+	} else if filtered {
+		fmt.Fprintf(os.Stderr, "%s: filtered walk — checkpoint not advanced\n", resource)
+	}
 	started := readwiseRunStart(ctx)
 	emitSyncStart(syncEvents, resource)
 	existingCursor, lastSynced, _, _ := db.GetSyncState(resource)
-	if full {
+	if full || filtered {
 		existingCursor = ""
 		lastSynced = time.Time{}
 	}
@@ -517,20 +628,18 @@ func syncReadwiseCursorResource(ctx context.Context, c readwiseGetter, db *store
 	if resource == "documents" && effectiveSince == "" && !lastSynced.IsZero() && !full {
 		effectiveSince = lastSynced.Format(time.RFC3339)
 	}
-	if latestOnly {
-		existingCursor = ""
-	}
+
 	if existingCursor != "" {
 		if saved, err := db.ReadwiseSyncSince(resource); err == nil {
 			effectiveSince = saved
 		}
 	}
 
-	chainStarted, chainErr := db.ReadwiseChainStart(resource, existingCursor != "", started)
+	chainStarted, chainErr := readwiseWalkChainStart(db, filtered, resource, existingCursor != "", started)
 	if chainErr != nil {
 		return syncResult{Resource: resource, Err: chainErr}
 	}
-	if err := db.SaveReadwiseSyncProgress(resource, existingCursor, 0, effectiveSince); err != nil {
+	if err := readwiseWalkProgress(db, filtered, resource, existingCursor, 0, effectiveSince); err != nil {
 		emitSyncError(syncEvents, resource, err)
 		return syncResult{Resource: resource, Err: err}
 	}
@@ -539,7 +648,7 @@ func syncReadwiseCursorResource(ctx context.Context, c readwiseGetter, db *store
 	sawChild := false
 	reportedCount := 0
 	seen := map[string]bool{}
-	prune := resource == "documents" && full && sinceTS == "" && pruneAllowed
+	prune := resource == "documents" && full && sinceTS == "" && pruneAllowed && !filtered
 	baseline, baselineErr := db.List("documents", 0)
 	if baselineErr != nil {
 		return syncResult{Resource: resource, Err: baselineErr}
@@ -556,6 +665,10 @@ func syncReadwiseCursorResource(ctx context.Context, c readwiseGetter, db *store
 		}
 		if resource == "documents" && effectiveSince != "" {
 			params["updatedAfter"] = effectiveSince
+		}
+		if latestOnly {
+			delete(params, "pageCursor")
+			delete(params, "updatedAfter")
 		}
 		userParams.applyTo(resource, params, false)
 		for key := range params {
@@ -611,7 +724,7 @@ func syncReadwiseCursorResource(ctx context.Context, c readwiseGetter, db *store
 		pages++
 		next := env.NextPageCursor.String()
 		if next != "" {
-			if err := db.SaveReadwiseSyncProgress(resource, next, total, effectiveSince); err != nil {
+			if err := readwiseWalkProgress(db, filtered, resource, next, total, effectiveSince); err != nil {
 				emitSyncError(syncEvents, resource, err)
 				return syncResult{Resource: resource, Err: err}
 			}
@@ -654,9 +767,9 @@ func syncReadwiseCursorResource(ctx context.Context, c readwiseGetter, db *store
 	}
 	var checkpointErr error
 	if capHit {
-		checkpointErr = db.SaveReadwiseSyncProgress(resource, finalCursor, total, effectiveSince)
+		checkpointErr = readwiseWalkProgress(db, filtered, resource, finalCursor, total, effectiveSince)
 	} else {
-		checkpointErr = db.SaveSyncStateAt(resource, finalCursor, total, chainStarted)
+		checkpointErr = readwiseWalkComplete(db, filtered, resource, finalCursor, total, chainStarted)
 	}
 	if checkpointErr != nil {
 		emitSyncError(syncEvents, resource, checkpointErr)
@@ -898,4 +1011,39 @@ func (e *safeReadwiseSyncError) Error() string { return e.message }
 func (e *safeReadwiseSyncError) Unwrap() error { return e.cause }
 func redactedSyncFailure(prefix string, err error) error {
 	return &safeReadwiseSyncError{message: prefix + ": " + safeSyncErrorMessage(err), cause: err}
+}
+
+// readwiseWalkFiltered keeps partitioned reads out of shared checkpoint state.
+func readwiseWalkFiltered(p *syncUserParams, resource string) bool {
+	if resource == "readwise-export" || resource == "highlights" {
+		resource = "books"
+	}
+	params := map[string]string{}
+	p.applyTo(resource, params, false)
+	for key := range params {
+		switch key {
+		case "limit", "page_size", "withHtmlContent", "withRawSourceUrl":
+		default:
+			return true
+		}
+	}
+	return false
+}
+func readwiseWalkChainStart(db *store.Store, filtered bool, resource string, resume bool, now time.Time) (time.Time, error) {
+	if filtered {
+		return now, nil
+	}
+	return db.ReadwiseChainStart(resource, resume, now)
+}
+func readwiseWalkProgress(db *store.Store, filtered bool, resource, cursor string, count int, since string) error {
+	if filtered {
+		return nil
+	}
+	return db.SaveReadwiseSyncProgress(resource, cursor, count, since)
+}
+func readwiseWalkComplete(db *store.Store, filtered bool, resource, cursor string, count int, at time.Time) error {
+	if filtered {
+		return nil
+	}
+	return db.SaveSyncStateAt(resource, cursor, count, at)
 }

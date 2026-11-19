@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "mirror-single-read-snapshot",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "All mirror payloads come from one read transaction.",
+  "reason": "Concurrent WAL writers can otherwise commit between table reads and yield a checksum-valid but inconsistent export. Pin a shared read snapshot across every exported table.",
+  "files": [
+    "internal/cli/mirror.go",
+    "internal/cli/review_mirror_snapshot_test.go"
+  ],
+  "markers": [
+    "func novelMirrorSnapshot(",
+    "tx.QueryContext(ctx, tables[name])",
+    "func TestReviewMirrorSingleSnapshot(",
+    "db.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})"
+  ]
+}

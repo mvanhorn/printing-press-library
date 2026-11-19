@@ -368,7 +368,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (explicit confirmation for scripts)")
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
-	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set agent-friendly output defaults (--json --compact --no-input --no-color); writes still require --yes")
+	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set agent-friendly output defaults (--json --compact --no-input --no-color); destructive commands still require --yes")
 	rootCmd.PersistentFlags().BoolVar(&flags.noLearn, "no-learn", false, "Disable the teach/recall learning loop for this invocation")
 	rootCmd.PersistentFlags().BoolVar(&flags.allowPartialFailure, "allow-partial-failure", false, "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
@@ -474,7 +474,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 			}
 		}
 		if flags.agent {
-			flags.yes = true
 			if !cmd.Flags().Changed("json") {
 				flags.asJSON = true
 			}
@@ -504,7 +503,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 
 		if isDestructiveCommand(cmd) && !flags.yes {
 			if flags.noInput {
-				return fmt.Errorf("refusing destructive operation without confirmation: pass --yes (or --agent) to proceed in non-interactive mode")
+				return fmt.Errorf("refusing destructive operation without confirmation: pass --yes to proceed in non-interactive mode")
 			}
 			fmt.Fprintf(cmd.ErrOrStderr(), "This will modify/delete data via '%s' on your Readwise account. Confirm [y/N]: ", cmd.CommandPath())
 			line, _ := bufio.NewReader(cmd.InOrStdin()).ReadString('\n')

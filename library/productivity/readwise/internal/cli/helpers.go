@@ -830,6 +830,37 @@ func parseSyncUserParams(flatGlobalFlags, resourceParamFlags, trueGlobalFlags []
 		}
 		p.perResource[resource][k] = v
 	}
+	for _, source := range []struct {
+		flag   string
+		values map[string]string
+	}{{"--param", p.flatGlobal}, {"--global-param", p.trueGlobal}} {
+		for _, key := range []string{"pageCursor", "page"} {
+			if _, ok := source.values[key]; ok {
+				return nil, fmt.Errorf("%s %s is managed by sync (resume is automatic)", source.flag, key)
+			}
+		}
+	}
+	for resource, values := range p.perResource {
+		for _, key := range []string{"pageCursor", "page"} {
+			if _, ok := values[key]; ok {
+				return nil, fmt.Errorf("--resource-param %s:%s is managed by sync (resume is automatic)", resource, key)
+			}
+		}
+	}
+
+	for _, source := range []struct {
+		name   string
+		values map[string]string
+	}{
+		{"--param page_size", p.flatGlobal}, {"--global-param page_size", p.trueGlobal}, {"--resource-param books:page_size", p.perResource["books"]},
+	} {
+		if value, ok := source.values["page_size"]; ok {
+			if n, err := strconv.Atoi(value); err != nil || n <= 0 {
+				return nil, fmt.Errorf("%s must be a positive integer (got %q)", source.name, value)
+			}
+		}
+	}
+
 	return p, nil
 }
 

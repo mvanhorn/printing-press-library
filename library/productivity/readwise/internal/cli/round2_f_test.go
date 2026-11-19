@@ -149,7 +149,7 @@ func TestFDeadBookChildren(t *testing.T) {
 		t.Fatal(err)
 	}
 	c := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(`{"results":[{"user_book_id":1,"is_deleted":true,"highlights":[{"id":3,"text":"nested"}]}]}`)}}
-	for _, res := range syncReadwiseExport(context.Background(), c, nil, db, "", false, 0, false, nil, nil) {
+	for _, res := range syncReadwiseExport(context.Background(), c, r4EmptyList(), db, "", false, 0, false, nil, nil) {
 		if res.Err != nil {
 			t.Fatal(res.Err)
 		}
@@ -198,7 +198,7 @@ func TestFBookTombstone(t *testing.T) {
 		t.Fatal(err)
 	}
 	c := &stubReadwiseGetter{responses: []json.RawMessage{json.RawMessage(`{"results":[{"user_book_id":1,"is_deleted":true,"highlights":[]}]}`)}}
-	for _, res := range syncReadwiseExport(context.Background(), c, nil, db, "", false, 0, false, nil, nil) {
+	for _, res := range syncReadwiseExport(context.Background(), c, r4EmptyList(), db, "", false, 0, false, nil, nil) {
 		if res.Err != nil {
 			t.Fatal(res.Err)
 		}
@@ -240,7 +240,7 @@ func TestFResumeChainStart(t *testing.T) {
 					t.Fatal(res.Err)
 				}
 			} else {
-				for _, res := range syncReadwiseExport(ctx, c, nil, db, "", false, capPages, false, nil, nil) {
+				for _, res := range syncReadwiseExport(ctx, c, r4EmptyList(), db, "", false, capPages, false, nil, nil) {
 					if res.Err != nil {
 						t.Fatal(res.Err)
 					}

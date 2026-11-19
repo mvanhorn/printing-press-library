@@ -334,6 +334,8 @@ Every payload sends kind, watch, count, generated_at and item id, title, author,
 
 - `readwise-pp-cli sync` — Sync API data into SQLite with resumable incremental sync or --full resync.
 
+A filtered sync (`--resource-param` that narrows rows) never advances the shared checkpoint. Capped syncs resume where they stopped, including the separate Classic books-list pass. The books-list pass re-reads its saved page to absorb small result-set shifts. It restarts at page 1 when the page size changes or the saved page disappears. `--full` discards any capped continuation; `--full --latest-only` preserves it while refreshing the head.
+
 **teach-playbook**
 
 - `readwise-pp-cli teach-playbook` — Store a query-family playbook and/or notes.
@@ -741,6 +743,8 @@ Every command accepts `--deliver <sink>`. The output goes to the named sink in a
 | `file:<path>` | Atomically write output to `<path>` as a private 0600 file (exclusive randomly named temp in the destination directory, then rename; a planted symlink is not followed). Binary-response commands write decoded payload bytes (not the base64 JSON envelope) and print a small JSON receipt on stdout; `--json`/`--csv` do not refuse when this sink is set. |
 | `webhook:<url>` | POST the output body to the URL (`application/json`). Redirects are not followed; a 3xx response fails the delivery and the body is not sent to the `Location`. |
 
+`watch run --deliver` includes matched item titles/urls in the selected sink and prints a stderr notice when matches are present.
+
 Unknown schemes are refused with a structured error naming the supported set. Webhook failures, including redirects, return non-zero and log the URL and HTTP status on stderr.
 
 ## Named Profiles
@@ -810,3 +814,8 @@ For a remote host, `readwise-pp-mcp --transport http` requires `READWISE_MCP_HTT
 ### Agent output shape
 
 `--agent` wraps results as `{meta, results}`. Read the payload under `results`; `meta` describes provenance. The compatibility exception is `read-next`, which always prints a JSON array on stdout, including with `--agent`; its hints and excluded-length count go to stderr.
+
+`watch run` prints new item IDs, titles, and URLs before marking them seen; JSON includes `items` for each watch, including when notifying webhooks. A later run shows only newly matched items.
+
+`ask` returns up to 50 matches per source. JSON adds `truncated` and `returned_counts` (returned passages per source); Markdown prints a notice when more matches exist. Reader child rows are excluded before the document limit, so truncation reflects top-level matches.
+

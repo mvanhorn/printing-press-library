@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "agent-requires-explicit-consent",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Agent output mode never grants destructive or webhook consent.",
+  "reason": "The stale generated carry granted yes implicitly, bypassing documented consent gates. Preserve explicit approval for CLI and mirrored commands.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/root_test.go",
+    "internal/cli/review_agent_test.go",
+    "internal/mcp/cobratree/shellout.go"
+  ],
+  "markers": [
+    "pass --yes to proceed in non-interactive mode",
+    "func TestReviewAgentConsent(",
+    "T-gate-agent-yes",
+    "agent mode does not grant consent",
+    "func TestR2AgentHelpDescribesDestructiveConsent("
+  ]
+}

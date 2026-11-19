@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 )
@@ -43,8 +44,21 @@ func (s *Store) DeleteReadwiseHighlight(ctx context.Context, id string) (int, er
 func (s *Store) ResetReadwiseSyncState(resource string) error {
 	s.lockForWrite()
 	defer s.unlockAfterWrite()
-	_, err := s.db.Exec(`INSERT INTO sync_state(resource_type,last_cursor,last_synced_at,last_attempt_complete) VALUES (?,'',NULL,0) ON CONFLICT(resource_type) DO UPDATE SET last_cursor='',last_synced_at=NULL,last_attempt_complete=0,scope_key=''`, resource)
-	return err
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	_, err = tx.Exec(`INSERT INTO sync_state(resource_type,last_cursor,last_synced_at,last_attempt_complete) VALUES (?,'',NULL,0) ON CONFLICT(resource_type) DO UPDATE SET last_cursor='',last_synced_at=NULL,last_attempt_complete=0,scope_key='',readwise_chain_started=''`, resource)
+	if err != nil {
+		return err
+	}
+	if resource == "readwise-export" || resource == "books" {
+		if _, err = tx.Exec(`DELETE FROM sync_state WHERE resource_type='readwise-books-list'`); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
 }
 
 // SaveReadwiseSyncProgress preserves the run filter alongside its cursor.
@@ -198,4 +212,60 @@ func (s *Store) ReadwiseChainStart(resource string, resume bool, now time.Time) 
 	}
 	_, err := s.db.Exec(`INSERT INTO sync_state(resource_type,readwise_chain_started) VALUES (?,?) ON CONFLICT(resource_type) DO UPDATE SET readwise_chain_started=excluded.readwise_chain_started`, resource, now.UTC().Format(time.RFC3339Nano))
 	return now, err
+}
+
+// ClearReadwiseBooksList discards a completed or explicitly reset list continuation.
+func (s *Store) ClearReadwiseBooksList() error {
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+	_, err := s.db.Exec(`DELETE FROM sync_state WHERE resource_type='readwise-books-list'`)
+	return err
+}
+
+// SaveReadwiseExportCheckpoint commits all three views of one export chain atomically.
+func (s *Store) SaveReadwiseExportCheckpoint(cursor, since string, exportCount, bookCount, highlightCount int, at time.Time, complete bool) error {
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+	ctx := context.Background()
+	conn, err := s.db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	return withMigrationLock(ctx, conn, time.Now().Add(5*time.Second), func() error {
+		for _, row := range []struct {
+			key   string
+			count int
+		}{{"readwise-export", exportCount}, {"books", bookCount}, {"highlights", highlightCount}} {
+			if complete {
+				_, err = conn.ExecContext(ctx, `INSERT INTO sync_state(resource_type,last_cursor,last_synced_at,total_count,last_attempt_complete) VALUES (?,?,?,?,1) ON CONFLICT(resource_type) DO UPDATE SET last_cursor=excluded.last_cursor,last_synced_at=excluded.last_synced_at,total_count=excluded.total_count,last_attempt_complete=1`, row.key, cursor, at.UTC().Format(time.RFC3339), row.count)
+			} else {
+				_, err = conn.ExecContext(ctx, `INSERT INTO sync_state(resource_type,last_cursor,total_count,scope_key,last_attempt_complete) VALUES (?,?,?,?,0) ON CONFLICT(resource_type) DO UPDATE SET last_cursor=excluded.last_cursor,total_count=excluded.total_count,scope_key=excluded.scope_key,last_attempt_complete=0`, row.key, cursor, row.count, since)
+			}
+			if err != nil {
+				return err
+			}
+		}
+		if complete {
+			if _, err := conn.ExecContext(ctx, `DELETE FROM sync_state WHERE resource_type='readwise-books-list'`); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+// ReadwiseBooksListResumeScope validates that the continuation belongs to the active export chain.
+func (s *Store) ReadwiseBooksListResumeScope() (string, bool, error) {
+	var scope string
+	err := s.db.QueryRow(`SELECT l.scope_key FROM sync_state l JOIN sync_state e ON e.resource_type='readwise-export' WHERE l.resource_type='readwise-books-list' AND l.last_cursor<>'' AND COALESCE(e.last_cursor,'')='' AND e.last_attempt_complete=0 AND e.readwise_chain_started<>'' AND e.scope_key=l.scope_key`).Scan(&scope)
+	if err == sql.ErrNoRows {
+		return "", false, nil
+	}
+	return scope, err == nil, err
+}
+
+// IsInternalSyncKey identifies checkpoints that do not represent cached resources.
+func IsInternalSyncKey(name string) bool {
+	return name == "readwise-export" || name == "readwise-books-list"
 }

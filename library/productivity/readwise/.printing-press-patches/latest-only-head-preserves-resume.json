@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "latest-only-head-preserves-resume",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Latest-only fetches one head page per Readwise resource without changing any checkpoint or watermark.",
+  "reason": "The hand-authored Readwise runner must keep head refreshes independent of resumable export and books-list chains, including full mode and terminal pages. Explicit user windows survive head refresh; both command reset boundaries preserve the complete state.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/readwise_sync_export.go",
+    "internal/cli/readwise_sync_export_test.go",
+    "internal/cli/review_r2_resume_test.go",
+    "internal/cli/review_r3_latest_test.go",
+    "scripts/check-review-rows.sh"
+  ],
+  "markers": [
+    "func TestR2LatestOnlyReadsHeadAndPreservesResumeState(",
+    "if booksListClient != nil && (!capHit || latestOnly) {"
+  ]
+}

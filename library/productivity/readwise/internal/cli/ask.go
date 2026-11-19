@@ -35,10 +35,14 @@ type novelAskBlock struct {
 	Items  []novelSourceItem `json:"items"`
 }
 
+const novelAskSourceLimit = 50
+
 type novelAskView struct {
-	Query  string          `json:"query"`
-	Blocks []novelAskBlock `json:"blocks"`
-	Note   string          `json:"note,omitempty"`
+	Truncated      bool            `json:"truncated"`
+	ReturnedCounts map[string]int  `json:"returned_counts"`
+	Query          string          `json:"query"`
+	Blocks         []novelAskBlock `json:"blocks"`
+	Note           string          `json:"note,omitempty"`
 }
 
 const novelMissingLocalDataNote = "No local data yet — run 'readwise-pp-cli sync' first."
@@ -182,6 +186,11 @@ func novelReadableSource(title, author, site string) string {
 }
 
 func novelRenderAskMarkdown(w io.Writer, view novelAskView) error {
+	if view.Truncated {
+		if _, err := fmt.Fprintf(w, "Results truncated: showing up to %d matches per source.\n\n", novelAskSourceLimit); err != nil {
+			return err
+		}
+	}
 	for _, block := range view.Blocks {
 		if _, err := fmt.Fprintf(w, "## %s\n\n", block.Source); err != nil {
 			return err
@@ -449,10 +458,14 @@ func newNovelAskCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			view := novelAskView{Query: query, Blocks: make([]novelAskBlock, 0)}
+			askJSON := novelShouldJSON(cmd, flags, flagFormat)
+			if cmd.Flags().Changed("format") && flagFormat == "md" && !flags.asJSON {
+				askJSON = false
+			}
+			view := novelAskView{Query: query, Blocks: make([]novelAskBlock, 0), ReturnedCounts: map[string]int{"docs": 0, "highlights": 0}}
 			if !exists {
 				view.Note = novelMissingLocalDataNote
-				if novelShouldJSON(cmd, flags, flagFormat) {
+				if askJSON {
 					return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 				}
 				return novelRenderAskMarkdown(cmd.OutOrStdout(), view)
@@ -470,18 +483,26 @@ func newNovelAskCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("count highlights: %w", err)
 			}
-			if (include["docs"] && docCount == 0) || (include["highlights"] && highlightCount == 0) {
+			if (!include["docs"] || docCount == 0) && (!include["highlights"] || highlightCount == 0) {
 				view.Note = "No synced documents or highlights found. Run 'readwise-pp-cli sync' first."
-				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
+				if askJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), view, flags)
+				}
+				return novelRenderAskMarkdown(cmd.OutOrStdout(), view)
 			}
 
 			blocks := map[string]*novelAskBlock{}
 			order := make([]string, 0)
-			if include["highlights"] {
-				raws, err := db.SearchHighlights(query, 50)
+			if include["highlights"] && highlightCount > 0 {
+				raws, err := db.SearchHighlights(query, novelAskSourceLimit+1)
 				if err != nil {
 					return fmt.Errorf("search highlights: %w", err)
 				}
+				if len(raws) > novelAskSourceLimit {
+					view.Truncated = true
+					raws = raws[:novelAskSourceLimit]
+				}
+				view.ReturnedCounts["highlights"] = len(raws)
 				for _, raw := range raws {
 					obj := novelRawObject(raw)
 					bookID := novelString(obj, "book_id")
@@ -500,16 +521,21 @@ func newNovelAskCmd(flags *rootFlags) *cobra.Command {
 					})
 				}
 			}
-			if include["docs"] {
-				raws, err := db.SearchDocuments(query, 50)
+			if include["docs"] && docCount > 0 {
+				raws, err := db.SearchTopLevelDocuments(query, novelAskSourceLimit+1)
 				if err != nil {
 					return fmt.Errorf("search documents: %w", err)
+				}
+				if len(raws) > novelAskSourceLimit {
+					view.Truncated = true
+					raws = raws[:novelAskSourceLimit]
 				}
 				for _, raw := range raws {
 					obj := novelRawObject(raw)
 					if novelString(obj, "parent_id") != "" {
 						continue
 					}
+					view.ReturnedCounts["docs"]++
 					source := novelReadableSource(novelString(obj, "title"), novelString(obj, "author"), novelString(obj, "site_name"))
 					summary := novelString(obj, "summary")
 					note := cliutil.CleanText(novelString(obj, "notes"))
@@ -531,7 +557,7 @@ func newNovelAskCmd(flags *rootFlags) *cobra.Command {
 			for _, key := range order {
 				view.Blocks = append(view.Blocks, *blocks[key])
 			}
-			if novelShouldJSON(cmd, flags, flagFormat) {
+			if askJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 			}
 			return novelRenderAskMarkdown(cmd.OutOrStdout(), view)

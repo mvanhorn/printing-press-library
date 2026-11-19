@@ -900,6 +900,9 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		if err := rows.Scan(&rtype, &recordedCount, &lastSynced); err != nil {
 			continue
 		}
+		if store.IsInternalSyncKey(rtype) {
+			continue
+		}
 		count, err := s.Count(rtype)
 		if err != nil {
 			report["status"] = "error"

@@ -6,6 +6,7 @@
 package cli
 
 import (
+	"context"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
@@ -71,6 +72,15 @@ func novelMirrorPayloads(cmd *cobra.Command) (map[string][]byte, []novelMirrorFi
 		return nil, nil, false, err
 	}
 	defer db.Close()
+	return novelMirrorSnapshot(cmd.Context(), db.DB())
+}
+
+func novelMirrorSnapshot(ctx context.Context, db *sql.DB) (map[string][]byte, []novelMirrorFile, bool, error) {
+	tx, err := db.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, nil, false, err
+	}
+	defer tx.Rollback()
 	tables := map[string]string{
 		"documents.json":  `SELECT data FROM documents ORDER BY id`,
 		"highlights.json": `SELECT data FROM highlights ORDER BY CAST(id AS TEXT)`,
@@ -86,7 +96,7 @@ func novelMirrorPayloads(cmd *cobra.Command) (map[string][]byte, []novelMirrorFi
 	files := make([]novelMirrorFile, 0, len(names))
 	total := 0
 	for _, name := range names {
-		rows, err := db.DB().Query(tables[name])
+		rows, err := tx.QueryContext(ctx, tables[name])
 		if err != nil {
 			return nil, nil, false, err
 		}
@@ -102,6 +112,9 @@ func novelMirrorPayloads(cmd *cobra.Command) (map[string][]byte, []novelMirrorFi
 		data = append(data, '\n')
 		payloads[name] = data
 		files = append(files, novelMirrorFile{Name: name, Count: len(items), SHA256: novelJSONFileHash(data)})
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, nil, false, err
 	}
 	return payloads, files, total == 0, nil
 }
@@ -228,7 +241,10 @@ func newNovelMirrorCmd(flags *rootFlags) *cobra.Command {
 			}
 			for _, f := range files {
 				if flagIncremental && old[f.Name] == f.SHA256 {
-					continue
+					onDisk, readErr := os.ReadFile(filepath.Join(flagExportDir, f.Name))
+					if readErr == nil && novelJSONFileHash(onDisk) == f.SHA256 {
+						continue
+					}
 				}
 				if err := novelWritePrivateFile(filepath.Join(flagExportDir, f.Name), payloads[f.Name]); err != nil {
 					return fmt.Errorf("writing %s: %w", f.Name, err)
@@ -241,7 +257,7 @@ func newNovelMirrorCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			manifestRaw = append(manifestRaw, '\n')
-			if !flagIncremental || old["manifest.json"] != novelJSONFileHash(manifestRaw) || len(view.Changed) > 0 {
+			if !flagIncremental || len(view.Changed) > 0 {
 				if err := novelWritePrivateFile(filepath.Join(flagExportDir, "manifest.json"), manifestRaw); err != nil {
 					return fmt.Errorf("writing manifest: %w", err)
 				}

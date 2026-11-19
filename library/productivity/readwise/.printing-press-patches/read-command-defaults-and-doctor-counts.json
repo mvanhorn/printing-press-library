@@ -2,12 +2,13 @@
   "schema_version": 2,
   "id": "read-command-defaults-and-doctor-counts",
   "summary": "Bare backlog/digest/dedupe/read-next/triage stale run their default computations; doctor reports actual store row counts.",
-  "reason": "Command bodies and doctor.go are generated-header files. Markers are behavior-only anchors (the defaulting lines, the dry-run notes, the doctor count call) plus the regression tests; the absence of a help-on-bare branch itself cannot be needle-checked.",
+  "reason": "Command bodies and doctor.go are generated-header files. Markers are behavior-only anchors (the defaulting lines, the dry-run notes, the doctor count call) plus the regression tests; the absence of a help-on-bare branch itself cannot be needle-checked. Internal sync continuation rows are not user resources and must not appear in the per-resource listing.",
   "files": [
     "internal/cli/triage_stale.go",
     "internal/cli/digest.go",
     "internal/cli/doctor.go",
-    "internal/cli/ask_test.go"
+    "internal/cli/ask_test.go",
+    "internal/cli/review_r3_doctor_test.go"
   ],
   "markers": [
     "if !cmd.Flags().Changed(\"never-opened\") && !cmd.Flags().Changed(\"zero-highlights\") {",
@@ -16,7 +17,8 @@
     "func TestNovelBareReadCommandsComputeWithAgent(",
     "func TestNovelBareReadCommandsComputeZeroFlags(",
     "func TestNovelTriageStaleExplicitNeverOpenedFalseIsRespected(",
-    "func TestDoctorCacheRowsUseActualResourceCounts("
+    "func TestDoctorCacheRowsUseActualResourceCounts(",
+    "func TestR3DoctorHidesContinuations("
   ],
   "applied_at": "2026-06-19",
   "base_run_id": "20260615-004857",

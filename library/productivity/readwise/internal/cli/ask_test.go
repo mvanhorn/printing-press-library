@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -252,9 +253,11 @@ func TestNovelTriageStaleExplicitNeverOpenedFalseIsRespected(t *testing.T) {
 }
 
 func TestDoctorCacheRowsUseActualResourceCounts(t *testing.T) {
+	testenv.Isolate(t)
 	t.Setenv("READWISE_API_TOKEN", "")
-	home := t.TempDir()
-	t.Setenv("HOME", home)
+	if err := os.Unsetenv("READWISE_API_TOKEN"); err != nil {
+		t.Fatal(err)
+	}
 	// Doctor always probes reachability, even without credentials.
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/auth/" {

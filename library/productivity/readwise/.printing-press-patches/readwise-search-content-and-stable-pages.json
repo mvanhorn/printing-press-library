@@ -5,12 +5,14 @@
   "reason": "Short-token fallback must not manufacture matches from IDs; rows and totals have a shared transactional API.",
   "files": [
     "internal/store/store.go",
-    "internal/store/search_count.go"
+    "internal/store/search_count.go",
+    "internal/store/review_r3_search_test.go"
   ],
   "markers": [
     "ORDER BY f.rank, r.resource_type, r.id",
     "ORDER BY r.resource_type, r.id LIMIT ?",
-    "func (s *Store) SearchPageContext("
+    "func (s *Store) SearchPageContext(",
+    "ORDER BY \"documents_fts\".rank, t.rowid LIMIT ?"
   ],
   "applied_at": "2026-11-18",
   "base_run_id": "20261118-122243-3e032552",

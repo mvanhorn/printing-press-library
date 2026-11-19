@@ -349,13 +349,19 @@ func newWatchRunCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			type watchRunItem struct {
-				ID          int64   `json:"id"`
-				Name        string  `json:"name"`
-				NewCount    int     `json:"new_count"`
-				Notified    bool    `json:"notified"`
-				FailedHooks []int64 `json:"failed_hooks"`
+				ID          int64               `json:"id"`
+				Name        string              `json:"name"`
+				NewCount    int                 `json:"new_count"`
+				Notified    bool                `json:"notified"`
+				FailedHooks []int64             `json:"failed_hooks"`
+				Items       []map[string]string `json:"items"`
 			}
 			rows := make([]watchRunItem, 0, len(watches))
+			var printed []struct {
+				id     int64
+				result watchDiffResult
+			}
+			disclosurePrinted := false
 			totalNew := 0
 			anyFailed := false
 			allFailed := true
@@ -368,9 +374,9 @@ func newWatchRunCmd(flags *rootFlags) *cobra.Command {
 					anyFailed = true
 					continue
 				}
-				allFailed = false
 				newCount := result.NewCount
 				row.NewCount = newCount
+				row.Items = watchRunItems(result)
 				totalNew += newCount
 				if notify {
 					matching := false
@@ -387,15 +393,30 @@ func newWatchRunCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if newCount == 0 {
+					allFailed = false
 					continue
 				}
+				if !disclosurePrinted && flags.deliverSink.Scheme != "" && flags.deliverSink.Scheme != "stdout" {
+					fmt.Fprintln(cmd.ErrOrStderr(), "watch run: matched item titles/urls are included in --deliver output")
+					disclosurePrinted = true
+				}
 				if !flags.asJSON {
-					fmt.Fprintf(cmd.OutOrStdout(), "watch #%d (%s): %d new item(s)\n", w.ID, w.Name, newCount)
+					if _, err := fmt.Fprintf(cmd.OutOrStdout(), "watch #%d (%s): %d new item(s)\n", w.ID, terminalText(cmd.OutOrStdout(), w.Name), newCount); err != nil {
+						return err
+					}
+					if !notify {
+						for _, item := range row.Items {
+							if _, err := fmt.Fprintf(cmd.OutOrStdout(), "  %s\t%s\t%s\n", terminalText(cmd.OutOrStdout(), item["id"]), terminalText(cmd.OutOrStdout(), item["title"]), terminalText(cmd.OutOrStdout(), item["url"])); err != nil {
+								return err
+							}
+						}
+					}
 				}
 
 				if notify {
 					body, buildErr := fitWatchPayload(w, &result)
 					newCount = result.NewCount
+					row.Items = watchRunItems(result)
 					if buildErr != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "watch #%d build payload: %v\n", w.ID, buildErr)
 						anyFailed = true
@@ -414,11 +435,21 @@ func newWatchRunCmd(flags *rootFlags) *cobra.Command {
 				if result.DeferredCount > 0 {
 					fmt.Fprintf(cmd.ErrOrStderr(), "watch #%d: batch capped at %d items; %d deferred to later runs\n", w.ID, watchBatchLimit, result.DeferredCount)
 				}
+				// Print-only runs consume matches only after their output succeeds.
+				if !notify {
+					printed = append(printed, struct {
+						id     int64
+						result watchDiffResult
+					}{w.ID, result})
+					continue
+				}
 				// Mark new items as seen
 				newIDs := result.NewIDs
 				if err := db.MarkSeen(cmd.Context(), w.ID, w.Kind, newIDs); err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "watch #%d mark-seen: %v\n", w.ID, err)
 					anyFailed = true
+				} else {
+					allFailed = false
 				}
 			}
 			if totalNew == 0 && !allFailed && !flags.asJSON {
@@ -428,6 +459,15 @@ func newWatchRunCmd(flags *rootFlags) *cobra.Command {
 				if err := printWatchJSON(cmd, map[string]any{"watches": rows, "total_new": totalNew}, flags); err != nil {
 					return err
 				}
+			}
+			for _, pending := range printed {
+				if err := db.MarkSeen(cmd.Context(), pending.id, pending.result.Kind, pending.result.NewIDs); err != nil {
+					wrapped := fmt.Errorf("watch #%d mark-seen: %w", pending.id, err)
+					fmt.Fprintln(cmd.ErrOrStderr(), wrapped)
+					anyFailed = true
+					continue
+				}
+				allFailed = false
 			}
 			// R8: exit codes
 			if allFailed && len(watches) > 0 {
@@ -604,18 +644,18 @@ func emitWatchDiffResult(cmd *cobra.Command, flags *rootFlags, result watchDiffR
 		return printWatchJSON(cmd, out, flags)
 	}
 	if result.NewCount == 0 {
-		fmt.Fprintf(cmd.OutOrStdout(), "watch %q: no new items\n", result.WatchName)
+		fmt.Fprintf(cmd.OutOrStdout(), "watch %q: no new items\n", terminalText(cmd.OutOrStdout(), result.WatchName))
 		return nil
 	}
-	fmt.Fprintf(cmd.OutOrStdout(), "watch %q: %d new item(s)\n", result.WatchName, result.NewCount)
+	fmt.Fprintf(cmd.OutOrStdout(), "watch %q: %d new item(s)\n", terminalText(cmd.OutOrStdout(), result.WatchName), result.NewCount)
 	switch result.Kind {
 	case "docs":
 		for _, d := range result.DocItems {
-			fmt.Fprintf(cmd.OutOrStdout(), "  %s\t%s\t%s\n", d.ID[:min8(len(d.ID))], d.Title, d.URL)
+			fmt.Fprintf(cmd.OutOrStdout(), "  %s\t%s\t%s\n", terminalText(cmd.OutOrStdout(), d.ID[:min8(len(d.ID))]), terminalText(cmd.OutOrStdout(), d.Title), terminalText(cmd.OutOrStdout(), d.URL))
 		}
 	case "highlights":
 		for _, h := range result.HLItems {
-			fmt.Fprintf(cmd.OutOrStdout(), "  %s\t%s\t%s\n", h.ID, h.Title, h.URL)
+			fmt.Fprintf(cmd.OutOrStdout(), "  %s\t%s\t%s\n", terminalText(cmd.OutOrStdout(), h.ID), terminalText(cmd.OutOrStdout(), h.Title), terminalText(cmd.OutOrStdout(), h.URL))
 		}
 	}
 	return nil
@@ -707,4 +747,16 @@ func printWatchJSON(cmd *cobra.Command, value any, flags *rootFlags) error {
 	outputFlags.plain = false
 	outputFlags.quiet = false
 	return printJSONFiltered(cmd.OutOrStdout(), value, &outputFlags)
+}
+
+// watchRunItems exposes the same reading-history metadata as watch diff.
+func watchRunItems(result watchDiffResult) []map[string]string {
+	items := make([]map[string]string, 0, result.NewCount)
+	for _, d := range result.DocItems {
+		items = append(items, map[string]string{"id": d.ID, "title": d.Title, "url": d.URL})
+	}
+	for _, h := range result.HLItems {
+		items = append(items, map[string]string{"id": h.ID, "title": h.Title, "url": h.URL})
+	}
+	return items
 }

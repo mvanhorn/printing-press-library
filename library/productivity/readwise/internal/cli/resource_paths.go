@@ -40,9 +40,9 @@ var resourceWritePaths = map[string]string{ // #nosec G101 -- endpoint paths, no
 }
 
 var resourceReadConfigs = map[string]resourceReadConfig{
-	"books":       {responsePath: "results", paginationType: "page", cursorParam: "", limitParam: "", nextCursorPath: "", hasMoreField: "", pageSize: 100},
+	"books":       {responsePath: "results", paginationType: "page", cursorParam: "page", limitParam: "page_size", nextCursorPath: "next", hasMoreField: "", pageSize: 100},
 	"documents":   {responsePath: "results", paginationType: "cursor", cursorParam: "pageCursor", limitParam: "", nextCursorPath: "nextPageCursor", hasMoreField: "", pageSize: 100},
-	"highlights":  {responsePath: "results", paginationType: "page", cursorParam: "", limitParam: "", nextCursorPath: "", hasMoreField: "", pageSize: 100},
+	"highlights":  {responsePath: "results", paginationType: "page", cursorParam: "page", limitParam: "page_size", nextCursorPath: "next", hasMoreField: "", pageSize: 100},
 	"reader-tags": {responsePath: "results", paginationType: "cursor", cursorParam: "pageCursor", limitParam: "", nextCursorPath: "nextPageCursor", hasMoreField: "", pageSize: 100},
 }
 
@@ -260,6 +260,10 @@ func resourcePageParams(config resourceReadConfig, cursor string, page int, rema
 }
 
 func resourceNextCursor(config resourceReadConfig, current, next string, hasMore bool) (string, bool, error) {
+	// Page exports terminate on the declared next link, including next:null.
+	if config.paginationType == "page" && config.nextCursorPath != "" {
+		return current, next == "" && !hasMore, nil
+	}
 	if config.paginationType == "offset" || config.paginationType == "page" {
 		return current, false, nil
 	}

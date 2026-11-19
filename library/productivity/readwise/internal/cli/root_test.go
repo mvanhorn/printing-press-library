@@ -23,6 +23,16 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	testenv.ResetProcessState = func() {
+		defaultDBScopeState.Lock()
+		defaultDBScopeState.hash = ""
+		defaultDBScopeState.legacyHash = ""
+		defaultDBScopeState.label = ""
+		defaultDBScopeState.claimSuppressed = false
+		defaultDBScopeState.Unlock()
+	}
+	// Never let the operator's real credential reach package tests (order-dependent leaks, live calls).
+	_ = os.Unsetenv("READWISE_API_TOKEN")
 	os.Exit(testenv.RunSandboxed(m))
 }
 
@@ -362,8 +372,13 @@ func TestDestructiveConfirmationGate(t *testing.T) {
 			wantHandler: true,
 		},
 		{
-			name:        "T-gate-agent",
-			args:        []string{"test-delete", "target", "--agent"},
+			name:    "T-gate-agent",
+			args:    []string{"test-delete", "target", "--agent"},
+			wantErr: "refusing destructive operation",
+		},
+		{
+			name:        "T-gate-agent-yes",
+			args:        []string{"test-delete", "target", "--agent", "--yes"},
 			wantHandler: true,
 		},
 		{
@@ -517,8 +532,14 @@ func TestDocumentsBulkUpdateConfirmationGate(t *testing.T) {
 			args: []string{"documents", "bulk-update", "--updates", `[{"id":"doc1","location":"archive"}]`, "--yes"},
 		},
 		{
-			name: "T-bulkupdate-agent-proceeds",
-			args: []string{"documents", "bulk-update", "--updates", `[{"id":"doc1","location":"archive"}]`, "--agent"},
+			// --agent sets output defaults only; it never implies --yes (review #1).
+			name:    "T-bulkupdate-agent-refuses",
+			args:    []string{"documents", "bulk-update", "--updates", `[{"id":"doc1","location":"archive"}]`, "--agent"},
+			wantErr: "refusing destructive operation",
+		},
+		{
+			name: "T-bulkupdate-agent-yes-proceeds",
+			args: []string{"documents", "bulk-update", "--updates", `[{"id":"doc1","location":"archive"}]`, "--agent", "--yes"},
 		},
 		{
 			name: "T-single-update-ungated",

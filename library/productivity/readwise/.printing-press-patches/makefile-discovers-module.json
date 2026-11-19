@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "makefile-discovers-module",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Make builds inject CLI versions using the current Go module path.",
+  "reason": "Publishing rewrites the module identity but a carried Makefile can retain a stale linker symbol. Discover the module at build time so local and published binaries report the manifest version. Build/version verification lives in scripts/check-ldflags.sh, outside the unit suite.",
+  "files": [
+    "Makefile",
+    "scripts/check-module.sh",
+    "scripts/check-ldflags.sh"
+  ],
+  "markers": [
+    "MODULE := $(shell GOWORK=off go list -m)",
+    "CLI_LDFLAGS := -X '$(MODULE)/internal/cli.version=$(VERSION)'",
+    "version injection failed for $module"
+  ]
+}

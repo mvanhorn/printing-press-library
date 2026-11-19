@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "mirror-checks-destination-hash",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Incremental mirrors skip only files whose manifest and destination checksums both match.",
+  "reason": "Deleted or edited exports must be repaired even when source data is unchanged. Leave the manifest untouched on a true no-op so changed reflects actual repairs.",
+  "files": [
+    "internal/cli/mirror.go",
+    "internal/cli/review_mirror_incremental_test.go"
+  ],
+  "markers": [
+    "onDisk, readErr := os.ReadFile(filepath.Join(flagExportDir, f.Name))",
+    "novelJSONFileHash(onDisk) == f.SHA256",
+    "func TestReviewMirrorRepairsDisk("
+  ]
+}

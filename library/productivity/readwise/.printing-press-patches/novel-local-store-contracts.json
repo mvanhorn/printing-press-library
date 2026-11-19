@@ -33,7 +33,7 @@
     "var novelWordTokenRe = regexp.MustCompile",
     "novelReadingDigitsRe.FindString(raw)",
     "if flagLimit > 0 && len(view.Worklist) > flagLimit {",
-    "writes still require --yes",
+    "destructive commands still require --yes",
     "func TestE3BacklogStartedBonus(",
     "func TestE3DedupeBookTimestampFallback("
   ],

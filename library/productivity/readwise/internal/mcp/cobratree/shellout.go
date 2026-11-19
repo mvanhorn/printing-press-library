@@ -586,9 +586,10 @@ func stderrHintLines(stderr string) []string {
 func mirroredCLIArgs(prefixArgs []string, args map[string]any) ([]string, error) {
 	finalArgs := append([]string{}, prefixArgs...)
 	// LOCAL PATCH (port from resident-advisor): force agent mode on mirrored CLI
-	// subprocesses. --agent implies --json --compact --no-color --no-input --yes, so
+	// subprocesses. --agent implies --json --compact --no-color --no-input, so
 	// mirror tools emit machine-readable JSON (not human/ANSI text or a bare-invocation
-	// help blob) and never stall on a confirmation prompt (stdin is not wired).
+	// help blob). Writes requiring consent fail closed unless explicitly approved;
+	// agent mode does not grant consent (stdin is not wired).
 	finalArgs = append(finalArgs, "--agent")
 	finalArgs = append(finalArgs, cliArgsFromMCP(args, blockedRootFlags)...)
 	if raw, _ := args["args"].(string); strings.TrimSpace(raw) != "" {
