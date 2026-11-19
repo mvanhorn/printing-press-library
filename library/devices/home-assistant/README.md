@@ -4,6 +4,8 @@
 
 Match the useful breadth of hass-cli and ha-mcp, then add preview/apply/verify modes, routine debugging, reference linting, health hotspots, and household exception checks. The same typed Go command tree works for people, scripts, agents, and MCP clients.
 
+Contributors: [@obbax](https://github.com/obbax) (obbax).
+
 ## Install
 
 The recommended path installs both the `home-assistant-pp-cli` binary and the `pp-home-assistant` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
