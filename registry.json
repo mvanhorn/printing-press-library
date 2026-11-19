@@ -8573,6 +8573,12 @@
         "The same search on several EDEKA markets side by side."
       ],
       "path": "library/commerce/edeka",
+      "release": {
+        "cli_name": "edeka-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-19T09:52:58Z",
+        "source_commit": "4b7e4b2c4d0631e26e722123c562ea774b834aaf"
+      },
       "printer": "jimpresting",
       "printer_name": "JimPresting",
       "creator": {
