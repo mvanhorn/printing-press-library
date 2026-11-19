@@ -25892,9 +25892,9 @@
       "path": "library/commerce/rewe",
       "release": {
         "cli_name": "rewe-pp-cli",
-        "version": "2026.11.1",
-        "released_at": "2026-11-18T10:00:23Z",
-        "source_commit": "aec77fed6ace71b21279b9043d704eea1508b4d3"
+        "version": "2026.11.2",
+        "released_at": "2026-11-19T09:53:54Z",
+        "source_commit": "0a8a136b0de937830a17d5c18e2daa257386673d"
       },
       "printer": "jimpresting",
       "printer_name": "JimPresting",
