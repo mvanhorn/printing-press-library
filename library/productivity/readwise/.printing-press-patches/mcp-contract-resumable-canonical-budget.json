@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "id": "mcp-contract-resumable-canonical-budget",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "MCP pages preserve every row under one configurable byte budget, honor the read-only kill switch, and expose Readwise empty-review and partial-update semantics.",
+  "reason": "The reprint captured mirror stdout before paging and bounded typed pages twice, losing continuation. These downstream MCP seams need durable guards until the generator emits the same contract.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/bound/bound.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/walker.go",
+    "internal/mcp/cobratree/paginate.go",
+    "internal/mcp/envelope/envelope.go"
+  ],
+  "markers": [
+    "var MaxBytes = Budget()",
+    "func Budget() int { return envelope.MaxBytes() }",
+    "\t\tdropNonReadOnlyTools(s)",
+    "const mirrorStdoutCaptureLimit = 16 * 1024 * 1024",
+    "stdout := &cappedCapture{limit: mirrorStdoutCaptureLimit}",
+    "Results arrive wrapped as {meta, results}.",
+    "detail.Detail == \"Review not found.\"",
+    "payload[\"partial_failure\"] = true",
+    "payload[\"failed_count\"] = failed",
+    "delete(out, \"count\")",
+    "hide := nextCursor != \"\"",
+    "func fitArray(items []json.RawMessage",
+    "// The opaque cursor was computed against the final canonical budget.\n\treturn mcplib.NewToolResultText(result)",
+    "inner := paginateMirroredOutput(string(raw), offset, maxBytes-len(overhead)-12)"
+  ],
+  "validated_outcome": "MCP behavioral tests cover wrapped output above 60 KB, offset identity, contiguous Reader documents, the 500-byte environment budget, read-only registration, and httptest parity."
+}

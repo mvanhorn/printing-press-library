@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "id": "readwise-template-behavior-seams",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Readwise examples, API descriptions and paced full Reader sync retain native validation, pagination and reconciliation controls across reprints.",
+  "reason": "Readwise endpoint contracts and the custom export dispatcher require local seams; accepting flags without forwarding their behavior silently bypasses template hardening.",
+  "files": [
+    "internal/cli/agent_context.go",
+    "internal/cli/documents_list.go",
+    "internal/cli/documents_save.go",
+    "internal/cli/search.go",
+    "internal/cli/sync.go",
+    "internal/cli/slice_c_test.go"
+  ],
+  "markers": [
+    "Every Readwise and Reader feature, plus a local SQLite mirror with offline full-text search across both APIs that no other Readwise tool has.",
+    "readwise-pp-cli documents save --url https://example.com/article --location later",
+    "readwise-pp-cli documents list --location later --json --select id,title,reading_time",
+    "Full-text search across the local synced store (books, highlights, documents)",
+    "db.Search(query, limit, 0, resourceType)",
+    "func runReadwiseReaderFullSync(",
+    "latestOnly, strict, !noPrune, userParams)",
+    "func TestSliceCDocumentHighlightSave(",
+    "func TestSliceCSyncNoPrune("
+  ],
+  "reapply": "Preserve Readwise prose/examples and offset-aware Search call signatures over current template implementations. Full Reader syncs must use native syncResource with paced clients, scoped checkpoint reset, strict summary policy and prune=!noPrune; preserve the export runner for books/highlights and incremental Reader sync. Do not invent reconcile metadata: the generated spec declares no reconcilable partition; tests install synthetic flat_global metadata to verify actual deletion and retention through the command."
+}

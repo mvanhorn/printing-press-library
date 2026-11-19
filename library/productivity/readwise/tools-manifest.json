@@ -1,0 +1,884 @@
+{
+  "api_name": "readwise",
+  "base_url": "https://readwise.io/api/v2",
+  "description": "Every Readwise and Reader feature, plus a local mirror of your whole library that you can search, triage and dedupe offline.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Token {READWISE_API_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "READWISE_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "READWISE_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "book-tags_create",
+      "description": "Add a tag to a book. Required: book_id, name. Returns the new Tag.",
+      "method": "POST",
+      "path": "/books/{book_id}/tags/",
+      "params": [
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "path",
+          "description": "Book ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Tag name (max 512 chars)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "book-tags_delete",
+      "description": "Remove a tag from a book. Required: book_id, tag_id. Destructive.",
+      "method": "DELETE",
+      "path": "/books/{book_id}/tags/{tag_id}",
+      "params": [
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "path",
+          "description": "Book ID",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "book-tags_get",
+      "description": "Get a tag on a book. Required: book_id, tag_id. Returns the Tag.",
+      "method": "GET",
+      "path": "/books/{book_id}/tags/{tag_id}",
+      "params": [
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "path",
+          "description": "Book ID",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "book-tags_list",
+      "description": "List tags on a book. Required: book_id. Returns array of Tag.",
+      "method": "GET",
+      "path": "/books/{book_id}/tags",
+      "params": [
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "path",
+          "description": "Book ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "book-tags_update",
+      "description": "Rename a tag on a book. Required: book_id, tag_id, name. Returns the updated Tag.",
+      "method": "PATCH",
+      "path": "/books/{book_id}/tags/{tag_id}",
+      "params": [
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "path",
+          "description": "Book ID",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New tag name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "books_get",
+      "description": "Get a single book/source by ID. Required: id. Returns the Book.",
+      "method": "GET",
+      "path": "/books/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Book/source ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "books_list",
+      "description": "List books/sources (rate-limited to 20 req/min; prefer 'sync' for bulk pulls). Page-based response: count, next, previous, results; follow next until null. Optional: page-size (default: 100), page, category (plus 5 more). Returns array of Book.",
+      "method": "GET",
+      "path": "/books/",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 1000)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "1-indexed page number"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by category"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by source identifier (e.g. kindle)"
+        },
+        {
+          "name": "updated-after",
+          "wire_name": "updated__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Only books last updated after this ISO-8601 datetime"
+        },
+        {
+          "name": "updated-before",
+          "wire_name": "updated__lt",
+          "type": "string",
+          "location": "query",
+          "description": "Only books last updated before this ISO-8601 datetime"
+        },
+        {
+          "name": "last-highlight-after",
+          "wire_name": "last_highlight_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Only books whose last highlight is after this ISO-8601 datetime"
+        },
+        {
+          "name": "last-highlight-before",
+          "wire_name": "last_highlight_at__lt",
+          "type": "string",
+          "location": "query",
+          "description": "Only books whose last highlight is before this ISO-8601 datetime"
+        }
+      ]
+    },
+    {
+      "name": "books_update",
+      "description": "Update a book/source. Required: id. Optional: title_override, author_override, category (plus 1 more). Returns the updated Book.",
+      "method": "PATCH",
+      "path": "/books/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Book/source ID",
+          "required": true
+        },
+        {
+          "name": "title_override",
+          "type": "string",
+          "location": "body",
+          "description": "Override title"
+        },
+        {
+          "name": "author_override",
+          "type": "string",
+          "location": "body",
+          "description": "Override author"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Source category"
+        },
+        {
+          "name": "cover_image",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 or data URI image (JPEG/PNG/GIF/WebP); null removes it"
+        }
+      ]
+    },
+    {
+      "name": "documents_bulk-update",
+      "description": "Update up to 50 documents in one request; 20 req/min per token. Returns {results: [...]}; 200 means all succeeded, 207 means partial success/per-item failure (print per-item errors without an error exit), 400 means bad payload. Required: updates.",
+      "method": "PATCH",
+      "path": "/bulk_update/",
+      "base_url": "https://readwise.io/api/v3",
+      "params": [
+        {
+          "name": "updates",
+          "type": "array",
+          "location": "body",
+          "description": "updates",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_delete",
+      "description": "Delete a Reader document; 20 req/min per token. Returns 204; also deletes all its highlights and notes. Use a dry-run and confirmation gate before deleting. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/delete/{id}/",
+      "base_url": "https://readwise.io/api/v3",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_list",
+      "description": "List Reader documents with filters (rate-limited to 20 req/min; prefer 'sync'). Optional: id, updated-after, location (plus 6 more). Returns array of Document.",
+      "method": "GET",
+      "path": "/list/",
+      "base_url": "https://readwise.io/api/v3",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Return just this document ID"
+        },
+        {
+          "name": "updated-after",
+          "wire_name": "updatedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Only documents updated after this ISO-8601 datetime"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by location"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by category"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Repeat tag query parameter up to 5 times (AND semantics); empty value finds untagged docs. The internal format has no documented repeatable query construct"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max documents (1-100)"
+        },
+        {
+          "name": "page-cursor",
+          "wire_name": "pageCursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from a previous response"
+        },
+        {
+          "name": "with-html-content",
+          "wire_name": "withHtmlContent",
+          "type": "bool",
+          "location": "query",
+          "description": "Include html_content field"
+        },
+        {
+          "name": "with-raw-source-url",
+          "wire_name": "withRawSourceUrl",
+          "type": "bool",
+          "location": "query",
+          "description": "Include raw_source_url field (S3 link valid 1 hour)"
+        }
+      ]
+    },
+    {
+      "name": "documents_save",
+      "description": "Save a document to Reader by URL (or HTML); 50 req/min per token. url is required unless parent_id is set. To create a highlight, supply parent_id and content; only category, content, notes, parent_id, saved_using, tags are accepted. A passage not found in the parent returns 400 and creates nothing. Optional: url, html, clean-html (plus 13 more).",
+      "method": "POST",
+      "path": "/save/",
+      "base_url": "https://readwise.io/api/v3",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Document URL; required unless parent_id is set (use a made-up unique URL if none exists)"
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "Document content as HTML; if omitted Readwise scrapes the URL"
+        },
+        {
+          "name": "clean-html",
+          "wire_name": "should_clean_html",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto-clean provided HTML and parse metadata"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Override document title"
+        },
+        {
+          "name": "author",
+          "type": "string",
+          "location": "body",
+          "description": "Override document author"
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Document summary"
+        },
+        {
+          "name": "published-date",
+          "wire_name": "published_date",
+          "type": "string",
+          "location": "body",
+          "description": "Publication date (ISO-8601)"
+        },
+        {
+          "name": "image-url",
+          "wire_name": "image_url",
+          "type": "string",
+          "location": "body",
+          "description": "Cover image URL"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Initial location (default new)"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Document category (default guessed from URL); highlight requires parent_id"
+        },
+        {
+          "name": "saved-using",
+          "wire_name": "saved_using",
+          "type": "string",
+          "location": "body",
+          "description": "Source identifier for the save"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags to apply"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Top-level note on the document"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language code (e.g. en, de, en-US)"
+        },
+        {
+          "name": "parent_id",
+          "type": "string",
+          "location": "body",
+          "description": "Parent document ID for highlight creation"
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Highlight passage in the parent document"
+        }
+      ]
+    },
+    {
+      "name": "documents_update",
+      "description": "Update fields on a Reader document; 50 req/min per token. For highlights only notes and tags are accepted; other keys return 400. Notes cannot be updated directly; update them on their highlight. Required: id. Optional: title, author, summary (plus 9 more). Returns the updated SaveResult.",
+      "method": "PATCH",
+      "path": "/update/{id}/",
+      "base_url": "https://readwise.io/api/v3",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Document title"
+        },
+        {
+          "name": "author",
+          "type": "string",
+          "location": "body",
+          "description": "Document author"
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Summary"
+        },
+        {
+          "name": "published-date",
+          "wire_name": "published_date",
+          "type": "string",
+          "location": "body",
+          "description": "Publication date (ISO-8601)"
+        },
+        {
+          "name": "image-url",
+          "wire_name": "image_url",
+          "type": "string",
+          "location": "body",
+          "description": "Cover image URL"
+        },
+        {
+          "name": "seen",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark seen/unseen"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Move to location"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Document category"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Replace all tags"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Replace document note (empty string clears)"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language code (e.g. en, de, en-US)"
+        },
+        {
+          "name": "reading_progress",
+          "type": "float",
+          "location": "body",
+          "description": "Reading progress fraction, 0 to 1; not yet supported for PDFs"
+        }
+      ]
+    },
+    {
+      "name": "highlight-tags_create",
+      "description": "Add a tag to a highlight. Required: highlight_id, name. Returns the new Tag.",
+      "method": "POST",
+      "path": "/highlights/{highlight_id}/tags/",
+      "params": [
+        {
+          "name": "highlight_id",
+          "type": "int",
+          "location": "path",
+          "description": "Highlight ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Tag name (max 127 chars)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlight-tags_delete",
+      "description": "Remove a tag from a highlight. Required: highlight_id, tag_id. Destructive.",
+      "method": "DELETE",
+      "path": "/highlights/{highlight_id}/tags/{tag_id}",
+      "params": [
+        {
+          "name": "highlight_id",
+          "type": "int",
+          "location": "path",
+          "description": "Highlight ID",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlight-tags_get",
+      "description": "Get a tag on a highlight. Required: highlight_id, tag_id. Returns the Tag.",
+      "method": "GET",
+      "path": "/highlights/{highlight_id}/tags/{tag_id}",
+      "params": [
+        {
+          "name": "highlight_id",
+          "type": "int",
+          "location": "path",
+          "description": "Highlight ID",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlight-tags_list",
+      "description": "List tags on a highlight. Required: highlight_id. Returns array of Tag.",
+      "method": "GET",
+      "path": "/highlights/{highlight_id}/tags",
+      "params": [
+        {
+          "name": "highlight_id",
+          "type": "int",
+          "location": "path",
+          "description": "Highlight ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlight-tags_update",
+      "description": "Rename a tag on a highlight. Required: highlight_id, tag_id, name. Returns the updated Tag.",
+      "method": "PATCH",
+      "path": "/highlights/{highlight_id}/tags/{tag_id}",
+      "params": [
+        {
+          "name": "highlight_id",
+          "type": "int",
+          "location": "path",
+          "description": "Highlight ID",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New tag name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlights_create",
+      "description": "Create or upsert one or more highlights (creates source books/articles as needed). Dedupe key: title+author+text+source_url. Re-sending the same highlight_url with new text updates the highlight. Required: highlights. Returns array of Book.",
+      "method": "POST",
+      "path": "/highlights/",
+      "params": [
+        {
+          "name": "highlights",
+          "type": "array",
+          "location": "body",
+          "description": "highlights",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlights_delete",
+      "description": "Delete a highlight. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/highlights/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Highlight ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlights_get",
+      "description": "Get a single highlight by ID. Required: id. Returns the Highlight.",
+      "method": "GET",
+      "path": "/highlights/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Highlight ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlights_list",
+      "description": "List highlights (rate-limited to 20 req/min; prefer 'sync' for bulk pulls). Page-based response: count, next, previous, results; follow next until null. Optional: page-size (default: 100), page, book-id (plus 4 more). Returns array of Highlight.",
+      "method": "GET",
+      "path": "/highlights/",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 1000)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "1-indexed page number"
+        },
+        {
+          "name": "book-id",
+          "wire_name": "book_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only highlights belonging to this book/source ID"
+        },
+        {
+          "name": "updated-after",
+          "wire_name": "updated__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Only highlights last updated after this ISO-8601 datetime"
+        },
+        {
+          "name": "updated-before",
+          "wire_name": "updated__lt",
+          "type": "string",
+          "location": "query",
+          "description": "Only highlights last updated before this ISO-8601 datetime"
+        },
+        {
+          "name": "highlighted-after",
+          "wire_name": "highlighted_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Only highlights taken after this ISO-8601 datetime"
+        },
+        {
+          "name": "highlighted-before",
+          "wire_name": "highlighted_at__lt",
+          "type": "string",
+          "location": "query",
+          "description": "Only highlights taken before this ISO-8601 datetime"
+        }
+      ]
+    },
+    {
+      "name": "highlights_update",
+      "description": "Update fields on an existing highlight. Required: id. Optional: text, note, location (plus 2 more). Returns the updated Highlight.",
+      "method": "PATCH",
+      "path": "/highlights/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Highlight ID",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Highlight text"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Annotation note"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Location in source"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Unique URL of the specific highlight"
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Highlight color tag"
+        }
+      ]
+    },
+    {
+      "name": "reader-tags_list",
+      "description": "List all Reader document tags (20 req/min per token). Optional: page-cursor. Returns array of ReaderTag.",
+      "method": "GET",
+      "path": "/tags/",
+      "base_url": "https://readwise.io/api/v3",
+      "params": [
+        {
+          "name": "page-cursor",
+          "wire_name": "pageCursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from a previous response"
+        }
+      ]
+    },
+    {
+      "name": "review_complete",
+      "description": "Mark today's daily review complete; returns review_id and review_completed (true).",
+      "method": "POST",
+      "path": "/review/complete/",
+      "params": []
+    },
+    {
+      "name": "review_get",
+      "description": "Get today's daily review highlights; 404 means no review today, not a failure. Returns the Review.",
+      "method": "GET",
+      "path": "/review/",
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Topic dossier",
+      "command": "ask",
+      "description": "Pull every highlight and saved-document passage you have on a topic into one source-attributed, note-ready result."
+    },
+    {
+      "name": "Reading backlog and time-budget triage",
+      "command": "backlog",
+      "description": "See your whole reading debt by location, estimated minutes and age, and pick what fits the time you have."
+    },
+    {
+      "name": "Cross-corpus duplicate detection",
+      "command": "dedupe",
+      "description": "Find the same article saved twice, or saved both as a Reader document and as a classic Readwise source."
+    },
+    {
+      "name": "Cross-source highlight digest",
+      "command": "digest",
+      "description": "Roll up everything you highlighted in a time window across your Readwise books, articles, tweets and podcasts, grouped by source."
+    },
+    {
+      "name": "Stale and orphan finder",
+      "command": "triage stale",
+      "description": "Surface forgotten, never-opened saved documents (as Reader IDs you can pass to documents bulk-update) and books with zero highlights."
+    },
+    {
+      "name": "What-to-read-next ranker",
+      "command": "read-next",
+      "description": "Get a short ranked shortlist of unread Reader documents that fit the minutes you have, favouring your preferred location and skipping ones you already started."
+    },
+    {
+      "name": "Serendipity connections",
+      "command": "connections",
+      "description": "Find items you read months apart that share tags, authors or distinctive terms, from one seed item or across the library."
+    },
+    {
+      "name": "Saved-query watches",
+      "command": "watch",
+      "description": "Save a query and see only the new matching documents and highlights since the last run."
+    },
+    {
+      "name": "Signed webhook delivery",
+      "command": "webhook",
+      "description": "Register https endpoints that receive new 'watch run --notify' matches, optionally HMAC-signed with a shared secret and SSRF-checked before delivery."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "reader-bulk-update-partial-success",
+  "summary": "Reader bulk updates PATCH, preserve per-item results and fail scripts on HTTP 207.",
+  "reason": "Readwise API truth not expressible by the current generated spec. Local generated seams need durable reprint guards; generic output and transport mechanisms remain upstream-owned.",
+  "files": [
+    "internal/cli/documents_bulk-update.go",
+    "internal/cli/readwise_api_behaviors_test.go",
+    "internal/mcp/tools.go"
+  ],
+  "markers": [
+    "if !flags.dryRun && statusCode == 207 {",
+    "func TestSliceBBulkUpdate(",
+    "return partialFailureErr(fmt.Errorf(\"partial failure",
+    "func TestE3BulkAllowPartial(",
+    "c.PatchWithParams(cmd.Context(), path, params, body)",
+    "makeAPIHandlerWithPage(\"PATCH\", \"https://readwise.io/api/v3/bulk_update/\""
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Render HTTP 207 per-item results and asymmetric failed/total warning, then return partialFailureErr (exit 6). Honour allowPartialFailure with exit 0 and warning."
+}

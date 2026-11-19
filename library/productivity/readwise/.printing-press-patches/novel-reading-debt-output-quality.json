@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "id": "novel-reading-debt-output-quality",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Reading-debt commands expose honest lengths and scope, deterministic rankings, clean duplicate recommendations, and bounded lists with uncapped totals.",
+  "reason": "These are Readwise-specific novel command policies over the local store; generated scaffolds cannot reconstruct them. Keep all customizations within the preserved command files.",
+  "files": [
+    "internal/cli/backlog.go",
+    "internal/cli/backlog_test.go",
+    "internal/cli/read_next.go",
+    "internal/cli/read_next_test.go",
+    "internal/cli/dedupe.go",
+    "internal/cli/dedupe_test.go",
+    "internal/cli/triage_stale.go",
+    "internal/cli/triage_stale_test.go",
+    "internal/cli/connections.go",
+    "internal/cli/connections_test.go"
+  ],
+  "markers": [
+    "func novelBacklogPriority(",
+    "json:\"unknown_length_excluded\"",
+    "json:\"length_known\"",
+    "json:\"total_stale_documents\"",
+    "json:\"total_orphan_sources\"",
+    "json:\"total_clusters\"",
+    "json:\"total_documents\"",
+    "json:\"limited\"",
+    "func novelKeepURLLess(",
+    "func TestSliceDDBPathHelp(",
+    "func TestSliceDReadNextDeterministicTies(",
+    "func TestSliceDDedupeKeepInterstitialsAndLimit(",
+    "arrayFlags.agent = false",
+    "json:\"limit_note,omitempty\""
+  ],
+  "reapply": "Preserve unread Reader scope new,later,shortlist unless overridden; unknown lengths have null minutes and length_known=false and are excluded from time fitting unless --include-unknown-length. Backlog priority uses its displayed composite (budget fit, recency, location, unfinished bonus). Read-next uses stable score/location/saved/progress/id ordering and warns for unmatched --prefer. Cap stale lists/dedupe clusters/backlog including budgeted worklists at --limit 50 (0 unlimited), retaining totals and truncation notes. Dedupe ties prefer query-free URLs, shortest normalized URLs, oldest saves, and exclude login/error title keys via the shared deny map in dedupe.go. Declare empty --db-path defaults on the five scoped commands and use novelDBPath at execution; other shared helpers are outside this repair scope. Restore seeded regressions from the companion test files. Read-next prints an array for evaluated results, including agent mode; dry runs use the standard action envelope; hints and unknown length counts go to stderr. Command limit metadata uses limited and limit_note, never MCP envelope field names."
+}

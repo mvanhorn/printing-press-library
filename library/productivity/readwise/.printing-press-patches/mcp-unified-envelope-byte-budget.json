@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "mcp-unified-envelope-byte-budget",
+  "summary": "Canonical MCP output-bounding contract: internal/mcp/envelope leaf package, flat envelope, PP_MCP_MAX_BYTES (default 32000), cobratree mirror paging, object-sibling preservation.",
+  "reason": "Hand-written envelope/ and cobratree/paginate.go survive regen-merge, but the edits inside GENERATED tools.go, cobratree/shellout.go and cobratree/walker.go are silently reverted by regen-merge (mvanhorn/cli-printing-press#5418). Markers are call-site needles that appear only in the listed generated files (plus the leaf package), so ValidatePatchRecords aborts the merge if any wiring is dropped. Listed files are searched as a set: each needle must appear in at least one of them.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/walker.go",
+    "internal/mcp/cobratree/paginate.go",
+    "internal/mcp/envelope/envelope.go"
+  ],
+  "markers": [
+    "envelope.ObjectArray(obj, arrayField, items, envelope.Options{",
+    "func mcpBoundedListEnvelope(items []json.RawMessage) []byte {",
+    "envelope.Preview(data, envelope.MaxBytes(), \"Typed MCP endpoint response exceeded",
+    "return boundedResultJSONWithCount(results, mcpToolResultMaxItems, \"\", totalCount, offset, true)",
+    "string(envelope.ObjectArray(obj, \"items\", rawItems, envelope.Options{",
+    "paginateMirroredOutput(out, int(off), mirrorMaxBytes())",
+    "return envelope.MaxBytes()",
+    "Skip this many items before returning; pass next_offset from a truncated response to resume.",
+    "envelope.ObjectArray(obj, field, items[offset:], envelope.Options{",
+    "os.Getenv(\"PP_MCP_MAX_BYTES\")",
+    "const defaultMaxBytes = 32000",
+    "\"returned_count\": returned,"
+  ],
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "If regen-merge refuses naming this record: re-apply the envelope wiring. (1) internal/mcp/envelope/envelope.go and internal/mcp/cobratree/paginate.go are hand-written; restore from git history (commits d32760c, 6d7edc6 on readwise master). (2) In generated internal/mcp/tools.go: import readwise-pp-cli/internal/mcp/envelope; mcpToolResultText uses envelope.MaxBytes(); mcpBoundedSingleArrayObject calls envelope.ObjectArray(obj, arrayField, items, envelope.Options{...}); mcpBoundedListEnvelope/mcpOversizedPreviewEnvelope call envelope.List/envelope.Preview; boundedResultJSONWithCount wraps envelope.List; the watch-diff handler wraps envelope.ObjectArray(obj, \"items\", rawItems, ...); handleSearch returns boundedResultJSONWithCount(results, mcpToolResultMaxItems, \"\", totalCount, offset, true). (3) In internal/mcp/cobratree/shellout.go: mirrorMaxBytes() returns envelope.MaxBytes() and the handler returns paginateMirroredOutput(out, int(off), mirrorMaxBytes()). (4) In internal/mcp/cobratree/walker.go register the numeric `offset` option on each mirror tool. See mcp-unified-envelope-byte-budget.md for the contract and master's `git log -- internal/mcp` for the exact diffs."
+}

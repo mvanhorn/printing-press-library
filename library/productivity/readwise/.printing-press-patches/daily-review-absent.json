@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "daily-review-absent",
+  "summary": "Only the documented missing daily review 404 is an empty successful review.",
+  "reason": "Readwise API truth not expressible by the current generated spec. Local generated seams need durable reprint guards; generic output and transport mechanisms remain upstream-owned.",
+  "files": [
+    "internal/cli/review_get.go",
+    "internal/cli/readwise_api_behaviors_test.go",
+    "internal/cli/review.go"
+  ],
+  "markers": [
+    "detail.Detail == \"Review not found.\"",
+    "func TestSliceBReview(",
+    "return newReviewGetCmd(flags).RunE(cmd, args)",
+    "func TestE3BareReview("
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Match structured APIError status and JSON detail exactly. Emit review_completed false, empty highlights and note through the output pipeline, preserving JSON, agent, select support; other 404 responses remain errors. Bare review delegates to review get and emits a one-line deprecation hint on stderr."
+}

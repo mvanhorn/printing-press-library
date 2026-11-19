@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "docs-reference-completeness",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Complete README and skill references for shipped commands, paging, environment settings, and output delivery.",
+  "reason": "The generated documentation omits shipped Readwise runtime features and misplaces CLI continuation guidance. This downstream documentation guard preserves the verified help/source contract until upstream generation includes equivalent coverage; canonical installation text remains unchanged.",
+  "files": [
+    "README.md",
+    "SKILL.md"
+  ],
+  "markers": [
+    "--include-existing treats existing matches as new",
+    "--secret-stdin reads its first stdin line",
+    "Single-page live lists return `{meta, results}`",
+    "100,000 items",
+    "MCP response byte budget; default 32000",
+    "Companion CLI path for MCP when no sibling executable is found",
+    "`spacefast:<name>` (publish a live web page)",
+    "`readwise-pp-cli auth status`",
+    "The `read-next` exception always prints a JSON array"
+  ],
+  "reapply": "Reconcile both command references against isolated help at every level; retain native cursor examples, truthful truncation guidance and page caps, CLI versus MCP envelopes, environment defaults, four delivery sinks, profile and feedback behavior, and the read-next array exception without changing canonical install sections."
+}

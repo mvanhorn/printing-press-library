@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "webhook-safe-addresses-and-signing",
+  "summary": "Webhook delivery blocks internal address encodings, redacts capability URLs, and keeps signing secrets off argv and cross-host redirects.",
+  "reason": "Webhook URLs are bearer capabilities; redirects and alternate IP encodings must not expose credentials or reach private services.",
+  "files": [
+    "internal/cli/webhooknotify.go",
+    "internal/cli/webhook.go",
+    "internal/cli/watch.go",
+    "internal/cli/watch_e3a_test.go"
+  ],
+  "markers": [
+    "func redactWebhookURL(",
+    "req.Header.Del(\"X-Readwise-Signature\")",
+    "net.IP(v6[2:6])",
+    "\"secret-stdin\"",
+    "func TestE3WebhookBlockedRanges(",
+    "func TestE3WebhookURLRedaction(",
+    "func TestE3WebhookRedirectSignature(",
+    "func TestE3WebhookSecretStdin("
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Block reserved IPv4 ranges, NAT64 and private IPv4 inside 6to4 at URL and dial validation. Redact human URL output and discard raw transport errors. Drop custom signatures across any cross-host redirect and accept bounded first-line stdin secrets with mutually exclusive argv source."
+}

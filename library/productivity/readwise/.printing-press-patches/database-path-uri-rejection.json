@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "database-path-uri-rejection",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Database flags are filesystem paths, never SQLite URI parameters, and novel store flags are MCP read paths.",
+  "reason": "SQLite interprets query strings as connection options. Reject URI metacharacters before opening any local state and classify paths for MCP host policy.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/ask.go",
+    "internal/cli/backlog.go",
+    "internal/cli/read_next.go",
+    "internal/cli/dedupe.go",
+    "internal/cli/triage_stale.go",
+    "internal/cli/connections.go",
+    "internal/cli/root_test.go"
+  ],
+  "markers": [
+    "if err := validateDatabasePathFlags(cmd); err != nil {",
+    "strings.ContainsAny(flag.Value.String(), \"?#\")",
+    "cmd.Annotations[\"mcp:read-flags\"] = \"db-path\"",
+    "func TestE3DatabaseURIRefused("
+  ],
+  "reapply": "Validate db and db-path after profile flags resolve, before database scope/store access. Refuse ? and # with usage exit 2. All novel db-path flags need mcp:read-flags db-path."
+}

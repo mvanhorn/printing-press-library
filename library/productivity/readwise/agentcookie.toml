@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "readwise-pp-cli"
+display_name = "Readwise"
+description = "Every Readwise and Reader feature, plus a local mirror of your whole library that you can search, triage and dedupe offline."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/readwise-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+READWISE_API_TOKEN = true

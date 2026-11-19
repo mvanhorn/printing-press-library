@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "readwise-authoritative-resource-snapshots",
+  "summary": "Single-source records replace snapshots; assembled books retain only a shallow key union.",
+  "reason": "Recursive richness merging retains upstream deletions and cleared notes in typed columns and FTS.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/data_source.go"
+  ],
+  "markers": [
+    "E2 authoritative single-source snapshots",
+    "E2 assembled books retain only the top-level union.",
+    "F mutation responses merge only fields returned by the server.",
+    "db.UpsertMutationBatch(storedType, items)"
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Single-source records replace snapshots; assembled books retain only a shallow key union. Preserve the behavioral tests in the E2 report."
+}

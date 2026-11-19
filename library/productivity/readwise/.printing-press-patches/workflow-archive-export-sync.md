@@ -1,0 +1,1 @@
+Generated `workflow archive` must delegate to the cap-safe export sync path instead of looping over framework `syncResource`, so live dogfood uses `/export/` curtailing and avoids v2 list rate-limit/timeouts.

@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "novel-missing-readonly-store",
+  "summary": "Novel read commands exit 0 with an empty view and a sync-first note when the local DB does not exist; never fall back to read-write open.",
+  "reason": "Helpers live in generated-header file internal/cli/ask.go and are called from each novel command; regen could revert them.",
+  "files": [
+    "internal/cli/ask.go",
+    "internal/cli/backlog.go",
+    "internal/cli/triage_stale.go",
+    "internal/cli/digest.go",
+    "internal/cli/dedupe.go",
+    "internal/cli/mirror.go",
+    "internal/cli/connections.go",
+    "internal/cli/ask_test.go"
+  ],
+  "markers": [
+    "func novelLocalStoreExists(cmd *cobra.Command) (bool, error) {",
+    "const novelMissingLocalDataNote = \"No local data yet",
+    "db, err := store.OpenReadOnly(dbPath)",
+    "view.Note = novelMissingLocalDataNote",
+    "func TestNovelReadOnlyCommandsMissingStoreGrace("
+  ],
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "In internal/cli/ask.go keep novelLocalStoreExists (os.Stat on --db-path, not-exist => false), novelOpenStore using store.OpenReadOnly, and const novelMissingLocalDataNote. Every novel read command must check novelLocalStoreExists after dryRunOK and return its empty view with Note = novelMissingLocalDataNote (exit 0) when the store is absent. Restore TestNovelReadOnlyCommandsMissingStoreGrace in ask_test.go."
+}

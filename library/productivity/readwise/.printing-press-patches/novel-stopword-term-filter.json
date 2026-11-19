@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "novel-stopword-term-filter",
+  "summary": "Expanded novelStopwords table used by novelTokens so function words never become shared connection terms.",
+  "reason": "The stopword table and the novelTokens filter live in generated-header internal/cli/ask.go. Markers pin the table, the filter line and the regression tests.",
+  "files": [
+    "internal/cli/ask.go",
+    "internal/cli/connections_test.go"
+  ],
+  "markers": [
+    "var novelStopwords = map[string]bool{",
+    "if len(tok) < 4 || novelStopwords[tok] || seen[tok] || novelNumericTokenRe.MatchString(tok) {",
+    "func TestNovelConnectionsNoStopwordOverlap(",
+    "func TestNovelTokensFiltersStopwords("
+  ],
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "Restore the full novelStopwords table in internal/cli/ask.go (must include they, their, through, instead) and keep novelTokens filtering with it; restore TestNovelConnectionsNoStopwordOverlap and TestNovelTokensFiltersStopwords in connections_test.go. Do not change the DF cutoff in novelSignificantConnectionTerms."
+}

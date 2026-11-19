@@ -1,0 +1,9 @@
+# Readwise behavior across template API changes
+
+A reprint must retain the implemented local-store commands, private mirror export and overwrite refusal, Readwise export pacing and complete books-list pass, actual doctor row counts, and destructive-command confirmation. Keep one pp:data-source directive per novel command. These are Readwise library behavior, so a local merge adaptation belongs here; template initialization, tenant identity, argument validation, SQLite hardening, cancellation, and SQL scanning must follow the current generator rather than being frozen to an older signature.
+
+MCP typed, SQL, search and mirrored list results retain the shared internal/mcp/envelope budget (PP_MCP_MAX_BYTES, default 32000), total count, returned_count, offset continuation where supported, and sibling metadata. Preserve current template session cleanup, cursor handling, destination guards and error/hint separation while adapting these call sites. Search rows and their total must share the current template tokenizer and short-token/CJK fallback, under the same cancellation context. SQL must bound materialization and individual values and keep column metadata while presenting canonical results; count a truncated query under its existing deadline without materializing all rows.
+
+Keep in-process surface tests and private mirror tests on reprint. Adapt only API-dependent fixtures and assertions: named argument encoding, forced --agent argv, results envelopes, returned_count versus total count, XDG-aware paths, and relative dates. Do not replace a tested implementation with a generated TODO scaffold.
+
+Implementation and validation details for this merge are in SLICE-A-REPORT.md. Existing machine records continue to pin the behavior; only the Search-to-SearchContextOffset API needle was renamed.
