@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "edeka-order-confirm-pins-accepted-slot",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261117-201852-046bd390",
+  "base_printing_press_version": "4.35.6",
+  "summary": "order place --confirm refuses --slot earliest; the preview prints confirm_slot and a next_step carrying the exact slot and total, and the confirmation must pass that exact slot or keep the session's reserved one.",
+  "reason": "Re-resolving 'earliest' at confirmation could reserve a different pickup time than the customer accepted while --expect-total still matched.",
+  "files": [
+    "internal/cli/order_place.go",
+    "internal/cli/edeka_review_test.go"
+  ],
+  "markers": [
+    "exact slot",
+    "confirm_slot"
+  ],
+  "validated_outcome": "TestOrderConfirmRefusesEarliest."
+}

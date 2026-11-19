@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "edeka-local-data-opt-out-recorders",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261117-201852-046bd390",
+  "base_printing_press_version": "4.35.6",
+  "summary": "recordPrices returns early when EDEKA_NO_LOCAL_DATA=1, and price history neither creates nor opens a store that does not exist yet while the switch is on, so no search, offers, deals or basket call writes product prices to disk after the operator opts out.",
+  "reason": "The hand-written price recorder sits outside the generated data-source and cache gates that the env switch drives, so without its own guard every product search kept writing names and prices to the local SQLite store.",
+  "files": [
+    "internal/cli/edeka_common.go",
+    "internal/cli/price_history.go",
+    "internal/cli/local_data_optout_test.go"
+  ],
+  "markers": [
+    "localDataDisabled()",
+    "edekaDBMissing()"
+  ],
+  "validated_outcome": "TestRecordPricesHonoursNoLocalData and TestPriceHistoryNoLocalDataCreatesNoStore fail without the guards; TestRecordPricesWritesByDefault is the control."
+}

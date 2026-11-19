@@ -1,0 +1,118 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-17T21:45:27.2233419Z",
+  "printing_press_version": "4.35.6",
+  "api_name": "edeka",
+  "display_name": "EDEKA",
+  "cli_name": "edeka-pp-cli",
+  "creator": {
+    "handle": "jimpresting",
+    "name": "JimPresting"
+  },
+  "owner": "jimpresting",
+  "printer": "jimpresting",
+  "printer_name": "JimPresting",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:19ea8b6b7706d82c0348245a4f277053de11f110b6ed26f369e8fe7bf4493250",
+  "run_id": "20261117-201852-046bd390",
+  "category": "commerce",
+  "description": "Shop your local EDEKA market from the terminal or an agent: offers, basket by text, earliest pickup slot, checkout with a confirmation gate.",
+  "homepage": "https://edeka.shop",
+  "mcp_binary": "edeka-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Basket by text",
+      "command": "basket add",
+      "description": "Add a product by id or by plain words; the CLI picks the best match in your market and adds it."
+    },
+    {
+      "name": "Earliest pickup slot",
+      "command": "slots earliest",
+      "description": "The first free pickup slot of your market in one call."
+    },
+    {
+      "name": "Checkout with confirmation gate",
+      "command": "order place",
+      "description": "Preview the order (slot, payment, items, total) and place it only with --confirm."
+    },
+    {
+      "name": "Shopping list to basket",
+      "command": "list add",
+      "description": "Add many free-text lines with quantities at once and see what matched."
+    },
+    {
+      "name": "Offer check for staples",
+      "command": "deals check",
+      "description": "Which of these items are on offer in your market this week."
+    },
+    {
+      "name": "Price history",
+      "command": "price history",
+      "description": "Prices an article had over time in your markets, from your own searches and offer lookups."
+    },
+    {
+      "name": "Compare markets",
+      "command": "compare markets",
+      "description": "The same search on several EDEKA markets side by side."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Basket by text",
+      "command": "basket add",
+      "description": "Add a product by id or by plain words; the CLI picks the best match in your market and adds it."
+    },
+    {
+      "name": "Earliest pickup slot",
+      "command": "slots earliest",
+      "description": "The first free pickup slot of your market in one call."
+    },
+    {
+      "name": "Checkout with confirmation gate",
+      "command": "order place",
+      "description": "Preview the order (slot, payment, items, total) and place it only with --confirm."
+    },
+    {
+      "name": "Shopping list to basket",
+      "command": "list add",
+      "description": "Add many free-text lines with quantities at once and see what matched."
+    },
+    {
+      "name": "Offer check for staples",
+      "command": "deals check",
+      "description": "Which of these items are on offer in your market this week."
+    },
+    {
+      "name": "Price history",
+      "command": "price history",
+      "description": "Prices an article had over time in your markets, from your own searches and offer lookups."
+    },
+    {
+      "name": "Compare markets",
+      "command": "compare markets",
+      "description": "The same search on several EDEKA markets side by side."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 53,
+    "total": 53,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 92,
+      "grade": "A",
+      "total": 92
+    }
+  }
+}

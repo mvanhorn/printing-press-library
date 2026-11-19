@@ -1,0 +1,148 @@
+name: edeka
+display_name: EDEKA
+category: commerce
+description: EDEKA online shops on <market>.edeka.shop (pickup and delivery) from the terminal and from agents - markets, offers, products, basket, slots, checkout with a confirmation gate, replayed from the web shop.
+cli_description: "Shop your local EDEKA market from the terminal or an agent: offers, basket by text, earliest pickup slot, checkout with a confirmation gate."
+version: 0.1.0
+base_url: https://edeka.shop
+spec_source: sniffed
+http_transport: standard
+health_check_path: /index.php?cl=MxMarketSearch&fnc=searchMarketsByZipOrText&search=89073
+auth:
+  type: cookie
+  header: Cookie
+  cookie_domain: ".edeka.shop"
+  cookies: [sid, sid_key, oxid_1, oxid_1_autologin]
+  login_url: https://edeka.shop/
+  in: cookie
+  env_vars: []
+config:
+  format: toml
+  path: ~/.config/edeka-pp-cli/config.toml
+resources:
+  markets:
+    description: Find EDEKA markets that sell online (pickup and delivery) and choose the market the shop commands work with.
+    endpoints:
+      zip:
+        method: GET
+        path: /index.php?cl=MxMarketSearch&fnc=searchMarketsByZipOrText
+        description: Raw market finder rows for a postal code (host, address, pickup/delivery flags, delivery postal codes); 'markets search' gives cleaned rows and also takes a town.
+        no_auth: true
+        example: "  edeka-pp-cli markets zip 89073"
+        params:
+          - name: search
+            flag_name: query
+            type: string
+            required: true
+            positional: true
+            description: German postal code or town, for example 89073 or Ulm.
+        response:
+          type: array
+          item: Market
+      cities:
+        method: GET
+        path: /index.php?cl=MxMarketSearch&fnc=searchCity
+        description: The portal's town list with postal code and market count (unfiltered; 'markets search <town>' filters it for you).
+        no_auth: true
+        example: "  edeka-pp-cli markets cities Ulm"
+        params:
+          - name: search
+            flag_name: query
+            type: string
+            required: true
+            positional: true
+            description: Town name, for example Ulm.
+        response:
+          type: array
+          item: City
+  suggest:
+    description: Search suggestions of the selected market (words, brands, categories and up to five products with price).
+    base_url: https://market.edeka.shop
+    endpoints:
+      products:
+        method: GET
+        path: /index.php?cl=ith_oxelastic_suggester&elastic_type=json
+        description: Search suggestions of the selected market (words, brands, categories and up to five products with price).
+        no_auth: true
+        example: "  edeka-pp-cli suggest milch"
+        params:
+          - name: term
+            type: string
+            required: true
+            positional: true
+            description: Search words, for example milch.
+        response:
+          type: array
+          item: Suggestion
+  slots:
+    description: Pickup and delivery slots of the selected market.
+    base_url: https://market.edeka.shop
+    endpoints:
+      selected:
+        method: GET
+        path: /index.php?cl=mx_pickup_controller&fnc=getMxDeliveryColText
+        description: Show the pickup or delivery slot chosen in this session (text as the shop shows it).
+        example: "  edeka-pp-cli slots selected"
+        response:
+          type: object
+          item: SelectedSlot
+      reservation:
+        method: GET
+        path: /index.php?cl=mx_pickup_controller&fnc=getMxReservationPopUpData
+        description: Show whether the shop holds a time-limited reservation for the chosen slot in this session.
+        example: "  edeka-pp-cli slots reservation"
+        response:
+          type: object
+types:
+  Market:
+    fields:
+      - name: mxdomain
+        type: string
+      - name: mxtitle
+        type: string
+      - name: mxstreet
+        type: string
+      - name: mxzip
+        type: string
+      - name: mxcity
+        type: string
+      - name: mxpickup
+        type: int
+      - name: mxdelivery
+        type: int
+      - name: mxdeliveryplz
+        type: string
+      - name: mxopeningtime
+        type: string
+  City:
+    fields:
+      - name: name
+        type: string
+      - name: zipcode
+        type: string
+      - name: marketcount
+        type: int
+      - name: title
+        type: string
+  Suggestion:
+    fields:
+      - name: label
+        type: string
+      - name: category
+        type: string
+      - name: type
+        type: string
+      - name: id
+        type: string
+      - name: price
+        type: string
+      - name: basic_price
+        type: string
+      - name: link
+        type: string
+  SelectedSlot:
+    fields:
+      - name: success
+        type: bool
+      - name: mxdeliverycoltext
+        type: string

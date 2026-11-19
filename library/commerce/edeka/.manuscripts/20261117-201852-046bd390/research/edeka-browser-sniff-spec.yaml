@@ -1,0 +1,68 @@
+name: edeka
+description: Discovered API spec for edeka
+version: 0.1.0
+base_url: https://edeka.shop
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "search" from query: search input'
+config:
+    format: toml
+    path: ~/.config/edeka-pp-cli/config.toml
+resources:
+    default:
+        description: Operations on default
+        endpoints:
+            list_endpoint:
+                method: GET
+                path: /
+                description: Fetch structured links from the website homepage
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    index.php:
+        description: Operations on index.php
+        endpoints:
+            list_index.php:
+                method: GET
+                path: /index.php
+                description: GET /index.php
+                params:
+                    - name: cl
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: fnc
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: search
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: index.php
+                pagination: null
+types: {}

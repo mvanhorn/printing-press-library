@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261117-201852-046bd390",
+  "base_printing_press_version": "4.35.6",
+  "id": "edeka-helpers-dead-code",
+  "summary": "helpers.go: removed the unused generated helpers requiredInputWaived, hasChangedLocalFlags, retainCLIQueryParams and retainExplicitQueryParams (and reworded the paginatedGet comment that named one of them); writeEncodedJSON now undoes the HTML escapes json.Marshal adds, so '&', '<' and '>' print as themselves in --json and --agent output. json_unescape_test.go covers the new helper.",
+  "reason": "The EDEKA commands are hand-written against the portal client instead of the generated endpoint mirrors, so the removed helpers had no caller (dogfood dead-code WARN, scorecard dead code 2/5). The output review flagged product names such as 'Tchibo Black & White' printed with the ampersand as a unicode escape; every json.Marshal in the output pipeline adds that escape, so the single final writer removes it.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/json_unescape_test.go"
+  ]
+}

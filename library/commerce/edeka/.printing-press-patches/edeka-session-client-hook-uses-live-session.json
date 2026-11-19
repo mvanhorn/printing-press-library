@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "edeka-session-client-hook-uses-live-session",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261117-201852-046bd390",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Spec-generated market commands reach the selected market through a client hook that rewrites the placeholder host, swaps the generated persistent cookie jar for an in-memory jar seeded from the imported session, and merges every Set-Cookie the market answers with back into that session file.",
+  "reason": "The shop rotates its session cookie on most requests; a second cookie store (cookies.json) or a read-only copy goes stale, so generated and hand-written commands would disagree about the login and renewals by generated calls would be lost.",
+  "files": [
+    "internal/cli/edeka_session_hook.go",
+    "internal/edeka/session.go",
+    "internal/edeka/review_round2_test.go"
+  ],
+  "markers": [
+    "registerClientHook",
+    "marketRewriteTransport",
+    "SessionWriteBack",
+    "cookiejar.New"
+  ],
+  "validated_outcome": "TestSessionWriteBackMergesIntoFile: a rotated cookie reaches the session file and no file is created when none exists."
+}

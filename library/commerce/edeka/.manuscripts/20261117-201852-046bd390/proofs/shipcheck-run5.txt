@@ -1,0 +1,185 @@
+
+=== verify ===
+Runtime Verification: <runstate>\onedone-f8490d97\runs\20261117-201852-046bd390\working\edeka-pp-cli\edeka-pp-cli.exe
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+basket                         read         PASS   PASS     PASS     3/3
+categories                     read         PASS   PASS     PASS     3/3
+compare                        read         PASS   PASS     PASS     3/3
+deals                          read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+list                           read         PASS   PASS     PASS     3/3
+local-data                     write        PASS   PASS     PASS     3/3
+markets                        read         PASS   PASS     PASS     3/3
+offers                         read         PASS   PASS     PASS     3/3
+order                          read         PASS   PASS     PASS     3/3
+payment                        read         PASS   PASS     FAIL     2/3
+playbook                       write        PASS   PASS     PASS     3/3
+price                          read         PASS   PASS     PASS     3/3
+products                       read         PASS   PASS     FAIL     2/3
+profile                        write        PASS   PASS     PASS     3/3
+recall                         read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+slots                          read         PASS   PASS     PASS     3/3
+suggest                        read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS basket add
+  PASS basket remove
+  PASS basket set
+  PASS compare markets
+  PASS deals check
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS markets cities
+  PASS markets search
+  PASS markets select
+  PASS markets zip
+  PASS price history
+  PASS products search
+  PASS products show
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS slots reserve
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped) [sync --resources suggest]
+Pass Rate: 100% (53/53 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 10 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec <runstate>\onedone-f8490d97\runs\20261117-201852-046bd390\working\edeka-pp-cli\spec.yaml (bundled)
+dogfood: caller --spec=<runstate>/onedone-f8490d97/runs/20261117-201852-046bd390/research/edeka-spec.yaml overridden by bundled <runstate>\onedone-f8490d97\runs\20261117-201852-046bd390\working\edeka-pp-cli\spec.yaml
+Dogfood Report: edeka-pp-cli
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: internal-yaml spec: paths validated at parse time
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    3 dead (WARN)
+  - hasChangedLocalFlags (defined, never called)
+  - requiredInputWaived (defined, never called)
+  - retainCLIQueryParams (defined, never called)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    7/7 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 3 dead helper functions found
+
+=== workflow-verify ===
+Workflow Verification: edeka-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== edeka-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: edeka
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           4/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               2/5
+
+  Total: 89/100 - Grade A
+  Denominator: infrastructure 180, domain 50
+  Note: omitted from denominator: mcp_tool_design, mcp_surface_strategy, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: fresh (staged binary is newer than Go sources)
+  Review: pass
+  Passed: 4/4  (100% pass rate, 3 skipped)
+
+Gaps:
+  - path_validity scored 4/10 - needs improvement
+  - MCP: 5 tools (3 public, 2 auth-required) — readiness: partial
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         41.577s
+  validate-narrative  PASS    0         2.362s
+  dogfood           PASS    0         5.5s
+  workflow-verify   PASS    0         65ms
+  apify-audit       PASS    0         123ms
+  verify-skill      PASS    0         9.612s
+  scorecard         PASS    0         5.058s
+
+Verdict: PASS (7/7 legs passed)

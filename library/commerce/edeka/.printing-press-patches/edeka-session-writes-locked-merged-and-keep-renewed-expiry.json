@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "edeka-session-writes-locked-merged-and-keep-renewed-expiry",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261117-201852-046bd390",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Every session file write goes through cliutil.WithFileLock and a unique temp file; Shop records raw Set-Cookie headers in a RoundTripper so a renewed remember-me cookie keeps its new expiry; Persist merges this run's cookie updates into the file as it is on disk and never writes the market back; markets select uses UpdateMarket, which re-reads under the lock.",
+  "reason": "cookiejar.Jar exposes cookie values but never expiry, and a load-modify-save without the lock lets two CLI runs (or an MCP host running commands in parallel) overwrite each other's rotated session cookies or a newer market selection, which logs the customer out or sends the next call to the wrong market.",
+  "files": [
+    "internal/edeka/session.go",
+    "internal/edeka/shop.go",
+    "internal/cli/edeka_extra.go",
+    "internal/edeka/session_renew_test.go"
+  ],
+  "markers": [
+    "cliutil.WithFileLock",
+    "recordingTransport",
+    "SaveMerged",
+    "UpdateMarket"
+  ],
+  "validated_outcome": "TestRenewedRememberCookieKeepsNewExpiry, TestUpdateMarketKeepsRotatedCookies, TestPersistKeepsMarketSelectedElsewhere and TestSaveMergedKeepsOtherRunsCookies pass."
+}
