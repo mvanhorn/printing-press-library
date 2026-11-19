@@ -429,9 +429,9 @@ func TestValidateIssueLabelTeamsBatchesOneRequest(t *testing.T) {
 			labelQueryCalls++
 			seenIDs, _ = req.Variables["ids"].([]any)
 			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[
-				{"id":"label-1","name":"kind:bug","color":"#111","team":{"id":"team-1","key":"MOB","name":"Mobilyze"}},
-				{"id":"label-2","name":"area:cli","color":"#222","team":null},
-				{"id":"label-3","name":"risk:low","color":"#333","team":{"id":"team-1","key":"MOB","name":"Mobilyze"}}
+				{"id":"00000000-0000-4000-8000-000000000001","name":"kind:bug","color":"#111","team":{"id":"team-1","key":"MOB","name":"Mobilyze"}},
+				{"id":"00000000-0000-4000-8000-000000000002","name":"area:cli","color":"#222","team":null},
+				{"id":"00000000-0000-4000-8000-000000000003","name":"risk:low","color":"#333","team":{"id":"team-1","key":"MOB","name":"Mobilyze"}}
 			]}}}`)
 		case strings.Contains(req.Query, "issueUpdate"):
 			fmt.Fprint(w, `{"data":{"issueUpdate":{"success":true,"issue":{"id":"issue-uuid","identifier":"MOB-105","title":"Issue"}}}}`)
@@ -445,7 +445,7 @@ func TestValidateIssueLabelTeamsBatchesOneRequest(t *testing.T) {
 	t.Setenv("LINEAR_API_KEY", "test-token")
 
 	out, err := executeRootForTest("issues", "edit", "MOB-105",
-		"--label", "label-1", "--label", "label-2", "--label", "label-3",
+		"--label", "00000000-0000-4000-8000-000000000001", "--label", "00000000-0000-4000-8000-000000000002", "--label", "00000000-0000-4000-8000-000000000003",
 		"--db", filepath.Join(t.TempDir(), "linear.db"), "--agent")
 	if err != nil {
 		t.Fatalf("issues edit with labels failed: %v\n%s", err, out)
@@ -475,12 +475,12 @@ func TestValidateIssueLabelTeamsMissingLabelIsNotFound(t *testing.T) {
 	t.Setenv("LINEAR_BASE_URL", srv.URL)
 	t.Setenv("LINEAR_API_KEY", "test-token")
 
-	_, err := executeRootForTest("issues", "edit", "MOB-105", "--label", "label-missing",
+	_, err := executeRootForTest("issues", "edit", "MOB-105", "--label", "00000000-0000-4000-8000-000000000014",
 		"--db", filepath.Join(t.TempDir(), "linear.db"), "--agent")
 	if err == nil || ExitCode(err) != 3 {
 		t.Fatalf("missing label should be a code-3 not-found error, got %v", err)
 	}
-	if !strings.Contains(err.Error(), "label-missing") {
+	if !strings.Contains(err.Error(), "00000000-0000-4000-8000-000000000014") {
 		t.Fatalf("error should name the missing label: %v", err)
 	}
 }

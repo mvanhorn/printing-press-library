@@ -22,8 +22,9 @@ func newIssuesEditCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 	var mediaFlag []string
 	var mediaPublic bool
 	cmd := &cobra.Command{
-		Use:   "edit <issue-id>",
-		Short: "Edit a Linear issue",
+		Use:     "edit <issue-id>",
+		Aliases: []string{"update"},
+		Short:   "Edit a Linear issue",
 		Long: `Edit a Linear issue via issueUpdate. Use file/stdin flags for Markdown
 descriptions so shell commands, backticks, and GraphQL snippets are preserved
 literally. If --media is supplied without a description source, the existing
@@ -67,6 +68,9 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 					return usageErr(fmt.Errorf("--state expects a workflow state UUID (got %q); use --state-name %q, or run 'linear-pp-cli workflow-states list --team <key>' to find the UUID", stateFlag, stateFlag))
 				}
 				input["stateId"] = stateFlag
+			}
+			if err := requireLabelUUIDs(flags, labelsFlag); err != nil {
+				return err
 			}
 			if stateTypeFlag != "" {
 				normalizedType, err := normalizeWorkflowStateType(stateTypeFlag)
@@ -290,6 +294,7 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 	cmd.Flags().BoolVar(&noParentFlag, "no-parent", false, "Clear issue parentage")
 	cmd.Flags().StringSliceVar(&labelsFlag, "label", nil, "Replacement label UUIDs (repeatable)")
 	cmd.Flags().StringSliceVar(&labelNamesFlag, "label-name", nil, "Resolve and attach label(s) by exact name (repeatable; team-scoped + team-safe global)")
+	cmd.Flags().SetNormalizeFunc(labelsFlagAsLabelName)
 	cmd.Flags().StringSliceVar(&mediaFlag, "media", nil, "Upload file and append it to the description markdown (repeatable)")
 	cmd.Flags().BoolVar(&mediaPublic, "media-public", false, "Request public Linear asset URLs for uploaded media")
 	return cmd

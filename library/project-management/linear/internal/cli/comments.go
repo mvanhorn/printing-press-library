@@ -33,11 +33,9 @@ positionally or via --issue; the positional form is the preferred agent shape.`,
   linear-pp-cli comments list --issue ENG-123 --limit 100 --select comments.id,comments.body`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 1 {
-				if issue != "" && issue != args[0] {
-					return usageErr(fmt.Errorf("conflicting issue references: positional %q vs --issue %q; pass just one", args[0], issue))
-				}
-				issue = args[0]
+			issue, err := positionalIssue(args, issue)
+			if err != nil {
+				return err
 			}
 			if issue == "" {
 				return usageErr(fmt.Errorf("issue is required; pass it positionally (comments list ENG-123) or via --issue"))
@@ -118,17 +116,25 @@ func newCommentsAddCmd(flags *rootFlags) *cobra.Command {
 	var quotedText string
 	targets := commentTargetFlags{}
 	cmd := &cobra.Command{
-		Use:     "add",
+		Use:     "add [issue]",
 		Aliases: []string{"create"},
 		Short:   "Add a Linear comment",
-		Long: `Add a comment to exactly one target. Use --body-file or --body-stdin
+		Long: `Add a comment to exactly one target. The issue target accepts an identifier
+(ENG-123) or UUID, positionally or via --issue. Use --body-file or --body-stdin
 for Markdown so shell snippets, backticks, and GraphQL variables stay literal.
 
 "comments create" is accepted as a compatibility alias; "comments add" is canonical.`,
-		Example: `  linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --agent
+		Example: `  linear-pp-cli comments add ENG-123 --body-file /tmp/comment.md --agent
+  linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --agent
   linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --media /tmp/screenshot.png --agent
   linear-pp-cli comments add --document-content <document-content-id> --body-stdin --agent < /tmp/comment.md`,
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var err error
+			targets.Issue, err = positionalIssue(args, targets.Issue)
+			if err != nil {
+				return err
+			}
 			body, bodySet, err := readMarkdownBody(cmd, markdownBodySpec{
 				InlineFlag: "body",
 				Inline:     bodyFlag,
@@ -320,6 +326,16 @@ func newCommentsEditCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&mediaPublic, "media-public", false, "Request public Linear asset URLs for uploaded media")
 	cmd.Flags().StringVar(&quotedText, "quoted-text", "", "Original selected text for an inline comment")
 	return cmd
+}
+
+func positionalIssue(args []string, issue string) (string, error) {
+	if len(args) == 0 {
+		return issue, nil
+	}
+	if issue != "" && issue != args[0] {
+		return "", usageErr(fmt.Errorf("conflicting issue references: positional %q vs --issue %q; pass just one", args[0], issue))
+	}
+	return args[0], nil
 }
 
 type commentTargetFlags struct {

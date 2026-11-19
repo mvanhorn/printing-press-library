@@ -107,9 +107,9 @@ func TestIssueCreateVerifiesReturnedLabels(t *testing.T) {
 		wantErr  bool
 		dbFails  bool
 	}{
-		{name: "UUID and exact name in any response order", observed: `[{"id":"label-kind-bug","name":"kind:bug","color":"#f00"},{"id":"label-global","name":"source:user-report","color":"#00f"}]`},
-		{name: "success response omits requested UUID", observed: `[{"id":"label-kind-bug","name":"kind:bug","color":"#f00"}]`, wantErr: true},
-		{name: "mismatch exposes identity when persistence fails", observed: `[{"id":"label-kind-bug","name":"kind:bug","color":"#f00"}]`, wantErr: true, dbFails: true},
+		{name: "UUID and exact name in any response order", observed: `[{"id":"00000000-0000-4000-8000-000000000012","name":"kind:bug","color":"#f00"},{"id":"00000000-0000-4000-8000-000000000010","name":"source:user-report","color":"#00f"}]`},
+		{name: "success response omits requested UUID", observed: `[{"id":"00000000-0000-4000-8000-000000000012","name":"kind:bug","color":"#f00"}]`, wantErr: true},
+		{name: "mismatch exposes identity when persistence fails", observed: `[{"id":"00000000-0000-4000-8000-000000000012","name":"kind:bug","color":"#f00"}]`, wantErr: true, dbFails: true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -120,15 +120,15 @@ func TestIssueCreateVerifiesReturnedLabels(t *testing.T) {
 				}
 				switch {
 				case strings.Contains(req.Query, "issueLabels(first"):
-					fmt.Fprintf(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-kind-bug","name":"kind:bug","team":{"id":%q,"key":"MOB","name":"Mobilyze"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`, teamID)
+					fmt.Fprintf(w, `{"data":{"issueLabels":{"nodes":[{"id":"00000000-0000-4000-8000-000000000012","name":"kind:bug","team":{"id":%q,"key":"MOB","name":"Mobilyze"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`, teamID)
 				case strings.Contains(req.Query, "issueLabels(filter"):
-					fmt.Fprintf(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-global","name":"source:user-report","color":"#00f","team":null},{"id":"label-kind-bug","name":"kind:bug","color":"#f00","team":{"id":%q,"key":"MOB","name":"Mobilyze"}}]}}}`, teamID)
+					fmt.Fprintf(w, `{"data":{"issueLabels":{"nodes":[{"id":"00000000-0000-4000-8000-000000000010","name":"source:user-report","color":"#00f","team":null},{"id":"00000000-0000-4000-8000-000000000012","name":"kind:bug","color":"#f00","team":{"id":%q,"key":"MOB","name":"Mobilyze"}}]}}}`, teamID)
 				case strings.Contains(req.Query, "issueCreate"):
 					if !strings.Contains(req.Query, "labels { nodes { id name color } }") {
 						t.Errorf("issueCreate response omitted labels: %s", req.Query)
 					}
 					input, ok := req.Variables["input"].(map[string]any)
-					if !ok || fmt.Sprint(input["labelIds"]) != "[label-global label-kind-bug]" {
+					if !ok || fmt.Sprint(input["labelIds"]) != "[00000000-0000-4000-8000-000000000010 00000000-0000-4000-8000-000000000012]" {
 						t.Fatalf("issueCreate labelIds = %#v, want UUID plus resolved name", input["labelIds"])
 					}
 					fmt.Fprintf(w, `{"data":{"issueCreate":{"success":true,"issue":{"id":"issue-200","identifier":"MOB-200","title":"Labels","url":"https://linear.app/issue/MOB-200","team":{"id":%q,"key":"MOB"},"state":{"id":"state-1","name":"Todo","type":"unstarted"},"labels":{"nodes":%s}}}}}`, teamID, tt.observed)
@@ -146,9 +146,9 @@ func TestIssueCreateVerifiesReturnedLabels(t *testing.T) {
 				dbPath = filepath.Join(t.TempDir(), "missing", "linear.db")
 				execute = executeRootForTestWithRenderedError
 			}
-			out, err := execute("issues", "create", "--title", "Labels", "--team", teamID, "--label", "label-global", "--label-name", "kind:bug", "--session", "mob-1447-test", "--db", dbPath, "--agent", "--data-source", "live")
+			out, err := execute("issues", "create", "--title", "Labels", "--team", teamID, "--label", "00000000-0000-4000-8000-000000000010", "--label-name", "kind:bug", "--session", "mob-1447-test", "--db", dbPath, "--agent", "--data-source", "live")
 			if tt.wantErr {
-				if err == nil || ExitCode(err) != 5 || !strings.Contains(err.Error(), "MOB-200 (issue-200)") || !strings.Contains(err.Error(), "label-global") || !strings.Contains(err.Error(), "label-kind-bug") {
+				if err == nil || ExitCode(err) != 5 || !strings.Contains(err.Error(), "MOB-200 (issue-200)") || !strings.Contains(err.Error(), "00000000-0000-4000-8000-000000000010") || !strings.Contains(err.Error(), "00000000-0000-4000-8000-000000000012") {
 					t.Fatalf("label mismatch error = %v (code %d), want created issue and requested/observed IDs; output=%s", err, ExitCode(err), out)
 				}
 				if tt.dbFails {
@@ -167,7 +167,7 @@ func TestIssueCreateVerifiesReturnedLabels(t *testing.T) {
 					return
 				}
 				local, localErr := executeRootForTest("issues", "MOB-200", "--agent", "--data-source", "local", "--db", dbPath, "--select", "identifier,labels.nodes.id")
-				if localErr != nil || !strings.Contains(local, "label-kind-bug") {
+				if localErr != nil || !strings.Contains(local, "00000000-0000-4000-8000-000000000012") {
 					t.Fatalf("mismatched issue missing from local write-back: err=%v output=%s", localErr, local)
 				}
 				fixtures, fixtureErr := executeRootForTestWithStdout("pp-test", "list", "--session", "mob-1447-test", "--db", dbPath, "--agent")
@@ -180,7 +180,7 @@ func TestIssueCreateVerifiesReturnedLabels(t *testing.T) {
 				t.Fatalf("issues create with labels failed: %v\n%s", err, out)
 			}
 			local, err := executeRootForTest("issues", "MOB-200", "--agent", "--data-source", "local", "--db", dbPath, "--select", "identifier,labels.nodes.id")
-			if err != nil || !strings.Contains(local, "label-global") || !strings.Contains(local, "label-kind-bug") {
+			if err != nil || !strings.Contains(local, "00000000-0000-4000-8000-000000000010") || !strings.Contains(local, "00000000-0000-4000-8000-000000000012") {
 				t.Fatalf("created labels missing from local write-back: err=%v output=%s", err, local)
 			}
 		})

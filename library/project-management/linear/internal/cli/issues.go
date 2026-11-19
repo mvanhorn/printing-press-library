@@ -115,6 +115,16 @@ and related links.`,
 	cmd.AddCommand(newIssuesEditCmd(flags, &dbPath))
 	cmd.AddCommand(newIssuesRelationsCmd(flags, &dbPath))
 	cmd.AddCommand(newIssuesReadAliasCmd(flags, &dbPath))
+	cmd.AddCommand(newIssuesCommentAliasCmd(flags))
+	return cmd
+}
+
+func newIssuesCommentAliasCmd(flags *rootFlags) *cobra.Command {
+	cmd := newCommentsAddCmd(flags)
+	cmd.Use = "comment [issue]"
+	cmd.Aliases = nil
+	cmd.Long = `Compatibility alias for the canonical form: linear-pp-cli comments add.`
+	cmd.Hidden = true
 	return cmd
 }
 

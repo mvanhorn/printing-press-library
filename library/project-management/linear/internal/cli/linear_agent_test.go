@@ -1021,7 +1021,7 @@ func TestIssuesCreateLabelNameDryRunUsesResolvedUUID(t *testing.T) {
 		switch {
 		case strings.Contains(req.Query, "issueLabels(first"):
 			requirePortfolioNameFilter(t, req, "kind:bug")
-			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-kind-bug","name":"kind:bug","team":{"id":"team-mob","key":"MOB","name":"Mobilyze"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`)
+			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"00000000-0000-4000-8000-000000000012","name":"kind:bug","team":{"id":"team-mob","key":"MOB","name":"Mobilyze"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`)
 		case strings.Contains(req.Query, "issueCreate"):
 			t.Fatalf("dry-run should not send issueCreate")
 		default:
@@ -1044,7 +1044,7 @@ func TestIssuesCreateLabelNameDryRunUsesResolvedUUID(t *testing.T) {
 	if err := json.Unmarshal([]byte(out), &got); err != nil {
 		t.Fatalf("dry-run output is not JSON: %v\n%s", err, out)
 	}
-	if strings.Join(got.Input.LabelIDs, ",") != "label-kind-bug" {
+	if strings.Join(got.Input.LabelIDs, ",") != "00000000-0000-4000-8000-000000000012" {
 		t.Fatalf("labelIds = %#v, want resolved label UUID; output=%s", got.Input.LabelIDs, out)
 	}
 }
@@ -1385,7 +1385,7 @@ func TestIssuesCreateLabelAndLabelNameMergeDedupes(t *testing.T) {
 		case strings.Contains(req.Query, "issueLabels(first"):
 			labelLookupCalls++
 			requirePortfolioNameFilter(t, req, "kind:bug")
-			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-kind-bug","name":"kind:bug","team":{"id":"team-mob","key":"MOB","name":"Mobilyze"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`)
+			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"00000000-0000-4000-8000-000000000012","name":"kind:bug","team":{"id":"team-mob","key":"MOB","name":"Mobilyze"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`)
 		case strings.Contains(req.Query, "issueCreate"):
 			t.Fatalf("dry-run should not send issueCreate")
 		default:
@@ -1396,7 +1396,7 @@ func TestIssuesCreateLabelAndLabelNameMergeDedupes(t *testing.T) {
 	t.Setenv("LINEAR_BASE_URL", srv.URL)
 	t.Setenv("LINEAR_API_KEY", "test-token")
 
-	out, err := executeRootForTest("issues", "create", "--title", "Labeled ticket", "--team", "MOB", "--label", "label-kind-bug", "--label", "label-manual", "--label-name", "kind:bug", "--label-name", " KIND:BUG ", "--dry-run", "--agent", "--data-source", "live")
+	out, err := executeRootForTest("issues", "create", "--title", "Labeled ticket", "--team", "MOB", "--label", "00000000-0000-4000-8000-000000000012", "--label", "00000000-0000-4000-8000-000000000013", "--label-name", "kind:bug", "--label-name", " KIND:BUG ", "--dry-run", "--agent", "--data-source", "live")
 	if err != nil {
 		t.Fatalf("issues create --label + --label-name --dry-run failed: %v\n%s", err, out)
 	}
@@ -1411,7 +1411,7 @@ func TestIssuesCreateLabelAndLabelNameMergeDedupes(t *testing.T) {
 	if err := json.Unmarshal([]byte(out), &got); err != nil {
 		t.Fatalf("dry-run output is not JSON: %v\n%s", err, out)
 	}
-	if strings.Join(got.Input.LabelIDs, ",") != "label-kind-bug,label-manual" {
+	if strings.Join(got.Input.LabelIDs, ",") != "00000000-0000-4000-8000-000000000012,00000000-0000-4000-8000-000000000013" {
 		t.Fatalf("labelIds = %#v, want UUID labels plus de-duped resolved label; output=%s", got.Input.LabelIDs, out)
 	}
 }
@@ -2081,7 +2081,7 @@ func newIssueSearchMultiPageRefreshServer(t *testing.T, issuesQueries *int32, la
 			atomic.AddInt32(labelQueries, 1)
 			after, _ := req.Variables["after"].(string)
 			if after == "" {
-				fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-1","name":"bug","color":"#111","team":{"id":"team-symph","key":"SYMPH","name":"Symphony"}}],"pageInfo":{"hasNextPage":true,"endCursor":"label-page-2"}}}}`)
+				fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"00000000-0000-4000-8000-000000000001","name":"bug","color":"#111","team":{"id":"team-symph","key":"SYMPH","name":"Symphony"}}],"pageInfo":{"hasNextPage":true,"endCursor":"label-page-2"}}}}`)
 				return
 			}
 			if after != "label-page-2" {
@@ -2089,7 +2089,7 @@ func newIssueSearchMultiPageRefreshServer(t *testing.T, issuesQueries *int32, la
 				http.Error(w, "unexpected label cursor", http.StatusBadRequest)
 				return
 			}
-			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-2","name":"duplicate","color":"#222","team":{"id":"team-symph","key":"SYMPH","name":"Symphony"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`)
+			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"00000000-0000-4000-8000-000000000002","name":"duplicate","color":"#222","team":{"id":"team-symph","key":"SYMPH","name":"Symphony"}}],"pageInfo":{"hasNextPage":false,"endCursor":""}}}}`)
 		case strings.Contains(req.Query, "issues("):
 			atomic.AddInt32(issuesQueries, 1)
 			after, _ := req.Variables["after"].(string)
@@ -2495,7 +2495,7 @@ func TestIssueCreateRejectsCrossTeamLabelBeforeMutation(t *testing.T) {
 		case strings.Contains(req.Query, "teams(filter"):
 			fmt.Fprint(w, `{"data":{"teams":{"nodes":[{"id":"team-symph","key":"SYMPH","name":"Symphony"}]}}}`)
 		case strings.Contains(req.Query, "issueLabels(filter"):
-			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-hsui","name":"area:protocols","color":"#333","team":{"id":"team-hsui","key":"HSUI","name":"HS UI"}}]}}}`)
+			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"00000000-0000-4000-8000-000000000011","name":"area:protocols","color":"#333","team":{"id":"team-hsui","key":"HSUI","name":"HS UI"}}]}}}`)
 		case strings.Contains(req.Query, "issueCreate"):
 			createCalled = true
 			http.Error(w, "issueCreate should not be called", http.StatusInternalServerError)
@@ -2508,7 +2508,7 @@ func TestIssueCreateRejectsCrossTeamLabelBeforeMutation(t *testing.T) {
 	t.Setenv("LINEAR_BASE_URL", srv.URL)
 	t.Setenv("LINEAR_API_KEY", "test-token")
 
-	out, err := executeRootForTest("issues", "create", "--team", "SYMPH", "--title", "Bad label", "--label", "label-hsui", "--agent", "--data-source", "live")
+	out, err := executeRootForTest("issues", "create", "--team", "SYMPH", "--title", "Bad label", "--label", "00000000-0000-4000-8000-000000000011", "--agent", "--data-source", "live")
 	if err == nil {
 		t.Fatalf("issues create succeeded unexpectedly:\n%s", out)
 	}
@@ -2762,14 +2762,14 @@ func TestIssuesEditDryRunWithLabelsDoesNotCallAPI(t *testing.T) {
 	t.Setenv("LINEAR_BASE_URL", srv.URL)
 	t.Setenv("LINEAR_API_KEY", "test-token")
 
-	out, err := executeRootForTest("issues", "edit", "MOB-99", "--label", "label-1", "--dry-run", "--agent")
+	out, err := executeRootForTest("issues", "edit", "MOB-99", "--label", "00000000-0000-4000-8000-000000000001", "--dry-run", "--agent")
 	if err != nil {
 		t.Fatalf("issues edit dry-run failed: %v\n%s", err, out)
 	}
 	if calls != 0 {
 		t.Fatalf("dry-run made %d API calls; output:\n%s", calls, out)
 	}
-	if !strings.Contains(out, "would_update_issue") || !strings.Contains(out, "label-1") {
+	if !strings.Contains(out, "would_update_issue") || !strings.Contains(out, "00000000-0000-4000-8000-000000000001") {
 		t.Fatalf("dry-run output missing preview details: %s", out)
 	}
 }
@@ -3224,7 +3224,7 @@ func TestIssuesCreateValidatesLabelsBeforeUploadingMedia(t *testing.T) {
 			return
 		}
 		if strings.Contains(req.Query, "issueLabels(filter") {
-			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"label-1","name":"area:protocols","color":"#333","team":{"id":"team-hsui","key":"HSUI","name":"HS UI"}}]}}}`)
+			fmt.Fprint(w, `{"data":{"issueLabels":{"nodes":[{"id":"00000000-0000-4000-8000-000000000001","name":"area:protocols","color":"#333","team":{"id":"team-hsui","key":"HSUI","name":"HS UI"}}]}}}`)
 			return
 		}
 		t.Errorf("unexpected query before media upload: %s", req.Query)
@@ -3234,7 +3234,7 @@ func TestIssuesCreateValidatesLabelsBeforeUploadingMedia(t *testing.T) {
 	t.Setenv("LINEAR_BASE_URL", srv.URL)
 	t.Setenv("LINEAR_API_KEY", "test-token")
 
-	out, err := executeRootForTest("issues", "create", "--title", "Bad label", "--team", "MOB", "--label", "label-1", "--media", "/tmp/nonexistent-dry-run.png", "--agent")
+	out, err := executeRootForTest("issues", "create", "--title", "Bad label", "--team", "MOB", "--label", "00000000-0000-4000-8000-000000000001", "--media", "/tmp/nonexistent-dry-run.png", "--agent")
 	if err == nil {
 		t.Fatalf("issues create succeeded unexpectedly:\n%s", out)
 	}

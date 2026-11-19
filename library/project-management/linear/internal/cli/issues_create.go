@@ -307,6 +307,9 @@ sub-issue under an existing parent.`,
 			if stateFlag != "" && !store.IsUUID(stateFlag) {
 				return usageErr(fmt.Errorf("--state expects a workflow state UUID (got %q); use --state-name %q, or run 'linear-pp-cli workflow-states list --team %s' to find the UUID", stateFlag, stateFlag, teamFlag))
 			}
+			if err := requireLabelUUIDs(flags, labelsFlag); err != nil {
+				return err
+			}
 			if stateTypeFlag != "" {
 				normalizedType, err := normalizeWorkflowStateType(stateTypeFlag)
 				if err != nil {
@@ -505,6 +508,7 @@ sub-issue under an existing parent.`,
 	cmd.Flags().StringVar(&parentFlag, "parent", "", "Parent issue identifier or UUID; creates the issue as a sub-issue")
 	cmd.Flags().StringSliceVar(&labelsFlag, "label", nil, "Label UUIDs (repeatable)")
 	cmd.Flags().StringSliceVar(&labelNamesFlag, "label-name", nil, "Resolve and attach label(s) by exact name (repeatable; team-scoped + team-safe global)")
+	cmd.Flags().SetNormalizeFunc(labelsFlagAsLabelName)
 	cmd.Flags().StringSliceVar(&mediaFlag, "media", nil, "Upload file and append it to the description markdown (repeatable)")
 	cmd.Flags().BoolVar(&mediaPublic, "media-public", false, "Request public Linear asset URLs for uploaded media")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (for team-key resolution and pp_created ledger)")
