@@ -8543,6 +8543,57 @@
       }
     },
     {
+      "name": "edeka",
+      "category": "commerce",
+      "api": "EDEKA",
+      "description": "Shop your local EDEKA market from the terminal or an agent: offers, basket by text, earliest pickup slot, checkout with a confirmation gate.",
+      "homepage": "https://edeka.shop",
+      "search_terms": [
+        "edeka",
+        "edeka-pp-cli",
+        "Shop your local EDEKA market from the terminal or an agent: offers, basket by text, earliest pickup slot, checkout with a confirmation gate.",
+        "Basket by text",
+        "basket add",
+        "Add a product by id or by plain words; the CLI picks the best match in your market and adds it.",
+        "Earliest pickup slot",
+        "slots earliest",
+        "The first free pickup slot of your market in one call.",
+        "Checkout with confirmation gate",
+        "order place",
+        "Preview the order (slot, payment, items, total) and place it only with --confirm.",
+        "Shopping list to basket",
+        "list add",
+        "Add many free-text lines with quantities at once and see what matched.",
+        "Offer check for staples",
+        "deals check",
+        "Which of these items are on offer in your market this week.",
+        "Price history",
+        "Prices an article had over time in your markets, from your own searches and offer lookups.",
+        "Compare markets",
+        "The same search on several EDEKA markets side by side."
+      ],
+      "path": "library/commerce/edeka",
+      "printer": "jimpresting",
+      "printer_name": "JimPresting",
+      "creator": {
+        "handle": "jimpresting",
+        "name": "JimPresting"
+      },
+      "mcp": {
+        "binary": "edeka-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 3,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "edgar",
       "category": "other",
       "api": "EDGAR",
