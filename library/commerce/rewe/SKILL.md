@@ -169,6 +169,7 @@ This CLI was generated with browser-observed traffic context.
 **auth**
 
 
+- `rewe-pp-cli auth connect` — Open a browser window to log in to REWE yourself, then keep that session for this CLI.
 - `rewe-pp-cli auth renew` — Keep the REWE shop session alive without a password by replaying the 30-day single-sign-on cookie.
 
 
@@ -261,7 +262,7 @@ Slot id, start, end and fee.
 
 ## Auth Setup
 
-Log in once to rewe.de in a browser (REWE requires a captcha and two-factor login), then run rewe-pp-cli auth import --cdp http://127.0.0.1:9222 or --file cookies.json. The CLI keeps the shop session alive with REWE's 30-day single-sign-on cookie (auth renew, also done automatically) and says when a fresh browser login is needed.
+Run rewe-pp-cli auth connect: it opens a browser window on the REWE login, you log in yourself (REWE requires a captcha and two-factor login), and the CLI keeps that session. Alternatively log in once to rewe.de in a browser, then run rewe-pp-cli auth import --cdp http://127.0.0.1:9222 or --file cookies.json. The CLI keeps the shop session alive with REWE's 30-day single-sign-on cookie (auth renew, also done automatically) and says when a fresh browser login is needed.
 
 Run `rewe-pp-cli doctor` to verify setup.
 
