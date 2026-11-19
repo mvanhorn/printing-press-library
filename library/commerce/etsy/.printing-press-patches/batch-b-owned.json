@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "id": "batch-b-owned",
+  "summary": "Preserve lazy exact mirror sizing and Batch B regression coverage.",
+  "reason": "Avoid doomed full-page serialization and repeated oversized page probes while preserving canonical output bytes.",
+  "files": [
+    "internal/mcp/bound/etsy_canonical.go",
+    "internal/mcp/bound/etsy_batch_b_test.go",
+    "internal/mcp/bound/etsy_batch_b_reference_test.go",
+    "internal/mcp/cobratree/etsy_batch_b_test.go"
+  ],
+  "reapply": "Keep reusable compact/HTML-escape sizing buffers, budget-prefix early break, exact comma and returned_count growth, ItemCap and step-down verification; preserve boundary, cap, work-bound, admission, environment and benchmark coverage.",
+  "base_run_id": "20261116-133635-274efd3c"
+}

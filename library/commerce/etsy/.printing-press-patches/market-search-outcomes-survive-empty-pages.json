@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "market-search-outcomes-survive-empty-pages",
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Market snapshots atomically replace each fetched page and its outcome; demand distinguishes recorded empty, legacy fetched, and not-yet-fetched terms; trend distinguishes partial-only stores from empty stores.",
+  "reason": "Hand-written Etsy market analysis must preserve per-term fetch truth across legacy and partial snapshots. Resumed page fetches must remove departed listings in the outcome transaction, and insufficient complete snapshots must retain a resume hint.",
+  "files": [
+    "internal/store/etsy_market_migrations.go",
+    "internal/store/etsy_market_migrations_test.go",
+    "internal/cli/market_snapshot.go",
+    "internal/cli/market_snapshot_test.go",
+    "internal/cli/market_demand.go",
+    "internal/cli/market_demand_test.go",
+    "internal/cli/mkt_helpers.go",
+    "internal/cli/market_trend.go",
+    "internal/cli/market_trend_test.go"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "array-query-comma",
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Array query parameters (listing_ids, includes, shop_section_ids, payment_ids, ledger_entry_ids) are sent comma-joined instead of as repeated keys.",
+  "reason": "Etsy's OpenAPI spec gives these parameters no style/explode, so the generator emitted the OpenAPI default (form, explode=true) and sent listing_ids=1&listing_ids=2. Etsy honours only one value that way: a live listings get-by-ids call with several ids returned 1 listing, and shop_section_ids with two sections returned only the last section's 3 listings instead of 20; the comma form returned them all. The call sites now pass explode=false to the generated appendArrayQueryParam helper. includes and ledger_entry_ids are changed for consistency (Etsy accepts the comma form for includes, its effect was not observable live; ledger_entry_ids and payment_ids need seller OAuth and were not live-tested; payment_ids is documented as a comma-separated array in the spec). Production etsy_read/etsy_execute uses the codeOrchEndpoints bindings directly, so all nine MCP array bindings also require QueryExplode=false; the companion-CLI shell-out test alone cannot guard that route.",
+  "regeneration_hazard": "A reprint regenerates BOTH generated surfaces with explode=true and silently reverts the fix: (1) the nine appendArrayQueryParam call sites in internal/cli/*.go and (2) the nine QueryExplode bindings in internal/mcp/code_orch.go (eight marked QueryParams lines), which the production etsy_read/etsy_execute route uses. The durable fix is a spec override (style: form, explode: false on all nine params: listing_ids x3, includes x3, shop_section_ids, payment_ids, ledger_entry_ids) or a generator change that emits comma-join for Etsy array params; until then re-apply the markers by hand. Re-check list after any reprint: TestArrayQueryParamsCommaJoined, TestArrayQueryShopSectionIdsPaginationKeepsCommaJoined, TestArrayQueryHelperExplodeStillRepeats, TestCodeOrchArrayBindingsCommaJoin, TestCodeOrchEtsyReadListingsGetByIdsCommaJoinsOnWire, TestCobratreeShellOutListingsGetByIdsCommaJoins.",
+  "files": [
+    "internal/cli/listing_inventory_get-listings-inventory-by-listing-ids.go",
+    "internal/cli/listings_get-by-ids.go",
+    "internal/cli/listings_get-by-shop-section-id.go",
+    "internal/cli/listings_get-by-shop.go",
+    "internal/cli/listings_get-shipping-by-ids.go",
+    "internal/cli/listings_get.go",
+    "internal/cli/payments_get-account-ledger-entry.go",
+    "internal/cli/payments_get.go",
+    "internal/cli/etsy_array_query_comma_test.go",
+    "internal/mcp/etsy_array_query_mcp_test.go",
+    "internal/mcp/code_orch.go",
+    "internal/mcp/etsy_code_orch_array_query_test.go"
+  ]
+}

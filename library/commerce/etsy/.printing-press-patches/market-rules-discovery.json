@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "market-rules-discovery",
+  "summary": "Discovery advertises both market rules file formats.",
+  "reason": "Etsy-owned local market matching and report policy must survive reprints.",
+  "files": [
+    "internal/cli/which.go"
+  ],
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Advertise --rules YAML or JSON for market gaps.",
+  "base_run_id": "20261116-133635-274efd3c",
+  "markers": [
+    "Needs a prior market snapshot and a --rules YAML or JSON file of targets."
+  ]
+}

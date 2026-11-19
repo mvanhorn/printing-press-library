@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-11-19T17:04:55.530751Z",
+  "cli_dir": "\u003ccli-dir\u003e/etsy",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20261116-133635-274efd3c/research/research-notes.md",
+      "line": 34,
+      "column": 172,
+      "matched_span": "developer@etsy.com",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "research-notes.md rate-limit notes: \"Higher quota: email developer@etsy.com with app description + QPD/QPS estimate.\" — Etsy's published developer-support address from the Open API v3 rate-limits docs, not a customer value."
+    }
+  ],
+  "findings_count_before": 1
+}

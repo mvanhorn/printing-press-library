@@ -1,0 +1,28 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/etsy-pp-cli
+/etsy-pp-cli.exe
+/etsy-pp-mcp
+/etsy-pp-mcp.exe
+/bin/
+/build/
+/dist/
+dogfood-results.json
+apify-actor-audit-report.json
+workflow-verify-report.json
+
+# Workshop ADR-0017: never commit local stores, captures or env files.
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+.env
+.env.*
+*.har
+*.mhtml
+
+# Raw live output stays local (workshop memory: raw live-dogfood reports are private).
+.manuscripts/**/proofs/*-dogfood-results.json
+.manuscripts/**/proofs/*-dogfood-stderr.log
+.manuscripts/**/proofs/novel-sample/
+.manuscripts/**/proofs/.dogfood-stamp
+.manuscripts/**/pipeline/

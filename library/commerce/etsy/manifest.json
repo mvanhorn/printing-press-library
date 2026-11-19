@@ -1,0 +1,62 @@
+{
+  "manifest_version": "0.3",
+  "name": "etsy-pp-mcp",
+  "display_name": "Etsy",
+  "version": "3.0.0",
+  "description": "Etsy Open API v3 commands plus a local SQLite store for offline fee reports, ledger reconciliation, listing and GPSR audits, market research, and previewed bulk edits.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/etsy-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/etsy-pp-mcp",
+      "args": [],
+      "env": {
+        "ETSY_API_KEY": "${user_config.etsy_api_key}",
+        "ETSY_OAUTH2": "${user_config.etsy_oauth2}",
+        "ETSY_SHARED_SECRET": "${user_config.etsy_shared_secret}",
+        "ETSY_SHOP_ID": "${user_config.etsy_shop_id}"
+      }
+    }
+  },
+  "user_config": {
+    "etsy_api_key": {
+      "type": "string",
+      "title": "ETSY_API_KEY",
+      "description": "Sets ETSY_API_KEY for the Etsy MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "etsy_oauth2": {
+      "type": "string",
+      "title": "ETSY_OAUTH2",
+      "description": "Sets ETSY_OAUTH2 for the Etsy MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "etsy_shared_secret": {
+      "type": "string",
+      "title": "ETSY_SHARED_SECRET",
+      "description": "Sets ETSY_SHARED_SECRET for the Etsy MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "etsy_shop_id": {
+      "type": "string",
+      "title": "ETSY_SHOP_ID",
+      "description": "Sets ETSY_SHOP_ID for the endpoint template variable {shop_id}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "sync-budget-prune-since",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "sync: preflight call estimate + checkBudget, --max-calls, --ignore-budget, run-wide abort on the first daily-quota 429; listings prune over the union of all five state walks; OAuth skip stops at the first denied state; incremental since params for receipts, ledger entries and reviews. Round 3: boundary budget re-check before dependents, unknown-quota >1000-call refusal, incremental shops_receipts_payments (only receipts without a stored payment or changed since the last payments sync), union prune requires pruneAllowed(), default sync includes reviews, embedded inventory/images sync_state. Round 4: payment-check ledger (etsy_payment_checks) replaces the wall-clock watermark for payment-walk selection.. Round 4: payments dependent runs capped at the budget allowance (exit 7, progress saved per receipt); unknown-quota rule counts flat-phase calls only; a flat-phase stop skips dependents.",
+  "reason": "A 1000-listing sync could burn the daily budget with per-parent continue after quota exhaustion. Per-state explicit selectors disabled listings pruning entirely. Etsy supports min_last_modified/min_created filters so --since can be honest.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/etsy_budget.go",
+    "internal/cli/etsy_sync_budget.go",
+    "internal/cli/etsy_sync_budget_test.go",
+    "internal/cli/etsy_sync_prune_test.go",
+    "internal/cli/etsy_sync_since_test.go",
+    "internal/cli/etsy_sync_listing_states_test.go",
+    "internal/cli/etsy_sync_payments_incremental_test.go",
+    "internal/cli/etsy_sync_boundary_unit_test.go",
+    "internal/store/etsy_payments_migrations_test.go",
+    "internal/cli/etsy_payment_checks_test.go",
+    "internal/cli/etsy_sync_cli_budget_test.go"
+  ]
+}

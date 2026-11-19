@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "batch-d-review-write-guards",
+  "summary": "Strip review buyer fields after every merge and lazily scrub legacy rows on writable opens.",
+  "reason": "Etsy policy belongs downstream; richer merges must never restore review buyer identifiers. Marker-only generated record fails closed on reprint.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "markers": [
+    "data = etsyStripReviewBuyerFields(resourceType, data)",
+    "data = etsyStripReviewBuyerFields(\"app\", data)",
+    "data = etsyStripReviewBuyerFields(\"buyer_taxonomy\", data)",
+    "data = etsyStripReviewBuyerFields(\"economic_operators\", data)",
+    "data = etsyStripReviewBuyerFields(\"holiday_preferences\", data)",
+    "data = etsyStripReviewBuyerFields(\"ledger_entries\", data)",
+    "data = etsyStripReviewBuyerFields(\"listing_files\", data)",
+    "data = etsyStripReviewBuyerFields(\"listing_images\", data)",
+    "data = etsyStripReviewBuyerFields(\"listing_inventory\", data)",
+    "data = etsyStripReviewBuyerFields(\"listing_translations\", data)",
+    "data = etsyStripReviewBuyerFields(\"listing_variation_images\", data)",
+    "data = etsyStripReviewBuyerFields(\"listing_videos\", data)",
+    "data = etsyStripReviewBuyerFields(\"listings\", data)",
+    "data = etsyStripReviewBuyerFields(\"payments\", data)",
+    "data = etsyStripReviewBuyerFields(\"processing_profiles\", data)",
+    "data = etsyStripReviewBuyerFields(\"production_partners\", data)",
+    "data = etsyStripReviewBuyerFields(\"receipts\", data)",
+    "data = etsyStripReviewBuyerFields(\"return_policies\", data)",
+    "data = etsyStripReviewBuyerFields(\"reviews\", data)",
+    "data = etsyStripReviewBuyerFields(\"seller_taxonomy\", data)",
+    "data = etsyStripReviewBuyerFields(\"shipping_profiles\", data)",
+    "data = etsyStripReviewBuyerFields(\"shop_sections\", data)",
+    "data = etsyStripReviewBuyerFields(\"shops\", data)",
+    "data = etsyStripReviewBuyerFields(\"transactions\", data)",
+    "data = etsyStripReviewBuyerFields(\"user_addresses\", data)",
+    "data = etsyStripReviewBuyerFields(\"users\", data)",
+    "item = etsyStripReviewBuyerFields(resourceType, item)",
+    "if err := s.etsyScrubReviewBuyerFields(ctx); err != nil {"
+  ],
+  "reapply": "Restore each strip immediately after its merge and before DecodeJSONObject or generic write; restore the scrub after writable migrate only."
+}

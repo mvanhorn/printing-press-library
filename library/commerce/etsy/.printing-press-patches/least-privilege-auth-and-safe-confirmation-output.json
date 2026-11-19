@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "least-privilege-auth-and-safe-confirmation-output",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Default Etsy login requests only operational read scopes; provider callback text is bounded and terminal-safe, and unconfirmed writes expose a stable machine-readable refusal before remote work.",
+  "reason": "Etsy-specific OAuth scope and callback handling belongs in this generated CLI. Preserve explicit expanded-scope opt-in, confirmation_required error reasons, no-fetch copy refusals, and one run-level missing-shop hint on regen; shared error-envelope and sync-hint improvements are upstream generator candidates.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/etsy_auth.go",
+    "internal/cli/helpers.go",
+    "internal/cli/root.go",
+    "internal/cli/sync.go",
+    "internal/cli/listings_copy.go",
+    "internal/cli/etsy_auth_test.go",
+    "internal/cli/listings_copy_test.go",
+    "internal/cli/etsy_auth_hardening_test.go",
+    "internal/cli/etsy_hardening_reports_test.go",
+    "README.md",
+    "SKILL.md",
+    "AGENTS.md"
+  ],
+  "validated_outcome": "Real-client POST/PUT/DELETE refusals send zero requests; callback controls are removed and fields are capped at 200 runes; isolated doctor quota state is absent before observation."
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "batch-c-quota-owned",
+  "summary": "Preserve per-key private quota state and bounded cross-process ordered merges.",
+  "reason": "Etsy-owned rolling 24h quota policy, raw-header merge minima, missing-limit preservation, hashed per-key memory fallback and bounded locked read/merge/write must survive reprints.",
+  "files": [
+    "internal/cli/etsy_budget.go",
+    "internal/cli/etsy_budget_test.go",
+    "internal/cli/etsy_hardening_reports_test.go",
+    "internal/cli/etsy_lowstock_refresh_test.go",
+    "internal/cli/etsy_sync_boundary_unit_test.go",
+    "internal/cli/etsy_sync_budget.go",
+    "internal/cli/etsy_sync_budget_test.go",
+    "internal/cli/etsy_sync_cli_budget_test.go",
+    "internal/cli/etsy_sync_summary_test.go",
+    "internal/cli/inventory_d_test.go",
+    "internal/cli/listings_bulk_edit_test.go",
+    "internal/cli/market_snapshot_test.go",
+    "internal/client/etsy_quota.go",
+    "internal/client/etsy_quota_lock.go",
+    "internal/client/etsy_quota_order_test.go",
+    "internal/client/etsy_quota_test.go",
+    "internal/client/etsy_ratelimit.go",
+    "internal/client/etsy_ratelimit_test.go"
+  ],
+  "reapply": "Retain the quota helper, explicit-key readers, bounded TryWithFileLock polling, and synthetic subprocess/fixture tests together.",
+  "markers": [
+    "func quotaUsable(q EtsyQuota) bool",
+    "var etsyQuotaMergeHook func()",
+    "func EtsyQuotaPersistError(key string) error",
+    "func TestEtsyQuotaConcurrentOrderedObservers(t *testing.T)"
+  ]
+}

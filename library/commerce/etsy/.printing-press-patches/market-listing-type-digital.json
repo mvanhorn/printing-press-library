@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "market-listing-type-digital",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Market snapshot derives the existing nullable is_digital value from listing_type: download and both are digital, physical is not, and unknown values remain NULL. Matching ignores case and surrounding spaces.",
+  "reason": "Etsy ShopListing search responses expose listing_type, not is_digital. This Etsy-specific hand-written snapshot decoder and writer must preserve that API mapping without changing the schema or read paths. Synthetic fixtures and an HTTP-to-store regression test guard against restoring the nonexistent listing field.",
+  "files": [
+    "internal/cli/market_snapshot.go",
+    "internal/cli/mkt_fixtures_test.go",
+    "internal/cli/market_listing_type_test.go",
+    "CHANGELOG.md"
+  ],
+  "validated_outcome": "Peer code + test review 2026-11-18 (both SHIP). mutation-verify.sh, serial in-place copies: M1 restore json:\"is_digital\" decode -> CAUGHT by TestMarketSnapshotListingTypeDigital (knock-out -skip exited 0, one fewer RUN line); M2 both->0 -> CAUGHT by TestMktDigitalFromListingType/both (knock-out exited 0). Controls went RED for their own reason (tool label UNVERIFIED CONTROL). Accepted Minor: e2e test now also sends listing_type both and PHYSICAL; a both-unmapped mutant fails it (listing 1000000004 got NULL, want 1)."
+}

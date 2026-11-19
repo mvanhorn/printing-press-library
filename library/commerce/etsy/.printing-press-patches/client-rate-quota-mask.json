@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "client-rate-quota-mask",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Etsy client: auto rate ceiling (4.5 rps or 0.9x observed x-limit-per-second), immediate daily-quota RateLimitedError on 429 with x-remaining-today 0, and masking of the composed keystring:secret and raw shared secret.",
+  "reason": "internal/cliutil is generator-reserved, so the ceiling is applied in client.New. Daily exhaustion cannot recover through retry waits. The wire credential is keystring:secret and was not covered by the generated mask.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/etsy_quota.go",
+    "internal/client/etsy_ratelimit.go",
+    "internal/client/etsy_ratelimit_test.go",
+    "internal/client/etsy_quota_429_test.go",
+    "internal/client/etsy_mask_test.go"
+  ]
+}

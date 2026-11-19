@@ -1,0 +1,289 @@
+
+=== verify ===
+Runtime Verification: <runstate>/printing-press-workshop-e51dd43c/runs/20261116-133635-274efd3c/working/etsy-pp-cli/etsy-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+app                            read         PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+buyer-taxonomy                 read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+economic-operators             read         PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+holiday-preferences            read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+inventory                      read         PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+ledger-entries                 read         PASS   PASS     PASS     3/3
+listing-files                  read         PASS   PASS     PASS     3/3
+listing-images                 read         PASS   PASS     PASS     3/3
+listing-inventory              read         PASS   PASS     PASS     3/3
+listing-personalization        read         PASS   PASS     PASS     3/3
+listing-translations           read         PASS   PASS     PASS     3/3
+listing-variation-images       read         PASS   PASS     PASS     3/3
+listing-videos                 read         PASS   PASS     PASS     3/3
+listings                       read         PASS   PASS     PASS     3/3
+local-data                     write        PASS   PASS     PASS     3/3
+login                          write        PASS   PASS     PASS     3/3
+market                         read         PASS   PASS     PASS     3/3
+money                          read         PASS   PASS     PASS     3/3
+orders                         read         PASS   PASS     PASS     3/3
+payments                       read         PASS   PASS     PASS     3/3
+playbook                       write        PASS   PASS     PASS     3/3
+processing-profiles            read         PASS   PASS     PASS     3/3
+production-partners            write        PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     PASS     3/3
+recall                         read         PASS   PASS     PASS     3/3
+receipts                       read         PASS   PASS     PASS     3/3
+return-policies                read         PASS   PASS     PASS     3/3
+reviews                        read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+seller-taxonomy                read         PASS   PASS     PASS     3/3
+shipping-profiles              read         PASS   PASS     PASS     3/3
+shop                           read         PASS   PASS     PASS     3/3
+shop-sections                  read         PASS   PASS     PASS     3/3
+shops                          read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+transactions                   read         PASS   PASS     PASS     3/3
+user-addresses                 read         PASS   PASS     PASS     3/3
+users                          read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS buyer-taxonomy get-properties-by-id
+  PASS economic-operators create-shop
+  PASS economic-operators get-shop
+  PASS economic-operators get-shop-shops
+  PASS economic-operators update-shop
+  PASS holiday-preferences get
+  PASS holiday-preferences update
+  PASS inventory set-qty
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS ledger-entries get-shop-payment-account
+  PASS ledger-entries get-shop-payment-account-ledger-entry
+  PASS listing-files delete
+  PASS listing-files get
+  PASS listing-files get-all
+  PASS listing-files upload
+  PASS listing-images delete
+  PASS listing-images get
+  PASS listing-images get-listings
+  PASS listing-images upload
+  PASS listing-inventory get
+  PASS listing-inventory get-listing-product
+  PASS listing-inventory update
+  PASS listing-personalization delete
+  PASS listing-personalization get
+  PASS listing-personalization update
+  PASS listing-translations create
+  PASS listing-translations get
+  PASS listing-translations update
+  PASS listing-variation-images get
+  PASS listing-variation-images update-variation-images
+  PASS listing-videos delete
+  PASS listing-videos get
+  PASS listing-videos get-listings
+  PASS listing-videos upload
+  PASS listings copy
+  PASS listings create-draft
+  PASS listings delete
+  PASS listings delete-property
+  PASS listings find-all-active-by-shop
+  PASS listings get
+  PASS listings get-by-shop
+  PASS listings get-by-shop-receipt
+  PASS listings get-by-shop-return-policy
+  PASS listings get-by-shop-section-id
+  PASS listings get-featured-by-shop
+  PASS listings get-properties
+  PASS listings get-property
+  PASS listings snapshot
+  PASS listings update
+  PASS listings update-property
+  PASS payments get
+  PASS payments get-account-ledger-entry
+  PASS payments get-shop-by-receipt-id
+  PASS processing-profiles create-shop-readiness-state-definition
+  PASS processing-profiles delete-shop-readiness-state-definition
+  PASS processing-profiles get-shop-readiness-state-definition
+  PASS processing-profiles get-shop-readiness-state-definitions
+  PASS processing-profiles update-shop-readiness-state-definition
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS receipts create-shipment
+  PASS receipts get-shop
+  PASS receipts get-shop-shops
+  PASS receipts update-shop
+  PASS return-policies consolidate-shop
+  PASS return-policies create-shop-return-policy
+  PASS return-policies delete-shop-return-policy
+  PASS return-policies get-shop
+  PASS return-policies get-shop-return-policy
+  PASS return-policies update-shop-return-policy
+  PASS reviews get-by-listing
+  PASS reviews get-by-shop
+  PASS seller-taxonomy get-properties-by-taxonomy-id
+  PASS shipping-profiles create-shop
+  PASS shipping-profiles create-shop-destination
+  PASS shipping-profiles create-shop-upgrade
+  PASS shipping-profiles delete-shop
+  PASS shipping-profiles delete-shop-destination
+  PASS shipping-profiles delete-shop-upgrade
+  PASS shipping-profiles get-shop
+  PASS shipping-profiles get-shop-destinations-by
+  PASS shipping-profiles get-shop-shops
+  PASS shipping-profiles get-shop-upgrades
+  PASS shipping-profiles update-shop
+  PASS shipping-profiles update-shop-destination
+  PASS shipping-profiles update-shop-upgrade
+  PASS shop-sections create
+  PASS shop-sections delete
+  PASS shop-sections get
+  PASS shop-sections get-shops
+  PASS shop-sections update
+  PASS shops get
+  PASS shops get-by-owner-user-id
+  PASS shops update
+  PASS transactions get-shop-receipt
+  PASS transactions get-shop-receipt-by-listing
+  PASS transactions get-shop-receipt-by-receipt
+  PASS transactions get-shop-receipt-by-shop
+  PASS user-addresses get-user-address
+  PASS users get
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped) [sync --resources buyer_taxonomy]
+Pass Rate: 100% (159/159 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+FAILED [recipes]: etsy-pp-cli market snapshot --terms terms.txt --pages 2 --max-calls 200 → full example failed: <runstate>/printing-press-workshop-e51dd43c/runs/20261116-133635-274efd3c/working/etsy-pp-cli/build/stage/bin/etsy-pp-cli market snapshot --terms terms.txt --pages 2 --max-calls 200 --dry-run: exit status 2: Error: read --terms: open terms.txt: no such file or directory
+UNSUPPORTED [troubleshoots.fix]: etsy-pp-cli auth login --scopes transactions_r → full-example validation skipped: command is side-effectful (auth/launch/apply)
+DONE: 11 ok, 0 missing, 0 empty-words, 1 failed-examples, 1 unsupported
+narrative validation failed
+
+=== dogfood ===
+dogfood: using spec <runstate>/printing-press-workshop-e51dd43c/runs/20261116-133635-274efd3c/working/etsy-pp-cli/spec.json (bundled)
+dogfood: caller --spec=<runstate>/printing-press-workshop-e51dd43c/runs/20261116-133635-274efd3c/research/etsy-openapi-v3.enriched.json overridden by bundled <runstate>/printing-press-workshop-e51dd43c/runs/20261116-133635-274efd3c/working/etsy-pp-cli/spec.json
+Dogfood Report: etsy-pp-cli
+================================
+
+Path Validity:     4/4 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 76/76 endpoints covered (PASS)
+  Detail: all OAuth-scoped endpoints covered by generated auth scopes
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          3/3 commands have examples (PASS)
+
+Novel Features:    15/15 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: etsy-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== etsy-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: etsy
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           9/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 96/100 - Grade A
+  Denominator: infrastructure 180, domain 50
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: rebuilt (staged binary was older than Go sources)
+  Review: pass
+  Passed: 14/14  (100% pass rate, 1 skipped)
+
+Gaps:
+  - MCP: 107 tools (0 public, 107 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         12.472s
+  validate-narrative  FAIL    1         239ms
+  dogfood           PASS    0         4.635s
+  workflow-verify   PASS    0         15ms
+  apify-audit       PASS    0         35ms
+  verify-skill      PASS    0         12.911s
+  scorecard         PASS    0         2.208s
+
+Verdict: FAIL (1/7 legs failed)

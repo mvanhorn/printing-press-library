@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "market-r4-select-notes-composite",
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Market --select notes now counts as matched (notes is always present), so a populated store exits 0 and the all-miss warning lists the same valid fields as the generic selector, including notes; notes,bogus keeps the partial-miss warning. The composite legacy note is decided against the explicit notes list only and joined with semicolons, so a composite is never added as an entry. market_results upsert is best-position-wins only (the page arm let a worse in-response duplicate overwrite). The demand-state and shop_name sentences are restored in research.json and which.go, README and SKILL carry the research.json market guidance verbatim, and a drift test enforces it plus which/research command parity.",
+  "reason": "Round-3 review found that --select notes exited 2 on a populated store, that a composite note leaked into notes when summary notes were joined with a space or composite detection ran after resume_hint was added, and that two documentation sentences were lost from the market snapshot guidance.",
+  "files": [
+    "internal/cli/mkt_helpers.go",
+    "internal/cli/market_snapshot.go",
+    "internal/cli/which.go",
+    ".manuscripts/20261116-133635-274efd3c/research.json",
+    "internal/cli/market_selection_test.go",
+    "internal/cli/market_select_empty_test.go",
+    "internal/cli/market_notes_invariant_test.go",
+    "internal/cli/market_composite_test.go",
+    "internal/cli/market_r3_test.go",
+    "internal/cli/market_review_advice_test.go",
+    "internal/cli/market_docs_test.go"
+  ],
+  "validated_outcome": "Archive-only mutation-verify proofs for seven hazards were caught with exact failure text, knock-outs and controls; see market-r4-proof.md. Full go test ./... passes."
+}

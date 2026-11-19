@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "mcp-start-purge-read-only-first",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "The MCP-start legacy buyer-lookup purge probes the store read-only and opens it read-write (5s bound) only when a synced buyer-kind entity_lookups row exists; it runs after flag parsing so --help never opens the store.",
+  "reason": "Every MCP start used to open the operator store read-write and run migrations even when there was nothing to purge, and did so before flag parsing. cmd/etsy-pp-mcp/main.go is generated; the single marked etsy-ext call site moved after flag.Parse().",
+  "files": [
+    "cmd/etsy-pp-mcp/main.go",
+    "internal/cli/etsy_lookup_filter.go",
+    "internal/cli/etsy_lookup_start_test.go"
+  ]
+}

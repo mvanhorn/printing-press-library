@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "market-atomic-notes",
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Collect market notes explicitly: retain atomic top-level advisories, attribute demand and price row notes (gap rows carry claims, not notes, so only snapshot_note is hoisted for gaps), and collapse repeated text into at most five quoted keys plus a remaining count. Preserve snapshot_note, resume_hint and error verbatim, while retaining legacy composite note metadata.",
+  "reason": "Hand-authored Etsy market reports need bounded attributed advisory envelopes; reflective harvesting duplicated composite demand notes and lost row context. The snapshot error path must retain the same envelope and exit classification as success.",
+  "files": [
+    "internal/cli/mkt_helpers.go",
+    "internal/cli/market_demand.go",
+    "internal/cli/market_price.go",
+    "internal/cli/market_notes_test.go",
+    "internal/cli/market_envelope_test.go",
+    "internal/cli/market_snapshot_test.go"
+  ],
+  "validated_outcome": "Archive-only mutation-verify proofs caught: error-path mktEmitReport replaced by flags.printJSON (ERROR_SUMMARY_ENVELOPE_BROKEN); demand row-note collection removed (NOTES_HOISTING_BROKEN); repeated row-note collapse bypassed (NOTES_COLLAPSE_BROKEN). Each exact-test knockout passed with one fewer === RUN line. All three controls were accepted after compile checks: error-path panic ERROR_CONTROL_PANIC; demand emission panic NOTES_CONTROL_PANIC; nil results panic for collapse. Each control failed for its own reason without the hazard phrase; no refused controls. HTTP 500 on the second search page retains exit 5. Proofs ran in a git-archive copy, never the working tree."
+}

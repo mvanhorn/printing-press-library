@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "id": "market-plain-and-missing-snapshot",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Refuse plain output for nested market tags/trend reports and distinguish invalid or missing explicit snapshot IDs from the default latest-complete selection.",
+  "reason": "DEV-931 and DEV-932 affect hand-written Etsy market commands rather than generator-owned printers or MCP code. Preserve nested-output format guards, typed not-found handling including absent stores, and explicit positive-ID validation across demand/tags/shops/price/gaps and paired trend selectors. Omitted IDs retain successful no-data notes and latest-complete selection; flag metadata must not advertise an invalid zero default to MCP or help consumers. Preserve literal cmd.Flags().Int64Var declarations for snapshot at all five command sites and from/to in trend so verify-skill can discover them; each calls mktHideZeroDefault, which clears DefValue and wraps the registered pflag.Value with mktPositiveIDValue to suppress zero help defaults without losing numeric MCP schemas or pflag parsing. Synthetic CLI and companion-CLI MCP seam tests protect these contracts, including selection of an older explicit snapshot.",
+  "files": [
+    "internal/cli/mkt_helpers.go",
+    "internal/cli/market_tags.go",
+    "internal/cli/market_trend.go",
+    "internal/cli/market_demand.go",
+    "internal/cli/market_gaps.go",
+    "internal/cli/market_price.go",
+    "internal/cli/market_shops.go",
+    "internal/cli/market_snapshot_flag_test.go",
+    "CHANGELOG.md",
+    "README.md",
+    "SKILL.md"
+  ],
+  "markers": [
+    "cmd.Flags().Int64Var(&flagSnapshot, \"snapshot\", 0, mktSnapshotUsage)",
+    "mktHideZeroDefault(cmd, \"snapshot\")",
+    "cmd.Flags().Int64Var(&flagFrom, \"from\", 0, \"Positive snapshot ID; omit both for the latest two complete snapshots\")",
+    "cmd.Flags().Int64Var(&flagTo, \"to\", 0, \"Positive snapshot ID; omit both for the latest two complete snapshots\")",
+    "mktHideZeroDefault(cmd, \"from\")",
+    "mktHideZeroDefault(cmd, \"to\")",
+    "flag.Value = &mktPositiveIDValue{Value: flag.Value}",
+    "flag.DefValue = \"\""
+  ]
+}

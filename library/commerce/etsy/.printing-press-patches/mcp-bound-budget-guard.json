@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "mcp-bound-budget-guard",
+  "summary": "Fail-closed guard for the one edit to generated internal/mcp/bound/bound.go (const MaxBytes = 60000 -> var MaxBytes = Budget()).",
+  "reason": "regen-merge classifies a const->var declaration change as TEMPLATED-CLEAN and --apply silently reverts it (mvanhorn/cli-printing-press#5418). This record lists only bound.go so the marker cannot be satisfied by a match in this record or in docs; ValidatePatchRecords then aborts the merge before the swap. Companion to mcp-canonical-bounding.json.",
+  "files": [
+    "internal/mcp/bound/bound.go"
+  ],
+  "markers": [
+    "var MaxBytes = Budget()"
+  ],
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "If regen-merge refuses with this record's marker absent: re-apply `var MaxBytes = Budget()` in place of `MaxBytes = 60000` in bound.go, per mcp-canonical-bounding.json reapply steps.",
+  "base_run_id": "20261116-133635-274efd3c"
+}

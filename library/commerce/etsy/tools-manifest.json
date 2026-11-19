@@ -1,0 +1,4066 @@
+{
+  "api_name": "etsy",
+  "base_url": "https://openapi.etsy.com/v3/application",
+  "description": "Etsy Open API v3 commands plus a local SQLite store for offline fee reports, ledger reconciliation, listing and GPSR audits, market research, and previewed bulk edits.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "ETSY_OAUTH2"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ETSY_OAUTH2",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "app_ping",
+      "description": "Check to confirm connectivity to the Etsy API with an application. Returns the Pong.",
+      "method": "GET",
+      "path": "/openapi-ping",
+      "params": []
+    },
+    {
+      "name": "app_token-scopes",
+      "description": "Check the scopes of the provided token. Required: token. Returns the new Scopes.",
+      "method": "POST",
+      "path": "/scopes",
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "buyer_taxonomy_get-nodes",
+      "description": "Retrieves the full hierarchy tree of buyer taxonomy nodes. Returns array of BuyerTaxonomyGetNodesItem.",
+      "method": "GET",
+      "path": "/buyer-taxonomy/nodes",
+      "params": []
+    },
+    {
+      "name": "buyer_taxonomy_get-properties-by-id",
+      "description": "Retrieves a list of product properties, with applicable scales and values, supported for a specific buyer taxonomy ID. Required: taxonomy_id. Returns array of BuyerTaxonomyGetPropertiesByIdItem.",
+      "method": "GET",
+      "path": "/buyer-taxonomy/nodes/{taxonomy_id}/properties",
+      "params": [
+        {
+          "name": "taxonomy_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique numeric ID of an Etsy taxonomy node, which is a metadata category for listings organized into the seller taxonomy hierarchy tree. For example, the 'shoes' taxonomy node (ID: 1429, level: 1) is higher in the hierarchy than 'girls' shoes' (ID: 1440, level: 2). The taxonomy nodes assigned to a listing support access to specific standardized product scales and properties. For example, listings assigned the taxonomy nodes 'shoes' or 'girls' shoes' support access to the 'EU' shoe size scale with its associated property names and IDs for EU shoe sizes, such as property `value_id`:'1394', and `name`:'38'.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "economic_operators_create-shop",
+      "description": "Creates a new economic operator (a manufacturer or EU responsible person record) for a specific shop, used for GPSR compliance on listings. `operator_name`, `email`, `first_line`, `city`, `zip`, `country_iso`, and `phone` are required and cannot be blank; `trademark_name`, `second_line`, and `phone_country_iso` are optional. `state` is required if the `country_iso` requires a state (for example `US`, `CA`, `AU`, `IN`, `BR`, `MX`, `ES`, `IT`); it is optional for every other country. See the [full list of countries](/documentation/tutorials/gpsr-economic-operators#countries-requiring-a-state). The response contains the `economic_operator_id` to pass as `gpsr_manufacturer_id` or `gpsr_responsible_person_id` when creating or updating a [listing](/documentation/reference#tag/ShopListing). A manufacturer can be located anywhere, but an operator used as an EU responsible person must have an address in the European Union; this is checked when a listing references the operator. There is no delete endpoint: use [updateShopEconomicOperator](/documentation/reference#operation/updateShopEconomicOperator) to correct a record. See the [GPSR Economic Operators Tutorial](/documentation/tutorials/gpsr-economic-operators) for the full guide, including eligibility and the enforcement timeline. Required: shop_id, city, country_iso, email, first_line, operator_name, phone, zip. Optional: phone_country_iso, second_line, state (plus 1 more). Returns the new ShopEconomicOperator.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/economic-operators",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "The city or town of the economic operator's postal address. Required, cannot be blank. Maximum 50 characters (95 in a few countries, such as India, Brazil, and Japan).",
+          "required": true
+        },
+        {
+          "name": "country_iso",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO 3166-1 alpha-2 code of the country of the economic operator's postal address, for example `DE` or `FR`. Not case-sensitive on input; always returned in upper case. Required.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The contact email address of the economic operator, where buyers and authorities can reach it about product safety. Required and must be a valid email address. Maximum 255 characters.",
+          "required": true
+        },
+        {
+          "name": "first_line",
+          "type": "string",
+          "location": "body",
+          "description": "The first line of the economic operator's postal address (street and number). Required, cannot be blank. Maximum 50 characters (95 in a few countries, such as India, Brazil, and Japan).",
+          "required": true
+        },
+        {
+          "name": "operator_name",
+          "type": "string",
+          "location": "body",
+          "description": "The legal or trading name of the business or individual acting as economic operator, as it should be shown to buyers and market surveillance authorities. Required, cannot be blank. Maximum 50 characters.",
+          "required": true
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "The contact phone number of the economic operator. Required, cannot be blank. May contain digits, spaces, and the characters ( ) . - + #. Phone number must be valid.",
+          "required": true
+        },
+        {
+          "name": "phone_country_iso",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO 3166-1 alpha-2 country code that `phone` belongs to, for example `DE`. Optional. Not case-sensitive on input; always returned in upper case."
+        },
+        {
+          "name": "second_line",
+          "type": "string",
+          "location": "body",
+          "description": "The second line of the economic operator's postal address (apartment, suite, building). Optional. Maximum 50 characters (95 in a few countries, such as India, Brazil, and Japan). Send `null` on update to clear it. Returned as `null` when not set."
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "The state, province, or region of the economic operator's postal address. Required if the `country_iso` requires a state; optional otherwise. Maximum 50 characters (95 in a few countries, such as India, Brazil, and Japan). See the [list of countries](/documentation/tutorials/gpsr-economic-operators#countries-requiring-a-state). On update, send `null` to clear it (not allowed for those countries). Returned as `null` when not set."
+        },
+        {
+          "name": "trademark_name",
+          "type": "string",
+          "location": "body",
+          "description": "The brand or trademark the economic operator trades under, when it differs from `operator_name`. Optional. Maximum 255 characters. Send `null` on update to clear it. Returned as `null` when not set."
+        },
+        {
+          "name": "zip",
+          "type": "string",
+          "location": "body",
+          "description": "The postal code of the economic operator's postal address. Required, cannot be blank.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "economic_operators_get-shop",
+      "description": "Retrieves all economic operators (manufacturer and EU responsible person records) of a specific shop, used for GPSR compliance on listings. Deleted operators are not included. Use the `economic_operator_id` of an entry as `gpsr_manufacturer_id` or `gpsr_responsible_person_id` on a [listing](/documentation/reference#tag/ShopListing). See the [GPSR Economic Operators Tutorial](/documentation/tutorials/gpsr-economic-operators) for the full guide. Required: shop_id. Returns array of ShopEconomicOperator.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/economic-operators",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "economic_operators_get-shop-shops",
+      "description": "Retrieves a single economic operator, referenced by economic operator ID and shop ID. Returns `404` if the operator does not exist in the shop or has been deleted. See the [GPSR Economic Operators Tutorial](/documentation/tutorials/gpsr-economic-operators) for the full guide. Required: shop_id, economic_operator_id.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/economic-operators/{economic_operator_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "economic_operator_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique numeric ID of an economic operator (a manufacturer or EU responsible person record) belonging to a shop, used for GPSR compliance.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "economic_operators_update-shop",
+      "description": "Updates an existing economic operator for a specific shop. Every field is optional and only the fields you send are changed. Send `null` for `trademark_name`, `second_line`, `state`, or `phone_country_iso` to clear it. `operator_name` can be at most 50 characters. `state` is required for [some countries](/documentation/tutorials/gpsr-economic-operators#countries-requiring-a-state). The change applies to every [listing](/documentation/reference#tag/ShopListing) that references this operator. Returns `404` if the economic operator does not exist in the shop. See the [GPSR Economic Operators Tutorial](/documentation/tutorials/gpsr-economic-operators) for the full guide. Required: shop_id, economic_operator_id. Optional: city, country_iso, email (plus 8 more).",
+      "method": "PATCH",
+      "path": "/shops/{shop_id}/economic-operators/{economic_operator_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "economic_operator_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique numeric ID of an economic operator (a manufacturer or EU responsible person record) belonging to a shop, used for GPSR compliance.",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "The city or town of the economic operator's postal address. Required, cannot be blank. Maximum 50 characters (95 in a few countries, such as India, Brazil, and Japan)."
+        },
+        {
+          "name": "country_iso",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO 3166-1 alpha-2 code of the country of the economic operator's postal address, for example `DE` or `FR`. Not case-sensitive on input; always returned in upper case. Required."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The contact email address of the economic operator, where buyers and authorities can reach it about product safety. Required and must be a valid email address. Maximum 255 characters."
+        },
+        {
+          "name": "first_line",
+          "type": "string",
+          "location": "body",
+          "description": "The first line of the economic operator's postal address (street and number). Required, cannot be blank. Maximum 50 characters (95 in a few countries, such as India, Brazil, and Japan)."
+        },
+        {
+          "name": "operator_name",
+          "type": "string",
+          "location": "body",
+          "description": "The legal or trading name of the business or individual acting as economic operator, as it should be shown to buyers and market surveillance authorities. Required, cannot be blank. Maximum 50 characters."
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "The contact phone number of the economic operator. Required, cannot be blank. May contain digits, spaces, and the characters ( ) . - + #. Phone number must be valid."
+        },
+        {
+          "name": "phone_country_iso",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO 3166-1 alpha-2 country code that `phone` belongs to, for example `DE`. Optional. Not case-sensitive on input; always returned in upper case."
+        },
+        {
+          "name": "second_line",
+          "type": "string",
+          "location": "body",
+          "description": "The second line of the economic operator's postal address (apartment, suite, building). Optional. Maximum 50 characters (95 in a few countries, such as India, Brazil, and Japan). Send `null` on update to clear it. Returned as `null` when not set."
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "The state, province, or region of the economic operator's postal address. Required if the `country_iso` requires a state; optional otherwise. Maximum 50 characters (95 in a few countries, such as India, Brazil, and Japan). See the [list of countries](/documentation/tutorials/gpsr-economic-operators#countries-requiring-a-state). On update, send `null` to clear it (not allowed for those countries). Returned as `null` when not set."
+        },
+        {
+          "name": "trademark_name",
+          "type": "string",
+          "location": "body",
+          "description": "The brand or trademark the economic operator trades under, when it differs from `operator_name`. Optional. Maximum 255 characters. Send `null` on update to clear it. Returned as `null` when not set."
+        },
+        {
+          "name": "zip",
+          "type": "string",
+          "location": "body",
+          "description": "The postal code of the economic operator's postal address. Required, cannot be blank."
+        }
+      ]
+    },
+    {
+      "name": "holiday_preferences_get",
+      "description": "Retrieves a list of holidays that are available to a shop to set a preference for. Currently only supported in the US and CA. Required: shop_id. Returns array of ShopHolidayPreference.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/holiday-preferences",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "holiday_preferences_update",
+      "description": "Updates the preference for whether the seller will process orders or not on the holiday. Currently only supported in the US and CA. Required: shop_id, holiday_id (default: 1), is_working. Returns the updated ShopHolidayPreference.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}/holiday-preferences/{holiday_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "holiday_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique id that maps to the holiday a country observes. See the [Fulfillment Tutorial docs](https://developer.etsy.com/documentation/tutorials/fulfillment/#country-holidays) for more info",
+          "required": true
+        },
+        {
+          "name": "is_working",
+          "type": "bool",
+          "location": "body",
+          "description": "A boolean value for whether the shop will process orders on a particular holiday.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ledger_entries_get-shop-payment-account",
+      "description": "Get a Shop Payment Account Ledger's Entries. Required: shop_id, min_created, max_created. Optional: limit (default: 25), offset (default: 0). Returns array of LedgerEntriesGetShopPaymentAccountItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/payment-account/ledger-entries",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "min_created",
+          "type": "int",
+          "location": "query",
+          "description": "The earliest unix timestamp for when a record was created.",
+          "required": true
+        },
+        {
+          "name": "max_created",
+          "type": "int",
+          "location": "query",
+          "description": "The latest unix timestamp for when a record was created.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        }
+      ]
+    },
+    {
+      "name": "ledger_entries_get-shop-payment-account-ledger-entry",
+      "description": "Get a single Shop Payment Account Ledger's Entry. Required: shop_id, ledger_entry_id. Returns the PaymentAccountLedgerEntry.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/payment-account/ledger-entries/{ledger_entry_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "ledger_entry_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique ID of the shop owner ledger entry.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_files_delete",
+      "description": "Deletes a file from a specific listing. When you delete the final file for a digital listing, the listing converts into a physical listing. The response to a delete request returns a list of the remaining file records associated with the given listing. Required: shop_id, listing_id, listing_file_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/listings/{listing_id}/files/{listing_file_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "listing_file_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique numeric ID of a file associated with a digital listing.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_files_get",
+      "description": "Retrieves a single file associated with the given digital listing. Requesting a file from a physical listing returns an empty result. Required: shop_id, listing_id, listing_file_id.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/listings/{listing_id}/files/{listing_file_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "listing_file_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique numeric ID of a file associated with a digital listing.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_files_get-all",
+      "description": "Retrieves all the files associated with the given digital listing. Requesting files from a physical listing returns an empty result. Required: listing_id, shop_id.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/listings/{listing_id}/files",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_files_upload",
+      "description": "Uploads a new file for a digital listing, or associates an existing file with a specific listing. You must either provide the `listing_file_id` of an existing file, or the name and binary file data for a file to upload. Associating an existing file to a physical listing converts the physical listing into a digital listing, which removes all shipping costs and any product and inventory variations. Required: shop_id, listing_id. Optional: file, listing_file_id, name (plus 1 more). Returns the new ShopListingFile.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/listings/{listing_id}/files",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "A binary file to upload."
+        },
+        {
+          "name": "listing_file_id",
+          "type": "int",
+          "location": "body",
+          "description": "The unique numeric ID of a file associated with a digital listing."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The file name string of a file to upload"
+        },
+        {
+          "name": "rank",
+          "type": "int",
+          "location": "body",
+          "description": "The positive non-zero numeric position in the images displayed in a listing, with rank 1 images appearing in the left-most position in a listing."
+        }
+      ]
+    },
+    {
+      "name": "listing_images_delete",
+      "description": "Open API V3 endpoint to delete a listing image. A copy of the file remains on our servers, and so a deleted image may be re-associated with the listing without re-uploading the original image; see uploadListingImage. Required: shop_id, listing_id, listing_image_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/listings/{listing_id}/images/{listing_image_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "listing_image_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the primary [listing...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_images_get",
+      "description": "Retrieves all listing image resources for a listing with a specific listing ID. Required: listing_id. Returns array of ListingImagesGetItem.",
+      "method": "GET",
+      "path": "/listings/{listing_id}/images",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_images_get-listings",
+      "description": "Retrieves the references and metadata for a listing image with a specific image ID. Required: listing_id, listing_image_id. Returns the ListingImage.",
+      "method": "GET",
+      "path": "/listings/{listing_id}/images/{listing_image_id}",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "listing_image_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the primary [listing...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_images_upload",
+      "description": "Uploads or assigns an image to a listing identified by a shop ID with a listing ID. To upload a new image, set the image file as the value for the `image` parameter. You can assign a previously deleted image to a listing using the deleted image's image ID in the `listing_image_id` parameter. When a request contains both `image` and `listing_image_id` parameter values, the endpoint uploads the image in the `image` parameter only. Note: When uploading a new image, data such as colors and size may return as null values due to asynchronous processing of the image. Use getListingImage endpoint to fetch these values. Required: shop_id, listing_id. Optional: alt_text, image, is_watermarked (default: false) (plus 3 more). Returns the new ListingImage.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/listings/{listing_id}/images",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "alt_text",
+          "type": "string",
+          "location": "body",
+          "description": "Alt text for the listing image. Max length 500 characters."
+        },
+        {
+          "name": "image",
+          "type": "string",
+          "location": "body",
+          "description": "The file name string of a file to upload"
+        },
+        {
+          "name": "is_watermarked",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, indicates that the uploaded image has a watermark."
+        },
+        {
+          "name": "listing_image_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of the primary [listing..."
+        },
+        {
+          "name": "overwrite",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, this request replaces the existing image at a given rank."
+        },
+        {
+          "name": "rank",
+          "type": "int",
+          "location": "body",
+          "description": "The positive non-zero numeric position in the images displayed in a listing, with rank 1 images appearing in the left-most position in a listing."
+        }
+      ]
+    },
+    {
+      "name": "listing_inventory_get",
+      "description": "Retrieves the inventory record for a listing. Listings you did not edit using the Etsy.com inventory tools have no inventory records. Only the owner of the listing may retrieve its inventory record. Required: listing_id. Optional: show_deleted, includes. Returns the ListingInventoryWithAssociations.",
+      "method": "GET",
+      "path": "/listings/{listing_id}/inventory",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "show_deleted",
+          "type": "bool",
+          "location": "query",
+          "description": "A boolean value for inventory whether to include deleted products and their offerings. Default value is false."
+        },
+        {
+          "name": "includes",
+          "type": "string",
+          "location": "query",
+          "description": "An enumerated string that attaches a valid association. Default value is null."
+        }
+      ]
+    },
+    {
+      "name": "listing_inventory_get-listing-product",
+      "description": "Open API V3 endpoint to retrieve a ListingProduct by ID. Required: listing_id, product_id. Optional: legacy. Returns the ListingInventoryProduct.",
+      "method": "GET",
+      "path": "/listings/{listing_id}/inventory/products/{product_id}",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The listing to return a ListingProduct for.",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for a specific [product](/documentation/reference#tag/ShopListing-Product) purchased from a listing.",
+          "required": true
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter is needed to enable new parameters and response values related to processing..."
+        }
+      ]
+    },
+    {
+      "name": "listing_inventory_get-listings-inventory-by-listing-ids",
+      "description": "Retrieves the inventory record for each listing referenced by listing ID. Requires the `listings_r` OAuth scope. Limit 100 listing IDs per request. All requested listing IDs must exist — if any single ID is not found, the entire request returns a 404. SKUs within product records are only returned for listings owned by the authenticated user; they are stripped (returned as empty string) for listings owned by other sellers. Required: listing_ids.",
+      "method": "GET",
+      "path": "/listings/batch/inventory",
+      "params": [
+        {
+          "name": "listing_ids",
+          "type": "array",
+          "location": "query",
+          "description": "The list of numeric IDS for the listings in a specific Etsy shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_inventory_update",
+      "description": "Updates the inventory for a listing identified by a listing ID. The update fails if the supplied values for product sku, offering quantity, price, and/or processing profile are incompatible with values in `*_on_property` fields. When setting a price, assign a float equal to amount divided by divisor as specified in the Money resource. Required: listing_id, products. Optional: max_variations_supported, enable_scale_validation, price_on_property (plus 3 more). Returns the updated ListingInventory.",
+      "method": "PUT",
+      "path": "/listings/{listing_id}/inventory",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "max_variations_supported",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter determines whether a third variation can be added to or updated for a listing. It accepts values of 2 or 3, where 3 enables third-variation support."
+        },
+        {
+          "name": "enable_scale_validation",
+          "type": "bool",
+          "location": "query",
+          "description": "This temporary parameter indicates whether scale validation should be enabled for the request. It will be removed in the near future, at which point scale validation will be mandatory for all requests."
+        },
+        {
+          "name": "price_on_property",
+          "type": "array",
+          "location": "body",
+          "description": "An array of unique [listing property](/documentation/reference#operation/getListingInventory) ID integers for the properties that change product prices, if any. For example, if you charge specific prices for different sized products in the same listing, then this array contains the property ID for size."
+        },
+        {
+          "name": "products",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON array of products available in a listing, even if only one product. All field names in the JSON blobs are lowercase.",
+          "required": true
+        },
+        {
+          "name": "quantity_on_property",
+          "type": "array",
+          "location": "body",
+          "description": "An array of unique [listing property](/documentation/reference#operation/getListingInventory) ID integers for the properties that change the quantity of the products, if any. For example, if you stock specific quantities of different colored products in the same listing, then this array contains the property ID for color."
+        },
+        {
+          "name": "readiness_state_on_property",
+          "type": "array",
+          "location": "body",
+          "description": "An array of unique [listing property](/documentation/reference#operation/getListingInventory) ID integers for the properties that change processing profile, if any. For example, if you need specific processing profiles for different colored products in the same listing, then this array contains the property ID for color."
+        },
+        {
+          "name": "sku_on_property",
+          "type": "array",
+          "location": "body",
+          "description": "An array of unique [listing property](/documentation/reference#operation/getListingInventory) ID integers for the properties that change the product SKU, if any. For example, if you use specific skus for different colored products in the same listing, then this array contains the property ID for color."
+        }
+      ]
+    },
+    {
+      "name": "listing_personalization_delete",
+      "description": "Deletes personalization for a listing. Required: shop_id, listing_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/listings/{listing_id}/personalization",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_personalization_get",
+      "description": "Retrieves a listing's personalization questions by listing ID. Required: listing_id. Returns array of EtsyModulesListingPersonalizationApiResourcesOpenApiPersonalizationQuestion.",
+      "method": "GET",
+      "path": "/listings/{listing_id}/personalization",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_personalization_update",
+      "description": "Creates or updates personalization settings for a listing, allowing the seller to collect personalization from the buyer. This endpoint will fully replace any existing personalization on the listing. Required: shop_id, listing_id, personalization_questions. Optional: supports_multiple_personalization_questions. Returns array of EtsyModulesListingPersonalizationApiResourcesOpenApiPersonalizationQuestion.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/listings/{listing_id}/personalization",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "supports_multiple_personalization_questions",
+          "type": "bool",
+          "location": "query",
+          "description": "This query parameter indicates that the caller supports up to 5 personalization questions and the following question types: 'text_input', 'dropdown', 'unlabeled_upload', 'labeled_upload'. Sending this param without updating your application can lead to inadvertently deleting seller-entered data."
+        },
+        {
+          "name": "personalization_questions",
+          "type": "array",
+          "location": "body",
+          "description": "Personalization questions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_translations_create",
+      "description": "Creates a ListingTranslation by listing_id and language. Required: shop_id, listing_id, language, description, title. Optional: tags. Returns the new ListingTranslation.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/listings/{listing_id}/translations/{language}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "path",
+          "description": "The IETF language tag for the language of this translation.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The description of the Listing of this Translation.",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "The tags of the Listing of this Translation."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the Listing of this Translation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_translations_get",
+      "description": "Get a Translation for a Listing in the given language. Required: shop_id, listing_id, language. Returns the ListingTranslation.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/listings/{listing_id}/translations/{language}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "path",
+          "description": "The IETF language tag for the language of this translation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_translations_update",
+      "description": "Updates a ListingTranslation by listing_id and language. Required: shop_id, listing_id, language, description, title. Optional: tags. Returns the updated ListingTranslation.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}/listings/{listing_id}/translations/{language}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "path",
+          "description": "The IETF language tag for the language of this translation.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The description of the Listing of this Translation.",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "The tags of the Listing of this Translation."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the Listing of this Translation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_variation_images_get",
+      "description": "Gets all variation images on a listing. Required: shop_id, listing_id. Returns array of ListingVariationImage.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/listings/{listing_id}/variation-images",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_variation_images_update-variation-images",
+      "description": "Creates variation images on a listing. `variation_images` is an array with inputs for the `property_id`, `value_id`, and `image_id` fields. `image_ids` are associated with a `ListingImage` on the listing associated with the provided `listing_id`. `property_id` and `value_id` pairs are associated with a `ListingProduct` on the listing associated with the provided `listing_id`. `variation_images` should not contain any duplicates. `variation_images` does not contain more than one `property_id` as variation images can only be associated on one property. The update overwrites all existing variation images on a listing, so if your request is successful, the variation images on the listing will be exactly those you specify. Required: shop_id, listing_id, variation_images. Returns array of ListingVariationImage.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/listings/{listing_id}/variation-images",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "variation_images",
+          "type": "array",
+          "location": "body",
+          "description": "A list of variation image data.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_videos_delete",
+      "description": "Open API V3 endpoint to delete a listing video. A copy of the video remains on our servers, and so a deleted video may be re-associated with the listing without re-uploading the original video; see uploadListingVideo. Required: shop_id, listing_id, video_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/listings/{listing_id}/videos/{video_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "video_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique ID of a video associated with a listing.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_videos_get",
+      "description": "Retrieves all listing video resources for a listing with a specific listing ID. Required: listing_id. Returns array of ListingVideosGetItem.",
+      "method": "GET",
+      "path": "/listings/{listing_id}/videos",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_videos_get-listings",
+      "description": "Retrieves a single video associated with the given listing. Requesting a video from a listing returns an empty result. Required: video_id, listing_id.",
+      "method": "GET",
+      "path": "/listings/{listing_id}/videos/{video_id}",
+      "params": [
+        {
+          "name": "video_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique ID of a video associated with a listing.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listing_videos_upload",
+      "description": "Uploads a new video for a listing, or associates an existing video with a specific listing. You must either provide the `video_id` of an existing video, or the name and binary file data for a video to upload. If providing a `video_id`, the video must already be associated with the same shop as the listing, but it does not need to be currently associated with the listing. It's important to consider there is a rate limiting to perform 10 uploads per listing per day. Required: shop_id, listing_id. Optional: name, video, video_id. Returns the new ListingVideo.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/listings/{listing_id}/videos",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The file name string for the video to upload."
+        },
+        {
+          "name": "video",
+          "type": "string",
+          "location": "body",
+          "description": "A video file to upload."
+        },
+        {
+          "name": "video_id",
+          "type": "int",
+          "location": "body",
+          "description": "The unique ID of a video associated with a listing."
+        }
+      ]
+    },
+    {
+      "name": "listings_create-draft",
+      "description": "Creates a physical draft [listing](/documentation/reference#tag/ShopListing) product in a shop on the Etsy channel. Required: shop_id, description, price, quantity, taxonomy_id, title, when_made, who_made. Optional: ecgt_after_sales_service_info, ecgt_garan_brand, ecgt_garan_guarantee_details (plus 32 more). Returns the new ShopListing.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/listings",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description string of the product for sale in the listing.",
+          "required": true
+        },
+        {
+          "name": "ecgt_after_sales_service_info",
+          "type": "string",
+          "location": "body",
+          "description": "After-sales service, repairability, or eco-friendly delivery information required under EU GPSR/ECGT regulations. Maximum 255 characters. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_garan_brand",
+          "type": "string",
+          "location": "body",
+          "description": "The brand or trademark name for the EU commercial guarantee (required under GPSR/ECGT for eligible EU traders). Maximum 25 characters. See the [Etsy Seller Handbook](https://help.etsy.com/hc/articles/43191692248343) for details. If any one of ecgt_garan_brand, ecgt_garan_model, ecgt_garan_years, or ecgt_garan_guarantee_details is provided and non-empty, all four are required. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_garan_guarantee_details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text description of the EU commercial guarantee terms and coverage. Maximum 255 characters. Required together with ecgt_garan_brand, ecgt_garan_model, and ecgt_garan_years. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_garan_model",
+          "type": "string",
+          "location": "body",
+          "description": "The product model or reference number for the EU commercial guarantee label. Maximum 20 characters. Required together with ecgt_garan_brand, ecgt_garan_years, and ecgt_garan_guarantee_details. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_garan_years",
+          "type": "int",
+          "location": "body",
+          "description": "Duration of the EU commercial guarantee in whole years (minimum 3, maximum 99). Required together with ecgt_garan_brand, ecgt_garan_model, and ecgt_garan_guarantee_details. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_other_commercial_guarantee_details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details of any additional commercial guarantee or warranty beyond the primary EU commercial guarantee. Maximum 255 characters. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_software_update_details",
+          "type": "string",
+          "location": "body",
+          "description": "Details of software update availability and the duration of such updates, as required under EU ECGT regulations for digital content. Maximum 255 characters. Silently ignored for physical listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "gpsr_manufacturer_id",
+          "type": "int",
+          "location": "body",
+          "description": "The `economic_operator_id` of the manufacturer, from the [Shop Economic Operators](/documentation/reference#tag/Shop-Economic-Operators) endpoints. Required when `gpsr_manufacturer_type` is `economic_operator`, and rejected when the type is anything else. The operator must belong to this shop and not be deleted. The manufacturer may be located anywhere in the world. If you change `gpsr_manufacturer_type` to `seller` without sending this field, the stored id is cleared for you."
+        },
+        {
+          "name": "gpsr_manufacturer_type",
+          "type": "string",
+          "location": "body",
+          "description": "Who the manufacturer of this product is, for GPSR (EU General Product Safety Regulation) purposes. Either `seller` (your shop is the manufacturer) or `economic_operator` (a manufacturer record from the [Shop Economic Operators](/documentation/reference#tag/Shop-Economic-Operators) endpoints, identified by `gpsr_manufacturer_id`). `seller` is rejected when `who_made` is `someone_else`; use `economic_operator` for items made by a third party. Send `null` to clear. Optional for now; it becomes required for listings from eligible traders that sell into the EU 60 days after these fields were announced. See the [GPSR Economic Operators Tutorial](/documentation/tutorials/gpsr-economic-operators) for eligibility and the full flow."
+        },
+        {
+          "name": "gpsr_responsible_person_id",
+          "type": "int",
+          "location": "body",
+          "description": "The `economic_operator_id` of the EU responsible person, from the [Shop Economic Operators](/documentation/reference#tag/Shop-Economic-Operators) endpoints. Required when `gpsr_responsible_person_type` is `economic_operator`, and rejected when the type is anything else. The operator must belong to this shop and not be deleted, and its address must be in the European Union. If you change `gpsr_responsible_person_type` to `seller` without sending this field, the stored id is cleared for you."
+        },
+        {
+          "name": "gpsr_responsible_person_type",
+          "type": "string",
+          "location": "body",
+          "description": "Who the EU responsible person for this product is, for GPSR purposes. Either `seller` (your shop; only valid when the shop's legal address, or the address on file, is in the European Union) or `economic_operator` (a record from the [Shop Economic Operators](/documentation/reference#tag/Shop-Economic-Operators) endpoints, identified by `gpsr_responsible_person_id`, which must have an address in the European Union). Send `null` to clear. Optional for now; it becomes required for listings from eligible traders that sell into the EU 60 days after these fields were announced. See the [GPSR Economic Operators Tutorial](/documentation/tutorials/gpsr-economic-operators) for eligibility and the full flow."
+        },
+        {
+          "name": "gpsr_safety_warnings",
+          "type": "string",
+          "location": "body",
+          "description": "Optional free-text safety warnings and safety information for the product regarding GPSR purposes, shown to buyers as product safety information on the listing page (for example age restrictions, choking hazards, or care and handling instructions). Maximum 102,400 characters. Send `null` to clear."
+        },
+        {
+          "name": "gpsr_serial_number",
+          "type": "string",
+          "location": "body",
+          "description": "An optional serial number, batch number, or lot identifier that lets the product be traced for GPSR purposes. Maximum 255 characters. Send `null` to clear."
+        },
+        {
+          "name": "image_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of numeric image IDs of the images in a listing, which can include up to 20 images."
+        },
+        {
+          "name": "is_customizable",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, a buyer may contact the seller for a customized order. The default value is true when a shop accepts custom orders. Does not apply to shops that do not accept custom orders."
+        },
+        {
+          "name": "is_supply",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, tags the listing as a supply product, else indicates that it's a finished product. Helps buyers locate the listing under the Supplies heading. Requires 'who_made' and 'when_made'."
+        },
+        {
+          "name": "is_taxable",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, applicable [shop](/documentation/reference#tag/Shop) tax rates apply to this listing at checkout."
+        },
+        {
+          "name": "item_dimensions_unit",
+          "type": "string",
+          "location": "body",
+          "description": "A string defining the units used to measure the dimensions of the product. Default value is null."
+        },
+        {
+          "name": "item_height",
+          "type": "float",
+          "location": "body",
+          "description": "The numeric height of the product measured in units set in 'item_dimensions_unit'. Default value is null. If set, the value must be greater than 0."
+        },
+        {
+          "name": "item_length",
+          "type": "float",
+          "location": "body",
+          "description": "The numeric length of the product measured in units set in 'item_dimensions_unit'. Default value is null. If set, the value must be greater than 0."
+        },
+        {
+          "name": "item_weight",
+          "type": "float",
+          "location": "body",
+          "description": "The numeric weight of the product measured in units set in 'item_weight_unit'. Default value is null. If set, the value must be greater than 0."
+        },
+        {
+          "name": "item_weight_unit",
+          "type": "string",
+          "location": "body",
+          "description": "A string defining the units used to measure the weight of the product. Default value is null."
+        },
+        {
+          "name": "item_width",
+          "type": "float",
+          "location": "body",
+          "description": "The numeric width of the product measured in units set in 'item_dimensions_unit'. Default value is null. If set, the value must be greater than 0."
+        },
+        {
+          "name": "materials",
+          "type": "array",
+          "location": "body",
+          "description": "A list of material strings for materials used in the product. Valid materials strings contain only letters, numbers, and whitespace characters. (regex: /[^p{L}p{Nd}p{Zs}]/u) Default value is null."
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "The positive non-zero price of the product. (Sold product listings are private) Note: The price is the minimum possible price. The [`getListingInventory`](/documentation/reference/#operation/getListingInventory) method requests exact prices for available offerings.",
+          "required": true
+        },
+        {
+          "name": "processing_max",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of days required to process this listing. Default value is null."
+        },
+        {
+          "name": "processing_min",
+          "type": "int",
+          "location": "body",
+          "description": "The minimum number of days required to process this listing. Default value is null."
+        },
+        {
+          "name": "production_partner_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of unique IDs of production partner ids."
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "location": "body",
+          "description": "The positive non-zero number of products available for purchase in the listing. Note: The listing quantity is the sum of available offering quantities. You can request the quantities for individual offerings from the ListingInventory resource using the [getListingInventory](/documentation/reference#operation/getListingInventory) endpoint.",
+          "required": true
+        },
+        {
+          "name": "readiness_state_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of the [processing profile](/documentation/reference#operation/getShopReadinessStateDefinition) associated with the listing. Returned only when the listing is `active` and of type `physical`, and the endpoint is either shop-scoped (path contains `shop_id`) or a single-listing request such as `getListing`. For every other case this field can be null."
+        },
+        {
+          "name": "return_policy_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of the [Return Policy](/documentation/reference#operation/getShopReturnPolicies)."
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of the [shipping..."
+        },
+        {
+          "name": "shop_section_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of the [shop section](/documentation/reference#tag/Shop-Section) for this listing. Default value is null."
+        },
+        {
+          "name": "should_auto_renew",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, renews a listing for four months upon expiration."
+        },
+        {
+          "name": "styles",
+          "type": "array",
+          "location": "body",
+          "description": "An array of style strings for this listing, each of which is free-form text string such as 'Formal', or 'Steampunk'. When creating or updating a listing, the listing may have up to two styles. Valid style strings contain only letters, numbers, and whitespace characters. (regex: /[^p{L}p{Nd}p{Zs}]/u) Each style string is limited to 45 characters. Default value is null."
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "A comma-separated list of tag strings for the listing. When creating or updating a listing, valid tag strings contain only letters, numbers, whitespace characters, -, ', ™, ©, and ®. (regex: /[^p{L}p{Nd}p{Zs}-'™©®]/u) Default value is null."
+        },
+        {
+          "name": "taxonomy_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numerical taxonomy ID of the listing.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The listing's title string. When creating or updating a listing, valid title strings contain only letters, numbers, punctuation marks, mathematical symbols, whitespace characters, ™, ©, and ®. (regex: /[^p{L}p{Nd}p{P}p{Sm}p{Zs}™©®]/u) You can only use the %, :, \u0026 and + characters once each.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "An enumerated type string that indicates whether the listing is physical or a digital download."
+        },
+        {
+          "name": "when_made",
+          "type": "string",
+          "location": "body",
+          "description": "An enumerated string for the era in which the maker made the product in this listing. Helps buyers locate the listing under the Vintage heading. Requires 'is_supply' and 'who_made'.",
+          "required": true
+        },
+        {
+          "name": "who_made",
+          "type": "string",
+          "location": "body",
+          "description": "An enumerated string indicating who made the product. Helps buyers locate the listing under the Handmade heading. Requires 'is_supply' and 'when_made'.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_delete",
+      "description": "Open API V3 endpoint to delete a ShopListing. A ShopListing can be deleted only if the state is one of the following: SOLD_OUT, DRAFT, EXPIRED, INACTIVE, ACTIVE and is_available or ACTIVE and has seller flags: SUPRESSED (frozen), VACATION, CUSTOM_SHOPS (pattern), SELL_ON_FACEBOOK. Required: listing_id. Destructive.",
+      "method": "DELETE",
+      "path": "/listings/{listing_id}",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_delete-property",
+      "description": "Deletes a property for a Listing. Required: shop_id, listing_id, property_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/listings/{listing_id}/properties/{property_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique ID of an Etsy [listing...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_find-all-active",
+      "description": "A list of all active listings on Etsy paginated by their creation date. Without sort_order listings will be returned newest-first by default. Optional: limit (default: 25), offset (default: 0), keywords (plus 9 more). Returns array of ListingsFindAllActiveItem.",
+      "method": "GET",
+      "path": "/listings/active",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "query",
+          "description": "Search term or phrase that must appear in all results."
+        },
+        {
+          "name": "sort_on",
+          "type": "string",
+          "location": "query",
+          "description": "The value to sort a search result of listings on."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "The ascending(up) or descending(down) order to sort listings by."
+        },
+        {
+          "name": "min_price",
+          "type": "float",
+          "location": "query",
+          "description": "The minimum price of listings to be returned by a search result."
+        },
+        {
+          "name": "max_price",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum price of listings to be returned by a search result."
+        },
+        {
+          "name": "taxonomy_id",
+          "type": "int",
+          "location": "query",
+          "description": "The numerical taxonomy ID of the listing."
+        },
+        {
+          "name": "shop_location",
+          "type": "string",
+          "location": "query",
+          "description": "Filters by shop location. If location cannot be parsed, Etsy responds with an error."
+        },
+        {
+          "name": "is_safe",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, filters out mature/adult content from search results."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "The ISO 4217 alphabetic currency code (e.g., EUR, MXN) for price conversion. If provided, the listing price will be converted to this currency."
+        },
+        {
+          "name": "buyer_country",
+          "type": "string",
+          "location": "query",
+          "description": "The ISO 3166-1 alpha-2 country code (e.g., DE, MX). Filters results to listings that ship to this country."
+        }
+      ]
+    },
+    {
+      "name": "listings_find-all-active-by-shop",
+      "description": "Retrieves a list of all active listings on Etsy in a specific shop, paginated by listing creation date. Required: shop_id. Optional: limit (default: 25), sort_on (default: created), sort_order (default: desc) (plus 2 more). Returns array of ListingsFindAllActiveByShopItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/listings/active",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "sort_on",
+          "type": "string",
+          "location": "query",
+          "description": "The value to sort a search result of listings on."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "The ascending(up) or descending(down) order to sort listings by."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "query",
+          "description": "Search term or phrase that must appear in all results."
+        }
+      ]
+    },
+    {
+      "name": "listings_get",
+      "description": "Retrieves a listing record by listing ID. Inactive, draft, and expired listings are visible only to the listing's owner, using an access token with the listings_r scope. Required: listing_id. Optional: includes, language, allow_suggested_title. Returns the ShopListingWithAssociations.",
+      "method": "GET",
+      "path": "/listings/{listing_id}",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "An enumerated string that attaches a valid association. Acceptable inputs are 'Shop', 'Images', 'User', 'Translations', 'Videos', 'Personalization' and 'BuyerPrice'."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The IETF language tag for the language of this translation."
+        },
+        {
+          "name": "allow_suggested_title",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter will include in the response a suggested title for the listing, if one is available. Since suggestions are only available to the listing's owner, client must submit an oauth_access_token scoped to the owner of the listing."
+        }
+      ]
+    },
+    {
+      "name": "listings_get-by-ids",
+      "description": "Allows to query multiple listing ids at once. Limit 100 ids maximum per query. Inactive, draft, and expired listings are returned only to the listing's owner, using an access token with the listings_r scope, and are omitted from the results for everyone else. Required: listing_ids. Optional: includes, legacy, currency (plus 1 more). Returns array of ListingsGetByIdsItem.",
+      "method": "GET",
+      "path": "/listings/batch",
+      "params": [
+        {
+          "name": "listing_ids",
+          "type": "array",
+          "location": "query",
+          "description": "The list of numeric IDS for the listings in a specific Etsy shop.",
+          "required": true
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "An enumerated string that attaches a valid association. Acceptable inputs are 'Shop', 'Images', 'User', 'Translations', 'Videos', 'Personalization' and 'BuyerPrice'."
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter is needed to enable new parameters and response values related to processing..."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "The ISO 4217 alphabetic currency code (e.g., EUR, MXN) for price conversion. If provided, the listing price will be converted to this currency."
+        },
+        {
+          "name": "buyer_country",
+          "type": "string",
+          "location": "query",
+          "description": "The ISO 3166-1 alpha-2 country code (e.g., GB, DE). Used for buyer-facing price calculations (VAT, inclusive shipping). Does not filter listings."
+        }
+      ]
+    },
+    {
+      "name": "listings_get-by-shop",
+      "description": "Endpoint to list Listings that belong to a Shop. Listings can be filtered using the 'state' param. Required: shop_id. Optional: state (default: active), limit (default: 25), offset (default: 0) (plus 3 more). Returns array of ListingsGetByShopItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/listings",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "When _updating_ a listing, this value can be either `active` or `inactive`. Note: Setting a `draft` listing to `active` will also publish the listing on etsy.com and requires that the listing have an image set. Setting a `sold_out` listing to active will update the quantity to 1 and renew the listing on etsy.com."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "sort_on",
+          "type": "string",
+          "location": "query",
+          "description": "The value to sort a search result of listings on."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "The ascending(up) or descending(down) order to sort listings by."
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "An enumerated string that attaches a valid association. Acceptable inputs are 'Shipping', 'Shop', 'Images', 'User', 'Translations', 'Videos', 'Inventory' and 'Personalization'."
+        }
+      ]
+    },
+    {
+      "name": "listings_get-by-shop-receipt",
+      "description": "Gets all listings associated with a receipt. Required: receipt_id, shop_id. Optional: limit (default: 25), offset (default: 0), legacy. Returns array of ListingsGetByShopReceiptItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/receipts/{receipt_id}/listings",
+      "params": [
+        {
+          "name": "receipt_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [receipt](/documentation/reference#tag/Shop-Receipt) associated to...",
+          "required": true
+        },
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter is needed to enable new parameters and response values related to processing..."
+        }
+      ]
+    },
+    {
+      "name": "listings_get-by-shop-return-policy",
+      "description": "Gets all listings associated with a Return Policy. Required: return_policy_id, shop_id. Optional: legacy. Returns array of ListingsGetByShopReturnPolicyItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/policies/return/{return_policy_id}/listings",
+      "params": [
+        {
+          "name": "return_policy_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [Return Policy](/documentation/reference#operation/getShopReturnPolicies).",
+          "required": true
+        },
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter is needed to enable new parameters and response values related to processing..."
+        }
+      ]
+    },
+    {
+      "name": "listings_get-by-shop-section-id",
+      "description": "Retrieves all the listings from the section of a specific shop. Required: shop_id, shop_section_ids. Optional: limit (default: 25), offset (default: 0), sort_on (default: created) (plus 2 more). Returns array of ListingsGetByShopSectionIdItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/shop-sections/listings",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shop_section_ids",
+          "type": "array",
+          "location": "query",
+          "description": "A list of numeric IDS for all sections in a specific Etsy shop.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "sort_on",
+          "type": "string",
+          "location": "query",
+          "description": "The value to sort a search result of listings on."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "The ascending(up) or descending(down) order to sort listings by."
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter is needed to enable new parameters and response values related to processing..."
+        }
+      ]
+    },
+    {
+      "name": "listings_get-featured-by-shop",
+      "description": "Retrieves Listings associated to a Shop that are featured. Required: shop_id. Optional: limit (default: 25), offset (default: 0), legacy. Returns array of ListingsGetFeaturedByShopItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/listings/featured",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter is needed to enable new parameters and response values related to processing..."
+        }
+      ]
+    },
+    {
+      "name": "listings_get-properties",
+      "description": "Get a listing's properties. Required: shop_id, listing_id. Returns array of ListingPropertyValue.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/listings/{listing_id}/properties",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_get-property",
+      "description": "Development for this endpoint is in progress. It will only return a 501 response. Retrieves a listing's property. Required: listing_id, property_id. Returns the ListingPropertyValue.",
+      "method": "GET",
+      "path": "/listings/{listing_id}/properties/{property_id}",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique ID of an Etsy [listing...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_get-shipping-by-ids",
+      "description": "Retrieves the shipping profile for each listing referenced by listing ID. Requires the `shops_r` OAuth scope. Limit 100 listing IDs per request. All requested listing IDs must exist — if any single ID is not found, the entire request returns a 404. Shipping profile data (including `shipping_profile_id`) is only returned for listings owned by the authenticated user; it is nulled out for listings owned by other sellers. Required: listing_ids.",
+      "method": "GET",
+      "path": "/listings/batch/shipping",
+      "params": [
+        {
+          "name": "listing_ids",
+          "type": "array",
+          "location": "query",
+          "description": "The list of numeric IDS for the listings in a specific Etsy shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_update",
+      "description": "Updates a listing, identified by a listing ID, for a specific shop identified by a shop ID. Note that this is a PATCH method type. When activating, or manually renewing a physical listing, the shipping profile referenced by the `shipping_profile_id`, and all of its fields, along with its entries and upgrades must be complete and valid. If the shipping profile is not complete and valid, we will throw an exception with an error message that guides the request sender to update whatever data is bad. Digital listings that are not made to order must have a file upload associated with it to be activated. While the listing is a draft, shipping profile and file upload are not required in any case. Required: shop_id, listing_id. Optional: description, ecgt_after_sales_service_info, ecgt_garan_brand (plus 33 more). Returns the updated ShopListing.",
+      "method": "PATCH",
+      "path": "/shops/{shop_id}/listings/{listing_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description string of the product for sale in the listing."
+        },
+        {
+          "name": "ecgt_after_sales_service_info",
+          "type": "string",
+          "location": "body",
+          "description": "After-sales service, repairability, or eco-friendly delivery information required under EU GPSR/ECGT regulations. Maximum 255 characters. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_garan_brand",
+          "type": "string",
+          "location": "body",
+          "description": "The brand or trademark name for the EU commercial guarantee (required under GPSR/ECGT for eligible EU traders). Maximum 25 characters. See the [Etsy Seller Handbook](https://help.etsy.com/hc/articles/43191692248343) for details. If any one of ecgt_garan_brand, ecgt_garan_model, ecgt_garan_years, or ecgt_garan_guarantee_details is provided and non-empty, all four are required. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_garan_guarantee_details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text description of the EU commercial guarantee terms and coverage. Maximum 255 characters. Required together with ecgt_garan_brand, ecgt_garan_model, and ecgt_garan_years. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_garan_model",
+          "type": "string",
+          "location": "body",
+          "description": "The product model or reference number for the EU commercial guarantee label. Maximum 20 characters. Required together with ecgt_garan_brand, ecgt_garan_years, and ecgt_garan_guarantee_details. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_garan_years",
+          "type": "int",
+          "location": "body",
+          "description": "Duration of the EU commercial guarantee in whole years (minimum 3, maximum 99). Required together with ecgt_garan_brand, ecgt_garan_model, and ecgt_garan_guarantee_details. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_other_commercial_guarantee_details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details of any additional commercial guarantee or warranty beyond the primary EU commercial guarantee. Maximum 255 characters. Silently ignored for digital listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "ecgt_software_update_details",
+          "type": "string",
+          "location": "body",
+          "description": "Details of software update availability and the duration of such updates, as required under EU ECGT regulations for digital content. Maximum 255 characters. Silently ignored for physical listings and for sellers who are not eligible EU traders."
+        },
+        {
+          "name": "gpsr_manufacturer_id",
+          "type": "int",
+          "location": "body",
+          "description": "The `economic_operator_id` of the manufacturer, from the [Shop Economic Operators](/documentation/reference#tag/Shop-Economic-Operators) endpoints. Required when `gpsr_manufacturer_type` is `economic_operator`, and rejected when the type is anything else. The operator must belong to this shop and not be deleted. The manufacturer may be located anywhere in the world. If you change `gpsr_manufacturer_type` to `seller` without sending this field, the stored id is cleared for you."
+        },
+        {
+          "name": "gpsr_manufacturer_type",
+          "type": "string",
+          "location": "body",
+          "description": "Who the manufacturer of this product is, for GPSR (EU General Product Safety Regulation) purposes. Either `seller` (your shop is the manufacturer) or `economic_operator` (a manufacturer record from the [Shop Economic Operators](/documentation/reference#tag/Shop-Economic-Operators) endpoints, identified by `gpsr_manufacturer_id`). `seller` is rejected when `who_made` is `someone_else`; use `economic_operator` for items made by a third party. Send `null` to clear. Optional for now; it becomes required for listings from eligible traders that sell into the EU 60 days after these fields were announced. See the [GPSR Economic Operators Tutorial](/documentation/tutorials/gpsr-economic-operators) for eligibility and the full flow."
+        },
+        {
+          "name": "gpsr_responsible_person_id",
+          "type": "int",
+          "location": "body",
+          "description": "The `economic_operator_id` of the EU responsible person, from the [Shop Economic Operators](/documentation/reference#tag/Shop-Economic-Operators) endpoints. Required when `gpsr_responsible_person_type` is `economic_operator`, and rejected when the type is anything else. The operator must belong to this shop and not be deleted, and its address must be in the European Union. If you change `gpsr_responsible_person_type` to `seller` without sending this field, the stored id is cleared for you."
+        },
+        {
+          "name": "gpsr_responsible_person_type",
+          "type": "string",
+          "location": "body",
+          "description": "Who the EU responsible person for this product is, for GPSR purposes. Either `seller` (your shop; only valid when the shop's legal address, or the address on file, is in the European Union) or `economic_operator` (a record from the [Shop Economic Operators](/documentation/reference#tag/Shop-Economic-Operators) endpoints, identified by `gpsr_responsible_person_id`, which must have an address in the European Union). Send `null` to clear. Optional for now; it becomes required for listings from eligible traders that sell into the EU 60 days after these fields were announced. See the [GPSR Economic Operators Tutorial](/documentation/tutorials/gpsr-economic-operators) for eligibility and the full flow."
+        },
+        {
+          "name": "gpsr_safety_warnings",
+          "type": "string",
+          "location": "body",
+          "description": "Optional free-text safety warnings and safety information for the product regarding GPSR purposes, shown to buyers as product safety information on the listing page (for example age restrictions, choking hazards, or care and handling instructions). Maximum 102,400 characters. Send `null` to clear."
+        },
+        {
+          "name": "gpsr_serial_number",
+          "type": "string",
+          "location": "body",
+          "description": "An optional serial number, batch number, or lot identifier that lets the product be traced for GPSR purposes. Maximum 255 characters. Send `null` to clear."
+        },
+        {
+          "name": "image_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of numeric image IDs of the images in a listing, which can include up to 20 images."
+        },
+        {
+          "name": "is_supply",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, tags the listing as a supply product, else indicates that it's a finished product. Helps buyers locate the listing under the Supplies heading. Requires 'who_made' and 'when_made'."
+        },
+        {
+          "name": "is_taxable",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, applicable [shop](/documentation/reference#tag/Shop) tax rates apply to this listing at checkout."
+        },
+        {
+          "name": "item_dimensions_unit",
+          "type": "string",
+          "location": "body",
+          "description": "A string defining the units used to measure the dimensions of the product. Default value is null."
+        },
+        {
+          "name": "item_height",
+          "type": "float",
+          "location": "body",
+          "description": "The numeric height of the product measured in units set in 'item_dimensions_unit'. Default value is null. If set, the value must be greater than 0."
+        },
+        {
+          "name": "item_length",
+          "type": "float",
+          "location": "body",
+          "description": "The numeric length of the product measured in units set in 'item_dimensions_unit'. Default value is null. If set, the value must be greater than 0."
+        },
+        {
+          "name": "item_weight",
+          "type": "float",
+          "location": "body",
+          "description": "The numeric weight of the product measured in units set in 'item_weight_unit'. Default value is null. If set, the value must be greater than 0."
+        },
+        {
+          "name": "item_weight_unit",
+          "type": "string",
+          "location": "body",
+          "description": "A string defining the units used to measure the weight of the product. Default value is null."
+        },
+        {
+          "name": "item_width",
+          "type": "float",
+          "location": "body",
+          "description": "The numeric width of the product measured in units set in 'item_dimensions_unit'. Default value is null. If set, the value must be greater than 0."
+        },
+        {
+          "name": "materials",
+          "type": "array",
+          "location": "body",
+          "description": "A list of material strings for materials used in the product. Valid materials strings contain only letters, numbers, and whitespace characters. (regex: /[^p{L}p{Nd}p{Zs}]/u) Default value is null."
+        },
+        {
+          "name": "production_partner_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of unique IDs of production partner ids."
+        },
+        {
+          "name": "return_policy_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of the [Return Policy](/documentation/reference#operation/getShopReturnPolicies). Required for active physical listings. This requirement does not apply to listings of EU-based shops."
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of the [shipping..."
+        },
+        {
+          "name": "shop_section_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of the [shop section](/documentation/reference#tag/Shop-Section) for this listing. Default value is null."
+        },
+        {
+          "name": "should_auto_renew",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, renews a listing for four months upon expiration."
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "When _updating_ a listing, this value can be either `active` or `inactive`. Note: Setting a `draft` listing to `active` will also publish the listing on etsy.com and requires that the listing have an image set. Setting a `sold_out` listing to active will update the quantity to 1 and renew the listing on etsy.com."
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "A comma-separated list of tag strings for the listing. When creating or updating a listing, valid tag strings contain only letters, numbers, whitespace characters, -, ', ™, ©, and ®. (regex: /[^p{L}p{Nd}p{Zs}-'™©®]/u) Default value is null."
+        },
+        {
+          "name": "taxonomy_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numerical taxonomy ID of the listing."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The listing's title string. When creating or updating a listing, valid title strings contain only letters, numbers, punctuation marks, mathematical symbols, whitespace characters, ™, ©, and ®. (regex: /[^p{L}p{Nd}p{P}p{Sm}p{Zs}™©®]/u) You can only use the %, :, \u0026 and + characters once each."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "An enumerated type string that indicates whether the listing is physical or a digital download."
+        },
+        {
+          "name": "when_made",
+          "type": "string",
+          "location": "body",
+          "description": "An enumerated string for the era in which the maker made the product in this listing. Helps buyers locate the listing under the Vintage heading. Requires 'is_supply' and 'who_made'."
+        },
+        {
+          "name": "who_made",
+          "type": "string",
+          "location": "body",
+          "description": "An enumerated string indicating who made the product. Helps buyers locate the listing under the Handmade heading. Requires 'is_supply' and 'when_made'."
+        }
+      ]
+    },
+    {
+      "name": "listings_update-property",
+      "description": "Updates or populates the properties list defining product offerings for a listing. Each offering requires both a `value` and a `value_id` that are valid for a `scale_id` assigned to the listing or that you assign to the listing with this request. Required: shop_id, listing_id, property_id, value_ids, values. Optional: scale_id. Returns the updated ListingPropertyValue.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}/listings/{listing_id}/properties/{property_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "property_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique ID of an Etsy [listing...",
+          "required": true
+        },
+        {
+          "name": "scale_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of a single Etsy.com measurement scale. For example, for shoe size, there are three `scale_id`s available - `UK`, `US/Canada`, and `EU`, where `US/Canada` has `scale_id` 19."
+        },
+        {
+          "name": "value_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of unique IDs of multiple Etsy [listing property](/documentation/reference#operation/getListingProperties) values. For example, if your listing is composed of different materials, then the value ID list contains value IDs for each material.",
+          "required": true
+        },
+        {
+          "name": "values",
+          "type": "array",
+          "location": "body",
+          "description": "An array of value strings for multiple Etsy [listing property](/documentation/reference#operation/getListingProperties) values. For example, if your listing is painted in different colors, then the values array contains the color strings for each color. Note: parenthesis characters (`(` and `)`) are not allowed.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_get",
+      "description": "Retrieves a list of payments from a shop identified by `shop_id`. You can also filter results using a list of payment IDs. Required: shop_id, payment_ids. Returns array of PaymentsGetItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/payments",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "payment_ids",
+          "type": "array",
+          "location": "query",
+          "description": "A comma-separated array of Payment IDs numbers.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_get-account-ledger-entry",
+      "description": "Get a Payment from a PaymentAccount Ledger Entry ID, if applicable. Required: shop_id, ledger_entry_ids. Returns array of PaymentsGetAccountLedgerEntryItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/payment-account/ledger-entries/payments",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "ledger_entry_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Ledger entry ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_get-shop-by-receipt-id",
+      "description": "Retrieves a payment from a specific receipt, identified by `receipt_id`, from a specific shop, identified by `shop_id`. Required: shop_id, receipt_id. Returns array of PaymentsGetShopByReceiptIdItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/receipts/{receipt_id}/payments",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "receipt_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [receipt](/documentation/reference#tag/Shop-Receipt) associated to...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "processing_profiles_create-shop-readiness-state-definition",
+      "description": "Creates a new ReadinessStateDefinition. If an existing definition matches the input values, this endpoint will throw a Conflict error, please refer to the Content-Location header to obtain the get endpoint url for the values of the existing definition. Does not affect the product offering-readiness states definition relationship. Required: shop_id, max_processing_time, min_processing_time, readiness_state. Optional: processing_time_unit (default: days). Returns the new ShopProcessingProfile.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/readiness-state-definitions",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "max_processing_time",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of days or weeks for processing a specific product.",
+          "required": true
+        },
+        {
+          "name": "min_processing_time",
+          "type": "int",
+          "location": "body",
+          "description": "The minimum number of days or weeks for processing a specific product.",
+          "required": true
+        },
+        {
+          "name": "processing_time_unit",
+          "type": "string",
+          "location": "body",
+          "description": "The unit used to represent how long a processing time is. A week is equivalent to how many days the seller works per week as stated in their processing schedule. If none is provided, the unit is set to 'days'."
+        },
+        {
+          "name": "readiness_state",
+          "type": "string",
+          "location": "body",
+          "description": "The readiness state of a product: '1' means 'ready_to_ship', and '2' means 'made_to_order'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "processing_profiles_delete-shop-readiness-state-definition",
+      "description": "Deletes a ReadinessStateDefinition by given readiness state definition ID. If there any active offerings linked to the definition, this endpoint will throw a Bad Request error. If you want to delete a ReadinessStateDefinition that is linked to active offerings, you must link the offerings to a different readiness state definition. Required: shop_id, readiness_state_definition_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/readiness-state-definitions/{readiness_state_definition_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "readiness_state_definition_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [processing...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "processing_profiles_get-shop-readiness-state-definition",
+      "description": "Retrieves a ProcessingProfile referenced by readiness state definition ID. Required: shop_id, readiness_state_definition_id. Returns the ShopProcessingProfile.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/readiness-state-definitions/{readiness_state_definition_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "readiness_state_definition_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [processing...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "processing_profiles_get-shop-readiness-state-definitions",
+      "description": "Retrieves a list of ProcessingProfiles available in the specific Etsy shop identified by its shop ID. Required: shop_id. Optional: limit (default: 25), offset (default: 0). Returns array of ShopProcessingProfile.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/readiness-state-definitions",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        }
+      ]
+    },
+    {
+      "name": "processing_profiles_update-shop-readiness-state-definition",
+      "description": "Updates an existing ReadinessStateDefinition. If an existing definition matches the input values, this endpoint will throw a Conflict error, please refer to the Content-Location header to obtain the get endpoint url for the values of the existing definition. Does not affect the product offering-readiness states definition relationship. Required: shop_id, readiness_state_definition_id. Optional: max_processing_time, min_processing_time, processing_time_unit (default: days) (plus 1 more). Returns the updated ShopProcessingProfile.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}/readiness-state-definitions/{readiness_state_definition_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "readiness_state_definition_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [processing...",
+          "required": true
+        },
+        {
+          "name": "max_processing_time",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of days or weeks for processing a specific product."
+        },
+        {
+          "name": "min_processing_time",
+          "type": "int",
+          "location": "body",
+          "description": "The minimum number of days or weeks for processing a specific product."
+        },
+        {
+          "name": "processing_time_unit",
+          "type": "string",
+          "location": "body",
+          "description": "The unit used to represent how long a processing time is. A week is equivalent to how many days the seller works per week as stated in their processing schedule. If none is provided, the unit is set to 'days'."
+        },
+        {
+          "name": "readiness_state",
+          "type": "string",
+          "location": "body",
+          "description": "The readiness state of a product: '1' means 'ready_to_ship', and '2' means 'made_to_order'"
+        }
+      ]
+    },
+    {
+      "name": "production_partners_get-shop",
+      "description": "Retrieves a list of production partners available in the specific Etsy shop identified by its shop ID. Required: shop_id. Returns array of ProductionPartnersGetShopItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/production-partners",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "receipts_create-shipment",
+      "description": "Submits tracking information for a Shop Receipt, which creates a Shop Receipt Shipment entry for the given receipt_id. Each time you successfully submit tracking info, Etsy sends a notification email to the buyer User. When send_bcc is true, Etsy sends shipping notifications to the seller as well. When tracking_code and carrier_name aren't sent, the receipt is marked as shipped only. If the carrier is not supported, you may use `other` as the carrier name so you can provide the tracking code. **NOTES** When shipping within the United States AND the order is over $10 _or_ when shipping to India, tracking code and carrier name ARE required. **ACCESS RESTRICTION** In regions where Etsy's Preferred Partner Program is enforced, this endpoint is only available to applications that are approved fulfillment partners. Requests from other applications return `403 Forbidden`, even when the API key is valid, the OAuth token has the `transactions_w` scope and other receipt endpoints respond successfully. A request is authorized if the application is a commercial-access application categorized as Fulfillment or Print On Demand, if it is a personal-use application owned by the authenticated seller, or if the seller authorized the application before the Preferred Partner Program launched in their region. If your application doesn't meet these criteria, contact Etsy API support to ask about partner eligibility. Access to ShopReceipt's first_line, second_line, city, state, zip, country_iso and formatted_address is contingent in some regions to a preferred partnership status with Etsy. Required: shop_id, receipt_id. Optional: legacy, carrier_name, customs_data (plus 19 more). Returns the new ShopReceipt.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/receipts/{receipt_id}/tracking",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "receipt_id",
+          "type": "int",
+          "location": "path",
+          "description": "The receipt to submit tracking for.",
+          "required": true
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter needed to enable new parameters and response values related to processing profiles."
+        },
+        {
+          "name": "carrier_name",
+          "type": "string",
+          "location": "body",
+          "description": "The carrier name for this receipt."
+        },
+        {
+          "name": "customs_data",
+          "type": "array",
+          "location": "body",
+          "description": "Contains custom data like country of origin, declared value and HS code."
+        },
+        {
+          "name": "dimension_units",
+          "type": "string",
+          "location": "body",
+          "description": "Unit of measurement used for package dimensions (in, cm...)."
+        },
+        {
+          "name": "duty_amount",
+          "type": "float",
+          "location": "body",
+          "description": "The estimated or actual amount of import duties and taxes assessed by customs for the shipment."
+        },
+        {
+          "name": "duty_currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency in which the duty was paid."
+        },
+        {
+          "name": "height",
+          "type": "float",
+          "location": "body",
+          "description": "Third longest side of the package."
+        },
+        {
+          "name": "incoterm",
+          "type": "string",
+          "location": "body",
+          "description": "The specific incoterm (e.g., DDU, DDP) designated for the shipment."
+        },
+        {
+          "name": "length",
+          "type": "float",
+          "location": "body",
+          "description": "Longest side of the package."
+        },
+        {
+          "name": "mail_class",
+          "type": "string",
+          "location": "body",
+          "description": "The service level of postal or carrier service selected for the shipment (e.g., First-Class, Priority, Ground, Express)."
+        },
+        {
+          "name": "note_to_buyer",
+          "type": "string",
+          "location": "body",
+          "description": "Message to include in notification to the buyer."
+        },
+        {
+          "name": "revenue_eligibility",
+          "type": "string",
+          "location": "body",
+          "description": "A flag indicating if the shipment is tied to a revenue share agreement between Etsy and the vendor. Accepted values are '1' for true and '0' for false."
+        },
+        {
+          "name": "send_bcc",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, the shipping notification will be sent to the seller as well"
+        },
+        {
+          "name": "ship_date",
+          "type": "string",
+          "location": "body",
+          "description": "The date package was shipped."
+        },
+        {
+          "name": "ship_from_country",
+          "type": "string",
+          "location": "body",
+          "description": "Where the package ships from."
+        },
+        {
+          "name": "ship_to_country",
+          "type": "string",
+          "location": "body",
+          "description": "Package destination."
+        },
+        {
+          "name": "shipping_label_cost",
+          "type": "float",
+          "location": "body",
+          "description": "The purchase price the seller paid for the shipping label."
+        },
+        {
+          "name": "shipping_label_currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency in which the shipping label was purchased."
+        },
+        {
+          "name": "tracking_code",
+          "type": "string",
+          "location": "body",
+          "description": "The tracking code for this receipt."
+        },
+        {
+          "name": "weight",
+          "type": "float",
+          "location": "body",
+          "description": "The total weight of the package."
+        },
+        {
+          "name": "weight_units",
+          "type": "string",
+          "location": "body",
+          "description": "Unit of measurement used for package weight (oz, grams, etc.)."
+        },
+        {
+          "name": "width",
+          "type": "float",
+          "location": "body",
+          "description": "Second longest side of the package."
+        }
+      ]
+    },
+    {
+      "name": "receipts_get-shop",
+      "description": "Requests the Shop Receipts from a specific Shop, unfiltered or filtered by receipt id range or offset, date, paid, and/or shipped purchases. **NOTE** Access to ShopReceipt's first_line, second_line, city, state, zip, country_iso and formatted_address is contingent in some regions to a preferred partnership status with Etsy. Required: shop_id. Optional: min_created, max_created, min_last_modified (plus 10 more). Returns array of ReceiptsGetShopItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/receipts",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "min_created",
+          "type": "int",
+          "location": "query",
+          "description": "The earliest unix timestamp for when a record was created."
+        },
+        {
+          "name": "max_created",
+          "type": "int",
+          "location": "query",
+          "description": "The latest unix timestamp for when a record was created."
+        },
+        {
+          "name": "min_last_modified",
+          "type": "int",
+          "location": "query",
+          "description": "The earliest unix timestamp for when a record last changed."
+        },
+        {
+          "name": "max_last_modified",
+          "type": "int",
+          "location": "query",
+          "description": "The latest unix timestamp for when a record last changed."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "sort_on",
+          "type": "string",
+          "location": "query",
+          "description": "The value to sort a search result of listings on."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "The ascending(up) or descending(down) order to sort receipts by."
+        },
+        {
+          "name": "was_paid",
+          "type": "bool",
+          "location": "query",
+          "description": "When `true`, returns receipts where the seller has received payment for the receipt. When `false`, returns receipts where payment has not been received."
+        },
+        {
+          "name": "was_shipped",
+          "type": "bool",
+          "location": "query",
+          "description": "When `true`, returns receipts where the seller shipped the product(s) in this receipt. When `false`, returns receipts where shipment has not been set."
+        },
+        {
+          "name": "was_delivered",
+          "type": "bool",
+          "location": "query",
+          "description": "When `true`, returns receipts that have been marked as delivered. When `false`, returns receipts where shipment has not been marked as delivered."
+        },
+        {
+          "name": "was_canceled",
+          "type": "bool",
+          "location": "query",
+          "description": "When `true`, the endpoint will only return the canceled receipts. When `false`, the endpoint will only return non-canceled receipts."
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter needed to enable new parameters and response values related to processing profiles."
+        }
+      ]
+    },
+    {
+      "name": "receipts_get-shop-shops",
+      "description": "Retrieves a receipt, identified by a receipt id, from an Etsy shop. **NOTE** Access to ShopReceipt's first_line, second_line, city, state, zip, country_iso and formatted_address is contingent in some regions to a preferred partnership status with Etsy. Required: shop_id, receipt_id. Optional: legacy. Returns the ShopReceipt.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/receipts/{receipt_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "receipt_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [receipt](/documentation/reference#tag/Shop-Receipt) associated to...",
+          "required": true
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter needed to enable new parameters and response values related to processing profiles."
+        }
+      ]
+    },
+    {
+      "name": "receipts_update-shop",
+      "description": "Updates the status of a receipt, identified by a receipt id, from an Etsy shop. **NOTE** Access to ShopReceipt's first_line, second_line, city, state, zip, country_iso and formatted_address is contingent in some regions to a preferred partnership status with Etsy. Required: shop_id, receipt_id. Optional: legacy, was_paid, was_shipped. Returns the updated ShopReceipt.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}/receipts/{receipt_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "receipt_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [receipt](/documentation/reference#tag/Shop-Receipt) associated to...",
+          "required": true
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter needed to enable new parameters and response values related to processing profiles."
+        },
+        {
+          "name": "was_paid",
+          "type": "bool",
+          "location": "body",
+          "description": "When `true`, returns receipts where the seller has received payment for the receipt. When `false`, returns receipts where payment has not been received."
+        },
+        {
+          "name": "was_shipped",
+          "type": "bool",
+          "location": "body",
+          "description": "When `true`, returns receipts where the seller shipped the product(s) in this receipt. When `false`, returns receipts where shipment has not been set."
+        }
+      ]
+    },
+    {
+      "name": "return_policies_consolidate-shop",
+      "description": "Consolidates Return Policies by moving all listings from a source return policy to a destination return policy, and deleting the source return policy. This is commonly used in the event that a user attempts to update a Return Policy such that its data is a duplicate of some other Return Policy, which is prevented. Required: shop_id, destination_return_policy_id, source_return_policy_id. Returns the new ShopReturnPolicy.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/policies/return/consolidate",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "destination_return_policy_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of the [Return Policy](/documentation/reference#operation/getShopReturnPolicies).",
+          "required": true
+        },
+        {
+          "name": "source_return_policy_id",
+          "type": "int",
+          "location": "body",
+          "description": "The numeric ID of the [Return Policy](/documentation/reference#operation/getShopReturnPolicies).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "return_policies_create-shop-return-policy",
+      "description": "Creates a new Return Policy. Note: if either accepts_returns or accepts_exchanges is true, then a return_deadline is required. Required: shop_id, accepts_exchanges, accepts_returns. Optional: return_deadline.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/policies/return",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "accepts_exchanges",
+          "type": "bool",
+          "location": "body",
+          "description": "Accepts exchanges",
+          "required": true
+        },
+        {
+          "name": "accepts_returns",
+          "type": "bool",
+          "location": "body",
+          "description": "Accepts returns",
+          "required": true
+        },
+        {
+          "name": "return_deadline",
+          "type": "int",
+          "location": "body",
+          "description": "The deadline for the Return Policy, measured in days. The value must be one of the following: [7, 14, 21, 30, 45, 60, 90]."
+        }
+      ]
+    },
+    {
+      "name": "return_policies_delete-shop-return-policy",
+      "description": "Deletes an existing Return Policy. Deletion is only allowed for policies which have no associated listings – move them to another policy before attempting deletion. Required: shop_id, return_policy_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/policies/return/{return_policy_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "return_policy_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [Return Policy](/documentation/reference#operation/getShopReturnPolicies).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "return_policies_get-shop",
+      "description": "Returns a shop's list of existing Return Policies. Required: shop_id.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/policies/return",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "return_policies_get-shop-return-policy",
+      "description": "Retrieves an existing Return Policy. Required: shop_id, return_policy_id. Returns the ShopReturnPolicy.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/policies/return/{return_policy_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "return_policy_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [Return Policy](/documentation/reference#operation/getShopReturnPolicies).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "return_policies_update-shop-return-policy",
+      "description": "Updates an existing Return Policy. Note: if either accepts_returns or accepts_exchanges is true, then a return_deadline is required. Required: shop_id, return_policy_id, accepts_exchanges, accepts_returns. Optional: return_deadline.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}/policies/return/{return_policy_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "return_policy_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [Return Policy](/documentation/reference#operation/getShopReturnPolicies).",
+          "required": true
+        },
+        {
+          "name": "accepts_exchanges",
+          "type": "bool",
+          "location": "body",
+          "description": "Accepts exchanges",
+          "required": true
+        },
+        {
+          "name": "accepts_returns",
+          "type": "bool",
+          "location": "body",
+          "description": "Accepts returns",
+          "required": true
+        },
+        {
+          "name": "return_deadline",
+          "type": "int",
+          "location": "body",
+          "description": "The deadline for the Return Policy, measured in days. The value must be one of the following: [7, 14, 21, 30, 45, 60, 90]."
+        }
+      ]
+    },
+    {
+      "name": "reviews_get-by-listing",
+      "description": "Open API V3 to retrieve the reviews for a listing given its ID. Required: listing_id. Optional: limit (default: 25), offset (default: 0), min_created (plus 1 more). Returns array of ReviewsGetByListingItem.",
+      "method": "GET",
+      "path": "/listings/{listing_id}/reviews",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "min_created",
+          "type": "int",
+          "location": "query",
+          "description": "The earliest unix timestamp for when a record was created."
+        },
+        {
+          "name": "max_created",
+          "type": "int",
+          "location": "query",
+          "description": "The latest unix timestamp for when a record was created."
+        }
+      ]
+    },
+    {
+      "name": "reviews_get-by-shop",
+      "description": "Open API V3 to retrieve the reviews from a shop given its ID. Required: shop_id. Optional: limit (default: 25), offset (default: 0), min_created (plus 1 more). Returns array of ReviewsGetByShopItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/reviews",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "min_created",
+          "type": "int",
+          "location": "query",
+          "description": "The earliest unix timestamp for when a record was created."
+        },
+        {
+          "name": "max_created",
+          "type": "int",
+          "location": "query",
+          "description": "The latest unix timestamp for when a record was created."
+        }
+      ]
+    },
+    {
+      "name": "seller_taxonomy_get-nodes",
+      "description": "Retrieves the full hierarchy tree of seller taxonomy nodes. Returns array of SellerTaxonomyGetNodesItem.",
+      "method": "GET",
+      "path": "/seller-taxonomy/nodes",
+      "params": []
+    },
+    {
+      "name": "seller_taxonomy_get-properties-by-taxonomy-id",
+      "description": "Retrieves a list of product properties, with applicable scales and values, supported for a specific seller taxonomy ID. Required: taxonomy_id. Optional: supports_variations, supports_attributes. Returns array of SellerTaxonomyGetPropertiesByTaxonomyIdItem.",
+      "method": "GET",
+      "path": "/seller-taxonomy/nodes/{taxonomy_id}/properties",
+      "params": [
+        {
+          "name": "taxonomy_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique numeric ID of an Etsy taxonomy node, which is a metadata category for listings organized into the seller taxonomy hierarchy tree. For example, the 'shoes' taxonomy node (ID: 1429, level: 1) is higher in the hierarchy than 'girls' shoes' (ID: 1440, level: 2). The taxonomy nodes assigned to a listing support access to specific standardized product scales and properties. For example, listings assigned the taxonomy nodes 'shoes' or 'girls' shoes' support access to the 'EU' shoe size scale with its associated property names and IDs for EU shoe sizes, such as property `value_id`:'1394', and `name`:'38'.",
+          "required": true
+        },
+        {
+          "name": "supports_variations",
+          "type": "bool",
+          "location": "query",
+          "description": "When `true`, returns properties that support variations. When `false`, returns properties that do not support variations."
+        },
+        {
+          "name": "supports_attributes",
+          "type": "bool",
+          "location": "query",
+          "description": "When `true`, returns properties that support attributes. When `false`, returns properties that do not support attributes."
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_create-shop",
+      "description": "Creates a new ShippingProfile. You can pass a country iso code or a region when creating a ShippingProfile, but not both. Only one is required. You must pass either a shipping_carrier_id AND mail_class, or both min and max_delivery_days. Required: shop_id, origin_country_iso, primary_cost, secondary_cost, title. Optional: destination_country_iso, destination_region (default: none), mail_class (plus 7 more). Returns the new ShopShippingProfile.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/shipping-profiles",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "destination_country_iso",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO code of the country to which the listing ships."
+        },
+        {
+          "name": "destination_region",
+          "type": "string",
+          "location": "body",
+          "description": "The code of the region to which the listing ships."
+        },
+        {
+          "name": "mail_class",
+          "type": "string",
+          "location": "body",
+          "description": "The unique ID string of a shipping carrier's mail class, which is used to calculate an..."
+        },
+        {
+          "name": "max_delivery_days",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of business days a buyer can expect to wait to receive their purchased..."
+        },
+        {
+          "name": "max_processing_time",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum processing time the listing needs to ship."
+        },
+        {
+          "name": "min_delivery_days",
+          "type": "int",
+          "location": "body",
+          "description": "The minimum number of business days a buyer can expect to wait to receive their purchased..."
+        },
+        {
+          "name": "min_processing_time",
+          "type": "int",
+          "location": "body",
+          "description": "The minimum time required to process to ship listings with this shipping profile."
+        },
+        {
+          "name": "origin_country_iso",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO code of the country from which the listing ships.",
+          "required": true
+        },
+        {
+          "name": "origin_postal_code",
+          "type": "string",
+          "location": "body",
+          "description": "The postal code string (not necessarily a number) for the location from which the listing ships. Required if the `origin_country_iso` supports postal codes. See the [Fulfillment Tutorial docs](https://developer.etsy.com/documentation/tutorials/fulfillment/#countries-requiring-postal-codes) for more info"
+        },
+        {
+          "name": "primary_cost",
+          "type": "float",
+          "location": "body",
+          "description": "The cost of shipping to this country/region alone, measured in the store's default currency.",
+          "required": true
+        },
+        {
+          "name": "processing_time_unit",
+          "type": "string",
+          "location": "body",
+          "description": "The unit used to represent how long a processing time is. A week is equivalent to the set processing schedule (default to 5 business days). If none is provided, the unit is set to 'business_days'."
+        },
+        {
+          "name": "secondary_cost",
+          "type": "float",
+          "location": "body",
+          "description": "The cost of shipping to this country/region with another item, measured in the store's...",
+          "required": true
+        },
+        {
+          "name": "shipping_carrier_id",
+          "type": "int",
+          "location": "body",
+          "description": "The unique ID of a supported shipping carrier, which is used to calculate an Estimated..."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The name string of this shipping profile.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_create-shop-destination",
+      "description": "Creates a new shipping destination, which sets the shipping cost, carrier, and class for a destination in a [shipping profile](/documentation/reference/#tag/Shop-ShippingProfile). createShopShippingProfileDestination assigns costs using the currency of the associated shop. Set the destination using either `destination_country_iso` or `destination_region`; `destination_country_iso` and `destination_region` are mutually exclusive — set one or the other. Setting both triggers error 400. If the request sets neither `destination_country_iso` nor `destination_region`, the default destination is 'everywhere'. You must also either assign both a `shipping_carrier_id` AND `mail_class` or both `min_delivery_days` AND `max_delivery_days`. Required: shop_id, shipping_profile_id, primary_cost, secondary_cost. Optional: destination_country_iso, destination_region (default: none), mail_class (plus 3 more). Returns the new ShopShippingProfileDestination.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}/destinations",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [shipping...",
+          "required": true
+        },
+        {
+          "name": "destination_country_iso",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO code of the country to which the listing ships."
+        },
+        {
+          "name": "destination_region",
+          "type": "string",
+          "location": "body",
+          "description": "The code of the region to which the listing ships."
+        },
+        {
+          "name": "mail_class",
+          "type": "string",
+          "location": "body",
+          "description": "The unique ID string of a shipping carrier's mail class, which is used to calculate an..."
+        },
+        {
+          "name": "max_delivery_days",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of business days a buyer can expect to wait to receive their purchased..."
+        },
+        {
+          "name": "min_delivery_days",
+          "type": "int",
+          "location": "body",
+          "description": "The minimum number of business days a buyer can expect to wait to receive their purchased..."
+        },
+        {
+          "name": "primary_cost",
+          "type": "float",
+          "location": "body",
+          "description": "The cost of shipping to this country/region alone, measured in the store's default currency.",
+          "required": true
+        },
+        {
+          "name": "secondary_cost",
+          "type": "float",
+          "location": "body",
+          "description": "The cost of shipping to this country/region with another item, measured in the store's...",
+          "required": true
+        },
+        {
+          "name": "shipping_carrier_id",
+          "type": "int",
+          "location": "body",
+          "description": "The unique ID of a supported shipping carrier, which is used to calculate an Estimated..."
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_create-shop-upgrade",
+      "description": "Creates a new shipping profile upgrade, which can establish a price for a shipping option, such as an alternate carrier or faster delivery. Required: shop_id, shipping_profile_id, price, secondary_price, type, upgrade_name. Optional: mail_class, max_delivery_days, min_delivery_days (plus 1 more). Returns the new ShopShippingProfileUpgrade.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}/upgrades",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [shipping...",
+          "required": true
+        },
+        {
+          "name": "mail_class",
+          "type": "string",
+          "location": "body",
+          "description": "The unique ID string of a shipping carrier's mail class, which is used to calculate an..."
+        },
+        {
+          "name": "max_delivery_days",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of business days a buyer can expect to wait to receive their purchased..."
+        },
+        {
+          "name": "min_delivery_days",
+          "type": "int",
+          "location": "body",
+          "description": "The minimum number of business days a buyer can expect to wait to receive their purchased..."
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Additional cost of adding the shipping upgrade.",
+          "required": true
+        },
+        {
+          "name": "secondary_price",
+          "type": "float",
+          "location": "body",
+          "description": "Additional cost of adding the shipping upgrade for each additional item.",
+          "required": true
+        },
+        {
+          "name": "shipping_carrier_id",
+          "type": "int",
+          "location": "body",
+          "description": "The unique ID of a supported shipping carrier, which is used to calculate an Estimated..."
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "location": "body",
+          "description": "The type of the shipping upgrade. Domestic (0) or international (1).",
+          "required": true
+        },
+        {
+          "name": "upgrade_name",
+          "type": "string",
+          "location": "body",
+          "description": "Name for the shipping upgrade shown to shoppers at checkout, e.g. USPS Priority.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_delete-shop",
+      "description": "Deletes a ShippingProfile by given id. Required: shop_id, shipping_profile_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [shipping...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_delete-shop-destination",
+      "description": "Deletes a shipping destination and removes the destination option from every listing that uses the associated shipping profile. A shipping profile requires at least one shipping destination, so this endpoint cannot delete the final shipping destination for any shipping profile. To delete the final shipping destination from a shipping profile, you must [delete the entire shipping profile](/documentation/reference/#operation/deleteShopShippingProfile). Required: shop_id, shipping_profile_id, shipping_profile_destination_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}/destinations/{shipping_profile_destination_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [shipping...",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_destination_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the shipping profile destination in the [shipping profile](/documentation/reference#tag/Shop-ShippingProfile) associated with the listing.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_delete-shop-upgrade",
+      "description": "Deletes a shipping profile upgrade and removes the upgrade option from every listing that uses the associated shipping profile. Required: shop_id, shipping_profile_id, upgrade_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}/upgrades/{upgrade_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the shipping profile.",
+          "required": true
+        },
+        {
+          "name": "upgrade_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID that is associated with a shipping upgrade",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_get-shipping-carriers",
+      "description": "Retrieves a list of available shipping carriers and the mail classes associated with them for a given country. Required: origin_country_iso. Returns array of ShippingCarrier.",
+      "method": "GET",
+      "path": "/shipping-carriers",
+      "params": [
+        {
+          "name": "origin_country_iso",
+          "type": "string",
+          "location": "query",
+          "description": "The ISO code of the country from which the listing ships.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_get-shop",
+      "description": "Retrieves a list of shipping profiles available in the specific Etsy shop identified by its shop ID. Required: shop_id. Returns array of ShopShippingProfile.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/shipping-profiles",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_get-shop-destinations-by",
+      "description": "Retrieves a list of shipping destination objects associated with a shipping profile. Required: shop_id, shipping_profile_id. Optional: limit (default: 25), offset (default: 0). Returns array of ShippingProfilesGetShopDestinationsByItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}/destinations",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [shipping...",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_get-shop-shops",
+      "description": "Retrieves a Shipping Profile referenced by shipping profile ID. Required: shop_id, shipping_profile_id. Returns the ShopShippingProfile.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [shipping...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_get-shop-upgrades",
+      "description": "Retrieves the list of shipping profile upgrades assigned to a specific shipping profile. Required: shop_id, shipping_profile_id. Returns array of ShippingProfilesGetShopUpgradesItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}/upgrades",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [shipping...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_update-shop",
+      "description": "Changes the settings in a shipping profile. You can pass a country iso code or a region when updating a ShippingProfile, but not both. Only one is required. You must pass either a shipping_carrier_id AND mail_class, or both min and max_delivery_days. Required: shop_id, shipping_profile_id. Optional: max_processing_time, min_processing_time, origin_country_iso (plus 3 more). Returns the updated ShopShippingProfile.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [shipping...",
+          "required": true
+        },
+        {
+          "name": "max_processing_time",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum processing time the listing needs to ship."
+        },
+        {
+          "name": "min_processing_time",
+          "type": "int",
+          "location": "body",
+          "description": "The minimum time required to process to ship listings with this shipping profile."
+        },
+        {
+          "name": "origin_country_iso",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO code of the country from which the listing ships."
+        },
+        {
+          "name": "origin_postal_code",
+          "type": "string",
+          "location": "body",
+          "description": "The postal code string (not necessarily a number) for the location from which the listing ships. Required if the `origin_country_iso` supports postal codes. See the [Fulfillment Tutorial docs](https://developer.etsy.com/documentation/tutorials/fulfillment/#countries-requiring-postal-codes) for more info"
+        },
+        {
+          "name": "processing_time_unit",
+          "type": "string",
+          "location": "body",
+          "description": "The unit used to represent how long a processing time is. A week is equivalent to the set processing schedule (default to 5 business days). If none is provided, the unit is set to 'business_days'."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The name string of this shipping profile."
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_update-shop-destination",
+      "description": "Updates an existing shipping destination, which can set or reassign the shipping cost, carrier, and class for a destination. Required: shop_id, shipping_profile_id, shipping_profile_destination_id. Optional: destination_country_iso, destination_region (default: none), mail_class (plus 5 more). Returns the updated ShopShippingProfileDestination.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}/destinations/{shipping_profile_destination_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [shipping...",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_destination_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the shipping profile destination in the [shipping profile](/documentation/reference#tag/Shop-ShippingProfile) associated with the listing.",
+          "required": true
+        },
+        {
+          "name": "destination_country_iso",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO code of the country to which the listing ships."
+        },
+        {
+          "name": "destination_region",
+          "type": "string",
+          "location": "body",
+          "description": "The code of the region to which the listing ships."
+        },
+        {
+          "name": "mail_class",
+          "type": "string",
+          "location": "body",
+          "description": "The unique ID string of a shipping carrier's mail class, which is used to calculate an..."
+        },
+        {
+          "name": "max_delivery_days",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of business days a buyer can expect to wait to receive their purchased..."
+        },
+        {
+          "name": "min_delivery_days",
+          "type": "int",
+          "location": "body",
+          "description": "The minimum number of business days a buyer can expect to wait to receive their purchased..."
+        },
+        {
+          "name": "primary_cost",
+          "type": "float",
+          "location": "body",
+          "description": "The cost of shipping to this country/region alone, measured in the store's default currency."
+        },
+        {
+          "name": "secondary_cost",
+          "type": "float",
+          "location": "body",
+          "description": "The cost of shipping to this country/region with another item, measured in the store's..."
+        },
+        {
+          "name": "shipping_carrier_id",
+          "type": "int",
+          "location": "body",
+          "description": "The unique ID of a supported shipping carrier, which is used to calculate an Estimated..."
+        }
+      ]
+    },
+    {
+      "name": "shipping_profiles_update-shop-upgrade",
+      "description": "Updates a shipping profile upgrade and updates any listings that use the shipping profile. Required: shop_id, shipping_profile_id, upgrade_id. Optional: mail_class, max_delivery_days, min_delivery_days (plus 5 more). Returns the updated ShopShippingProfileUpgrade.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}/shipping-profiles/{shipping_profile_id}/upgrades/{upgrade_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shipping_profile_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the [shipping...",
+          "required": true
+        },
+        {
+          "name": "upgrade_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID that is associated with a shipping upgrade",
+          "required": true
+        },
+        {
+          "name": "mail_class",
+          "type": "string",
+          "location": "body",
+          "description": "The unique ID string of a shipping carrier's mail class, which is used to calculate an..."
+        },
+        {
+          "name": "max_delivery_days",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of business days a buyer can expect to wait to receive their purchased..."
+        },
+        {
+          "name": "min_delivery_days",
+          "type": "int",
+          "location": "body",
+          "description": "The minimum number of business days a buyer can expect to wait to receive their purchased..."
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Additional cost of adding the shipping upgrade."
+        },
+        {
+          "name": "secondary_price",
+          "type": "float",
+          "location": "body",
+          "description": "Additional cost of adding the shipping upgrade for each additional item."
+        },
+        {
+          "name": "shipping_carrier_id",
+          "type": "int",
+          "location": "body",
+          "description": "The unique ID of a supported shipping carrier, which is used to calculate an Estimated..."
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "location": "body",
+          "description": "The type of the shipping upgrade. Domestic (0) or international (1)."
+        },
+        {
+          "name": "upgrade_name",
+          "type": "string",
+          "location": "body",
+          "description": "Name for the shipping upgrade shown to shoppers at checkout, e.g. USPS Priority."
+        }
+      ]
+    },
+    {
+      "name": "shop_sections_create",
+      "description": "Creates a new section in a specific shop. Required: shop_id, title. Returns the new ShopSection.",
+      "method": "POST",
+      "path": "/shops/{shop_id}/sections",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title string for a shop section.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_sections_delete",
+      "description": "Deletes a section in a specific shop given a valid shop_section_id. Required: shop_id, shop_section_id. Destructive.",
+      "method": "DELETE",
+      "path": "/shops/{shop_id}/sections/{shop_section_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shop_section_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of a section in a specific Etsy shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_sections_get",
+      "description": "Retrieves the list of shop sections in a specific shop identified by shop ID. Required: shop_id. Returns array of ShopSectionsGetItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/sections",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_sections_get-shops",
+      "description": "Retrieves a shop section, referenced by section ID and shop ID. Required: shop_id, shop_section_id. Returns the ShopSection.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/sections/{shop_section_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shop_section_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of a section in a specific Etsy shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_sections_update",
+      "description": "Updates a section in a specific shop given a valid shop_section_id. Required: shop_id, shop_section_id, title. Returns the updated ShopSection.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}/sections/{shop_section_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "shop_section_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of a section in a specific Etsy shop.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title string for a shop section.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_find",
+      "description": "Open API V3 endpoint for searching shops by name. Note: We make every effort to ensure that frozen or removed shops are not included in the search results. However, rarely, due to timing issues, they may appear. Required: shop_name. Optional: limit (default: 25), offset (default: 0). Returns array of ShopsFindItem.",
+      "method": "GET",
+      "path": "/shops",
+      "params": [
+        {
+          "name": "shop_name",
+          "type": "string",
+          "location": "query",
+          "description": "The shop's name string.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        }
+      ]
+    },
+    {
+      "name": "shops_get",
+      "description": "Retrieves the shop identified by a specific shop ID. Required: shop_id. Returns the Shop.",
+      "method": "GET",
+      "path": "/shops/{shop_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_get-by-owner-user-id",
+      "description": "Retrieves the shop identified by the shop owner's user ID. Required: user_id. Returns the Shop.",
+      "method": "GET",
+      "path": "/users/{user_id}/shops",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric user ID of the [user](/documentation/reference#tag/User) who owns this shop.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_update",
+      "description": "Updates a shop. Assumes that all string parameters are provided in the shop's primary language. Please note that the policy_additional field should only be set for shops located in the EU. Passing a value for this field for shops outside of the EU, will result in an error. Required: shop_id. Optional: announcement, digital_sale_message, policy_additional (plus 2 more). Returns the updated Shop.",
+      "method": "PUT",
+      "path": "/shops/{shop_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "announcement",
+          "type": "string",
+          "location": "body",
+          "description": "An announcement string to buyers that displays on the shop's homepage."
+        },
+        {
+          "name": "digital_sale_message",
+          "type": "string",
+          "location": "body",
+          "description": "A message string sent to users who purchase a digital item from this shop."
+        },
+        {
+          "name": "policy_additional",
+          "type": "string",
+          "location": "body",
+          "description": "The shop's additional policies string (may be blank)."
+        },
+        {
+          "name": "sale_message",
+          "type": "string",
+          "location": "body",
+          "description": "A message string sent to users who complete a purchase from this shop."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "A brief heading string for the shop's main page."
+        }
+      ]
+    },
+    {
+      "name": "transactions_get-shop-receipt",
+      "description": "Retrieves a transaction by transaction ID. Required: shop_id, transaction_id. Returns the ShopReceiptTransaction.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/transactions/{transaction_id}",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "transaction_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique numeric ID for a transaction.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_get-shop-receipt-by-listing",
+      "description": "Retrieves the list of transactions associated with a listing. Required: shop_id, listing_id. Optional: limit (default: 25), offset (default: 0), legacy. Returns array of TransactionsGetShopReceiptByListingItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/listings/{listing_id}/transactions",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [listing](/documentation/reference#tag/ShopListing) associated to...",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter needed to enable new parameters and response values related to processing profiles."
+        }
+      ]
+    },
+    {
+      "name": "transactions_get-shop-receipt-by-receipt",
+      "description": "Retrieves the list of transactions associated with a specific receipt. Required: shop_id, receipt_id. Optional: legacy. Returns array of TransactionsGetShopReceiptByReceiptItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/receipts/{receipt_id}/transactions",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "receipt_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID for the [receipt](/documentation/reference#tag/Shop-Receipt) associated to...",
+          "required": true
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter needed to enable new parameters and response values related to processing profiles."
+        }
+      ]
+    },
+    {
+      "name": "transactions_get-shop-receipt-by-shop",
+      "description": "Retrieves the list of transactions associated with a shop. Required: shop_id. Optional: limit (default: 25), offset (default: 0), legacy. Returns array of TransactionsGetShopReceiptByShopItem.",
+      "method": "GET",
+      "path": "/shops/{shop_id}/transactions",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique positive non-zero numeric ID for an Etsy Shop.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        },
+        {
+          "name": "legacy",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter needed to enable new parameters and response values related to processing profiles."
+        }
+      ]
+    },
+    {
+      "name": "user_addresses_get",
+      "description": "Open API V3 endpoint to retrieve UserAddresses for a User. Optional: limit (default: 25), offset (default: 0). Returns array of UserAddressesGetItem.",
+      "method": "GET",
+      "path": "/user/addresses",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to skip before selecting the first result."
+        }
+      ]
+    },
+    {
+      "name": "user_addresses_get-user-address",
+      "description": "Open API V3 endpoint to retrieve a UserAddress for a User. Required: user_address_id. Returns the UserAddress.",
+      "method": "GET",
+      "path": "/user/addresses/{user_address_id}",
+      "params": [
+        {
+          "name": "user_address_id",
+          "type": "int",
+          "location": "path",
+          "description": "The numeric ID of the user's address.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Retrieves a user profile based on a unique user ID. Access is limited to profiles of the authenticated user or linked buyers. For the primary_email field, specific app-based permissions are required and granted case-by-case. Required: user_id. Returns the User.",
+      "method": "GET",
+      "path": "/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get-me",
+      "description": "Returns basic info for the user making the request.",
+      "method": "GET",
+      "path": "/users/me",
+      "params": []
+    }
+  ]
+}

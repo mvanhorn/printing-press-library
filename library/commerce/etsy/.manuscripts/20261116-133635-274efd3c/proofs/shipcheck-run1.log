@@ -1,0 +1,365 @@
+
+=== verify ===
+Runtime Verification: <runstate>/printing-press-workshop-e51dd43c/runs/20261116-133635-274efd3c/working/etsy-pp-cli/etsy-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+app                            read         PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+buyer-taxonomy                 read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+economic-operators             read         PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+holiday-preferences            read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+inventory                      read         PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+ledger-entries                 read         PASS   PASS     PASS     3/3
+listing-files                  read         PASS   PASS     PASS     3/3
+listing-images                 read         PASS   PASS     PASS     3/3
+listing-inventory              read         PASS   PASS     PASS     3/3
+listing-personalization        read         PASS   PASS     PASS     3/3
+listing-translations           read         PASS   PASS     PASS     3/3
+listing-variation-images       read         PASS   PASS     PASS     3/3
+listing-videos                 read         PASS   PASS     PASS     3/3
+listings                       read         PASS   PASS     PASS     3/3
+local-data                     write        PASS   PASS     PASS     3/3
+login                          write        PASS   PASS     PASS     3/3
+market                         read         PASS   PASS     PASS     3/3
+money                          read         PASS   PASS     PASS     3/3
+orders                         read         PASS   PASS     PASS     3/3
+payments                       read         PASS   PASS     PASS     3/3
+playbook                       write        PASS   PASS     PASS     3/3
+processing-profiles            read         PASS   PASS     PASS     3/3
+production-partners            write        PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     PASS     3/3
+recall                         read         PASS   PASS     PASS     3/3
+receipts                       read         PASS   PASS     PASS     3/3
+return-policies                read         PASS   PASS     PASS     3/3
+reviews                        read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+seller-taxonomy                read         PASS   PASS     PASS     3/3
+shipping-profiles              read         PASS   PASS     PASS     3/3
+shop                           read         PASS   PASS     PASS     3/3
+shop-sections                  read         PASS   PASS     PASS     3/3
+shops                          read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+transactions                   read         PASS   PASS     PASS     3/3
+user-addresses                 read         PASS   PASS     PASS     3/3
+users                          read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS buyer-taxonomy get-properties-by-id
+  PASS economic-operators create-shop
+  PASS economic-operators get-shop
+  PASS economic-operators get-shop-shops
+  PASS economic-operators update-shop
+  PASS holiday-preferences get
+  PASS holiday-preferences update
+  PASS inventory set-qty
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS ledger-entries get-shop-payment-account
+  PASS ledger-entries get-shop-payment-account-ledger-entry
+  PASS listing-files delete
+  PASS listing-files get
+  PASS listing-files get-all
+  PASS listing-files upload
+  PASS listing-images delete
+  PASS listing-images get
+  PASS listing-images get-listings
+  PASS listing-images upload
+  PASS listing-inventory get
+  PASS listing-inventory get-listing-product
+  PASS listing-inventory update
+  PASS listing-personalization delete
+  PASS listing-personalization get
+  PASS listing-personalization update
+  PASS listing-translations create
+  PASS listing-translations get
+  PASS listing-translations update
+  PASS listing-variation-images get
+  PASS listing-variation-images update-variation-images
+  PASS listing-videos delete
+  PASS listing-videos get
+  PASS listing-videos get-listings
+  PASS listing-videos upload
+  PASS listings copy
+  PASS listings create-draft
+  PASS listings delete
+  PASS listings delete-property
+  PASS listings find-all-active-by-shop
+  PASS listings get
+  PASS listings get-by-shop
+  PASS listings get-by-shop-receipt
+  PASS listings get-by-shop-return-policy
+  PASS listings get-by-shop-section-id
+  PASS listings get-featured-by-shop
+  PASS listings get-properties
+  PASS listings get-property
+  PASS listings snapshot
+  PASS listings update
+  PASS listings update-property
+  PASS payments get
+  PASS payments get-account-ledger-entry
+  PASS payments get-shop-by-receipt-id
+  PASS processing-profiles create-shop-readiness-state-definition
+  PASS processing-profiles delete-shop-readiness-state-definition
+  PASS processing-profiles get-shop-readiness-state-definition
+  PASS processing-profiles get-shop-readiness-state-definitions
+  PASS processing-profiles update-shop-readiness-state-definition
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS receipts create-shipment
+  PASS receipts get-shop
+  PASS receipts get-shop-shops
+  PASS receipts update-shop
+  PASS return-policies consolidate-shop
+  PASS return-policies create-shop-return-policy
+  PASS return-policies delete-shop-return-policy
+  PASS return-policies get-shop
+  PASS return-policies get-shop-return-policy
+  PASS return-policies update-shop-return-policy
+  PASS reviews get-by-listing
+  PASS reviews get-by-shop
+  PASS seller-taxonomy get-properties-by-taxonomy-id
+  PASS shipping-profiles create-shop
+  PASS shipping-profiles create-shop-destination
+  PASS shipping-profiles create-shop-upgrade
+  PASS shipping-profiles delete-shop
+  PASS shipping-profiles delete-shop-destination
+  PASS shipping-profiles delete-shop-upgrade
+  PASS shipping-profiles get-shop
+  PASS shipping-profiles get-shop-destinations-by
+  PASS shipping-profiles get-shop-shops
+  PASS shipping-profiles get-shop-upgrades
+  PASS shipping-profiles update-shop
+  PASS shipping-profiles update-shop-destination
+  PASS shipping-profiles update-shop-upgrade
+  PASS shop-sections create
+  PASS shop-sections delete
+  PASS shop-sections get
+  PASS shop-sections get-shops
+  PASS shop-sections update
+  PASS shops get
+  PASS shops get-by-owner-user-id
+  PASS shops update
+  PASS transactions get-shop-receipt
+  PASS transactions get-shop-receipt-by-listing
+  PASS transactions get-shop-receipt-by-receipt
+  PASS transactions get-shop-receipt-by-shop
+  PASS user-addresses get-user-address
+  PASS users get
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped) [sync --resources buyer_taxonomy]
+Pass Rate: 100% (159/159 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+UNSUPPORTED [troubleshoots.fix]: etsy-pp-cli auth login --scopes transactions_r → full-example validation skipped: command is side-effectful (auth/launch/apply)
+DONE: 12 ok, 0 missing, 0 empty-words, 0 failed-examples, 1 unsupported
+
+=== dogfood ===
+dogfood: using spec <runstate>/printing-press-workshop-e51dd43c/runs/20261116-133635-274efd3c/working/etsy-pp-cli/spec.json (bundled)
+dogfood: caller --spec=<runstate>/printing-press-workshop-e51dd43c/runs/20261116-133635-274efd3c/research/etsy-openapi-v3.enriched.json overridden by bundled <runstate>/printing-press-workshop-e51dd43c/runs/20261116-133635-274efd3c/working/etsy-pp-cli/spec.json
+Dogfood Report: etsy-pp-cli
+================================
+
+Path Validity:     4/4 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 0/76 endpoints covered (FAIL)
+  Detail: generated auth files declare no OAuth scopes
+  - GET /listings/batch/inventory (op-id getListingsInventoryByListingIds) requires listings_r, none in auth.go
+  - GET /listings/batch/shipping (op-id getListingsShippingByListingIds) requires shops_r, none in auth.go
+  - DELETE /listings/{listing_id} (op-id deleteListing) requires listings_d, none in auth.go
+  - GET /listings/{listing_id}/inventory (op-id getListingInventory) requires listings_r, none in auth.go
+  - PUT /listings/{listing_id}/inventory (op-id updateListingInventory) requires listings_w, none in auth.go
+  - GET /listings/{listing_id}/inventory/products/{product_id} (op-id getListingProduct) requires listings_r, none in auth.go
+  - PUT /shops/{shop_id} (op-id updateShop) requires all of shops_r, shops_w, none in auth.go
+  - GET /shops/{shop_id}/economic-operators (op-id getShopEconomicOperators) requires listings_r, none in auth.go
+  - POST /shops/{shop_id}/economic-operators (op-id createShopEconomicOperator) requires listings_w, none in auth.go
+  - GET /shops/{shop_id}/economic-operators/{economic_operator_id} (op-id getShopEconomicOperator) requires listings_r, none in auth.go
+  - PATCH /shops/{shop_id}/economic-operators/{economic_operator_id} (op-id updateShopEconomicOperator) requires listings_w, none in auth.go
+  - GET /shops/{shop_id}/holiday-preferences (op-id getHolidayPreferences) requires shops_r, none in auth.go
+  - PUT /shops/{shop_id}/holiday-preferences/{holiday_id} (op-id updateHolidayPreferences) requires shops_w, none in auth.go
+  - GET /shops/{shop_id}/listings (op-id getListingsByShop) requires listings_r, none in auth.go
+  - POST /shops/{shop_id}/listings (op-id createDraftListing) requires listings_w, none in auth.go
+  - PATCH /shops/{shop_id}/listings/{listing_id} (op-id updateListing) requires listings_w, none in auth.go
+  - GET /shops/{shop_id}/listings/{listing_id}/files (op-id getAllListingFiles) requires listings_r, none in auth.go
+  - POST /shops/{shop_id}/listings/{listing_id}/files (op-id uploadListingFile) requires listings_w, none in auth.go
+  - DELETE /shops/{shop_id}/listings/{listing_id}/files/{listing_file_id} (op-id deleteListingFile) requires listings_w, none in auth.go
+  - GET /shops/{shop_id}/listings/{listing_id}/files/{listing_file_id} (op-id getListingFile) requires listings_r, none in auth.go
+  - POST /shops/{shop_id}/listings/{listing_id}/images (op-id uploadListingImage) requires listings_w, none in auth.go
+  - DELETE /shops/{shop_id}/listings/{listing_id}/images/{listing_image_id} (op-id deleteListingImage) requires listings_w, none in auth.go
+  - DELETE /shops/{shop_id}/listings/{listing_id}/personalization (op-id deleteListingPersonalization) requires listings_w, none in auth.go
+  - POST /shops/{shop_id}/listings/{listing_id}/personalization (op-id updateListingPersonalization) requires listings_w, none in auth.go
+  - DELETE /shops/{shop_id}/listings/{listing_id}/properties/{property_id} (op-id deleteListingProperty) requires listings_w, none in auth.go
+  - PUT /shops/{shop_id}/listings/{listing_id}/properties/{property_id} (op-id updateListingProperty) requires listings_w, none in auth.go
+  - GET /shops/{shop_id}/listings/{listing_id}/transactions (op-id getShopReceiptTransactionsByListing) requires transactions_r, none in auth.go
+  - POST /shops/{shop_id}/listings/{listing_id}/translations/{language} (op-id createListingTranslation) requires listings_w, none in auth.go
+  - PUT /shops/{shop_id}/listings/{listing_id}/translations/{language} (op-id updateListingTranslation) requires listings_w, none in auth.go
+  - POST /shops/{shop_id}/listings/{listing_id}/variation-images (op-id updateVariationImages) requires listings_w, none in auth.go
+  - POST /shops/{shop_id}/listings/{listing_id}/videos (op-id uploadListingVideo) requires listings_w, none in auth.go
+  - DELETE /shops/{shop_id}/listings/{listing_id}/videos/{video_id} (op-id deleteListingVideo) requires listings_w, none in auth.go
+  - GET /shops/{shop_id}/payment-account/ledger-entries (op-id getShopPaymentAccountLedgerEntries) requires transactions_r, none in auth.go
+  - GET /shops/{shop_id}/payment-account/ledger-entries/payments (op-id getPaymentAccountLedgerEntryPayments) requires transactions_r, none in auth.go
+  - GET /shops/{shop_id}/payment-account/ledger-entries/{ledger_entry_id} (op-id getShopPaymentAccountLedgerEntry) requires transactions_r, none in auth.go
+  - GET /shops/{shop_id}/payments (op-id getPayments) requires transactions_r, none in auth.go
+  - POST /shops/{shop_id}/policies/return (op-id createShopReturnPolicy) requires shops_w, none in auth.go
+  - POST /shops/{shop_id}/policies/return/consolidate (op-id consolidateShopReturnPolicies) requires shops_w, none in auth.go
+  - DELETE /shops/{shop_id}/policies/return/{return_policy_id} (op-id deleteShopReturnPolicy) requires shops_w, none in auth.go
+  - PUT /shops/{shop_id}/policies/return/{return_policy_id} (op-id updateShopReturnPolicy) requires shops_w, none in auth.go
+  - GET /shops/{shop_id}/policies/return/{return_policy_id}/listings (op-id getListingsByShopReturnPolicy) requires listings_r, none in auth.go
+  - GET /shops/{shop_id}/production-partners (op-id getShopProductionPartners) requires shops_r, none in auth.go
+  - GET /shops/{shop_id}/readiness-state-definitions (op-id getShopReadinessStateDefinitions) requires shops_r, none in auth.go
+  - POST /shops/{shop_id}/readiness-state-definitions (op-id createShopReadinessStateDefinition) requires shops_w, none in auth.go
+  - DELETE /shops/{shop_id}/readiness-state-definitions/{readiness_state_definition_id} (op-id deleteShopReadinessStateDefinition) requires shops_w, none in auth.go
+  - GET /shops/{shop_id}/readiness-state-definitions/{readiness_state_definition_id} (op-id getShopReadinessStateDefinition) requires shops_r, none in auth.go
+  - PUT /shops/{shop_id}/readiness-state-definitions/{readiness_state_definition_id} (op-id updateShopReadinessStateDefinition) requires shops_w, none in auth.go
+  - GET /shops/{shop_id}/receipts (op-id getShopReceipts) requires transactions_r, none in auth.go
+  - GET /shops/{shop_id}/receipts/{receipt_id} (op-id getShopReceipt) requires transactions_r, none in auth.go
+  - PUT /shops/{shop_id}/receipts/{receipt_id} (op-id updateShopReceipt) requires transactions_w, none in auth.go
+  - GET /shops/{shop_id}/receipts/{receipt_id}/listings (op-id getListingsByShopReceipt) requires transactions_r, none in auth.go
+  - GET /shops/{shop_id}/receipts/{receipt_id}/payments (op-id getShopPaymentByReceiptId) requires transactions_r, none in auth.go
+  - POST /shops/{shop_id}/receipts/{receipt_id}/tracking (op-id createReceiptShipment) requires transactions_w, none in auth.go
+  - GET /shops/{shop_id}/receipts/{receipt_id}/transactions (op-id getShopReceiptTransactionsByReceipt) requires transactions_r, none in auth.go
+  - POST /shops/{shop_id}/sections (op-id createShopSection) requires shops_w, none in auth.go
+  - DELETE /shops/{shop_id}/sections/{shop_section_id} (op-id deleteShopSection) requires shops_w, none in auth.go
+  - PUT /shops/{shop_id}/sections/{shop_section_id} (op-id updateShopSection) requires shops_w, none in auth.go
+  - GET /shops/{shop_id}/shipping-profiles (op-id getShopShippingProfiles) requires shops_r, none in auth.go
+  - POST /shops/{shop_id}/shipping-profiles (op-id createShopShippingProfile) requires shops_w, none in auth.go
+  - DELETE /shops/{shop_id}/shipping-profiles/{shipping_profile_id} (op-id deleteShopShippingProfile) requires shops_w, none in auth.go
+  - GET /shops/{shop_id}/shipping-profiles/{shipping_profile_id} (op-id getShopShippingProfile) requires shops_r, none in auth.go
+  - PUT /shops/{shop_id}/shipping-profiles/{shipping_profile_id} (op-id updateShopShippingProfile) requires shops_w, none in auth.go
+  - GET /shops/{shop_id}/shipping-profiles/{shipping_profile_id}/destinations (op-id getShopShippingProfileDestinationsByShippingProfile) requires shops_r, none in auth.go
+  - POST /shops/{shop_id}/shipping-profiles/{shipping_profile_id}/destinations (op-id createShopShippingProfileDestination) requires shops_w, none in auth.go
+  - DELETE /shops/{shop_id}/shipping-profiles/{shipping_profile_id}/destinations/{shipping_profile_destination_id} (op-id deleteShopShippingProfileDestination) requires shops_w, none in auth.go
+  - PUT /shops/{shop_id}/shipping-profiles/{shipping_profile_id}/destinations/{shipping_profile_destination_id} (op-id updateShopShippingProfileDestination) requires shops_w, none in auth.go
+  - GET /shops/{shop_id}/shipping-profiles/{shipping_profile_id}/upgrades (op-id getShopShippingProfileUpgrades) requires shops_r, none in auth.go
+  - POST /shops/{shop_id}/shipping-profiles/{shipping_profile_id}/upgrades (op-id createShopShippingProfileUpgrade) requires shops_w, none in auth.go
+  - DELETE /shops/{shop_id}/shipping-profiles/{shipping_profile_id}/upgrades/{upgrade_id} (op-id deleteShopShippingProfileUpgrade) requires shops_w, none in auth.go
+  - PUT /shops/{shop_id}/shipping-profiles/{shipping_profile_id}/upgrades/{upgrade_id} (op-id updateShopShippingProfileUpgrade) requires shops_w, none in auth.go
+  - GET /shops/{shop_id}/transactions (op-id getShopReceiptTransactionsByShop) requires transactions_r, none in auth.go
+  - GET /shops/{shop_id}/transactions/{transaction_id} (op-id getShopReceiptTransaction) requires transactions_r, none in auth.go
+  - GET /user/addresses (op-id getUserAddresses) requires address_r, none in auth.go
+  - GET /user/addresses/{user_address_id} (op-id getUserAddress) requires address_r, none in auth.go
+  - GET /users/me (op-id getMe) requires shops_r, none in auth.go
+  - GET /users/{user_id} (op-id getUser) requires email_r, none in auth.go
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          3/3 commands have examples (PASS)
+
+Novel Features:    15/15 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - OAuth scope coverage missing for 76 endpoint(s)
+Error: dogfood failed
+
+=== workflow-verify ===
+Workflow Verification: etsy-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== etsy-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: etsy
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           9/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 96/100 - Grade A
+  Denominator: infrastructure 180, domain 50
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: rebuilt (staged binary was older than Go sources)
+  Review: pass
+  Passed: 14/14  (100% pass rate, 1 skipped)
+
+Gaps:
+  - MCP: 107 tools (0 public, 107 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         12.975s
+  validate-narrative  PASS    0         422ms
+  dogfood           FAIL    3         5.227s
+  workflow-verify   PASS    0         15ms
+  apify-audit       PASS    0         38ms
+  verify-skill      PASS    0         12.792s
+  scorecard         PASS    0         2.24s
+
+Verdict: FAIL (1/7 legs failed)

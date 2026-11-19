@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "batch-d-retention-cli-hooks",
+  "summary": "Distinguish retention exclusions from sync failures and preserve lifetime payment success.",
+  "reason": "Generated parent registration and sync orchestration require narrow downstream hooks; preserve payment lifetime history after prune.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "markers": [
+    "everSucceeded, err := db.PaymentsEverSucceeded()",
+    "db.FilterEtsyRetentionIncoming(resource, items)",
+    "db.FilterEtsyRetentionIncoming(dep.Name, items)",
+    "consumedTotal += fetchedThisPage - retentionDropped",
+    "rep.consumed += len(retainedItems)",
+    "if fetchedThisPage > retentionDropped && stored == 0 {",
+    "upsertResourceBatch(db, resource, writeItems, syncEvents)",
+    "upsertResourceBatch(db, dep.Name, retainedItems, syncEvents)"
+  ],
+  "reapply": "Preserve retention selection, atomic cascades and floor enforcement; rerun synthetic retention and Batch A payment tests."
+}

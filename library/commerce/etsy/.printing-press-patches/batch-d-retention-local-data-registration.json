@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "batch-d-retention-local-data-registration",
+  "summary": "Register the Etsy-owned prune subcommand under the generated local-data parent.",
+  "reason": "The generated parent owns its child registration; a single downstream hook is required.",
+  "files": [
+    "internal/cli/local_data.go"
+  ],
+  "markers": [
+    "cmd.AddCommand(newLocalDataPurgeCmd(flags), newEtsyLocalDataPruneCmd(flags))"
+  ],
+  "reapply": "Preserve retention selection, atomic cascades and floor enforcement; rerun synthetic retention and Batch A payment tests."
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "id": "buyer-pii-requires-explicit-mcp-opt-in",
+  "summary": "MCP SQL and search protect synced buyer records by default and expose raw data only with explicit buyer-PII opt-in.",
+  "reason": "Raw Etsy receipts, transactions, addresses and payments carry buyer identifiers and shipping data. Guard both generic resources and typed/FTS access while preserving listing data. Search scopes the resource table before LIMIT and discloses filtering uniformly to avoid revealing buyer matches.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/etsy_buyer_pii.go",
+    "internal/mcp/etsy_buyer_pii_test.go",
+    "internal/mcp/tools_test.go",
+    "internal/cli/etsy_lookup_filter.go",
+    "internal/cli/etsy_lookup_filter_test.go",
+    "internal/cli/sync.go",
+    "internal/mcp/etsy_buyer_allowlist_test.go"
+  ]
+}

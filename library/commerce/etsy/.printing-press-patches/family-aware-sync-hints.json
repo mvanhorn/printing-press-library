@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "family-aware-sync-hints",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Local dependency hints recognize any valid sync in a resource family, and attention summaries label unknown counts.",
+  "reason": "Etsy collection sync names and dependent resource names can represent the same family. These hand-written reports must avoid false unsynced hints while preserving unknown-data notes for unavailable families.",
+  "files": [
+    "internal/cli/shopx_helpers.go",
+    "internal/cli/inventory_low_stock.go",
+    "internal/cli/orders_unshipped.go",
+    "internal/cli/money_summary.go",
+    "internal/cli/shop_attention.go",
+    "internal/cli/shopx_family_hint_test.go",
+    "internal/cli/listings_dead_weight_test.go"
+  ]
+}

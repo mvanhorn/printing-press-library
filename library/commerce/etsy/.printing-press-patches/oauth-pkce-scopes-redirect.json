@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "oauth-pkce-scopes-redirect",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "OAuth login: read-only default scopes (listings_r shops_r transactions_r), --all-scopes/--scopes/ETSY_SCOPES precedence in one builder, registered-redirect two-step PKCE (print authorize URL, then --callback-url), shared authorize-URL scope param, callback error text sanitized.",
+  "reason": "The generated auth login used a local callback server with a fixed scope set. Etsy apps register an https redirect, and least privilege requires read-only by default with email_r and write scopes behind --all-scopes. etsyRequestedScopes and etsySetScopeParam are the single places scopes are assembled; etsy_auth.go holds the two-step flow, pending PKCE state and etsySanitizeCallbackText.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/etsy_auth.go",
+    "internal/cli/etsy_auth_test.go",
+    "internal/cli/etsy_auth_hardening_test.go"
+  ]
+}

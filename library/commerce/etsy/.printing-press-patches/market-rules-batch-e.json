@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "market-rules-batch-e",
+  "summary": "Market rules support AND, field selection, folding, strict JSON and broad-target advisories.",
+  "reason": "Etsy-owned local market matching and report policy must survive reprints.",
+  "files": [
+    "internal/cli/mkt_rules.go",
+    "internal/cli/market_gaps.go",
+    "internal/cli/market_price.go",
+    "internal/cli/mkt_helpers.go",
+    "internal/cli/market_rules_batch_e_test.go",
+    "internal/cli/market_inline_flags_test.go",
+    "internal/cli/market_compact_test.go"
+  ],
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Preserve AND matching, title-only selection, Unicode text folding and literal validation, strict JSON, aggregate caps, matches_all rows and durable broad-target notes only for targets with neither include nor all patterns; all-only and include-only targets omit matches_all and have no advisory. Preserve legacy headline-first notes ordering by appending broad advisories through row_notes; never use explicit notes for advisories. Reject case variants of schema keys, punctuation-only regex classes/alternations, and repeated literal spaces under fold; diagnostics identify removed characters without rewriting regex source and fields/fold errors identify the target (YAML line when available). Use the syntax tree to reject isolated removed runes in mixed classes and merged alternations (including after NUL); preserve broad built-in word/nonspace classes and punctuation ranges. The redundant mktRemovedClassLiteral scanner is removed. Reject forced whitespace adjacency across captures/concats and whitespace-only repeats with minimum >=2. Bound all diagnostics with mktEcho; identify the first removed class rune, and explain adjacent-space collapse with a safe literal-only rewrite when possible. Defer YAML fold-value validation until the target name is known. Keep help wording aligned and Market rules documentation separated by blank lines.",
+  "base_run_id": "20261116-133635-274efd3c",
+  "validated_outcome": "Manual mutants verified against synthetic offline fixtures, with originals restored after each run: fold-not-applied (if false && t.Fold) caught by TestBatchEFoldApplication (JSON and YAML, all and include); YAML fold ignored (cur.fold = false) caught by TestBatchEFoldApplication/yaml; notes reorder (advisories moved to explicit notes) caught by TestBatchELegacyEnvelopeNotes/gaps; advisory leaked into note caught by TestBatchEBroadAdvisoryHasNoHeadline/gaps; syntax-tree class check removed caught by TestBatchEValidationUsage (linen(-|_)apron); exact-key check removed caught by TestBatchEValidationUsage (ALL). Golden full envelopes pin legacy include-only headline and notes ordering for partial/control-miss gaps and no-review/min-group price; broad advisories must be last and cannot create a headline. No long gate run by this worker. Round-2 manual mutants: whitespace-adjacency check off caught by TestBatchEValidationUsage (linen \\s apron); repeat check off caught by that test (a {2}b); isolated-rune class check off caught by that test ([a_]). Builder authored implementation and tests. Focused synthetic offline Batch E tests run; full gate reserved for coordinator."
+}
