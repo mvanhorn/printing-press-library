@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "server-template-is-full-base-url",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20260718-170717-2c0fb604",
+  "base_printing_press_version": "4.29.0",
+  "summary": "The {server} base-path template is a complete base URL with its scheme; base_url is only another source for it and must never be prepended on top.",
+  "reason": "The generic endpoint-template normalizer stripped the scheme and the client also prepended base_url, so requests went to http://host:8123host:8123/api/... and every call failed.",
+  "files": ["internal/config/config.go", "internal/client/client.go"],
+  "validated_outcome": "server_url_test.go and client_test.go cover scheme preservation, base_url fallback and no doubling; go build, go vet and go test ./... pass."
+}
