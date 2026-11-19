@@ -991,3 +991,20 @@ func mktProjectRows(value any, keys []string) {
 		}
 	}
 }
+
+// mktReviewCoverage exposes the collection horizon without refusing wider reports.
+func mktReviewCoverage(report map[string]any, snap *mktSnapshot, window time.Duration, hasReviews bool) map[string]any {
+	if hasReviews && snap.ReviewWindowDays > 0 && window > time.Duration(snap.ReviewWindowDays)*24*time.Hour {
+		report["review_coverage_days"] = snap.ReviewWindowDays
+		note := fmt.Sprintf("reviews were collected for the last %d days; counts for the requested %d-day window cover only %d days", snap.ReviewWindowDays, int(window/(24*time.Hour)), snap.ReviewWindowDays)
+		notes, _ := report["notes"].([]string)
+		// etsy-ext: Preserve a pre-existing composite note when extending notes.
+		composite := report["note"] == strings.Join(notes, "; ")
+		notes = append(notes, note)
+		report["notes"] = notes
+		if composite {
+			report["note"] = strings.Join(notes, "; ")
+		}
+	}
+	return report
+}

@@ -244,7 +244,7 @@ Groups smaller than --min-group get a null correlation and a note, never a guess
 				texts = append(texts, group.Note)
 			}
 			result["row_notes"] = append(mktRowNotes(keys, texts), mktMatchesAllNotes(targets)...)
-			return mktEmitReport(cmd, flags, result)
+			return mktEmitReport(cmd, flags, mktReviewCoverage(result, snap, window, len(dem) > 0))
 		},
 	}
 	cmd.Flags().StringVar(&flagGroupBy, "group-by", "taxonomy", "Group by taxonomy or class (class needs --rules or --rules-json)")

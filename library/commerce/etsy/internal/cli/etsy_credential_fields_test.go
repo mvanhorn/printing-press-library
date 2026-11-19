@@ -53,7 +53,7 @@ func TestManifestUserConfigMatchesCredentials(t *testing.T) {
 			t.Fatalf("user_config missing %s", key)
 		}
 	}
-	if !m.UserConfig["etsy_api_key"].Required || m.UserConfig["etsy_oauth2"].Required || m.UserConfig["etsy_shop_id"].Required {
+	if !m.UserConfig["etsy_api_key"].Required || m.UserConfig["etsy_oauth2"].Required || m.UserConfig["etsy_shop_id"].Required || m.UserConfig["etsy_shared_secret"].Required {
 		t.Fatalf("required flags wrong: %+v", m.UserConfig)
 	}
 	if !m.UserConfig["etsy_shared_secret"].Sensitive {

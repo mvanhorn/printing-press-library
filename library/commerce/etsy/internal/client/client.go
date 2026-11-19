@@ -64,6 +64,8 @@ const maxErrorBodyBytes = 4096
 var ErrPlaceholderCredential = errors.New("auth placeholder credential")
 
 type Client struct {
+	// etsy-ext: Charge every API request attempt, including retries; refreshes and redirects are not separately charged.
+	OnAttempt    func() error
 	BaseURL      string
 	Config       *config.Config
 	HTTPClient   *http.Client
@@ -2476,6 +2478,15 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		}
 		// Proactive rate limiting — wait before sending
 		adaptiveStarted := time.Now()
+		// etsy-ext: Veto before limiter/telemetry; retain both stop identity and server context.
+		if c.OnAttempt != nil {
+			if err := c.OnAttempt(); err != nil {
+				if lastErr != nil {
+					return nil, 0, fmt.Errorf("%w (last attempt: %v)", err, lastErr)
+				}
+				return nil, 0, err
+			}
+		}
 		if err := c.limiter.Wait(opCtx); err != nil {
 			return nil, 0, err
 		}

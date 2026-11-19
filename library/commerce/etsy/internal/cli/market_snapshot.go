@@ -111,12 +111,16 @@ type mktRun struct {
 }
 
 func (r *mktRun) mktSpend() bool {
+	return r.runCalls < r.maxCalls
+}
+
+func (r *mktRun) chargeAttempt() error {
 	if r.runCalls >= r.maxCalls {
-		return false
+		return errMktBudget
 	}
 	r.runCalls++
 	r.snap.CallsUsed++
-	return true
+	return nil
 }
 
 func (r *mktRun) mktSave(status string) error {
@@ -268,6 +272,9 @@ func (r *mktRun) mktStoreShop(shopID int64, s mktShopPayload) error {
 
 var errMktBudget = errors.New("snapshot call budget exhausted")
 
+// A stop between review pages leaves the listing uncommitted for resume.
+var errMktReviewPageBudget = errors.New("snapshot review page budget exhausted")
+
 func mktIsDailyQuota(err error) bool {
 	return isDailyQuotaErr(err)
 }
@@ -276,7 +283,7 @@ func (r *mktRun) mktFetchReviews(listingID int64, since time.Time) error {
 	capped := false
 	for page := 0; page < mktMaxReviewPages; page++ {
 		if !r.mktSpend() {
-			return errMktBudget
+			return errMktReviewPageBudget
 		}
 		raw, err := r.c.Get(r.ctx, fmt.Sprintf("/listings/%d/reviews", listingID), map[string]string{"limit": fmt.Sprint(mktReviewPageLimit), "offset": fmt.Sprint(page * mktReviewPageLimit), "min_created": fmt.Sprint(since.Unix())})
 		if err != nil {
@@ -395,10 +402,19 @@ is saved as partial; continue it with --resume ID (--max-calls then applies to t
 			if flagMaxCalls < 1 {
 				return usageErr(fmt.Errorf("--max-calls must be at least 1"))
 			}
-			window, err := mktParseWindow(flagReviewWindow)
-			if err != nil {
-				return usageErr(fmt.Errorf("--review-window: %w", err))
+			// etsy-ext: Resume uses the saved horizon, ignoring the new flag.
+			var window time.Duration
+			var err error
+			if flagResume == 0 {
+				window, err = mktParseWindow(flagReviewWindow)
+				if err != nil {
+					return usageErr(fmt.Errorf("--review-window: %w", err))
+				}
+				if window <= 0 || window%(24*time.Hour) != 0 {
+					return usageErr(fmt.Errorf("--review-window must be whole days (e.g. 90d, 12mo)"))
+				}
 			}
+
 			if flagReviewTop < 1 {
 				return usageErr(fmt.Errorf("--review-top must be at least 1"))
 			}
@@ -471,6 +487,15 @@ is saved as partial; continue it with --resume ID (--max-calls then applies to t
 				}
 				if snap.ReviewWindowDays > 0 {
 					window = time.Duration(snap.ReviewWindowDays) * 24 * time.Hour
+				} else {
+					// etsy-ext: Legacy snapshots without a saved horizon still use the flag.
+					window, err = mktParseWindow(flagReviewWindow)
+					if err != nil {
+						return usageErr(fmt.Errorf("--review-window: %w", err))
+					}
+					if window <= 0 || window%(24*time.Hour) != 0 {
+						return usageErr(fmt.Errorf("--review-window must be whole days (e.g. 90d, 12mo)"))
+					}
 				}
 			}
 
@@ -541,7 +566,12 @@ is saved as partial; continue it with --resume ID (--max-calls then applies to t
 			if err := run.mktSave(""); err != nil {
 				return err
 			}
+			c.OnAttempt = run.chargeAttempt
 			status, runErr := mktExecute(run, terms, flagPages, withReviews, flagReviewTop, window)
+			// etsy-ext: Retry caps have the same successful partial outcome as boundary caps.
+			if errors.Is(runErr, errMktBudget) {
+				status, runErr = "partial", nil
+			}
 			if err := run.mktSave(status); err != nil && runErr == nil {
 				runErr = err
 			}
@@ -568,7 +598,7 @@ is saved as partial; continue it with --resume ID (--max-calls then applies to t
 	cmd.Flags().BoolVar(&flagWithReviews, "with-reviews", false, "Also collect review timestamps and ratings for the top listings (no review text)")
 	cmd.Flags().StringVar(&flagReviewWindow, "review-window", "12mo", "How far back to collect reviews (e.g. 12mo, 90d)")
 	cmd.Flags().IntVar(&flagReviewTop, "review-top", 20, "With --with-reviews, collect reviews for the top N positions per term page")
-	cmd.Flags().IntVar(&flagMaxCalls, "max-calls", mktDefaultMaxCall, "Stop after this many Etsy calls in this run; the snapshot is saved as partial")
+	cmd.Flags().IntVar(&flagMaxCalls, "max-calls", mktDefaultMaxCall, "Stop after this many API request attempts; save partial and exit 0, including caps during retries")
 	cmd.Flags().BoolVar(&flagIgnoreBudget, "ignore-budget", false, "Skip the daily Etsy budget check")
 	cmd.Flags().Int64Var(&flagResume, "resume", 0, "Continue a partial snapshot by ID without refetching completed pages")
 	return cmd
@@ -734,10 +764,7 @@ func mktExecute(r *mktRun, terms []string, pages int, withReviews bool, reviewTo
 				continue
 			}
 			if err := r.mktFetchReviews(id, since); err != nil {
-				if mktIsDailyQuota(err) {
-					return "partial", err
-				}
-				if errors.Is(err, errMktBudget) {
+				if errors.Is(err, errMktReviewPageBudget) {
 					return "partial", nil
 				}
 				return "partial", err

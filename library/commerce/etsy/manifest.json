@@ -16,8 +16,8 @@
       "args": [],
       "env": {
         "ETSY_API_KEY": "${user_config.etsy_api_key}",
-        "ETSY_OAUTH2": "${user_config.etsy_oauth2}",
         "ETSY_SHARED_SECRET": "${user_config.etsy_shared_secret}",
+        "ETSY_OAUTH2": "${user_config.etsy_oauth2}",
         "ETSY_SHOP_ID": "${user_config.etsy_shop_id}"
       }
     }
@@ -26,29 +26,29 @@
     "etsy_api_key": {
       "type": "string",
       "title": "ETSY_API_KEY",
-      "description": "Sets ETSY_API_KEY for the Etsy MCP server.",
-      "sensitive": true,
-      "required": true
-    },
-    "etsy_oauth2": {
-      "type": "string",
-      "title": "ETSY_OAUTH2",
-      "description": "Sets ETSY_OAUTH2 for the Etsy MCP server.",
+      "description": "Your Etsy app keystring (the API key). Required. May also be the full keystring:shared_secret.",
       "sensitive": true,
       "required": true
     },
     "etsy_shared_secret": {
       "type": "string",
       "title": "ETSY_SHARED_SECRET",
-      "description": "Sets ETSY_SHARED_SECRET for the Etsy MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "description": "Your Etsy app shared secret. Required unless ETSY_API_KEY already contains keystring:secret.",
       "sensitive": true,
-      "required": true
+      "required": false
+    },
+    "etsy_oauth2": {
+      "type": "string",
+      "title": "ETSY_OAUTH2",
+      "description": "Optional pasted OAuth bearer token. Normally supplied by 'etsy-pp-cli auth login'.",
+      "sensitive": true,
+      "required": false
     },
     "etsy_shop_id": {
       "type": "string",
       "title": "ETSY_SHOP_ID",
-      "description": "Sets ETSY_SHOP_ID for the endpoint template variable {shop_id}.",
-      "required": true
+      "description": "Your numeric Etsy shop id. Optional; only needed for shop-scoped data.",
+      "required": false
     }
   },
   "compatibility": {

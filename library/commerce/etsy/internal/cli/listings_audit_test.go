@@ -46,7 +46,7 @@ func shopxListingsAuditFixture(t *testing.T) *shopxFixture {
 		for j := range tags {
 			tags[j] = "ceramics"
 		}
-		l := map[string]any{"listing_id": 1000000000 + i, "state": "active", "title": strings.Repeat("陶", 40), "tags": tags, "materials": []string{"linen", "clay", "cotton"}, "gpsr_manufacturer_id": 42, "gpsr_manufacturer_type": "manufacturer", "gpsr_responsible_person_id": 43, "gpsr_responsible_person_type": "eu_responsible_person"}
+		l := map[string]any{"listing_id": 1000000000 + i, "state": "active", "title": strings.Repeat("陶", 40), "tags": tags, "materials": []string{"linen", "clay", "cotton"}, "gpsr_manufacturer_id": 42, "gpsr_manufacturer_type": "economic_operator", "gpsr_responsible_person_id": 43, "gpsr_responsible_person_type": "economic_operator"}
 		photos := 5
 		if i == 2 {
 			l["tags"] = tags[:7]
@@ -179,7 +179,7 @@ func TestNovelListingsAuditEmpty(t *testing.T) {
 
 func TestNovelListingsAuditUnknownSources(t *testing.T) {
 	f := shopxNewFixture(t)
-	f.put("listings", map[string]any{"listing_id": 1000000001, "state": "active", "gpsr_manufacturer_id": 42, "gpsr_manufacturer_type": "manufacturer", "gpsr_responsible_person_id": 43, "gpsr_responsible_person_type": "eu_responsible_person"})
+	f.put("listings", map[string]any{"listing_id": 1000000001, "state": "active", "gpsr_manufacturer_id": 42, "gpsr_manufacturer_type": "economic_operator", "gpsr_responsible_person_id": 43, "gpsr_responsible_person_type": "economic_operator"})
 	out, stderr, err := shopxRun(t, f, "listings", "audit", "--rules", "all")
 	if err != nil {
 		t.Fatal(err)

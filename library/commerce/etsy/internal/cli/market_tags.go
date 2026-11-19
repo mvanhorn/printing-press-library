@@ -177,11 +177,11 @@ how many listings in each group use it, the share, and the difference. Words see
 				return out
 			}, flagMinSupport, flagLimit)
 			words := mktContrast(top, rest, func(r mktRow) []string { return mktTitleWords(r.Title) }, flagMinSupport, flagLimit)
-			return mktEmitReport(cmd, flags, map[string]any{
+			return mktEmitReport(cmd, flags, mktReviewCoverage(map[string]any{
 				"snapshot_id": snap.ID, "results": map[string]any{"basis": basis, "min_support": flagMinSupport,
 					"top_group_size": len(top), "rest_group_size": len(rest),
 					"tags": tags, "title_words": words},
-			})
+			}, snap, window, len(dem) > 0))
 		},
 	}
 	cmd.Flags().IntVar(&flagMinSupport, "min-support", 3, "Minimum listings (both groups combined) a tag or word must appear in")

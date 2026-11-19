@@ -213,7 +213,7 @@ etsy-pp-cli shop attention --agent
   ```bash
   etsy-pp-cli money fees --since 30d --agent
   ```
-- **`money reconcile`** — Find receipts, payments and ledger entries that don't line up, by id and amount.
+- **`money reconcile`** — Match receipts, payments and ledger entries by ID and compare receipt totals with summed payment amounts and currencies.
 
   _Use when payouts or refunds look wrong, before opening Etsy support. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. Notes name any family that was never synced._
 
@@ -534,6 +534,8 @@ Preview-only: shows every proposed change. For a large fix, run `listings audit 
 Run `etsy-pp-cli --help` for the full command reference and flag list.
 
 ## Budgets, resuming and privacy
+
+`sync --max-calls N` and `market snapshot --max-calls N` charge every API request attempt, including retries. Cache hits before a sync stop are uncharged; after a stop, sync refuses even cache hits. OAuth refresh POSTs and followed redirects are not separately charged. A snapshot call cap, including one reached inside a retry, saves status `partial` and exits 0 with a resume note.
 
 Receipt payment 403s retry next sync. A run with both ok checks and 403s warns and clears `ever_ok` on its forbidden receipts. With no ok checks, a 403 on an `ever_ok` receipt triggers exactly one verification request on a different, unwalked `ever_ok` receipt, within the call and quota budget. A successful verification records ok and clears `ever_ok` on this run's forbidden receipts; a forbidden or unavailable verification preserves history and exits 1 with the `transactions_r` scope hint. No prior successful check also exits 1. `--strict` keeps its strict reason and includes the scope hint when applicable. Capped runs exit 7, except zero-progress runs with a scope problem, which exit 1.
 
@@ -921,7 +923,7 @@ Manage users
 
 - **`etsy-pp-cli money fees`** - See exactly what Etsy charged you by fee type for any period.
 
-- **`etsy-pp-cli money reconcile`** - Find receipts, payments and ledger entries that don't line up, by id and amount.
+- **`etsy-pp-cli money reconcile`** - Match receipts, payments and ledger entries by ID and compare receipt totals with summed payment amounts and currencies.
 
 
 ### reviews

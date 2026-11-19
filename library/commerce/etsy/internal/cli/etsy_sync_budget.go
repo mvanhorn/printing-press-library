@@ -25,25 +25,25 @@ type etsySyncClient interface {
 	RateLimit() float64
 }
 type etsySyncGuard struct {
-	inner    etsySyncClient
-	maxCalls int
-	mu       sync.Mutex
-	calls    int64
-	stop     error
+	inner       etsySyncClient
+	maxCalls    int
+	mu          sync.Mutex
+	calls       int64
+	stop        error
+	attemptOnce sync.Once
 }
 
 func (g *etsySyncGuard) Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
-	g.mu.Lock()
-	if g.stop == nil && g.maxCalls > 0 && g.calls >= int64(g.maxCalls) {
-		g.stop = errEtsySyncMaxCalls
-	}
-	if g.stop != nil {
-		err := g.stop
-		g.mu.Unlock()
+	// etsy-ext: A stopped run refuses even cached responses.
+	if err := g.SyncStopped(); err != nil {
 		return nil, err
 	}
-	g.calls++
-	g.mu.Unlock()
+	g.installAttemptBudget()
+	if _, ok := g.inner.(*client.Client); !ok {
+		if err := g.chargeAttempt(); err != nil {
+			return nil, err
+		}
+	}
 	data, err := g.inner.Get(ctx, path, params)
 	if isDailyQuotaErr(err) {
 		g.mu.Lock()
@@ -53,6 +53,29 @@ func (g *etsySyncGuard) Get(ctx context.Context, path string, params map[string]
 		g.mu.Unlock()
 	}
 	return data, err
+}
+
+// installAttemptBudget runs before workers start; fake clients retain per-Get charging.
+func (g *etsySyncGuard) installAttemptBudget() {
+	g.attemptOnce.Do(func() {
+		if c, ok := g.inner.(*client.Client); ok {
+			c.OnAttempt = g.chargeAttempt
+		}
+	})
+}
+func (g *etsySyncGuard) chargeAttempt() error {
+	g.mu.Lock()
+	if g.stop == nil && g.maxCalls > 0 && g.calls >= int64(g.maxCalls) {
+		g.stop = errEtsySyncMaxCalls
+	}
+	if g.stop != nil {
+		err := g.stop
+		g.mu.Unlock()
+		return err
+	}
+	g.calls++
+	g.mu.Unlock()
+	return nil
 }
 func (g *etsySyncGuard) RateLimit() float64 { return g.inner.RateLimit() }
 func (g *etsySyncGuard) CurrentTemplateVars() map[string]string {

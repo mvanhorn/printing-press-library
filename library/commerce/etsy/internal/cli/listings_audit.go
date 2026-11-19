@@ -102,19 +102,27 @@ func shopxAuditListings(db *store.Store, shop string, rules string) (rows []shop
 		if rules == "gpsr" || rules == "all" {
 			mid, _ := shopxInt(l["gpsr_manufacturer_id"])
 			rid, _ := shopxInt(l["gpsr_responsible_person_id"])
-			if mid == 0 || shopxStr(l["gpsr_manufacturer_type"]) == "" {
+			mt, rt := shopxStr(l["gpsr_manufacturer_type"]), shopxStr(l["gpsr_responsible_person_type"])
+			// etsy-ext: Only seller and economic_operator are valid GPSR field types.
+			if mt != "" && mt != "seller" && mt != "economic_operator" {
+				add("gpsr_manufacturer_type_invalid", "invalid manufacturer type")
+			}
+			if rt != "" && rt != "seller" && rt != "economic_operator" {
+				add("gpsr_responsible_person_type_invalid", "invalid responsible person type")
+			}
+			if mt == "" || (mt == "economic_operator" && mid == 0) {
 				add("gpsr_manufacturer_missing", "manufacturer id or type missing")
 			}
-			if rid == 0 || shopxStr(l["gpsr_responsible_person_type"]) == "" {
+			if rt == "" || (rt == "economic_operator" && rid == 0) {
 				add("gpsr_responsible_person_missing", "responsible person id or type missing")
 			}
-			if len(operators) == 0 {
+			if len(operators) == 0 && (mt == "economic_operator" || rt == "economic_operator") {
 				unknownOps = true
 			} else {
-				if mid != 0 && !ops[mid] {
+				if mt == "economic_operator" && mid != 0 && !ops[mid] {
 					add("gpsr_operator_not_synced", "manufacturer operator not synced")
 				}
-				if rid != 0 && !ops[rid] {
+				if rt == "economic_operator" && rid != 0 && !ops[rid] {
 					add("gpsr_operator_not_synced", "responsible person operator not synced")
 				}
 			}

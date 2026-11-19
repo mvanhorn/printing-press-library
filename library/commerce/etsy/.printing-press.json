@@ -63,7 +63,7 @@
     {
       "name": "Ledger reconcile",
       "command": "money reconcile",
-      "description": "Find receipts, payments and ledger entries that don't line up, by id and amount."
+      "description": "Match receipts, payments and ledger entries by ID and compare receipt totals with summed payment amounts and currencies."
     },
     {
       "name": "Renewal planner",
@@ -140,7 +140,7 @@
     {
       "name": "Ledger reconcile",
       "command": "money reconcile",
-      "description": "Find receipts, payments and ledger entries that don't line up, by id and amount."
+      "description": "Match receipts, payments and ledger entries by ID and compare receipt totals with summed payment amounts and currencies."
     },
     {
       "name": "Renewal planner",

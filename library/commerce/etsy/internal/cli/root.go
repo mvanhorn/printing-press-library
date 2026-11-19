@@ -326,12 +326,13 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		// etsy-ext: persistent filesystem inputs and destinations are blocked over MCP.
 		Annotations: map[string]string{"mcp:read-flags": "config", "mcp:write-flags": "home,deliver"},
 		Short:       `Etsy Open API v3 commands plus a local SQLite store for offline fee reports, ledger reconciliation, listing and GPSR audits, market research, and previewed bulk edits.`,
+		// etsy-ext: Reconcile highlights include ID matching and receipt/payment amount checks.
 		Long: `Etsy CLI — Etsy Open API v3 commands plus a local SQLite store for offline fee reports, ledger reconciliation, listing and GPSR audits, market research, and previewed bulk edits.
 
 Highlights (not in the official API docs):
   • listings audit   Find every listing with missing tags, materials, alt text or photos, or missing GPSR manufacturer/responsible-person data, in one offline pass.
   • money fees   See what Etsy charged you, by fee type, for any period.
-  • money reconcile   Find receipts, payments and ledger entries that don't line up, by id and amount.
+  • money reconcile   Match receipts, payments and ledger entries by ID and compare receipt totals with summed payment amounts and currencies.
   • listings expiring   List active listings expiring soon and whether they auto-renew.
   • inventory audit   Spot zero-quantity variations, missing or duplicate SKUs and price spread across variations.
   • listings dead-weight   Find active listings with no sales in a window, with favorite counts.

@@ -333,6 +333,8 @@ Resource scoping:
 				}
 			}
 			guard := &etsySyncGuard{inner: c, maxCalls: maxCalls}
+			// etsy-ext: Install the shared attempt budget before starting workers.
+			guard.installAttemptBudget()
 
 			// Worker pool: produce resources, N workers consume
 			if concurrency < 1 {

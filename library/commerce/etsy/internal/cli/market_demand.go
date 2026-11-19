@@ -315,7 +315,7 @@ listings with any. Review data comes from 'market snapshot --with-reviews'.`,
 				texts = append(texts, term.Note)
 			}
 			result["row_notes"] = mktRowNotes(keys, texts)
-			return mktEmitReport(cmd, flags, result)
+			return mktEmitReport(cmd, flags, mktReviewCoverage(result, snap, window, len(dem) > 0))
 		},
 	}
 	cmd.Flags().StringVar(&flagWindow, "window", "12mo", "Review window counted back from the snapshot date (e.g. 12mo, 90d)")

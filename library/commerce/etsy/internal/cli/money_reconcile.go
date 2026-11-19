@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -39,9 +40,18 @@ type shopxReconcileGap struct {
 	Gap      int64  `json:"gap_minor"`
 	Currency string `json:"currency"`
 }
+type shopxAmountMismatch struct {
+	ReceiptID        int64   `json:"receipt_id"`
+	ReceiptAmount    int64   `json:"receipt_amount_minor"`
+	PaymentsAmount   int64   `json:"payments_amount_minor"`
+	Currency         string  `json:"currency"`
+	PaymentIDs       []int64 `json:"payment_ids"`
+	CurrencyMismatch bool    `json:"currency_mismatch,omitempty"`
+}
 type shopxReconcileResult struct {
 	Window                 string                    `json:"since"`
 	MismatchCount          int                       `json:"mismatch_count"`
+	AmountMismatches       []shopxAmountMismatch     `json:"amount_mismatches"`
 	ReceiptsWithoutPayment []shopxReconcileReceipt   `json:"receipts_without_payment"`
 	PaymentsWithoutReceipt []shopxReconcilePayment   `json:"payments_without_receipt"`
 	LedgerMissingReference []shopxReconcileReference `json:"ledger_missing_reference"`
@@ -69,7 +79,7 @@ func shopxReconcileUnique(rows []map[string]any, keys ...string) []map[string]an
 
 func shopxReconcile(db *store.Store, shop string, now time.Time, window time.Duration) (shopxReconcileResult, []string) {
 	notes := []string{}
-	result := shopxReconcileResult{ReceiptsWithoutPayment: make([]shopxReconcileReceipt, 0), PaymentsWithoutReceipt: make([]shopxReconcilePayment, 0), LedgerMissingReference: make([]shopxReconcileReference, 0), BalanceDiscontinuities: make([]shopxReconcileGap, 0)}
+	result := shopxReconcileResult{AmountMismatches: make([]shopxAmountMismatch, 0), ReceiptsWithoutPayment: make([]shopxReconcileReceipt, 0), PaymentsWithoutReceipt: make([]shopxReconcilePayment, 0), LedgerMissingReference: make([]shopxReconcileReference, 0), BalanceDiscontinuities: make([]shopxReconcileGap, 0)}
 	receipts := shopxReconcileUnique(shopxRows(db, shopxReceiptTypes...), "receipt_id")
 	payments := shopxReconcileUnique(shopxRows(db, shopxPaymentTypes...), "payment_id", "receipt_id")
 	ledger := shopxReconcileUnique(shopxRows(db, shopxLedgerTypes...), "entry_id")
@@ -95,10 +105,13 @@ func shopxReconcile(db *store.Store, shop string, now time.Time, window time.Dur
 		ts, ok := shopxFirstTS(r, keys...)
 		return ok && !ts.Before(now.Add(-window)) && !ts.After(now)
 	}
+	// etsy-ext: Index payments once for linear receipt/payment matching.
+	byReceipt := map[int64][]map[string]any{}
 	paidReceipts := map[int64]bool{}
 	for _, p := range payments {
 		id, _ := shopxInt(p["receipt_id"])
 		paidReceipts[id] = true
+		byReceipt[id] = append(byReceipt[id], p)
 	}
 	if len(payments) == 0 {
 		notes = append(notes, "payments not synced; receipts_without_payment skipped")
@@ -114,6 +127,34 @@ func shopxReconcile(db *store.Store, shop string, now time.Time, window time.Dur
 				result.ReceiptsWithoutPayment = append(result.ReceiptsWithoutPayment, shopxReconcileReceipt{id, amount, currency})
 			}
 		}
+	}
+	skippedMoney := 0
+	for _, r := range receipts {
+		rid, _ := shopxInt(r["receipt_id"])
+		if !paidReceipts[rid] || !inWindow(r, "created_timestamp") {
+			continue
+		}
+		amount, _, currency, valid := shopxMoney(r["grandtotal"])
+		mismatch := shopxAmountMismatch{ReceiptID: rid, ReceiptAmount: amount, Currency: currency, PaymentIDs: []int64{}}
+		for _, p := range byReceipt[rid] {
+			pid, _ := shopxInt(p["payment_id"])
+			gross, _, pc, ok := shopxMoney(p["amount_gross"])
+			valid = valid && ok
+			mismatch.PaymentsAmount += gross
+			mismatch.PaymentIDs = append(mismatch.PaymentIDs, pid)
+			mismatch.CurrencyMismatch = mismatch.CurrencyMismatch || pc != currency
+		}
+		// etsy-ext: Invalid money is unknown, never a zero-valued comparison.
+		if !valid {
+			skippedMoney++
+			continue
+		}
+		if mismatch.PaymentsAmount != amount || mismatch.CurrencyMismatch {
+			result.AmountMismatches = append(result.AmountMismatches, mismatch)
+		}
+	}
+	if skippedMoney > 0 {
+		notes = append(notes, fmt.Sprintf("%d receipt(s) skipped from amount check: missing or invalid money fields", skippedMoney))
 	}
 	if len(receipts) == 0 {
 		notes = append(notes, "receipts not synced; payments_without_receipt skipped")
@@ -185,7 +226,7 @@ func shopxReconcile(db *store.Store, shop string, now time.Time, window time.Dur
 			result.BalanceDiscontinuities = append(result.BalanceDiscontinuities, shopxReconcileGap{id, lid, seq, pb + ca, cb, cb - (pb + ca), shopxStr(cur["currency"])})
 		}
 	}
-	result.MismatchCount = len(result.ReceiptsWithoutPayment) + len(result.PaymentsWithoutReceipt) + len(result.LedgerMissingReference) + len(result.BalanceDiscontinuities)
+	result.MismatchCount = len(result.AmountMismatches) + len(result.ReceiptsWithoutPayment) + len(result.PaymentsWithoutReceipt) + len(result.LedgerMissingReference) + len(result.BalanceDiscontinuities)
 	return result, notes
 }
 
@@ -193,8 +234,8 @@ func newNovelMoneyReconcileCmd(flags *rootFlags) *cobra.Command {
 	var flagSince, dbPath string
 	cmd := &cobra.Command{
 		Use:         "reconcile",
-		Short:       "Find receipts, payments and ledger entries that don't line up, by id and amount.",
-		Long:        "Use this command to find mismatches between receipts, payments and ledger. Do NOT use it for fee totals; use 'money fees' instead.",
+		Short:       "Match receipts, payments and ledger entries by ID and compare receipt totals with summed payment amounts and currencies.",
+		Long:        "Match receipts, payments and ledger entries by ID and compare receipt totals with summed payment amounts and currencies. Receipt grandtotal is compared with summed payment amount_gross. Do NOT use it for fee totals; use 'money fees' instead.",
 		Example:     "  etsy-pp-cli money reconcile --since 30d --agent",
 		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "local"},
 		RunE: func(cmd *cobra.Command, args []string) error {

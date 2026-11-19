@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "client-outbound-attempt-budget",
+  "applied_at": "2026-11-19",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "summary": "Expose a veto hook immediately before every outbound attempt, including retries.",
+  "reason": "Etsy sync and snapshot caps must count wire attempts. This minimal generated-client extension should move upstream as a reusable per-attempt hook.",
+  "markers": [
+    "// etsy-ext: Charge every API request attempt, including retries; refreshes and redirects are not separately charged.",
+    "if err := c.OnAttempt(); err != nil {"
+  ]
+}
