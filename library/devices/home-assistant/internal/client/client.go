@@ -158,12 +158,13 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	}
 	httpClient := newHTTPClient(timeout, nil)
 	baseURL := strings.TrimRight(cfg.BaseURL, "/")
-	if strings.HasPrefix(cfg.BasePath, "{server}") {
+	basePath := normalizeBasePath(cfg.BasePath)
+	if strings.HasPrefix(basePath, "{server}") {
 		baseURL = "" // {server} is already the full URL (config.Load folds base_url into it)
 	}
 	c := &Client{
 		BaseURL:    baseURL,
-		BasePath:   normalizeBasePath(cfg.BasePath),
+		BasePath:   basePath,
 		Config:     cfg,
 		HTTPClient: httpClient,
 		cacheDir:   cacheDir,
