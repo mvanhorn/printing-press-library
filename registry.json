@@ -13976,6 +13976,12 @@
         "handle": "Avanderheyde",
         "name": "avanderheyde"
       },
+      "contributors": [
+        {
+          "handle": "obbax",
+          "name": "obbax"
+        }
+      ],
       "mcp": {
         "binary": "home-assistant-pp-mcp",
         "transports": [
