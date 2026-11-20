@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "batch-d-erasure-store-input",
+  "summary": "Buyer erasure, shared local-copy cleanup and pinned secure vacuum.",
+  "reason": "Etsy privacy policy is downstream and must survive reprints.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "reapply": "Preserve the shared TEMP cascade and policy hook; preserve pre-strip suppression identity. Run the synthetic erasure, retention, canary and MCP tests.",
+  "markers": [
+    "retentionInput := data",
+    "retentionInput := item",
+    "etsyRetentionDrop(tx, \"users\", data)",
+    "etsyRetentionDrop(tx, \"economic_operators\", data)"
+  ]
+}

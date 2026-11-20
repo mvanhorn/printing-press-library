@@ -1,0 +1,439 @@
+{
+  "api_name": "etsy",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "etsy-seller-mcp-hub",
+      "url": "https://github.com/Bl0ck154/etsy-seller-mcp-hub",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 79,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "etsy-mcp (mofiaboss)",
+      "url": "https://github.com/mofiaboss/etsy-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 90,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "etsy-mcp (aserper)",
+      "url": "https://github.com/aserper/etsy-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 37,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "etsy-v3-api-client + etsy-cli",
+      "url": "https://github.com/profplum700/etsy-v3-api-client",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "etsy-mcp-server (administrativetrick)",
+      "url": "https://github.com/administrativetrick/etsy-mcp-server",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 21,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-16T18:53:55Z",
+  "novel_features": [
+    {
+      "name": "Listing hygiene + GPSR audit",
+      "command": "listings audit",
+      "description": "Find every listing with missing tags, materials, alt text or photos, or missing GPSR manufacturer/responsible-person data, in one offline pass.",
+      "rationale": "Requires scanning every synced listing and image plus a join against synced economic operators, which no single API call returns.",
+      "example": "etsy-pp-cli listings audit --rules gpsr --agent",
+      "why_it_matters": "Reach for this before bulk edits or the 2027-02-01 GPSR deadline instead of paging every listing live. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. `--plan-out plan.json` writes a plan that `listings bulk-edit --plan plan.json` previews.",
+      "group": "Catalog hygiene"
+    },
+    {
+      "name": "Fee breakdown",
+      "command": "money fees",
+      "description": "See what Etsy charged you, by fee type, for any period.",
+      "rationale": "Aggregates synced payment-account ledger entries locally; the API only returns raw entries.",
+      "example": "etsy-pp-cli money fees --since 30d --agent",
+      "why_it_matters": "Use for fee and cost questions without spending API quota. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. (ledger needs the transactions_r scope)",
+      "group": "Money and fees"
+    },
+    {
+      "name": "Ledger reconcile",
+      "command": "money reconcile",
+      "description": "Find receipts, payments and ledger entries that don't line up, by id and amount.",
+      "rationale": "Joins three synced tables and checks running-balance continuity, impossible from one endpoint.",
+      "example": "etsy-pp-cli money reconcile --since 30d --agent",
+      "why_it_matters": "Use when payouts or refunds look wrong, before opening Etsy support. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. Notes name any family that was never synced.",
+      "group": "Money and fees"
+    },
+    {
+      "name": "Renewal planner",
+      "command": "listings expiring",
+      "description": "List active listings expiring soon and whether they auto-renew.",
+      "rationale": "Filters the synced catalog by ending time locally across every listing.",
+      "example": "etsy-pp-cli listings expiring --within 30d --agent",
+      "why_it_matters": "Use to plan renewal fees and avoid listings silently going inactive. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`.",
+      "group": "Catalog hygiene"
+    },
+    {
+      "name": "Inventory structural audit",
+      "command": "inventory audit",
+      "description": "Spot zero-quantity variations, missing or duplicate SKUs and price spread across variations.",
+      "rationale": "Walks every synced product and offering, which would take one live call per listing.",
+      "example": "etsy-pp-cli inventory audit --agent",
+      "why_it_matters": "Use for variation and SKU data quality; use inventory low-stock for a reorder list. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`.",
+      "group": "Catalog hygiene"
+    },
+    {
+      "name": "Dead-weight listings",
+      "command": "listings dead-weight",
+      "description": "Find active listings with no sales in a window, with favorite counts.",
+      "rationale": "Joins synced listings to synced transactions; no API aggregate exists.",
+      "example": "etsy-pp-cli listings dead-weight --since 90d --agent",
+      "why_it_matters": "Use to decide what not to renew or to rework. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. Returns [] with a note when transactions were never synced (unknown is not zero).",
+      "group": "Catalog hygiene"
+    },
+    {
+      "name": "Shop attention feed",
+      "command": "shop attention",
+      "description": "One compact summary of what needs attention: unshipped orders, expiring listings, audit findings, reconcile mismatches and sync age.",
+      "rationale": "Composes several local-store queries into one object with zero live calls.",
+      "example": "etsy-pp-cli shop attention --agent",
+      "why_it_matters": "Agents should call this first for a daily check instead of polling the API. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. Read `notes`: a 0 for a family that was never synced means unknown, not zero.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Review digest",
+      "command": "reviews digest",
+      "description": "Rating histogram, low-rated reviews and per-listing averages for a period.",
+      "rationale": "Aggregates synced reviews locally; the API returns pages of raw reviews.",
+      "example": "etsy-pp-cli reviews digest --since 30d --agent",
+      "why_it_matters": "Use to catch product problems surfacing in reviews. Needs ETSY_SHOP_ID and a prior `etsy-pp-cli sync` (the default sync includes reviews; works with the API key alone; no OAuth).",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Market snapshot",
+      "command": "market snapshot",
+      "description": "Capture a dated snapshot of the listings and shops that appear for your search terms.",
+      "rationale": "Stores every result position, listing and shop from repeated public searches into the local store, which no single API call keeps.",
+      "example": "etsy-pp-cli market snapshot --terms terms.txt --pages 2 --max-calls 200",
+      "why_it_matters": "Start any market or competitor question here; the other market commands read its stored snapshots. Uses only the API key. Each search page can cost up to 1 + --per-page calls (101 at the default) against the 5,000/day quota; use --per-page 25 for a cheaper scan, and --with-reviews when you need demand.",
+      "group": "Market research"
+    },
+    {
+      "name": "Market trend",
+      "command": "market trend",
+      "description": "See which listings and shops entered or left, and how prices, favorites and positions moved, between two snapshots.",
+      "rationale": "Diffs two stored snapshots; Etsy has no history endpoint.",
+      "example": "etsy-pp-cli market trend --agent",
+      "why_it_matters": "Use when asked how a niche changed over time. Needs two complete snapshots; with fewer it returns [] plus a note.",
+      "group": "Market research"
+    },
+    {
+      "name": "Demand proxy",
+      "command": "market demand",
+      "description": "Rank listings and search terms by recent review volume and shop sales, with an explicit can't-tell result for thin data.",
+      "rationale": "Combines windowed review counts and shop sales totals across a snapshot; the API exposes no per-listing sales.",
+      "example": "etsy-pp-cli market demand --window 12mo --agent",
+      "why_it_matters": "Use to estimate which products sell best without third-party tools. Needs a snapshot taken with `--with-reviews`; otherwise every listing reports `absent` (no review data, not zero).",
+      "group": "Market research"
+    },
+    {
+      "name": "Competitor shops and crowd-out",
+      "command": "market shops",
+      "description": "Profile the shops behind a snapshot and see whether big shops crowd out new ones.",
+      "rationale": "Joins snapshot listings to shop sales, age and listing counts locally.",
+      "example": "etsy-pp-cli market shops --agent",
+      "why_it_matters": "Use to size up competitors in a niche. Reads the latest complete market snapshot.",
+      "group": "Market research"
+    },
+    {
+      "name": "Gap finder",
+      "command": "market gaps",
+      "description": "Find targets where no matching listing was found in the pages and terms you searched, with coverage checked against known competitors.",
+      "rationale": "Classifies every snapshot listing with your rule file and reports coverage-qualified gaps.",
+      "example": "etsy-pp-cli market gaps --rules classes.yaml --agent",
+      "why_it_matters": "Use to find product ideas with little competition, stated as what was searched. Needs a prior market snapshot and a --rules YAML file of targets.",
+      "group": "Market research"
+    },
+    {
+      "name": "Tag and title-word contrast",
+      "command": "market tags",
+      "description": "See which tags and title words the best-selling listings use that the rest don't.",
+      "rationale": "Compares tag frequency between demand quartiles in the snapshot; tags are not visible in search pages.",
+      "example": "etsy-pp-cli market tags --agent",
+      "why_it_matters": "Use when writing titles and tags for a new listing. Reads the latest snapshot; ranks by review demand when collected, otherwise by search position (reported in `basis`).",
+      "group": "Market research"
+    },
+    {
+      "name": "Price bands",
+      "command": "market price",
+      "description": "Price ranges per category and whether price tracks demand.",
+      "rationale": "Computes ranges and rank correlation per group from snapshot data.",
+      "example": "etsy-pp-cli market price --agent",
+      "why_it_matters": "Use when pricing a new product against the market. Reads the latest snapshot; the price-vs-demand correlation is null unless the snapshot used --with-reviews.",
+      "group": "Market research"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Listing hygiene + GPSR audit",
+      "command": "listings audit",
+      "description": "Find every listing with missing tags, materials, alt text or photos, or missing GPSR manufacturer/responsible-person data, in one offline pass.",
+      "rationale": "Requires scanning every synced listing and image plus a join against synced economic operators, which no single API call returns.",
+      "example": "etsy-pp-cli listings audit --rules gpsr --agent",
+      "why_it_matters": "Reach for this before bulk edits or the 2027-02-01 GPSR deadline instead of paging every listing live. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. `--plan-out plan.json` writes a plan that `listings bulk-edit --plan plan.json` previews.",
+      "group": "Catalog hygiene"
+    },
+    {
+      "name": "Fee breakdown",
+      "command": "money fees",
+      "description": "See what Etsy charged you, by fee type, for any period.",
+      "rationale": "Aggregates synced payment-account ledger entries locally; the API only returns raw entries.",
+      "example": "etsy-pp-cli money fees --since 30d --agent",
+      "why_it_matters": "Use for fee and cost questions without spending API quota. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. (ledger needs the transactions_r scope)",
+      "group": "Money and fees"
+    },
+    {
+      "name": "Ledger reconcile",
+      "command": "money reconcile",
+      "description": "Find receipts, payments and ledger entries that don't line up, by id and amount.",
+      "rationale": "Joins three synced tables and checks running-balance continuity, impossible from one endpoint.",
+      "example": "etsy-pp-cli money reconcile --since 30d --agent",
+      "why_it_matters": "Use when payouts or refunds look wrong, before opening Etsy support. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. Notes name any family that was never synced.",
+      "group": "Money and fees"
+    },
+    {
+      "name": "Renewal planner",
+      "command": "listings expiring",
+      "description": "List active listings expiring soon and whether they auto-renew.",
+      "rationale": "Filters the synced catalog by ending time locally across every listing.",
+      "example": "etsy-pp-cli listings expiring --within 30d --agent",
+      "why_it_matters": "Use to plan renewal fees and avoid listings silently going inactive. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`.",
+      "group": "Catalog hygiene"
+    },
+    {
+      "name": "Inventory structural audit",
+      "command": "inventory audit",
+      "description": "Spot zero-quantity variations, missing or duplicate SKUs and price spread across variations.",
+      "rationale": "Walks every synced product and offering, which would take one live call per listing.",
+      "example": "etsy-pp-cli inventory audit --agent",
+      "why_it_matters": "Use for variation and SKU data quality; use inventory low-stock for a reorder list. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`.",
+      "group": "Catalog hygiene"
+    },
+    {
+      "name": "Dead-weight listings",
+      "command": "listings dead-weight",
+      "description": "Find active listings with no sales in a window, with favorite counts.",
+      "rationale": "Joins synced listings to synced transactions; no API aggregate exists.",
+      "example": "etsy-pp-cli listings dead-weight --since 90d --agent",
+      "why_it_matters": "Use to decide what not to renew or to rework. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. Returns [] with a note when transactions were never synced (unknown is not zero).",
+      "group": "Catalog hygiene"
+    },
+    {
+      "name": "Shop attention feed",
+      "command": "shop attention",
+      "description": "One compact summary of what needs attention: unshipped orders, expiring listings, audit findings, reconcile mismatches and sync age.",
+      "rationale": "Composes several local-store queries into one object with zero live calls.",
+      "example": "etsy-pp-cli shop attention --agent",
+      "why_it_matters": "Agents should call this first for a daily check instead of polling the API. Needs `etsy-pp-cli auth login`, ETSY_SHOP_ID and a prior `etsy-pp-cli sync`. Read `notes`: a 0 for a family that was never synced means unknown, not zero.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Review digest",
+      "command": "reviews digest",
+      "description": "Rating histogram, low-rated reviews and per-listing averages for a period.",
+      "rationale": "Aggregates synced reviews locally; the API returns pages of raw reviews.",
+      "example": "etsy-pp-cli reviews digest --since 30d --agent",
+      "why_it_matters": "Use to catch product problems surfacing in reviews. Needs ETSY_SHOP_ID and a prior `etsy-pp-cli sync` (the default sync includes reviews; works with the API key alone; no OAuth).",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Market snapshot",
+      "command": "market snapshot",
+      "description": "Capture a dated snapshot of the listings and shops that appear for your search terms.",
+      "rationale": "Stores every result position, listing and shop from repeated public searches into the local store, which no single API call keeps.",
+      "example": "etsy-pp-cli market snapshot --terms terms.txt --pages 2 --max-calls 200",
+      "why_it_matters": "Start any market or competitor question here; the other market commands read its stored snapshots. Uses only the API key. Each search page can cost up to 1 + --per-page calls (101 at the default) against the 5,000/day quota; use --per-page 25 for a cheaper scan, and --with-reviews when you need demand.",
+      "group": "Market research"
+    },
+    {
+      "name": "Market trend",
+      "command": "market trend",
+      "description": "See which listings and shops entered or left, and how prices, favorites and positions moved, between two snapshots.",
+      "rationale": "Diffs two stored snapshots; Etsy has no history endpoint.",
+      "example": "etsy-pp-cli market trend --agent",
+      "why_it_matters": "Use when asked how a niche changed over time. Needs two complete snapshots; with fewer it returns [] plus a note.",
+      "group": "Market research"
+    },
+    {
+      "name": "Demand proxy",
+      "command": "market demand",
+      "description": "Rank listings and search terms by recent review volume and shop sales, with an explicit can't-tell result for thin data.",
+      "rationale": "Combines windowed review counts and shop sales totals across a snapshot; the API exposes no per-listing sales.",
+      "example": "etsy-pp-cli market demand --window 12mo --agent",
+      "why_it_matters": "Use to estimate which products sell best without third-party tools. Needs a snapshot taken with `--with-reviews`; otherwise every listing reports `absent` (no review data, not zero).",
+      "group": "Market research"
+    },
+    {
+      "name": "Competitor shops and crowd-out",
+      "command": "market shops",
+      "description": "Profile the shops behind a snapshot and see whether big shops crowd out new ones.",
+      "rationale": "Joins snapshot listings to shop sales, age and listing counts locally.",
+      "example": "etsy-pp-cli market shops --agent",
+      "why_it_matters": "Use to size up competitors in a niche. Reads the latest complete market snapshot.",
+      "group": "Market research"
+    },
+    {
+      "name": "Gap finder",
+      "command": "market gaps",
+      "description": "Find targets where no matching listing was found in the pages and terms you searched, with coverage checked against known competitors.",
+      "rationale": "Classifies every snapshot listing with your rule file and reports coverage-qualified gaps.",
+      "example": "etsy-pp-cli market gaps --rules classes.yaml --agent",
+      "why_it_matters": "Use to find product ideas with little competition, stated as what was searched. Needs a prior market snapshot and a --rules YAML file of targets.",
+      "group": "Market research"
+    },
+    {
+      "name": "Tag and title-word contrast",
+      "command": "market tags",
+      "description": "See which tags and title words the best-selling listings use that the rest don't.",
+      "rationale": "Compares tag frequency between demand quartiles in the snapshot; tags are not visible in search pages.",
+      "example": "etsy-pp-cli market tags --agent",
+      "why_it_matters": "Use when writing titles and tags for a new listing. Reads the latest snapshot; ranks by review demand when collected, otherwise by search position (reported in `basis`).",
+      "group": "Market research"
+    },
+    {
+      "name": "Price bands",
+      "command": "market price",
+      "description": "Price ranges per category and whether price tracks demand.",
+      "rationale": "Computes ranges and rank correlation per group from snapshot data.",
+      "example": "etsy-pp-cli market price --agent",
+      "why_it_matters": "Use when pricing a new product against the market. Reads the latest snapshot; the price-vs-demand correlation is null unless the snapshot used --with-reviews.",
+      "group": "Market research"
+    }
+  ],
+  "narrative": {
+    "display_name": "Etsy",
+    "headline": "Etsy Open API v3 commands plus a local SQLite store for offline fee reports, ledger reconciliation, listing and GPSR audits, market research, and previewed bulk edits.",
+    "value_prop": "Log in, set ETSY_SHOP_ID, run `etsy-pp-cli sync`, then answer fulfilment, money and catalog questions offline with `money fees`, `money reconcile`, `listings audit --rules gpsr`, `listings expiring`, `inventory audit` and `orders unshipped`. Public market research (`market snapshot`, then `market shops`, `gaps`, `tags`, `price`) needs only the API key. The default login is read-only; writes need `auth login --all-scopes` and an explicit `--yes`, and `listings bulk-edit` previews every change until `--apply --yes`.",
+    "auth_narrative": "Every request sends `x-api-key: \u003ckeystring\u003e:\u003cshared_secret\u003e` (required by Etsy since 2026-02-09): set ETSY_API_KEY to your keystring and ETSY_SHARED_SECRET to your shared secret from etsy.com/developers/your-apps, or put both in ETSY_API_KEY as `keystring:secret`. `etsy-pp-cli app ping` confirms Etsy accepts the key. Public data (active listings, shops, reviews, taxonomy, market snapshots) needs only that header. Shop data (orders, money, drafts, inventory) also needs `etsy-pp-cli auth login` (OAuth 2.0 PKCE) and ETSY_SHOP_ID set to your shop id. The default login is read-only (listings_r shops_r transactions_r); `auth login --all-scopes` adds email_r, write, delete, address and profile scopes. If your app registers an https redirect, use the two-step flow: `auth login --redirect-uri \u003curl\u003e` prints the authorize URL, then `auth login --callback-url '\u003credirected url\u003e'` finishes it. Access tokens last 1 hour and refresh automatically for 90 days.",
+    "quickstart": [
+      {
+        "command": "etsy-pp-cli doctor --dry-run",
+        "comment": "Checks config and credentials without calling the network."
+      },
+      {
+        "command": "etsy-pp-cli app ping",
+        "comment": "Confirms Etsy accepts your keystring:shared_secret (a 403 means a missing or mismatched secret, or an inactive app)."
+      },
+      {
+        "command": "etsy-pp-cli doctor",
+        "comment": "Reports the key format, today's remaining quota, and whether an OAuth session is present."
+      },
+      {
+        "command": "etsy-pp-cli sync --since 30d",
+        "comment": "After auth login and ETSY_SHOP_ID, mirrors your shop once so every report after this is free."
+      },
+      {
+        "command": "etsy-pp-cli shop attention --agent",
+        "comment": "One summary of what needs attention today."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 \"API key not found or not active, or incorrect shared secret\"",
+        "fix": "Set ETSY_SHARED_SECRET (or ETSY_API_KEY=keystring:secret) and confirm the app is active at etsy.com/developers/your-apps; then run `etsy-pp-cli doctor`."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Wait for the retry-after seconds the CLI prints; use local commands after `sync` instead of repeated live calls."
+      },
+      {
+        "symptom": "403 on orders, ledger or write commands",
+        "fix": "Check granted scopes with `etsy-pp-cli app token-scopes`; for writes, log in again with `etsy-pp-cli auth login --all-scopes`."
+      },
+      {
+        "symptom": "Reports show stale data",
+        "fix": "Run `etsy-pp-cli sync --since 7d` to refresh the local store."
+      },
+      {
+        "symptom": "Shop commands return nothing after sync",
+        "fix": "Set ETSY_SHOP_ID to your shop id and run `etsy-pp-cli auth login`; sync skips shop data with a hint when either is missing."
+      }
+    ],
+    "when_to_use": "Use this CLI for an Etsy seller's shop operations: whole-catalog audits, fee and payout questions, the unshipped-orders queue (`orders unshipped`), low stock (`inventory low-stock`), and previewed bulk edits (`listings bulk-edit`). Shop reports need `auth login`, ETSY_SHOP_ID and a prior `sync`; market research needs only the API key and a prior `market snapshot`. It is the right choice when an agent needs answers across many listings or orders without spending API quota or risking rate-limit bans.",
+    "anti_triggers": [
+      "Do not use it to buy on Etsy or manage a buyer cart or favorites; the v3 API has no buyer cart endpoints.",
+      "Do not use it for Etsy Ads, Marketplace Insights or Offsite Ads stats; those are not in Open API v3.",
+      "Do not use it for high-frequency monitoring or polling; Etsy bans apps for it."
+    ],
+    "recipes": [
+      {
+        "title": "Daily shop check for an agent",
+        "command": "etsy-pp-cli shop attention --agent",
+        "explanation": "One local-store summary instead of many live calls."
+      },
+      {
+        "title": "Fees by type last month",
+        "command": "etsy-pp-cli money fees --since 30d --agent",
+        "explanation": "Groups synced ledger entries by fee type."
+      },
+      {
+        "title": "GPSR readiness before the deadline",
+        "command": "etsy-pp-cli listings audit --rules gpsr --agent --select results.listing_id,results.title,results.findings",
+        "explanation": "Lists only the listings and missing GPSR fields. Shop commands wrap rows as {results, notes}, so --select paths start with results."
+      },
+      {
+        "title": "Renewal planning",
+        "command": "etsy-pp-cli listings expiring --within 30d",
+        "explanation": "Soonest-expiring active listings and their auto-renew setting."
+      },
+      {
+        "title": "Market snapshot then demand",
+        "command": "etsy-pp-cli market snapshot --terms terms.txt --pages 1 --per-page 25 --with-reviews --max-calls 200",
+        "explanation": "Capture public search results with review dates once, then run market demand, shops, tags and price offline (market gaps also needs a --rules file)."
+      },
+      {
+        "title": "Audit, then preview a bulk fix",
+        "command": "etsy-pp-cli listings bulk-edit --listings 1000000001,1000000002 --field tags --add \"linen apron\"",
+        "explanation": "Preview-only: shows every proposed change. For a large fix, run `listings audit --plan-out plan.json` (add --force to overwrite) and preview it with `listings bulk-edit --plan plan.json`. Nothing is sent until --apply --yes (needs auth login --all-scopes); `--resume JOB` continues an interrupted job."
+      }
+    ],
+    "trigger_phrases": [
+      "what are my etsy fees",
+      "which etsy listings are expiring",
+      "audit my etsy listings",
+      "is my etsy shop gpsr ready",
+      "research my etsy niche",
+      "what do competitors charge on etsy",
+      "reconcile my etsy payouts",
+      "use etsy",
+      "run etsy-pp-cli"
+    ]
+  },
+  "homepage": "https://www.etsy.com"
+}

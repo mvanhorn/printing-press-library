@@ -1,0 +1,221 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-17T16:04:41.965329Z",
+  "printing_press_version": "4.35.6",
+  "api_name": "etsy",
+  "display_name": "Etsy",
+  "cli_name": "etsy-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
+  "owner": "vinnyp",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:33bbce4b423823b95a14531c490e5742b14f3f951acf145ea04b190b234a2d69",
+  "run_id": "20261116-133635-274efd3c",
+  "category": "commerce",
+  "description": "Etsy Open API v3 commands plus a local SQLite store for offline fee reports, ledger reconciliation, listing and GPSR audits, market research, and previewed bulk edits.",
+  "homepage": "https://www.etsy.com",
+  "mcp_binary": "etsy-pp-mcp",
+  "mcp_tool_count": 107,
+  "mcp_ready": "full",
+  "api_version": "3.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "oauth2",
+  "auth_env_vars": [
+    "ETSY_OAUTH2"
+  ],
+  "auth_additional_headers": [
+    {
+      "header": "x-api-key",
+      "in": "header",
+      "scheme": "api_key",
+      "env_var": {
+        "name": "ETSY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    }
+  ],
+  "endpoint_template_vars": [
+    "shop_id"
+  ],
+  "endpoint_template_env_overrides": {
+    "shop_id": "ETSY_SHOP_ID"
+  },
+  "novel_features": [
+    {
+      "name": "Listing hygiene + GPSR audit",
+      "command": "listings audit",
+      "description": "Find every listing with missing tags, materials, alt text or photos, or missing GPSR manufacturer/responsible-person data, in one offline pass."
+    },
+    {
+      "name": "Fee breakdown",
+      "command": "money fees",
+      "description": "See what Etsy charged you, by fee type, for any period."
+    },
+    {
+      "name": "Ledger reconcile",
+      "command": "money reconcile",
+      "description": "Match receipts, payments and ledger entries by ID and compare receipt totals with summed payment amounts and currencies."
+    },
+    {
+      "name": "Renewal planner",
+      "command": "listings expiring",
+      "description": "List active listings expiring soon and whether they auto-renew."
+    },
+    {
+      "name": "Inventory structural audit",
+      "command": "inventory audit",
+      "description": "Spot zero-quantity variations, missing or duplicate SKUs and price spread across variations."
+    },
+    {
+      "name": "Dead-weight listings",
+      "command": "listings dead-weight",
+      "description": "Find active listings with no sales in a window, with favorite counts."
+    },
+    {
+      "name": "Shop attention feed",
+      "command": "shop attention",
+      "description": "One compact summary of what needs attention: unshipped orders, expiring listings, audit findings, reconcile mismatches and sync age."
+    },
+    {
+      "name": "Review digest",
+      "command": "reviews digest",
+      "description": "Rating histogram, low-rated reviews and per-listing averages for a period."
+    },
+    {
+      "name": "Market snapshot",
+      "command": "market snapshot",
+      "description": "Capture a dated snapshot of the listings and shops that appear for your search terms."
+    },
+    {
+      "name": "Market trend",
+      "command": "market trend",
+      "description": "See which listings and shops entered or left, and how prices, favorites and positions moved, between two snapshots."
+    },
+    {
+      "name": "Demand proxy",
+      "command": "market demand",
+      "description": "Rank listings and search terms by recent review volume and shop sales, with an explicit can't-tell result for thin data."
+    },
+    {
+      "name": "Competitor shops and crowd-out",
+      "command": "market shops",
+      "description": "Profile the shops behind a snapshot and see whether big shops crowd out new ones."
+    },
+    {
+      "name": "Gap finder",
+      "command": "market gaps",
+      "description": "Find targets where no matching listing was found in the pages and terms you searched, with coverage checked against known competitors."
+    },
+    {
+      "name": "Tag and title-word contrast",
+      "command": "market tags",
+      "description": "See which tags and title words the best-selling listings use that the rest don't."
+    },
+    {
+      "name": "Price bands",
+      "command": "market price",
+      "description": "Price ranges per category and whether price tracks demand."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Listing hygiene + GPSR audit",
+      "command": "listings audit",
+      "description": "Find every listing with missing tags, materials, alt text or photos, or missing GPSR manufacturer/responsible-person data, in one offline pass."
+    },
+    {
+      "name": "Fee breakdown",
+      "command": "money fees",
+      "description": "See what Etsy charged you, by fee type, for any period."
+    },
+    {
+      "name": "Ledger reconcile",
+      "command": "money reconcile",
+      "description": "Match receipts, payments and ledger entries by ID and compare receipt totals with summed payment amounts and currencies."
+    },
+    {
+      "name": "Renewal planner",
+      "command": "listings expiring",
+      "description": "List active listings expiring soon and whether they auto-renew."
+    },
+    {
+      "name": "Inventory structural audit",
+      "command": "inventory audit",
+      "description": "Spot zero-quantity variations, missing or duplicate SKUs and price spread across variations."
+    },
+    {
+      "name": "Dead-weight listings",
+      "command": "listings dead-weight",
+      "description": "Find active listings with no sales in a window, with favorite counts."
+    },
+    {
+      "name": "Shop attention feed",
+      "command": "shop attention",
+      "description": "One compact summary of what needs attention: unshipped orders, expiring listings, audit findings, reconcile mismatches and sync age."
+    },
+    {
+      "name": "Review digest",
+      "command": "reviews digest",
+      "description": "Rating histogram, low-rated reviews and per-listing averages for a period."
+    },
+    {
+      "name": "Market snapshot",
+      "command": "market snapshot",
+      "description": "Capture a dated snapshot of the listings and shops that appear for your search terms."
+    },
+    {
+      "name": "Market trend",
+      "command": "market trend",
+      "description": "See which listings and shops entered or left, and how prices, favorites and positions moved, between two snapshots."
+    },
+    {
+      "name": "Demand proxy",
+      "command": "market demand",
+      "description": "Rank listings and search terms by recent review volume and shop sales, with an explicit can't-tell result for thin data."
+    },
+    {
+      "name": "Competitor shops and crowd-out",
+      "command": "market shops",
+      "description": "Profile the shops behind a snapshot and see whether big shops crowd out new ones."
+    },
+    {
+      "name": "Gap finder",
+      "command": "market gaps",
+      "description": "Find targets where no matching listing was found in the pages and terms you searched, with coverage checked against known competitors."
+    },
+    {
+      "name": "Tag and title-word contrast",
+      "command": "market tags",
+      "description": "See which tags and title words the best-selling listings use that the rest don't."
+    },
+    {
+      "name": "Price bands",
+      "command": "market price",
+      "description": "Price ranges per category and whether price tracks demand."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 159,
+    "total": 159,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 96,
+      "grade": "A",
+      "total": 96
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sync-page-limits-and-incremental",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Sync page size is Etsy's maximum (100) for listings, receipts, ledger entries, transactions and reviews; incremental lower bounds use unix seconds.",
+  "reason": "Generated defaults used smaller pages (more calls against a 5,000/day budget) and RFC3339 timestamps Etsy's integer filters reject. The marked limit/since sites in sync.go set limit 100 and unix-second bounds.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/etsy_sync_since_test.go"
+  ]
+}

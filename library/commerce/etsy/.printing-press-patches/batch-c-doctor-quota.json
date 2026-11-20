@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "batch-c-doctor-quota",
+  "summary": "Bind quota observation and reads to the selected API keystring.",
+  "reason": "Etsy quota is per API key, not per store token. Preserve the downstream keyed quota hooks when reprinting.",
+  "files": [
+    "internal/cli/doctor.go"
+  ],
+  "markers": [
+    "report[\"quota\"] = \"unknown (config error)\"",
+    "report[\"quota\"], _ = etsyQuotaSummary(cfg.EtsyApiKey)"
+  ],
+  "reapply": "Restore these etsy-ext call sites with the selected config API key; observe the response before reading its body."
+}

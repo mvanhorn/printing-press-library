@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "learn-buyer-mcp-listing-boundary",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Over MCP without ETSY_MCP_ALLOW_BUYER_PII, hide buyer-bearing learnings (learnings list and its --warnings log), candidates (learnings candidates, confirm, reject, and the recall candidates section) and playbooks (playbook list), and report how many were hidden. The sql tool's guard (buyerSQLBypass in internal/mcp/etsy_buyer_pii.go) also denies the learn tables search_learnings, learn_candidates, learning_playbooks, search_patterns and learn_recall_misses. In MCP restricted mode the listings always use the object form {<items>, buyer_hidden, note?}.",
+  "reason": "The learnings family emitted CLI-taught buyer query patterns, resource ids and derived families unfiltered over MCP while the conformance gate certified the tools clean.",
+  "files": [
+    "internal/cli/teach.go",
+    "internal/cli/learnings_candidates.go",
+    "internal/cli/teach_playbook.go",
+    "internal/cli/etsy_learn_buyer.go",
+    "internal/cli/etsy_learn_buyer_mcp_test.go",
+    "internal/learn/recall.go",
+    "internal/learn/etsy_hooks.go",
+    "internal/mcp/etsy_buyer_pii.go",
+    "internal/mcp/etsy_buyer_allowlist_test.go",
+    "internal/mcpconformance/etsy_buyer_conformance_test.go"
+  ]
+}

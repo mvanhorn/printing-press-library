@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "batch-d-review-buyer-policy",
+  "summary": "Canonical buyer types, review stripping and atomic legacy scrub with synthetic regression tests.",
+  "reason": "Etsy-owned privacy policy and lazy migration must survive generated store refreshes.",
+  "files": [
+    "internal/store/etsy_buyer_data.go",
+    "internal/store/etsy_buyer_data_test.go",
+    "internal/mcp/etsy_buyer_pii.go",
+    "internal/mcp/etsy_buyer_types_test.go",
+    "internal/mcp/etsy_buyer_allowlist_test.go",
+    "internal/mcpconformance/etsy_buyer_conformance_test.go"
+  ],
+  "reapply": "Preserve canonical classification, fail-closed MCP allowlist, pinned secure-delete scrub and synthetic tests.",
+  "markers": [
+    "func EtsyBuyerTypes() []string",
+    "begin review scrub",
+    "\\betsy_(erasure|retention)_\\w*"
+  ]
+}

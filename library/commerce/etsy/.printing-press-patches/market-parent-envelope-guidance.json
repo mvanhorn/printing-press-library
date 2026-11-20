@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "market-parent-envelope-guidance",
+  "summary": "Keep market envelope guidance visible in MCP parent descriptions.",
+  "reason": "MCP agents consume parent Short and Long descriptions.",
+  "files": [
+    "internal/cli/market.go"
+  ],
+  "markers": [
+    "MCP descriptions retain envelope and projection guidance."
+  ],
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "reapply": "Retain the results/notes envelope and --select path guidance in market Long."
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "sync-embedded-replace-fanout",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Listings walk embeds Images+Inventory; per-listing inventory/image rows are replaced transactionally; default sync drops per-listing dependents and listings-active; dependents take shop_id from the template var; page limit 100 for ledger/receipts/transactions/reviews.",
+  "reason": "Per-listing fan-out burned the 5000/day budget and merge-upserts left ghost inventory rows. getListingsByShop supports includes=Images,Inventory (spec-verified). shop_id was bound to the parent row id.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/etsy_sync_embedded.go",
+    "internal/cli/etsy_sync_fanout_test.go",
+    "internal/store/store.go",
+    "internal/store/etsy_replace.go",
+    "internal/store/etsy_replace_test.go"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "batch-d-retention-store-hooks",
+  "summary": "Apply Etsy retention at existing post-merge review-strip boundaries.",
+  "reason": "Etsy-specific retention must filter generic, typed and batch writes after richer merges.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "markers": [
+    "if drop, err := etsyRetentionDrop(tx, resourceType, retentionInput);",
+    "if drop, err := etsyRetentionDrop(tx, \"receipts\", retentionInput);",
+    "if drop, err := etsyRetentionDrop(tx, \"reviews\", retentionInput);",
+    "if drop, err := etsyRetentionDrop(tx, \"payments\", retentionInput);",
+    "if drop, err := etsyRetentionDrop(tx, \"transactions\", retentionInput);",
+    "if drop, err := etsyRetentionDrop(tx, resourceType, retentionInput);"
+  ],
+  "reapply": "Preserve retention selection, atomic cascades and floor enforcement; rerun synthetic retention and Batch A payment tests."
+}

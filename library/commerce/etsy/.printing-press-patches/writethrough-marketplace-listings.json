@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "writethrough-marketplace-listings",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Generated read-command write-through routes foreign-shop listings to marketplace_listings instead of the listings partition.",
+  "reason": "Marketplace lookups (listings get-by-ids and similar, strategy auto) polluted the shop's listings partition that audit/money/inventory readers treat as the owned catalog (contract C2). Explicit --config must select the owned shop for cache partitioning and draft copies; these are downstream Etsy shop policies.",
+  "files": [
+    "internal/cli/data_source.go",
+    "internal/cli/etsy_writethrough.go",
+    "internal/cli/etsy_writethrough_test.go",
+    "internal/store/store.go",
+    "internal/cli/listings_copy.go",
+    "internal/cli/etsy_writethrough_config_test.go"
+  ]
+}

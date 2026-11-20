@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "batch-d-final-reentry",
+  "summary": "Preserve guest transaction suppression, floor-rejected and orphan parent memory, incoming-only legacy replacement and privacy consequence reporting.",
+  "reason": "Etsy-specific receipt and buyer privacy linkage requires downstream keyed lazy metadata; shared generator schema and version remain unchanged.",
+  "files": [
+    "internal/store/etsy_retention.go",
+    "internal/store/etsy_erasure.go",
+    "internal/store/store.go",
+    "internal/store/etsy_final_batch_d_test.go",
+    "internal/store/etsy_simplified_retention_test.go",
+    "internal/cli/etsy_local_data_cleanup.go",
+    "internal/cli/sync.go",
+    "internal/cli/etsy_final_batch_d_test.go",
+    "internal/mcp/etsy_buyer_allowlist_test.go",
+    "README.md",
+    "SKILL.md",
+    "internal/store/etsy_round2_test.go"
+  ],
+  "reapply": "Preserve keyed lazy erasure transaction and buyer receipt metadata, Go resourceParentID cascades, orphan parent vetoes and floor exclusion memory; receipt sync must reach the authoritative write guard. Keep the progress filter read-only and purge legacy reviews only after replacement acceptance. Report lost review links, clear-floor readmission counts and positive buyer receipt diagnostics. Run synthetic final Batch D regressions.",
+  "markers": [
+    "etsy_erasure_transactions_receipt",
+    "// etsy-ext: rejected receipts must keep later dependents out too.",
+    "// etsy-ext: progress filtering is read-only; the upsert guard records exclusions.",
+    "// etsy-ext: purge legacy reviews only after their replacement passes policy.",
+    "func TestEtsyFinalFloorDependents",
+    "func TestEtsyFinalTransparencyCLI"
+  ]
+}

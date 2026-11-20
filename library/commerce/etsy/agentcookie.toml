@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "etsy-pp-cli"
+display_name = "Etsy"
+description = "Etsy Open API v3 commands plus a local SQLite store for offline fee reports, ledger reconciliation, listing and GPSR audits, market research, and previewed bulk edits."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/etsy-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ETSY_OAUTH2 = true

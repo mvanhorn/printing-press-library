@@ -1,0 +1,121 @@
+{
+  "schema_version": 2,
+  "id": "mcp-canonical-bounding",
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Canonical MCP output bounding (SPEC v2) on the mirror (shell-out) path: Etsy-owned bound.Mirror core with opaque v2 cursors, 16 MiB stdout capture, one-level agent descent, per-response byte budget, cursor registration for literal read-only + local mirror tools, inline --rules-json/--control-ids with an OS-aware pre-exec argument guard, explicit market --compact projection, and an env-driven (PP_MCP_MAX_BYTES, default 32000) budget for the whole bound package.",
+  "reason": "The generated mirror captured only a preview-sized prefix and returned non-resumable bound.Text previews cut mid-JSON, PP_MCP_MAX_BYTES was ignored, market gaps/price could not run over MCP (file sinks hidden, stdin not fed) and --compact was a no-op for market commands. The machine has not adopted the canonical contract (#3090), so the pager lives in an Etsy-owned file with narrow, marked edits at generated call sites.",
+  "files": [
+    "internal/mcp/bound/etsy_canonical.go",
+    "internal/mcp/bound/etsy_canonical_test.go",
+    "internal/mcp/bound/bound.go",
+    "internal/mcp/bound/bound_test.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/typemap.go",
+    "internal/mcp/cobratree/etsy_mirror_wiring_test.go",
+    "internal/mcp/etsy_mcp_bounding_seam_test.go",
+    ".printing-press-patches/mcp-canonical-bounding.json",
+    "internal/cli/market_gaps.go",
+    "internal/cli/market_price.go",
+    "internal/cli/mkt_rules.go",
+    "internal/cli/market_inline_flags_test.go",
+    "internal/cli/which.go",
+    "internal/mcp/cobratree/etsy_arg_limits_test.go",
+    "internal/mcp/etsy_sink_conformance_test.go",
+    ".manuscripts/20261116-133635-274efd3c/research.json",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/mkt_helpers.go",
+    "internal/cli/market_compact_test.go",
+    "CHANGELOG.md",
+    ".printing-press-patches/mcp-canonical-bounding-proof.md",
+    "internal/mcp/bound/etsy_testmain_test.go",
+    "internal/mcp/cobratree/etsy_testmain_test.go",
+    "internal/mcp/etsy_testmain_test.go",
+    "internal/cli/market_rules_hardening_test.go",
+    "internal/mcpconformance/etsy_buyer_conformance_test.go"
+  ],
+  "reprint_status": "Verified by a dry-run (no --apply) of cli-printing-press 4.35.6 regen-merge against a fresh tree generated from spec.json with the same version (the fresh bound.go, shellout.go, typemap.go, walker.go are byte-identical to the pre-change generated files, so the fresh tree is a faithful base). Verdicts: internal/mcp/bound/bound.go TEMPLATED-CLEAN (a future --apply would OVERWRITE it, reverting `var MaxBytes = Budget()` to `const MaxBytes = 60000`; the classifier does not see the const-to-var change); internal/mcp/cobratree/shellout.go TEMPLATED-WITH-ADDITIONS and internal/mcp/cobratree/typemap.go TEMPLATED-WITH-ADDITIONS (left untouched, edits preserved); internal/mcp/cobratree/walker.go and internal/mcp/tools.go TEMPLATED-CLEAN (not edited by this patch); internal/mcp/bound/etsy_canonical.go, mkt_helpers.go, mkt_rules.go and all new tests NOVEL (kept); market_demand.go, market_gaps.go, market_price.go TEMPLATED-WITH-ADDITIONS (kept); internal/cli/which.go TEMPLATED-CLEAN (identical because the fresh tree was generated with the updated research.json); bound_test.go TEMPLATED-VALUE-DRIFT (the two budget-relative fixtures, flagged for manual merge). No redeclared MaxBytes can occur (etsy_canonical.go never declares it), so the fallback shape (var budgetBytes) was not needed. Simulated outcome of the only lossy verdict: copying the fresh bound.go over the committed tree builds, but `go vet ./internal/mcp/bound` fails loudly because etsy_canonical_test.go assigns MaxBytes in refreshBudgetForTest (cannot assign to a const), so a lost MaxBytes edit cannot pass the gate silently.",
+  "reapply": "After a reprint or regen-merge --apply (bound.go is the only file the classifier would overwrite; shellout.go and typemap.go are kept as TEMPLATED-WITH-ADDITIONS, but verify each item): (1) internal/mcp/bound/bound.go: replace the const `MaxBytes = 60000` line with `var MaxBytes = Budget()` placed before the const group (keep MaxItems, maxPreviewBytes in the group). (2) internal/mcp/bound/bound_test.go: restore the two budget-relative fixtures (TestJSONReturnsCompactFullArrayWhenIndentedOutputExceedsBudget, TestEndpointLocalPageResponseKeepsFittingHistoricalList). (3) internal/mcp/cobratree/shellout.go must still carry: `const shelloutCaptureLimit = 64 << 10` (a fixed stderr cap with no budget coupling) and newCappedCapture growing on demand; the 16 MiB stdoutCapture with StdoutBytes/StdoutOverflow on CLICommandResult; toolResultFromCLICommandFor calling bound.Mirror with the per-call Budget and Reserve; secondaryText and hintsDroppedMarker on the success, failure and help paths; bound.TextWithin(s, budget, reserve) for both single-block and two-block failures; the cursor strip gated on cursorEligible(cmd) (falling back to allowedStructuredArgs[\"cursor\"] only when the command is unknown), then checkMirrorArgLimits and bound.DecodeMirrorCursor before RunCLICommand; mirrorOptions sourcing SupportsCursor from cursorEligible(cmd) when the command is known, SnapshotParam from allowed[\"snapshot\"], the MCP-spelled Narrow list (top, limit, select, compact, pages, per-page) and the generic NoRerun text; and guardMirroredMCPCall stashing the command in the context. (4) internal/mcp/cobratree/typemap.go must still carry cursorEligible (literal mcp:read-only, pp:data-source local, no native cursor flag, money summary excluded by command-path suffix) with both the schema property and the allowed-argument registration behind it; walker.go, helpers.go and cliArgsFromMCP stay untouched. (5) Keep the Etsy-owned files: internal/mcp/bound/etsy_canonical.go, the three etsy_testmain_test.go files (they unset PP_MCP_MAX_BYTES and re-derive bound.MaxBytes), the Etsy test files, mkt_helpers.go projection, mkt_rules.go inline helpers and caps, the market gaps/price inline flags and help text. (6) Regenerate which.go/README/SKILL from research.json so the byte-identical drift tests pass. (7) Run `go build ./... && go vet ./... && test -z \"$(gofmt -l internal)\"` and the hermetic suite (`env -u ETSY_API_KEY -u ETSY_SHARED_SECRET -u ETSY_SHOP_ID PATH=\"/bin:/usr/bin:$PATH\" go test -count=1 ./...`), also once with PP_MCP_MAX_BYTES=4000 exported. A missing edit fails loudly in TestMCPOutputNeverExceedsBudget, TestEtsyMCPBoundingSeam, TestEtsyPerResponseBudget, TestMirrorArgGuardBeforeExec, TestMarketCompact, TestHardeningBudget and the bound package compile (etsy_canonical_test.go assigns MaxBytes).",
+  "deviations": [
+    "Spec D0 (\"never a hand-editable generated file\") is not met for the edited call sites (bound.go MaxBytes, shellout.go, typemap.go, bound_test.go fixtures, sink-conformance test); unavoidable until the machine adopts the contract (#3090). walker.go and helpers.go are untouched.",
+    "Under budget with no cursor, mirror stdout passes through byte-identical to the CLI (spec section 5 says not to pass an under-budget non-envelope blob through raw). Documented rule: when top-level `truncated` is absent the output is complete. A call that supplies a cursor always returns an envelope, including the final page.",
+    "Typed, code-orchestration, search and sql paths keep their generated shapes, v1 cursors, the 50-item fit cap, linear fit loops, `_pp_truncated`/`resumable` previews, no oversized* fields and two resume-parameter names (`_pp_cursor`, `cursor`); only their byte budget changes (60000 -> 32000, env-overridable). Binary-response ceiling drops from about 45 KB to about 24 KB. Deferred to #3090.",
+    "Mirror Preview shape is {truncated,oversized:false,max_bytes,original_bytes,preview,note}; `preview` is a string fragment, never JSON; `_pp_truncated`/`resumable` are not emitted on the mirror path. WithMetadata (keys on _pp_truncated) is unchanged and unreachable from the mirror path (registeredPlatformSource is nil).",
+    "Spec D2 `limit` parameter is not registered; the market tools' own --top/--limit/--select/--compact/--snapshot serve as narrowing and are named in the over-budget note.",
+    "Cursor registration is split across shellout.go (strip + pre-exec decode, because the handler must see the cursor) and typemap.go (schema property and allowed argument behind one shared predicate, cursorEligible = literal mcp:read-only annotation + pp:data-source local + no native cursor flag). The v3 plan's alternative of adding cursor to the CLI-blocked set was not used. walker.go stays untouched, so the handler learns SupportsCursor from allowedStructuredArgs[\"cursor\"] and the registered command from a context value set by guardMirroredMCPCall.",
+    "cursor is registered (inertly) on tags and trend: their over-budget output is a Preview (array-free or scalar arrays), which never pages. money_summary is cursor-eligible but emits since/until from the current wall-clock second, so a cursor on an over-budget money_summary result fails safe with cursor_stale; its determinism-table row tolerates only those two fields.",
+    "Mirror cursors are v2 (`{k:\"m\",v:2,t,a,o,d}`) so the typed decodeEndpointCursor (v1 only) rejects them. Check order: length cap (1024) -> decode -> k/v -> t -> a before exec; d -> o after exec.",
+    "Step 6 reserves a short marker for the stderr-hints block before sizing the primary block, so the reported max_bytes is the full budget while the primary block is smaller by the marker length whenever hints exist.",
+    "Single-block failure results use bound.TextWithin(first, budget, 0), the same mirror Preview shape as two-block failures (round 2 D5; supersedes the round-1 bound.Text note).",
+    "The real registered tree has seven non-local literal read-only mirrors (analytics, learnings_candidates, learnings_list, learnings_stats, playbook_list, recall, workflow_status); all reject cursor before any child spawns. None is annotated data-source auto.",
+    "Inline caps are 96 KiB (98304 bytes) for --rules-json and --control-ids; the MCP pre-exec guard is 120 KiB per argument on non-Windows and 31 KiB of escaped command line (plus a fixed 260-byte executable allowance) on Windows, replacing the v2 24 KiB/30 KiB text. Inline control ids are validated as positive decimal integers; file --control keeps its permissive parsing.",
+    "D-K compact: an explicit --compact (or MCP compact:true) projects market demand/shops/price/gaps/tags rows to fixed key sets and replaces the generic compaction (copied flags with compact=false); --agent's implied compact does not trigger it and --select wins. Trend and snapshot are unchanged.",
+    "Live MCP smoke (step 2, behaviour only): 5 Etsy calls into an isolated store; market_demand paged to completion at PP_MCP_MAX_BYTES=4000 over the real stdio MCP server with the union equal to the CLI output. Hermetic seam tests cover the same paths without quota.",
+    "Mutation proofs: 22 mutants plus the typed-guard mutant, each CAUGHT with its knock-out and control (see mcp-canonical-bounding-proof.md); one first attempt for the bound.Text-revert mutant was refused (knock-out scope unproven because a seam row aborts the parent test) and was re-run against a non-aborting row.",
+    "Five cursor-registered tools never page because their result is a single object: market_tags, market_trend, money_reconcile, reviews_digest and shop_attention; over budget they return a non-pageable Preview. The registry has 15 cursor tools: 5 snapshot tools, 5 single-object tools and 5 other list tools (10 tools register no snapshot param)."
+  ],
+  "docs": "research.json is the source for the market gaps/price why_it_matters text; which.go, README.md and SKILL.md carry the same strings byte-for-byte (TestMarketDocsWhichDrift plus the inline-flag docs test). README.md and SKILL.md gained a 'Paging MCP results' section; CHANGELOG.md gained an Unreleased section with the old-to-new mirror shape table, the typed budget change and the new flags and guard.",
+  "round2": {
+    "base": "edb80ab",
+    "decls_touched": [
+      "bound.Budget (ceiling 16 MiB, once-only warnings, unparsable -> 32000)",
+      "bound.mirrorNote(r, cursorEmitted, opening)",
+      "bound.fitFragment (linear UTF-8 back-off)",
+      "bound.minimalTruncation / TextWithin / Mirror clamp",
+      "bound.Mirror oversized_item_id key order",
+      "bound.Mirror cursor_stale message (lives in Mirror, not DecodeMirrorCursor)",
+      "cobratree.shelloutCaptureLimit (const 64 KiB) / newCappedCapture (on-demand growth)",
+      "cobratree.mirrorOptions (MCP spellings, generic NoRerun, SupportsCursor from cursorEligible)",
+      "cobratree.shellOutToCLI (cursor consumed only for eligible commands)",
+      "cobratree.hintsDroppedMarker",
+      "cobratree.ToolResultFromCLIFailure (single-block TextWithin)",
+      "cobratree.cursorEligible (money summary excluded)",
+      "cli.mktCompileTargets (256 patterns, 512 bytes each)",
+      "cli.market price --group-by help text",
+      "docs: README, SKILL, CHANGELOG, research.json, which.go (gaps wording)"
+    ],
+    "deferred": [
+      "typed/sql/search `truncated` on single-array object truncation (machine #3090); documented as `_pp_truncated` in README/SKILL/CHANGELOG",
+      "galloping or estimate-seeded binary search and freeing the stdout capture before Mirror",
+      "HMAC key on the cursor a/d hashes",
+      "Windows fuzz diff of mirrorWindowsEscape against syscall.EscapeArg",
+      "redundant reserve probe flag",
+      "duplicated agent-descent row and exact-prose pins"
+    ],
+    "deviations": [
+      "money_summary is excluded from cursor eligibility by a one-line predicate change in cursorEligible (command path suffix ' money summary'), superseding the round-1 deviation that tolerated its since/until in the determinism table; the determinism row is now strict.",
+      "Stderr capture is a fixed 64 KiB cap grown on demand; shelloutCaptureLimit became a const for it (plan D-E1).",
+      "SUPERSEDED by round 3 (reviews_digest never pages; its over-budget result is a non-pageable preview): docs scoped the buyer-data paging sentence for reviews_digest text to a full (unpaged by limit) result because reviews_digest has no limit parameter; limit caps orders_unshipped rows only."
+    ]
+  },
+  "round3": {
+    "base": "750c140",
+    "decls_touched": [
+      "bound.MirrorRequest.SnapshotParam; bound.Mirror cursor_stale message (per-tool snapshot advice)",
+      "bound.mirrorNote (cannot-be-paged sentence when !SupportsCursor)",
+      "bound.TextWithin(s, budget, reserve) and the minimal clamp (full budget as max_bytes)",
+      "cobratree.mirrorOptions (SnapshotParam, NoRerun names registered tools, from/to dropped from Narrow)",
+      "cobratree.ToolResultFromCLIFailure / toolResultFromCLIHelp (TextWithin signature)",
+      "cli.mktCompileTargets (inner rules: prefix dropped)",
+      "docs: README, SKILL, CHANGELOG (cursor_stale scope, never-paging cursor tools, non-mirror truncation signals, orders_unshipped buyer sentence)"
+    ],
+    "truth_conditions": [
+      "cursor_stale mentions snapshot only for tools that register a snapshot param (market_demand, market_gaps, market_price, market_shops, market_tags); page-1 snapshot_id is top-level, or results.snapshot_id with agent:true, and select can drop it",
+      "NoRerun names only registered tools (listings_audit, inventory_audit, market_demand)",
+      "cursor tools that never page (result is a single object): market_tags, market_trend, money_reconcile, reviews_digest, shop_attention (probed)",
+      "typed endpoint, etsy_* code-orchestration, search and context signal truncation with _pp_truncated; sql uses truncated:true"
+    ],
+    "deviations": [
+      "F5 wording differs from the plan's suggestion: sql does not emit _pp_truncated (its own envelope sets truncated:true with a note), so the docs name sql separately.",
+      "F7: the inline path prints `--rules-json: ...` and the file path prints `rules: ...`; each now appears once."
+    ],
+    "deferred": [
+      "pp:no-mirror-cursor annotation instead of the CommandPath suffix",
+      "uneven PP_MCP_MAX_BYTES parse warnings for +huge vs +20000",
+      "D4 slow-mutant proof (needs a -timeout bounded run)",
+      "single-block failure shape in SKILL"
+    ]
+  }
+}

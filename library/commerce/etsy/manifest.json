@@ -1,0 +1,62 @@
+{
+  "manifest_version": "0.3",
+  "name": "etsy-pp-mcp",
+  "display_name": "Etsy",
+  "version": "3.0.0",
+  "description": "Etsy Open API v3 commands plus a local SQLite store for offline fee reports, ledger reconciliation, listing and GPSR audits, market research, and previewed bulk edits.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/etsy-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/etsy-pp-mcp",
+      "args": [],
+      "env": {
+        "ETSY_API_KEY": "${user_config.etsy_api_key}",
+        "ETSY_SHARED_SECRET": "${user_config.etsy_shared_secret}",
+        "ETSY_OAUTH2": "${user_config.etsy_oauth2}",
+        "ETSY_SHOP_ID": "${user_config.etsy_shop_id}"
+      }
+    }
+  },
+  "user_config": {
+    "etsy_api_key": {
+      "type": "string",
+      "title": "ETSY_API_KEY",
+      "description": "Your Etsy app keystring (the API key). Required. May also be the full keystring:shared_secret.",
+      "sensitive": true,
+      "required": true
+    },
+    "etsy_shared_secret": {
+      "type": "string",
+      "title": "ETSY_SHARED_SECRET",
+      "description": "Your Etsy app shared secret. Required unless ETSY_API_KEY already contains keystring:secret.",
+      "sensitive": true,
+      "required": false
+    },
+    "etsy_oauth2": {
+      "type": "string",
+      "title": "ETSY_OAUTH2",
+      "description": "Optional pasted OAuth bearer token. Normally supplied by 'etsy-pp-cli auth login'.",
+      "sensitive": true,
+      "required": false
+    },
+    "etsy_shop_id": {
+      "type": "string",
+      "title": "ETSY_SHOP_ID",
+      "description": "Your numeric Etsy shop id. Optional; only needed for shop-scoped data.",
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

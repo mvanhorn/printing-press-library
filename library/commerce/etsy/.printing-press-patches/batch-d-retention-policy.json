@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "base_run_id": "20261116-133635-274efd3c",
+  "id": "batch-d-retention-policy",
+  "summary": "Selective local buyer-data pruning with persisted retention floors and durable non-personal payment success.",
+  "reason": "Store policy, local command and synthetic cross-batch tests are Etsy-owned customizations.",
+  "files": [
+    "internal/store/etsy_retention.go",
+    "internal/store/etsy_retention_test.go",
+    "internal/store/etsy_payments_migrations.go",
+    "internal/cli/etsy_local_data_prune.go",
+    "internal/cli/etsy_local_data_prune_test.go"
+  ],
+  "reapply": "Preserve retention selection, atomic cascades and floor enforcement; rerun synthetic retention and Batch A payment tests.",
+  "markers": [
+    "if active == 0",
+    "func TestEtsyRetentionAgeBoundary",
+    "func TestEtsyDependentSyncRetentionFiltered"
+  ]
+}

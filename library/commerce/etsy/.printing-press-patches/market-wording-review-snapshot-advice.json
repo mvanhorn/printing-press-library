@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "market-wording-review-snapshot-advice",
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Market reports use singular-aware evidence wording, quoted skipped terms, generic empty-store guidance, and advice to reuse another complete review-bearing snapshot. Empty-store hints use the JSON-safe quoted SEARCH TERM placeholder; trend sides are separated by semicolons.",
+  "reason": "These Etsy-specific hand-written market reports must preserve sample limits and latest-snapshot selection while avoiding unnecessary paid review collection when local review data already exists. Review availability includes completed zero-review fetches and persisted review rows; only other complete snapshots qualify. Alternative advice now requires exact case-sensitive term coverage: all selected terms for top-level demand and price, and the individual term for demand rows. The newest eligible complete snapshot wins; price retains its correlation warning prefix.",
+  "files": [
+    "internal/cli/market_demand.go",
+    "internal/cli/market_demand_test.go",
+    "internal/cli/market_gaps.go",
+    "internal/cli/market_gaps_test.go",
+    "internal/cli/market_price.go",
+    "internal/cli/market_trend.go",
+    "internal/cli/market_trend_test.go",
+    "internal/cli/mkt_helpers.go",
+    "internal/cli/market_review_advice_test.go",
+    "internal/cli/market_contract_test.go"
+  ]
+}

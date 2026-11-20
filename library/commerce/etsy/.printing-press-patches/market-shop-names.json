@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "market-shop-names",
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Market snapshots persist only the public shop_name and market shops reports nullable names while preserving legacy-store reads. Explicit schema and report-key allowlists guard against owner-field additions.",
+  "reason": "Etsy-specific hand-written market storage needs shop labels from both batch enrichment and shop fallback. Writers must migrate legacy schemas idempotently; read-only reports must tolerate an absent name column. Missing or blank names remain NULL and owner fields are excluded.",
+  "files": [
+    "internal/store/etsy_market_migrations.go",
+    "internal/store/etsy_market_migrations_test.go",
+    "internal/cli/market_snapshot.go",
+    "internal/cli/mkt_helpers.go",
+    "internal/cli/market_shops.go",
+    "internal/cli/market_shops_test.go",
+    "internal/cli/market_contract_test.go"
+  ],
+  "validated_outcome": "Archive-only mutation-verify runs separately added login_name to market_shops and mktShopRow. Both matched 'SHOP_ALLOWLIST_VIOLATED'; exact TestMarketShopsPrivacyAllowlist knockouts exited 0 and removed one === RUN line and the hazard text. Controls SHOP_CONTROL_PANIC (schema) and SHOP_ROW_CONTROL_PANIC (report) each went RED for its own reason without the hazard text. No controls refused. Tool labels: UNVERIFIED APPLICATION (reachability not verified), UNVERIFIED CONTROL; hazard attribution verified by knockout."
+}

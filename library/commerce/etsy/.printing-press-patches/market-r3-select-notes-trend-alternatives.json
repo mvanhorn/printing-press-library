@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "market-r3-select-notes-trend-alternatives",
+  "applied_at": "2026-11-17",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Market --select treats an empty results collection (or a null/empty anchored path through results) as indeterminate, so empty stores exit 0 with the hint in notes; heads fold case; an all-miss prints the generic valid-fields warning before the usage error, in one validation pass. The note/notes invariant is exact: the legacy note is an entry of notes or the exact join of two or more entries, and mktEmitReport unions a stray note (complete resume, unreadable-terms dry-run). Trend names the newest partial snapshot id only when one exists, else says to take another snapshot. market_results inserts are first-seen, best-position-wins so a page only deletes rows it owns. Per-term review advice needs review data for that term and is computed once. Fixtures mark complete snapshots as fully fetched; progress keys are parsed exactly; the select/agent documentation sentence is reworded in research.json, which.go, README and SKILL.",
+  "reason": "Round-3 review found that selecting on an empty market result exited 2 and dropped the empty-store hint, that the legacy note could stay out of notes and the test exempted every note containing a semicolon, that the trend hint carried a placeholder resume id, and that a duplicate listing could be lost on a page re-fetch or advised from a snapshot with no review data for its term.",
+  "files": [
+    "internal/cli/mkt_helpers.go",
+    "internal/cli/market_demand.go",
+    "internal/cli/market_snapshot.go",
+    "internal/cli/market_trend.go",
+    "internal/cli/which.go",
+    "README.md",
+    "SKILL.md",
+    ".manuscripts/20261116-133635-274efd3c/research.json",
+    "internal/cli/market_selection_test.go",
+    "internal/cli/market_select_empty_test.go",
+    "internal/cli/market_envelope_test.go",
+    "internal/cli/market_notes_test.go",
+    "internal/cli/market_notes_invariant_test.go",
+    "internal/cli/market_r3_test.go",
+    "internal/cli/market_docs_test.go",
+    "internal/cli/market_contract_test.go",
+    "internal/cli/market_demand_test.go",
+    "internal/cli/market_review_advice_test.go",
+    "internal/cli/mkt_fixtures_test.go"
+  ],
+  "validated_outcome": "Archive-only mutation-verify proofs for eight hazards were caught with exact failure text, knock-outs and controls; see market-r3-select-notes-proof.md. Live probes on an isolated synthetic store confirmed empty-store select exits 0 with notes, a populated typo exits 2 with valid fields on stderr, and one complete snapshot yields the take-another-snapshot trend hint."
+}

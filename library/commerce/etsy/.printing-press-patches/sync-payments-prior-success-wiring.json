@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "sync-payments-prior-success-wiring",
+  "summary": "Detect payment scope loss from durable per-receipt success history; preserve partial summaries and distinguish strict forbidden failures.",
+  "reason": "Etsy-specific downstream behavior retained across reprints.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "applied_at": "2026-11-18",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Read ever_ok before recording a forbidden check; fail for scope loss or absent success history, advise incremental all-forbidden runs, retain zero-progress scope errors under caps, and exclude only payment forbidden warnings from warnings-only failures.",
+  "markers": [
+    "db.PaymentCheckSucceeded(parentID)",
+    "anySuccess = anySuccess || check.EverOK",
+    "reason = \"payments_forbidden_strict\"",
+    "warnCount-paymentForbiddenWarnings"
+  ],
+  "base_run_id": "20261116-133635-274efd3c"
+}

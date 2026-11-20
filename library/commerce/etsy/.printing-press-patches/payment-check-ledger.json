@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "payment-check-ledger",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Payment check ledger and one forbidden probe per run; Batch A round-2 overrides scope classification: mixed ok/403 clears denied ever_ok, ambiguous prior successes verify one unwalked ever-ok peer within budget. Failed/unavailable verification preserves ever_ok and the scope hint. See batch-a-round-2.json.",
+  "reason": "Round 8 made 403 non-durable, which re-spent the payments allowance on every run, starved good receipts behind persistent 403s and exited 7 forever. F1 bounds a standing 403 to one probe call per run, keeps good receipts ahead of the probe, and turns a scope problem into a non-retryable exit with an actionable hint. Only 404 and 403 are persisted; 5xx and transport errors still record nothing.",
+  "files": [
+    "README.md",
+    "internal/cli/etsy_payment_checks_test.go",
+    "internal/cli/etsy_payments_forbidden_test.go",
+    "internal/cli/etsy_sync_boundary_unit_test.go",
+    "internal/cli/etsy_sync_budget.go",
+    "internal/cli/etsy_sync_budget_test.go",
+    "internal/cli/etsy_sync_cli_budget_test.go",
+    "internal/cli/etsy_sync_payments_incremental_test.go",
+    "internal/cli/etsy_sync_summary_test.go",
+    "internal/cli/sync.go",
+    "internal/store/etsy_payments_migrations.go",
+    "internal/store/etsy_payments_migrations_test.go"
+  ]
+}

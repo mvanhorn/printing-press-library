@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "mcp-conformance-could-fire",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "The MCP buyer conformance gate can fire for every tool it walks: shop-scoped fixtures that pass the report filters, per-tool gated-flag probes, per-probe lookup re-seeding, an opt-in arm that requires each tool to emit a sentinel or carry a nonBuyerReading reason, guard-attributed teach refusals, floors for both modes, and a binary test that the MCP-start purge runs after flag parsing. Round 9: the seed also holds sentinels in the learn tables (CLI-taught buyer learnings, candidates, a playbook, teach.log warnings, a taught buyer lookup and pattern); every nonBuyerReading entry names what its tool reads; learnings_list/candidates/confirm/reject and playbook_list must fire; each learnings_list probe must fire; MCP binary runs are bounded by a CommandContext.",
+  "reason": "With the opt-in on only sql, search and recall emitted a sentinel, so a green default arm proved nothing for the other 37 tools and per-tool guard removals (orders unshipped --full, the entity_lookups view filter) stayed green.",
+  "files": [
+    "internal/mcpconformance/etsy_buyer_conformance_test.go",
+    "internal/mcpconformance/etsy_mcp_start_test.go",
+    "AGENTS.md",
+    "SKILL.md",
+    "README.md"
+  ]
+}

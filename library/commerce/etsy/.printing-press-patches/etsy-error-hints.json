@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "etsy-error-hints",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Etsy-specific error diagnosis in generated error classification and doctor: key-format 403, missing OAuth scope, retry guidance on 429, unconfirmed write as a usage error.",
+  "reason": "The generic classifier reported Etsy's three distinct 403 causes (bare key, missing scope, inactive app) identically. etsyErrorHint in etsy_errors.go distinguishes them; helpers.go (classifyAPIError, writeAPIErrorEnvelope) and doctor.go call it, and the write-gate refusal carries reason confirmation_required in the JSON envelope.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/doctor.go",
+    "internal/cli/etsy_errors.go",
+    "internal/cli/etsy_errors_test.go",
+    "internal/cli/etsy_hardening_reports_test.go"
+  ]
+}

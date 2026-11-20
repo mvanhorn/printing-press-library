@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "inventory-shop-quota-and-sync-defaults",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261116-133635-274efd3c",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Scope low-stock inventory products to configured-shop listings, recognize daily quota through the shared classifier, omit unused receipt-listing fan-out unless explicitly selected, and describe automatic pacing accurately.",
+  "reason": "Etsy-specific inventory aliases can contain marketplace rows and the daily API budget makes unnecessary fan-out costly. Preserve these downstream command semantics on reprint; root help must describe the Etsy client pacing contract.",
+  "files": [
+    "internal/cli/inventory_low_stock.go",
+    "internal/cli/listings_bulk_edit.go",
+    "internal/cli/market_snapshot.go",
+    "internal/cli/sync.go",
+    "internal/cli/root.go",
+    "internal/cli/etsy_inventory_sync_test.go",
+    "internal/cli/market_d_test.go",
+    "internal/cli/inventory_d_test.go",
+    "internal/cli/bulk_d_test.go",
+    "internal/cli/inventory_low_stock_test.go",
+    "internal/cli/etsy_sync_fanout_test.go",
+    "internal/cli/etsy_sync_budget_test.go",
+    "internal/cli/etsy_rate_help_test.go"
+  ]
+}
