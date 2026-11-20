@@ -205,11 +205,21 @@ func Load(configPath string) (*Config, error) {
 	if cfg.TemplateVars == nil {
 		cfg.TemplateVars = map[string]string{}
 	}
-	if v := strings.TrimSpace(os.Getenv("HOME_ASSISTANT_SERVER")); v != "" {
-		cfg.TemplateVars["server"] = normalizeEndpointTemplateValue(v)
-	} else {
-		cfg.TemplateVars["server"] = "http://homeassistant.local:8123"
+	// {server} is a COMPLETE base URL (scheme included), not a host fragment, so
+	// keep the scheme (the generic normalizer strips it) and never also prepend
+	// cfg.BaseURL: base_url from config/env is just another source for server,
+	// otherwise the URL doubles up ("http://hostscheme-less-host/api/...").
+	server := strings.TrimSpace(os.Getenv("HOME_ASSISTANT_SERVER"))
+	if server == "" {
+		server = strings.TrimSpace(cfg.BaseURL)
 	}
+	if server == "" {
+		server = "http://homeassistant.local:8123"
+	}
+	if !strings.Contains(server, "://") {
+		server = "http://" + server
+	}
+	cfg.TemplateVars["server"] = strings.TrimRight(server, "/")
 	return cfg, nil
 }
 

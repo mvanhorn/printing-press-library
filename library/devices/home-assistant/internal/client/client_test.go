@@ -142,6 +142,19 @@ func TestRequestBaseURLExpandsTemplateVars(t *testing.T) {
 	}
 }
 
+func TestRequestBaseURLDoesNotDoubleConfigBaseURL(t *testing.T) {
+	for _, basePath := range []string{"{server}", " {server}/"} {
+		c := New(&config.Config{
+			BaseURL:      "http://home.example:8123",
+			BasePath:     basePath,
+			TemplateVars: map[string]string{"server": "http://home.example:8123"},
+		}, time.Second, 0)
+		if got, want := c.RequestBaseURL(), "http://home.example:8123"; got != want {
+			t.Fatalf("BasePath %q: RequestBaseURL() = %q, want %q", basePath, got, want)
+		}
+	}
+}
+
 func TestCrossHostRedirectStripsConfiguredHeaders(t *testing.T) {
 	t.Parallel()
 	var gotAuthorization, gotAPIKey string
