@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "linear",
   "cli_name": "linear-pp-cli",
-  "version": "2026.11.1",
-  "released_at": "2026-11-04T10:09:25Z",
-  "source_commit": "3ec4c2bf4c86d9527e33eb6d88564a1d3afe63ec",
+  "version": "2026.11.2",
+  "released_at": "2026-11-20T09:52:35Z",
+  "source_commit": "3bdfd96d768b91da4c856c7f621c779688ebec5a",
   "printing_press_version": "4.9.0",
   "run_id": "20260518-232543",
   "changes": [
     {
-      "title": "feat(linear): add formal issue relation commands",
-      "pr": 2426,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2426",
-      "commit": "3ec4c2bf4c86d9527e33eb6d88564a1d3afe63ec"
+      "title": "fix(linear): accept agent-guessed command forms and print every --agent failure",
+      "pr": 2476,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2476",
+      "commit": "3bdfd96d768b91da4c856c7f621c779688ebec5a"
     }
   ]
 }

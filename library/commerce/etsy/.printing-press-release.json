@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "etsy",
+  "cli_name": "etsy-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-20T09:52:35Z",
+  "source_commit": "99f6edd18e1030c403bafd3a83650130cf721a92",
+  "printing_press_version": "4.35.6",
+  "run_id": "20261116-133635-274efd3c",
+  "changes": [
+    {
+      "title": "feat(etsy): add etsy",
+      "pr": 2477,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2477",
+      "commit": "99f6edd18e1030c403bafd3a83650130cf721a92"
+    }
+  ]
+}
