@@ -91,8 +91,7 @@ func Execute() error {
 	}
 	if err == nil && flags.deliverBuf != nil {
 		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
+			err = fmt.Errorf("deliver to %s:%s failed: %w", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
 		}
 	}
 	if err != nil && isCobraUsageError(err) {

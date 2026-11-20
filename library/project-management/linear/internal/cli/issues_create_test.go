@@ -24,7 +24,7 @@ func TestIssueInputFromFlags(t *testing.T) {
 		{
 			name: "all optional fields populated",
 			in: func() map[string]any {
-				return issueInputFromFlags("Big feature", "team-uuid", "desc body", "assignee-uuid", "project-uuid", "state-uuid", 2, []string{"label-a", "label-b"})
+				return issueInputFromFlags("Big feature", "team-uuid", "desc body", "assignee-uuid", "project-uuid", "state-uuid", 2, []string{"00000000-0000-4000-8000-00000000000a", "00000000-0000-4000-8000-00000000000b"})
 			},
 			want: map[string]any{
 				"title":       "Big feature",
@@ -34,7 +34,7 @@ func TestIssueInputFromFlags(t *testing.T) {
 				"projectId":   "project-uuid",
 				"stateId":     "state-uuid",
 				"priority":    2,
-				"labelIds":    []string{"label-a", "label-b"},
+				"labelIds":    []string{"00000000-0000-4000-8000-00000000000a", "00000000-0000-4000-8000-00000000000b"},
 			},
 		},
 		{
@@ -87,8 +87,8 @@ func TestIssuesCreateComposesMutationInput(t *testing.T) {
 				"--team", teamID,
 				"--description", "desc body",
 				"--state", stateID,
-				"--label", "label-a",
-				"--label", "label-b",
+				"--label", "00000000-0000-4000-8000-00000000000a",
+				"--label", "00000000-0000-4000-8000-00000000000b",
 				"--project", projectID,
 				"--assignee", assigneeID,
 				"--priority", "2",
@@ -98,7 +98,7 @@ func TestIssuesCreateComposesMutationInput(t *testing.T) {
 				"teamId":      teamID,
 				"description": "desc body",
 				"stateId":     stateID,
-				"labelIds":    []any{"label-a", "label-b"},
+				"labelIds":    []any{"00000000-0000-4000-8000-00000000000a", "00000000-0000-4000-8000-00000000000b"},
 				"projectId":   projectID,
 				"assigneeId":  assigneeID,
 				"priority":    float64(2),

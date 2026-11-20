@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
+
+	"github.com/spf13/pflag"
 )
 
 type issueLabelRef struct {
@@ -167,4 +171,20 @@ func sameLabelIDs(left, right []string) bool {
 
 func internalLabelResolveClientErr() error {
 	return fmt.Errorf("internal error: --label-name resolution requires a live Linear client")
+}
+
+func labelsFlagAsLabelName(_ *pflag.FlagSet, name string) pflag.NormalizedName {
+	if name == "labels" {
+		return "label-name"
+	}
+	return pflag.NormalizedName(name)
+}
+
+func requireLabelUUIDs(flags *rootFlags, labelIDs []string) error {
+	for _, id := range labelIDs {
+		if !store.IsUUID(id) {
+			return portfolioUUIDUsageErr(flags, "--label", id, fmt.Sprintf("use --label-name %q to attach a label by name", id))
+		}
+	}
+	return nil
 }
