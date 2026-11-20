@@ -1,0 +1,915 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://plus.lexis.com/zhome",
+    "captured_at": "2026-11-09T19:44:19.000013+00:00",
+    "entry_count": 10,
+    "api_entry_count": 7,
+    "noise_entry_count": 3,
+    "host_distribution": {
+      "plus.lexis.com": 10
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/r/searchbox/1phtk/wordwheel",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/Search/queue/response/00000000-0000-0000-0000-000000000000-1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/f/DeliveryToolbar/multiDocDialogModel/1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 4,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/f/DeliveryToolbar/CreateMultiDocJobAsync",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/delivery/301678313/status",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/delivery/301678313",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/Retriever/pods/cases/3S11-S000-003C-R0KM-00000-00",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    },
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/search/",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/api/document/collection/cases/id/3S11-S000-003C-R0KM-00000-00",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "chrome_mcp_session",
+        "confidence": 0.95
+      }
+    ]
+  },
+  "endpoint_clusters": [
+    {
+      "host": "plus.lexis.com",
+      "method": "POST",
+      "path": "/f/DeliveryToolbar/multiDocDialogModel/{multidocdialogmodel_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "activeContentName",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "activeContentPGUID",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "cartSourceKey",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "category",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "clientId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "contentType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "docFullPath",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "documentNumber",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "isMultipart",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "itemId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "keyValueInfo",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "lpaDocViewType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "masterFeatureId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "productContentTypeId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "selectedDocuments",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "low_confidence_parameters": [
+        {
+          "name": "multidocdialogmodel_id",
+          "segment": "1",
+          "position": 3,
+          "reason": "single-sample small integer path segment"
+        }
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/f/DeliveryToolbar/multiDocDialogModel/1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "plus.lexis.com",
+      "method": "POST",
+      "path": "/f/DeliveryToolbar/{deliverytoolbar_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "deliveryItemType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "destinationType",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "fileName",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "isCourtlinkWorkfolder",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isShepardsPeer",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "kwicWindowValue",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "masterFeatureId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "multipleDocuments",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "retrieveoptions",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "selectedRange",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "updatedRetrieveOptions",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "courierItemStatus",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "courierItemStatusText",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "courierJobStatus",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "downloadUri",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "jobId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "outputFormat",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/f/DeliveryToolbar/CreateMultiDocJobAsync",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "plus.lexis.com",
+      "method": "GET",
+      "path": "/f/Retriever/pods/cases/3S11-S000-003C-R0KM-00000-00",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "documentId",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/Retriever/pods/cases/3S11-S000-003C-R0KM-00000-00",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "plus.lexis.com",
+      "method": "GET",
+      "path": "/f/Search/queue/response/00000000-0000-0000-0000-000000000000-1",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "fromCache",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isAutoCorrectOrDym",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isLsaResult",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isMlthResult",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isMultipleSdrResult",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isSdrResult",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isTocSdrResult",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "items",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "queryLanguage",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "resultsPerPage",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "sdrResult",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "startIndex",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "totalResults",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/Search/queue/response/00000000-0000-0000-0000-000000000000-1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "plus.lexis.com",
+      "method": "GET",
+      "path": "/f/delivery/{delivery_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "courierItem",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "courierJobPref",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "courierJobStatus",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "creationTime",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          },
+          {
+            "name": "downloadUri",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "jobId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "jobUri",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/delivery/301678313",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "plus.lexis.com",
+      "method": "GET",
+      "path": "/f/delivery/{delivery_id}/status",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "status",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "statusText",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/delivery/301678313/status",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "plus.lexis.com",
+      "method": "POST",
+      "path": "/r/searchbox/1phtk/wordwheel",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "collections",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "props",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/r/searchbox/1phtk/wordwheel",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.35,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/r/searchbox/1phtk/wordwheel",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/Search/queue/response/00000000-0000-0000-0000-000000000000-1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/f/DeliveryToolbar/multiDocDialogModel/1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 4,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/f/DeliveryToolbar/CreateMultiDocJobAsync",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/delivery/301678313/status",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/delivery/301678313",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/Retriever/pods/cases/3S11-S000-003C-R0KM-00000-00",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "Capture order used; timing unavailable."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_DeliveryToolbar",
+      "resource": "DeliveryToolbar",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /f/DeliveryToolbar/{deliverytoolbar_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/f/DeliveryToolbar/CreateMultiDocJobAsync",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_multiDocDialogModel",
+      "resource": "multiDocDialogModel",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /f/DeliveryToolbar/multiDocDialogModel/{multidocdialogmodel_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/f/DeliveryToolbar/multiDocDialogModel/1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_wordwheel",
+      "resource": "wordwheel",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /r/searchbox/1phtk/wordwheel traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "POST",
+          "host": "plus.lexis.com",
+          "path": "/r/searchbox/1phtk/wordwheel",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_delivery",
+      "resource": "delivery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /f/delivery/{delivery_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/delivery/301678313",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_status",
+      "resource": "status",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /f/delivery/{delivery_id}/status traffic.",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/delivery/301678313/status",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_00000000_0000_0000_0000_000000000000_1",
+      "resource": "00000000_0000_0000_0000_000000000000_1",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /f/Search/queue/response/00000000-0000-0000-0000-000000000000-1 traffic.",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/Search/queue/response/00000000-0000-0000-0000-000000000000-1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_3S11_S000_003C_R0KM_00000_00",
+      "resource": "3S11_S000_003C_R0KM_00000_00",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /f/Retriever/pods/cases/3S11-S000-003C-R0KM-00000-00 traffic.",
+      "evidence": [
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/Retriever/pods/cases/3S11-S000-003C-R0KM-00000-00",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "weak_schema_confidence"
+  ],
+  "warnings": [
+    {
+      "type": "reserved_resource_name",
+      "message": "resource name \"search\" may conflict with a reserved Printing Press command or template; consider renaming it to a domain-specific command name",
+      "confidence": 1
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "plus.lexis.com",
+          "path": "/f/SharedStorage/sharedStorageDelivery",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    }
+  ]
+}

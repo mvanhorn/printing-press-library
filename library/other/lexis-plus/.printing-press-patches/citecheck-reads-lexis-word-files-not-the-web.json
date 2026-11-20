@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261109-112847-01f2138d",
+  "base_printing_press_version": "4.35.4",
+  "id": "citecheck-reads-lexis-word-files-not-the-web",
+  "summary": "citecheck builds its source text from the user's own Lexis+ Word download (reporter page markers, majority/concurrence/dissent headings, footnotes) and matches quotations word for word; a regen must not replace this with web scraping or a looser fuzzy match.",
+  "reason": "A cite check is only as good as the text and page numbers it compares against; the Word copy is the one Lexis output that carries official pagination and speaker labels.",
+  "files": [
+    "internal/cli/lexis_citecheck.go",
+    "internal/cli/lexis_citecheck_doc.go",
+    "internal/cli/lexis_citecheck_match.go",
+    "internal/cli/lexis_citecheck_test.go"
+  ]
+}

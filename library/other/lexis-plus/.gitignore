@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/lexis-plus-pp-cli
+/lexis-plus-pp-cli.exe
+/lexis-plus-pp-mcp
+/lexis-plus-pp-mcp.exe
+/bin/
+/build/
+/dist/
