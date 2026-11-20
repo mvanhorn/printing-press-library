@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "home-assistant",
   "cli_name": "home-assistant-pp-cli",
-  "version": "2026.9.1",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
+  "version": "2026.11.1",
+  "released_at": "2026-11-20T09:51:47Z",
+  "source_commit": "fbdb579ce67caee373017ecdadc434f4cc066b94",
   "printing_press_version": "4.29.0",
   "run_id": "20260718-170717-2c0fb604",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "fix(home-assistant): keep the scheme in HOME_ASSISTANT_SERVER and stop doubling base_url",
+      "pr": 2479,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2479",
+      "commit": "fbdb579ce67caee373017ecdadc434f4cc066b94"
     }
   ]
 }
