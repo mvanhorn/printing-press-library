@@ -1,0 +1,76 @@
+PASS  Absorbed row 1: search
+PASS  Absorbed row 2: search
+SKIP  Absorbed row 3: SKIP (generated endpoint) documents list
+PASS  Absorbed row 4: documents list
+PASS  Absorbed row 5: documents list
+PASS  Absorbed row 6: documents list
+PASS  Absorbed row 7: documents list
+SKIP  Absorbed row 8: SKIP (generated endpoint) documents save
+PASS  Absorbed row 9: documents save
+PASS  Absorbed row 10: documents save
+SKIP  Absorbed row 11: SKIP (generated endpoint) documents bulk-upda
+SKIP  Absorbed row 12: SKIP (generated endpoint) documents bulk-upda
+SKIP  Absorbed row 13: SKIP (generated endpoint) documents update
+SKIP  Absorbed row 14: SKIP (generated endpoint) documents delete
+PASS  Absorbed row 15: reader-tags
+PASS  Absorbed row 16: documents update
+PASS  Absorbed row 17: documents bulk-update
+PASS  Absorbed row 18: documents update
+PASS  Absorbed row 19: documents update
+SKIP  Absorbed row 20: SKIP (stub - async ZIP export has no public R
+PASS  Absorbed row 21: sync
+PASS  Absorbed row 22: search
+SKIP  Absorbed row 23: SKIP (generated endpoint) highlights list
+SKIP  Absorbed row 24: SKIP (generated endpoint) highlights get
+SKIP  Absorbed row 25: SKIP (generated endpoint) highlights create
+PASS  Absorbed row 26: import
+SKIP  Absorbed row 27: SKIP (generated endpoint) highlights update
+SKIP  Absorbed row 28: SKIP (generated endpoint) highlights delete
+SKIP  Absorbed row 29: SKIP (generated endpoint) review get
+SKIP  Absorbed row 30: SKIP (generated endpoint) review complete (ne
+SKIP  Absorbed row 31: SKIP (generated endpoint) books list
+SKIP  Absorbed row 32: SKIP (generated endpoint) books get
+SKIP  Absorbed row 33: SKIP (generated endpoint) books update (new e
+SKIP  Absorbed row 34: SKIP (generated endpoint) highlight-tags list
+SKIP  Absorbed row 35: SKIP (generated endpoint) book-tags list, cre
+PASS  Absorbed row 36: sync
+PASS  Absorbed row 37: search
+PASS  Absorbed row 38: search
+PASS  Absorbed row 39: documents list
+PASS  Absorbed row 40: documents update
+PASS  Absorbed row 41: documents list
+PASS  Absorbed row 42: documents list
+SKIP  Absorbed row 43: SKIP (stub - undocumented endpoints; unverifi
+PASS  Absorbed row 44: import
+PASS  Absorbed row 45: workflow status
+PASS  Absorbed row 46: import
+PASS  Absorbed row 47: doctor
+PASS  Absorbed row 48: auth set-token
+SKIP  Absorbed row 49: SKIP (stub - OAuth is MCP-gateway only; REST 
+PASS  Absorbed row 50: profile
+PASS  Absorbed row 51: agent-context
+PASS  Absorbed row 52: documents list
+SKIP  Absorbed row 53: SKIP (stub - section-level keyword extraction
+SKIP  Absorbed row 54: SKIP (stub - sends document URLs to a third p
+PASS  Absorbed row 55: agent-context
+PASS  Absorbed row 56: agent-context
+PASS  Absorbed row 57: agent-context
+PASS  Absorbed row 58: agent-context
+PASS  Absorbed row 59: agent-context
+PASS  Absorbed row 60: agent-context
+PASS  Absorbed row 61: mirror
+SKIP  Absorbed row 62: SKIP (stub - templating deferred; `mirror` us
+SKIP  Absorbed row 63: SKIP (stub - TUI is out of scope; `--human-fr
+SKIP  Absorbed row 64: SKIP (stub - undocumented Books shelf API, ou
+SKIP  Absorbed row 65: SKIP (stub - undocumented Books shelf API, ou
+SKIP  Absorbed row 66: SKIP (stub - undocumented Books shelf API, ou
+SKIP  Absorbed row 67: SKIP (stub - undocumented Books shelf API, ou
+PASS  Transcendence T1: ask
+PASS  Transcendence T2: backlog
+PASS  Transcendence T3: dedupe
+PASS  Transcendence T4: digest
+PASS  Transcendence T5: triage stale
+PASS  Transcendence T6: read-next
+PASS  Transcendence T7: watch
+PASS  Transcendence T8: connections
+PASS  Transcendence T9: webhook

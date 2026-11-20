@@ -1,0 +1,1055 @@
+name: readwise
+description: "Your entire Readwise + Reader corpus, mirrored locally and searchable offline"
+cli_description: "Every Readwise (highlights/books) and Reader (documents) feature, plus a local SQLite mirror with offline full-text search across both APIs that no other Readwise tool has."
+version: "0.1.0"
+base_url: "https://readwise.io/api/v2"
+category: productivity
+health_check_path: "/auth/"
+# Rate budget (drift D1): v2 default is 240 requests/min per access token; v2 highlight/book LIST are 20/min; Reader v3 limits are on each endpoint.
+
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "Token {token}"
+  in: header
+  env_vars:
+    - READWISE_API_TOKEN
+
+mcp:
+  transport: [stdio, http]
+
+config:
+  format: toml
+  path: "~/.config/readwise-pp-cli/config.toml"
+
+
+# learn: Reader locations and categories are finite, stable API enums that agents name loosely
+# ("inbox", "read later", "kindle books"); IDs have two stable shapes (v2 integers, v3 ULIDs).
+learn:
+  ticker_patterns:
+    # Reader v3 document IDs (26-char lowercase ULID-style)
+    - "^0[0-9a-z]{25}$"
+    # Readwise v2 highlight/book IDs (integers)
+    - "^[0-9]{6,12}$"
+  stopwords:
+    - readwise
+    - reader
+    - saved
+    - library
+  synonyms:
+    "read later": "later"
+    "archived": "archive"
+  entity_lookup_seeds:
+    reader_location:
+      - {canonical: "new", aliases: ["inbox", "unread", "new items"]}
+      - {canonical: "later", aliases: ["read later", "later queue", "saved for later"]}
+      - {canonical: "shortlist", aliases: ["shortlisted", "short list", "starred"]}
+      - {canonical: "archive", aliases: ["archived", "done", "finished"]}
+      - {canonical: "feed", aliases: ["rss feed", "feeds", "subscriptions"]}
+    document_category:
+      - {canonical: "article", aliases: ["articles", "web article", "blog post"]}
+      - {canonical: "email", aliases: ["emails", "newsletter", "newsletters"]}
+      - {canonical: "rss", aliases: ["rss item", "feed item"]}
+      - {canonical: "pdf", aliases: ["pdfs", "paper", "papers"]}
+      - {canonical: "epub", aliases: ["epubs", "ebook", "ebooks"]}
+      - {canonical: "tweet", aliases: ["tweets", "thread", "twitter"]}
+      - {canonical: "video", aliases: ["videos", "youtube"]}
+      - {canonical: "highlight", aliases: ["reader highlight", "reader highlights"]}
+      - {canonical: "note", aliases: ["notes", "annotation", "annotations"]}
+    source_category:
+      - {canonical: "books", aliases: ["book", "kindle", "kindle books"]}
+      - {canonical: "articles", aliases: ["article sources"]}
+      - {canonical: "tweets", aliases: ["twitter sources"]}
+      - {canonical: "podcasts", aliases: ["podcast", "episodes"]}
+      - {canonical: "supplementals", aliases: ["supplemental", "readwise supplementals"]}
+
+resources:
+  # ---------------- v2 CLASSIC: Highlights ----------------
+  highlights:
+    description: "Highlights from books, articles, tweets, and podcasts (Readwise classic v2)"
+    endpoints:
+      list:
+        method: GET
+        path: "/highlights/"
+        description: "List highlights (rate-limited to 20 req/min; prefer 'sync' for bulk pulls). Page-based response: count, next, previous, results; follow next until null"
+        params:
+          - name: page_size
+            flag_name: page-size
+            type: int
+            required: false
+            default: 100
+            description: "Results per page (max 1000)"
+          - name: page
+            type: int
+            required: false
+            description: "1-indexed page number"
+          - name: book_id
+            flag_name: book-id
+            type: int
+            required: false
+            description: "Only highlights belonging to this book/source ID"
+          - name: updated__gt
+            flag_name: updated-after
+            type: string
+            required: false
+            format: date-time
+            description: "Only highlights last updated after this ISO-8601 datetime"
+          - name: updated__lt
+            flag_name: updated-before
+            type: string
+            required: false
+            format: date-time
+            description: "Only highlights last updated before this ISO-8601 datetime"
+          - name: highlighted_at__gt
+            flag_name: highlighted-after
+            type: string
+            required: false
+            format: date-time
+            description: "Only highlights taken after this ISO-8601 datetime"
+          - name: highlighted_at__lt
+            flag_name: highlighted-before
+            type: string
+            required: false
+            format: date-time
+            description: "Only highlights taken before this ISO-8601 datetime"
+        response:
+          type: array
+          item: Highlight
+        response_path: results
+        pagination:
+          type: page
+      get:
+        method: GET
+        path: "/highlights/{id}/"
+        description: "Get a single highlight by ID"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Highlight ID"
+        response:
+          type: object
+          item: Highlight
+      create:
+        method: POST
+        path: "/highlights/"
+        description: "Create or upsert one or more highlights (creates source books/articles as needed). Dedupe key: title+author+text+source_url. Re-sending the same highlight_url with new text updates the highlight"
+        body:
+          properties:
+            highlights:
+              type: array
+              required: true
+              items:
+                type: object
+                properties:
+                  text:
+                    type: string
+                    description: "Max 8191 characters"
+                    required: true
+                  title:
+                    type: string
+                    description: "Max 511 characters"
+                  author:
+                    type: string
+                    description: "Max 1024 characters"
+                  source_url:
+                    type: string
+                    description: "Max 2047 characters"
+                  source_type:
+                    type: string
+                    description: "3 to 64 characters, no spaces"
+                  category:
+                    type: string
+                    enum: [books, articles, tweets, podcasts]
+                  note:
+                    type: string
+                    description: "Max 8191 characters"
+                  location:
+                    type: int
+                  location_type:
+                    type: string
+                  highlighted_at:
+                    type: string
+                  highlight_url:
+                    type: string
+                    description: "Max 4095 characters"
+                  image_url:
+                    type: string
+                    description: "Max 2047 characters"
+        response:
+          type: array
+          item: Book
+      update:
+        method: PATCH
+        path: "/highlights/{id}/"
+        description: "Update fields on an existing highlight"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Highlight ID"
+        body:
+          - name: text
+            type: string
+            description: "Highlight text"
+          - name: note
+            type: string
+            description: "Annotation note"
+          - name: location
+            type: string
+            description: "Location in source"
+          - name: url
+            type: string
+            description: "Unique URL of the specific highlight"
+          - name: color
+            type: string
+            enum: [yellow, blue, pink, orange, green, purple]
+            description: "Highlight color tag"
+        response:
+          type: object
+          item: Highlight
+      delete:
+        method: DELETE
+        path: "/highlights/{id}/"
+        description: "Delete a highlight"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Highlight ID"
+        response:
+          type: object
+
+  # ---------------- v2 CLASSIC: Books / Sources ----------------
+  books:
+    description: "Books and sources (Kindle, articles, tweets, podcasts) that own highlights"
+    endpoints:
+      list:
+        method: GET
+        path: "/books/"
+        description: "List books/sources (rate-limited to 20 req/min; prefer 'sync' for bulk pulls). Page-based response: count, next, previous, results; follow next until null"
+        params:
+          - name: page_size
+            flag_name: page-size
+            type: int
+            required: false
+            default: 100
+            description: "Results per page (max 1000)"
+          - name: page
+            type: int
+            required: false
+            description: "1-indexed page number"
+          - name: category
+            type: string
+            required: false
+            enum: [books, articles, tweets, supplementals, podcasts]
+            description: "Filter by category"
+          - name: source
+            type: string
+            required: false
+            description: "Filter by source identifier (e.g. kindle)"
+          - name: updated__gt
+            flag_name: updated-after
+            type: string
+            required: false
+            format: date-time
+            description: "Only books last updated after this ISO-8601 datetime"
+          - name: updated__lt
+            flag_name: updated-before
+            type: string
+            required: false
+            format: date-time
+            description: "Only books last updated before this ISO-8601 datetime"
+          - name: last_highlight_at__gt
+            flag_name: last-highlight-after
+            type: string
+            required: false
+            format: date-time
+            description: "Only books whose last highlight is after this ISO-8601 datetime"
+          - name: last_highlight_at__lt
+            flag_name: last-highlight-before
+            type: string
+            required: false
+            format: date-time
+            description: "Only books whose last highlight is before this ISO-8601 datetime"
+        response:
+          type: array
+          item: Book
+        response_path: results
+        pagination:
+          type: page
+      get:
+        method: GET
+        path: "/books/{id}/"
+        description: "Get a single book/source by ID"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Book/source ID"
+        response:
+          type: object
+          item: Book
+      update:
+        method: PATCH
+        path: "/books/{id}/"
+        description: "Update a book/source"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Book/source ID"
+        body:
+          - name: title_override
+            type: string
+            description: "Override title"
+          - name: author_override
+            type: string
+            description: "Override author"
+          - name: category
+            type: string
+            enum: [books, articles, tweets, podcasts]
+            description: "Source category"
+          - name: cover_image
+            type: string
+            description: "Base64 or data URI image (JPEG/PNG/GIF/WebP); null removes it"
+        response:
+          type: object
+          item: Book
+
+  # ---------------- v2 CLASSIC: Daily Review ----------------
+  review:
+    description: "Daily spaced-repetition review highlights"
+    endpoints:
+      get:
+        method: GET
+        path: "/review/"
+        description: "Get today's daily review highlights; 404 means no review today, not a failure"
+        response:
+          type: object
+          item: Review
+      complete:
+        method: POST
+        path: "/review/complete/"
+        description: "Mark today's daily review complete; returns review_id and review_completed (true)"
+        response:
+          type: object
+          item: Review
+
+  # NOTE: the v2 GET /export/ endpoint (cursor-paginated, updatedAfter incremental)
+  # is the canonical bulk-sync source. It is NOT modeled as a typed resource because
+  # "export" is a reserved Printing Press template name. The hand-built `sync` and
+  # `mirror` commands (Phase 3) call /export/ directly via the generated client.
+
+  # ---------------- v2 CLASSIC: Highlight Tags ----------------
+  highlight-tags:
+    description: "Tags attached to individual highlights"
+    endpoints:
+      list:
+        method: GET
+        path: "/highlights/{highlight_id}/tags"
+        description: "List tags on a highlight"
+        params:
+          - name: highlight_id
+            type: int
+            required: true
+            positional: true
+            description: "Highlight ID"
+        response:
+          type: array
+          item: Tag
+        response_path: results
+      get:
+        method: GET
+        path: "/highlights/{highlight_id}/tags/{tag_id}"
+        description: "Get a tag on a highlight"
+        params:
+          - name: highlight_id
+            type: int
+            required: true
+            positional: true
+            description: "Highlight ID"
+          - name: tag_id
+            type: int
+            required: true
+            positional: true
+            description: "Tag ID"
+        response:
+          type: object
+          item: Tag
+      create:
+        method: POST
+        path: "/highlights/{highlight_id}/tags/"
+        description: "Add a tag to a highlight"
+        params:
+          - name: highlight_id
+            type: int
+            required: true
+            positional: true
+            description: "Highlight ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Tag name (max 127 chars)"
+        response:
+          type: object
+          item: Tag
+      update:
+        method: PATCH
+        path: "/highlights/{highlight_id}/tags/{tag_id}"
+        description: "Rename a tag on a highlight"
+        params:
+          - name: highlight_id
+            type: int
+            required: true
+            positional: true
+            description: "Highlight ID"
+          - name: tag_id
+            type: int
+            required: true
+            positional: true
+            description: "Tag ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "New tag name"
+        response:
+          type: object
+          item: Tag
+      delete:
+        method: DELETE
+        path: "/highlights/{highlight_id}/tags/{tag_id}"
+        description: "Remove a tag from a highlight"
+        params:
+          - name: highlight_id
+            type: int
+            required: true
+            positional: true
+            description: "Highlight ID"
+          - name: tag_id
+            type: int
+            required: true
+            positional: true
+            description: "Tag ID"
+        response:
+          type: object
+
+  # ---------------- v2 CLASSIC: Book Tags ----------------
+  book-tags:
+    description: "Tags attached to books/sources"
+    endpoints:
+      list:
+        method: GET
+        path: "/books/{book_id}/tags"
+        description: "List tags on a book"
+        params:
+          - name: book_id
+            type: int
+            required: true
+            positional: true
+            description: "Book ID"
+        response:
+          type: array
+          item: Tag
+        response_path: results
+      get:
+        method: GET
+        path: "/books/{book_id}/tags/{tag_id}"
+        description: "Get a tag on a book"
+        params:
+          - name: book_id
+            type: int
+            required: true
+            positional: true
+            description: "Book ID"
+          - name: tag_id
+            type: int
+            required: true
+            positional: true
+            description: "Tag ID"
+        response:
+          type: object
+          item: Tag
+      create:
+        method: POST
+        path: "/books/{book_id}/tags/"
+        description: "Add a tag to a book"
+        params:
+          - name: book_id
+            type: int
+            required: true
+            positional: true
+            description: "Book ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Tag name (max 512 chars)"
+        response:
+          type: object
+          item: Tag
+      update:
+        method: PATCH
+        path: "/books/{book_id}/tags/{tag_id}"
+        description: "Rename a tag on a book"
+        params:
+          - name: book_id
+            type: int
+            required: true
+            positional: true
+            description: "Book ID"
+          - name: tag_id
+            type: int
+            required: true
+            positional: true
+            description: "Tag ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "New tag name"
+        response:
+          type: object
+          item: Tag
+      delete:
+        method: DELETE
+        path: "/books/{book_id}/tags/{tag_id}"
+        description: "Remove a tag from a book"
+        params:
+          - name: book_id
+            type: int
+            required: true
+            positional: true
+            description: "Book ID"
+          - name: tag_id
+            type: int
+            required: true
+            positional: true
+            description: "Tag ID"
+        response:
+          type: object
+
+  # ---------------- v3 READER: Documents ----------------
+  documents:
+    description: "Reader documents — saved articles, PDFs, emails, RSS, tweets, videos (Reader v3)"
+    base_url: "https://readwise.io/api/v3"
+    endpoints:
+      save:
+        method: POST
+        path: "/save/"
+        description: "Save a document to Reader by URL (or HTML); 50 req/min per token. url is required unless parent_id is set. To create a highlight, supply parent_id and content; only category, content, notes, parent_id, saved_using, tags are accepted. A passage not found in the parent returns 400 and creates nothing"
+        body:
+          - name: url
+            type: string
+            required: false
+            description: "Document URL; required unless parent_id is set (use a made-up unique URL if none exists)"
+          - name: html
+            type: string
+            description: "Document content as HTML; if omitted Readwise scrapes the URL"
+          - name: should_clean_html
+            flag_name: clean-html
+            type: bool
+            description: "Auto-clean provided HTML and parse metadata"
+          - name: title
+            type: string
+            description: "Override document title"
+          - name: author
+            type: string
+            description: "Override document author"
+          - name: summary
+            type: string
+            description: "Document summary"
+          - name: published_date
+            flag_name: published-date
+            type: string
+            format: date-time
+            description: "Publication date (ISO-8601)"
+          - name: image_url
+            flag_name: image-url
+            type: string
+            description: "Cover image URL"
+          - name: location
+            type: string
+            enum: [new, later, archive, feed]
+            description: "Initial location (default new)"
+          - name: category
+            type: string
+            enum: [article, email, rss, highlight, pdf, epub, tweet, video]
+            description: "Document category (default guessed from URL); highlight requires parent_id"
+          - name: saved_using
+            flag_name: saved-using
+            type: string
+            description: "Source identifier for the save"
+          - name: tags
+            type: array
+            description: "Tags to apply"
+          - name: notes
+            type: string
+            description: "Top-level note on the document"
+          - name: language
+            type: string
+            description: "Language code (e.g. en, de, en-US)"
+          - name: parent_id
+            type: string
+            description: "Parent document ID for highlight creation"
+          - name: content
+            type: string
+            description: "Highlight passage in the parent document"
+        response:
+          type: object
+          item: SaveResult
+      list:
+        method: GET
+        path: "/list/"
+        description: "List Reader documents with filters (rate-limited to 20 req/min; prefer 'sync')"
+        params:
+          - name: id
+            type: string
+            required: false
+            description: "Return just this document ID"
+          - name: updatedAfter
+            flag_name: updated-after
+            type: string
+            required: false
+            format: date-time
+            description: "Only documents updated after this ISO-8601 datetime"
+          - name: location
+            type: string
+            required: false
+            enum: [new, later, shortlist, archive, feed]
+            description: "Filter by location"
+          - name: category
+            type: string
+            required: false
+            enum: [article, email, rss, highlight, note, pdf, epub, tweet, video]
+            description: "Filter by category"
+          - name: tag
+            type: string
+            required: false
+            description: "Repeat tag query parameter up to 5 times (AND semantics); empty value finds untagged docs. The internal format has no documented repeatable query construct"
+          - name: limit
+            type: int
+            required: false
+            default: 100
+            description: "Max documents (1-100)"
+          - name: pageCursor
+            flag_name: page-cursor
+            type: string
+            required: false
+            description: "Cursor from a previous response"
+          - name: withHtmlContent
+            flag_name: with-html-content
+            type: bool
+            required: false
+            description: "Include html_content field"
+          - name: withRawSourceUrl
+            flag_name: with-raw-source-url
+            type: bool
+            required: false
+            description: "Include raw_source_url field (S3 link valid 1 hour)"
+        response:
+          type: array
+          item: Document
+        response_path: results
+        pagination:
+          type: cursor
+          cursor_field: nextPageCursor
+      update:
+        method: PATCH
+        path: "/update/{id}/"
+        description: "Update fields on a Reader document; 50 req/min per token. For highlights only notes and tags are accepted; other keys return 400. Notes cannot be updated directly; update them on their highlight"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Document ID"
+        body:
+          - name: title
+            type: string
+            description: "Document title"
+          - name: author
+            type: string
+            description: "Document author"
+          - name: summary
+            type: string
+            description: "Summary"
+          - name: published_date
+            flag_name: published-date
+            type: string
+            format: date-time
+            description: "Publication date (ISO-8601)"
+          - name: image_url
+            flag_name: image-url
+            type: string
+            description: "Cover image URL"
+          - name: seen
+            type: bool
+            description: "Mark seen/unseen"
+          - name: location
+            type: string
+            enum: [new, later, archive, feed]
+            description: "Move to location"
+          - name: category
+            type: string
+            enum: [article, email, rss, highlight, note, pdf, epub, tweet, video]
+            description: "Document category"
+          - name: tags
+            type: array
+            description: "Replace all tags"
+          - name: notes
+            type: string
+            description: "Replace document note (empty string clears)"
+          - name: language
+            type: string
+            description: "Language code (e.g. en, de, en-US)"
+          - name: reading_progress
+            type: float
+            description: "Reading progress fraction, 0 to 1; not yet supported for PDFs"
+        response:
+          type: object
+          item: SaveResult
+      bulk-update:
+        method: PATCH
+        path: "/bulk_update/"
+        description: "Update up to 50 documents in one request; 20 req/min per token. Returns {results: [...]}; 200 means all succeeded, 207 means partial success/per-item failure (print per-item errors without an error exit), 400 means bad payload"
+        body:
+          properties:
+            updates:
+              type: array
+              required: true
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    required: true
+                  location:
+                    type: string
+                  category:
+                    type: string
+                    enum: [article, email, rss, pdf, epub, tweet, video]
+                  seen:
+                    type: bool
+                  title:
+                    type: string
+                  author:
+                    type: string
+                  summary:
+                    type: string
+                  tags:
+                    type: array
+                    description: "Replaces all tags"
+                  notes:
+                    type: string
+                  language:
+                    type: string
+                    description: "Language code (e.g. en, de, en-US)"
+                  reading_progress:
+                    type: float
+                    description: "Reading progress fraction, 0 to 1; not yet supported for PDFs"
+                  published_date:
+                    type: string
+                    format: date-time
+                  image_url:
+                    type: string
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/delete/{id}/"
+        description: "Delete a Reader document; 20 req/min per token. Returns 204; also deletes all its highlights and notes. Use a dry-run and confirmation gate before deleting"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Document ID"
+        response:
+          type: object
+
+  # ---------------- v3 READER: Tags ----------------
+  reader-tags:
+    description: "Tags used across Reader documents"
+    base_url: "https://readwise.io/api/v3"
+    endpoints:
+      list:
+        method: GET
+        path: "/tags/"
+        description: "List all Reader document tags (20 req/min per token)"
+        params:
+          - name: pageCursor
+            flag_name: page-cursor
+            type: string
+            required: false
+            description: "Cursor from a previous response"
+        response:
+          type: array
+          item: ReaderTag
+        response_path: results
+        pagination:
+          type: cursor
+          cursor_field: nextPageCursor
+
+types:
+  Highlight:
+    fields:
+      - name: id
+        type: int
+      - name: text
+        type: string
+      - name: note
+        type: string
+      - name: location
+        type: int
+      - name: location_type
+        type: string
+      - name: highlighted_at
+        type: string
+      - name: created_at
+        type: string
+      - name: updated
+        type: string
+      - name: color
+        type: string
+      - name: book_id
+        type: int
+      - name: tags
+        type: array
+      - name: url
+        type: string
+      - name: readwise_url
+        type: string
+      - name: external_id
+        type: string
+      - name: end_location
+        type: int
+  Book:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: author
+        type: string
+      - name: category
+        type: string
+      - name: source
+        type: string
+      - name: num_highlights
+        type: int
+      - name: last_highlight_at
+        type: string
+      - name: updated
+        type: string
+      - name: cover_image_url
+        type: string
+      - name: highlights_url
+        type: string
+      - name: source_url
+        type: string
+      - name: tags
+        type: array
+      - name: document_note
+        type: string
+      - name: asin
+        type: string
+      - name: resurface_weighting
+        type: float
+      - name: source_syncs_all_books_together
+        type: bool
+      - name: modified_highlights
+        type: array
+        description: "IDs created or updated by a highlight CREATE request; present on CREATE responses"
+  ExportBook:
+    fields:
+      - name: user_book_id
+        type: int
+      - name: is_deleted
+        type: bool
+      - name: title
+        type: string
+      - name: author
+        type: string
+      - name: readable_title
+        type: string
+      - name: source
+        type: string
+      - name: category
+        type: string
+      - name: cover_image_url
+        type: string
+      - name: unique_url
+        type: string
+      - name: book_tags
+        type: array
+      - name: document_note
+        type: string
+      - name: summary
+        type: string
+      - name: readwise_url
+        type: string
+      - name: source_url
+        type: string
+      - name: asin
+        type: string
+      - name: highlights
+        type: array
+        description: "Array of ExportHighlight objects"
+      - name: external_id
+        type: string
+        description: "Present only when source is reader"
+  Document:
+    fields:
+      - name: id
+        type: string
+      - name: url
+        type: string
+      - name: source_url
+        type: string
+      - name: title
+        type: string
+      - name: author
+        type: string
+      - name: source
+        type: string
+      - name: category
+        type: string
+      - name: location
+        type: string
+      - name: tags
+        type: object
+      - name: site_name
+        type: string
+      - name: word_count
+        type: int
+      - name: reading_time
+        type: string
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+      - name: notes
+        type: string
+      - name: published_date
+        type: string
+      - name: summary
+        type: string
+      - name: image_url
+        type: string
+      - name: parent_id
+        type: string
+        description: "Self-reference to Document.id; highlights and notes are Documents with category highlight/note and parent_id set"
+      - name: reading_progress
+        type: float
+      - name: first_opened_at
+        type: string
+      - name: last_opened_at
+        type: string
+      - name: saved_at
+        type: string
+      - name: last_moved_at
+        type: string
+      - name: listening_time
+        type: string
+      - name: highlight_offset
+        type: int
+      - name: highlight_location
+        type: string
+        description: "<start>,<end> pair of serialized DOM positions in parent html_content"
+      - name: html_content
+        type: string
+        description: "Only with withHtmlContent=true; store only on demand"
+      - name: raw_source_url
+        type: string
+        description: "Only with withRawSourceUrl=true; S3 link valid 1 hour. Fetch only on demand and never persist"
+  SaveResult:
+    fields:
+      - name: id
+        type: string
+      - name: url
+        type: string
+  Tag:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+  ReaderTag:
+    fields:
+      - name: key
+        type: string
+      - name: name
+        type: string
+  ExportHighlight:
+    fields:
+      - name: id
+        type: int
+      - name: is_deleted
+        type: bool
+      - name: text
+        type: string
+      - name: location
+        type: int
+      - name: location_type
+        type: string
+      - name: note
+        type: string
+      - name: color
+        type: string
+      - name: highlighted_at
+        type: string
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+      - name: external_id
+        type: string
+      - name: end_location
+        type: int
+      - name: url
+        type: string
+      - name: book_id
+        type: int
+      - name: tags
+        type: array
+      - name: is_favorite
+        type: bool
+      - name: is_discard
+        type: bool
+      - name: readwise_url
+        type: string
+  Review:
+    fields:
+      - name: review_id
+        type: int
+      - name: review_url
+        type: string
+      - name: review_completed
+        type: bool
+      - name: highlights
+        type: array
+        description: "Array of ReviewHighlight objects; 404 means no review today"
+  ReviewHighlight:
+    fields:
+      - name: title
+        type: string
+      - name: author
+        type: string
+      - name: source_type
+        type: string
+      - name: category
+        type: string
+      - name: image_url
+        type: string
+      - name: highlight_url
+        type: string
+      - name: api_source
+        type: string

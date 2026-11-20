@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "ask-reports-truncation",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Bounded ask searches disclose truncation and returned counts for each source.",
+  "reason": "Silent fixed caps hide additional evidence. Probe one extra match per source, preserve existing JSON fields, and report a lower document output count when child matches are excluded.",
+  "files": [
+    "internal/cli/ask.go",
+    "internal/cli/review_ask_truncation_test.go",
+    "internal/store/store.go",
+    "internal/cli/review_r2_ask_test.go"
+  ],
+  "markers": [
+    "const novelAskSourceLimit = 50",
+    "db.SearchHighlights(query, novelAskSourceLimit+1)",
+    "db.SearchTopLevelDocuments(query, novelAskSourceLimit+1)",
+    "Results truncated: showing up to",
+    "func TestReviewAskTruncation(",
+    "func (s *Store) SearchTopLevelDocuments(",
+    "func TestR2AskChildrenExcludedBeforeLimit("
+  ]
+}

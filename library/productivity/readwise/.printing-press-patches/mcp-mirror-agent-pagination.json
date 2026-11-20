@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "mcp-mirror-agent-pagination",
+  "summary": "Cobratree mirror forces --agent on shell-out subprocesses and byte-budget-pages mirrored output via an offset cursor.",
+  "reason": "Edits to generated cobratree/shellout.go and walker.go are reverted by regen-merge (#5418); paginate.go is hand-written. Markers pin the --agent force, the offset consumption, the offset flag block, and the registered offset parameter.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/paginate.go",
+    "internal/mcp/cobratree/walker.go"
+  ],
+  "markers": [
+    "finalArgs = append(finalArgs, \"--agent\")",
+    "off, _ := args[\"offset\"].(float64)",
+    "// reserved for byte-budget pagination; consumed by the handler, not forwarded to the CLI.",
+    "func paginateMirroredOutput(out string, offset, maxBytes int) string {",
+    "mcplib.WithNumber(\"offset\", mcplib.Description(\"Skip this many items before returning; pass next_offset from a truncated response to resume.\"))"
+  ],
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "Re-apply in internal/mcp/cobratree/shellout.go: mirroredCLIArgs appends \"--agent\" before cliArgsFromMCP(args); the handler reads args[\"offset\"] and returns paginateMirroredOutput(out, int(off), mirrorMaxBytes()); blockedRootFlags includes \"offset\". In walker.go add mcplib.WithNumber(\"offset\", ...) to each mirror tool's options. Restore paginate.go from git history."
+}

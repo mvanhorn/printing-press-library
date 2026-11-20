@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "novel-runtime-db-path",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Resolve ask, digest and mirror database paths at execution under --home.",
+  "reason": "Readwise novel commands share a local store selected at runtime. Preserve this downstream command policy on reprint.",
+  "files": [
+    "internal/cli/ask.go",
+    "internal/cli/ask_test.go",
+    "internal/cli/backlog_test.go"
+  ],
+  "markers": [
+    "cmd.Flags().String(\"db-path\", \"\", \"Database path (uses the local store by default)\")",
+    "func TestE3RuntimeDBPath("
+  ],
+  "reapply": "Keep novelAddDBPathFlag default empty and call novelDBPath at runtime, after root home resolution. Preserve help and alternate-home tests."
+}

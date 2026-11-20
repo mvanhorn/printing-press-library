@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "sync-shares-client-policy",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Sync clients inherit shared TLS, timeout, hooks and verified platform-session policy.",
+  "reason": "A specialized pacing wrapper must not bypass CLI transport flags or tenant authorization. Construct through the shared policy with cache disabled, then apply sync request spacing.",
+  "files": [
+    "internal/cli/readwise_sync_export.go",
+    "internal/cli/review_sync_client_test.go"
+  ],
+  "markers": [
+    "syncFlags := *flags",
+    "c, err := syncFlags.newClient()",
+    "func TestReviewSyncClientTLS(",
+    "func TestReviewSyncClientSetup("
+  ]
+}

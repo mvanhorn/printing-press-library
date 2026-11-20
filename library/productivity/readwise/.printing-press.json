@@ -1,0 +1,139 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-18T21:10:07.754977Z",
+  "printing_press_version": "4.35.6",
+  "api_name": "readwise",
+  "display_name": "Readwise",
+  "cli_name": "readwise-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
+  "owner": "vinnyp",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:cd2150906f9d7e2c22c880be49cb303cab17d789f1c471728a8424cc8431646a",
+  "run_id": "20261118-122243-3e032552",
+  "category": "productivity",
+  "description": "Every Readwise and Reader feature, plus a local mirror of your whole library that you can search, triage and dedupe offline.",
+  "homepage": "https://readwise.io",
+  "mcp_binary": "readwise-pp-mcp",
+  "mcp_tool_count": 26,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "READWISE_API_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Topic dossier",
+      "command": "ask",
+      "description": "Pull every highlight and saved-document passage you have on a topic into one source-attributed, note-ready result."
+    },
+    {
+      "name": "Reading backlog and time-budget triage",
+      "command": "backlog",
+      "description": "See your whole reading debt by location, estimated minutes and age, and pick what fits the time you have."
+    },
+    {
+      "name": "Cross-corpus duplicate detection",
+      "command": "dedupe",
+      "description": "Find the same article saved twice, or saved both as a Reader document and as a classic Readwise source."
+    },
+    {
+      "name": "Cross-source highlight digest",
+      "command": "digest",
+      "description": "Roll up everything you highlighted in a time window across your Readwise books, articles, tweets and podcasts, grouped by source."
+    },
+    {
+      "name": "Stale and orphan finder",
+      "command": "triage stale",
+      "description": "Surface forgotten, never-opened saved documents (as Reader IDs you can pass to documents bulk-update) and books with zero highlights."
+    },
+    {
+      "name": "What-to-read-next ranker",
+      "command": "read-next",
+      "description": "Get a short ranked shortlist of unread Reader documents that fit the minutes you have, favouring your preferred location and skipping ones you already started."
+    },
+    {
+      "name": "Serendipity connections",
+      "command": "connections",
+      "description": "Find items you read months apart that share tags, authors or distinctive terms, from one seed item or across the library."
+    },
+    {
+      "name": "Saved-query watches",
+      "command": "watch",
+      "description": "Save a query and see only the new matching documents and highlights since the last run."
+    },
+    {
+      "name": "Signed webhook delivery",
+      "command": "webhook",
+      "description": "Register https endpoints that receive new 'watch run --notify' matches, optionally HMAC-signed with a shared secret and SSRF-checked before delivery."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Topic dossier",
+      "command": "ask",
+      "description": "Pull every highlight and saved-document passage you have on a topic into one source-attributed, note-ready result."
+    },
+    {
+      "name": "Reading backlog and time-budget triage",
+      "command": "backlog",
+      "description": "See your whole reading debt by location, estimated minutes and age, and pick what fits the time you have."
+    },
+    {
+      "name": "Cross-corpus duplicate detection",
+      "command": "dedupe",
+      "description": "Find the same article saved twice, or saved both as a Reader document and as a classic Readwise source."
+    },
+    {
+      "name": "Cross-source highlight digest",
+      "command": "digest",
+      "description": "Roll up everything you highlighted in a time window across your Readwise books, articles, tweets and podcasts, grouped by source."
+    },
+    {
+      "name": "Stale and orphan finder",
+      "command": "triage stale",
+      "description": "Surface forgotten, never-opened saved documents (as Reader IDs you can pass to documents bulk-update) and books with zero highlights."
+    },
+    {
+      "name": "What-to-read-next ranker",
+      "command": "read-next",
+      "description": "Get a short ranked shortlist of unread Reader documents that fit the minutes you have, favouring your preferred location and skipping ones you already started."
+    },
+    {
+      "name": "Serendipity connections",
+      "command": "connections",
+      "description": "Find items you read months apart that share tags, authors or distinctive terms, from one seed item or across the library."
+    },
+    {
+      "name": "Saved-query watches",
+      "command": "watch",
+      "description": "Save a query and see only the new matching documents and highlights since the last run."
+    },
+    {
+      "name": "Signed webhook delivery",
+      "command": "webhook",
+      "description": "Register https endpoints that receive new 'watch run --notify' matches, optionally HMAC-signed with a shared secret and SSRF-checked before delivery."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 69,
+    "total": 69,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 94,
+      "grade": "A",
+      "total": 94
+    }
+  }
+}

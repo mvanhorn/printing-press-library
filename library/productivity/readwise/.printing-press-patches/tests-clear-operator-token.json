@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "tests-clear-operator-token",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "CLI and MCP test mains clear operator tokens and sandbox directories.",
+  "reason": "testenv.RunSandboxed clears HOME/XDG and per-CLI dir overrides but not the auth token, so an operator-exported token leaked into package tests and made TestDoctorCacheRowsUseActualResourceCounts fail order-dependently. Upstream should add the CLI's auth env vars to testenv clearedVars. Each cli test isolation also resets credential-derived process-global database scope so earlier token-bearing tests cannot redirect later fixtures. Clear READWISE_BASE_URL in testenv as well: the gate exports loopback and credential-origin tests must keep their own fixture server identity.",
+  "files": [
+    "internal/cli/root_test.go",
+    "internal/cliutil/testenv/testenv.go",
+    "internal/cli/review_r4_resume_test.go",
+    "internal/mcp/main_test.go",
+    "cmd/readwise-pp-mcp/main_test.go"
+  ],
+  "markers": [
+    "_ = os.Unsetenv(\"READWISE_API_TOKEN\")\n\tos.Exit(testenv.RunSandboxed(m))",
+    "testenv.ResetProcessState = func()",
+    "var ResetProcessState func()",
+    "func TestR4IsolationClearsDBScope(",
+    "func TestMain(m *testing.M)",
+    "\"READWISE_BASE_URL\","
+  ],
+  "reapply": "In internal/cli/root_test.go TestMain, unset READWISE_API_TOKEN before os.Exit(testenv.RunSandboxed(m))."
+}

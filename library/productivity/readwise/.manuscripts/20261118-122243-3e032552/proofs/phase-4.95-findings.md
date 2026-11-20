@@ -1,0 +1,22 @@
+# Phase 4.95 local code review
+- **Review path chosen:** direct subagent dispatch through the workshop tiered peer-review gate (agent-dispatch:running-the-peer-review-gate).
+  - Round 1: 8 lenses (code, test, security, privacy, database, performance, interface, reliability).
+  - Round 2: 4 lenses (code as cross-lens verifier, test, security, privacy).
+  - Round 3: orchestrator mutation verification.
+- **Autofix summary:** about 50 findings were autofixed in-place across 3 rounds (codex slices E1, E2, E3a, E3b and F). See docs/agent-reviews/2026-11-18-readwise-reprint-peer-reviews.md.
+- **Convergence:** Blocker/Major findings cleared at round 3.
+- **Template-shape and out-of-scope retro candidates** (generator code, fixed locally with patch records and filed as machine retros):
+  - mergeKeepRicherObject keeps stale keys (store.go)
+  - the trigram/LIKE short-token `id LIKE` arm (store.go)
+  - the fixed bound.MaxBytes=60000 vs PP_MCP_MAX_BYTES
+  - the mirror capture cap = bound.MaxBytes+1
+  - the `--agent` {meta,results} wrapper breaking the hand paginator
+  - a positional to `auth set-token` echoing the token
+  - the store DSN built by concatenation
+  - 429 on writes not retried (client.go; not fixed)
+  - `--deliver spacefast` undisclosed and http allowed (not fixed)
+  - `local-data purge` scope (not fixed)
+  - redundant indexes (not fixed)
+  - the unsalted token hash in the store filename (not fixed)
+- **Surface-to-user findings:** none outstanding. Design choices were taken under the user's "fix 1-9" and gate instructions.
+- **Post-fix simplification:** /simplify was not run. The fixes are reviewed and mutation-proven, and a simplification pass now would invalidate those proofs ahead of live dogfood.

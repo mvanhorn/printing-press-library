@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "id": "peer-review-correctness-security",
+  "summary": "Peer-review fixes: read-only SQLite open with --db-path, table-name validation, malformed-book skip, pacer first-call-immediate, redacted sync error text, private mirror writes and overwrite refusal.",
+  "reason": "Fixes are spread across generated-header files in internal/cli/. Markers pin one distinctive line per fix.",
+  "files": [
+    "internal/cli/ask.go",
+    "internal/cli/readwise_sync_export.go",
+    "internal/cli/helpers.go",
+    "internal/cli/mirror.go",
+    "internal/cli/readwise_sync_export_test.go",
+    "internal/cli/mirror_test.go"
+  ],
+  "markers": [
+    "cmd.Flags().String(\"db-path\", \"\",",
+    "var novelAllowedCountTables = map[string]bool{",
+    "return 0, fmt.Errorf(\"invalid table name %q\", table)",
+    "warning: skipped %d malformed readwise export book(s)",
+    "if waitUntil.IsZero() || !now.Before(waitUntil) {",
+    "Error:    safeSyncErrorMessage(err),",
+    "if err := os.MkdirAll(flagExportDir, 0o700); err != nil {",
+    "f, err := os.CreateTemp(filepath.Dir(path), \".readwise-mirror-*\")",
+    "export dir already contains mirror files (%s); rerun with --force to overwrite or --incremental to skip unchanged files",
+    "func TestFixedPacedClientFirstCallImmediateThenPaces(",
+    "func TestSyncErrorJSONRedactsNonAPIErrors(",
+    "func TestNovelMirrorWritesPrivateFilesAndRefusesOverwrite("
+  ],
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "Re-apply per peer-review-correctness-security.md: ask.go keeps the --db-path flag, novelAllowedCountTables validation and OpenReadOnly; readwise_sync_export.go keeps malformed-book skip and the first-call-immediate fixedPacedClient.wait; helpers.go syncErrorJSON uses safeSyncErrorMessage for non-API errors; mirror.go writes 0o700 dirs / 0o600 files and refuses non-incremental overwrite without --force. Restore the listed tests from git history. Test markers live in test files: add internal/cli/*_test.go back if dropped. Mirror writes use private temporary files, descriptor chmod and atomic rename, preserving existing directory permissions."
+}

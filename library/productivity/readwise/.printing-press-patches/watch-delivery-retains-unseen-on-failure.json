@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "watch-delivery-retains-unseen-on-failure",
+  "summary": "Watch delivery failures retain unseen items and become strict-mode errors after one bounded retry.",
+  "reason": "A failed receiver must not permanently consume alerts, and an empty recipient selection must be visible.",
+  "files": [
+    "internal/cli/watch.go",
+    "internal/cli/webhooknotify.go",
+    "internal/cli/watch_e3a_test.go"
+  ],
+  "markers": [
+    "no matching webhook succeeded (no matching hooks or delivery failed)",
+    "timer := time.NewTimer(100 * time.Millisecond)",
+    "func TestE3DeliveryFailure(",
+    "matching webhook(s) failed after retry; items retained"
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Retry each failed hook once with context-aware short backoff; require at least one successful matching hook. On build or delivery failure set anyFailed and skip MarkSeen; propagate failures under --strict. Any matching hook failure is fatal to that watch even when another hook succeeded."
+}

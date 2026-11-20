@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "readwise-books-list-complete-sync",
+  "summary": "Sync supplements /export/ with a paced GET /books/ list pass so zero-highlight books and list metadata are stored.",
+  "reason": "Hand-authored sync runner in internal/cli/readwise_sync_export.go. Markers pin the books-list pass and its pacing rate.",
+  "files": [
+    "internal/cli/readwise_sync_export.go",
+    "internal/cli/readwise_sync_export_test.go"
+  ],
+  "markers": [
+    "func syncReadwiseBooksList(ctx context.Context,",
+    "readwiseBooksListPageSize   = 1000",
+    "case \"readwise-books-list\":",
+    "func TestSyncReadwiseBooksListFollowsPageNextAndStopsOnEmpty(",
+    "func TestSyncReadwiseExportAlsoUpsertsBooksListZeroHighlightAndEnrichment("
+  ],
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "Restore syncReadwiseBooksList and its call after the /export/ pass in syncReadwiseExport (internal/cli/readwise_sync_export.go): page-based GET /books/ with page_size readwiseBooksListPageSize, paced at readwiseV3RatePerSecond ('readwise-books-list' rate case), upserting books after /export/. Restore the two tests from git history."
+}

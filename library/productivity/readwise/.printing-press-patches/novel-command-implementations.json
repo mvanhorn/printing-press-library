@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "id": "novel-command-implementations",
+  "summary": "Eight novel commands (ask, backlog, dedupe, read-next, digest, connections, mirror, triage stale) implemented on the local SQLite store instead of TODO stubs.",
+  "reason": "Implementations replace generated stub bodies in files carrying the generated header. Markers are the constructor functions plus store-backed anchors that exist only in the implemented bodies.",
+  "files": [
+    "internal/cli/ask.go",
+    "internal/cli/backlog.go",
+    "internal/cli/dedupe.go",
+    "internal/cli/read_next.go",
+    "internal/cli/digest.go",
+    "internal/cli/connections.go",
+    "internal/cli/mirror.go",
+    "internal/cli/triage_stale.go"
+  ],
+  "markers": [
+    "func newNovelAskCmd(flags *rootFlags) *cobra.Command {",
+    "func newNovelBacklogCmd(flags *rootFlags) *cobra.Command {",
+    "func newNovelDedupeCmd(flags *rootFlags) *cobra.Command {",
+    "func newNovelReadNextCmd(flags *rootFlags) *cobra.Command {",
+    "func newNovelDigestCmd(flags *rootFlags) *cobra.Command {",
+    "func newNovelConnectionsCmd(flags *rootFlags) *cobra.Command {",
+    "func newNovelMirrorCmd(flags *rootFlags) *cobra.Command {",
+    "func newNovelTriageStaleCmd(flags *rootFlags) *cobra.Command {",
+    "func novelRankReadNext(docs []novelBacklogDoc,",
+    "would scan local documents/books for duplicate URL/title clusters; this command never deletes"
+  ],
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "Restore the eight implemented command files (ask, backlog, dedupe, read_next, digest, connections, mirror, triage_stale in internal/cli/) and their _test.go companions from readwise git history; they use the generated store schema, helpers, cliutil.ParseDurationLoose and local SQLite only."
+}

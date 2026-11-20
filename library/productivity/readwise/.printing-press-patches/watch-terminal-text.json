@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "watch-terminal-text",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Escape untrusted watch text on terminal-aware output writers.",
+  "reason": "Third-party titles and URLs can contain terminal control sequences; reuse the established terminalText writer policy.",
+  "files": [
+    "internal/cli/watch.go",
+    "internal/cli/review_r2_watch_test.go"
+  ],
+  "markers": [
+    "terminalText(cmd.OutOrStdout(), item[\"title\"])",
+    "terminalText(cmd.OutOrStdout(), d.Title)",
+    "func TestR2WatchEscapesTerminalText("
+  ]
+}

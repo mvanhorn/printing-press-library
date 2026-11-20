@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "mcp-search-sql-byte-budget",
+  "summary": "MCP search and sql tools return the shared byte-budgeted envelope; search gains offset paging; Store.Search takes offset.",
+  "reason": "Edits live in generated internal/mcp/tools.go and internal/store/store.go and are reverted by regen-merge (#5418).",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/store/store.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "markers": [
+    "results, err := db.SearchContextOffset(queryCtx, query, limit, offset)",
+    "return boundedResultJSON(results, 0, \"Result truncated to fit the tool byte budget; append LIMIT/OFFSET to your query or aggregate to reduce rows.\")",
+    "func boundedResultJSON(v any, itemCap int, note string) (*mcplib.CallToolResult, error) {",
+    "mcplib.WithNumber(\"offset\", mcplib.Description(\"Skip this many results before returning; pass next_offset from a truncated response to resume.\"))",
+    "func (s *Store) Search(query string, limit int, offset int, resourceTypes ...string) ([]json.RawMessage, error) {",
+    "func TestBoundedResultJSONHandlesSingleOversizedRow(",
+    "func TestHandleSearchOffsetReturnsDifferentPage("
+  ],
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "In generated internal/mcp/tools.go: handleSearch parses `offset`, calls db.Search(query, limit, offset) and returns boundedResultJSONWithCount(..., true); handleSQL returns boundedResultJSON(results, 0, \"Result truncated ...\"); restore boundedResultJSON/boundedResultJSONWithCount (wrap envelope.List). In internal/store/store.go Store.Search accepts offset and uses `LIMIT ? OFFSET ?`. Restore the tools_test.go cases from git history."
+}

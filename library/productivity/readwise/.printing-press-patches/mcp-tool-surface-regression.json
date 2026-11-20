@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "mcp-tool-surface-regression",
+  "summary": "In-process regression tests for the MCP tool surface: unique names, typed search, walker skips hidden/framework commands.",
+  "reason": "Test files only; they are hand-added to files carrying the generated header. Markers are the test function names so a dropped test fails the merge.",
+  "files": [
+    "internal/mcp/tool_surface_test.go",
+    "internal/mcp/cobratree/walker_surface_test.go"
+  ],
+  "markers": [
+    "func TestRegisteredToolSurfaceHasUniqueNamesAndTypedSearch(",
+    "func TestRegisterAllSkipsHiddenAndFrameworkCommands("
+  ],
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "Restore internal/mcp/tool_surface_test.go and internal/mcp/cobratree/walker_surface_test.go from readwise git history (they must stay pure in-process: no auth, network, real store, or companion CLI spawn)."
+}

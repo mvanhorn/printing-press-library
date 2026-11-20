@@ -1,0 +1,25 @@
+# Acceptance Report: readwise
+
+- **Level:** Full Dogfood. The binary-owned live matrix ran against the real Readwise API, plus a scripted live write lifecycle on test items.
+- **Matrix, run 1:** 138 passed, 19 failed. Five failure classes:
+  - the novel dry-run envelope lacked `action`
+  - read-next printed a stdout hint
+  - watch JSON output was invalid or null
+  - Examples were missing on 4 commands
+  - the documents list Example `--select results.*` was wrong
+- **Matrix, run 2:** after fix slice G, **161/161 passed**. The skips are mutating commands (run dry-run only) and examples whose inputs are not derivable.
+- **Write lifecycle:** all steps passed in part 2. See `write-lifecycle-proof.md`.
+  - **Reader document:** save, read back, update (location, progress), create a highlight via `parent_id`+`content`, delete, confirm gone.
+  - **`bulk-update`:** partial failure exits 6 (207); all-ok exits 0.
+  - **Classic highlight:** create, get, note update, tag, delete, get gives 404.
+  - **Incremental sync:** propagates the deletion.
+  - **Approved real-data writes:** the books update round trip restored title_override to null (verified); review complete succeeded.
+  - **Live-confirmed API facts:** `highlights update` ignores `location_type`, so the flag stays removed. bulk_update is PATCH.
+- **Fixes applied in Phase 5 (8 CLI fixes):** dry-run envelopes on the novel commands; read-next stdout purity; watch JSON on add, list, run and remove; 4 Example sections; the documents list `--select` Example plus the research.json recipe.
+- **Printing Press issues for retro (3):**
+  - The generated hand-command template does not enforce `writeDryRun` for novel dry-run.
+  - The live-dogfood write path depends on fixture discipline. The test script's id parsing was operator error, logged.
+  - The highlight-create duplicate-source behaviour (readwise-cli#33) is upstream API behaviour, not a CLI bug.
+- **Residue:** one empty `api_book` source on the account, from a part-1 test highlight that the API did not dedupe. The highlight was deleted; the operator should remove the empty source in the web UI.
+- **Store safety:** the live operator store was never opened. Hash b4a2e05947c270d2 was unchanged from before Phase 5 through the end. The sandbox copy migrated v4→v14 and wrote a 0600 `.bak`.
+- **Gate: PASS**

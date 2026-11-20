@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "ask-independent-collections",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Ask searches each populated included collection independently.",
+  "reason": "Classic-only and Reader-only users have useful answers even when the other collection is empty. Only an entirely empty selection warrants sync-first guidance, rendered in the requested format.",
+  "files": [
+    "internal/cli/ask.go",
+    "internal/cli/review_ask_sources_test.go"
+  ],
+  "markers": [
+    "if (!include[\"docs\"] || docCount == 0) && (!include[\"highlights\"] || highlightCount == 0)",
+    "if include[\"highlights\"] && highlightCount > 0",
+    "func TestReviewAskIndependentSources("
+  ]
+}

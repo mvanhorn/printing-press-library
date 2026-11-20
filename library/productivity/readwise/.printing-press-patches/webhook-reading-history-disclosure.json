@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "webhook-reading-history-disclosure",
+  "summary": "Webhook registration discloses reading-history metadata and optional text before consent.",
+  "reason": "Title, author and URL can reveal reading interests even when full-text delivery is disabled.",
+  "files": [
+    "internal/cli/webhook.go",
+    "internal/cli/webhooknotify.go",
+    "internal/cli/watch_e3a_test.go"
+  ],
+  "markers": [
+    "item id, title, author, url (reading history)",
+    "Every payload sends kind, watch, count, generated_at",
+    "func TestE3WebhookDisclosure(",
+    "This endpoint WILL receive highlight text / document summaries."
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Keep payload field disclosures in add Long help and confirmation, require --yes for noninteractive consent, and keep metadata keys present even for empty values."
+}

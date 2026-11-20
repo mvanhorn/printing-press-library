@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "id": "connections-library-wide-mode",
+  "summary": "connections gains --library-wide/--all mode: engaged-doc corpus, DF cutoffs, postings cap, near-duplicate suppression.",
+  "reason": "Hand-authored logic inside internal/cli/connections.go, a file that carries the generated header, so regen-merge may revert it. Markers pin the flags, usage-error branches, DF cutoff, postings cap and near-duplicate note.",
+  "files": [
+    "internal/cli/connections.go",
+    "internal/cli/connections_test.go"
+  ],
+  "markers": [
+    "cmd.Flags().BoolVar(&flagLibraryWide, \"library-wide\", false,",
+    "With --library-wide, include every document instead of only engaged docs",
+    "return usageErr(fmt.Errorf(\"--all only applies with --library-wide\"))",
+    "return usageErr(fmt.Errorf(\"choose one: --seed-doc or --library-wide\"))",
+    "func novelConnectionDFSurvives(df int, total int) bool {",
+    "if len(postings) > novelConnectionPostingsCap(total) {",
+    "hidden %d near-duplicate %s (see `dedupe`)",
+    "OR COALESCE(reading_progress, 0) > 0",
+    "func TestNovelConnectionsLibraryWideTagAuthorDFCutoff(",
+    "func TestNovelConnectionsLibraryWideHidesNearDuplicates(",
+    "COALESCE(source_url, url), summary, data, saved_at",
+    "func novelConnectionURL(",
+    "func TestSliceDConnectionsURLAndSuffixDuplicates(",
+    "visited := map[uint64]bool{}",
+    "pairs.keep(novelConnectionPair{",
+    "identities[i] = novelConnectionIdentityOf(doc)",
+    "func TestE3ConnectionsBoundedHeap("
+  ],
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "Re-apply the library-wide path in internal/cli/connections.go per connections-library-wide-mode.md (flags --library-wide/--all, usage errors for bare/both/--all-with-seed, engaged filter on tags/last_opened_at/reading_progress, DF>0.15 cutoff for terms/tags/authors, postings cap with skipped-signal note, near-duplicate suppression with `dedupe` pointer, output shapes {seed,matches} and {pairs,scanned,note}); restore connections_test.go from git history. Load source_url (falling back to url) and saved_at. Suppress normalized URL matches after removing scheme/www/query/fragment/trailing slash; strip trailing site suffixes from title comparisons and suppress matching titles saved within an hour, preserving the hidden-count note. Precompute normalized URL/title/author/host per doc. Preserve meaningful query params; burst-title suppression needs shared author or host. Merge sorted signals; uint64 candidate keys; bounded top-K heap; relative postings cap min(2000, max(3, floor(N/20))) with three-posting small-library floor. Refuse top=0 with library-wide all."
+}

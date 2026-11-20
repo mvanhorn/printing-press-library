@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "watch-emit-before-consume",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Watch runs expose matched items before consuming their unseen state.",
+  "reason": "A print-only digest must deliver IDs, titles and URLs before marking matches seen; count-only output loses useful results. Preserve webhook success and failure delivery semantics while including items in JSON.",
+  "files": [
+    "internal/cli/watch.go",
+    "internal/cli/review_watch_test.go",
+    "internal/cli/review_r2_watch_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "markers": [
+    "func watchRunItems(",
+    "// Print-only runs consume matches only after their output succeeds.",
+    "func TestReviewWatchPrintsConsumedItems(",
+    "func TestR2WatchMarkFailureContinues(",
+    "wrapped := fmt.Errorf(\"watch #%d mark-seen: %w\"",
+    "watch run: matched item titles/urls are included in --deliver output",
+    "func TestR2WatchJSONOutputFailureRetainsUnseen(",
+    "func TestR2WatchHumanOutputFailureRetainsUnseen("
+  ]
+}

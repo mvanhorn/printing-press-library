@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "export-page-terminal-link",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Classic exports send page numbers and stop at the terminal next link.",
+  "reason": "Readwise v2 books and highlights use numbered pages with next:null on the last page; omitting either contract repeats data or requests beyond the end. This generated helper repair is scoped to the confirmed Readwise endpoints.",
+  "files": [
+    "internal/cli/resource_paths.go",
+    "internal/cli/review_export_test.go"
+  ],
+  "markers": [
+    "cursorParam: \"page\", limitParam: \"page_size\", nextCursorPath: \"next\"",
+    "// Page exports terminate on the declared next link, including next:null.",
+    "func TestReviewExportPages("
+  ]
+}

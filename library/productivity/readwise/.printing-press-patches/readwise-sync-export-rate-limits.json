@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "readwise-sync-export-rate-limits",
+  "summary": "Paced export and Reader sync preserve incremental filters and watermarks, apply all tombstones, and aggregate one summary.",
+  "reason": "Runner is hand-written (no generated header) but the dispatch in generated sync.go can be reverted by regen-merge, silently restoring the unpaced generic sync. Markers pin the dispatch and the pacing/cursor core.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/readwise_sync_export.go",
+    "internal/cli/readwise_sync_export_test.go",
+    "internal/store/readwise_delete.go",
+    "internal/cli/readwise_api_behaviors_test.go"
+  ],
+  "markers": [
+    "if useReadwiseExportSync() {",
+    "return runReadwiseExportSyncCmd(cmd, flags, resources, full, since, concurrency, dbPath, maxPages, latestOnly, strict, paramFlags, resourceParamFlags, globalParamFlags)",
+    "readwiseV3RatePerSecond     = 1.0 / 3.1",
+    "func (c *flexCursor) UnmarshalJSON(data []byte) error {",
+    "func newFixedPacedClient(",
+    "func TestFlexCursorUnmarshalJSON(",
+    "func TestReadwiseSyncRateForResource(",
+    "params[\"includeDeleted\"] = \"true\"",
+    "func (s *Store) DeleteReadwiseHighlight(",
+    "func TestSliceBExportDeletion(",
+    "func (s *Store) SaveReadwiseSyncProgress(",
+    "func (s *Store) DeleteReadwiseTombstones("
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Restore the generated sync dispatch into the paced Readwise runner. Every export page, including full and resumed pages, must request includeDeleted=true. Preserve run filters alongside cursors and last completed watermarks until completion; completed runs use the start time. Batch book/highlight tombstones atomically and preserve error causes and one summary for the entire run."
+}

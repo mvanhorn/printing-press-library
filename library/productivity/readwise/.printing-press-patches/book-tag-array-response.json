@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "book-tag-array-response",
+  "summary": "Book tags are plain arrays; highlight tags remain paginated objects.",
+  "reason": "Readwise API truth not expressible by the current generated spec. Local generated seams need durable reprint guards; generic output and transport mechanisms remain upstream-owned.",
+  "files": [
+    "internal/cli/book-tags_list.go",
+    "internal/cli/sync.go",
+    "internal/cli/readwise_api_behaviors_test.go"
+  ],
+  "markers": [
+    "resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, \"live\", \"book-tags\", false, path, params, nil, \"\", cmd.ErrOrStderr())",
+    "return nil // Book tags are a plain array.",
+    "func TestSliceBTagResponseShapes("
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Use an empty book-tags response-path hint and preserve sync decoder plain-array handling before envelope decoding. Highlight tags retain results unwrapping. The existing decoder already accepts both; keep behavioral tests of live output and sync storage."
+}

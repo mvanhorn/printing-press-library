@@ -1,0 +1,358 @@
+{
+  "api_name": "readwise",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "readwise-cli (official)",
+      "url": "https://github.com/readwiseio/readwise-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 32,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "readwise-mcp",
+      "url": "https://github.com/IAmAlexander/readwise-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 24,
+      "last_updated": "",
+      "command_count": 21,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "readwise-cli",
+      "url": "https://github.com/Nardjo/readwise-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "readwise-mcp-enhanced",
+      "url": "https://github.com/arnaldo-delisio/readwise-mcp-enhanced",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 17,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "readwise-skills (official)",
+      "url": "https://github.com/readwiseio/readwise-skills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "readwise-reader-cli",
+      "url": "https://github.com/Scarvy/readwise-reader-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pyreadwise",
+      "url": "https://github.com/rwxd/pyreadwise",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kiseki-labs-readwise-mcp",
+      "url": "https://github.com/kiseki-technologies/kiseki-labs-readwise-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-18T17:45:00Z",
+  "novel_features": [
+    {
+      "name": "Topic dossier",
+      "command": "ask",
+      "description": "Pull every highlight and saved-document passage you have on a topic into one source-attributed, note-ready result.",
+      "rationale": "Needs one offline full-text query across highlights, books and Reader documents joined back to their sources, which no single API call or rate-limited live search can do.",
+      "example": "readwise-pp-cli ask \"attention is all you need\" --include highlights,docs --group-by source --format md",
+      "why_it_matters": "Reach for this before writing or deciding on a topic, when an agent needs everything the user already read about it in one bounded response.",
+      "group": "Your library, answered offline"
+    },
+    {
+      "name": "Reading backlog and time-budget triage",
+      "command": "backlog",
+      "description": "See your whole reading debt by location, estimated minutes and age, and pick what fits the time you have.",
+      "rationale": "Packs unread documents by word count, reading time and age from the local store, which the throttled list endpoint cannot answer quickly or repeatably.",
+      "example": "readwise-pp-cli backlog --location new,later --budget 30m --sort priority --agent",
+      "why_it_matters": "Use this when the user has a fixed reading slot and wants a deterministic plan instead of scrolling the Reader inbox.",
+      "group": "Inbox triage"
+    },
+    {
+      "name": "Cross-corpus duplicate detection",
+      "command": "dedupe",
+      "description": "Find the same article saved twice, or saved both as a Reader document and as a classic Readwise source.",
+      "rationale": "Requires normalizing URLs and title/author keys across Reader documents and classic books together in the local store.",
+      "example": "readwise-pp-cli dedupe --by url,title --scope docs,books --agent",
+      "why_it_matters": "Use this before bulk exports or cleanups; the command is read-only and never deletes, so pass the IDs you choose to documents bulk-update --dry-run first.",
+      "group": "Library hygiene"
+    },
+    {
+      "name": "Cross-source highlight digest",
+      "command": "digest",
+      "description": "Roll up everything you highlighted in a time window across your Readwise books, articles, tweets and podcasts, grouped by source.",
+      "rationale": "Groups the synced Readwise highlights updated in a window by source and category, which the all-or-nothing export cannot do.",
+      "example": "readwise-pp-cli digest --since 2026-11-01 --group-by source --category books,articles --format md",
+      "why_it_matters": "Use this for a weekly review or to file a period's highlights into a notes system.",
+      "group": "Your library, answered offline"
+    },
+    {
+      "name": "Stale and orphan finder",
+      "command": "triage stale",
+      "description": "Surface forgotten, never-opened saved documents (as Reader IDs you can pass to documents bulk-update) and books with zero highlights.",
+      "rationale": "Selects by reading progress, last-opened age and zero-highlight sources across the local store.",
+      "example": "readwise-pp-cli triage stale --older-than 180d --never-opened --zero-highlights --agent",
+      "why_it_matters": "Use this to find cleanup candidates; the command is read-only, and only the document IDs (not the zero-highlight books) can be archived with documents bulk-update.",
+      "group": "Library hygiene"
+    },
+    {
+      "name": "What-to-read-next ranker",
+      "command": "read-next",
+      "description": "Get a short ranked shortlist of unread Reader documents that fit the minutes you have, favouring your preferred location and skipping ones you already started.",
+      "rationale": "Scores unread documents locally by time fit, recency and location preference, so the shortlist costs no API calls.",
+      "example": "readwise-pp-cli read-next --have 15m --prefer shortlist --avoid started --top 5 --agent",
+      "why_it_matters": "Use this when the user has a few minutes and asks what to read right now.",
+      "group": "Inbox triage"
+    },
+    {
+      "name": "Serendipity connections",
+      "command": "connections",
+      "description": "Find items you read months apart that share tags, authors or distinctive terms, from one seed item or across the library.",
+      "rationale": "Joins highlights, documents and books on shared tags, authors and stopword-filtered terms, which no API endpoint exposes.",
+      "example": "readwise-pp-cli connections --library-wide --by tags,author --min-overlap 2 --agent",
+      "why_it_matters": "Use this to resurface related past reading for a seed item without doing a topic search.",
+      "group": "Your library, answered offline"
+    },
+    {
+      "name": "Saved-query watches",
+      "command": "watch",
+      "description": "Save a query and see only the new matching documents and highlights since the last run.",
+      "rationale": "Keeps per-query seen state in a CLI-side table and evaluates it against the synced store, so repeat checks cost no extra API calls.",
+      "example": "readwise-pp-cli watch run --agent",
+      "why_it_matters": "Use this in scheduled agent jobs that must process only new items for standing topics.",
+      "group": "Automation"
+    },
+    {
+      "name": "Signed webhook delivery",
+      "command": "webhook",
+      "description": "Register https endpoints that receive new 'watch run --notify' matches, optionally HMAC-signed with a shared secret and SSRF-checked before delivery.",
+      "rationale": "Builds on the CLI-side watch state to deliver HMAC-SHA256-signed alerts, a feature Readwise does not offer for saved queries.",
+      "example": "readwise-pp-cli webhook list --agent",
+      "why_it_matters": "Use this to push watch alerts into another automation; add a watch first, then run 'watch run --notify'.",
+      "group": "Automation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Topic dossier",
+      "command": "ask",
+      "description": "Pull every highlight and saved-document passage you have on a topic into one source-attributed, note-ready result.",
+      "rationale": "Needs one offline full-text query across highlights, books and Reader documents joined back to their sources, which no single API call or rate-limited live search can do.",
+      "example": "readwise-pp-cli ask \"attention is all you need\" --include highlights,docs --group-by source --format md",
+      "why_it_matters": "Reach for this before writing or deciding on a topic, when an agent needs everything the user already read about it in one bounded response.",
+      "group": "Your library, answered offline"
+    },
+    {
+      "name": "Reading backlog and time-budget triage",
+      "command": "backlog",
+      "description": "See your whole reading debt by location, estimated minutes and age, and pick what fits the time you have.",
+      "rationale": "Packs unread documents by word count, reading time and age from the local store, which the throttled list endpoint cannot answer quickly or repeatably.",
+      "example": "readwise-pp-cli backlog --location new,later --budget 30m --sort priority --agent",
+      "why_it_matters": "Use this when the user has a fixed reading slot and wants a deterministic plan instead of scrolling the Reader inbox.",
+      "group": "Inbox triage"
+    },
+    {
+      "name": "Cross-corpus duplicate detection",
+      "command": "dedupe",
+      "description": "Find the same article saved twice, or saved both as a Reader document and as a classic Readwise source.",
+      "rationale": "Requires normalizing URLs and title/author keys across Reader documents and classic books together in the local store.",
+      "example": "readwise-pp-cli dedupe --by url,title --scope docs,books --agent",
+      "why_it_matters": "Use this before bulk exports or cleanups; the command is read-only and never deletes, so pass the IDs you choose to documents bulk-update --dry-run first.",
+      "group": "Library hygiene"
+    },
+    {
+      "name": "Cross-source highlight digest",
+      "command": "digest",
+      "description": "Roll up everything you highlighted in a time window across your Readwise books, articles, tweets and podcasts, grouped by source.",
+      "rationale": "Groups the synced Readwise highlights updated in a window by source and category, which the all-or-nothing export cannot do.",
+      "example": "readwise-pp-cli digest --since 2026-11-01 --group-by source --category books,articles --format md",
+      "why_it_matters": "Use this for a weekly review or to file a period's highlights into a notes system.",
+      "group": "Your library, answered offline"
+    },
+    {
+      "name": "Stale and orphan finder",
+      "command": "triage stale",
+      "description": "Surface forgotten, never-opened saved documents (as Reader IDs you can pass to documents bulk-update) and books with zero highlights.",
+      "rationale": "Selects by reading progress, last-opened age and zero-highlight sources across the local store.",
+      "example": "readwise-pp-cli triage stale --older-than 180d --never-opened --zero-highlights --agent",
+      "why_it_matters": "Use this to find cleanup candidates; the command is read-only, and only the document IDs (not the zero-highlight books) can be archived with documents bulk-update.",
+      "group": "Library hygiene"
+    },
+    {
+      "name": "What-to-read-next ranker",
+      "command": "read-next",
+      "description": "Get a short ranked shortlist of unread Reader documents that fit the minutes you have, favouring your preferred location and skipping ones you already started.",
+      "rationale": "Scores unread documents locally by time fit, recency and location preference, so the shortlist costs no API calls.",
+      "example": "readwise-pp-cli read-next --have 15m --prefer shortlist --avoid started --top 5 --agent",
+      "why_it_matters": "Use this when the user has a few minutes and asks what to read right now.",
+      "group": "Inbox triage"
+    },
+    {
+      "name": "Serendipity connections",
+      "command": "connections",
+      "description": "Find items you read months apart that share tags, authors or distinctive terms, from one seed item or across the library.",
+      "rationale": "Joins highlights, documents and books on shared tags, authors and stopword-filtered terms, which no API endpoint exposes.",
+      "example": "readwise-pp-cli connections --library-wide --by tags,author --min-overlap 2 --agent",
+      "why_it_matters": "Use this to resurface related past reading for a seed item without doing a topic search.",
+      "group": "Your library, answered offline"
+    },
+    {
+      "name": "Saved-query watches",
+      "command": "watch",
+      "description": "Save a query and see only the new matching documents and highlights since the last run.",
+      "rationale": "Keeps per-query seen state in a CLI-side table and evaluates it against the synced store, so repeat checks cost no extra API calls.",
+      "example": "readwise-pp-cli watch run --agent",
+      "why_it_matters": "Use this in scheduled agent jobs that must process only new items for standing topics.",
+      "group": "Automation"
+    },
+    {
+      "name": "Signed webhook delivery",
+      "command": "webhook",
+      "description": "Register https endpoints that receive new 'watch run --notify' matches, optionally HMAC-signed with a shared secret and SSRF-checked before delivery.",
+      "rationale": "Builds on the CLI-side watch state to deliver HMAC-SHA256-signed alerts, a feature Readwise does not offer for saved queries.",
+      "example": "readwise-pp-cli webhook list --agent",
+      "why_it_matters": "Use this to push watch alerts into another automation; add a watch first, then run 'watch run --notify'.",
+      "group": "Automation"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "READWISE_API_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Readwise",
+    "headline": "Every Readwise and Reader feature, plus a local mirror of your whole library that you can search, triage and dedupe offline.",
+    "value_prop": "Sync your highlights, books and Reader documents once into a local SQLite store, then query them without the 20-requests-a-minute list limit. Ask what you have already read on a topic with `ask`, plan a reading slot with `backlog` and `read-next`, and clean up with `dedupe` and `triage stale`. Writes (save, tag, archive, bulk update) still go straight to the API, with dry runs first.",
+    "auth_narrative": "Readwise uses a personal access token from https://readwise.io/access_token, sent as `Authorization: Token \u003ctoken\u003e`. One token covers both the classic v2 API and the Reader v3 API. Set it in READWISE_API_TOKEN.",
+    "quickstart": [
+      {
+        "command": "readwise-pp-cli doctor --dry-run",
+        "comment": "Checks config and the token without calling the network."
+      },
+      {
+        "command": "readwise-pp-cli sync --resources highlights,books,documents",
+        "comment": "Builds the local mirror once; later syncs are incremental."
+      },
+      {
+        "command": "readwise-pp-cli search \"spaced repetition\" --type highlights --limit 10",
+        "comment": "Offline full-text search over what you synced."
+      },
+      {
+        "command": "readwise-pp-cli backlog --budget 30m --agent",
+        "comment": "Plans a 30-minute reading slot from your unread queue."
+      },
+      {
+        "command": "readwise-pp-cli ask \"habits\" --include highlights,docs --group-by source --format md",
+        "comment": "Gathers everything you have on a topic, with sources."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 Too Many Requests during sync or list commands",
+        "fix": "Wait for the Retry-After delay the CLI reports, then rerun `readwise-pp-cli sync`; use local commands instead of repeated live lists."
+      },
+      {
+        "symptom": "Commands say the local store is empty or stale",
+        "fix": "Run `readwise-pp-cli sync --resources highlights,books,documents` (add `--full` to rebuild)."
+      },
+      {
+        "symptom": "HTTP 401 on every command",
+        "fix": "Set a fresh token from https://readwise.io/access_token in READWISE_API_TOKEN, then run `readwise-pp-cli doctor`."
+      },
+      {
+        "symptom": "Bulk update reports some items failed",
+        "fix": "The API returned a partial success; rerun `documents bulk-update` with only the failed IDs it listed."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs the user's own Readwise highlights, books or Reader documents: especially 'what have I read or highlighted about X', reading-backlog and what-to-read-next questions, weekly highlight digests, duplicate cleanup, or saving and tagging articles in Reader. It is the right tool when offline speed and unified search across both APIs matter, or when the 20-requests-a-minute list limits would otherwise throttle bulk reads; run sync first so the local commands have data. It also edits and deletes: highlights create/update/delete, books update, documents update/bulk-update/delete (delete cascades to the document's highlights and notes) and review complete; preview writes with --dry-run first.",
+    "anti_triggers": [
+      "Do not use this CLI to read or summarize the full text of the web article itself; it works with what the user saved and highlighted.",
+      "Do not use it to manage Readwise Books shelves, ratings or reading sessions, Reader ZIP exports, or video timestamp highlights; those APIs are not publicly documented and are not supported.",
+      "Do not use it to configure Readwise's own webhooks or integrations; those are set up in the Readwise web app.",
+      "Do not use it for semantic or vector search; search here is local full-text.",
+      "Do not use it to decide whether two sources agree or contradict each other; connections reports tag, author and term overlap only, not stance."
+    ],
+    "recipes": [
+      {
+        "title": "Topic dossier for a draft",
+        "command": "readwise-pp-cli ask \"stoicism\" --include highlights,docs --group-by source --format md",
+        "explanation": "Collects every highlight and passage on a topic into note-ready blocks with their sources."
+      },
+      {
+        "title": "Narrow a large document list for an agent",
+        "command": "readwise-pp-cli documents list --location later --agent --select id,title,word_count",
+        "explanation": "Returns only the fields an agent needs from a large Reader list."
+      },
+      {
+        "title": "Weekly highlight review",
+        "command": "readwise-pp-cli digest --since 2026-11-11 --group-by source --format md",
+        "explanation": "Rolls up the week's highlights across all sources for filing into notes."
+      },
+      {
+        "title": "Safe cleanup pass",
+        "command": "readwise-pp-cli triage stale --older-than 180d --never-opened --agent",
+        "explanation": "Lists forgotten documents as IDs you can archive with documents bulk-update."
+      },
+      {
+        "title": "Alert on new reading about a topic",
+        "command": "readwise-pp-cli watch add --name stoicism --kind highlights --query stoicism",
+        "explanation": "Saves a highlights query; after each sync, 'watch run --notify' shows (or pushes to a registered webhook) only the new matches."
+      }
+    ],
+    "trigger_phrases": [
+      "what have I read about",
+      "find my highlights on",
+      "what should I read next",
+      "clean up my Reader inbox",
+      "save this article to Reader",
+      "use readwise",
+      "run readwise"
+    ]
+  },
+  "homepage": "https://readwise.io"
+}

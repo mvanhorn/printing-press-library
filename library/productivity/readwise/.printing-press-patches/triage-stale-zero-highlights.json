@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "triage-stale-zero-highlights",
+  "summary": "Orphan sources have zero local and cached highlights; missing local rows with positive API counts are not_synced.",
+  "reason": "Incomplete highlight syncs must not recommend real sources as empty orphans.",
+  "files": [
+    "internal/cli/triage_stale.go",
+    "internal/cli/triage_stale_test.go"
+  ],
+  "markers": [
+    "FROM books b LEFT JOIN highlights h ON h.book_id = b.id",
+    "GROUP BY b.id HAVING COUNT(h.id) = 0",
+    "COALESCE(json_extract(b.data, '$.num_highlights'), 0) AS num_highlights",
+    "json:\"highlights_local\"",
+    "func TestSliceDStaleUsesLocalHighlightsAndLimits(",
+    "Kind: \"not_synced\"",
+    "func TestE3TriageNotSynced("
+  ],
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "Join books to local highlights on book_id, group by book id, and retain only COUNT(h.id)=0. Preserve NULL-safe cached num_highlights as metadata, expose highlights_local, and never include Reader documents as orphan sources. Restore seeded NULL/stale-count and limit regressions. Route positive cached counts with zero local highlights to not_synced_sources instead of orphan_sources, retaining uncapped totals and limits."
+}

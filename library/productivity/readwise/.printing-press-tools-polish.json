@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-11-18T21:06:46.007563Z",
+  "cli_dir": "\u003ccli-dir\u003e/readwise-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-11-18T21:01:49.689643Z"
+  }
+}

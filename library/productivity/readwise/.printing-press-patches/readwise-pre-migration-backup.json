@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "readwise-pre-migration-backup",
+  "summary": "Existing older stores are snapshotted before migration and newly added typed fields are backfilled.",
+  "reason": "One-way schema upgrades need a recoverable original database; sparse projections must retain JSON values.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/local_data.go"
+  ],
+  "markers": [
+    "E2 preserve the pre-upgrade store before any schema mutation.",
+    "VACUUM INTO",
+    "backfill %s.%s",
+    "os.Chmod(backup, 0o600)",
+    "F another opener may have completed the same backup first.",
+    "\\.v[0-9]+\\.bak"
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Existing older stores are snapshotted before migration and newly added typed fields are backfilled. Preserve the behavioral tests in the E2 report."
+}

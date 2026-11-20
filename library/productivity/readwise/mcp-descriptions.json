@@ -1,0 +1,7 @@
+{
+  "descriptions": {
+    "documents_delete": "Permanently delete a single Reader document by its id (DELETE /delete/{id}/). Required: id (the Reader document id, a string). Destructive and irreversible — the document is removed from the Reader account, not just the local mirror. Returns an empty/confirmation body on success. Prefer the read-only 'dedupe' or 'triage stale' commands to identify deletion candidates first; use this only when you have the exact document id to remove.",
+    "highlights_delete": "Permanently delete a single Readwise classic highlight by its id (DELETE /highlights/{id}/). Required: id (the integer highlight id). Destructive and irreversible — removes the highlight from the Readwise account. Returns an empty/confirmation body on success. Use highlights_get or a search to confirm the correct id before deleting; this does not delete the owning book/source, only the one highlight.",
+    "review_get": "Fetch today's spaced-repetition daily review set from Readwise (GET /review/). Takes no parameters. Returns the review object containing the highlights Readwise has scheduled for review today (with their source and text). Read-only. Use this for the daily-review workflow rather than listing all highlights, which is rate-limited and unfiltered."
+  }
+}

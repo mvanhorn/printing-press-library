@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "reader-repeatable-tags",
+  "summary": "Reader list sends up to five tag query parameters, including empty tags; local filters fail closed.",
+  "reason": "Readwise API truth not expressible by the current generated spec. Local generated seams need durable reprint guards; generic output and transport mechanisms remain upstream-owned.",
+  "files": [
+    "internal/cli/documents_list.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/readwise_tags_schema_test.go",
+    "internal/cli/readwise_api_behaviors_test.go"
+  ],
+  "markers": [
+    "var flagTag []string",
+    "mcplib.WithArray(\"tag\",",
+    "tag must be an array of up to 5 strings",
+    "func TestSliceBReaderTagArraySchema(",
+    "func TestSliceBDocumentTags("
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Use StringArray and url.Values.Add for repeated tags. Reject more than five as usage error. With tags use live strategy so local data cannot silently ignore AND semantics. Typed MCP schema and handler must accept and encode arrays; keep bulk_update MCP method POST aligned with the CLI."
+}

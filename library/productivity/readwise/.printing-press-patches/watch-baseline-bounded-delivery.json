@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "watch-baseline-bounded-delivery",
+  "summary": "New watches baseline current matches unless explicitly opting into existing items; deliveries remain bounded.",
+  "reason": "Creating a watch must not silently export a reading library on its first notification.",
+  "files": [
+    "internal/cli/watch.go",
+    "internal/cli/webhooknotify.go",
+    "internal/cli/watch_e3a_test.go"
+  ],
+  "markers": [
+    "if !includeExisting {",
+    "const watchBatchLimit = 200",
+    "webhook payload exceeds 256 KiB cap",
+    "func TestE3WatchBaselineAndCap("
+  ],
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "reapply": "Seed every matching ID in batches on add, rolling back the watch on query failure. Retain --include-existing, 200-item batches with deferred reporting, and a 256 KiB encoded payload ceiling."
+}

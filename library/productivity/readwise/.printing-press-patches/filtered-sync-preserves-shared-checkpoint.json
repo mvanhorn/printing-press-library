@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "filtered-sync-preserves-shared-checkpoint",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Partitioned Reader and Classic walks never overwrite shared checkpoint state.",
+  "reason": "A filtered response cannot certify coverage of the entire collection. Keep completed watermarks and pending cursors intact, including on full sync, and disclose why the checkpoint is unchanged.",
+  "files": [
+    "internal/cli/readwise_sync_export.go",
+    "internal/cli/sync.go",
+    "internal/cli/review_sync_filter_test.go",
+    "internal/cli/helpers.go",
+    "internal/cli/review_r2_filter_test.go",
+    "README.md",
+    "SKILL.md",
+    "scripts/check-sync-docs.sh",
+    "internal/cli/review_r3_latest_test.go",
+    "internal/cli/review_r3_list_test.go"
+  ],
+  "markers": [
+    "func readwiseWalkFiltered(",
+    "filtered walk \u2014 checkpoint not advanced",
+    "if readwiseWalkFiltered(params, resource)",
+    "func TestReviewFilteredCheckpoint(",
+    "func TestR2UserTimeBoundPreservesCheckpoint(",
+    "--resource-param %s:%s is managed by sync (resume is automatic)",
+    "Capped syncs resume where they stopped",
+    "missing sync contract: "
+  ]
+}

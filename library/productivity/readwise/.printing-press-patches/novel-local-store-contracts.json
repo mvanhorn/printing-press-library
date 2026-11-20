@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "id": "novel-local-store-contracts",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Readwise novel reports distinguish unsynced data, compare instants, bound worklists and preserve literal input requirements.",
+  "reason": "Local reports combine Reader and classic Readwise snapshots with mixed timestamp formats and incomplete highlight syncs. These API-specific policies must survive a reprint.",
+  "files": [
+    "internal/cli/documents_save.go",
+    "internal/cli/documents_list.go",
+    "internal/cli/readwise_api_behaviors_test.go",
+    "internal/cli/backlog.go",
+    "internal/cli/ask.go",
+    "internal/cli/triage_stale.go",
+    "internal/cli/digest.go",
+    "internal/cli/dedupe.go",
+    "internal/cli/root.go",
+    "internal/cli/dedupe_test.go",
+    "internal/cli/backlog_test.go",
+    "internal/cli/ask_test.go",
+    "internal/cli/triage_stale_test.go",
+    "internal/cli/digest_test.go",
+    "internal/cli/root_test.go"
+  ],
+  "markers": [
+    "--url is required unless --parent-id is set",
+    "--tag filtering requires live data",
+    "Kind: \"not_synced\"",
+    "AND julianday(saved_at) < julianday(?)",
+    "WHERE julianday(COALESCE(NULLIF(h.highlighted_at,''), h.created_at)) >= julianday(?)",
+    "last_highlight_at, updated) FROM books",
+    "var novelWordTokenRe = regexp.MustCompile",
+    "novelReadingDigitsRe.FindString(raw)",
+    "if flagLimit > 0 && len(view.Worklist) > flagLimit {",
+    "destructive commands still require --yes",
+    "func TestE3BacklogStartedBonus(",
+    "func TestE3DedupeBookTimestampFallback("
+  ],
+  "reapply": "Require save URL or parent ID, with bare help and stdin validation; five repeated list tags allowed, local tag filtering is usage error. Separate not_synced sources from orphan books, bound every worklist (including budget+unknown lengths), compare timestamps using julianday, keep book timestamp fallback through updated, cache token/time regexps at package scope, disclose --yes in agent help. Preserve started-bonus, hidden-pair absence and unconditional keeper regressions."
+}

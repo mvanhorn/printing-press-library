@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "publish-happy-paths",
+  "applied_at": "2026-11-19",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Classify watch/webhook groups read-only and lead with list Examples; supply ask pp:happy-args for live happy-path reachability.",
+  "reason": "The press classifies a group's happy row by the group's own annotations. The watch/webhook groups were unclassified-mutating, forcing their happy paths to --dry-run. Both now carry mcp:read-only (the generator group convention) and lead with the read-only list Example; ask gets pp:happy-args. The live happy paths for ask/watch/webhook are reachability smoke checks on an empty scratch store. Behaviour proof comes from seeded-store unit tests (ask_test.go, watch_test.go, watch_e3a_test.go, webhook_test.go, webhooknotify_test.go), plus group_example_readonly_test.go for first-Example safety and empty webhook JSON. Upstream fix: classify a group happy row by the leaf the Example actually runs.",
+  "files": [
+    "internal/cli/ask.go",
+    "internal/cli/watch.go",
+    "internal/cli/webhook.go",
+    "internal/cli/group_example_readonly_test.go"
+  ],
+  "markers": [
+    "Annotations: map[string]string{\"mcp:read-only\": \"true\", \"pp:happy-args\": \"query=attention\"}",
+    "Example: strings.Trim(`\n  readwise-pp-cli watch list --json",
+    "Example: \"  readwise-pp-cli webhook list --json\\n\" +",
+    "TestReadOnlyGroupFirstExample",
+    "// watch group itself only prints help: read-only so live dogfood runs its first (list) Example for real",
+    "// webhook group itself only prints help: read-only so live dogfood runs its first (list) Example for real"
+  ],
+  "reapply": "Preserve ask’s full read-only and pp:happy-args query=attention annotation. Add mcp:read-only true alongside mcp:hidden on each watch/webhook group, with the distinctive group comment exactly once per file. Keep list --json first in both group Examples and preserve the remaining order. Normalize nil webhook lists to []store.Webhook{} before JSON output. Restore group_example_readonly_test.go: walk the real root and resolve every read-only group’s first Example to a read-only leaf, and assert empty webhook list JSON is []. Use isolated HOME and no API token. Live happy paths prove empty-store reachability only; retain seeded-store behaviour tests. Upstream should classify the actual Example leaf."
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "documents-bulk-update-mcp-destructive-hint",
+  "summary": "Typed MCP documents_bulk-update tool is annotated destructive with an explicit description.",
+  "reason": "Edit inside generated internal/mcp/tools.go; reverted by regen-merge (#5418).",
+  "files": [
+    "internal/mcp/tools.go"
+  ],
+  "markers": [
+    "mcplib.NewTool(\"documents_bulk-update\",",
+    "mcplib.WithDescription(\"Destructive: updates up to 50 Reader documents in one call (archive, move, or retag). Required: updates. Partial update.\")"
+  ],
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260615-004857",
+  "base_printing_press_version": "4.24.0",
+  "reapply": "In internal/mcp/tools.go, the documents_bulk-update tool must use WithDescription(\"Destructive: updates up to 50 Reader documents in one call (archive, move, or retag). Required: updates. Partial update.\") with WithReadOnlyHintAnnotation(false) and WithDestructiveHintAnnotation(true). No handler or CLI-gate change."
+}

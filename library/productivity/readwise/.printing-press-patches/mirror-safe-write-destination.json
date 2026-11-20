@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "mirror-safe-write-destination",
+  "applied_at": "2026-11-18",
+  "base_run_id": "20261118-122243-3e032552",
+  "base_printing_press_version": "4.35.6",
+  "summary": "Mirror classifies export-dir as a write destination and atomically replaces private files without following file symlinks.",
+  "reason": "Backups contain reading data; preserve existing directory permissions and avoid overwriting symlink targets. This downstream guard remains necessary until the novel command is reprinted with equivalent behavior.",
+  "files": [
+    "internal/cli/mirror.go",
+    "internal/cli/mirror_test.go"
+  ],
+  "markers": [
+    "\"mcp:write-flags\": \"export-dir\"",
+    "return os.Rename(tmp, path)",
+    "func TestE3MirrorSafeReplacement("
+  ],
+  "reapply": "Keep MCP write-flags export-dir. Write through CreateTemp in the destination directory, descriptor Chmod(0600), close, then rename. Never chmod an existing export directory."
+}

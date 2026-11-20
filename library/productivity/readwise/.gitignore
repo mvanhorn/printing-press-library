@@ -1,0 +1,14 @@
+/readwise-pp-cli
+/readwise-pp-mcp
+build/
+bin/
+dogfood-results.json
+readwise-backup/
+*.db
+# from 4.35.6 generator
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/readwise-pp-cli.exe
+/readwise-pp-mcp.exe
+/bin/
+/build/
+/dist/
