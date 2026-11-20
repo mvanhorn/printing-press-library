@@ -9114,6 +9114,83 @@
       }
     },
     {
+      "name": "etsy",
+      "category": "commerce",
+      "api": "Etsy",
+      "description": "Etsy Open API v3 commands plus a local SQLite store for offline fee reports, ledger reconciliation, listing and GPSR audits, market research, and previewed bulk edits.",
+      "homepage": "https://www.etsy.com",
+      "search_terms": [
+        "etsy",
+        "etsy-pp-cli",
+        "Etsy Open API v3 commands plus a local SQLite store for offline fee reports, ledger reconciliation, listing and GPSR audits, market research, and previewed bulk edits.",
+        "Listing hygiene + GPSR audit",
+        "listings audit",
+        "Find every listing with missing tags, materials, alt text or photos, or missing GPSR manufacturer/responsible-person data, in one offline pass.",
+        "Fee breakdown",
+        "money fees",
+        "See what Etsy charged you, by fee type, for any period.",
+        "Ledger reconcile",
+        "money reconcile",
+        "Match receipts, payments and ledger entries by ID and compare receipt totals with summed payment amounts and currencies.",
+        "Renewal planner",
+        "listings expiring",
+        "List active listings expiring soon and whether they auto-renew.",
+        "Inventory structural audit",
+        "inventory audit",
+        "Spot zero-quantity variations, missing or duplicate SKUs and price spread across variations.",
+        "Dead-weight listings",
+        "listings dead-weight",
+        "Find active listings with no sales in a window, with favorite counts.",
+        "Shop attention feed",
+        "shop attention",
+        "One compact summary of what needs attention: unshipped orders, expiring listings, audit findings, reconcile mismatches and sync age.",
+        "Review digest",
+        "reviews digest",
+        "Rating histogram, low-rated reviews and per-listing averages for a period.",
+        "Market snapshot",
+        "Capture a dated snapshot of the listings and shops that appear for your search terms.",
+        "Market trend",
+        "See which listings and shops entered or left, and how prices, favorites and positions moved, between two snapshots.",
+        "Demand proxy",
+        "market demand",
+        "Rank listings and search terms by recent review volume and shop sales, with an explicit can't-tell result for thin data.",
+        "Competitor shops and crowd-out",
+        "market shops",
+        "Profile the shops behind a snapshot and see whether big shops crowd out new ones.",
+        "Gap finder",
+        "market gaps",
+        "Find targets where no matching listing was found in the pages and terms you searched, with coverage checked against known competitors.",
+        "Tag and title-word contrast",
+        "market tags",
+        "See which tags and title words the best-selling listings use that the rest don't.",
+        "Price bands",
+        "market price",
+        "Price ranges per category and whether price tracks demand."
+      ],
+      "path": "library/commerce/etsy",
+      "printer": "vinnyp",
+      "printer_name": "Vinny Pasceri",
+      "creator": {
+        "handle": "vinnyp",
+        "name": "Vinny Pasceri"
+      },
+      "mcp": {
+        "binary": "etsy-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 107,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "ETSY_OAUTH2"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "etsy-seller-dashboard",
       "category": "commerce",
       "api": "Etsy Seller Dashboard",
@@ -13966,9 +14043,9 @@
       "path": "library/devices/home-assistant",
       "release": {
         "cli_name": "home-assistant-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "b815f4cc4ec8054b6fec93c9f9a2e7f2220153ff"
+        "version": "2026.11.1",
+        "released_at": "2026-11-20T09:51:47Z",
+        "source_commit": "2102e37d43eacea80597b00fc4803e3c867b423f"
       },
       "printer": "Avanderheyde",
       "printer_name": "avanderheyde",
@@ -25079,6 +25156,67 @@
         "public_tool_count": 7,
         "auth_type": "none",
         "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "readwise",
+      "category": "productivity",
+      "api": "Readwise",
+      "description": "Every Readwise and Reader feature, plus a local mirror of your whole library that you can search, triage and dedupe offline.",
+      "homepage": "https://readwise.io",
+      "search_terms": [
+        "readwise",
+        "readwise-pp-cli",
+        "Every Readwise and Reader feature, plus a local mirror of your whole library that you can search, triage and dedupe offline.",
+        "Topic dossier",
+        "ask",
+        "Pull every highlight and saved-document passage you have on a topic into one source-attributed, note-ready result.",
+        "Reading backlog and time-budget triage",
+        "backlog",
+        "See your whole reading debt by location, estimated minutes and age, and pick what fits the time you have.",
+        "Cross-corpus duplicate detection",
+        "dedupe",
+        "Find the same article saved twice, or saved both as a Reader document and as a classic Readwise source.",
+        "Cross-source highlight digest",
+        "digest",
+        "Roll up everything you highlighted in a time window across your Readwise books, articles, tweets and podcasts, grouped by source.",
+        "Stale and orphan finder",
+        "triage stale",
+        "Surface forgotten, never-opened saved documents (as Reader IDs you can pass to documents bulk-update) and books with zero highlights.",
+        "What-to-read-next ranker",
+        "read-next",
+        "Get a short ranked shortlist of unread Reader documents that fit the minutes you have, favouring your preferred location and skipping ones you already started.",
+        "Serendipity connections",
+        "connections",
+        "Find items you read months apart that share tags, authors or distinctive terms, from one seed item or across the library.",
+        "Saved-query watches",
+        "watch",
+        "Save a query and see only the new matching documents and highlights since the last run.",
+        "Signed webhook delivery",
+        "webhook",
+        "Register https endpoints that receive new 'watch run --notify' matches, optionally HMAC-signed with a shared secret and SSRF-checked before delivery."
+      ],
+      "path": "library/productivity/readwise",
+      "printer": "vinnyp",
+      "printer_name": "Vinny Pasceri",
+      "creator": {
+        "handle": "vinnyp",
+        "name": "Vinny Pasceri"
+      },
+      "mcp": {
+        "binary": "readwise-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 26,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "READWISE_API_TOKEN"
+        ],
         "mcp_ready": "full",
         "spec_format": "internal"
       }
