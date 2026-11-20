@@ -9168,6 +9168,12 @@
         "Price ranges per category and whether price tracks demand."
       ],
       "path": "library/commerce/etsy",
+      "release": {
+        "cli_name": "etsy-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-20T09:52:35Z",
+        "source_commit": "d4a9881d7dbde1710d03af3f9abedb7f283637bd"
+      },
       "printer": "vinnyp",
       "printer_name": "Vinny Pasceri",
       "creator": {
@@ -17529,9 +17535,9 @@
       "path": "library/project-management/linear",
       "release": {
         "cli_name": "linear-pp-cli",
-        "version": "2026.11.1",
-        "released_at": "2026-11-04T10:09:25Z",
-        "source_commit": "76030e09efcbe0c2fcd88d985368e883ee4100ae"
+        "version": "2026.11.2",
+        "released_at": "2026-11-20T09:52:35Z",
+        "source_commit": "d4a9881d7dbde1710d03af3f9abedb7f283637bd"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -25199,6 +25205,12 @@
         "Register https endpoints that receive new 'watch run --notify' matches, optionally HMAC-signed with a shared secret and SSRF-checked before delivery."
       ],
       "path": "library/productivity/readwise",
+      "release": {
+        "cli_name": "readwise-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-20T09:52:35Z",
+        "source_commit": "d4a9881d7dbde1710d03af3f9abedb7f283637bd"
+      },
       "printer": "vinnyp",
       "printer_name": "Vinny Pasceri",
       "creator": {
