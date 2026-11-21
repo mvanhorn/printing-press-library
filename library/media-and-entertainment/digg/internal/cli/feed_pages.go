@@ -113,7 +113,7 @@ covers) and fills diggScore, sourceCount and uniqueAuthors for every post
 it lists, joined by story UUID, with the short id in the URL as a fallback.
 A post the ranked feed did not list keeps null scores. The ranked feed has
 no first-source time, so firstSourceAt is always null. Scores need one
-topic: --topic all requires --scores=false.
+topic: with --topic all (the default) feed lists without scores.
 
 The final line has kind "cursor", nextCursor, stop (end, empty, since,
 max-pages, rate-limited or error), the page and post counts, and with
@@ -156,7 +156,12 @@ reset time and the refused page's cursor, and exits 7. Resume with
 			}
 		}
 		if o.scores && o.topic == "all" {
-			return usageErr(fmt.Errorf("scores come from one topic's ranked feed; pass --topic <topic>, or --scores=false to page every topic"))
+			// Plain `feed` (every topic) lists without scores; asking for
+			// scores across every topic explicitly is the unsupported case.
+			if cmd.Flags().Changed("scores") {
+				return usageErr(fmt.Errorf("scores come from one topic's ranked feed; pass --topic <topic>, or drop --scores to page every topic unscored"))
+			}
+			o.scores = false
 		}
 		if o.maxPages < 1 {
 			return usageErr(fmt.Errorf("--max-pages must be at least 1, got %d", o.maxPages))
@@ -182,6 +187,9 @@ reset time and the refused page's cursor, and exits 7. Resume with
 			if err != nil {
 				return err
 			}
+			// One pacer for both feeds, so switching between them keeps
+			// the delay --rate-limit asks for.
+			mc.Limiter = c.Limiter()
 			params := client.FeedParams{Topic: o.topic, View: "top", Range: rankedRange(o, time.Now())}
 			ranked = func(ctx context.Context, cursor string) (*client.FeedScorePage, error) {
 				return c.FetchFeedScores(ctx, feedURLOverride, params, cursor)

@@ -503,24 +503,25 @@ func TestFeedRankedRefusalExitsBeforeListingWithoutRetry(t *testing.T) {
 	}
 }
 
-func TestFeedAllTopicsNeedsScoresOff(t *testing.T) {
+func TestFeedAllTopicsListsUnscoredByDefault(t *testing.T) {
 	stub := &feedPagesStub{pages: map[string]any{"": feedPageJSON("", feedPagePostJSON("a", "2026-11-20T12:00:00Z"))}}
 	url := stub.serve(t)
-	if _, _, err := runDiggCmd(t, url, "feed", "--topic", "all"); ExitCode(err) != 2 {
-		t.Fatalf("--topic all with scores on must be a usage error, got %v", err)
+	if _, _, err := runDiggCmd(t, url, "feed", "--topic", "all", "--scores"); ExitCode(err) != 2 {
+		t.Fatalf("an explicit --scores with --topic all must be a usage error, got %v", err)
 	}
-	out, _, err := runDiggCmd(t, url, "feed", "--topic", "all", "--scores=false")
+	// Plain `feed` (default topic all) lists every topic, unscored.
+	out, _, err := runDiggCmd(t, url, "feed")
 	if err != nil {
-		t.Fatalf("feed --scores=false: %v", err)
+		t.Fatalf("plain feed: %v", err)
 	}
 	if n := len(stub.rankedRequests()); n != 0 {
-		t.Fatalf("--scores=false must not read the ranked feed: %d requests", n)
+		t.Fatalf("an unscored run must not read the ranked feed: %d requests", n)
 	}
 	posts, end := decodeFeedLines(t, out)
 	if len(posts) != 1 || posts[0]["diggScore"] != nil {
 		t.Fatalf("unscored run should print null scores: %v", posts)
 	}
 	if _, ok := end["scored"]; ok {
-		t.Fatalf("--scores=false should omit the scores summary: %v", end)
+		t.Fatalf("an unscored run should omit the scores summary: %v", end)
 	}
 }
