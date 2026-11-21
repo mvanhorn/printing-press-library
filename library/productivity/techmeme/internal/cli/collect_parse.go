@@ -10,6 +10,9 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	// Techmeme's times are US Eastern; embed the zone so a host without
+	// tzdata does not shift summer times by an hour.
+	_ "time/tzdata"
 )
 
 // collectRow is one headline as `collect` prints it. url is always the
@@ -49,12 +52,14 @@ var (
 	techmemeET = loadEastern()
 )
 
-// Techmeme dates its pages in US Eastern time.
+// Techmeme dates its pages in US Eastern time. time/tzdata is embedded,
+// so the zone always loads.
 func loadEastern() *time.Location {
-	if loc, err := time.LoadLocation("America/New_York"); err == nil {
-		return loc
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		panic("techmeme: embedded tzdata has no America/New_York: " + err.Error())
 	}
-	return time.FixedZone("EST", -5*3600)
+	return loc
 }
 
 // itemDay turns an item id into its ISO date and its permalink.

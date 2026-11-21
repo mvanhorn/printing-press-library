@@ -59,9 +59,9 @@ func (s *techmemeStub) serve(t *testing.T) {
 		_, _ = w.Write(body)
 	}))
 	t.Cleanup(srv.Close)
-	prev := collectBaseURL
-	collectBaseURL = srv.URL
-	t.Cleanup(func() { collectBaseURL = prev })
+	prev := collectBaseURLOverride
+	collectBaseURLOverride = srv.URL
+	t.Cleanup(func() { collectBaseURLOverride = prev })
 }
 
 func (s *techmemeStub) requests() []*http.Request {
@@ -253,7 +253,7 @@ func TestCollectNeverRequestsSearchAndRejectsBadFlags(t *testing.T) {
 			t.Errorf("%v: want usage exit 2, got %d (%v)", args, code, err)
 		}
 	}
-	if _, _, _, err := collectFetch(t.Context(), "/search/query?q=x", rssValidators{}, 0); err == nil {
+	if _, _, _, err := collectFetch(t.Context(), collectBaseURLOverride, "/search/query?q=x", rssValidators{}, 0); err == nil {
 		t.Fatal("collectFetch must refuse /search/")
 	}
 	if n := len(stub.requests()); n != 0 {
@@ -273,5 +273,89 @@ func TestPublisherURLRejectsTechmemeLinks(t *testing.T) {
 		if got := publisherURL(in); got != want {
 			t.Errorf("publisherURL(%q) = %q, want %q", in, got, want)
 		}
+	}
+}
+
+func TestCollect429ExitsWithRateLimitCode(t *testing.T) {
+	prev := collectBaseURLOverride
+	t.Cleanup(func() { collectBaseURLOverride = prev })
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Retry-After", "90")
+		w.WriteHeader(http.StatusTooManyRequests)
+	}))
+	t.Cleanup(srv.Close)
+	collectBaseURLOverride = srv.URL
+	_, err := runTechmemeCmd(t, "collect", "--source", "river")
+	if code := ExitCode(err); err == nil || code != 7 {
+		t.Fatalf("a 429 must exit with the rate-limit code 7, got %d (%v)", code, err)
+	}
+	if !strings.Contains(err.Error(), "Retry-After 90") {
+		t.Fatalf("error should carry Retry-After: %v", err)
+	}
+}
+
+func TestCollectUsesConfiguredBaseURL(t *testing.T) {
+	stub := &techmemeStub{pages: map[string][]byte{"/river": readFixture(t, "collect_river.html")}}
+	stub.serve(t)
+	mirror := collectBaseURLOverride
+	collectBaseURLOverride = ""
+	t.Setenv("TECHMEME_BASE_URL", mirror)
+	t.Setenv("HOME", t.TempDir())
+	out, err := runTechmemeCmd(t, "collect", "--source", "river")
+	if err != nil {
+		t.Fatalf("collect: %v", err)
+	}
+	if n := len(stub.requests()); n != 1 || len(decodeRows(t, out)) != 12 {
+		t.Fatalf("collect should read TECHMEME_BASE_URL: %d requests", n)
+	}
+}
+
+func TestCollectFailedDeliveryKeepsOldValidators(t *testing.T) {
+	stub := &techmemeStub{pages: map[string][]byte{"/feed.xml": readFixture(t, "collect_feed.xml")}}
+	stub.serve(t)
+	hook := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	t.Cleanup(hook.Close)
+	state := filepath.Join(t.TempDir(), "rss.json")
+	if _, err := runTechmemeCmd(t, "collect", "--source", "rss", "--state", state, "--deliver", "webhook:"+hook.URL); err == nil {
+		t.Fatal("a failed delivery must fail the command")
+	}
+	if _, err := os.Stat(state); !os.IsNotExist(err) {
+		t.Fatalf("validators must not be saved when delivery fails: %v", err)
+	}
+	out, err := runTechmemeCmd(t, "collect", "--source", "rss", "--state", state)
+	if err != nil || len(decodeRows(t, out)) != 6 {
+		t.Fatalf("the retry must fetch the feed again, not get a 304: %v", err)
+	}
+}
+
+func TestCollectWebhookDeliveryIsNDJSON(t *testing.T) {
+	stub := &techmemeStub{pages: map[string][]byte{"/river": readFixture(t, "collect_river.html")}}
+	stub.serve(t)
+	var mu sync.Mutex
+	var contentType string
+	hook := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		contentType = r.Header.Get("Content-Type")
+		mu.Unlock()
+	}))
+	t.Cleanup(hook.Close)
+	if _, err := runTechmemeCmd(t, "collect", "--source", "river", "--deliver", "webhook:"+hook.URL); err != nil {
+		t.Fatalf("collect: %v", err)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if contentType != "application/x-ndjson" {
+		t.Fatalf("want application/x-ndjson, got %q", contentType)
+	}
+}
+
+func TestRiverTimesFollowEasternDaylightTime(t *testing.T) {
+	page := []byte(`<H2>July 1, 2026</H2>
+<tr class="ritem"><td>1:00 PM &nbsp;&bull;</td><td><div class="rshr" pml="260701p1"></div><cite><A HREF="https://example.com/">Example</A>:</cite>&nbsp; <a href="https://example.com/a">Summer story</a></td></tr>`)
+	rows := parseRiver(page)
+	if len(rows) != 1 || rows[0].PublishedAt == nil || *rows[0].PublishedAt != "2026-07-01T17:00:00Z" {
+		t.Fatalf("1:00 PM EDT is 17:00 UTC; got %+v", rows)
 	}
 }

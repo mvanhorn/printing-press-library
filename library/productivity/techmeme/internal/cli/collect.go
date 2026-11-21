@@ -15,11 +15,47 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/techmeme/internal/config"
 	"github.com/spf13/cobra"
 )
 
-// collectBaseURL is Techmeme's site; tests point it at a stub.
-var collectBaseURL = "https://www.techmeme.com"
+// collectBaseURLOverride, when set, replaces the configured site. Tests only.
+var collectBaseURLOverride string
+
+const collectDefaultBase = "https://www.techmeme.com"
+
+// collectStatusError is a non-2xx, non-304 answer. RetryAfter is the
+// header as sent, for a 429.
+type collectStatusError struct {
+	Path       string
+	Status     int
+	RetryAfter string
+}
+
+func (e *collectStatusError) Error() string {
+	msg := fmt.Sprintf("GET %s: HTTP %d", e.Path, e.Status)
+	if e.RetryAfter != "" {
+		msg += "; Retry-After " + e.RetryAfter
+	}
+	return msg
+}
+
+// collectBase is the site collect reads: the test override, else the
+// configured base_url (TECHMEME_BASE_URL or the config file), else
+// Techmeme.
+func collectBase(flags *rootFlags) (string, error) {
+	if collectBaseURLOverride != "" {
+		return collectBaseURLOverride, nil
+	}
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		return "", configErr(err)
+	}
+	if b := strings.TrimRight(strings.TrimSpace(cfg.BaseURL), "/"); b != "" {
+		return b, nil
+	}
+	return collectDefaultBase, nil
+}
 
 const collectMaxBody = 16 << 20
 
@@ -82,16 +118,24 @@ which robots.txt disallows.`,
 					v.LastModified = saved.LastModified
 				}
 			}
+			base, err := collectBase(flags)
+			if err != nil {
+				return err
+			}
 			if dryRunOK(flags) {
-				fmt.Fprintf(cmd.ErrOrStderr(), "would GET %s%s\n", collectBaseURL, path)
+				fmt.Fprintf(cmd.ErrOrStderr(), "would GET %s%s\n", base, path)
 				return nil
 			}
 			cond := rssValidators{}
 			if source == "rss" {
 				cond = v
 			}
-			body, got, notModified, err := collectFetch(cmd.Context(), path, cond, flags.timeout)
+			body, got, notModified, err := collectFetch(cmd.Context(), base, path, cond, flags.timeout)
 			if err != nil {
+				var se *collectStatusError
+				if errors.As(err, &se) && se.Status == http.StatusTooManyRequests {
+					return rateLimitErr(err)
+				}
 				return apiErr(err)
 			}
 			if notModified {
@@ -116,6 +160,11 @@ which robots.txt disallows.`,
 				if err := enc.Encode(r); err != nil {
 					return err
 				}
+			}
+			// Deliver before saving the validators: if delivery fails, the
+			// next run must not get a 304 for headlines nobody received.
+			if err := deliverLinesNow(flags); err != nil {
+				return err
 			}
 			if source == "rss" && statePath != "" {
 				if err := writeValidators(statePath, got); err != nil {
@@ -156,7 +205,7 @@ func collectPath(source, date string) (string, error) {
 
 // collectFetch GETs one page. With validators it sends a conditional GET
 // and reports a 304 as notModified. got holds the response's validators.
-func collectFetch(ctx context.Context, path string, cond rssValidators, timeout time.Duration) (body []byte, got rssValidators, notModified bool, err error) {
+func collectFetch(ctx context.Context, base, path string, cond rssValidators, timeout time.Duration) (body []byte, got rssValidators, notModified bool, err error) {
 	if strings.HasPrefix(path, "/search") {
 		return nil, got, false, errors.New("collect never reads /search/, which Techmeme's robots.txt disallows")
 	}
@@ -165,7 +214,7 @@ func collectFetch(ctx context.Context, path string, cond rssValidators, timeout 
 	}
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, collectBaseURL+path, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, base+path, nil)
 	if err != nil {
 		return nil, got, false, err
 	}
@@ -185,7 +234,11 @@ func collectFetch(ctx context.Context, path string, cond rssValidators, timeout 
 		return nil, got, true, nil
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, got, false, fmt.Errorf("GET %s: HTTP %d", path, resp.StatusCode)
+		se := &collectStatusError{Path: path, Status: resp.StatusCode}
+		if resp.StatusCode == http.StatusTooManyRequests {
+			se.RetryAfter = resp.Header.Get("Retry-After")
+		}
+		return nil, got, false, se
 	}
 	body, err = io.ReadAll(io.LimitReader(resp.Body, collectMaxBody))
 	if err != nil {
@@ -193,6 +246,21 @@ func collectFetch(ctx context.Context, path string, cond rssValidators, timeout 
 	}
 	got = rssValidators{ETag: resp.Header.Get("ETag"), LastModified: resp.Header.Get("Last-Modified")}
 	return body, got, false, nil
+}
+
+// deliverLinesNow sends what collect printed to --deliver as JSON lines
+// (application/x-ndjson for webhooks, whatever --compact says) and stops
+// Execute from sending it again.
+func deliverLinesNow(flags *rootFlags) error {
+	if flags.deliverBuf == nil {
+		return nil
+	}
+	buf := flags.deliverBuf
+	flags.deliverBuf = nil
+	if err := Deliver(flags.deliverSink, buf.Bytes(), true); err != nil {
+		return fmt.Errorf("deliver to %s:%s failed: %w", flags.deliverSink.Scheme, flags.deliverSink.Target, err)
+	}
+	return nil
 }
 
 // readValidators reads a --state file. A missing file means no validators.
