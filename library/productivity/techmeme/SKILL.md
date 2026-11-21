@@ -106,6 +106,15 @@ These capabilities aren't available in any other tool for this API.
 
 ## Command Reference
 
+**collect** - Headlines as JSON lines for collectors, with publisher URLs
+
+- `techmeme-pp-cli collect --source river|rss|day` - One JSON object per line: `id`, `title`, `publication`, `url` (the publisher's own link, never a Techmeme `/goto/` or `/r/` redirect), `techmeme_permalink`, `published_at` (UTC, or null on dated pages, which show no times) and `date`. `--source river` reads /river (about five days); `--source rss` reads /feed.xml, strips the "(Publication)" title suffix and sends a conditional GET (`--etag`, `--last-modified`, or a `--state` file that is read before and rewritten after a 200; a 304 prints nothing and exits 0); `--source day --date YYMMDD` reads that day's /YYMMDD/h2000 snapshot. It never calls Techmeme's search, which robots.txt disallows. An HTTP 429 exits 7 with the Retry-After value and is not retried.
+
+  ```bash
+  techmeme-pp-cli collect --source rss --state ~/.techmeme-rss.json
+  techmeme-pp-cli collect --source day --date 261120
+  ```
+
 **feed-xml** — Manage feed xml
 
 - `techmeme-pp-cli feed-xml` — Top 15 headlines currently on Techmeme. RSS 2.0 format. Each item has title, link (to Techmeme permalink),...

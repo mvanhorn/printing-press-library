@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "collect-reads-only-allowed-pages-and-emits-publisher-urls",
+  "applied_at": "2026-11-21",
+  "base_run_id": "20260509-193944",
+  "base_printing_press_version": "4.0.3",
+  "summary": "`collect --source river|rss|day` prints headlines as JSON lines {id, title, publication, url, techmeme_permalink, published_at, date} from only /river, /feed.xml and dated /YYMMDD/h2000 pages; url is always the publisher's own link (never a techmeme.com link or /goto/, /r/ redirect), RSS titles lose their '(Publication)' suffix, and RSS uses a conditional GET whose 304 prints nothing and exits 0.",
+  "reason": "A collector keeping its own copy of Techmeme must stay off /search/ and the redirect paths, which robots.txt disallows, and must not re-download an unchanged feed. Techmeme times are US Eastern; dated pages show no times, so their published_at is null rather than a guessed hour, and date comes from the item's own id because a snapshot can carry items from the day before.",
+  "files": [
+    "internal/cli/collect.go",
+    "internal/cli/collect_parse.go",
+    "internal/cli/collect_test.go",
+    "internal/cli/testdata/collect_river.html",
+    "internal/cli/testdata/collect_feed.xml",
+    "internal/cli/testdata/collect_day_261120.html",
+    "internal/cli/root.go",
+    "internal/mcp/tools.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Live: a conditional GET of /feed.xml with a stored ETag returned 304, printed nothing and exited 0. Fixture tests cover river, RSS and dated-page parsing, publisher-only URLs, the 304 path via --state and --etag, and that /search/ is never requested."
+}
