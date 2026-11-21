@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "techmeme",
   "cli_name": "techmeme-pp-cli",
-  "version": "2026.11.1",
-  "released_at": "2026-11-15T19:40:34Z",
-  "source_commit": "2119b94e27711c5b96ae50fa9aee49727aadedcb",
+  "version": "2026.11.2",
+  "released_at": "2026-11-21T22:09:51Z",
+  "source_commit": "248cf5db03614105f418973af3eb41e0534ca4c0",
   "printing_press_version": "4.0.3",
   "run_id": "20260509-193944",
   "changes": [
     {
-      "title": "feat(techmeme): search --pages and --start read past the first results page",
-      "pr": 2470,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2470",
-      "commit": "2119b94e27711c5b96ae50fa9aee49727aadedcb"
+      "title": "feat(techmeme): collect prints river, RSS and dated-page headlines with publisher URLs",
+      "pr": 2481,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2481",
+      "commit": "248cf5db03614105f418973af3eb41e0534ca4c0"
     }
   ]
 }

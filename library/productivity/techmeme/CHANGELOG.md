@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.2 - 2026-11-21
+
+- feat(techmeme): collect prints river, RSS and dated-page headlines with publisher URLs (#2481).
+
 ## 2026.11.1 - 2026-11-15
 
 - feat(techmeme): search --pages and --start read past the first results page (#2470).
