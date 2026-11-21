@@ -7421,9 +7421,9 @@
       "path": "library/media-and-entertainment/digg",
       "release": {
         "cli_name": "digg-pp-cli",
-        "version": "2026.11.1",
-        "released_at": "2026-11-12T08:11:09Z",
-        "source_commit": "c51ca2c9232719ee6a82f2316bf6af6df9ddc05e"
+        "version": "2026.11.2",
+        "released_at": "2026-11-21T22:08:52Z",
+        "source_commit": "bd9e7e3ff5a657eb79c4ec0310cb809e5e4a931e"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
