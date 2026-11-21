@@ -30723,9 +30723,9 @@
       "path": "library/productivity/techmeme",
       "release": {
         "cli_name": "techmeme-pp-cli",
-        "version": "2026.11.1",
-        "released_at": "2026-11-15T19:40:34Z",
-        "source_commit": "489dce6b14ad8e0118726eb68b55446652285f18"
+        "version": "2026.11.2",
+        "released_at": "2026-11-21T22:09:51Z",
+        "source_commit": "943efbc38232d46cdbab3082f5c4132e80a03e1c"
       },
       "printer": "davemorin",
       "printer_name": "Dave Morin",
