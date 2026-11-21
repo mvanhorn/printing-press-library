@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "digg",
   "cli_name": "digg-pp-cli",
-  "version": "2026.11.1",
-  "released_at": "2026-11-12T08:11:09Z",
-  "source_commit": "c16b24332b305bb8ce5e2f3bb69bc8e944a870c2",
+  "version": "2026.11.2",
+  "released_at": "2026-11-21T22:08:52Z",
+  "source_commit": "e57f35cbc2b992304b6feb17aad35e3bfb021c87",
   "printing_press_version": "4.0.6",
   "run_id": "20260508-234057",
   "changes": [
     {
-      "title": "feat(digg): search Digg live across every topic, with scores, and drop dead commands",
-      "pr": 2466,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2466",
-      "commit": "c16b24332b305bb8ce5e2f3bb69bc8e944a870c2"
+      "title": "feat(digg): feed pages Digg's feed as resumable JSON lines",
+      "pr": 2480,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2480",
+      "commit": "e57f35cbc2b992304b6feb17aad35e3bfb021c87"
     }
   ]
 }

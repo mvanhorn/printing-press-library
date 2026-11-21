@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.2 - 2026-11-21
+
+- feat(digg): feed pages Digg's feed as resumable JSON lines (#2480).
+
 ## 2026.11.1 - 2026-11-12
 
 - feat(digg): search Digg live across every topic, with scores, and drop dead commands (#2466).
