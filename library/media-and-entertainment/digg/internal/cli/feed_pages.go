@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggmcp"
 	"github.com/spf13/cobra"
 )
@@ -33,8 +34,9 @@ var (
 
 // feedPagePost is one post as digg_get_feed sends it. tldr and description
 // are deliberately not decoded, so they cannot reach the output. The score
-// and source fields are pointers: digg_get_feed does not send them today,
-// and the output says null rather than a made-up zero.
+// and source fields are pointers: digg_get_feed does not send them, the
+// ranked feed fills them when it lists the post (feed_scores.go), and
+// otherwise the output says null rather than a made-up zero.
 type feedPagePost struct {
 	ID            string   `json:"id"`
 	URL           string   `json:"url"`
@@ -71,20 +73,26 @@ type feedEndLine struct {
 	NextCursor *string `json:"nextCursor"`
 	// Stop is why paging ended: end, empty, since, max-pages,
 	// rate-limited or error.
-	Stop    string `json:"stop"`
-	Topic   string `json:"topic"`
-	View    string `json:"view"`
-	Range   string `json:"range,omitempty"`
-	Pages   int    `json:"pages"`
-	Posts   int    `json:"posts"`
-	ResetAt string `json:"resetAt,omitempty"`
-	Error   string `json:"error,omitempty"`
+	Stop  string `json:"stop"`
+	Topic string `json:"topic"`
+	View  string `json:"view"`
+	Range string `json:"range,omitempty"`
+	Pages int    `json:"pages"`
+	Posts int    `json:"posts"`
+	// Scored counts printed posts the ranked feed listed; ScorePages and
+	// ScoreRange describe that walk. All are omitted with --scores=false.
+	Scored     *int   `json:"scored,omitempty"`
+	ScorePages *int   `json:"scorePages,omitempty"`
+	ScoreRange string `json:"scoreRange,omitempty"`
+	ResetAt    string `json:"resetAt,omitempty"`
+	Error      string `json:"error,omitempty"`
 }
 
 type feedPageOpts struct {
 	topic, view, feedRange, cursor string
 	since                          time.Time
 	maxPages                       int
+	scores                         bool
 }
 
 func addFeedPaging(cmd *cobra.Command, flags *rootFlags) {
@@ -96,12 +104,20 @@ from. Run with no subcommand. The raw and story-raw subcommands fetch HTML.
 
 Each post line has kind "post", id, url, topic, title, feedEntryAt,
 publishedAt, updatedAt, diggScore, sourceCount, uniqueAuthors and
-firstSourceAt. digg_get_feed does not send the last four today, so they are
-null; use search for scored results. A post's tldr and description are
-never printed.
+firstSourceAt. A post's tldr and description are never printed.
+
+Scores: digg_get_feed sends none, so unless --scores=false, feed first walks
+the same topic's ranked story feed once (digg.com/api/feed/continuous, the
+feed top reads; up to --max-pages pages over the window --since or --range
+covers) and fills diggScore, sourceCount and uniqueAuthors for every post
+it lists, joined by story UUID, with the short id in the URL as a fallback.
+A post the ranked feed did not list keeps null scores. The ranked feed has
+no first-source time, so firstSourceAt is always null. Scores need one
+topic: --topic all requires --scores=false.
 
 The final line has kind "cursor", nextCursor, stop (end, empty, since,
-max-pages, rate-limited or error), and the page and post counts.
+max-pages, rate-limited or error), the page and post counts, and with
+scores, how many posts were scored, the ranked pages read and their window.
 
 --view newest pages from the newest post back and stops after the first
 page that reaches a post older than --since. --view top ranks by Digg Score
@@ -109,8 +125,8 @@ over --range; there --since only filters, and --max-pages bounds paging.
 Posts are deduplicated by id, because Digg's first page can be cached while
 later pages move.
 
-When Digg refuses a page (HTTP 429, or "Retry after" / "Search resets at"),
-feed does not retry. It prints the final line with stop "rate-limited", the
+When Digg refuses a page of either feed (HTTP 429, or "Retry after" /
+"Search resets at"), feed does not retry. It prints the final line with stop "rate-limited", the
 reset time and the refused page's cursor, and exits 7. Resume with
 --cursor after resetAt; calling earlier makes Digg's wait longer.`
 	cmd.Example = `  # The newest AI posts from the last day
@@ -139,6 +155,9 @@ reset time and the refused page's cursor, and exits 7. Resume with
 				return usageErr(fmt.Errorf("invalid --range %q; valid: %s", o.feedRange, strings.Join(feedPageRanges, ", ")))
 			}
 		}
+		if o.scores && o.topic == "all" {
+			return usageErr(fmt.Errorf("scores come from one topic's ranked feed; pass --topic <topic>, or --scores=false to page every topic"))
+		}
 		if o.maxPages < 1 {
 			return usageErr(fmt.Errorf("--max-pages must be at least 1, got %d", o.maxPages))
 		}
@@ -157,7 +176,18 @@ reset time and the refused page's cursor, and exits 7. Resume with
 			return err
 		}
 		mc.NoRetry = true
-		perr := pageFeed(cmd.Context(), mc, o, cmd.OutOrStdout(), time.Now)
+		var ranked rankedFetch
+		if o.scores {
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := client.FeedParams{Topic: o.topic, View: "top", Range: rankedRange(o, time.Now())}
+			ranked = func(ctx context.Context, cursor string) (*client.FeedScorePage, error) {
+				return c.FetchFeedScores(ctx, feedURLOverride, params, cursor)
+			}
+		}
+		perr := pageFeed(cmd.Context(), mc, ranked, o, cmd.OutOrStdout(), time.Now)
 		// A refused or failed run still printed posts and a resume cursor;
 		// --deliver must get them too, so deliver here instead of leaving
 		// it to Execute, which delivers only on success.
@@ -175,11 +205,13 @@ reset time and the refused page's cursor, and exits 7. Resume with
 	cmd.Flags().StringVar(&o.feedRange, "range", "", "Window for --view top: today | 24h | 7d | 30d | 1y | all (Digg's default is today)")
 	cmd.Flags().IntVar(&o.maxPages, "max-pages", 10, "Most pages to request (20 posts each)")
 	cmd.Flags().StringVar(&o.cursor, "cursor", "", "Resume from this nextCursor, printed by an earlier run with the same topic, view and range")
+	cmd.Flags().BoolVar(&o.scores, "scores", true, "Add Digg Score, source and author counts from the topic's ranked feed (one walk, up to --max-pages pages)")
 }
 
 // pageFeed requests pages until a stop condition and prints every new post
 // as it arrives, then the end line. A refusal returns a rate-limit error.
-func pageFeed(ctx context.Context, mc *diggmcp.Client, o feedPageOpts, w io.Writer, now func() time.Time) error {
+// A nil ranked skips scores.
+func pageFeed(ctx context.Context, mc *diggmcp.Client, ranked rankedFetch, o feedPageOpts, w io.Writer, now func() time.Time) error {
 	enc := json.NewEncoder(w)
 	end := feedEndLine{Kind: "cursor", Topic: o.topic, View: o.view, Range: o.feedRange}
 	finish := func(stop string, cursor string) error {
@@ -189,6 +221,33 @@ func pageFeed(ctx context.Context, mc *diggmcp.Client, o feedPageOpts, w io.Writ
 			end.NextCursor = &c
 		}
 		return enc.Encode(end)
+	}
+	var scores *scoreIndex
+	if ranked != nil {
+		idx, err := walkRanked(ctx, ranked, o.maxPages)
+		scored, pages := 0, idx.pages
+		end.Scored, end.ScorePages, end.ScoreRange = &scored, &pages, rankedRange(o, now())
+		if err != nil {
+			// No post is printed unscored by accident: a failed walk ends
+			// the run before digg_get_feed is asked, at the same cursor.
+			if r, ok := rankedRefusal(err, now()); ok {
+				if !r.ResetAt.IsZero() {
+					end.ResetAt = r.ResetAt.UTC().Format(time.RFC3339Nano)
+				}
+				end.Error = r.Message
+				if perr := finish("rate-limited", o.cursor); perr != nil {
+					return perr
+				}
+				return rateLimitErr(fmt.Errorf("Digg refused page %d of the %s ranked feed; resets at %s; rerun after that time",
+					pages+1, o.topic, r.ResetIn(now())))
+			}
+			end.Error = err.Error()
+			if perr := finish("error", o.cursor); perr != nil {
+				return perr
+			}
+			return apiErr(fmt.Errorf("reading page %d of the %s ranked feed: %w", pages+1, o.topic, err))
+		}
+		scores = idx
 	}
 	seen := map[string]bool{}
 	cursor := o.cursor
@@ -242,6 +301,9 @@ func pageFeed(ctx context.Context, mc *diggmcp.Client, o feedPageOpts, w io.Writ
 			if !o.since.IsZero() && publishedBefore(p.PublishedAt, o.since) {
 				crossedSince = true
 				continue
+			}
+			if scores.apply(&p) {
+				*end.Scored++
 			}
 			if err := enc.Encode(feedPostLine{Kind: "post", feedPagePost: p}); err != nil {
 				return err

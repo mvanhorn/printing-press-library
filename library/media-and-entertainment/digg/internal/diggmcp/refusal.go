@@ -119,6 +119,10 @@ func refusalFrom429(tool, retryAfter string, raw []byte, now time.Time) *Refusal
 	return &Refusal{Tool: tool, ResetAt: reset, Message: msg}
 }
 
+// ResetFromRetryAfter reads a Retry-After header value as an absolute
+// UTC time; zero when it is empty or unreadable. It is not capped.
+func ResetFromRetryAfter(v string, now time.Time) time.Time { return resetFromHeader(v, now) }
+
 // resetFromHeader reads Retry-After as seconds, an HTTP date or an
 // RFC 3339 time. It returns zero for an empty or unreadable value.
 func resetFromHeader(v string, now time.Time) time.Time {

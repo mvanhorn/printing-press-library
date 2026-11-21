@@ -22,6 +22,10 @@ type feedPagesStub struct {
 	mu    sync.Mutex
 	pages map[string]any
 	args  []map[string]any
+	// ranked maps a ranked-feed cursor ("" first) to a reply: a JSON body
+	// or a func. Nil serves one empty ranked page.
+	ranked    map[string]any
+	rankedReq []map[string]string
 }
 
 func (s *feedPagesStub) serve(t *testing.T) string {
@@ -55,7 +59,54 @@ func (s *feedPagesStub) serve(t *testing.T) string {
 		fmt.Fprintf(w, "event: message\ndata: {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"structuredContent\":%s}}\n\n", reply.(string))
 	}))
 	t.Cleanup(srv.Close)
+	ranked := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		s.mu.Lock()
+		s.rankedReq = append(s.rankedReq, map[string]string{"topic": q.Get("topic"), "view": q.Get("view"), "range": q.Get("range"), "cursor": q.Get("cursor")})
+		pages := s.ranked
+		s.mu.Unlock()
+		if pages == nil {
+			_, _ = io.WriteString(w, rankedPageJSON(""))
+			return
+		}
+		reply, ok := pages[q.Get("cursor")]
+		if !ok {
+			http.Error(w, "no ranked page", http.StatusBadRequest)
+			return
+		}
+		if fn, ok := reply.(func(http.ResponseWriter)); ok {
+			fn(w)
+			return
+		}
+		_, _ = io.WriteString(w, reply.(string))
+	}))
+	t.Cleanup(ranked.Close)
+	prev := feedURLOverride
+	feedURLOverride = ranked.URL
+	t.Cleanup(func() { feedURLOverride = prev })
 	return srv.URL
+}
+
+func (s *feedPagesStub) rankedRequests() []map[string]string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]map[string]string(nil), s.rankedReq...)
+}
+
+// rankedRow renders one ranked-feed story with a summary description, so
+// tests can check it never reaches the output.
+func rankedRow(clusterID, shortID string, score float64, posts, authors int) string {
+	return fmt.Sprintf(`{"clusterId":%q,"clusterUrlId":%q,"type":"cluster","rank":1,"diggScore":%v,`+
+		`"createdAt":"2026-11-20T08:00:00+00:00","postCount":%d,"uniqueAuthors":%d,`+
+		`"summary":{"title":"Ranked title","description":"secret ranked description"}}`, clusterID, shortID, score, posts, authors)
+}
+
+func rankedPageJSON(next string, rows ...string) string {
+	nc := "null"
+	if next != "" {
+		nc = fmt.Sprintf("%q", next)
+	}
+	return fmt.Sprintf(`{"nextCursor":%s,"posts":[%s],"view":"top","range":"30d"}`, nc, strings.Join(rows, ","))
 }
 
 func (s *feedPagesStub) requests() []map[string]any {
@@ -258,9 +309,10 @@ func TestFeedToolRefusalNamesResetTime(t *testing.T) {
 }
 
 func TestFeedNeverPrintsTldrOrDescription(t *testing.T) {
-	stub := &feedPagesStub{pages: map[string]any{
-		"": feedPageJSON("", feedPagePostJSON("a", "2026-11-20T12:00:00Z")),
-	}}
+	stub := &feedPagesStub{
+		pages:  map[string]any{"": feedPageJSON("", feedPagePostJSON("a", "2026-11-20T12:00:00Z"))},
+		ranked: map[string]any{"": rankedPageJSON("", rankedRow("a", "a", 50, 6, 4))},
+	}
 	out, _, err := runDiggCmd(t, stub.serve(t), "feed", "--topic", "ai", "--agent")
 	if err != nil {
 		t.Fatalf("feed: %v", err)
@@ -355,5 +407,120 @@ func TestFeedWebhookDeliveryIsNDJSON(t *testing.T) {
 	defer mu.Unlock()
 	if contentType != "application/x-ndjson" {
 		t.Fatalf("feed webhook body is JSON lines; want application/x-ndjson, got %q", contentType)
+	}
+}
+
+func TestFeedMergesRankedScoresByIDThenShortID(t *testing.T) {
+	stub := &feedPagesStub{
+		pages: map[string]any{
+			"": feedPageJSON("", feedPagePostJSON("a", "2026-11-20T12:00:00Z"), feedPagePostJSON("b", "2026-11-20T11:00:00Z"), feedPagePostJSON("c", "2026-11-20T10:00:00Z")),
+		},
+		ranked: map[string]any{
+			"": rankedPageJSON("r2", rankedRow("a", "zzz", 120.5, 9, 7)),
+			// b is listed under another UUID but its short id matches the URL.
+			"r2": rankedPageJSON("", rankedRow("not-b", "b", 44, 5, 3)),
+		},
+	}
+	out, _, err := runDiggCmd(t, stub.serve(t), "feed", "--topic", "ai")
+	if err != nil {
+		t.Fatalf("feed: %v", err)
+	}
+	if strings.Contains(out, "secret ranked description") || strings.Contains(out, "Ranked title") {
+		t.Fatalf("the ranked summary must not reach the output: %s", out)
+	}
+	posts, end := decodeFeedLines(t, out)
+	want := map[string][3]any{
+		"a": {120.5, float64(9), float64(7)},
+		"b": {float64(44), float64(5), float64(3)},
+		"c": {nil, nil, nil},
+	}
+	for _, p := range posts {
+		w := want[p["id"].(string)]
+		if p["diggScore"] != w[0] || p["sourceCount"] != w[1] || p["uniqueAuthors"] != w[2] {
+			t.Errorf("post %s: got score %v sources %v authors %v, want %v", p["id"], p["diggScore"], p["sourceCount"], p["uniqueAuthors"], w)
+		}
+		if p["firstSourceAt"] != nil {
+			t.Errorf("post %s: the ranked feed has no first-source time; firstSourceAt must stay null", p["id"])
+		}
+	}
+	if end["scored"] != float64(2) || end["scorePages"] != float64(2) || end["scoreRange"] != "30d" {
+		t.Fatalf("final line should report the ranked walk: %v", end)
+	}
+	reqs := stub.rankedRequests()
+	if len(reqs) != 2 || reqs[0]["topic"] != "ai" || reqs[0]["view"] != "top" || reqs[0]["range"] != "30d" || reqs[1]["cursor"] != "r2" {
+		t.Fatalf("one ranked walk of ai/top/30d expected: %v", reqs)
+	}
+}
+
+func TestFeedRankedWalkIsBoundedByMaxPagesAndSince(t *testing.T) {
+	stub := &feedPagesStub{
+		pages: map[string]any{
+			"":   feedPageJSON("p2", feedPagePostJSON("a", "2099-01-01T00:00:00Z")),
+			"p2": feedPageJSON("", feedPagePostJSON("b", "2099-01-01T00:00:00Z")),
+		},
+		ranked: map[string]any{
+			"":   rankedPageJSON("r2", rankedRow("x1", "x1", 1, 1, 1)),
+			"r2": rankedPageJSON("r3", rankedRow("x2", "x2", 1, 1, 1)),
+			"r3": rankedPageJSON("", rankedRow("x3", "x3", 1, 1, 1)),
+		},
+	}
+	out, _, err := runDiggCmd(t, stub.serve(t), "feed", "--topic", "ai", "--since", "24h", "--max-pages", "2")
+	if err != nil {
+		t.Fatalf("feed: %v", err)
+	}
+	reqs := stub.rankedRequests()
+	if len(reqs) != 2 || reqs[0]["range"] != "24h" {
+		t.Fatalf("the ranked walk should stop at --max-pages and cover --since with 24h: %v", reqs)
+	}
+	_, end := decodeFeedLines(t, out)
+	if end["scorePages"] != float64(2) || end["scoreRange"] != "24h" {
+		t.Fatalf("unexpected final line %v", end)
+	}
+}
+
+func TestFeedRankedRefusalExitsBeforeListingWithoutRetry(t *testing.T) {
+	stub := &feedPagesStub{
+		pages: map[string]any{"c5": feedPageJSON("", feedPagePostJSON("a", "2026-11-20T12:00:00Z"))},
+		ranked: map[string]any{"": func(w http.ResponseWriter) {
+			w.Header().Set("Retry-After", "Sat, 21 Nov 2026 20:15:00 GMT")
+			w.WriteHeader(http.StatusTooManyRequests)
+			_, _ = io.WriteString(w, `{"error":"Too many requests"}`)
+		}},
+	}
+	out, _, err := runDiggCmd(t, stub.serve(t), "feed", "--topic", "ai", "--cursor", "c5")
+	if code := ExitCode(err); err == nil || code != 7 {
+		t.Fatalf("a ranked-feed 429 must exit 7, got %d (%v)", code, err)
+	}
+	if n := len(stub.rankedRequests()); n != 1 {
+		t.Fatalf("a ranked-feed 429 must not be retried: %d requests", n)
+	}
+	if n := len(stub.requests()); n != 0 {
+		t.Fatalf("no post may be listed unscored after a refused ranked walk: %d digg_get_feed calls", n)
+	}
+	posts, end := decodeFeedLines(t, out)
+	if len(posts) != 0 || end["stop"] != "rate-limited" || end["nextCursor"] != "c5" || end["resetAt"] != "2026-11-21T20:15:00Z" {
+		t.Fatalf("final line should keep the caller's cursor and name the reset: %v", end)
+	}
+}
+
+func TestFeedAllTopicsNeedsScoresOff(t *testing.T) {
+	stub := &feedPagesStub{pages: map[string]any{"": feedPageJSON("", feedPagePostJSON("a", "2026-11-20T12:00:00Z"))}}
+	url := stub.serve(t)
+	if _, _, err := runDiggCmd(t, url, "feed", "--topic", "all"); ExitCode(err) != 2 {
+		t.Fatalf("--topic all with scores on must be a usage error, got %v", err)
+	}
+	out, _, err := runDiggCmd(t, url, "feed", "--topic", "all", "--scores=false")
+	if err != nil {
+		t.Fatalf("feed --scores=false: %v", err)
+	}
+	if n := len(stub.rankedRequests()); n != 0 {
+		t.Fatalf("--scores=false must not read the ranked feed: %d requests", n)
+	}
+	posts, end := decodeFeedLines(t, out)
+	if len(posts) != 1 || posts[0]["diggScore"] != nil {
+		t.Fatalf("unscored run should print null scores: %v", posts)
+	}
+	if _, ok := end["scored"]; ok {
+		t.Fatalf("--scores=false should omit the scores summary: %v", end)
 	}
 }
