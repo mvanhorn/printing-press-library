@@ -8,6 +8,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -238,7 +240,7 @@ func TestFeedToolRefusalNamesResetTime(t *testing.T) {
 	stub := &feedPagesStub{pages: map[string]any{
 		"c9": func(w http.ResponseWriter) {
 			w.Header().Set("Content-Type", "text/event-stream")
-			_, _ = io.WriteString(w, `event: message`+"\n"+`data: {"jsonrpc":"2.0","id":1,"result":{"isError":true,"content":[{"type":"text","text":"Digg MCP is temporarily unavailable. Retry after 2026-11-21T20:00:00.000Z"}]}}`+"\n\n")
+			_, _ = io.WriteString(w, `event: message`+"\n"+`data: {"jsonrpc":"2.0","id":1,"result":{"isError":true,"content":[{"type":"text","text":"Digg MCP is temporarily unavailable. Retry after 2026-11-21T20:00:00.750Z"}]}}`+"\n\n")
 		},
 	}}
 	out, _, err := runDiggCmd(t, stub.serve(t), "feed", "--topic", "ai", "--cursor", "c9")
@@ -249,7 +251,8 @@ func TestFeedToolRefusalNamesResetTime(t *testing.T) {
 		t.Fatalf("a refusal must not be retried: %d requests", n)
 	}
 	_, end := decodeFeedLines(t, out)
-	if end["resetAt"] != "2026-11-21T20:00:00Z" || end["nextCursor"] != "c9" || end["stop"] != "rate-limited" {
+	// Sub-second precision is kept so a collector never retries early.
+	if end["resetAt"] != "2026-11-21T20:00:00.75Z" || end["nextCursor"] != "c9" || end["stop"] != "rate-limited" {
 		t.Fatalf("unexpected final line %v", end)
 	}
 }
@@ -291,5 +294,66 @@ func TestFeedRejectsBadFlagsBeforeAnyRequest(t *testing.T) {
 	}
 	if n := len(stub.requests()); n != 0 {
 		t.Fatalf("bad flags must not reach Digg: %d requests", n)
+	}
+}
+
+func TestFeedPageMissingFieldsIsAnErrorNotTheEnd(t *testing.T) {
+	stub := &feedPagesStub{pages: map[string]any{
+		"":   feedPageJSON("p2", feedPagePostJSON("a", "2026-11-20T12:00:00Z")),
+		"p2": `{"topic":"ai"}`,
+	}}
+	out, _, err := runDiggCmd(t, stub.serve(t), "feed", "--topic", "ai")
+	if code := ExitCode(err); err == nil || code != 5 {
+		t.Fatalf("a page without posts or nextCursor must fail with exit 5, got %d (%v)", code, err)
+	}
+	posts, end := decodeFeedLines(t, out)
+	if len(posts) != 1 || end["stop"] != "error" || end["nextCursor"] != "p2" {
+		t.Fatalf("want the first page's post and stop error at cursor p2, got %d posts, %v", len(posts), end)
+	}
+}
+
+func TestFeedDeliversToFileEvenWhenRefused(t *testing.T) {
+	stub := &feedPagesStub{pages: map[string]any{
+		"": feedPageJSON("p2", feedPagePostJSON("a", "2026-11-20T12:00:00Z")),
+		"p2": func(w http.ResponseWriter) {
+			w.Header().Set("Retry-After", "120")
+			w.WriteHeader(http.StatusTooManyRequests)
+		},
+	}}
+	dest := filepath.Join(t.TempDir(), "feed.jsonl")
+	_, _, err := runDiggCmd(t, stub.serve(t), "feed", "--topic", "ai", "--deliver", "file:"+dest)
+	if code := ExitCode(err); err == nil || code != 7 {
+		t.Fatalf("want exit 7, got %d (%v)", code, err)
+	}
+	data, rerr := os.ReadFile(dest)
+	if rerr != nil {
+		t.Fatalf("--deliver file was not written on a refusal: %v", rerr)
+	}
+	posts, end := decodeFeedLines(t, string(data))
+	if len(posts) != 1 || end["stop"] != "rate-limited" || end["nextCursor"] != "p2" {
+		t.Fatalf("delivered file should hold the post and the resume line: %s", data)
+	}
+}
+
+func TestFeedWebhookDeliveryIsNDJSON(t *testing.T) {
+	var mu sync.Mutex
+	var contentType string
+	hook := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.Copy(io.Discard, r.Body)
+		mu.Lock()
+		contentType = r.Header.Get("Content-Type")
+		mu.Unlock()
+	}))
+	t.Cleanup(hook.Close)
+	stub := &feedPagesStub{pages: map[string]any{
+		"": feedPageJSON("", feedPagePostJSON("a", "2026-11-20T12:00:00Z")),
+	}}
+	if _, _, err := runDiggCmd(t, stub.serve(t), "feed", "--topic", "ai", "--deliver", "webhook:"+hook.URL); err != nil {
+		t.Fatalf("feed: %v", err)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if contentType != "application/x-ndjson" {
+		t.Fatalf("feed webhook body is JSON lines; want application/x-ndjson, got %q", contentType)
 	}
 }

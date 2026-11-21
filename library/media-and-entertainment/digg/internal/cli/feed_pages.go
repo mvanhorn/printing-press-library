@@ -49,9 +49,11 @@ type feedPagePost struct {
 	FirstSourceAt *string  `json:"firstSourceAt"`
 }
 
+// feedPageResult is one digg_get_feed page. Both fields are pointers or
+// raw so a page missing either one is caught instead of read as the end.
 type feedPageResult struct {
-	Posts      []feedPagePost `json:"posts"`
-	NextCursor *string        `json:"nextCursor"`
+	Posts      *[]feedPagePost `json:"posts"`
+	NextCursor json.RawMessage `json:"nextCursor"`
 }
 
 // feedPostLine is one printed post.
@@ -155,7 +157,17 @@ reset time and the refused page's cursor, and exits 7. Resume with
 			return err
 		}
 		mc.NoRetry = true
-		return pageFeed(cmd.Context(), mc, o, cmd.OutOrStdout(), time.Now)
+		perr := pageFeed(cmd.Context(), mc, o, cmd.OutOrStdout(), time.Now)
+		// A refused or failed run still printed posts and a resume cursor;
+		// --deliver must get them too, so deliver here instead of leaving
+		// it to Execute, which delivers only on success.
+		if derr := deliverLinesNow(flags); derr != nil {
+			if perr == nil {
+				return derr
+			}
+			fmt.Fprintf(cmd.ErrOrStderr(), "warning: %v\n", derr)
+		}
+		return perr
 	}
 	cmd.Flags().StringVar(&o.topic, "topic", "all", "Digg topic to page (one of: "+strings.Join(append(feedTopics(), "all"), ", ")+")")
 	cmd.Flags().StringVar(&sinceStr, "since", "", "Only posts published after this: Nh, Nd, Nw, Nm, or an ISO date or datetime")
@@ -195,7 +207,8 @@ func pageFeed(ctx context.Context, mc *diggmcp.Client, o feedPageOpts, w io.Writ
 		if err != nil {
 			if r, ok := diggmcp.AsRefusal(err, now()); ok {
 				if !r.ResetAt.IsZero() {
-					end.ResetAt = r.ResetAt.UTC().Format(time.RFC3339)
+					// Full precision: a rounded-down time would invite an early retry.
+					end.ResetAt = r.ResetAt.UTC().Format(time.RFC3339Nano)
 				}
 				end.Error = r.Message
 				if perr := finish("rate-limited", cursor); perr != nil {
@@ -211,8 +224,9 @@ func pageFeed(ctx context.Context, mc *diggmcp.Client, o feedPageOpts, w io.Writ
 			return apiErr(fmt.Errorf("reading page %d of the %s feed: %w", end.Pages+1, o.topic, err))
 		}
 		var page feedPageResult
-		if err := json.Unmarshal(raw, &page); err != nil {
-			end.Error = "unreadable digg_get_feed page"
+		next, err := decodeFeedPage(raw, &page)
+		if err != nil {
+			end.Error = err.Error()
 			if perr := finish("error", cursor); perr != nil {
 				return perr
 			}
@@ -220,7 +234,7 @@ func pageFeed(ctx context.Context, mc *diggmcp.Client, o feedPageOpts, w io.Writ
 		}
 		end.Pages++
 		crossedSince := false
-		for _, p := range page.Posts {
+		for _, p := range *page.Posts {
 			if p.ID == "" || seen[p.ID] {
 				continue
 			}
@@ -234,14 +248,10 @@ func pageFeed(ctx context.Context, mc *diggmcp.Client, o feedPageOpts, w io.Writ
 			}
 			end.Posts++
 		}
-		next := ""
-		if page.NextCursor != nil {
-			next = *page.NextCursor
-		}
 		switch {
 		case next == "":
 			return finish("end", "")
-		case len(page.Posts) == 0:
+		case len(*page.Posts) == 0:
 			// A cursor with no posts would loop; hand it back instead.
 			return finish("empty", next)
 		case crossedSince && o.view == "newest":
@@ -249,6 +259,40 @@ func pageFeed(ctx context.Context, mc *diggmcp.Client, o feedPageOpts, w io.Writ
 		}
 		cursor = next
 	}
+}
+
+// decodeFeedPage reads one page and its next cursor ("" at the end). A
+// page without posts or nextCursor is an error, not the end of the feed.
+func decodeFeedPage(raw []byte, page *feedPageResult) (string, error) {
+	if err := json.Unmarshal(raw, page); err != nil {
+		return "", fmt.Errorf("unreadable digg_get_feed page: %w", err)
+	}
+	if page.Posts == nil || page.NextCursor == nil {
+		return "", fmt.Errorf("digg_get_feed page is missing posts or nextCursor")
+	}
+	var next *string
+	if err := json.Unmarshal(page.NextCursor, &next); err != nil {
+		return "", fmt.Errorf("digg_get_feed nextCursor is not a string: %w", err)
+	}
+	if next == nil {
+		return "", nil
+	}
+	return *next, nil
+}
+
+// deliverLinesNow sends what the command printed to --deliver as JSON
+// lines (application/x-ndjson for webhooks, whatever --compact says) and
+// stops Execute from sending it again.
+func deliverLinesNow(flags *rootFlags) error {
+	if flags.deliverBuf == nil {
+		return nil
+	}
+	buf := flags.deliverBuf
+	flags.deliverBuf = nil
+	if err := Deliver(flags.deliverSink, buf.Bytes(), true); err != nil {
+		return fmt.Errorf("deliver to %s:%s failed: %w", flags.deliverSink.Scheme, flags.deliverSink.Target, err)
+	}
+	return nil
 }
 
 // publishedBefore reports whether an RFC 3339 time is before t. An

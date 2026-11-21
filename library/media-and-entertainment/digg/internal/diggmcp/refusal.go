@@ -27,7 +27,7 @@ type Refusal struct {
 func (r *Refusal) Error() string {
 	msg := r.Tool + ": Digg refused the call"
 	if !r.ResetAt.IsZero() {
-		msg += "; resets at " + r.ResetAt.UTC().Format(time.RFC3339)
+		msg += "; resets at " + r.ResetAt.UTC().Format(time.RFC3339Nano)
 	}
 	if r.Message != "" {
 		msg += ": " + r.Message
@@ -150,5 +150,5 @@ func (r *Refusal) ResetIn(now time.Time) string {
 	if d < 0 {
 		d = 0
 	}
-	return fmt.Sprintf("%s (in %s)", r.ResetAt.UTC().Format(time.RFC3339), d)
+	return fmt.Sprintf("%s (in %s)", r.ResetAt.UTC().Format(time.RFC3339Nano), d)
 }
