@@ -63,10 +63,67 @@ type FeedPage struct {
 // called in the same run share one rate budget. Nil when pacing is off.
 func (c *Client) Limiter() *cliutil.AdaptiveLimiter { return c.limiter }
 
+// FeedRefusedError is the feed answering HTTP 429. RetryAfter is the
+// header as sent, so a caller can name the real reset time.
+type FeedRefusedError struct {
+	URL        string
+	Status     int
+	RetryAfter string
+	Body       string
+}
+
+func (e *FeedRefusedError) Error() string {
+	return fmt.Sprintf("GET %s: HTTP %d: %s", e.URL, e.Status, e.Body)
+}
+
 // FetchFeedPage reads one page of /api/feed/continuous. cursor is empty
 // for the first page, or the previous page's NextCursor. endpoint
 // replaces the feed URL when non-empty, for tests.
 func (c *Client) FetchFeedPage(ctx context.Context, endpoint string, p FeedParams, cursor string) (*FeedPage, error) {
+	body, err := c.getFeed(ctx, endpoint, p, cursor)
+	if err != nil {
+		return nil, err
+	}
+	var page FeedPage
+	if err := json.Unmarshal(body, &page); err != nil {
+		return nil, fmt.Errorf("decoding /api/feed/continuous: %w", err)
+	}
+	return &page, nil
+}
+
+// FeedScoreRow is the part of a feed story that scores it. The summary
+// (title and description) is deliberately not decoded.
+type FeedScoreRow struct {
+	ClusterID     string  `json:"clusterId"`
+	ClusterURLID  string  `json:"clusterUrlId"`
+	DiggScore     float64 `json:"diggScore"`
+	PostCount     int     `json:"postCount"`
+	UniqueAuthors int     `json:"uniqueAuthors"`
+}
+
+// FeedScorePage is one feed page decoded for scores only.
+type FeedScorePage struct {
+	NextCursor *string        `json:"nextCursor"`
+	Posts      []FeedScoreRow `json:"posts"`
+}
+
+// FetchFeedScores reads one page of /api/feed/continuous for its scores
+// only. A 429 is returned at once as *FeedRefusedError, never retried.
+func (c *Client) FetchFeedScores(ctx context.Context, endpoint string, p FeedParams, cursor string) (*FeedScorePage, error) {
+	body, err := c.getFeed(ctx, endpoint, p, cursor)
+	if err != nil {
+		return nil, err
+	}
+	var page FeedScorePage
+	if err := json.Unmarshal(body, &page); err != nil {
+		return nil, fmt.Errorf("decoding /api/feed/continuous: %w", err)
+	}
+	return &page, nil
+}
+
+// getFeed requests one feed page and returns its body once it has a
+// posts array.
+func (c *Client) getFeed(ctx context.Context, endpoint string, p FeedParams, cursor string) ([]byte, error) {
 	if endpoint == "" {
 		endpoint = feedContinuousURL
 	}
@@ -107,6 +164,7 @@ func (c *Client) FetchFeedPage(ctx context.Context, endpoint string, p FeedParam
 	if resp.StatusCode != http.StatusOK {
 		if resp.StatusCode == http.StatusTooManyRequests {
 			c.limiter.OnRateLimit()
+			return nil, &FeedRefusedError{URL: endpoint, Status: resp.StatusCode, RetryAfter: resp.Header.Get("Retry-After"), Body: truncate(string(body), 200)}
 		}
 		return nil, fmt.Errorf("GET %s: HTTP %d: %s", endpoint, resp.StatusCode, truncate(string(body), 200))
 	}
@@ -121,9 +179,5 @@ func (c *Client) FetchFeedPage(ctx context.Context, endpoint string, p FeedParam
 	if len(probe.Posts) == 0 || string(probe.Posts) == "null" {
 		return nil, fmt.Errorf("/api/feed/continuous response has no posts array; Digg's feed layout may have changed")
 	}
-	var page FeedPage
-	if err := json.Unmarshal(body, &page); err != nil {
-		return nil, fmt.Errorf("decoding /api/feed/continuous: %w", err)
-	}
-	return &page, nil
+	return body, nil
 }

@@ -10,8 +10,10 @@ import (
 func newFeedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feed",
-		Short: "Raw Digg pages: the AI topic page and one story's page, as HTML",
+		Short: "Page Digg's feed for one topic as JSON lines; raw and story-raw fetch HTML pages",
 	}
+	// PATCH(digg-feed-pages): feed itself pages digg_get_feed (feed_pages.go).
+	addFeedPaging(cmd, flags)
 
 	cmd.AddCommand(newFeedRawCmd(flags))
 	cmd.AddCommand(newFeedStoryRawCmd(flags))
