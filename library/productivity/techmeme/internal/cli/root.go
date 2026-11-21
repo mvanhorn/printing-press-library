@@ -203,6 +203,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newAuthorCmd(flags))
 	rootCmd.AddCommand(newTopCmd(flags))
 	rootCmd.AddCommand(newSearchCmd(flags))
+	// PATCH(collect-publisher-urls-from-allowed-pages): collector feed of headlines.
+	rootCmd.AddCommand(newCollectCmd(flags))
 
 	return rootCmd
 }
