@@ -87,8 +87,9 @@ func sourcesAt(path ...string) func(json.RawMessage) ([]citedSource, error) {
 }
 
 // citedEngines lists the engines in their default order. The AI Overview
-// runs a Google search with the prompt as the query. Bing AI Mode is not in
-// the default list; name it in --engines to run it.
+// runs a Google search with the prompt as the query, and the Bing AI Overview
+// runs a Bing search the same way. Bing AI Mode and the Bing AI Overview are
+// not in the default list; name them in --engines to run them.
 var citedEngines = []citedEngine{
 	{Name: "chatgpt", Path: "/v1/monitor/chatgpt", Body: promptBody, Sources: sourcesAt()},
 	{Name: "aimode", Path: "/v1/monitor/aimode", Body: promptBody, Sources: sourcesAt()},
@@ -106,12 +107,26 @@ var citedEngines = []citedEngine{
 		Sources: sourcesAt("aioverview"),
 	},
 	{Name: "bing-aimode", Path: "/v1/monitor/bing/aimode", Body: promptBody, Sources: sourcesAt()},
+	// PATCH(bing-endpoint-is-hand-wired-until-the-spec-lists-it): the Bing AI
+	// Overview, read like the Google one.
+	{
+		Name: "bing-aioverview",
+		Path: "/v1/monitor/bing",
+		Body: func(prompt, country string) map[string]any {
+			return map[string]any{
+				"query":   prompt,
+				"country": country,
+				"include": map[string]any{"aioverview": true},
+			}
+		},
+		Sources: sourcesAt("aioverview"),
+	},
 }
 
 const citedDefaultEngines = "chatgpt,aimode,gemini,aioverview"
 
 // citedAllEngines names every engine that --engines accepts.
-const citedAllEngines = citedDefaultEngines + ",bing-aimode"
+const citedAllEngines = citedDefaultEngines + ",bing-aimode,bing-aioverview"
 
 // parseCitedEngines returns the engines named in a comma-separated list, in
 // the order given, without duplicates.
@@ -204,8 +219,8 @@ with an empty URL does not match; resolve its redirect link with 'goto'.
 The AI Overview check runs a Google search with the prompt as the query and
 reads the sources of the AI Overview. Each engine is one sync request at its
 sync price: ChatGPT 7 credits, AI Mode 6, Gemini 6, Google with the AI
-Overview 7. Use --engines to run fewer engines. Bing AI Mode (6 credits) runs
-only when you name it in --engines.
+Overview 7. Use --engines to run fewer engines. Bing AI Mode (6 credits) and
+the Bing AI Overview (7 credits) run only when you name them in --engines.
 
 Answers and their sources change between runs of the same prompt, so one run
 is a sample, not a rank.
@@ -320,7 +335,7 @@ instead.`, "\n"),
 	}
 	cmd.Flags().StringVar(&flagPrompt, "prompt", "", "Prompt to send to each engine (the search query for the AI Overview).")
 	cmd.Flags().StringVar(&flagCountry, "country", "US", "ISO 3166-1 alpha-2 country code the engines answer from.")
-	cmd.Flags().StringVar(&flagEngines, "engines", citedDefaultEngines, "Comma-separated engines to check: chatgpt, aimode, gemini, aioverview, bing-aimode.")
+	cmd.Flags().StringVar(&flagEngines, "engines", citedDefaultEngines, "Comma-separated engines to check: chatgpt, aimode, gemini, aioverview, bing-aimode, bing-aioverview.")
 	return cmd
 }
 

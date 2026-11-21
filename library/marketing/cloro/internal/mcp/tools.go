@@ -104,6 +104,21 @@ func RegisterTools(s *server.MCPServer) {
 		),
 		makeAPIHandler("GET", "/v1/async/status", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
+	// PATCH(bing-endpoint-is-hand-wired-until-the-spec-lists-it): hand-written from the google_google tool.
+	s.AddTool(
+		mcplib.NewTool("bing_bing",
+			mcplib.WithDescription("Extract structured data from Bing Search: organic results and optional AI Overview. Required: country, query. Optional: include. Returns organicResults, plus aioverview and html when asked."),
+			mcplib.WithString("country", mcplib.Required(), mcplib.Description("ISO 3166-1 alpha-2 country code. It picks Bing's market.")),
+			mcplib.WithBoolean("include-aioverview", mcplib.Description("Include the Bing AI Overview in result.aioverview. Paid add-on: +2 credits.")),
+			mcplib.WithBoolean("include-html", mcplib.Description("Include a URL to the full HTML of the results page (default: false)")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("The search query to execute on Bing. Maximum 3,500 characters after URL encoding.")),
+			mcplib.WithSchemaAdditionalProperties(false),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/v1/monitor/bing", true, false, map[string]string{client.ReplaySafeHeader: "false"}, mcpPageConfig{}, []mcpParamBinding{{PublicName: "country", WireName: "country", Location: "body"}, {PublicName: "include-aioverview", WireName: "aioverview", Location: "body", BodyPath: []string{"include", "aioverview"}}, {PublicName: "include-html", WireName: "html", Location: "body", BodyPath: []string{"include", "html"}}, {PublicName: "query", WireName: "query", Location: "body"}}, []string{}),
+	)
 	// PATCH(bing-aimode-endpoint-is-hand-wired-until-the-spec-lists-it): hand-written from the gemini_gemini tool.
 	s.AddTool(
 		mcplib.NewTool("bing-aimode_bing_aimode",
@@ -1541,6 +1556,12 @@ func handleContextResult(s *server.MCPServer, _ context.Context, _ mcplib.CallTo
 				"endpoints":   []string{"batch", "create", "get", "queue"},
 				"searchable":  true,
 				"writable":    true,
+			},
+			{
+				"name":        "bing",
+				"description": "Manage bing",
+				"endpoints":   []string{"bing"},
+				"searchable":  true,
 			},
 			{
 				"name":        "bing-aimode",
