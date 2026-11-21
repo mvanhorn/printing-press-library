@@ -78,6 +78,14 @@ These capabilities aren't available in any other tool for this API.
   ```
   `--view top|trending`, `--range 24h|7d|30d|all`, `--limit`.
 
+- **`feed`** - Page one topic's feed through Digg's public MCP tool `digg_get_feed`, as JSON lines, for collectors that keep their own copy. Each post line has `kind: "post"`, `id`, `url`, `topic`, `title`, `feedEntryAt`, `publishedAt`, `updatedAt`, `diggScore`, `sourceCount`, `uniqueAuthors` and `firstSourceAt` (the last four are null: `digg_get_feed` does not send them; use `search` for scores). A post's tldr and description are never printed. The last line has `kind: "cursor"`, `nextCursor`, `stop` (`end`, `empty`, `since`, `max-pages`, `rate-limited` or `error`) and page and post counts. Posts are deduplicated by id.
+
+  ```bash
+  digg-pp-cli feed --topic ai --since 24h --max-pages 5
+  digg-pp-cli feed --topic tech --since 30d --max-pages 50 --cursor "$CURSOR"
+  ```
+  `--view newest|top`, `--range today|24h|7d|30d|1y|all` (top only), `--since`, `--max-pages`, `--cursor`. With `--view newest` paging stops after the page that reaches `--since`; with `--view top`, `--since` only filters. When Digg refuses a page (HTTP 429, "Retry after" or "Search resets at"), `feed` does not retry: the last line carries `stop: "rate-limited"`, `resetAt` and the refused page's cursor, and the exit code is 7. Resume with `--cursor` after `resetAt`.
+
 ### Local state that compounds
 - **`sync`** — Take one snapshot of each topic's ranked list (`--topics`, default `ai`) and save it to a local SQLite database. `history`, `stats`, `author` and `authors top` read these snapshots. `watch` polls Digg itself and keeps its own baseline per topic. `search` and `top` do not need it.
 - **`history`** — Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.
@@ -167,7 +175,7 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `digg-pp-cli github activity` — Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos count over Digg's tracking window. Flag: `--limit`.
 - `digg-pp-cli github recent` — Live activity feed: per-event entries with the GitHub URL and the user who acted. Flag: `--limit`.
 
-**feed** — Raw Digg pages, as HTML
+**feed** — Page one topic's feed as JSON lines (see above); subcommands fetch raw HTML
 
 - `digg-pp-cli feed raw` — Fetch the raw HTML of Digg's AI topic page (/ai). Most users should run `top` instead.
 - `digg-pp-cli feed story_raw` — Fetch the raw HTML of one story's page under /ai. Most users should run `story` or `posts` instead.

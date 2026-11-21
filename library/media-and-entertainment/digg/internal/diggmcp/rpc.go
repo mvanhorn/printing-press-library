@@ -41,6 +41,13 @@ type Client struct {
 	Timeout time.Duration
 	// UserAgent identifies the caller to Digg.
 	UserAgent string
+	// NoRetry makes a 429 return a *Refusal at once, carrying the time
+	// Digg named, instead of waiting and retrying. Callers that keep their
+	// own schedule (a collector resuming from a cursor) set it, because an
+	// early retry lengthens Digg's penalty.
+	NoRetry bool
+	// now replaces time.Now in tests.
+	now func() time.Time
 }
 
 // Error is a failure the server reported for a tool call: a JSON-RPC
@@ -68,7 +75,7 @@ type callParams struct {
 
 // Call invokes one tool and returns its structured result. A 429 is
 // retried once after the server's Retry-After delay, unless ctx ends
-// before that delay does.
+// before that delay does or NoRetry is set.
 func (c *Client) Call(ctx context.Context, tool string, args map[string]any) (json.RawMessage, error) {
 	if args == nil {
 		args = map[string]any{}
@@ -78,12 +85,15 @@ func (c *Client) Call(ctx context.Context, tool string, args map[string]any) (js
 		return nil, err
 	}
 	for attempt := 0; ; attempt++ {
-		status, wait, raw, err := c.post(ctx, tool, body)
+		status, wait, retryAfter, raw, err := c.post(ctx, tool, body)
 		if err != nil {
 			return nil, err
 		}
 		if status == http.StatusTooManyRequests {
 			c.Limiter.OnRateLimit()
+			if c.NoRetry {
+				return nil, refusalFrom429(tool, retryAfter, raw, c.clock())
+			}
 			rateLimited := &cliutil.RateLimitError{URL: c.endpoint(), RetryAfter: wait, Body: clip(raw, 200)}
 			if attempt > 0 {
 				return nil, rateLimited
@@ -123,10 +133,18 @@ func (c *Client) endpoint() string {
 	return DefaultEndpoint
 }
 
-// post sends one request. wait is the Retry-After delay on a 429.
-func (c *Client) post(ctx context.Context, tool string, body []byte) (status int, wait time.Duration, raw []byte, err error) {
+func (c *Client) clock() time.Time {
+	if c.now != nil {
+		return c.now()
+	}
+	return time.Now()
+}
+
+// post sends one request. On a 429, wait is the capped Retry-After delay
+// and retryAfter the header exactly as sent.
+func (c *Client) post(ctx context.Context, tool string, body []byte) (status int, wait time.Duration, retryAfter string, raw []byte, err error) {
 	if err := c.Limiter.WaitContext(ctx); err != nil {
-		return 0, 0, nil, err
+		return 0, 0, "", nil, err
 	}
 	timeout := c.Timeout
 	if timeout <= 0 {
@@ -136,7 +154,7 @@ func (c *Client) post(ctx context.Context, tool string, body []byte) (status int
 	defer cancel()
 	req, err := http.NewRequestWithContext(cctx, http.MethodPost, c.endpoint(), bytes.NewReader(body))
 	if err != nil {
-		return 0, 0, nil, err
+		return 0, 0, "", nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", acceptHeader)
@@ -156,14 +174,15 @@ func (c *Client) post(ctx context.Context, tool string, body []byte) (status int
 		// The parent context ending is the caller's cancellation, not a
 		// slow server.
 		if ctx.Err() == nil && errors.Is(cctx.Err(), context.DeadlineExceeded) {
-			return 0, 0, nil, fmt.Errorf("%s: call timed out after %s", tool, timeout)
+			return 0, 0, "", nil, fmt.Errorf("%s: call timed out after %s", tool, timeout)
 		}
-		return 0, 0, nil, fmt.Errorf("%s: POST %s: %w", tool, c.endpoint(), err)
+		return 0, 0, "", nil, fmt.Errorf("%s: POST %s: %w", tool, c.endpoint(), err)
 	}
 	if resp.StatusCode == http.StatusTooManyRequests {
 		wait = cliutil.RetryAfter(resp)
+		retryAfter = resp.Header.Get("Retry-After")
 	}
-	return resp.StatusCode, wait, raw, nil
+	return resp.StatusCode, wait, retryAfter, raw, nil
 }
 
 // Unwrap decodes a tools/call response body, SSE-framed or plain JSON. It

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "feed-pages-digg-get-feed-resumably-and-never-retries-a-refusal",
+  "applied_at": "2026-11-21",
+  "base_run_id": "20260508-234057",
+  "base_printing_press_version": "4.0.6",
+  "summary": "`feed` with no subcommand pages Digg's published MCP tool digg_get_feed for one topic as JSON lines, deduplicated by id, ending with a cursor line a later run resumes from; it never prints a post's tldr or description, and a refusal (HTTP 429 or a 'Retry after' / 'Search resets at' tool error) ends the run at once with exit 7, the reset time Digg named (uncapped) and the refused page's cursor.",
+  "reason": "A collector shares one rate budget with every other caller, and Digg says early retries lengthen its penalty, so the CLI must hand the wait back instead of sleeping or retrying. digg_get_feed is the feed interface Digg publishes (its llms.txt lists the MCP server); /api/feed/continuous is robots-disallowed. digg_get_feed sends no score or source counts, so those fields print null rather than a made-up zero.",
+  "files": [
+    "internal/cli/feed.go",
+    "internal/cli/feed_pages.go",
+    "internal/cli/feed_pages_test.go",
+    "internal/diggmcp/rpc.go",
+    "internal/diggmcp/refusal.go",
+    "internal/diggmcp/refusal_test.go",
+    "internal/mcp/tools.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Live: `feed --topic ai --since 2h --max-pages 1` printed 6 posts and a cursor line with stop 'since'. Offline fakes cover cursor resume, the --since stop, id dedupe, 429 with no retry and exit 7, a tool-error refusal, and the absence of tldr/description."
+}

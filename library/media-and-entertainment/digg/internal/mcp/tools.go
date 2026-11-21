@@ -327,13 +327,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// PATCH(digg-rename-and-github-feeds): the product is named Digg, with no roster-size branding; add github resource.
 		"description": "Tail Digg's news cycle and GitHub feeds from the terminal — read-only, with rank-history nobody else surfaces.",
 		"archetype":   "generic",
-		"tool_count":  22,
+		"tool_count":  23,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion digg-pp-cli binary.",
 		"resources": []map[string]any{
 			{
 				"name":        "feed",
-				"description": "Raw HTML of Digg's AI topic page and of one story page under it. feed_raw and feed_story_raw cover only the AI topic; use search, top, story and posts for all seven topics.",
+				"description": "The feed command pages Digg's feed for one topic as JSON lines, resumable by cursor. feed_raw and feed_story_raw return raw HTML of the AI topic page and one story page under it.",
 				"endpoints":   []string{"raw", "story_raw"},
 				"searchable":  true,
 			},
@@ -358,6 +358,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Live story search", "command": "search", "description": "Search Digg stories live across all seven topics, or some with --topic; --since/--until bound the window (90 days at most) and --sort is relevance, score or newest. Each result has clusterId, diggScore, sourceCount, uniqueAuthors and publishedAt.", "rationale": "Digg's own search is the one source of its story clusters with Digg Score and source counts; it needs no sync.", "via": "mcp-command-mirror"},
 			{"name": "Story sources", "command": "posts", "description": "Every source Digg attributes one story to, live: X posts and web pages with author.username, xUrl, body and posted_at. Pass the story's clusterId.", "rationale": "The posts behind a story are its citations: who said what, with links.", "via": "mcp-command-mirror"},
 			{"name": "Single story", "command": "story", "description": "One story live: title, summary, dates, the story it follows and its first sources. Pass the story's clusterId.", "rationale": "One call answers what a story is and who reported it.", "via": "mcp-command-mirror"},
+			{"name": "Feed pages", "command": "feed", "description": "Page one topic's feed (--view newest or top) as JSON lines: id, url, title and times per post, then a final line with nextCursor and why paging stopped. Stops at --since or --max-pages; never prints tldr or description; on a refusal it exits 7 with the reset time instead of retrying.", "rationale": "A collector keeping its own copy of Digg's feed needs resumable, dedupe-safe pages that respect Digg's refusals.", "via": "mcp-command-mirror"},
 			{"name": "Live ranked feed", "command": "top", "description": "Digg's ranked stories right now for one topic, or merged across all seven by Digg Score; --view trending shows what is rising.", "rationale": "Digg's feed is the one public source with each story's per-topic rank and Digg Score.", "via": "mcp-command-mirror"},
 			{"name": "Influence-ranked author leaderboard", "command": "authors top", "description": "Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.", "rationale": "Digg ranks the accounts on X whose posts it builds stories from. The local store makes that ranking sortable and scriptable.", "via": "mcp-command-mirror"},
 			{"name": "GitHub: top starred repos", "command": "github stars", "description": "Top repos ranked by starring activity from Digg-tracked accounts: stargazers, recent starrers, breakout/novel/ai_related scores, language, one-sentence classification.", "rationale": "Digg's /tech/github/stars page embeds the full repo + scoring JSON in its RSC payload. CLI extracts and exposes as structured records.", "via": "mcp-command-mirror"},
