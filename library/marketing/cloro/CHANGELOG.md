@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.3 - 2026-11-22
+
+- feat(cloro): add Bing Search (#2482).
+
 ## 2026.11.2 - 2026-11-08
 
 - feat(cloro): add Bing AI Mode (#2440).

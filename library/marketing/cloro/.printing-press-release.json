@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "cloro",
   "cli_name": "cloro-pp-cli",
-  "version": "2026.11.2",
-  "released_at": "2026-11-08T09:54:01Z",
-  "source_commit": "52dcd437a58ac8beb4087ddfcad639fcab36aa1c",
+  "version": "2026.11.3",
+  "released_at": "2026-11-22T09:48:13Z",
+  "source_commit": "7661e334c00b115634994c00da4214797d414206",
   "printing_press_version": "4.35.2",
   "run_id": "20261106-060011-eac342d0",
   "changes": [
     {
-      "title": "feat(cloro): add Bing AI Mode",
-      "pr": 2440,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2440",
-      "commit": "52dcd437a58ac8beb4087ddfcad639fcab36aa1c"
+      "title": "feat(cloro): add Bing Search",
+      "pr": 2482,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2482",
+      "commit": "7661e334c00b115634994c00da4214797d414206"
     }
   ]
 }
