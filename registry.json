@@ -5568,9 +5568,9 @@
       "path": "library/marketing/cloro",
       "release": {
         "cli_name": "cloro-pp-cli",
-        "version": "2026.11.2",
-        "released_at": "2026-11-08T09:54:01Z",
-        "source_commit": "442d1c1d97a91f092dcdfed9eb4bbbda198d725f"
+        "version": "2026.11.3",
+        "released_at": "2026-11-22T09:48:13Z",
+        "source_commit": "1b10453e0819bc27d16415ae6fb8f535d3f9af42"
       },
       "printer": "rbatista191",
       "printer_name": "Ricardo Batista",
