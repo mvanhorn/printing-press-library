@@ -42,11 +42,11 @@ go install github.com/mvanhorn/printing-press-library/library/marketing/cloro/cm
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Each engine is a typed command and an MCP tool: chatgpt, aimode, bing-aimode, gemini, google (with --include-aioverview) and news, geo-targeted by country. The cited command runs one prompt on several engines in parallel and tells you which of them cite your domain, and at which source positions.
+Each engine is a typed command and an MCP tool: chatgpt, aimode, bing-aimode, gemini, google and bing (each with --include-aioverview) and news, geo-targeted by country. The cited command runs one prompt on several engines in parallel and tells you which of them cite your domain, and at which source positions.
 
 ## When to Use This CLI
 
-Use this CLI when a task needs the live answer of ChatGPT, Google AI Mode, Bing AI Mode or Gemini with the sources it cites, Google results with the AI Overview, or Google News, for a given country. Use cited to check whether a domain is cited for a prompt across engines. Each scrape spends credits, so prefer one targeted call over many.
+Use this CLI when a task needs the live answer of ChatGPT, Google AI Mode, Bing AI Mode or Gemini with the sources it cites, Google or Bing results with the AI Overview, or Google News, for a given country. Use cited to check whether a domain is cited for a prompt across engines. Each scrape spends credits, so prefer one targeted call over many.
 
 ## Anti-triggers
 
@@ -78,6 +78,10 @@ Do not use this CLI for:
 - `cloro-pp-cli async create`: Submit an asynchronous task for background processing.
 - `cloro-pp-cli async get`: Poll the status and result of an asynchronous task by ID.
 - `cloro-pp-cli async queue`: Get organization-wide async queue metrics including queued and processing task counts, and concurrency usage.
+
+**bing**: Manage bing
+
+- `cloro-pp-cli bing`: Extract structured data from Bing Search: organic results and optional AI Overview
 
 **bing-aimode**: Manage bing-aimode
 
