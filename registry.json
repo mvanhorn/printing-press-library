@@ -5584,7 +5584,7 @@
           "stdio",
           "http"
         ],
-        "tool_count": 15,
+        "tool_count": 16,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
