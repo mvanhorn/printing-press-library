@@ -160,6 +160,42 @@
       "params": []
     },
     {
+      "name": "bing_bing",
+      "description": "Extract structured data from Bing Search: organic results and optional AI Overview. Required: country, query. Optional: include. Returns organicResults, plus aioverview and html when asked.",
+      "method": "POST",
+      "path": "/v1/monitor/bing",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 3166-1 alpha-2 country code. It picks Bing's market. All countries except CN, KR and RU.",
+          "required": true
+        },
+        {
+          "name": "include-aioverview",
+          "wire_name": "include.aioverview",
+          "type": "bool",
+          "location": "body",
+          "description": "Include the Bing AI Overview in result.aioverview. Paid add-on: +2 credits."
+        },
+        {
+          "name": "include-html",
+          "wire_name": "include.html",
+          "type": "bool",
+          "location": "body",
+          "description": "Include a URL to the full HTML of the results page"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The search query to execute on Bing. Maximum 3,500 characters after URL encoding.",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "bing-aimode_bing_aimode",
       "description": "Extract structured data from Bing AI Mode: answer text, cited sources and citation pills. Required: prompt. Optional: country, include, state. Returns the answer text, sources and citationPills, plus markdown and html when asked.",
       "method": "POST",

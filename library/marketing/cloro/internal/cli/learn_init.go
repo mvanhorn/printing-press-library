@@ -52,6 +52,8 @@ func initLearn(ctx context.Context, db *sql.DB) error {
 			{Canonical: "chatgpt", Values: []string{"chat gpt", "openai"}},
 			{Canonical: "aimode", Values: []string{"ai mode", "google ai mode"}},
 			{Canonical: "bing-aimode", Values: []string{"bing ai mode"}},
+			{Canonical: "bing-aioverview", Values: []string{"bing ai overview"}},
+			{Canonical: "bing", Values: []string{"bing search"}},
 			{Canonical: "gemini", Values: []string{"google gemini"}},
 			{Canonical: "aioverview", Values: []string{"ai overview", "aio", "google ai overview"}},
 			{Canonical: "google", Values: []string{"google search", "serp"}},
@@ -105,6 +107,7 @@ func learnResourceTypeFields() map[string][]string {
 	return map[string][]string{
 		"aimode":      {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
 		"async":       {"queuedTasks", "name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"bing":        {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
 		"bing-aimode": {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
 		"chatgpt":     {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
 		"countries":   {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
