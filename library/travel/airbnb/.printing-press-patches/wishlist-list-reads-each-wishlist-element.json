@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "wishlist-list-reads-each-wishlist-element",
+  "applied_at": "2026-11-22",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "Wishlist list treats each element of every `wishlists` array in WishlistIndexPageQuery as one wishlist, decodes Relay global ids to numeric ids, and counts saved items from productIds.",
+  "reason": "A generic key search for `wishlists`/`wishlist` matched the WishlistIndexPage container instead of the wishlists inside it, so `airbnb_wishlist list` (and both wishlist sync paths) returned a single entry with no id or count and only the first list's name.",
+  "files": [
+    "internal/source/airbnb/graphql.go",
+    "internal/source/airbnb/graphql_test.go",
+    "internal/source/airbnb/types.go"
+  ],
+  "call_sites": ["parseWishlistIndex("],
+  "validated_outcome": "Against a live account with several wishlists, `airbnb_wishlist list` returns one row per wishlist with numeric ids and item counts that match airbnb.com; unit tests cover a trimmed real response shape and a null `wishlists` array."
+}
