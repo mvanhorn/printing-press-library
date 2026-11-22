@@ -1,6 +1,7 @@
 {
   "api_name": "e-boekhouden",
   "category": "payments",
+  "homepage": "https://www.e-boekhouden.nl",
   "cli_name": "e-boekhouden-pp-cli",
   "generated_at": "2026-08-29T20:27:51.450872811Z",
   "novel_features": [

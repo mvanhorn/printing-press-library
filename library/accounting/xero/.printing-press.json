@@ -3,6 +3,7 @@
   "cli_name": "xero-pp-cli",
   "category": "accounting",
   "description": "Fixture-first, read-only Xero CLI for agents.",
+  "homepage": "https://www.xero.com",
   "spec_format": "plan",
   "spec_source": ".manuscripts/xero-fixture-read-20260604/research/plan.md",
   "spec_checksum": "sha256:d85b2a800f7a6664b6c352008bbbe54c0145a0394fc9be07bbeb94afb0481851",

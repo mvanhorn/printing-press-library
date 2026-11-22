@@ -19,6 +19,7 @@
   "run_id": "20261002-003332-fdaecdac",
   "category": "travel",
   "description": "Live Japan rental class estimates, distinct shops, and a careful booking handoff.",
+  "homepage": "https://rent.toyota.co.jp",
   "mcp_binary": "toyota-rentacar-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,

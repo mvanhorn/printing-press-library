@@ -19,6 +19,7 @@
   "run_id": "20260927-223649-6dd0cc14",
   "category": "travel",
   "description": "Find Japan stays and understand the exact room and plan.",
+  "homepage": "https://www.jalan.net",
   "mcp_binary": "jalan-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

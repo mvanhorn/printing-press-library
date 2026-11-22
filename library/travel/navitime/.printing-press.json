@@ -19,6 +19,7 @@
   "run_id": "20260927-220504-6059fc84",
   "category": "travel",
   "description": "Check Japan journeys with dated routes, explicit fares and source-backed pass constraints.",
+  "homepage": "https://japantravel.navitime.com",
   "mcp_binary": "navitime-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_public_tool_count": 7,

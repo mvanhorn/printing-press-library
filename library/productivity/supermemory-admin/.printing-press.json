@@ -19,6 +19,7 @@
   "run_id": "20260616-210632",
   "category": "productivity",
   "description": "The Memory API for the AI era",
+  "homepage": "https://supermemory.ai",
   "mcp_binary": "supermemory-admin-pp-mcp",
   "mcp_tool_count": 36,
   "mcp_ready": "full",

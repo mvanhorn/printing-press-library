@@ -24,6 +24,7 @@
   "run_id": "20260616-pp-medium-8f59d2cb",
   "category": "media-and-entertainment",
   "description": "Read any Medium author, publication, or tag as a local, full-text-searchable corpus.",
+  "homepage": "https://medium.com",
   "mcp_binary": "medium-reader-pp-mcp",
   "mcp_tool_count": 10,
   "mcp_ready": "full",

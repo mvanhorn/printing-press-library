@@ -17,6 +17,7 @@
   "run_id": "20260614-164025-61e51520",
   "category": "other",
   "description": "Every Surfline forecast, scriptable from your terminal — plus multi-spot ranking, a local forecast journal, and cron-able alerts no Surfline tool has.",
+  "homepage": "https://www.surfline.com",
   "mcp_binary": "surfline-pp-mcp",
   "mcp_tool_count": 15,
   "mcp_ready": "full",

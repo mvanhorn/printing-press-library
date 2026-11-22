@@ -5,6 +5,7 @@
   "api_name": "gorgias",
   "display_name": "Gorgias",
   "description": "Gorgias support CLI with offline sync, local search, read-only SQL, and MCP tools for agent-native support workflows.",
+  "homepage": "https://www.gorgias.com",
   "cli_name": "gorgias-pp-cli",
   "owner": "chrisyoungcooks",
   "printer": "chrisyoungcooks",

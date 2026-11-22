@@ -18,6 +18,7 @@
   "run_id": "20260529-160048",
   "category": "payments",
   "description": "Every Lemon Squeezy resource, plus a local SQLite mirror that surfaces MRR, churn, license seats, and discount-campaign pace no other LS tool ships.",
+  "homepage": "https://www.lemonsqueezy.com",
   "mcp_binary": "lemonsqueezy-pp-mcp",
   "mcp_tool_count": 51,
   "mcp_ready": "full",

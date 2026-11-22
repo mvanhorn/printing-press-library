@@ -17,6 +17,7 @@
   "run_id": "20260710-094000",
   "category": "developer-tools",
   "description": "A read-only App Store Connect cockpit that shows every app you ship at once — review state, builds, downloads, and ratings in one glance.",
+  "homepage": "https://appstoreconnect.apple.com",
   "mcp_binary": "asc-pp-mcp",
   "mcp_tool_count": 17,
   "mcp_ready": "full",

@@ -14,6 +14,7 @@
   "spec_checksum": "sha256:3a4577975a82f1e574c7f41e57e5c965a84660d078b117caa6fb9c13032d2035",
   "run_id": "20260522-180126",
   "description": "Detroit's official \"Inside the D\" blog as a CLI — every article searchable offline, sliced across category and neighborhood at once, with related-reads and exports the website can't produce.",
+  "homepage": "https://visitdetroit.com/inside-the-d/",
   "mcp_binary": "visit-detroit-blog-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

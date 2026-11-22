@@ -16,6 +16,7 @@
   "spec_format": "internal",
   "spec_checksum": "sha256:f9c91e64b75d7f26b49fc34027201842b2846ea318c683729d3f9d0335777342",
   "run_id": "20260511-212436",
+  "homepage": "https://www.pointhound.com",
   "mcp_binary": "pointhound-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

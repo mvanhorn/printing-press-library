@@ -17,6 +17,7 @@
   "spec_checksum": "sha256:3d5074b050f6be2c2fe4860daa0fb3e4c9fec5c1f6bbe8bef1238ab320907814",
   "run_id": "20260519-002038",
   "description": "Browse, slice, and analyze the curated American Reindustrialization directory — with diffs, geo clusters, sector heatmaps, and offline SQL no website view shows.",
+  "homepage": "https://americanreindustrialization.com",
   "mcp_binary": "american-reindustrialization-pp-mcp",
   "mcp_tool_count": 18,
   "mcp_public_tool_count": 18,

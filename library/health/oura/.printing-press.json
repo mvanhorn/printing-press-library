@@ -20,6 +20,7 @@
   "catalog_entry": "oura",
   "category": "health",
   "description": "Personal health data from the Oura Ring - sleep, readiness, daily activity, heart rate, workouts, SpO2, stress, and resilience.",
+  "homepage": "https://ouraring.com",
   "mcp_binary": "oura-pp-mcp",
   "mcp_tool_count": 75,
   "mcp_ready": "full",

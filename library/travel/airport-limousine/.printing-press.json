@@ -19,6 +19,7 @@
   "run_id": "20261002-221309-644a5be9",
   "category": "travel",
   "description": "Plan Tokyo airport buses with exact terminals, dated fares and explicit travel-time uncertainty.",
+  "homepage": "https://www.limousinebus.co.jp",
   "mcp_binary": "airport-limousine-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 4,

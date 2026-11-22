@@ -18,6 +18,7 @@
   "run_id": "20260602-pp-intervals",
   "category": "other",
   "description": "The first intervals.icu CLI with a local training database — offline search, SQL, and fitness/form analytics no other tool has.",
+  "homepage": "https://intervals.icu",
   "mcp_binary": "intervals-icu-pp-mcp",
   "mcp_tool_count": 146,
   "mcp_ready": "full",

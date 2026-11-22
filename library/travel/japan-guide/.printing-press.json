@@ -18,6 +18,7 @@
   "run_id": "20261002-001811-227018a4",
   "category": "travel",
   "description": "Source-linked Japan sightseeing facts in compact JSON.",
+  "homepage": "https://www.japan-guide.com",
   "mcp_binary": "japan-guide-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

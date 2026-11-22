@@ -5,6 +5,7 @@
   "category": "other",
   "cli_name": "gisis-pp-cli",
   "description": "Authoritative IMO ship particulars on the command line, plus a local cache that turns one-shot lookups into a compounding vessel index.",
+  "homepage": "https://gisis.imo.org",
   "display_name": "GISIS",
   "generated_at": "2026-05-30T14:30:07.986316Z",
   "mcp_binary": "gisis-pp-mcp",

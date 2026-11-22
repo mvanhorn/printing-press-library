@@ -19,6 +19,7 @@
   "run_id": "20260819-222022-b3c3479a",
   "category": "payments",
   "description": "Every PSX data-portal surface in one Go binary, plus the local price history the exchange itself throws away.",
+  "homepage": "https://www.psx.com.pk",
   "mcp_binary": "psx-pp-mcp",
   "mcp_tool_count": 22,
   "mcp_public_tool_count": 22,

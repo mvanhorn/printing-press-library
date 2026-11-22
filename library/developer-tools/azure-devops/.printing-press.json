@@ -14,6 +14,7 @@
   "printer_name": "David Bebawy",
   "run_id": "20260616-115202-470f949b",
   "category": "developer-tools",
+  "homepage": "https://azure.microsoft.com/products/devops",
   "auth_type": "api_key",
   "auth_env_vars": [
     "AZURE_DEVOPS_TOKEN"

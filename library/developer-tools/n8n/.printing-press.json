@@ -20,6 +20,7 @@
   "run_id": "20261020-022313-25b483ed",
   "category": "developer-tools",
   "description": "Every n8n Public API endpoint, plus a local mirror that answers what is failing, what uses what, and what changed.",
+  "homepage": "https://n8n.io",
   "mcp_binary": "n8n-pp-mcp",
   "mcp_tool_count": 168,
   "mcp_ready": "full",

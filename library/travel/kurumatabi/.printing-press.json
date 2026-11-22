@@ -19,6 +19,7 @@
   "run_id": "20261003-001155-a814a8b2",
   "category": "travel",
   "description": "Plan Japanese overnight vehicle stops with explicit fit, facilities and unknowns.",
+  "homepage": "https://www.kurumatabi.com",
   "mcp_binary": "kurumatabi-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

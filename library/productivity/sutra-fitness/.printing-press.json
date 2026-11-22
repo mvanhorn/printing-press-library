@@ -17,6 +17,7 @@
   "run_id": "20260615-020029-7f8843b9",
   "category": "productivity",
   "description": "Every Sutra (Arketa) Partner API resource, plus a local data mirror and the studio analytics the dashboard buries — no-show rates, capacity, churn, and revenue you can finally query.",
+  "homepage": "https://www.arketa.com",
   "mcp_binary": "sutra-fitness-pp-mcp",
   "mcp_tool_count": 12,
   "mcp_ready": "full",

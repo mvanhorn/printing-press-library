@@ -18,6 +18,7 @@
   "run_id": "20260907-222621",
   "category": "health",
   "description": "Your whole Garmin history in a local database, not one 28-day page at a time.",
+  "homepage": "https://connect.garmin.com",
   "mcp_binary": "garmin-pp-mcp",
   "mcp_tool_count": 27,
   "mcp_ready": "full",

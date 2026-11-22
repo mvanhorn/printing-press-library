@@ -24,6 +24,7 @@
   "run_id": "20260904-103650-02c4577b",
   "category": "marketing",
   "description": "Beehiiv v2 REST API. Auth: Bearer token via BEEHIIV_API_KEY. Rate limit: 180 requests per minute per organization.",
+  "homepage": "https://www.beehiiv.com",
   "mcp_binary": "beehiiv-pp-mcp",
   "mcp_tool_count": 98,
   "mcp_ready": "full",

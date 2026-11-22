@@ -19,6 +19,7 @@
   "run_id": "20261002-224800-fc83d07b",
   "category": "travel",
   "description": "Find compatible HELLO CYCLING pickup and return stations with timestamped counts and published pricing.",
+  "homepage": "https://www.hellocycling.jp",
   "mcp_binary": "hello-cycling-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

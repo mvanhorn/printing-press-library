@@ -17,6 +17,7 @@
   "run_id": "20260617-195946-cffecdb0",
   "category": "other",
   "description": "Every World Bank indicator, queryable offline, with cross-country SQL and rankings no wrapper has.",
+  "homepage": "https://www.worldbank.org",
   "mcp_binary": "world-bank-pp-mcp",
   "mcp_tool_count": 11,
   "mcp_public_tool_count": 11,

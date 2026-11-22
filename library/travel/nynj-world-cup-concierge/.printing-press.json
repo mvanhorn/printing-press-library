@@ -23,6 +23,7 @@
   "run_id": "nynj-world-cup-concierge-20260531",
   "category": "travel",
   "description": "Read-only extractor for the public NYNJ World Cup Concierge Explore NYNJ, Fan Experiences, and match-viewing guidance.",
+  "homepage": "https://nynjfwc26.com",
   "api_version": "2026",
   "auth_type": "none",
   "novel_features": [

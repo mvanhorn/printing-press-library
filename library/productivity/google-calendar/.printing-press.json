@@ -18,6 +18,7 @@
   "run_id": "20260817-093508",
   "category": "productivity",
   "description": "The multi-account Google Calendar layer for agents that must never surprise a human.",
+  "homepage": "https://workspace.google.com/products/calendar/",
   "mcp_binary": "google-calendar-pp-mcp",
   "mcp_tool_count": 14,
   "mcp_ready": "full",

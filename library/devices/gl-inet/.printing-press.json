@@ -9,6 +9,7 @@
     "name": "Paul Bockewitz"
   },
   "description": "The first maintained CLI for GL.iNet travel routers — named config profiles, travel macros, and version-aware diagnostics no other GL.iNet tool ships.",
+  "homepage": "https://www.gl-inet.com",
   "display_name": "GL.iNet",
   "generated_at": "2026-06-22T20:47:06.6794138Z",
   "mcp_binary": "gl-inet-pp-mcp",

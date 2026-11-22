@@ -18,6 +18,7 @@
   "catalog_entry": "producthunt",
   "category": "marketing",
   "description": "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
+  "homepage": "https://www.producthunt.com",
   "mcp_binary": "producthunt-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

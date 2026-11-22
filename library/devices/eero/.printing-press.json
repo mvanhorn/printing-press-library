@@ -19,6 +19,7 @@
   "run_id": "20260809-172807",
   "category": "devices",
   "description": "Inspect an eero mesh network from the terminal with agent-friendly output for networks, nodes, connected devices, diagnostics, and speed tests.",
+  "homepage": "https://eero.com",
   "mcp_binary": "eero-pp-mcp",
   "mcp_tool_count": 11,
   "mcp_ready": "partial",

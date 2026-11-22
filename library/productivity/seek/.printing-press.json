@@ -25,6 +25,7 @@
   "run_id": "20260908-143250-21abe609",
   "category": "productivity",
   "description": "Every SEEK search and job-detail feature, plus a local job history, salary distributions, and hiring trends no other SEEK tool has.",
+  "homepage": "https://www.seek.com.au",
   "mcp_binary": "seek-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 1,

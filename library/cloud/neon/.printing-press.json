@@ -19,6 +19,7 @@
   "run_id": "20261010-145639-66213866",
   "category": "cloud",
   "description": "Neon API commands in one static binary, plus a local fleet mirror for stale-branch cleanup, usage trends and compute audits.",
+  "homepage": "https://neon.com",
   "mcp_binary": "neon-pp-mcp",
   "mcp_tool_count": 184,
   "mcp_ready": "full",

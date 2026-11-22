@@ -25,6 +25,7 @@
   "run_id": "20260828-090622-dd9c3930",
   "category": "developer-tools",
   "description": "RapidAPI Hub marketplace CLI - search APIs, browse categories & collections, inspect providers",
+  "homepage": "https://rapidapi.com",
   "mcp_binary": "rapidapi-pp-mcp",
   "mcp_tool_count": 13,
   "mcp_ready": "full",

@@ -23,6 +23,7 @@
   "run_id": "20260706-073846-b99ffcfa",
   "category": "productivity",
   "description": "GAT-style Google Workspace auditing as an agent-native CLI: sync Directory, Drive, Gmail, Reports, and Alert Center into a local store, then run offline cross-API audits, offboarding, and OAuth-app risk checks that GAM and the official gws CLI cannot persist.",
+  "homepage": "https://workspace.google.com",
   "mcp_binary": "workspace-admin-pp-mcp",
   "mcp_tool_count": 266,
   "mcp_ready": "full",

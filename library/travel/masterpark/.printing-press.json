@@ -23,6 +23,7 @@
   ],
   "api_language": "en",
   "description": "Unofficial CLI for MasterPark airport parking reservations, including locations, quotes, safe credential injection, profile sync, reservation dry-runs, and gated booking submission.",
+  "homepage": "https://www.masterparking.com",
   "auth_type": "session_handshake",
   "auth_preference": "command",
   "auth_env_vars": [

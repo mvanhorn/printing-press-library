@@ -17,6 +17,7 @@
   "run_id": "20260705-224800-9d954693",
   "category": "other",
   "description": "Every FINRA Query API dataset, plus local trend detection and batch registration checks no other FINRA tool offers.",
+  "homepage": "https://www.finra.org",
   "mcp_binary": "finra-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_ready": "full",

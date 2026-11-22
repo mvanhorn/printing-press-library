@@ -19,6 +19,7 @@
   "catalog_entry": "github",
   "category": "developer-tools",
   "description": "Every gh issue, PR, repo, and code-search workflow, plus a local SQLite mirror, offline full-text search, and cross-entity joins no GitHub tool offers.",
+  "homepage": "https://github.com",
   "mcp_binary": "github-pp-mcp",
   "mcp_tool_count": 183,
   "mcp_ready": "full",

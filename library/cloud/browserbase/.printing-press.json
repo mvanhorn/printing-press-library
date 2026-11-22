@@ -24,6 +24,7 @@
   "run_id": "20260813-205859-c0b56b36",
   "category": "cloud",
   "description": "Every Browserbase cloud feature, plus session lifecycle control, local history, and usage analytics no other tool has.",
+  "homepage": "https://www.browserbase.com",
   "mcp_binary": "browserbase-pp-mcp",
   "mcp_tool_count": 51,
   "mcp_ready": "full",

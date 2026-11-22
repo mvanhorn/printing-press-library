@@ -18,6 +18,7 @@
   "run_id": "20261013-134846",
   "category": "health",
   "description": "Look up dogs' OFA health clearances (hips, elbows, eyes, cardiac, DNA) and CHIC status by breed, age, and report year, and roll them up by kennel.",
+  "homepage": "https://ofa.org",
   "mcp_binary": "ofa-health-clearances-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

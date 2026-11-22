@@ -25,6 +25,7 @@
   "run_id": "20260913-115332-8cbd64e9",
   "category": "food-and-dining",
   "description": "Every Swiggy Builders Club tool, one persistent OAuth session, and a local order history no Swiggy surface shows you.",
+  "homepage": "https://www.swiggy.com",
   "mcp_binary": "swiggy-pp-mcp",
   "mcp_tool_count": 51,
   "mcp_ready": "full",

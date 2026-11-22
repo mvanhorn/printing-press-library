@@ -19,6 +19,7 @@
   "run_id": "20261003-120106-6f48c7c7",
   "category": "travel",
   "description": "Every Hostex v3 operation, plus a local SQLite mirror that answers cross-property questions no single Hostex call can — occupancy gaps, revenue rollups, and guest-message SLA, offline.",
+  "homepage": "https://hostex.io",
   "mcp_binary": "hostex-pp-mcp",
   "mcp_tool_count": 86,
   "mcp_ready": "full",

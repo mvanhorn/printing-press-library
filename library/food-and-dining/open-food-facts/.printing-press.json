@@ -17,6 +17,7 @@
   "run_id": "20260626-214605",
   "category": "food-and-dining",
   "description": "Read-only Open Food Facts recipes for barcode product lookup, structured search, nutrition summaries, allergen and ingredient inspection, bounded comparison, category samples, and source posture checks.",
+  "homepage": "https://world.openfoodfacts.org",
   "api_version": "0.1.0",
   "auth_type": "none",
   "auth_env_vars": [

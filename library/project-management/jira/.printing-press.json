@@ -5,6 +5,7 @@
   "api_name": "jira",
   "display_name": "Jira Cloud Platform",
   "description": "Call Jira Cloud Platform REST endpoints for issues, projects, users, workflows, permissions, and other Atlassian work-management data.",
+  "homepage": "https://www.atlassian.com/software/jira",
   "cli_name": "jira-pp-cli",
   "creator": {
     "handle": "neektza",

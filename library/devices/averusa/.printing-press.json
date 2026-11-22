@@ -24,6 +24,7 @@
   "run_id": "20260811-213616-3ef4d308",
   "category": "devices",
   "description": "Every AVer USA manual, spec sheet, and white paper in a local, type-filtered catalog — with spec comparison and link audits no AVer site offers.",
+  "homepage": "https://www.averusa.com",
   "mcp_binary": "averusa-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,

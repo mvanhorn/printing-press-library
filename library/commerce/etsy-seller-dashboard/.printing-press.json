@@ -17,6 +17,7 @@
   "run_id": "20260725-212952-c7905991",
   "category": "commerce",
   "description": "First-party Etsy demand and marketing evidence, reconciled locally.",
+  "homepage": "https://www.etsy.com",
   "mcp_binary": "etsy-seller-dashboard-pp-mcp",
   "mcp_tool_count": 12,
   "mcp_ready": "partial",

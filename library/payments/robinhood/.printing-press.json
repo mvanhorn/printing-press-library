@@ -14,6 +14,7 @@
   "spec_checksum": "sha256:77570267ad181af7cbcbc2a6dbc229c8f70ab7c3022ebdc3a640bdfdea811cd7",
   "run_id": "20260522-162911",
   "description": "Agent-native CLI + MCP for the whole of Robinhood: brokerage accounts (individual + retirement), positions, options and option chains, portfolio performance (YTD/1w/1m/1y/5y/all), transfers, dividends, orders, and watchlists across api.robinhood.com and the bonfire gateway — plus the official Robinhood Crypto Trading API as the documented subset. Reads are live; writes default to dry-run behind a ROBINHOOD_PP_ALLOW_WRITES gate.",
+  "homepage": "https://robinhood.com",
   "mcp_binary": "robinhood-pp-mcp",
   "mcp_tool_count": 16,
   "mcp_ready": "full",

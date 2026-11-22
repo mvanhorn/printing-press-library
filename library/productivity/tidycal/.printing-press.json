@@ -19,6 +19,7 @@
   "catalog_entry": "tidycal",
   "category": "productivity",
   "description": "Manage TidyCal scheduling data: bookings, contacts, booking types, team calendars, schedule briefs, triage, and availability shortlists.",
+  "homepage": "https://tidycal.com",
   "mcp_binary": "tidycal-pp-mcp",
   "mcp_tool_count": 18,
   "mcp_ready": "full",

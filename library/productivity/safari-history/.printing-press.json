@@ -15,6 +15,7 @@
   "spec_format": "sqlite",
   "run_id": "20260523-231334",
   "description": "Query local Safari browsing history from a snapshot index; no remote API spec.",
+  "homepage": "https://www.apple.com/safari",
   "mcp_binary": "safari-history-pp-mcp",
   "mcp_tool_count": 20,
   "mcp_public_tool_count": 20,

@@ -13,6 +13,7 @@
   "spec_checksum": "sha256:a14f798be9a0a0f5a7371470b6a375653c88923f767d2b646869f23d9cf22d3c",
   "run_id": "20260510-215840",
   "description": "Every YesWeHack researcher feature, plus an offline SQLite-backed cockpit for scope cartography, drift detection, draft reports, and hacktivity learning.",
+  "homepage": "https://www.yeswehack.com",
   "mcp_binary": "yeswehack-pp-mcp",
   "mcp_tool_count": 17,
   "mcp_public_tool_count": 10,

@@ -23,6 +23,7 @@
   "run_id": "20260725-041142-9944f727",
   "category": "productivity",
   "description": "Every Amazon.jobs feature, plus a local job store, new-since diffing, and aggregation Amazon's own site can't do — no login required.",
+  "homepage": "https://www.amazon.jobs",
   "mcp_binary": "amazon-jobs-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

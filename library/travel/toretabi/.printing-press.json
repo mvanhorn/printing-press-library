@@ -18,6 +18,7 @@
   "run_id": "20261004-191641-ab6f313c",
   "category": "travel",
   "description": "Inspect Japan rail-ticket conditions and linked official operator rules with explicit uncertainty.",
+  "homepage": "https://www.toretabi.jp",
   "mcp_binary": "toretabi-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 4,

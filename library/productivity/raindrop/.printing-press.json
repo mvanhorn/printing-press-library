@@ -19,6 +19,7 @@
   "run_id": "20260814-120132",
   "category": "productivity",
   "description": "Complete Raindrop.io control plus offline search, safe cleanup, and durable knowledge workflows.",
+  "homepage": "https://raindrop.io",
   "mcp_binary": "raindrop-pp-mcp",
   "mcp_tool_count": 54,
   "mcp_ready": "full",

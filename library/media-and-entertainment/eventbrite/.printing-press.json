@@ -17,6 +17,7 @@
   "run_id": "20260523-141335",
   "category": "media-and-entertainment",
   "description": "Every Eventbrite organizer endpoint, plus a local SQLite mirror of your events, orders, and attendees you can search offline — the cross-event search Eventbrite removed, restored over your own data.",
+  "homepage": "https://www.eventbrite.com",
   "mcp_binary": "eventbrite-pp-mcp",
   "mcp_tool_count": 99,
   "mcp_ready": "full",

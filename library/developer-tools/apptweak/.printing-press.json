@@ -26,6 +26,7 @@
   "run_id": "20260528-190526",
   "category": "developer-tools",
   "description": "Every AppTweak endpoint in a local-first CLI — keyword rank fan-outs, competitor metadata diffs, and review mining that no MCP server can do.",
+  "homepage": "https://www.apptweak.com",
   "mcp_binary": "apptweak-pp-mcp",
   "mcp_tool_count": 30,
   "mcp_ready": "full",

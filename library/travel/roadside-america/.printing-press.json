@@ -18,6 +18,7 @@
   "run_id": "20260606-102010",
   "category": "travel",
   "description": "Every offbeat roadside attraction on RoadsideAmerica.com — with a local SQLite cache, offline search, and superlative categories no other tool offers.",
+  "homepage": "https://www.roadsideamerica.com",
   "mcp_binary": "roadside-america-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_public_tool_count": 3,

@@ -13,6 +13,7 @@
   "printer": "JohnMcLear",
   "printer_name": "John McLear",
   "spec_url": "https://pad-dev.etherpad.org/api/openapi.json",
+  "homepage": "https://etherpad.org",
   "mcp_binary": "etherpad-pp-mcp",
   "mcp_tool_count": 50,
   "mcp_ready": "full",

@@ -24,6 +24,7 @@
   "run_id": "20260904-131606-b6e44bce",
   "category": "payments",
   "description": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, fairness, and full-text search no other Splitwise tool has.",
+  "homepage": "https://www.splitwise.com",
   "mcp_binary": "splitwise-pp-mcp",
   "mcp_tool_count": 27,
   "mcp_public_tool_count": 2,

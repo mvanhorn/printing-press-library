@@ -24,6 +24,7 @@
   "run_id": "20260603-230951",
   "category": "social-and-messaging",
   "description": "Use X/Twitter with local searchable archives, post and conversation resolvers, collections, analytics, MCP tools, and tier diagnostics.",
+  "homepage": "https://x.com",
   "mcp_binary": "x-twitter-pp-mcp",
   "mcp_tool_count": 163,
   "mcp_ready": "full",

@@ -14,6 +14,7 @@
   "spec_format": "openapi3",
   "spec_checksum": "sha256:b7e39bbf36b327b3b388cf2c3f92b6735da15f8bee6778718b73b2223b99f22a",
   "run_id": "20260513-094903",
+  "homepage": "https://lunchmoney.app",
   "mcp_binary": "lunch-money-pp-mcp",
   "mcp_tool_count": 59,
   "mcp_ready": "full",

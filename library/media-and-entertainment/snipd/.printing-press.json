@@ -24,6 +24,7 @@
   "run_id": "20260713-190747-d8d38c3e",
   "category": "media-and-entertainment",
   "description": "Turn your Snipd snips into a local, ranked, full-text-searchable corpus — search a concept across every note, quote, and transcript, pull the exact quote, and synthesize across shows from the command line, plus an MCP for agents.",
+  "homepage": "https://www.snipd.com",
   "mcp_binary": "snipd-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_ready": "full",

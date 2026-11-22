@@ -19,6 +19,7 @@
   "run_id": "20260827-213420-70c6dbaf",
   "category": "travel",
   "description": "Every Flighty Airports meltdown map feature, plus cross-airport intelligence no web page can answer.",
+  "homepage": "https://flighty.com/airports",
   "mcp_binary": "flighty-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_ready": "full",

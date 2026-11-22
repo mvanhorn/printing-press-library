@@ -20,6 +20,7 @@
   "run_id": "20260729-222156",
   "category": "other",
   "description": "Official Zillow Research data, normalized for explainable housing-market decisions.",
+  "homepage": "https://www.zillow.com/research/data/",
   "mcp_binary": "zillow-pp-mcp",
   "mcp_tool_count": 17,
   "mcp_public_tool_count": 17,

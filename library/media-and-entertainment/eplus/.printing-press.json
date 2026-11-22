@@ -19,6 +19,7 @@
   "run_id": "20261001-020134-b06f779c",
   "category": "media-and-entertainment",
   "description": "Discover Japanese performances and plan source-backed ticket sale windows.",
+  "homepage": "https://eplus.jp",
   "mcp_binary": "eplus-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

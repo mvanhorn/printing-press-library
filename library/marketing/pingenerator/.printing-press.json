@@ -18,6 +18,7 @@
   "run_id": "20261029-192233-d337ee12",
   "category": "marketing",
   "description": "Every Pin Generator MCP tool as a typed command, with credit-safe dry runs, preflight pricing and a local spend ledger.",
+  "homepage": "https://pingenerator.com",
   "mcp_binary": "pingenerator-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_ready": "full",

@@ -19,6 +19,7 @@
   "run_id": "20260803-133603",
   "category": "productivity",
   "description": "School announcements, agenda events, account context, and a private local search surface in one agent-ready CLI.",
+  "homepage": "https://layers.education",
   "mcp_binary": "layers-pp-mcp",
   "mcp_tool_count": 16,
   "mcp_ready": "full",

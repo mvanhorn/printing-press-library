@@ -5,6 +5,7 @@
   "api_name": "servicetitan-pricebook",
   "display_name": "ServiceTitan Pricebook",
   "description": "Sync ServiceTitan Pricebook services, materials, equipment, vendors, markups, warranties, and cost-drift audits.",
+  "homepage": "https://www.servicetitan.com",
   "cli_name": "servicetitan-pricebook-pp-cli",
   "creator": {
     "handle": "pierc",

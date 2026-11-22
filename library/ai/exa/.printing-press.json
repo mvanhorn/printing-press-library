@@ -24,6 +24,7 @@
   "run_id": "20260809-202528-0d1b9f8c",
   "category": "ai",
   "description": "Every Exa search API feature, plus local history, spend tracking, and diffing no other Exa tool has.",
+  "homepage": "https://exa.ai",
   "mcp_binary": "exa-pp-mcp",
   "mcp_tool_count": 58,
   "mcp_ready": "full",

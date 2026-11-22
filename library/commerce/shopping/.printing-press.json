@@ -19,6 +19,7 @@
   "run_id": "20260605-212010",
   "category": "commerce",
   "description": "Every LemmeBuyIt retail endpoint, plus a local store that compares one UPC across 70+ retailers, ranks weekly price drops, and computes Amazon FBA arbitrage margin — compound queries the per-retailer API can't answer.",
+  "homepage": "https://www.lemmebuyit.com",
   "mcp_binary": "shopping-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_ready": "full",

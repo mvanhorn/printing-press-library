@@ -23,6 +23,7 @@
   "run_id": "20260529-060535",
   "category": "developer-tools",
   "description": "Every Apple Search Ads feature, plus local cost analytics, bid optimization, and cross-org templating no Python CLI offers.",
+  "homepage": "https://ads.apple.com",
   "mcp_binary": "apple-search-ads-pp-mcp",
   "mcp_tool_count": 64,
   "mcp_ready": "full",

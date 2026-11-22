@@ -24,6 +24,7 @@
   "run_id": "20260815-214721-c558e557",
   "category": "devices",
   "description": "Every Logitech manual, spec sheet, and install guide \u2014 searchable offline, agent-native, no browser.",
+  "homepage": "https://www.logitech.com",
   "mcp_binary": "logitech-docs-pp-mcp",
   "mcp_tool_count": 6,
   "mcp_public_tool_count": 6,

@@ -17,6 +17,7 @@
   "run_id": "20260724-125048-42f61ac7",
   "category": "other",
   "description": "Explore iNaturalist's full API, plus privacy-safe field briefings and identification progress that ordinary endpoint wrappers miss.",
+  "homepage": "https://www.inaturalist.org",
   "mcp_binary": "inaturalist-pp-mcp",
   "mcp_tool_count": 105,
   "mcp_ready": "full",

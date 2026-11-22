@@ -24,6 +24,7 @@
   "run_id": "20260905-230744-c6d96a39",
   "category": "travel",
   "description": "Every Seats.aero Partner API endpoint, plus a local award-availability store that tells you what is new, what is still live, and where your miles reach nonstop.",
+  "homepage": "https://seats.aero",
   "mcp_binary": "seats-aero-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_ready": "full",

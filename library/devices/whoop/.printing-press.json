@@ -5,6 +5,7 @@
   "api_name": "whoop",
   "display_name": "WHOOP",
   "description": "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access.",
+  "homepage": "https://www.whoop.com",
   "cli_name": "whoop-pp-cli",
   "creator": {
     "handle": "gregvanhorn",

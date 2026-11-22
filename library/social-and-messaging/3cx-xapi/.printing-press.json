@@ -23,6 +23,7 @@
   "run_id": "20260627-211721-11cc9df1",
   "category": "social-and-messaging",
   "description": "Every 3CX Configuration API (XAPI) object in one Go binary, with a local mirror of your whole PBX, offline search, config diffing, and cross-entity auditing no 3CX tool has.",
+  "homepage": "https://www.3cx.com",
   "mcp_binary": "3cx-xapi-pp-mcp",
   "mcp_tool_count": 589,
   "mcp_ready": "full",

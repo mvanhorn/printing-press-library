@@ -19,6 +19,7 @@
   "catalog_entry": "monarch-money",
   "category": "payments",
   "description": "Read Monarch Money account balances, tags, transactions, and cashflow summaries from the terminal.",
+  "homepage": "https://www.monarch.com",
   "auth_type": "token",
   "auth_env_vars": [
     "MONARCH_TOKEN",

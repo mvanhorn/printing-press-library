@@ -23,6 +23,7 @@
   "run_id": "20260626-230015-d1a83064",
   "category": "monitoring",
   "description": "One command to sweep Utah public-meeting notices for land-use approvals — county-wide, agenda-scanned, and diffed against what you've already seen.",
+  "homepage": "https://www.utah.gov/pmn",
   "mcp_binary": "utah-pmn-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

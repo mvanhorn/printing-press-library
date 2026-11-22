@@ -21,6 +21,7 @@
   ],
   "api_language": "nl",
   "description": "Dutch public-tender CLI with offline search, document corpus, and the sub-threshold long tail TED never sees.",
+  "homepage": "https://www.tenderned.nl",
   "mcp_binary": "tenderned-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_public_tool_count": 7,

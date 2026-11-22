@@ -16,6 +16,7 @@
   "spec_checksum": "sha256:13f149ed86ac61139c57a0e4b5b7a0c4f4a749db57d6003c5bb880b877bafb7f",
   "run_id": "20260518-214920",
   "description": "The free, single-binary PVGIS CLI — fetch JRC solar-radiation and PV-yield estimates with offline cache, multi-site batch, and agent-native JSON.",
+  "homepage": "https://re.jrc.ec.europa.eu/pvg_tools/en",
   "mcp_binary": "pvgis-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,

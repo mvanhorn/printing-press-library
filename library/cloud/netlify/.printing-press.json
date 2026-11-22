@@ -13,6 +13,7 @@
   "spec_path": "netlify-swagger.json",
   "run_id": "netlify-session",
   "category": "cloud",
+  "homepage": "https://www.netlify.com",
   "auth_type": "bearer_token",
   "auth_env_vars": [
     "NETLIFY_AUTH_TOKEN"

@@ -28,6 +28,7 @@
   "run_id": "20260708-153634-73e98316",
   "category": "productivity",
   "description": "Every Mobbin screen, flow, and pattern — searchable offline, deckable in one command, with longitudinal drift no Mobbin tool ships.",
+  "homepage": "https://mobbin.com",
   "mcp_binary": "mobbin-pp-mcp",
   "mcp_tool_count": 22,
   "mcp_public_tool_count": 9,

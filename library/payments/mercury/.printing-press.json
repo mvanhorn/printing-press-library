@@ -17,6 +17,7 @@
   "catalog_entry": "mercury",
   "category": "payments",
   "description": "Inspect Mercury business banking data and build safer payment plans across accounts, transactions, recipients, cards, invoices, and treasury.",
+  "homepage": "https://mercury.com",
   "mcp_binary": "mercury-pp-mcp",
   "mcp_tool_count": 75,
   "mcp_ready": "full",

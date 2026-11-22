@@ -19,6 +19,7 @@
   "catalog_entry": "pop",
   "category": "payments",
   "description": "European electronic invoicing API for compliant XML, PEPPOL, PDF, validation, status tracking, and archival workflows.",
+  "homepage": "https://popapi.io",
   "mcp_binary": "pop-pp-mcp",
   "mcp_tool_count": 8,
   "mcp_ready": "full",

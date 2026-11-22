@@ -17,6 +17,7 @@
   "run_id": "20260510-105710",
   "category": "commerce",
   "description": "Sync your Amazon order history into a local SQLite store, then ask cross-cutting questions offline: which deliveries are slipping, what did I spend last quarter, when did I order that thing, where is my stuff right now.",
+  "homepage": "https://www.amazon.com",
   "mcp_binary": "amazon-orders-pp-mcp",
   "mcp_tool_count": 6,
   "mcp_ready": "partial",

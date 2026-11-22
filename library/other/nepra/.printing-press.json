@@ -18,6 +18,7 @@
   "run_id": "20260908-210301-9311015b",
   "category": "other",
   "description": "Pakistan's electricity regulator publishes the country's only plant-level power data as Excel-exported HTML that reads as empty and PDFs nobody extracts — this turns it into a queryable panel and names every gap.",
+  "homepage": "https://nepra.org.pk",
   "mcp_binary": "nepra-pp-mcp",
   "mcp_tool_count": 11,
   "mcp_public_tool_count": 11,

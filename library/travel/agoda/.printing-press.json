@@ -19,6 +19,7 @@
   "run_id": "20260826-175510-45b00483",
   "category": "travel",
   "description": "Search Agoda hotels with the true all-in price, and re-rank by what you will actually pay.",
+  "homepage": "https://www.agoda.com",
   "mcp_binary": "agoda-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

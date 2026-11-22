@@ -13,6 +13,7 @@
     "name": "Som Samantray"
   },
   "description": "Every Delhivery Maps endpoint, plus quota-aware address cleaning, trip costing and fleet planning.",
+  "homepage": "https://www.delhivery.com/maps",
   "display_name": "Delhivery Maps",
   "generated_at": "2026-10-29T02:36:00.687070443Z",
   "mcp_binary": "delhivery-maps-pp-mcp",

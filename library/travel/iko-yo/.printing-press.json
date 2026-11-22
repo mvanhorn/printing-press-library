@@ -19,6 +19,7 @@
   "run_id": "20261003-135827-6ec7d5b4",
   "category": "travel",
   "description": "Iko-yo Trip: find selected family trips and compare published dates, fees and explicit family facts.",
+  "homepage": "https://trip.iko-yo.net",
   "mcp_binary": "iko-yo-pp-mcp",
   "mcp_tool_count": 6,
   "mcp_public_tool_count": 6,

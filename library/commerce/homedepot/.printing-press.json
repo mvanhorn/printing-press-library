@@ -25,6 +25,7 @@
   "run_id": "20261010-123538-829a1650",
   "category": "commerce",
   "description": "Search products, manage your cart, and retrieve purchases using your own signed-in session.",
+  "homepage": "https://www.homedepot.com",
   "mcp_binary": "homedepot-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_ready": "partial",

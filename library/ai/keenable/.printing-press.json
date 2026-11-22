@@ -25,6 +25,7 @@
   "run_id": "20260826-081431-1a97062b",
   "category": "ai",
   "description": "Keenable web search with reproducible research, citations, and a local evidence trail.",
+  "homepage": "https://keenable.ai",
   "mcp_binary": "keenable-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 2,

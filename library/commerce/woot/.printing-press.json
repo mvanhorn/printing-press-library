@@ -19,6 +19,7 @@
   "run_id": "20260702-011047",
   "category": "commerce",
   "description": "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.",
+  "homepage": "https://www.woot.com",
   "mcp_binary": "woot-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_ready": "full",

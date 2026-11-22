@@ -19,6 +19,7 @@
   "run_id": "20260719-071804",
   "category": "health",
   "description": "Read-only SuppCo stack facts with a deterministic, provenance-bearing regimen snapshot export.",
+  "homepage": "https://supp.co",
   "mcp_binary": "suppco-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_ready": "full",

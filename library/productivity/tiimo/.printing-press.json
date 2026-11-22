@@ -10,6 +10,7 @@
   "spec_source": "browser-sniffed",
   "run_id": "20260814-154828-17a1784d",
   "category": "productivity",
+  "homepage": "https://www.tiimoapp.com",
   "auth_env_vars": [
     "PRINTING_PRESS_CLIENT_PROFILE"
   ],

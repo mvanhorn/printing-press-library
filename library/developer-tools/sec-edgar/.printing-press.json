@@ -27,6 +27,7 @@
   "run_id": "20260511-180534",
   "category": "developer-tools",
   "description": "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search, and watch offline.",
+  "homepage": "https://www.sec.gov/edgar",
   "mcp_binary": "sec-edgar-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_ready": "full",

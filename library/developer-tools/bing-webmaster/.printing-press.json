@@ -10,6 +10,7 @@
   "run_id": "20260905-130559",
   "category": "developer-tools",
   "description": "The Bing Webmaster Tools API: manage sites, submit URLs, and read query/traffic/crawl/link stats from the Bing search index.",
+  "homepage": "https://www.bing.com/webmasters",
   "mcp_binary": "bing-webmaster-pp-mcp",
   "mcp_tool_count": 60,
   "mcp_ready": "full",

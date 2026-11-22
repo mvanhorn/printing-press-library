@@ -19,6 +19,7 @@
   "run_id": "20260828-094138-3dcac761",
   "category": "ai",
   "description": "Fish Audio API: text-to-speech, speech-to-text, voice design, voice models (clones), and account credit.",
+  "homepage": "https://fish.audio",
   "mcp_binary": "fish-audio-pp-mcp",
   "mcp_tool_count": 11,
   "mcp_ready": "full",

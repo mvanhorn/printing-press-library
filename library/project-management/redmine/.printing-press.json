@@ -20,6 +20,7 @@
   "run_id": "20260826-150701-249752e9",
   "category": "project-management",
   "description": "Every Redmine feature, plus a local mirror that finally answers the cross-project questions the Roadmap page never could.",
+  "homepage": "https://www.redmine.org",
   "mcp_binary": "redmine-pp-mcp",
   "mcp_tool_count": 93,
   "mcp_ready": "full",

@@ -19,6 +19,7 @@
   "run_id": "20260912-183347-d9a891d6",
   "category": "other",
   "description": "Search Immoweb from the terminal with every site filter, then get the answers the site can't give: price cuts, days on market, commune medians and rental yield.",
+  "homepage": "https://www.immoweb.be",
   "mcp_binary": "immoweb-pp-mcp",
   "mcp_tool_count": 6,
   "mcp_public_tool_count": 6,

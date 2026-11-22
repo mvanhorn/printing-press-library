@@ -19,6 +19,7 @@
   "run_id": "20260721-064229",
   "category": "other",
   "description": "care.com CLI: search caregivers, review applicants/messages, analyze and reach out - over your own authenticated session",
+  "homepage": "https://www.care.com",
   "mcp_binary": "care-pp-mcp",
   "mcp_tool_count": 36,
   "mcp_ready": "partial",

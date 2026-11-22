@@ -19,6 +19,7 @@
   "spec_path": "sarvam-openapi.yaml",
   "run_id": "20260814-164825-7ec4499e",
   "category": "ai",
+  "homepage": "https://www.sarvam.ai",
   "auth_env_vars": [
     "SARVAM_API_KEY",
     "PRINTING_PRESS_CLIENT_PROFILE"

@@ -18,6 +18,7 @@
   "run_id": "20260615-235211-3e30b66b",
   "category": "marketing",
   "description": "Every KDP Niche Finder bucket as a local research database — rank niches across buckets, track whether revenue is rising or fading, and export shortlists, none of which the web tool does.",
+  "homepage": "https://kdpnichefinder.com",
   "mcp_binary": "kdpnichefinder-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_ready": "partial",

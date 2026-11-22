@@ -19,6 +19,7 @@
   "run_id": "20261002-003344-620149db",
   "category": "travel",
   "description": "Plan expressway journeys with source toll estimates, directional rest stops and official advisories.",
+  "homepage": "https://www.driveplaza.com",
   "mcp_binary": "driveplaza-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_public_tool_count": 3,

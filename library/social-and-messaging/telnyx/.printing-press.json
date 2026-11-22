@@ -19,6 +19,7 @@
   "run_id": "20261010-145909-a2160f77",
   "category": "social-and-messaging",
   "description": "Telnyx messaging, numbers, and voice endpoints, plus a synced message-history mirror, number setup audits, and spend rollups.",
+  "homepage": "https://telnyx.com",
   "mcp_binary": "telnyx-pp-mcp",
   "mcp_tool_count": 210,
   "mcp_ready": "full",

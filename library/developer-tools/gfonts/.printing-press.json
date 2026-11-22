@@ -23,6 +23,7 @@
   "run_id": "20260719-182127",
   "category": "developer-tools",
   "description": "Search, browse, and download Google Fonts from the terminal. Zero auth required — uses the same public metadata endpoint that powers fonts.google.com.",
+  "homepage": "https://fonts.google.com",
   "mcp_binary": "",
   "mcp_tool_count": 0,
   "mcp_ready": "",

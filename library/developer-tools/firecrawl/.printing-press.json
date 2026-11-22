@@ -15,6 +15,7 @@
   "spec_path": "/Users/tmchow/Code/printing-press-library/library/developer-tools/firecrawl/spec.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:49990c59f5e6ddccc24dd2deff027166cacc5cb19ff41b1e954d87838ce88be2",
+  "homepage": "https://www.firecrawl.dev",
   "mcp_binary": "firecrawl-pp-mcp",
   "mcp_tool_count": 20,
   "mcp_ready": "full",

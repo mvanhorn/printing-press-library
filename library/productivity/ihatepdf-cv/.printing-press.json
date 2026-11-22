@@ -19,6 +19,7 @@
   "run_id": "20260822-095304-45ca41a1",
   "category": "productivity",
   "description": "Private PDF operations for agents, scripts, and offline pipelines.",
+  "homepage": "https://www.ihatepdf.cv",
   "mcp_binary": "ihatepdf-cv-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

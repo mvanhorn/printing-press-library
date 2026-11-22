@@ -14,6 +14,7 @@
   "spec_format": "internal",
   "spec_checksum": "sha256:6fe5f749adf60b8f8a16c426255d8df4e709a09084bd8992ff81350b82b67f21",
   "description": "Search Allrecipes, fetch structured recipe data, scale servings, build grocery lists, and rank cached recipes by popularity.",
+  "homepage": "https://www.allrecipes.com",
   "mcp_binary": "allrecipes-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 1,

@@ -25,6 +25,7 @@
   "run_id": "20261001-020510-488a6a84",
   "category": "travel",
   "description": "Japan weather and seasonal travel evidence with explicit dates, freshness and coverage.",
+  "homepage": "https://weathernews.jp",
   "mcp_binary": "weathernews-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

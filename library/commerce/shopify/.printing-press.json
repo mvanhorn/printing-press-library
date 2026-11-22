@@ -23,6 +23,7 @@
   "run_id": "20260524-085902",
   "category": "commerce",
   "description": "Operate a Shopify store from the terminal with curated Admin GraphQL commands, local sync, analytics, and bulk exports.",
+  "homepage": "https://www.shopify.com",
   "mcp_binary": "shopify-pp-mcp",
   "mcp_tool_count": 12,
   "mcp_ready": "full",

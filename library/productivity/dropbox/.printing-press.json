@@ -18,6 +18,7 @@
   "run_id": "20261006-161517-620ff191",
   "category": "productivity",
   "description": "Find duplicates, sync conflicts, and stale shared links across a whole Dropbox, then clean up with plans you preview first.",
+  "homepage": "https://www.dropbox.com",
   "mcp_binary": "dropbox-pp-mcp",
   "mcp_tool_count": 41,
   "mcp_ready": "full",

@@ -19,6 +19,7 @@
   "run_id": "20260826-200935-47af5c80",
   "category": "social-and-messaging",
   "description": "AgentMail operations with local memory, safe sends, and fleet-wide insight.",
+  "homepage": "https://www.agentmail.to",
   "mcp_binary": "agentmail-pp-mcp",
   "mcp_tool_count": 130,
   "mcp_ready": "full",

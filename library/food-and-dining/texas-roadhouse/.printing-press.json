@@ -19,6 +19,7 @@
   "run_id": "20260829-221218",
   "category": "food-and-dining",
   "description": "Waitlist CLI for Texas Roadhouse. Find a nearby store, read the quote, join and leave the list.",
+  "homepage": "https://www.texasroadhouse.com",
   "mcp_binary": "texas-roadhouse-pp-mcp",
   "mcp_tool_count": 8,
   "mcp_public_tool_count": 8,

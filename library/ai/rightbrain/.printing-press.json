@@ -22,6 +22,7 @@
   "printer_name": "Farouk Umar",
   "run_id": "20260731-211113-96771397",
   "category": "ai",
+  "homepage": "https://rightbrain.ai",
   "auth_type": "bearer_token",
   "auth_env_vars": [
     "RB_API_KEY"

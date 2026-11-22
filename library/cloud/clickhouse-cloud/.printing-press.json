@@ -19,6 +19,7 @@
   "run_id": "20260628-001835",
   "category": "cloud",
   "description": "Data engineering operations CLI for ClickHouse Cloud organizations, services, ClickPipes, backups, private endpoints, usage, and observability.",
+  "homepage": "https://clickhouse.com",
   "mcp_binary": "clickhouse-cloud-pp-mcp",
   "mcp_tool_count": 109,
   "mcp_ready": "full",

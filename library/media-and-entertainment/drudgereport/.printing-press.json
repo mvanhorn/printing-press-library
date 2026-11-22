@@ -16,6 +16,7 @@
   "spec_checksum": "sha256:be3a6c89b4a95c26f2a8270eb5e819d5a60eca41cac0de52e21601b196d9e142",
   "run_id": "20260521-061607",
   "description": "Drudge Report in your terminal, with the editorial signal (splash, red, slot, tenure) the live page broadcasts but no other scraper preserves.",
+  "homepage": "https://drudgereport.com",
   "mcp_binary": "drudgereport-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

@@ -13,6 +13,7 @@
     "name": "WerkstoffClub"
   },
   "description": "Every ShipsGo endpoint, plus an RFQ workspace, lane analytics, and an offline shipment book no other tool offers.",
+  "homepage": "https://shipsgo.com",
   "display_name": "ShipsGo",
   "generated_at": "2026-06-04T08:25:31.266549Z",
   "mcp_binary": "shipsgo-pp-mcp",

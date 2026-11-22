@@ -26,6 +26,7 @@
   "run_id": "20260821-194838",
   "category": "media-and-entertainment",
   "description": "Magic: The Gathering card database CLI: search, prices, rulings, sets, and batch collection valuation against api.scryfall.com (keyless).",
+  "homepage": "https://scryfall.com",
   "mcp_binary": "scryfall-pp-mcp",
   "mcp_tool_count": 36,
   "mcp_ready": "full",

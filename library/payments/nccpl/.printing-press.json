@@ -17,6 +17,7 @@
   "run_id": "20260905-000548-4451d26d",
   "category": "payments",
   "description": "Pakistan's clearing-layer data as a local research panel with a coverage audit and an arithmetic self-check, not another dashboard.",
+  "homepage": "https://www.nccpl.com.pk",
   "mcp_binary": "nccpl-pp-mcp",
   "mcp_tool_count": 42,
   "mcp_public_tool_count": 21,

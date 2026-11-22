@@ -20,6 +20,7 @@
   "run_id": "20260527-233111",
   "category": "commerce",
   "description": "Plan, measure, and tune Amazon Ads campaigns with OAuth profiles, reports, profitability math, keyword recommendations, and guarded automation.",
+  "homepage": "https://advertising.amazon.com",
   "mcp_binary": "amazon-ads-pp-mcp",
   "mcp_tool_count": 53,
   "mcp_public_tool_count": 53,

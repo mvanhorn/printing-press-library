@@ -20,6 +20,7 @@
   "run_id": "20260629T175310Z-b4705e85",
   "category": "productivity",
   "description": "Local-first DEVONthink automation with safer shell workflows than raw AppleScript or MCP alone.",
+  "homepage": "https://www.devontechnologies.com/apps/devonthink",
   "auth_type": "none",
   "novel_features": [
     {

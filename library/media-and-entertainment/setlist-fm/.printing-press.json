@@ -5,6 +5,7 @@
   "api_name": "setlist-fm",
   "display_name": "setlist.fm",
   "description": "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API.",
+  "homepage": "https://www.setlist.fm",
   "printer": "davemorin",
   "printer_name": "Dave Morin",
   "cli_name": "setlist-fm-pp-cli",

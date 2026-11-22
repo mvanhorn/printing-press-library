@@ -15,6 +15,7 @@
     "name": "Luigi Pastore"
   },
   "description": "Italian law in your terminal: resolve citations, read any article at any date, diff versions and track amendments.",
+  "homepage": "https://www.normattiva.it",
   "display_name": "Normattiva",
   "generated_at": "2026-11-07T20:14:01.493993454Z",
   "mcp_binary": "normattiva-pp-mcp",

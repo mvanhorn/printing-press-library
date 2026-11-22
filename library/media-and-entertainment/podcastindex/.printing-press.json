@@ -17,6 +17,7 @@
   "run_id": "20260610-113323-a453895b",
   "category": "media-and-entertainment",
   "description": "The only PodcastIndex tool that is agent-native and works offline: search, resolve, and analyse any podcast from one signed binary with a local mirror you can FTS and SQL.",
+  "homepage": "https://podcastindex.org",
   "mcp_binary": "podcastindex-pp-mcp",
   "mcp_tool_count": 52,
   "mcp_public_tool_count": 19,

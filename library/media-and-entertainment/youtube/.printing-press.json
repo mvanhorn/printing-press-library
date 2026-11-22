@@ -24,6 +24,7 @@
   "run_id": "20260819-035139-99573931",
   "category": "media-and-entertainment",
   "description": "A self-maintained competitor-monitoring machine for YouTube: full read API coverage plus a local databank of channel histories, snapshots, comments, and packaging assets - market data hours old, not weeks.",
+  "homepage": "https://www.youtube.com",
   "mcp_binary": "youtube-pp-mcp",
   "mcp_tool_count": 12,
   "mcp_ready": "full",

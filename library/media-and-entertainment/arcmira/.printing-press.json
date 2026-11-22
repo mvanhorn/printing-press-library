@@ -20,6 +20,7 @@
   "run_id": "20261103-003317",
   "category": "media-and-entertainment",
   "description": "Search indexed YouTube and podcast transcripts for timestamped quotes and clip boundaries.",
+  "homepage": "https://arcmira.com",
   "mcp_binary": "arcmira-pp-mcp",
   "mcp_tool_count": 35,
   "mcp_public_tool_count": 4,

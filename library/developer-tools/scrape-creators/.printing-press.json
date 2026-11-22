@@ -28,6 +28,7 @@
   "run_id": "20260808-150822-3ff3183d",
   "category": "developer-tools",
   "description": "Every Scrape Creators endpoint across 28 platforms, with credit-aware comment mining and a local corpus no other Scrape Creators tool has.",
+  "homepage": "https://scrapecreators.com",
   "mcp_binary": "scrape-creators-pp-mcp",
   "mcp_tool_count": 178,
   "mcp_ready": "full",

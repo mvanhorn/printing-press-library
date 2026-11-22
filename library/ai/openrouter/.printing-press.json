@@ -28,6 +28,7 @@
   "run_id": "20260901-171359-a49ee862",
   "category": "ai",
   "description": "The only OpenRouter CLI built for fleet operations: budgets, anomaly alarms, and failover maps over a local usage ledger — not another chat wrapper.",
+  "homepage": "https://openrouter.ai",
   "mcp_binary": "openrouter-pp-mcp",
   "mcp_tool_count": 101,
   "mcp_public_tool_count": 1,

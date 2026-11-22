@@ -14,6 +14,7 @@
   "run_id": "20260524-233210",
   "category": "auth",
   "description": "Agent-native admin CLI for authentik identity provider with offline SQLite cache and an MCP server for Claude Desktop.",
+  "homepage": "https://goauthentik.io",
   "mcp_binary": "authentik-pp-mcp",
   "mcp_tool_count": 969,
   "mcp_public_tool_count": 8,

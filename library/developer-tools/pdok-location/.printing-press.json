@@ -5,6 +5,7 @@
   "api_name": "pdok-location",
   "display_name": "PDOK Location",
   "description": "Geocode Dutch addresses, reverse-geocode coordinates, convert RD/WGS84, and query PDOK location data with offline helpers.",
+  "homepage": "https://www.pdok.nl",
   "cli_name": "pdok-location-pp-cli",
   "creator": {
     "handle": "markvandeven",

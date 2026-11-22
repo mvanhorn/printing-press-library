@@ -14,6 +14,7 @@
   "printer_name": "qazmataz",
   "run_id": "20260808-044349-820894b7",
   "category": "food-and-dining",
+  "homepage": "https://www.foodpanda.com",
   "auth_env_vars": [
     "PRINTING_PRESS_CLIENT_PROFILE"
   ],

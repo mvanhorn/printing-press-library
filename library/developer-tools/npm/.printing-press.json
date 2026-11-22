@@ -15,6 +15,7 @@
   "run_id": "20260615T060451Z-5f992152",
   "category": "developer-tools",
   "description": "Research npm packages by metadata, downloads, maintainers, freshness, and dependency risk.",
+  "homepage": "https://www.npmjs.com",
   "mcp_binary": "npm-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,

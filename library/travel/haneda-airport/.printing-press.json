@@ -19,6 +19,7 @@
   "run_id": "20261002-221718-7fcad3b1",
   "category": "travel",
   "description": "Query first-party Haneda flight boards with precise dates, codeshares and terminal handoffs.",
+  "homepage": "https://tokyo-haneda.com",
   "mcp_binary": "haneda-airport-pp-mcp",
   "mcp_tool_count": 10,
   "mcp_public_tool_count": 10,

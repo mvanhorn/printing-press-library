@@ -5,6 +5,7 @@
   "api_name": "edgar",
   "display_name": "EDGAR",
   "description": "Fetch SEC EDGAR filings, insider activity, XBRL facts, and cached filing search results with agent-friendly output.",
+  "homepage": "https://www.sec.gov/edgar",
   "cli_name": "edgar-pp-cli",
   "creator": {
     "handle": "magoo242",

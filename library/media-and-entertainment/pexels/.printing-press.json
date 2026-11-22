@@ -24,6 +24,7 @@
   "run_id": "20260623-122348-b4bba74f",
   "category": "media-and-entertainment",
   "description": "Every Pexels photo, video, and collection endpoint — plus a local store that adds quota forecasting, dedup-aware bulk download, and one-shot attribution exports no other Pexels tool has.",
+  "homepage": "https://www.pexels.com",
   "mcp_binary": "pexels-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_public_tool_count": 8,

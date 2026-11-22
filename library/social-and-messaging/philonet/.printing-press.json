@@ -19,6 +19,7 @@
   "run_id": "20260930-231529-697aab83",
   "category": "social-and-messaging",
   "description": "Your Philonet reading life in the terminal: feed, threads, streaks and friends, plus a local history the web app does not keep.",
+  "homepage": "https://philonet.ai",
   "mcp_binary": "philonet-pp-mcp",
   "mcp_tool_count": 46,
   "mcp_public_tool_count": 1,

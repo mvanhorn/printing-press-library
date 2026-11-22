@@ -24,6 +24,7 @@
   "run_id": "20260822-120000-rundown01",
   "category": "ai",
   "description": "Search the community's AI workflows offline, and rank them by week - two things the site's own API cannot do.",
+  "homepage": "https://www.therundown.ai",
   "mcp_binary": "rundown-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 4,

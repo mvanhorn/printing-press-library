@@ -16,6 +16,7 @@
   "run_id": "20260623-222307",
   "category": "ai",
   "description": "Agent-friendly Context.dev CLI for website intelligence, brand enrichment, scraping, crawling, structured extraction, screenshots, styleguides, competitor maps, source packs, and change digests.",
+  "homepage": "https://www.context.dev",
   "mcp_binary": "context-dev-pp-mcp",
   "mcp_tool_count": 26,
   "mcp_ready": "full",

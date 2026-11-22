@@ -19,6 +19,7 @@
   "run_id": "20260922-135147-d48976cc",
   "category": "other",
   "description": "Search Immovlan from the terminal with every site filter, keep a local history, and cross it with Immoweb: exclusives, re-listings, rented PEB F/G traps and division candidates.",
+  "homepage": "https://immovlan.be",
   "mcp_binary": "immovlan-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

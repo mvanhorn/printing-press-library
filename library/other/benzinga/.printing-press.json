@@ -22,6 +22,7 @@
   "run_id": "20260627-034058-2c1f9c5c",
   "category": "other",
   "description": "Every Benzinga calendar, news, fundamentals, and signal endpoint as a typed command, plus an offline SQLite store, full-text search, cross-entity queries, and the first Benzinga MCP server.",
+  "homepage": "https://www.benzinga.com",
   "api_version": "1.0.0",
   "auth_type": "api_key",
   "auth_env_vars": [

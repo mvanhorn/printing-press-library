@@ -19,6 +19,7 @@
   "run_id": "20261007-135457",
   "category": "commerce",
   "description": "Costco Same-Day (sameday.costco.com) GraphQL CLI. Cookie auth after Costco Azure B2C SSO.",
+  "homepage": "https://sameday.costco.com",
   "mcp_binary": "costco-sameday-pp-mcp",
   "mcp_tool_count": 61,
   "mcp_ready": "partial",

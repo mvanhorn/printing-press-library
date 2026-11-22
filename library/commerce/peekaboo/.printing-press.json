@@ -17,6 +17,7 @@
   "run_id": "20260718-152004-56e085cb",
   "category": "commerce",
   "description": "Every Peekaboo deal, branch, and bank-card offer from the terminal — plus city-wide deal ranking, bank-card reverse lookup, and bulk branch map-link export the Peekaboo site has no button for.",
+  "homepage": "https://peekaboo.guru",
   "mcp_binary": "peekaboo-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_ready": "full",

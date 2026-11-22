@@ -13,6 +13,7 @@
   "run_id": "20260528-170611",
   "category": "developer-tools",
   "description": "Every Apple framework, indexed locally, with deprecation analysis and an MCP server no other Apple-docs tool has.",
+  "homepage": "https://developer.apple.com/documentation",
   "mcp_binary": "apple-docs-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_public_tool_count": 3,

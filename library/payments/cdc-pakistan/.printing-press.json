@@ -19,6 +19,7 @@
   "run_id": "20260907-191511-60d154e7",
   "category": "payments",
   "description": "The only machine-readable view of Pakistani custody data \u2014 per-security CDS penetration and a twenty-year eligibility record, from a source no tool has ever automated.",
+  "homepage": "https://www.cdcpakistan.com",
   "mcp_binary": "cdc-pakistan-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_ready": "partial",

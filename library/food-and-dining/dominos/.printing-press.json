@@ -16,6 +16,7 @@
   "printer_name": "Matt Van Horn",
   "display_name": "Domino's",
   "description": "Order pizza, browse menus, optimize deals, and track delivery from your terminal \u2014 with a local SQLite store that powers reorder, price comparison, and deal stacking no other Domino's tool offers.",
+  "homepage": "https://www.dominos.com",
   "category": "food-and-dining",
   "generated_at": "2026-05-06T04:28:29Z",
   "run_id": "20260505-175548",

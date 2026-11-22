@@ -24,6 +24,7 @@
   "run_id": "20260710-125244-1a986992",
   "category": "developer-tools",
   "description": "Download any GitHub folder without cloning — plan it first, verify it after, re-sync only what changed.",
+  "homepage": "https://github.com",
   "mcp_binary": "github-contents-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_ready": "full",
