@@ -6,6 +6,7 @@
       "category": "commerce",
       "api": "1688",
       "description": "The free, offline, agent-native 1688 wholesale sourcing CLI — keyword search with the signals the web UI buries (回头率 reorder rate, factory-verified status, supplier trade scores, price drift), persisted to a local store no scraper tracks over time.",
+      "homepage": "https://www.1688.com",
       "search_terms": [
         "1688",
         "1688-pp-cli",
@@ -64,6 +65,7 @@
       "category": "auth",
       "api": "1Password Agent Secrets",
       "description": "Agent-safe command layer over the official 1Password CLI and SDK service-account workflows.",
+      "homepage": "https://1password.com",
       "search_terms": [
         "1password",
         "1Password Agent Secrets",
@@ -168,6 +170,7 @@
       "category": "social-and-messaging",
       "api": "3CX XAPI",
       "description": "Every 3CX Configuration API (XAPI) object in one Go binary, with a local mirror of your whole PBX, offline search, config diffing, and cross-entity auditing no 3CX tool has.",
+      "homepage": "https://www.3cx.com",
       "search_terms": [
         "3cx-xapi",
         "3CX XAPI",
@@ -239,6 +242,7 @@
       "category": "travel",
       "api": "Activity Japan",
       "description": "Source-backed Japan experiences with explicit plan, price, language and availability evidence.",
+      "homepage": "https://activityjapan.com",
       "search_terms": [
         "activity-japan",
         "Activity Japan",
@@ -292,6 +296,7 @@
       "category": "monitoring",
       "api": "AdGuard Home",
       "description": "AdGuard Home REST-ish API. Our admin web interface is built on top of this REST-ish API.",
+      "homepage": "https://adguard.com/en/adguard-home/overview.html",
       "search_terms": [
         "adguard-home",
         "AdGuard Home",
@@ -350,6 +355,7 @@
       "category": "devices",
       "api": "Admin By Request",
       "description": "Sync Admin By Request audit, event, inventory, and elevation-request data for approvals, quota checks, and admin-risk reports.",
+      "homepage": "https://www.adminbyrequest.com",
       "search_terms": [
         "adminbyrequest",
         "Admin By Request",
@@ -472,6 +478,7 @@
       "category": "social-and-messaging",
       "api": "AgentMail",
       "description": "AgentMail operations with local memory, safe sends, and fleet-wide insight.",
+      "homepage": "https://www.agentmail.to",
       "search_terms": [
         "agentmail",
         "agentmail-pp-cli",
@@ -556,6 +563,7 @@
       "category": "travel",
       "api": "Agoda",
       "description": "Search Agoda hotels with the true all-in price, and re-rank by what you will actually pay.",
+      "homepage": "https://www.agoda.com",
       "search_terms": [
         "agoda",
         "agoda-pp-cli",
@@ -619,6 +627,7 @@
       "category": "marketing",
       "api": "Ahrefs",
       "description": "Explore Ahrefs SEO data from the terminal: backlinks, keywords, rank tracking, site audits, SERPs, usage limits, and crawler IP ranges.",
+      "homepage": "https://ahrefs.com",
       "search_terms": [
         "ahrefs",
         "ahrefs-pp-cli",
@@ -716,6 +725,7 @@
       "category": "travel",
       "api": "Airbnb Vrbo",
       "description": "Search Airbnb and VRBO, find the host's direct booking site, and report the cheapest of three sources side-by-side.",
+      "homepage": "https://www.airbnb.com",
       "search_terms": [
         "airbnb",
         "Airbnb Vrbo",
@@ -790,6 +800,7 @@
       "category": "cloud",
       "api": "Airbyte Admin",
       "description": "Read-only Airbyte administration CLI for inspecting workspaces, sources, destinations, connections, sync jobs, connector definitions, users, organizations, permissions, and tags from Airbyte Cloud or self-managed Airbyte.",
+      "homepage": "https://airbyte.com",
       "search_terms": [
         "airbyte-admin",
         "Airbyte Admin",
@@ -841,6 +852,7 @@
       "category": "developer-tools",
       "api": "Apache Airflow Admin",
       "description": "Read-first Apache Airflow operations CLI for DAG inventory, DAG run history, task instance inspection, pool capacity, metadata sync, search, and runtime health checks.",
+      "homepage": "https://airflow.apache.org",
       "search_terms": [
         "airflow-admin",
         "Apache Airflow Admin",
@@ -944,6 +956,7 @@
       "category": "travel",
       "api": "Airhint",
       "description": "AirHint flight price prediction API — buy/wait recommendations for airline tickets",
+      "homepage": "https://www.airhint.com",
       "search_terms": [
         "airhint",
         "airhint-pp-cli",
@@ -990,6 +1003,7 @@
       "category": "travel",
       "api": "Airport Limousine",
       "description": "Plan Tokyo airport buses with exact terminals, dated fares and explicit travel-time uncertainty.",
+      "homepage": "https://www.limousinebus.co.jp",
       "search_terms": [
         "airport-limousine",
         "Airport Limousine",
@@ -1042,6 +1056,7 @@
       "category": "productivity",
       "api": "Airtable",
       "description": "Airtable REST API CLI with offline cross-base search, CSV merge-upserts, field-level diffs before bulk writes, and schema drift detection.",
+      "homepage": "https://airtable.com",
       "search_terms": [
         "airtable",
         "airtable-pp-cli",
@@ -1093,6 +1108,7 @@
       "category": "travel",
       "api": "Alaska Airlines",
       "description": "Search Alaska Airlines flights, manage Atmos Rewards data, and build checkout-ready cart links from the terminal.",
+      "homepage": "https://www.alaskaair.com",
       "search_terms": [
         "alaska-airlines",
         "Alaska Airlines",
@@ -1130,6 +1146,7 @@
       "category": "developer-tools",
       "api": "algolia",
       "description": "Every Algolia feature, plus offline search and a local database no other Algolia tool has.",
+      "homepage": "https://www.algolia.com",
       "search_terms": [
         "algolia",
         "algolia-pp-cli",
@@ -1178,6 +1195,7 @@
       "category": "food-and-dining",
       "api": "Allrecipes",
       "description": "Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, rank by Bayesian-smoothed popularity, and clear Cloudflare with a Chrome session cookie.",
+      "homepage": "https://www.allrecipes.com",
       "search_terms": [
         "allrecipes",
         "allrecipes-pp-cli",
@@ -1241,6 +1259,7 @@
       "category": "travel",
       "api": "Alltrails Unofficial Seed",
       "description": "Evidence-labeled, live-capable route map for AllTrails browser/mobile surfaces. Not an official API contract.",
+      "homepage": "https://www.alltrails.com",
       "search_terms": [
         "alltrails",
         "Alltrails Unofficial Seed",
@@ -1292,6 +1311,7 @@
       "category": "commerce",
       "api": "Amazon Ads",
       "description": "Plan, measure, and tune Amazon Ads campaigns with OAuth profiles, reports, profitability math, keyword recommendations, and guarded automation.",
+      "homepage": "https://advertising.amazon.com",
       "search_terms": [
         "amazon-ads",
         "Amazon Ads",
@@ -1361,6 +1381,7 @@
       "category": "productivity",
       "api": "Amazon Jobs",
       "description": "Every Amazon.jobs feature, plus a local job store, new-since diffing, and aggregation Amazon's own site can't do — no login required.",
+      "homepage": "https://www.amazon.jobs",
       "search_terms": [
         "amazon-jobs",
         "Amazon Jobs",
@@ -1420,6 +1441,7 @@
       "category": "commerce",
       "api": "Amazon Orders",
       "description": "Walk your Amazon order history offline — every order, item, shipment, and dollar in a local SQLite store no other...",
+      "homepage": "https://www.amazon.com",
       "search_terms": [
         "amazon-orders",
         "Amazon Orders",
@@ -1490,6 +1512,7 @@
       "category": "commerce",
       "api": "Amazon Seller",
       "description": "Run Amazon seller workflows from the terminal: FBA inventory, orders, sales reports, listings, catalog lookup, and account operations.",
+      "homepage": "https://sellercentral.amazon.com",
       "search_terms": [
         "amazon-seller",
         "Amazon Seller",
@@ -1532,6 +1555,7 @@
       "category": "media-and-entertainment",
       "api": "Amc Theatres Showtime",
       "description": "Browser-captured docs-derived contract for AMC Theatres Showtime API v2.",
+      "homepage": "https://www.amctheatres.com",
       "search_terms": [
         "amc-theatres",
         "Amc Theatres Showtime",
@@ -1583,6 +1607,7 @@
       "category": "other",
       "api": "American Reindustrialization",
       "description": "Browse, slice, and analyze the curated American Reindustrialization directory — with diffs, geo clusters, sector...",
+      "homepage": "https://americanreindustrialization.com",
       "search_terms": [
         "american-reindustrialization",
         "American Reindustrialization",
@@ -1648,6 +1673,7 @@
       "category": "marketing",
       "api": "Amplitude Read",
       "description": "Read-first Amplitude Analytics API surface for exports, cohorts, events, users, and chart-style analytics queries.",
+      "homepage": "https://amplitude.com",
       "search_terms": [
         "amplitude",
         "Amplitude Read",
@@ -1700,6 +1726,7 @@
       "category": "other",
       "api": "ANAC Pubblicità a Valore Legale",
       "description": "Cerca bandi, esiti e avvisi di gara della piattaforma ANAC dalla riga di comando, con dettaglio JSON, cronologia, store locale e ricerca offline.",
+      "homepage": "https://pubblicitalegale.anticorruzione.it",
       "search_terms": [
         "anac-pl",
         "ANAC Pubblicità a Valore Legale",
@@ -1753,6 +1780,7 @@
       "category": "education",
       "api": "Ankiweb",
       "description": "The only terminal-native way to search, rank",
+      "homepage": "https://ankiweb.net",
       "search_terms": [
         "ankiweb",
         "ankiweb-pp-cli",
@@ -1813,6 +1841,7 @@
       "category": "food-and-dining",
       "api": "AnyList",
       "description": "Every AnyList feature in your terminal — plus offline search, store routing, and cron-safe automations no mobile...",
+      "homepage": "https://www.anylist.com",
       "search_terms": [
         "anylist",
         "anylist-pp-cli",
@@ -1950,6 +1979,7 @@
       "category": "other",
       "api": "Apartments",
       "description": "Search Apartments.com listings, sync results to a local SQLite store, and run workflows the website never built — diff saved searches, rank by $/sqft, compare shortlists, and surface price drops or phantom listings.",
+      "homepage": "https://www.apartments.com",
       "search_terms": [
         "apartments",
         "apartments-pp-cli",
@@ -2028,6 +2058,7 @@
       "category": "developer-tools",
       "api": "Apify",
       "description": "Every Apify platform feature, plus a local SQLite store, cross-Actor search, novelty diffing, cost-aware runs, and...",
+      "homepage": "https://apify.com",
       "search_terms": [
         "apify",
         "apify-pp-cli",
@@ -2106,6 +2137,7 @@
       "category": "marketing",
       "api": "App Store",
       "description": "Apple App Store charts, listings, ratings and reviews for any storefront from one Go binary, with a local history that turns repeated captures into rank, listing-change and traction trends.",
+      "homepage": "https://www.apple.com/app-store",
       "search_terms": [
         "app-store",
         "App Store",
@@ -2159,6 +2191,7 @@
       "category": "developer-tools",
       "api": "Apple Developer Documentation",
       "description": "Every Apple framework, indexed locally, with deprecation analysis and an MCP server no other Apple-docs tool has.",
+      "homepage": "https://developer.apple.com/documentation",
       "search_terms": [
         "apple-docs",
         "Apple Developer Documentation",
@@ -2217,6 +2250,7 @@
       "category": "developer-tools",
       "api": "Apple Search Ads",
       "description": "Every Apple Search Ads feature, plus local cost analytics, bid optimization, and cross-org templating no Python CLI offers.",
+      "homepage": "https://ads.apple.com",
       "search_terms": [
         "apple-search-ads",
         "Apple Search Ads",
@@ -2283,6 +2317,7 @@
       "category": "developer-tools",
       "api": "AppTweak",
       "description": "Every AppTweak endpoint in a local-first CLI — keyword rank fan-outs, competitor metadata diffs, and review mining that no MCP server can do.",
+      "homepage": "https://www.apptweak.com",
       "search_terms": [
         "apptweak",
         "apptweak-pp-cli",
@@ -2346,6 +2381,7 @@
       "category": "media-and-entertainment",
       "api": "Archive.today",
       "description": "Bypass paywalls and look up web archives via archive.today. Hero command: find or create an archive for any URL with lookup-before-submit, Wayback Machine fallback, and agent-hints on stderr when called non-interactively.",
+      "homepage": "https://archive.ph",
       "search_terms": [
         "archive-is",
         "archive-is-pp-cli",
@@ -2387,6 +2423,7 @@
       "category": "media-and-entertainment",
       "api": "Arcmira",
       "description": "Search indexed YouTube and podcast transcripts for timestamped quotes and clip boundaries.",
+      "homepage": "https://arcmira.com",
       "search_terms": [
         "arcmira",
         "arcmira-pp-cli",
@@ -2428,6 +2465,7 @@
       "category": "other",
       "api": "ars-sicilia",
       "description": "L'unica CLI per il portale dell'Assemblea Regionale Siciliana: cerca",
+      "homepage": "https://www.ars.sicilia.it",
       "search_terms": [
         "ars-sicilia",
         "ars-sicilia-pp-cli",
@@ -2525,6 +2563,7 @@
       "category": "other",
       "api": "arXiv",
       "description": "Public Atom API for searching and fetching arXiv e-print metadata.",
+      "homepage": "https://arxiv.org",
       "search_terms": [
         "arxiv",
         "arxiv-pp-cli",
@@ -2574,6 +2613,7 @@
       "category": "developer-tools",
       "api": "App Store Connect",
       "description": "A read-only App Store Connect cockpit that shows every app you ship at once — review state, builds, downloads, and ratings in one glance.",
+      "homepage": "https://appstoreconnect.apple.com",
       "search_terms": [
         "asc",
         "App Store Connect",
@@ -2629,6 +2669,7 @@
       "category": "job-boards",
       "api": "Ashby",
       "description": "Unauthenticated, read-only access to currently published postings on a named Ashby job board.",
+      "homepage": "https://www.ashbyhq.com",
       "search_terms": [
         "ashby",
         "ashby-pp-cli",
@@ -2682,6 +2723,7 @@
       "category": "travel",
       "api": "Asoview",
       "description": "Discover and compare Japan leisure tickets with explicit price units, terms and public dated availability.",
+      "homepage": "https://www.asoview.com",
       "search_terms": [
         "asoview",
         "asoview-pp-cli",
@@ -2733,6 +2775,7 @@
       "category": "travel",
       "api": "Atlas Obscura",
       "description": "Every Atlas Obscura search, plus a local database, road-trip corridor routing, and saved trips no other Atlas Obscura tool has.",
+      "homepage": "https://www.atlasobscura.com",
       "search_terms": [
         "atlas-obscura",
         "Atlas Obscura",
@@ -2792,6 +2835,7 @@
       "category": "auth",
       "api": "authentik",
       "description": "Agent-native admin CLI for authentik identity provider with offline SQLite cache and an MCP server for Claude Desktop.",
+      "homepage": "https://goauthentik.io",
       "search_terms": [
         "authentik",
         "authentik-pp-cli",
@@ -2896,6 +2940,7 @@
       "category": "commerce",
       "api": "AutoTempest",
       "description": "Every AutoTempest car-search source in your terminal, with a local store, cross-source VIN dedupe",
+      "homepage": "https://www.autotempest.com",
       "search_terms": [
         "autotempest",
         "autotempest-pp-cli",
@@ -2951,6 +2996,7 @@
       "category": "devices",
       "api": "AVer USA",
       "description": "Every AVer USA manual, spec sheet, and white paper in a local, type-filtered catalog — with spec comparison and link audits no AVer site offers.",
+      "homepage": "https://www.averusa.com",
       "search_terms": [
         "averusa",
         "AVer USA",
@@ -3018,6 +3064,7 @@
       "category": "other",
       "api": "SRAM AXS",
       "description": "Every SRAM AXS feature from the terminal, plus a local database, offline search, and cross-bike views the web app has no way to show.",
+      "homepage": "https://axs.sram.com",
       "search_terms": [
         "axs",
         "SRAM AXS",
@@ -3082,6 +3129,7 @@
       "category": "cloud",
       "api": "Azure Cost Admin",
       "description": "Read-only Azure FinOps CLI for actual spend summaries, service and resource-group cost breakdowns, tag hygiene, simple anomaly checks, and retail price lookup support.",
+      "homepage": "https://azure.microsoft.com/products/cost-management",
       "search_terms": [
         "azure-cost-admin",
         "Azure Cost Admin",
@@ -3118,6 +3166,7 @@
       "category": "developer-tools",
       "api": "azure-devops",
       "description": "The fastest Azure DevOps CLI — offline-first, agent-native",
+      "homepage": "https://azure.microsoft.com/products/devops",
       "search_terms": [
         "azure-devops",
         "azure-devops-pp-cli",
@@ -3188,6 +3237,7 @@
       "category": "cloud",
       "api": "Azure Functions",
       "description": "Inspect, audit, and right-size your Azure Functions from the terminal — cold-start trends, config drift",
+      "homepage": "https://azure.microsoft.com/products/functions",
       "search_terms": [
         "azure-functions-admin",
         "Azure Functions",
@@ -3248,6 +3298,7 @@
       "category": "devices",
       "api": "Bambu Local",
       "description": "Agent-ready Bambu print monitoring with exact plate previews and start/finish payloads.",
+      "homepage": "https://bambulab.com",
       "search_terms": [
         "bambu",
         "Bambu Local",
@@ -3308,6 +3359,7 @@
       "category": "media-and-entertainment",
       "api": "Bandsintown",
       "description": "Turn Bandsintown's two read-only endpoints into a tour-routing brain: local cache, calendar-gap detection, lineup...",
+      "homepage": "https://www.bandsintown.com",
       "search_terms": [
         "bandsintown",
         "bandsintown-pp-cli",
@@ -3364,6 +3416,7 @@
       "category": "marketing",
       "api": "Beehiiv",
       "description": "Manage beehiiv publications, subscribers, segments, posts, automations, and newsletter analytics from the terminal.",
+      "homepage": "https://www.beehiiv.com",
       "search_terms": [
         "beehiiv",
         "beehiiv-pp-cli",
@@ -3430,6 +3483,7 @@
       "category": "marketing",
       "api": "Bento",
       "description": "Every Bento feature, plus the ones their own CLI does not have",
+      "homepage": "https://bentonow.com",
       "search_terms": [
         "bento",
         "bento-pp-cli",
@@ -3507,6 +3561,7 @@
       "category": "other",
       "api": "Benzinga",
       "description": "Every Benzinga calendar, news, fundamentals, and signal endpoint as a typed command, plus an offline SQLite store, full-text search, cross-entity queries, and the first Benzinga MCP server.",
+      "homepage": "https://www.benzinga.com",
       "search_terms": [
         "benzinga",
         "benzinga-pp-cli",
@@ -3555,6 +3610,7 @@
       "category": "food-and-dining",
       "api": "bestfoodtrucks",
       "description": "The only Best Food Trucks client that can tell you where a truck goes, not just what's parked outside today.",
+      "homepage": "https://www.bestfoodtrucks.com",
       "search_terms": [
         "bestfoodtrucks",
         "bestfoodtrucks-pp-cli",
@@ -3587,6 +3643,7 @@
       "category": "developer-tools",
       "api": "Bing Webmaster Tools",
       "description": "The Bing Webmaster Tools API: manage sites, submit URLs, and read query/traffic/crawl/link stats from the Bing search index.",
+      "homepage": "https://www.bing.com/webmasters",
       "search_terms": [
         "bing-webmaster",
         "Bing Webmaster Tools",
@@ -3646,6 +3703,7 @@
       "category": "social-and-messaging",
       "api": "Bird",
       "description": "A terminal-native CLI for Bird's Conversations and SMS APIs, with offline search, batch reconcile, and a local...",
+      "homepage": "https://bird.com",
       "search_terms": [
         "bird",
         "bird-pp-cli",
@@ -3712,6 +3770,7 @@
       "category": "commerce",
       "api": "Blacklane",
       "description": "Upfront chauffeur quotes from the terminal — transfer and hourly, with a local price history no other tool has.",
+      "homepage": "https://www.blacklane.com",
       "search_terms": [
         "blacklane",
         "blacklane-pp-cli",
@@ -3764,6 +3823,7 @@
       "category": "ai",
       "api": "Bland",
       "description": "Send a task-driven call and follow it through to the result.",
+      "homepage": "https://www.bland.ai",
       "search_terms": [
         "bland",
         "bland-pp-cli",
@@ -3809,6 +3869,7 @@
       "category": "media-and-entertainment",
       "api": "Blu-ray.com",
       "description": "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero account required.",
+      "homepage": "https://www.blu-ray.com",
       "search_terms": [
         "blu-ray",
         "Blu-ray.com",
@@ -3931,6 +3992,7 @@
       "category": "media-and-entertainment",
       "api": "BoardGameGeek",
       "description": "Look up board games, expansions, hot rankings, user collections, and logged plays from BoardGameGeek's official XMLAPI2 — search, full game detail with stats and rankings, and the live hot list, all without a browser.",
+      "homepage": "https://boardgamegeek.com",
       "search_terms": [
         "boardgamegeek",
         "boardgamegeek-pp-cli",
@@ -3984,6 +4046,7 @@
       "category": "productivity",
       "api": "Bonusly",
       "description": "The recognition analytics Bonusly reserves for admins -- rebuilt from data any employee can already read.",
+      "homepage": "https://bonusly.com",
       "search_terms": [
         "bonusly",
         "bonusly-pp-cli",
@@ -4047,6 +4110,7 @@
       "category": "travel",
       "api": "Booking.com",
       "description": "Every Booking.com workflow, plus offline price history, wishlist drop alerts, and multi-leg planning no other...",
+      "homepage": "https://www.booking.com",
       "search_terms": [
         "booking-com",
         "Booking.com",
@@ -4131,6 +4195,7 @@
       "category": "media-and-entertainment",
       "api": "bookmakersreview",
       "description": "Every sportsbook's price, BMR's own sharp consensus, and full line history — for free, from the terminal, no API key required.",
+      "homepage": "https://www.bookmakersreview.com",
       "search_terms": [
         "bookmakersreview",
         "bookmakersreview-pp-cli",
@@ -4177,6 +4242,7 @@
       "category": "commerce",
       "api": "Booksy",
       "description": "Book a haircut in Poland from the terminal — search barbers, compare prices and reviews, check open slots, and book, with a dry-run-by-default booking guard.",
+      "homepage": "https://booksy.com/pl-pl",
       "search_terms": [
         "booksy",
         "booksy-pp-cli",
@@ -4243,6 +4309,7 @@
       "category": "marketing",
       "api": "Botsee",
       "description": "Have your agents measure and improve your brand's AI Visibility with botsee.io. API-first, agent-native.",
+      "homepage": "https://botsee.io",
       "search_terms": [
         "botsee",
         "botsee-pp-cli",
@@ -4293,6 +4360,7 @@
       "category": "marketing",
       "api": "Braze Read",
       "description": "Read-first Braze REST API surface for marketing analytics, campaign inspection, content assets, and catalog lookup.",
+      "homepage": "https://www.braze.com",
       "search_terms": [
         "braze",
         "Braze Read",
@@ -4344,6 +4412,7 @@
       "category": "productivity",
       "api": "BreezeDoc",
       "description": "Manage BreezeDoc e-signature and invoicing workflows across documents, templates, recipients, teams, invoices, and follow-ups.",
+      "homepage": "https://breezedoc.com",
       "search_terms": [
         "breezedoc",
         "breezedoc-pp-cli",
@@ -4397,6 +4466,7 @@
       "category": "cloud",
       "api": "Browserbase",
       "description": "Every Browserbase cloud feature, plus session lifecycle control, local history, and usage analytics no other tool has.",
+      "homepage": "https://www.browserbase.com",
       "search_terms": [
         "browserbase",
         "browserbase-pp-cli",
@@ -4461,6 +4531,7 @@
       "category": "productivity",
       "api": "Cal.com",
       "description": "Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships.",
+      "homepage": "https://cal.com",
       "search_terms": [
         "cal-com",
         "Cal.com",
@@ -4543,6 +4614,7 @@
       "category": "productivity",
       "api": "Calendly Read",
       "description": "Read-first Calendly API surface for scheduling, availability, event, invitee, and webhook inspection.",
+      "homepage": "https://calendly.com",
       "search_terms": [
         "calendly",
         "Calendly Read",
@@ -4594,6 +4666,7 @@
       "category": "other",
       "api": "Care",
       "description": "care.com CLI: search caregivers, review applicants/messages, analyze and reach out - over your own authenticated session",
+      "homepage": "https://www.care.com",
       "search_terms": [
         "care",
         "care-pp-cli",
@@ -4654,6 +4727,7 @@
       "category": "health",
       "api": "CAROL Bike",
       "description": "Read and locally mirror personal CAROL Bike workout data.",
+      "homepage": "https://carolbike.com",
       "search_terms": [
         "carol-bike",
         "CAROL Bike",
@@ -4697,6 +4771,7 @@
       "category": "travel",
       "api": "Carstay",
       "description": "Discover Japan overnight spots with Japanese coverage, honest facility evidence and booking links.",
+      "homepage": "https://carstay.jp",
       "search_terms": [
         "carstay",
         "carstay-pp-cli",
@@ -4748,6 +4823,7 @@
       "category": "health",
       "api": "Catapult OpenField",
       "description": "Every Catapult GPS metric — ACWR, velocity benchmarks, load reports — from one command, with a local SQLite mirror for offline analysis.",
+      "homepage": "https://www.catapult.com",
       "search_terms": [
         "catapult-openfield-connect",
         "Catapult OpenField",
@@ -4860,6 +4936,7 @@
       "category": "payments",
       "api": "CDC Pakistan",
       "description": "The only machine-readable view of Pakistani custody data — per-security CDS penetration and a twenty-year eligibility record, from a source no tool has ever automated.",
+      "homepage": "https://www.cdcpakistan.com",
       "search_terms": [
         "cdc-pakistan",
         "CDC Pakistan",
@@ -4922,6 +4999,7 @@
       "category": "cloud",
       "api": "Cloudflare Registrar Domains",
       "description": "Agent-native CLI for Cloudflare Registrar domain search, check, and registration.",
+      "homepage": "https://www.cloudflare.com/domains",
       "search_terms": [
         "cf-domain",
         "Cloudflare Registrar Domains",
@@ -4973,6 +5051,7 @@
       "category": "other",
       "api": "Cfpb Consumer Complaints",
       "description": "Search published CFPB consumer complaint records and aggregations.",
+      "homepage": "https://www.consumerfinance.gov/data-research/consumer-complaints",
       "search_terms": [
         "cfpb-complaints",
         "Cfpb Consumer Complaints",
@@ -5031,6 +5110,7 @@
       "category": "productivity",
       "api": "Chrome History",
       "description": "Reverse-engineered from the hand-built chrome-history-pp-cli command/data shape",
+      "homepage": "https://www.google.com/chrome",
       "search_terms": [
         "chrome-history",
         "Chrome History",
@@ -5146,6 +5226,7 @@
       "category": "sales-and-crm",
       "api": "Clarify",
       "description": "Every Clarify API operation as a typed command, plus the morning briefing, meeting prep, and pipeline analytics the autonomous CRM knows about but cannot run.",
+      "homepage": "https://www.clarify.ai",
       "search_terms": [
         "clarify",
         "clarify-pp-cli",
@@ -5206,6 +5287,7 @@
       "category": "marketing",
       "api": "Microsoft Clarity",
       "description": "Generate Microsoft Clarity tracking snippets and audit local HTML for tag install, masking attributes, and client API calls.",
+      "homepage": "https://clarity.microsoft.com",
       "search_terms": [
         "clarity",
         "Microsoft Clarity",
@@ -5249,6 +5331,7 @@
       "category": "developer-tools",
       "api": "Claude Agent SDK Python Docs",
       "description": "A source-grounded CLI for exploring and verifying the Claude Agent SDK Python docs.",
+      "homepage": "https://code.claude.com/docs/en/agent-sdk/python",
       "search_terms": [
         "claude-agent-sdk-python-docs",
         "Claude Agent SDK Python Docs",
@@ -5308,6 +5391,7 @@
       "category": "cloud",
       "api": "Clickhouse Cloud",
       "description": "Data engineering operations CLI for ClickHouse Cloud organizations, services, ClickPipes, backups, private endpoints, usage, and observability.",
+      "homepage": "https://clickhouse.com",
       "search_terms": [
         "clickhouse-cloud",
         "Clickhouse Cloud",
@@ -5357,6 +5441,7 @@
       "category": "project-management",
       "api": "Clickup",
       "description": "Every ClickUp v2 + v3 endpoint as a typed CLI plus offline sync, search, and ergonomic chat/docs aliases.",
+      "homepage": "https://clickup.com",
       "search_terms": [
         "clickup",
         "clickup-pp-cli",
@@ -5419,6 +5504,7 @@
       "category": "health",
       "api": "ClinicalTrials.gov",
       "description": "A multi-source clinical-trials intelligence system — aggregates, normalizes, and analyzes trials across ClinicalTrials.gov, EU CTIS, and biomedical sources, with an offline SQLite engine no single-registry tool has.",
+      "homepage": "https://clinicaltrials.gov",
       "search_terms": [
         "clinical-trials",
         "ClinicalTrials.gov",
@@ -5490,6 +5576,7 @@
       "category": "productivity",
       "api": "Clockify",
       "description": "Every Clockify feature, plus a local time database that reconstructs your weekly timesheet, finds untracked gaps,...",
+      "homepage": "https://clockify.me",
       "search_terms": [
         "clockify",
         "clockify-pp-cli",
@@ -5599,6 +5686,7 @@
       "category": "cloud",
       "api": "Google Cloud Run",
       "description": "Inspect and operate Google Cloud Run services, jobs, revisions, executions, and local inventory for serverless container fleets.",
+      "homepage": "https://cloud.google.com/run",
       "search_terms": [
         "cloud-run-admin",
         "Google Cloud Run",
@@ -5653,6 +5741,7 @@
       "category": "cloud",
       "api": "Cloudflare",
       "description": "Agent-ready CLI for Cloudflare accounts, zones, DNS, Workers, Pages, R2, tunnels, Zero Trust, and infrastructure operations.",
+      "homepage": "https://www.cloudflare.com",
       "search_terms": [
         "cloudflare",
         "cloudflare-pp-cli",
@@ -5827,6 +5916,7 @@
       "category": "payments",
       "api": "CoinGecko",
       "description": "CoinGecko public API for cryptocurrency data. Free tier, no API key required for basic endpoints.",
+      "homepage": "https://www.coingecko.com",
       "search_terms": [
         "coingecko",
         "coingecko-pp-cli",
@@ -5872,6 +5962,7 @@
       "category": "travel",
       "api": "Coin Locker Navi",
       "description": "Walk-up coin lockers in Japan: size, price, IC card, hours, gate side, and live empties where published.",
+      "homepage": "https://www.coinlocker-navi.com",
       "search_terms": [
         "coinlocker-navi",
         "Coin Locker Navi",
@@ -5974,6 +6065,7 @@
       "category": "productivity",
       "api": "SAP Concur",
       "description": "Every expense-report and travel workflow Concur's web app offers, plus real flight and hotel search and duplicate detection no Concur tool has -- filed through the same session your browser already uses.",
+      "homepage": "https://www.concur.com",
       "search_terms": [
         "concur",
         "SAP Concur",
@@ -6008,6 +6100,7 @@
       "category": "developer-tools",
       "api": "Conductor Cloud",
       "description": "Conductor Cloud API client with bounded coding-agent launch, monitor, steering, and reporting workflows.",
+      "homepage": "https://www.conductor.build",
       "search_terms": [
         "conductor",
         "Conductor Cloud",
@@ -6047,6 +6140,7 @@
       "category": "sales-and-crm",
       "api": "Conduyt CRM",
       "description": "Manage Conduyt CRM contacts, deals, pipelines, automations, campaigns, invoices, and local insight reports from the terminal.",
+      "homepage": "https://conduyt.app",
       "search_terms": [
         "conduyt-crm",
         "Conduyt CRM",
@@ -6154,6 +6248,7 @@
       "category": "ai",
       "api": "Context",
       "description": "Agent-friendly Context.dev CLI for website intelligence, brand enrichment, scraping, crawling, structured extraction, screenshots, styleguides, competitor maps, source packs, and change digests.",
+      "homepage": "https://www.context.dev",
       "search_terms": [
         "context-dev",
         "Context",
@@ -6240,6 +6335,7 @@
       "category": "food-and-dining",
       "api": "Cookidoo",
       "description": "Read-only Cookidoo CLI for public recipe details and local recipe analysis.",
+      "homepage": "https://cookidoo.thermomix.com",
       "search_terms": [
         "cookidoo",
         "cookidoo-pp-cli",
@@ -6280,6 +6376,7 @@
       "category": "food-and-dining",
       "api": "CookUnity",
       "description": "Mirror CookUnity's full weekly menu into a local database so you can plan meals offline — filter by macros, diet, and budget, and diff the menu week over week, none of which the web app can do.",
+      "homepage": "https://www.cookunity.com",
       "search_terms": [
         "cookunity",
         "cookunity-pp-cli",
@@ -6337,6 +6434,7 @@
       "category": "sales-and-crm",
       "api": "Copper",
       "description": "The Copper CRM command line no one else built: full CRUD plus a local database, weighted pipeline forecasting, stale-deal detection, and the bulk operations Copper's own API refuses to provide.",
+      "homepage": "https://www.copper.com",
       "search_terms": [
         "copper",
         "copper-pp-cli",
@@ -6403,6 +6501,7 @@
       "category": "productivity",
       "api": "Cosmos",
       "description": "Search, organize, export, and audit your Cosmos inspiration library from the terminal.",
+      "homepage": "https://www.cosmos.so",
       "search_terms": [
         "cosmos",
         "cosmos-pp-cli",
@@ -6457,6 +6556,7 @@
       "category": "commerce",
       "api": "Costco",
       "description": "Your complete Costco receipt history as data — past the website's 2-year wall, in a local database the site never gives you.",
+      "homepage": "https://www.costco.com",
       "search_terms": [
         "costco",
         "costco-pp-cli",
@@ -6517,6 +6617,7 @@
       "category": "commerce",
       "api": "Costco Sameday",
       "description": "Costco Same-Day (sameday.costco.com) GraphQL CLI. Cookie auth after Costco Azure B2C SSO.",
+      "homepage": "https://sameday.costco.com",
       "search_terms": [
         "costco-sameday",
         "Costco Sameday",
@@ -6570,6 +6671,7 @@
       "category": "other",
       "api": "Cpsc Recall Retrieval",
       "description": "Turn CPSC recall records into bounded inventory candidates, change observations, hazard composition tables, and actionable source packets without overstating fuzzy matches.",
+      "homepage": "https://www.cpsc.gov",
       "search_terms": [
         "cpsc-recalls",
         "Cpsc Recall Retrieval",
@@ -6620,6 +6722,7 @@
       "category": "commerce",
       "api": "Craigslist",
       "description": "Search, sync, and watch Craigslist with a local SQLite snapshot history, cross-city aggregation, scam scoring, and price-drift detection.",
+      "homepage": "https://www.craigslist.org",
       "search_terms": [
         "craigslist",
         "craigslist-pp-cli",
@@ -6687,6 +6790,7 @@
       "category": "developer-tools",
       "api": "Crates Io Registry",
       "description": "Read-only endpoints for crates.io ecosystem intelligence.",
+      "homepage": "https://crates.io",
       "search_terms": [
         "crates-io",
         "Crates Io Registry",
@@ -6734,6 +6838,7 @@
       "category": "commerce",
       "api": "Creative Fabrica",
       "description": "Search Creative Fabrica's 20-million-plus fonts, graphics, crafts, and POD designs from your terminal — with a local catalog database, file-format and commercial-license filters the web UI lacks, and designer tracking.",
+      "homepage": "https://www.creativefabrica.com",
       "search_terms": [
         "creativefabrica",
         "Creative Fabrica",
@@ -6802,6 +6907,7 @@
       "category": "devices",
       "api": "Crestron",
       "description": "Every Crestron product, spec sheet, and firmware release — searchable offline, with fleet-wide currency checks the website cannot do.",
+      "homepage": "https://www.crestron.com",
       "search_terms": [
         "crestron",
         "crestron-pp-cli",
@@ -6859,6 +6965,7 @@
       "category": "developer-tools",
       "api": "Crocoblock",
       "description": "Operate Crocoblock data and review changes across your WordPress workflows.",
+      "homepage": "https://crocoblock.com",
       "search_terms": [
         "crocoblock",
         "crocoblock-pp-cli",
@@ -6916,6 +7023,7 @@
       "category": "marketing",
       "api": "Customer.io",
       "description": "Manage Customer.io campaigns, broadcasts, segments, deliveries, exports, and Reverse-ETL via the Service Account token.",
+      "homepage": "https://customer.io",
       "search_terms": [
         "customer-io",
         "Customer.io",
@@ -6980,6 +7088,7 @@
       "category": "commerce",
       "api": "Daraz.pk",
       "description": "Every Daraz product search, plus a local price database, real-deal ranking, and drop alerts no Daraz scraper has.",
+      "homepage": "https://www.daraz.pk",
       "search_terms": [
         "daraz",
         "Daraz.pk",
@@ -7039,6 +7148,7 @@
       "category": "marketing",
       "api": "dataforseo",
       "description": "Every DataForSEO endpoint, plus auto-mode routing, cost estimates, keyword pre-cleaning, and a local SQLite store no...",
+      "homepage": "https://dataforseo.com",
       "search_terms": [
         "dataforseo",
         "dataforseo-pp-cli",
@@ -7114,6 +7224,7 @@
       "category": "other",
       "api": "Defillama",
       "description": "DefiLlama offers two ways to use our data with AI:",
+      "homepage": "https://defillama.com",
       "search_terms": [
         "defillama",
         "defillama-pp-cli",
@@ -7159,6 +7270,7 @@
       "category": "maps",
       "api": "Delhivery Maps",
       "description": "Every Delhivery Maps endpoint, plus quota-aware address cleaning, trip costing and fleet planning.",
+      "homepage": "https://www.delhivery.com/maps",
       "search_terms": [
         "delhivery-maps",
         "Delhivery Maps",
@@ -7216,6 +7328,7 @@
       "category": "travel",
       "api": "Delta Trip Management",
       "description": "Look up and manage Delta Air Lines trips by confirmation number — view all flights, seats, baggage, upgrade...",
+      "homepage": "https://www.delta.com",
       "search_terms": [
         "delta-trip",
         "Delta Trip Management",
@@ -7256,6 +7369,7 @@
       "category": "productivity",
       "api": "devonthink",
       "description": "Local-first DEVONthink automation with safer shell workflows than raw AppleScript or MCP alone.",
+      "homepage": "https://www.devontechnologies.com/apps/devonthink",
       "search_terms": [
         "devonthink",
         "devonthink-pp-cli",
@@ -7305,6 +7419,7 @@
       "category": "media-and-entertainment",
       "api": "DICE",
       "description": "Every ticket, fan, and pound of revenue from your DICE events — queryable, exportable, and joinable across shows.",
+      "homepage": "https://dice.fm",
       "search_terms": [
         "dice-fm",
         "DICE",
@@ -7383,6 +7498,7 @@
       "category": "media-and-entertainment",
       "api": "Digg AI",
       "description": "Tail Digg's news cycle, GitHub feeds, and pipeline events from the terminal — read-only, with rank-history nobody else surfaces.",
+      "homepage": "https://digg.com",
       "search_terms": [
         "digg",
         "digg-pp-cli",
@@ -7455,6 +7571,7 @@
       "category": "cloud",
       "api": "DigitalOcean",
       "description": "Manage DigitalOcean Droplets, Kubernetes, databases, firewalls, networking, billing, and other cloud resources from the terminal.",
+      "homepage": "https://www.digitalocean.com",
       "search_terms": [
         "digitalocean",
         "digitalocean-pp-cli",
@@ -7505,6 +7622,7 @@
       "category": "media-and-entertainment",
       "api": "Discogs",
       "description": "Every Discogs feature — plus a local price-history mirror the API doesn't keep, so you can watch your wantlist like a limit-order book, spot underpriced records, and track your collection's value over time.",
+      "homepage": "https://www.discogs.com",
       "search_terms": [
         "discogs",
         "discogs-pp-cli",
@@ -7565,6 +7683,7 @@
       "category": "productivity",
       "api": "Discord",
       "description": "Preview of the Discord v10 HTTP API specification. See https://discord.com/developers/docs for more details.",
+      "homepage": "https://discord.com",
       "search_terms": [
         "discord",
         "discord-pp-cli",
@@ -7622,6 +7741,7 @@
       "category": "developer-tools",
       "api": "D&D Beyond",
       "description": "Read public D&D Beyond rules pages from the terminal.",
+      "homepage": "https://www.dndbeyond.com",
       "search_terms": [
         "dndbeyond",
         "D&D Beyond",
@@ -7671,6 +7791,7 @@
       "category": "developer-tools",
       "api": "Dnsmadeeasy",
       "description": "Every DNS Made Easy operation, plus a local record store for cross-zone search, drift detection, and 'where is this IP used' — instant and offline.",
+      "homepage": "https://dnsmadeeasy.com",
       "search_terms": [
         "dnsmadeeasy",
         "dnsmadeeasy-pp-cli",
@@ -7729,6 +7850,7 @@
       "category": "developer-tools",
       "api": "Docker Hub",
       "description": "Docker Hub public API. Search container images, browse tags, check sizes, inspect Dockerfiles, and explore the world's largest container registry. No authentication required for public repositories (rate limited to ~18 req/min).",
+      "homepage": "https://hub.docker.com",
       "search_terms": [
         "docker-hub",
         "Docker Hub",
@@ -7836,6 +7958,7 @@
       "category": "food-and-dining",
       "api": "Domino's",
       "description": "Order pizza, browse menus, optimize deals, and track delivery from your terminal — with a local SQLite store that powers reorder, price comparison, and deal stacking no other Domino's tool offers.",
+      "homepage": "https://www.dominos.com",
       "search_terms": [
         "dominos",
         "Domino's",
@@ -7920,6 +8043,7 @@
       "category": "commerce",
       "api": "DoorDash",
       "description": "Discovered API spec for doordash",
+      "homepage": "https://www.doordash.com",
       "search_terms": [
         "doordash",
         "doordash-pp-cli",
@@ -7970,6 +8094,7 @@
       "category": "education",
       "api": "Dreaming",
       "description": "Every Dreaming Spanish and French tracking feature in one offline-first CLI - roadmap math, catalog search",
+      "homepage": "https://www.dreaming.com",
       "search_terms": [
         "dreaming",
         "dreaming-pp-cli",
@@ -8031,6 +8156,7 @@
       "category": "devices",
       "api": "Dreo",
       "description": "The only standalone CLI for Dreo smart-home devices — bulk control, live sensor streams, and a local history every...",
+      "homepage": "https://www.dreo.com",
       "search_terms": [
         "dreo",
         "dreo-pp-cli",
@@ -8095,6 +8221,7 @@
       "category": "travel",
       "api": "Drive Plaza",
       "description": "Plan expressway journeys with source toll estimates, directional rest stops and official advisories.",
+      "homepage": "https://www.driveplaza.com",
       "search_terms": [
         "driveplaza",
         "Drive Plaza",
@@ -8147,6 +8274,7 @@
       "category": "productivity",
       "api": "Dropbox",
       "description": "Find duplicates, sync conflicts, and stale shared links across a whole Dropbox, then clean up with plans you preview first.",
+      "homepage": "https://www.dropbox.com",
       "search_terms": [
         "dropbox",
         "dropbox-pp-cli",
@@ -8210,6 +8338,7 @@
       "category": "media-and-entertainment",
       "api": "Drudge Report",
       "description": "Drudge Report in your terminal, with the editorial signal (splash, red, slot, tenure) the live page broadcasts but...",
+      "homepage": "https://drudgereport.com",
       "search_terms": [
         "drudgereport",
         "Drudge Report",
@@ -8278,6 +8407,7 @@
       "category": "health",
       "api": "Drug Enforcement",
       "description": "Search FDA drug recall enforcement records — keyless, offline-cacheable, agent-native. Reports FDA facts only; never says a drug is safe.",
+      "homepage": "https://open.fda.gov",
       "search_terms": [
         "drug-enforcement",
         "Drug Enforcement",
@@ -8328,6 +8458,7 @@
       "category": "marketing",
       "api": "Dub",
       "description": "Modern link attribution platform — short links, conversion tracking, affiliate/partner programs.",
+      "homepage": "https://dub.co",
       "search_terms": [
         "dub",
         "dub-pp-cli",
@@ -8409,6 +8540,7 @@
       "category": "payments",
       "api": "e-boekhouden",
       "description": "Balance, profit & loss, and journal entries for e-Boekhouden from your terminal",
+      "homepage": "https://www.e-boekhouden.nl",
       "search_terms": [
         "e-boekhouden",
         "e-boekhouden-pp-cli",
@@ -8445,6 +8577,7 @@
       "category": "commerce",
       "api": "eBay",
       "description": "Buyer-power-user CLI for eBay. Sold-comp intelligence, true sniper bidding, watchlist intelligence, saved-search feeds, and a local SQLite store for cross-listing analytics.",
+      "homepage": "https://www.ebay.com",
       "search_terms": [
         "ebay",
         "ebay-pp-cli",
@@ -8500,6 +8633,7 @@
       "category": "travel",
       "api": "ecbo cloak",
       "description": "Discover Japan luggage storage and inspect read-only source offers.",
+      "homepage": "https://cloak.ecbo.io",
       "search_terms": [
         "ecbo-cloak",
         "ecbo cloak",
@@ -8604,6 +8738,7 @@
       "category": "other",
       "api": "EDGAR",
       "description": "Fetch SEC EDGAR filings, insider activity, XBRL facts, and cached filing search results with agent-friendly output.",
+      "homepage": "https://www.sec.gov/edgar",
       "search_terms": [
         "edgar",
         "edgar-pp-cli",
@@ -8660,6 +8795,7 @@
       "category": "devices",
       "api": "eero",
       "description": "Inspect an eero mesh network from the terminal with agent-friendly output for networks, nodes, connected devices, diagnostics, and speed tests.",
+      "homepage": "https://eero.com",
       "search_terms": [
         "eero",
         "eero-pp-cli",
@@ -8715,6 +8851,7 @@
       "category": "ai",
       "api": "ElevenLabs",
       "description": "Create and manage ElevenLabs audio workflows: text-to-speech, voice conversion, transcription, dubbing, music, voices, and agents.",
+      "homepage": "https://elevenlabs.io",
       "search_terms": [
         "elevenlabs",
         "elevenlabs-pp-cli",
@@ -8764,6 +8901,7 @@
       "category": "other",
       "api": "Elezioni Sicilia",
       "description": "Dati elettorali siciliani da riga di comando — senza copiare tabelle HTML.",
+      "homepage": "https://www.elezioni.regione.sicilia.it",
       "search_terms": [
         "elezioni-sicilia",
         "Elezioni Sicilia",
@@ -8806,6 +8944,7 @@
       "category": "marketing",
       "api": "EmailOctopus",
       "description": "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal.",
+      "homepage": "https://emailoctopus.com",
       "search_terms": [
         "emailoctopus",
         "emailoctopus-pp-cli",
@@ -8868,6 +9007,7 @@
       "category": "other",
       "api": "Epa Echo",
       "description": "Resolve EPA-regulated facilities, inspect transparent compliance evidence, and retain change history without opaque scores.",
+      "homepage": "https://echo.epa.gov",
       "search_terms": [
         "epa-echo",
         "Epa Echo",
@@ -8924,6 +9064,7 @@
       "category": "media-and-entertainment",
       "api": "eplus",
       "description": "Discover Japanese performances and plan source-backed ticket sale windows.",
+      "homepage": "https://eplus.jp",
       "search_terms": [
         "eplus",
         "eplus-pp-cli",
@@ -8964,6 +9105,7 @@
       "category": "marketing",
       "api": "eRank",
       "description": "Keyword Tool data from eRank, plus local scoring, drift, and listing-gap analysis for Etsy sellers.",
+      "homepage": "https://erank.com",
       "search_terms": [
         "erank",
         "erank-pp-cli",
@@ -9030,6 +9172,7 @@
       "category": "media-and-entertainment",
       "api": "ESPN",
       "description": "Live scores, standings, news, and game history across 17 sports from ESPN",
+      "homepage": "https://www.espn.com",
       "search_terms": [
         "espn",
         "espn-pp-cli",
@@ -9073,6 +9216,7 @@
       "category": "productivity",
       "api": "Etherpad",
       "description": "Etherpad is a real-time collaborative editor scalable to thousands of simultaneous real time users. It provides full...",
+      "homepage": "https://etherpad.org",
       "search_terms": [
         "etherpad",
         "etherpad-pp-cli",
@@ -9201,6 +9345,7 @@
       "category": "commerce",
       "api": "Etsy Seller Dashboard",
       "description": "First-party Etsy demand and marketing evidence, reconciled locally.",
+      "homepage": "https://www.etsy.com",
       "search_terms": [
         "etsy-seller-dashboard",
         "Etsy Seller Dashboard",
@@ -9262,6 +9407,7 @@
       "category": "sales-and-crm",
       "api": "EU Tenders",
       "description": "The entire EU public procurement corpus — €815B/year — searchable offline, with B2B lead generation for...",
+      "homepage": "https://ted.europa.eu",
       "search_terms": [
         "eu-tenders",
         "EU Tenders",
@@ -9333,6 +9479,7 @@
       "category": "media-and-entertainment",
       "api": "Eventbrite",
       "description": "Every Eventbrite organizer endpoint, plus a local SQLite mirror of your events, orders",
+      "homepage": "https://www.eventbrite.com",
       "search_terms": [
         "eventbrite",
         "eventbrite-pp-cli",
@@ -9399,6 +9546,7 @@
       "category": "marketing",
       "api": "EverBee",
       "description": "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow.",
+      "homepage": "https://www.everbee.io",
       "search_terms": [
         "everbee",
         "everbee-pp-cli",
@@ -9459,6 +9607,7 @@
       "category": "ai",
       "api": "Exa",
       "description": "Every Exa search API feature, plus local history, spend tracking, and diffing no other Exa tool has.",
+      "homepage": "https://exa.ai",
       "search_terms": [
         "exa",
         "exa-pp-cli",
@@ -9513,6 +9662,7 @@
       "category": "payments",
       "api": "Exchangerate Api",
       "description": "Every ExchangeRate-API endpoint, plus a local rate history, watchlists, drift alerts, and an MCP server no one else...",
+      "homepage": "https://www.exchangerate-api.com",
       "search_terms": [
         "exchangerate-api",
         "Exchangerate Api",
@@ -9582,6 +9732,7 @@
       "category": "productivity",
       "api": "Expensify",
       "description": "File expenses and submit reports to Expensify from the command line",
+      "homepage": "https://www.expensify.com",
       "search_terms": [
         "expensify",
         "expensify-pp-cli",
@@ -9652,6 +9803,7 @@
       "category": "devices",
       "api": "Extron",
       "description": "Every Extron spec sheet and user manual, browsable and searchable offline with revision tracking no other Extron tool has.",
+      "homepage": "https://www.extron.com",
       "search_terms": [
         "extron",
         "extron-pp-cli",
@@ -9709,6 +9861,7 @@
       "category": "travel",
       "api": "FAA Aircraft Registry",
       "description": "Every FAA aircraft lookup the registry website offers, plus a daily-synced offline copy of the entire US registry that unlocks fleet reports, hex decoding, ownership history, and expiration alerts no other tool has.",
+      "homepage": "https://registry.faa.gov",
       "search_terms": [
         "faa-registry",
         "FAA Aircraft Registry",
@@ -9764,6 +9917,7 @@
       "category": "commerce",
       "api": "Facebook Marketplace",
       "description": "Search, draft, publish, mirror, and monitor Facebook Marketplace listings with seller helpers and explicit write checkpoints.",
+      "homepage": "https://www.facebook.com/marketplace",
       "search_terms": [
         "facebook-marketplace",
         "Facebook Marketplace",
@@ -9818,6 +9972,7 @@
       "category": "productivity",
       "api": "Fathom",
       "description": "Sync your Fathom meetings once, then search, analyze, and act on them forever — offline, at scale, without burning...",
+      "homepage": "https://www.fathom.ai",
       "search_terms": [
         "fathom",
         "fathom-pp-cli",
@@ -9888,6 +10043,7 @@
       "category": "other",
       "api": "Openfec",
       "description": "This application programming interface (API)",
+      "homepage": "https://www.fec.gov",
       "search_terms": [
         "fec",
         "Openfec",
@@ -9940,6 +10096,7 @@
       "category": "commerce",
       "api": "FedEx",
       "description": "Ship, rate, and track FedEx packages from the terminal — built for small business shippers.",
+      "homepage": "https://www.fedex.com",
       "search_terms": [
         "fedex",
         "fedex-pp-cli",
@@ -10025,6 +10182,7 @@
       "category": "devices",
       "api": "Fellow Stagg EKG",
       "description": "Control a Fellow Stagg EKG kettle over its local HTTP command interface from the terminal.",
+      "homepage": "https://fellowproducts.com",
       "search_terms": [
         "fellow-stagg-ekg",
         "Fellow Stagg EKG",
@@ -10062,6 +10220,7 @@
       "category": "productivity",
       "api": "Figma",
       "description": "Every Figma endpoint, plus codegen-ready frame extracts, comments audit, orphans finder, tokens diff, and webhook...",
+      "homepage": "https://www.figma.com",
       "search_terms": [
         "figma",
         "figma-pp-cli",
@@ -10133,6 +10292,7 @@
       "category": "other",
       "api": "FINRA",
       "description": "Every FINRA Query API dataset, plus local trend detection and batch registration checks no other FINRA tool offers.",
+      "homepage": "https://www.finra.org",
       "search_terms": [
         "finra",
         "finra-pp-cli",
@@ -10190,6 +10350,7 @@
       "category": "developer-tools",
       "api": "Firecrawl",
       "description": "API for interacting with Firecrawl services to perform web scraping and crawling tasks.",
+      "homepage": "https://www.firecrawl.dev",
       "search_terms": [
         "firecrawl",
         "firecrawl-pp-cli",
@@ -10242,6 +10403,7 @@
       "category": "productivity",
       "api": "Fireflies Pp Cli",
       "description": "Every Fireflies meeting feature, plus offline search, cross-meeting intelligence, and a local database no other tool...",
+      "homepage": "https://fireflies.ai",
       "search_terms": [
         "fireflies",
         "Fireflies Pp Cli",
@@ -10309,6 +10471,7 @@
       "category": "ai",
       "api": "Fish Audio",
       "description": "Fish Audio API: text-to-speech, speech-to-text, voice design, voice models (clones), and account credit.",
+      "homepage": "https://fish.audio",
       "search_terms": [
         "fish-audio",
         "Fish Audio",
@@ -10457,6 +10620,7 @@
       "category": "travel",
       "api": "Flighty Airports",
       "description": "Every Flighty Airports meltdown map feature, plus cross-airport intelligence no web page can answer.",
+      "homepage": "https://flighty.com/airports",
       "search_terms": [
         "flighty",
         "Flighty Airports",
@@ -10518,6 +10682,7 @@
       "category": "food-and-dining",
       "api": "Flipp",
       "description": "Find local Flipp flyer deals, coupons, and grocery savings by ZIP or postal code.",
+      "homepage": "https://flipp.com",
       "search_terms": [
         "flipp",
         "flipp-pp-cli",
@@ -10579,6 +10744,7 @@
       "category": "media-and-entertainment",
       "api": "Google Flow",
       "description": "Everything Flow's community CLIs and MCP servers do, plus the two things none of them do: real Google Drive ingestion and an honest audio-drama pipeline that closes the loop Flow itself cannot.",
+      "homepage": "https://flow.google.com",
       "search_terms": [
         "flow",
         "Google Flow",
@@ -10639,6 +10805,7 @@
       "category": "food-and-dining",
       "api": "Food52",
       "description": "Search, browse, and read Food52 from your terminal — with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away.",
+      "homepage": "https://food52.com",
       "search_terms": [
         "food52",
         "food52-pp-cli",
@@ -10696,6 +10863,7 @@
       "category": "food-and-dining",
       "api": "Fooda",
       "description": "Your Fooda office lunch history, subsidy and this week's popups in a terminal, with vendor and spend analytics the app does not offer.",
+      "homepage": "https://www.fooda.com",
       "search_terms": [
         "fooda",
         "fooda-pp-cli",
@@ -10754,6 +10922,7 @@
       "category": "food-and-dining",
       "api": "foodpanda",
       "description": "Every foodpanda restaurant, menu and price in a local database — with cross-restaurant dish search, price history and fee comparison the app cannot do.",
+      "homepage": "https://www.foodpanda.com",
       "search_terms": [
         "foodpanda",
         "foodpanda-pp-cli",
@@ -10806,6 +10975,7 @@
       "category": "developer-tools",
       "api": "Forgejo",
       "description": "The `gh` for Forgejo — works with any instance, stores your data locally, and speaks Forgejo natively.",
+      "homepage": "https://forgejo.org",
       "search_terms": [
         "forgejo",
         "forgejo-pp-cli",
@@ -10871,6 +11041,7 @@
       "category": "food-and-dining",
       "api": "Forkable",
       "description": "A CLI and MCP server for your Forkable office-lunch program, with a local database and history, spend, and preference queries the web app cannot answer, plus commands to set, confirm, and skip meal orders (dry-run by default; --confirm to apply).",
+      "homepage": "https://forkable.com",
       "search_terms": [
         "forkable",
         "forkable-pp-cli",
@@ -10935,6 +11106,7 @@
       "category": "media-and-entertainment",
       "api": "Fox News",
       "description": "Fox News headlines from Google Publisher RSS feeds on moxie.foxnews.com — section-selectable, no API key.",
+      "homepage": "https://www.foxnews.com",
       "search_terms": [
         "foxnews",
         "Fox News",
@@ -11030,6 +11202,7 @@
       "category": "developer-tools",
       "api": "Framer",
       "description": "CLI for managing Framer websites — CMS, canvas, code files, publishing, and site migration. Requires Node.",
+      "homepage": "https://www.framer.com",
       "search_terms": [
         "framer",
         "framer-pp-cli",
@@ -11092,6 +11265,7 @@
       "category": "other",
       "api": "FRED",
       "description": "Every FRED endpoint, plus a local SQLite store, offline search, and macro commands no other FRED tool has.",
+      "homepage": "https://fred.stlouisfed.org",
       "search_terms": [
         "fred",
         "fred-pp-cli",
@@ -11143,6 +11317,7 @@
       "category": "productivity",
       "api": "Freshservice",
       "description": "Every Freshservice operation in one Go binary — with offline search, SLA intelligence, and agent-native JSON that...",
+      "homepage": "https://www.freshworks.com/freshservice",
       "search_terms": [
         "freshservice",
         "freshservice-pp-cli",
@@ -11211,6 +11386,7 @@
       "category": "other",
       "api": "Function Health",
       "description": "Every Function Health feature, plus a local SQLite store with biomarker trends across every round you've ever drawn",
+      "homepage": "https://www.functionhealth.com",
       "search_terms": [
         "function-health",
         "Function Health",
@@ -11275,6 +11451,7 @@
       "category": "sales-and-crm",
       "api": "Gainsight Read",
       "description": "Read-first Gainsight NXT API surface for customer success account, relationship, person, timeline",
+      "homepage": "https://www.gainsight.com",
       "search_terms": [
         "gainsight",
         "Gainsight Read",
@@ -11390,6 +11567,7 @@
       "category": "health",
       "api": "Garmin Connect",
       "description": "Your whole Garmin history in a local database, not one 28-day page at a time.",
+      "homepage": "https://connect.garmin.com",
       "search_terms": [
         "garmin",
         "Garmin Connect",
@@ -11446,6 +11624,7 @@
       "category": "developer-tools",
       "api": "Google Fonts Metadata",
       "description": "Search, browse, and download Google Fonts from the terminal. Zero auth required — uses the same public metadata endpoint that powers fonts.google.com.",
+      "homepage": "https://fonts.google.com",
       "search_terms": [
         "gfonts",
         "Google Fonts Metadata",
@@ -11498,6 +11677,7 @@
       "category": "other",
       "api": "GISIS",
       "description": "Authoritative IMO ship particulars on the command line",
+      "homepage": "https://gisis.imo.org",
       "search_terms": [
         "gisis",
         "gisis-pp-cli",
@@ -11558,6 +11738,7 @@
       "category": "developer-tools",
       "api": "GitHub",
       "description": "Every gh issue, PR, repo, and code-search workflow, plus a local SQLite mirror, offline full-text search, and cross-entity joins no GitHub tool offers.",
+      "homepage": "https://github.com",
       "search_terms": [
         "github",
         "github-pp-cli",
@@ -11622,6 +11803,7 @@
       "category": "developer-tools",
       "api": "GitHub Contents",
       "description": "Download any GitHub folder without cloning — plan it first, verify it after, re-sync only what changed.",
+      "homepage": "https://github.com",
       "search_terms": [
         "github-contents",
         "GitHub Contents",
@@ -11684,6 +11866,7 @@
       "category": "developer-tools",
       "api": "Github Current Intelligence",
       "description": "Public GitHub repository, release, search, and security advisory signals for agent research.",
+      "homepage": "https://github.com",
       "search_terms": [
         "github-intel",
         "Github Current Intelligence",
@@ -11734,6 +11917,7 @@
       "category": "productivity",
       "api": "Giustizia Amministrativa",
       "description": "La giurisprudenza amministrativa italiana (TAR, Consiglio di Stato) da terminale: ricerca, testo integrale in Markdown, store locale e ricerca offline.",
+      "homepage": "https://www.giustizia-amministrativa.it",
       "search_terms": [
         "giustizia-amministrativa",
         "Giustizia Amministrativa",
@@ -11793,6 +11977,7 @@
       "category": "devices",
       "api": "GL.iNet",
       "description": "The first maintained CLI for GL.iNet travel routers — named config profiles, travel macros, and version-aware diagnostics no other GL.iNet tool ships.",
+      "homepage": "https://www.gl-inet.com",
       "search_terms": [
         "gl-inet",
         "GL.iNet",
@@ -11873,6 +12058,7 @@
       "category": "sales-and-crm",
       "api": "Gladly Read",
       "description": "Read-first Gladly API surface for customer timelines, conversations, agents, topics, answers, and support operations.",
+      "homepage": "https://www.gladly.ai",
       "search_terms": [
         "gladly",
         "Gladly Read",
@@ -11925,6 +12111,7 @@
       "category": "productivity",
       "api": "Gmail",
       "description": "Mailbox cleanup that can prove itself — preview, confirm, undo, verify — from a binary that structurally cannot send email.",
+      "homepage": "https://workspace.google.com/gmail/",
       "search_terms": [
         "gmail",
         "gmail-pp-cli",
@@ -12002,6 +12189,7 @@
       "category": "developer-tools",
       "api": "GoDaddy",
       "description": "Combined CLI for multiple API services",
+      "homepage": "https://www.godaddy.com",
       "search_terms": [
         "godaddy",
         "godaddy-pp-cli",
@@ -12044,6 +12232,7 @@
       "category": "sales-and-crm",
       "api": "GoHighLevel",
       "description": "Sync GoHighLevel CRM data for contacts, opportunities, pipelines, custom fields, tags, bulk operations, and funnel reports.",
+      "homepage": "https://www.gohighlevel.com",
       "search_terms": [
         "gohighlevel",
         "gohighlevel-pp-cli",
@@ -12114,6 +12303,7 @@
       "category": "media-and-entertainment",
       "api": "Goodreads",
       "description": "This is an evidence-backed starting map for a future Goodreads CLI.",
+      "homepage": "https://www.goodreads.com",
       "search_terms": [
         "goodreads",
         "goodreads-pp-cli",
@@ -12158,6 +12348,7 @@
       "category": "marketing",
       "api": "Google Ad Manager",
       "description": "The only REST-native Google Ad Manager CLI: report, search, and manage publisher inventory from the terminal, backed by a local mirror the web console can't match.",
+      "homepage": "https://admanager.google.com",
       "search_terms": [
         "google-ad-manager",
         "Google Ad Manager",
@@ -12222,6 +12413,7 @@
       "category": "marketing",
       "api": "Google Ads",
       "description": "Discover accounts, run GAQL reports, inspect field metadata, and manage Google Ads campaigns, budgets, assets, audiences, and billing.",
+      "homepage": "https://ads.google.com",
       "search_terms": [
         "google-ads",
         "Google Ads",
@@ -12286,6 +12478,7 @@
       "category": "marketing",
       "api": "Google Analytics 4",
       "description": "Agent-first Google Analytics 4 CLI with typed Data/Admin/Funnel API coverage and one-call reports for channels, pages, funnels, anomalies, revenue, and health.",
+      "homepage": "https://marketingplatform.google.com/about/analytics/",
       "search_terms": [
         "google-analytics",
         "Google Analytics 4",
@@ -12331,6 +12524,7 @@
       "category": "marketing",
       "api": "Google Business Profile",
       "description": "Combined CLI for multiple API services",
+      "homepage": "https://business.google.com",
       "search_terms": [
         "google-business-profile",
         "Google Business Profile",
@@ -12386,6 +12580,7 @@
       "category": "productivity",
       "api": "Google Calendar",
       "description": "The multi-account Google Calendar layer for agents that must never surprise a human.",
+      "homepage": "https://workspace.google.com/products/calendar/",
       "search_terms": [
         "google-calendar",
         "Google Calendar",
@@ -12444,6 +12639,7 @@
       "category": "media-and-entertainment",
       "api": "Google Photos",
       "description": "Manage Google Photos app-created albums and media, upload files, and handle Picker sessions from terminal-friendly commands.",
+      "homepage": "https://photos.google.com",
       "search_terms": [
         "google-photos",
         "Google Photos",
@@ -12490,6 +12686,7 @@
       "category": "marketing",
       "api": "Google Play",
       "description": "Every public Google Play surface in one Go binary, plus a local SQLite mirror for rank history and listing change detection that no other Play tool keeps.",
+      "homepage": "https://play.google.com",
       "search_terms": [
         "google-play",
         "Google Play",
@@ -12549,6 +12746,7 @@
       "category": "marketing",
       "api": "Google Search Console",
       "description": "Every Google Search Console feature you'd reach for, plus an offline SQLite cache that powers period compare, quick...",
+      "homepage": "https://search.google.com/search-console",
       "search_terms": [
         "google-search-console",
         "Google Search Console",
@@ -12617,6 +12815,7 @@
       "category": "marketing",
       "api": "Google Tag Manager",
       "description": "Mirror any GTM container into a local database, then audit, diff, and query it from the terminal — everything the GTM console can't do, read-only and safe against production.",
+      "homepage": "https://marketingplatform.google.com/about/tag-manager/",
       "search_terms": [
         "google-tag-manager",
         "Google Tag Manager",
@@ -12684,6 +12883,7 @@
       "category": "marketing",
       "api": "Google Trends",
       "description": "Every Google Trends workflow pytrends offered, plus the local history and rate-limit resilience that archived, frozen wrapper never had.",
+      "homepage": "https://trends.google.com",
       "search_terms": [
         "google-trends",
         "Google Trends",
@@ -12743,6 +12943,7 @@
       "category": "social-and-messaging",
       "api": "Google Voice",
       "description": "Read Google Voice through ordinary HTTP and recover evidence from a local message mirror.",
+      "homepage": "https://voice.google.com",
       "search_terms": [
         "google-voice",
         "Google Voice",
@@ -12795,6 +12996,7 @@
       "category": "devices",
       "api": "Google Health",
       "description": "View and manage health and fitness metrics and measurement data from Fitbit, Pixel Watch",
+      "homepage": "https://healthapp.google/",
       "search_terms": [
         "googlehealth",
         "Google Health",
@@ -12850,6 +13052,7 @@
       "category": "sales-and-crm",
       "api": "Gorgias",
       "description": "Gorgias support CLI with offline sync, local search, read-only SQL, and MCP tools for agent-native support workflows.",
+      "homepage": "https://www.gorgias.com",
       "search_terms": [
         "gorgias",
         "gorgias-pp-cli",
@@ -13001,6 +13204,7 @@
       "category": "productivity",
       "api": "Granola",
       "description": "Every Granola feature — plus offline SQLite cross-meeting search, attendee timelines, and a MEMO pipeline runner...",
+      "homepage": "https://www.granola.ai",
       "search_terms": [
         "granola",
         "granola-pp-cli",
@@ -13134,6 +13338,7 @@
       "category": "other",
       "api": "Gravitus",
       "description": "The only CLI that syncs your Gravitus strength data into your training dashboard.",
+      "homepage": "https://gravitus.com",
       "search_terms": [
         "gravitus",
         "gravitus-pp-cli",
@@ -13196,6 +13401,7 @@
       "category": "other",
       "api": "Great Clips",
       "description": "Check Great Clips salon wait times, prepare Online Check-In requests, inspect route shapes, and track local wait history.",
+      "homepage": "https://www.greatclips.com",
       "search_terms": [
         "greatclips",
         "greatclips-pp-cli",
@@ -13255,6 +13461,7 @@
       "category": "other",
       "api": "Greenhouse",
       "description": "Greenhouse Job Board CLI — query any company's public Greenhouse job board from the command line. Generic board_token, no auth required, 4 operations covering jobs, departments, and offices.",
+      "homepage": "https://www.greenhouse.com",
       "search_terms": [
         "greenhouse",
         "greenhouse-pp-cli",
@@ -13303,6 +13510,7 @@
       "category": "ai",
       "api": "Groq Cloud",
       "description": "Every Groq endpoint in your terminal, plus a local ledger that tracks token cost and rate-limit budget.",
+      "homepage": "https://groq.com",
       "search_terms": [
         "groq",
         "Groq Cloud",
@@ -13362,6 +13570,7 @@
       "category": "commerce",
       "api": "Grubhub",
       "description": "Every Grubhub restaurant search, plus a sortable delivery-fee comparison board, a cross-restaurant deal radar, and offline menu-item search no Grubhub tool has.",
+      "homepage": "https://www.grubhub.com",
       "search_terms": [
         "grubhub",
         "grubhub-pp-cli",
@@ -13413,6 +13622,7 @@
       "category": "commerce",
       "api": "Gumroad",
       "description": "Gumroad's seller API as an agent-ready CLI and MCP server.",
+      "homepage": "https://gumroad.com",
       "search_terms": [
         "gumroad",
         "gumroad-pp-cli",
@@ -13462,6 +13672,7 @@
       "category": "payments",
       "api": "Gusto",
       "description": "Prep a Gusto payroll from the terminal, including mileage reimbursements that Gusto's hosted connector cannot enter, and stop at review so a human submits.",
+      "homepage": "https://gusto.com",
       "search_terms": [
         "gusto",
         "gusto-pp-cli",
@@ -13511,6 +13722,7 @@
       "category": "media-and-entertainment",
       "api": "Hacker News",
       "description": "Hacker News from your terminal — with a local SQLite store, snapshot history, and agent-native output no other HN tool has.",
+      "homepage": "https://news.ycombinator.com",
       "search_terms": [
         "hackernews",
         "hackernews-pp-cli",
@@ -13577,6 +13789,7 @@
       "category": "travel",
       "api": "Halal Gourmet Japan",
       "description": "Compare explicit food and prayer evidence across Japan with source dates and honest unknowns.",
+      "homepage": "https://halalgourmet.jp",
       "search_terms": [
         "halal-gourmet-japan",
         "Halal Gourmet Japan",
@@ -13629,6 +13842,7 @@
       "category": "travel",
       "api": "Haneda Airport",
       "description": "Query first-party Haneda flight boards with precise dates, codeshares and terminal handoffs.",
+      "homepage": "https://tokyo-haneda.com",
       "search_terms": [
         "haneda-airport",
         "Haneda Airport",
@@ -13680,6 +13894,7 @@
       "category": "commerce",
       "api": "Harris Teeter",
       "description": "Harris Teeter grocery shopping API discovered from the logged-in web app",
+      "homepage": "https://www.harristeeter.com",
       "search_terms": [
         "harris-teeter",
         "Harris Teeter",
@@ -13738,6 +13953,7 @@
       "category": "food-and-dining",
       "api": "Haven Hot Chicken",
       "description": "Browse Haven menus, compare locations, and plan a meal from saved prices.",
+      "homepage": "https://www.havenhotchicken.com",
       "search_terms": [
         "haven-hot-chicken",
         "Haven Hot Chicken",
@@ -13790,6 +14006,7 @@
       "category": "devices",
       "api": "Hayward OmniLogic",
       "description": "Take control of every Hayward OmniLogic feature, plus a local store, schedule diffs, chemistry trends, and a morning...",
+      "homepage": "https://haywardomnilogic.com",
       "search_terms": [
         "hayward-omnilogic",
         "Hayward OmniLogic",
@@ -13853,6 +14070,7 @@
       "category": "travel",
       "api": "HELLO CYCLING",
       "description": "Find compatible HELLO CYCLING pickup and return stations with timestamped counts and published pricing.",
+      "homepage": "https://www.hellocycling.jp",
       "search_terms": [
         "hello-cycling",
         "HELLO CYCLING",
@@ -13905,6 +14123,7 @@
       "category": "sales-and-crm",
       "api": "Help Scout Inbox",
       "description": "Read-first Help Scout Inbox API surface for support operations and agent workflows.",
+      "homepage": "https://www.helpscout.com",
       "search_terms": [
         "help-scout",
         "Help Scout Inbox",
@@ -13956,6 +14175,7 @@
       "category": "cloud",
       "api": "here.now",
       "description": "Publish a folder to a live URL in one command, mirror your Drives offline",
+      "homepage": "https://here.now",
       "search_terms": [
         "here-now",
         "here.now",
@@ -14016,6 +14236,7 @@
       "category": "devices",
       "api": "Home Assistant",
       "description": "Safe household actions, offline memory, and evidence-backed answers on top of the full Home Assistant control surface.",
+      "homepage": "https://www.home-assistant.io",
       "search_terms": [
         "home-assistant",
         "Home Assistant",
@@ -14086,6 +14307,7 @@
       "category": "commerce",
       "api": "Home Depot",
       "description": "Search products, manage your cart, and retrieve purchases using your own signed-in session.",
+      "homepage": "https://www.homedepot.com",
       "search_terms": [
         "homedepot",
         "Home Depot",
@@ -14145,6 +14367,7 @@
       "category": "travel",
       "api": "Hostelworld",
       "description": "Compare dated dorm beds and private rooms with explicit quantities, prices and terms.",
+      "homepage": "https://www.hostelworld.com",
       "search_terms": [
         "hostelworld",
         "hostelworld-pp-cli",
@@ -14196,6 +14419,7 @@
       "category": "travel",
       "api": "Hostex",
       "description": "Every Hostex v3 operation, plus a local SQLite mirror that answers cross-property questions no single Hostex call can — occupancy gaps, revenue rollups, and guest-message SLA, offline.",
+      "homepage": "https://hostex.io",
       "search_terms": [
         "hostex",
         "hostex-pp-cli",
@@ -14256,6 +14480,7 @@
       "category": "travel",
       "api": "Hostfully",
       "description": "Hostfully reservations and guest messaging — plus caller-ID lookup, quotes, and multi-unit vacancy analysis.",
+      "homepage": "https://www.hostfully.com",
       "search_terms": [
         "hostfully",
         "hostfully-pp-cli",
@@ -14376,6 +14601,7 @@
       "category": "travel",
       "api": "HotelTonight",
       "description": "Last-minute hotel deals with a local price-history database no HotelTonight client has — snapshot deals over time,...",
+      "homepage": "https://www.hoteltonight.com",
       "search_terms": [
         "hotel-tonight",
         "HotelTonight",
@@ -14432,6 +14658,7 @@
       "category": "travel",
       "api": "Hotelist",
       "description": "Every Hotelist feature, plus a local SQLite mirror that ranks rating-per-dollar across whole countries, compares chains head-to-head, and tracks how a city's hotels change over time.",
+      "homepage": "https://hotelist.com",
       "search_terms": [
         "hotelist",
         "hotelist-pp-cli",
@@ -14487,6 +14714,7 @@
       "category": "cloud",
       "api": "ht-ml.app",
       "description": "The only ht-ml.app tool that remembers what you published, a local registry of every site, its once-only update_key, and full version history, plus one-command publish-with-assets.",
+      "homepage": "https://ht-ml.app",
       "search_terms": [
         "ht-ml",
         "ht-ml.app",
@@ -14612,6 +14840,7 @@
       "category": "productivity",
       "api": "iClassPro",
       "description": "The only iClassPro tool that remembers yesterday — a queryable local mirror of any gym's catalog, with the search and filter surface the portal keeps to itself.",
+      "homepage": "https://www.iclasspro.com",
       "search_terms": [
         "iclasspro",
         "iclasspro-pp-cli",
@@ -14680,6 +14909,7 @@
       "category": "media-and-entertainment",
       "api": "Apple iCloud",
       "description": "Query iCloud data stored locally on macOS — Photos library storage analysis, with Contacts and more coming. All reads hit local SQLite databases directly; no network calls or iCloud API token required.",
+      "homepage": "https://www.icloud.com",
       "search_terms": [
         "icloud",
         "Apple iCloud",
@@ -14727,6 +14957,7 @@
       "category": "food-and-dining",
       "api": "iFood",
       "description": "Agent-ready iFood grocery quoting with browser-owned authentication and confirmation-gated cart planning.",
+      "homepage": "https://www.ifood.com.br",
       "search_terms": [
         "ifood",
         "ifood-pp-cli",
@@ -14780,6 +15011,7 @@
       "category": "productivity",
       "api": "ihatepdf.cv",
       "description": "Private PDF operations for agents, scripts, and offline pipelines.",
+      "homepage": "https://www.ihatepdf.cv",
       "search_terms": [
         "ihatepdf-cv",
         "ihatepdf.cv",
@@ -14835,6 +15067,7 @@
       "category": "travel",
       "api": "Iko-yo Trip",
       "description": "Iko-yo Trip: find selected family trips and compare published dates, fees and explicit family facts.",
+      "homepage": "https://trip.iko-yo.net",
       "search_terms": [
         "iko-yo",
         "Iko-yo Trip",
@@ -14886,6 +15119,7 @@
       "category": "travel",
       "api": "Ikon Pass",
       "description": "Ikon Pass CLI for reservation availability, pass and voucher lookup, multi-season usage history, and offline change tracking.",
+      "homepage": "https://www.ikonpass.com",
       "search_terms": [
         "ikon",
         "Ikon Pass",
@@ -14950,6 +15184,7 @@
       "category": "travel",
       "api": "Ikyu Accommodation",
       "description": "Search Ikyu hotels and ryokan with dated room prices and cancellation details.",
+      "homepage": "https://www.ikyu.com",
       "search_terms": [
         "ikyu",
         "Ikyu Accommodation",
@@ -15002,6 +15237,7 @@
       "category": "media-and-entertainment",
       "api": "Immich",
       "description": "Agent-native control and careful personal-library rituals for a self-hosted Immich instance.",
+      "homepage": "https://immich.app",
       "search_terms": [
         "immich",
         "immich-pp-cli",
@@ -15065,6 +15301,7 @@
       "category": "other",
       "api": "Immovlan",
       "description": "Search Immovlan from the terminal with every site filter, keep a local history, and cross it with Immoweb: exclusives, re-listings, rented PEB F/G traps and division candidates.",
+      "homepage": "https://immovlan.be",
       "search_terms": [
         "immovlan",
         "immovlan-pp-cli",
@@ -15120,6 +15357,7 @@
       "category": "other",
       "api": "Immoweb",
       "description": "Search Immoweb from the terminal with every site filter, then get the answers the site can't give: price cuts, days on market, commune medians and rental yield.",
+      "homepage": "https://www.immoweb.be",
       "search_terms": [
         "immoweb",
         "immoweb-pp-cli",
@@ -15172,6 +15410,7 @@
       "category": "other",
       "api": "iNaturalist",
       "description": "Explore iNaturalist's full API, plus privacy-safe field briefings and identification progress that ordinary endpoint wrappers miss.",
+      "homepage": "https://www.inaturalist.org",
       "search_terms": [
         "inaturalist",
         "inaturalist-pp-cli",
@@ -15225,6 +15464,7 @@
       "category": "travel",
       "api": "TBM Bordeaux",
       "description": "Every Bordeaux tram, bus, and ferry schedule offline in SQLite, plus real-time arrivals, ghost service detection",
+      "homepage": "https://www.infotbm.com",
       "search_terms": [
         "infotbm",
         "TBM Bordeaux",
@@ -15285,6 +15525,7 @@
       "category": "commerce",
       "api": "Instacart",
       "description": "Natural-language Instacart CLI that talks directly to the web GraphQL API. Add items to your cart, search products, and manage carts across retailers without browser automation.",
+      "homepage": "https://www.instacart.com",
       "search_terms": [
         "instacart",
         "instacart-pp-cli",
@@ -15319,6 +15560,7 @@
       "category": "social-and-messaging",
       "api": "instagram",
       "description": "Every Instagram Business metric across all your brand accounts",
+      "homepage": "https://www.instagram.com",
       "search_terms": [
         "instagram",
         "instagram-pp-cli",
@@ -15369,6 +15611,7 @@
       "category": "sales-and-crm",
       "api": "Intercom",
       "description": "Every Intercom resource as a typed CLI with offline sync and EU/AU regions.",
+      "homepage": "https://www.intercom.com",
       "search_terms": [
         "intercom",
         "intercom-pp-cli",
@@ -15429,6 +15672,7 @@
       "category": "other",
       "api": "Intervals.icu",
       "description": "The first intervals.",
+      "homepage": "https://intervals.icu",
       "search_terms": [
         "intervals-icu",
         "Intervals.icu",
@@ -15487,6 +15731,7 @@
       "category": "payments",
       "api": "InvestorPaisa",
       "description": "The Nifty 200 momentum screener, movers and market breadth in your terminal, with a local history the site never keeps.",
+      "homepage": "https://investorpaisa.com",
       "search_terms": [
         "investorpaisa",
         "investorpaisa-pp-cli",
@@ -15550,6 +15795,7 @@
       "category": "travel",
       "api": "iRail",
       "description": "Every Belgian rail lookup the existing tools offer, plus transfer-risk, delay history and accessibility data that none of them have.",
+      "homepage": "https://irail.be",
       "search_terms": [
         "irail",
         "irail-pp-cli",
@@ -15608,6 +15854,7 @@
       "category": "developer-tools",
       "api": "Is Agentic",
       "description": "Turn Is Agentic reports into durable, scriptable readiness evidence.",
+      "homepage": "https://is-agentic.com",
       "search_terms": [
         "is-agentic",
         "Is Agentic",
@@ -15668,6 +15915,7 @@
       "category": "developer-tools",
       "api": "Is It Agent Ready",
       "description": "The terminal scanner for AI-agent readiness: every check the web tool runs, plus copy-paste fixes, CI gating, scan history, and a local store the web UI has no answer for.",
+      "homepage": "https://isitagentready.com",
       "search_terms": [
         "isitagentready",
         "Is It Agent Ready",
@@ -15727,6 +15975,7 @@
       "category": "travel",
       "api": "Jalan",
       "description": "Find Japan stays and understand the exact room and plan.",
+      "homepage": "https://www.jalan.net",
       "search_terms": [
         "jalan",
         "jalan-pp-cli",
@@ -15777,6 +16026,7 @@
       "category": "health",
       "api": "Jane App",
       "description": "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from one terminal — with a unified agenda, next-opening finder, and availability watch the patient portal can't do.",
+      "homepage": "https://jane.app",
       "search_terms": [
         "janeapp",
         "Jane App",
@@ -15827,6 +16077,7 @@
       "category": "travel",
       "api": "Japan Bus Online",
       "description": "Read-only bus routes, dated inventory and source-grounded fares.",
+      "homepage": "https://japanbusonline.com",
       "search_terms": [
         "japan-bus-online",
         "Japan Bus Online",
@@ -15874,6 +16125,7 @@
       "category": "travel",
       "api": "Japan Guide",
       "description": "Source-linked Japan sightseeing facts in compact JSON.",
+      "homepage": "https://www.japan-guide.com",
       "search_terms": [
         "japan-guide",
         "Japan Guide",
@@ -16020,6 +16272,7 @@
       "category": "travel",
       "api": "JAPAN47GO",
       "description": "Find local guides and experiences with published request, fee and participant evidence.",
+      "homepage": "https://www.japan47go.travel",
       "search_terms": [
         "japan47go",
         "japan47go-pp-cli",
@@ -16070,6 +16323,7 @@
       "category": "food-and-dining",
       "api": "Jimmy John's",
       "description": "First terminal CLI for Jimmy John's ordering — local Unwich conversion, agent-native JSON, every endpoint typed.",
+      "homepage": "https://www.jimmyjohns.com",
       "search_terms": [
         "jimmy-johns",
         "Jimmy John's",
@@ -16132,6 +16386,7 @@
       "category": "project-management",
       "api": "Jira Cloud Platform",
       "description": "Jira Cloud platform REST API documentation",
+      "homepage": "https://www.atlassian.com/software/jira",
       "search_terms": [
         "jira",
         "Jira Cloud Platform",
@@ -16172,6 +16427,7 @@
       "category": "travel",
       "api": "Japan Meteorological Agency",
       "description": "Resolve JMA areas and inspect official forecasts, warnings and uncertain typhoon tracks.",
+      "homepage": "https://www.jma.go.jp",
       "search_terms": [
         "jma",
         "Japan Meteorological Agency",
@@ -16225,6 +16481,7 @@
       "category": "sales-and-crm",
       "api": "Jobber",
       "description": "Jobber API surface as a read-only CLI and MCP peer (printing-press generated).",
+      "homepage": "https://www.getjobber.com",
       "search_terms": [
         "jobber",
         "jobber-pp-cli",
@@ -16280,6 +16537,7 @@
       "category": "travel",
       "api": "JR East Status",
       "description": "Compare JR East line impacts with bilingual identity, source freshness and reporting limits.",
+      "homepage": "https://www.jreast.co.jp",
       "search_terms": [
         "jr-east-status",
         "JR East Status",
@@ -16338,6 +16596,7 @@
       "category": "marketing",
       "api": "Judge Me",
       "description": "Our REST API lets you access to resources and perform actions on behalf of a store.",
+      "homepage": "https://judge.me",
       "search_terms": [
         "judge-me",
         "Judge Me",
@@ -16392,6 +16651,7 @@
       "category": "marketing",
       "api": "Judge.me",
       "description": "A completeness-verified Judge.me review corpus with explicit populations and syndication-aware exports.",
+      "homepage": "https://judge.me",
       "search_terms": [
         "judgeme",
         "Judge.me",
@@ -16446,6 +16706,7 @@
       "category": "developer-tools",
       "api": "Jules",
       "description": "Jules Planning & Progress API for async coding tasks",
+      "homepage": "https://jules.google",
       "search_terms": [
         "jules",
         "jules-pp-cli",
@@ -16512,6 +16773,7 @@
       "category": "devices",
       "api": "June Oven",
       "description": "Every June oven control from the terminal — self-pair, preheat, adjust, watch live telemetry, and cancel, over June's cloud with agent-native JSON.",
+      "homepage": "https://juneoven.com",
       "search_terms": [
         "juneoven",
         "June Oven",
@@ -16553,6 +16815,7 @@
       "category": "payments",
       "api": "Kalshi Trade Manual",
       "description": "Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot.",
+      "homepage": "https://kalshi.com",
       "search_terms": [
         "kalshi",
         "Kalshi Trade Manual",
@@ -16622,6 +16885,7 @@
       "category": "marketing",
       "api": "KDP Niche Finder",
       "description": "Every KDP Niche Finder bucket as a local research database — rank niches across buckets, track whether revenue is rising or fading, and export shortlists, none of which the web tool does.",
+      "homepage": "https://kdpnichefinder.com",
       "search_terms": [
         "kdpnichefinder",
         "KDP Niche Finder",
@@ -16681,6 +16945,7 @@
       "category": "ai",
       "api": "Keenable",
       "description": "Keenable web search with reproducible research, citations, and a local evidence trail.",
+      "homepage": "https://keenable.ai",
       "search_terms": [
         "keenable",
         "keenable-pp-cli",
@@ -16747,6 +17012,7 @@
       "category": "marketing",
       "api": "Google Keyword Planner",
       "description": "Turn Google Keyword Planner reads into an immutable local evidence portfolio for offline research and safe warehouse handoff.",
+      "homepage": "https://ads.google.com/home/tools/keyword-planner",
       "search_terms": [
         "keyword-planner",
         "Google Keyword Planner",
@@ -16815,6 +17081,7 @@
       "category": "ai",
       "api": "Kie.ai",
       "description": "Unified CLI for Kie.ai's AI generation platform: 120+ Market models (image, video, audio) via one create/query task pair, plus dedicated Suno, Veo3.1, Runway, Flux Kontext, 4o Image, and per-model chat completion endpoints.",
+      "homepage": "https://kie.ai",
       "search_terms": [
         "kie",
         "Kie.ai",
@@ -16864,6 +17131,7 @@
       "category": "marketing",
       "api": "Kit",
       "description": "Operate Kit email marketing from the terminal: subscribers, tags, forms, sequences, broadcasts, purchases, snapshots, and audience health.",
+      "homepage": "https://kit.com",
       "search_terms": [
         "kit",
         "kit-pp-cli",
@@ -16914,6 +17182,7 @@
       "category": "marketing",
       "api": "Klaviyo",
       "description": "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation.",
+      "homepage": "https://www.klaviyo.com",
       "search_terms": [
         "klaviyo",
         "klaviyo-pp-cli",
@@ -17004,6 +17273,7 @@
       "category": "monitoring",
       "api": "Uptime Kuma Operator",
       "description": "Inspect Uptime Kuma v2 monitors, heartbeats, and incident context; retry changes are explicitly gated.",
+      "homepage": "https://uptime.kuma.pet",
       "search_terms": [
         "kuma",
         "Uptime Kuma Operator",
@@ -17047,6 +17317,7 @@
       "category": "travel",
       "api": "Kurumatabi / くるま旅",
       "description": "Plan Japanese overnight vehicle stops with explicit fit, facilities and unknowns.",
+      "homepage": "https://www.kurumatabi.com",
       "search_terms": [
         "kurumatabi",
         "Kurumatabi / くるま旅",
@@ -17151,6 +17422,7 @@
       "category": "education",
       "api": "LawHub",
       "description": "Local-first LSAT practice analytics from authenticated LawHub score metadata, with SQLite, weakness reports, question notes, and safe review links back to LawHub.",
+      "homepage": "https://www.lawhub.org",
       "search_terms": [
         "lawhub",
         "lawhub-pp-cli",
@@ -17195,6 +17467,7 @@
       "category": "productivity",
       "api": "Layers Digital",
       "description": "School announcements, agenda events, account context, and a private local search surface in one agent-ready CLI.",
+      "homepage": "https://layers.education",
       "search_terms": [
         "layers",
         "Layers Digital",
@@ -17237,6 +17510,7 @@
       "category": "other",
       "api": "LDA.gov",
       "description": "Lobbying disclosure records with local sync, entity resolution, and evidence-grade exports.",
+      "homepage": "https://lda.gov",
       "search_terms": [
         "lda-gov",
         "LDA.gov",
@@ -17296,6 +17570,7 @@
       "category": "payments",
       "api": "Lemon Squeezy",
       "description": "Every Lemon Squeezy resource, plus a local SQLite mirror that surfaces MRR, churn, license seats",
+      "homepage": "https://www.lemonsqueezy.com",
       "search_terms": [
         "lemonsqueezy",
         "Lemon Squeezy",
@@ -17360,6 +17635,7 @@
       "category": "job-boards",
       "api": "Lever Postings",
       "description": "Public Lever postings API (https://api.lever.co/v0/postings). Every Lever customer exposes an open job board at api.",
+      "homepage": "https://www.lever.co",
       "search_terms": [
         "lever",
         "Lever Postings",
@@ -17410,6 +17686,7 @@
       "category": "media-and-entertainment",
       "api": "Lightroom Classic",
       "description": "Your Lightroom Classic catalog, queryable from the terminal — streaks, daily picks, and shot lists with zero exports and zero writes.",
+      "homepage": "https://www.adobe.com/products/photoshop-lightroom-classic.html",
       "search_terms": [
         "lightroom-classic",
         "Lightroom Classic",
@@ -17471,6 +17748,7 @@
       "category": "project-management",
       "api": "Linear",
       "description": "Offline-capable, agent-native CLI for the Linear API with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown, and pp_created fixture lifecycle for safe live testing.",
+      "homepage": "https://linear.app",
       "search_terms": [
         "linear",
         "linear-pp-cli",
@@ -17584,6 +17862,7 @@
       "category": "social-and-messaging",
       "api": "Linq",
       "description": "Agent-native messaging API for chats, messages, attachments, phone numbers, contact cards, capability checks, and webhooks",
+      "homepage": "https://linqapp.com",
       "search_terms": [
         "linq",
         "linq-pp-cli",
@@ -17651,6 +17930,7 @@
       "category": "marketing",
       "api": "ListingView",
       "description": "Every ListingView research tool in your terminal, plus a local database that adds drift tracking, niche scoring, and offline analysis no ListingView tool keeps.",
+      "homepage": "https://listingview.io",
       "search_terms": [
         "listingview",
         "listingview-pp-cli",
@@ -17717,6 +17997,7 @@
       "category": "devices",
       "api": "Logitech",
       "description": "Every Logitech manual, spec sheet, and install guide — searchable offline, agent-native, no browser.",
+      "homepage": "https://www.logitech.com",
       "search_terms": [
         "logitech-docs",
         "Logitech",
@@ -17775,6 +18056,7 @@
       "category": "commerce",
       "api": "Loopnet",
       "description": "LoopNet shows you today — this CLI remembers, building the price-cut, days-on-market, and supply trends LoopNet...",
+      "homepage": "https://www.loopnet.com",
       "search_terms": [
         "loopnet",
         "loopnet-pp-cli",
@@ -17835,6 +18117,7 @@
       "category": "marketing",
       "api": "Loops",
       "description": "Agent-ready Loops CLI for contacts, audiences, campaigns, workflows, events, and transactional email, with team checks and explicit send approval.",
+      "homepage": "https://loops.so",
       "search_terms": [
         "loops",
         "loops-pp-cli",
@@ -17883,6 +18166,7 @@
       "category": "social-and-messaging",
       "api": "Luma",
       "description": "Browse, search, and export public Luma events from one Go binary — no account, no API key, plus offline full-text search the public API doesn't have.",
+      "homepage": "https://luma.com",
       "search_terms": [
         "luma",
         "luma-pp-cli",
@@ -17935,6 +18219,7 @@
       "category": "payments",
       "api": "Lunch Money",
       "description": "A Go CLI for Lunch Money's official v2 OpenAPI — offline SQLite store, subscription detection, and bulk smart...",
+      "homepage": "https://lunchmoney.app",
       "search_terms": [
         "lunch-money",
         "Lunch Money",
@@ -18002,6 +18287,7 @@
       "category": "marketing",
       "api": "Mailchimp Marketing",
       "description": "Every Mailchimp endpoint plus the workflow commands the API forces you to compose yourself.",
+      "homepage": "https://mailchimp.com",
       "search_terms": [
         "mailchimp",
         "Mailchimp Marketing",
@@ -18066,6 +18352,7 @@
       "category": "media-and-entertainment",
       "api": "MakerWorld",
       "description": "Every MakerWorld model, searchable offline — plus trend deltas, designer-watch, and multi-tag discovery no scraper or the web UI offers.",
+      "homepage": "https://makerworld.com",
       "search_terms": [
         "makerworld",
         "makerworld-pp-cli",
@@ -18121,6 +18408,7 @@
       "category": "media-and-entertainment",
       "api": "Marginal Revolution",
       "description": "Read, filter, and extract links from Marginal Revolution through its public RSS feed",
+      "homepage": "https://marginalrevolution.com",
       "search_terms": [
         "marginalrevolution",
         "Marginal Revolution",
@@ -18167,6 +18455,7 @@
       "category": "productivity",
       "api": "Mariana Tek",
       "description": "Search Mariana Tek studio schedules, book classes, watch cancellations, and sync reservations into an offline class catalog.",
+      "homepage": "https://www.marianatek.com",
       "search_terms": [
         "marianatek",
         "Mariana Tek",
@@ -18216,6 +18505,7 @@
       "category": "travel",
       "api": "MasterPark",
       "description": "Unofficial CLI for MasterPark airport parking locations, quotes, profile sync, and safe gated reservation booking.",
+      "homepage": "https://www.masterparking.com",
       "search_terms": [
         "masterpark",
         "masterpark-pp-cli",
@@ -18252,6 +18542,7 @@
       "category": "developer-tools",
       "api": "MCP Market",
       "description": "Every MCP Market search, leaderboard, and skill lookup — plus trending deltas, sync diffs, and author portfolios no other tool tracks.",
+      "homepage": "https://mcpmarket.com",
       "search_terms": [
         "mcpmarket",
         "MCP Market",
@@ -18323,6 +18614,7 @@
       "category": "media-and-entertainment",
       "api": "Medium Reader",
       "description": "Read any Medium author, publication, or tag as a local, full-text-searchable corpus.",
+      "homepage": "https://medium.com",
       "search_terms": [
         "medium-reader",
         "Medium Reader",
@@ -18379,6 +18671,7 @@
       "category": "payments",
       "api": "Mercury",
       "description": "Inspect Mercury business banking data and build safer payment plans across accounts, transactions, recipients, cards, invoices, and treasury.",
+      "homepage": "https://mercury.com",
       "search_terms": [
         "mercury",
         "mercury-pp-cli",
@@ -18432,6 +18725,7 @@
       "category": "marketing",
       "api": "Meta Ads",
       "description": "The first agent-native Meta Ads CLI with local SQLite history and compound queries the live API cannot answer.",
+      "homepage": "https://www.facebook.com/business/ads",
       "search_terms": [
         "meta-ads",
         "Meta Ads",
@@ -18502,6 +18796,7 @@
       "category": "media-and-entertainment",
       "api": "Metacritic",
       "description": "Browse, search, and compare Metascores and user scores for games, movies, and TV shows, plus critic and user reviews, without a Metacritic account.",
+      "homepage": "https://www.metacritic.com",
       "search_terms": [
         "metacritic",
         "metacritic-pp-cli",
@@ -18550,6 +18845,7 @@
       "category": "travel",
       "api": "Michi-no-Eki",
       "description": "Find and compare Japan roadside-station service stops with source evidence and explicit unknowns.",
+      "homepage": "https://www.michi-no-eki.jp",
       "search_terms": [
         "michi-no-eki",
         "michi-no-eki-pp-cli",
@@ -18607,6 +18903,7 @@
       "category": "ai",
       "api": "Midjourney",
       "description": "Inspect Midjourney jobs, queue, folders, and discovery feeds from the terminal",
+      "homepage": "https://www.midjourney.com",
       "search_terms": [
         "midjourney",
         "midjourney-pp-cli",
@@ -18655,6 +18952,7 @@
       "category": "productivity",
       "api": "Milanote",
       "description": "Treat a Milanote board like an addressable canvas: native headings, lists and checkboxes, laid out on an even grid, and read back as Markdown.",
+      "homepage": "https://milanote.com",
       "search_terms": [
         "milanote",
         "milanote-pp-cli",
@@ -18727,6 +19025,7 @@
       "category": "ai",
       "api": "Mixlayer",
       "description": "Privacy-first Mixlayer CLI for OpenAI-compatible chat, local PII redaction and vaulting, reasoning-aware model ladders, live model catalog refresh, and ledger-backed cost proofs.",
+      "homepage": "https://www.mixlayer.com",
       "search_terms": [
         "mixlayer",
         "mixlayer-pp-cli",
@@ -18817,6 +19116,7 @@
       "category": "media-and-entertainment",
       "api": "mobalytics-lol",
       "description": "Every League of Legends aggregator, plus a local SQLite for cross-champion queries no single page surfaces.",
+      "homepage": "https://mobalytics.gg/lol",
       "search_terms": [
         "mobalytics-lol",
         "mobalytics-lol-pp-cli",
@@ -18867,6 +19167,7 @@
       "category": "productivity",
       "api": "Mobbin",
       "description": "Every Mobbin screen, flow, and pattern — searchable offline, deckable in one command, with longitudinal drift no Mobbin tool ships.",
+      "homepage": "https://mobbin.com",
       "search_terms": [
         "mobbin",
         "mobbin-pp-cli",
@@ -18932,6 +19233,7 @@
       "category": "payments",
       "api": "Monarch Money",
       "description": "Read Monarch Money account balances, tags, transactions, and cashflow summaries from the terminal.",
+      "homepage": "https://www.monarch.com",
       "search_terms": [
         "monarch-money",
         "Monarch Money",
@@ -18963,6 +19265,7 @@
       "category": "productivity",
       "api": "Morgen",
       "description": "Morgen calendar & tasks API CLI — unified access to calendars, events, tasks, and tags across connected providers",
+      "homepage": "https://www.morgen.so",
       "search_terms": [
         "morgen",
         "morgen-pp-cli",
@@ -19006,6 +19309,7 @@
       "category": "media-and-entertainment",
       "api": "MotoGP",
       "description": "The first CLI and MCP server for MotoGP — human-friendly commands, offline SQLite history, and analyses no single endpoint provides.",
+      "homepage": "https://www.motogp.com",
       "search_terms": [
         "motogp",
         "motogp-pp-cli",
@@ -19073,6 +19377,7 @@
       "category": "other",
       "api": "MotoHunt",
       "description": "Search motorcycle and ATV listings from the terminal — with MotoHunt's MSRP/average-price/deal-rating data exposed as",
+      "homepage": "https://motohunt.com",
       "search_terms": [
         "motohunt",
         "motohunt-pp-cli",
@@ -19193,6 +19498,7 @@
       "category": "payments",
       "api": "MUFAP",
       "description": "Pakistan's mutual fund industry as a dated local panel: two decades of daily NAVs, monthly PKR asset allocation, and a market-implied short rate no other tool derives.",
+      "homepage": "https://www.mufap.com.pk",
       "search_terms": [
         "mufap",
         "mufap-pp-cli",
@@ -19260,6 +19566,7 @@
       "category": "social-and-messaging",
       "api": "MultiMail",
       "description": "Every MultiMail feature plus oversight velocity, trust ladder status, and cross-mailbox search no other tool has.",
+      "homepage": "https://multimail.dev",
       "search_terms": [
         "multimail",
         "multimail-pp-cli",
@@ -19327,6 +19634,7 @@
       "category": "media-and-entertainment",
       "api": "MyAnimeList",
       "description": "Every public MyAnimeList surface in one binary, plus offline analytics the site itself cannot answer",
+      "homepage": "https://myanimelist.net",
       "search_terms": [
         "myanimelist",
         "myanimelist-pp-cli",
@@ -19385,6 +19693,7 @@
       "category": "productivity",
       "api": "MyFitnessPal",
       "description": "Pull every meal you ever logged out of MyFitnessPal — per-food CSV, agent-shaped trends, and a local SQLite store...",
+      "homepage": "https://www.myfitnesspal.com",
       "search_terms": [
         "myfitnesspal",
         "myfitnesspal-pp-cli",
@@ -19443,6 +19752,7 @@
       "category": "developer-tools",
       "api": "n8n",
       "description": "Every n8n Public API endpoint, plus a local mirror that answers what is failing, what uses what, and what changed.",
+      "homepage": "https://n8n.io",
       "search_terms": [
         "n8n",
         "n8n-pp-cli",
@@ -19500,6 +19810,7 @@
       "category": "developer-tools",
       "api": "Namecheap",
       "description": "Manage Namecheap domains, DNS, contacts, pricing, account balances, TLDs, and SSL metadata through a JSON-friendly XML API wrapper.",
+      "homepage": "https://www.namecheap.com",
       "search_terms": [
         "namecheap",
         "namecheap-pp-cli",
@@ -19550,6 +19861,7 @@
       "category": "travel",
       "api": "なっぷ (Nap Camp)",
       "description": "Plan campervan campsite stays with source-backed pitch rules and dated acceptance evidence.",
+      "homepage": "https://www.nap-camp.com",
       "search_terms": [
         "nap-camp",
         "なっぷ (Nap Camp)",
@@ -19602,6 +19914,7 @@
       "category": "media-and-entertainment",
       "api": "NASA Image and Video Library",
       "description": "Every NASA Image and Video Library endpoint, plus a local SQLite mirror, FTS search, resumable bulk download,...",
+      "homepage": "https://images.nasa.gov",
       "search_terms": [
         "nasa-images",
         "NASA Image and Video Library",
@@ -19666,6 +19979,7 @@
       "category": "travel",
       "api": "NAVITIME",
       "description": "Check Japan journeys with dated routes, explicit fares and source-backed pass constraints.",
+      "homepage": "https://japantravel.navitime.com",
       "search_terms": [
         "navitime",
         "navitime-pp-cli",
@@ -19717,6 +20031,7 @@
       "category": "payments",
       "api": "Nccpl",
       "description": "Pakistan's clearing-layer data as a local research panel with a coverage audit and an arithmetic self-check, not another dashboard.",
+      "homepage": "https://www.nccpl.com.pk",
       "search_terms": [
         "nccpl",
         "nccpl-pp-cli",
@@ -19783,6 +20098,7 @@
       "category": "health",
       "api": "New England Journal of Medicine",
       "description": "Browse, search, and triage New England Journal of Medicine articles from the terminal, backed by a local corpus and a browser-compatible transport that clears Cloudflare.",
+      "homepage": "https://www.nejm.org",
       "search_terms": [
         "nejm",
         "New England Journal of Medicine",
@@ -19836,6 +20152,7 @@
       "category": "cloud",
       "api": "Neon",
       "description": "Neon API commands in one static binary, plus a local fleet mirror for stale-branch cleanup, usage trends and compute audits.",
+      "homepage": "https://neon.com",
       "search_terms": [
         "neon",
         "neon-pp-cli",
@@ -19897,6 +20214,7 @@
       "category": "other",
       "api": "NEPRA",
       "description": "Pakistan's electricity regulator publishes the country's only plant-level power data as Excel-exported HTML that reads as empty and PDFs nobody extracts — this turns it into a queryable panel and names every gap.",
+      "homepage": "https://nepra.org.pk",
       "search_terms": [
         "nepra",
         "nepra-pp-cli",
@@ -19964,6 +20282,7 @@
       "category": "cloud",
       "api": "netlify",
       "description": "Every Netlify API endpoint, plus a local SQLite mirror of your whole account so you can search, diff, and audit across all sites at once — offline and agent-native.",
+      "homepage": "https://www.netlify.com",
       "search_terms": [
         "netlify",
         "netlify-pp-cli",
@@ -20005,6 +20324,7 @@
       "category": "other",
       "api": "National Hurricane Center",
       "description": "Credible, real-time National Hurricane Center data for AI agents: active storms, parsed advisories, and tropical outlooks, text-first with link-outs for everything else.",
+      "homepage": "https://www.nhc.noaa.gov",
       "search_terms": [
         "nhc",
         "National Hurricane Center",
@@ -20064,6 +20384,7 @@
       "category": "travel",
       "api": "Nifty Onsen",
       "description": "Find Japanese day-use baths with source evidence and explicit unknowns.",
+      "homepage": "https://onsen.nifty.com",
       "search_terms": [
         "nifty-onsen",
         "Nifty Onsen",
@@ -20116,6 +20437,7 @@
       "category": "productivity",
       "api": "Normattiva",
       "description": "Italian law in your terminal: resolve citations, read any article at any date, diff versions and track amendments.",
+      "homepage": "https://www.normattiva.it",
       "search_terms": [
         "normattiva",
         "normattiva-pp-cli",
@@ -20171,6 +20493,7 @@
       "category": "ai",
       "api": "Gemini Notebook (NotebookLM)",
       "description": "Unofficial Go CLI for Gemini Notebook — notebooks, sources, chat, Studio artifacts, SQLite cache, and MCP via batchexecute RPC with Chrome session auth.",
+      "homepage": "https://notebook.google",
       "search_terms": [
         "notebooklm",
         "Gemini Notebook (NotebookLM)",
@@ -20223,6 +20546,7 @@
       "category": "productivity",
       "api": "Notion",
       "description": "Every Notion database queryable offline — cross-workspace SQL joins, stale detection, and relation graph traversal...",
+      "homepage": "https://www.notion.com",
       "search_terms": [
         "notion",
         "notion-pp-cli",
@@ -20272,6 +20596,7 @@
       "category": "developer-tools",
       "api": "npm",
       "description": "Research npm packages by metadata, downloads, maintainers, freshness, and dependency risk.",
+      "homepage": "https://www.npmjs.com",
       "search_terms": [
         "npm",
         "npm-pp-cli",
@@ -20313,6 +20638,7 @@
       "category": "developer-tools",
       "api": "NSE India",
       "description": "Fetch NSE India quotes, market status, order books, filings, indices, and cached equity analytics from the terminal.",
+      "homepage": "https://www.nseindia.com",
       "search_terms": [
         "nse-india",
         "nse-india-pp-cli",
@@ -20356,6 +20682,7 @@
       "category": "other",
       "api": "Numista Documentation",
       "description": "Every Numista catalogue and collection feature, with offline FTS5 search and a monthly-quota tracker no Numista SDK has.",
+      "homepage": "https://en.numista.com",
       "search_terms": [
         "numista",
         "Numista Documentation",
@@ -20491,6 +20818,7 @@
       "category": "developer-tools",
       "api": "National Vulnerability Database",
       "description": "The NVD is the U.S. government repository of standards-based vulnerability management data.",
+      "homepage": "https://nvd.nist.gov",
       "search_terms": [
         "nvd",
         "National Vulnerability Database",
@@ -20537,6 +20865,7 @@
       "category": "productivity",
       "api": "Nylas",
       "description": "Every Nylas API, plus a local SQLite mirror, cross-grant search, and confirm-by-hash sending no other Nylas tool has.",
+      "homepage": "https://www.nylas.com",
       "search_terms": [
         "nylas",
         "nylas-pp-cli",
@@ -20608,6 +20937,7 @@
       "category": "travel",
       "api": "NYNJ World Cup Concierge",
       "description": "Extract public NYNJ World Cup Concierge Explore NYNJ, Fan Experiences, and Watch Parties guidance.",
+      "homepage": "https://nynjfwc26.com",
       "search_terms": [
         "nynj-world-cup-concierge",
         "NYNJ World Cup Concierge",
@@ -20642,6 +20972,7 @@
       "category": "other",
       "api": "Nypl Digital Collections",
       "description": "New York Public Library Digital Collections API. Source docs: https://api.repo.nypl.org/.",
+      "homepage": "https://digitalcollections.nypl.org",
       "search_terms": [
         "nypl-digital-collections",
         "Nypl Digital Collections",
@@ -20690,6 +21021,7 @@
       "category": "productivity",
       "api": "Obsidian",
       "description": "SYNTHETIC OpenAPI 3.0 spec mapping Obsidian's official command-line interface (v1.12+) to virtual REST endpoints....",
+      "homepage": "https://obsidian.md",
       "search_terms": [
         "obsidian",
         "obsidian-pp-cli",
@@ -20745,6 +21077,7 @@
       "category": "health",
       "api": "OFA Health Clearances",
       "description": "Look up dogs' OFA health clearances (hips, elbows, eyes, cardiac, DNA) and CHIC status by breed, age, and report year, and roll them up by kennel.",
+      "homepage": "https://ofa.org",
       "search_terms": [
         "ofa-health-clearances",
         "OFA Health Clearances",
@@ -20786,6 +21119,7 @@
       "category": "commerce",
       "api": "OfferUp",
       "description": "Search local OfferUp listings from your terminal, keep them in a local database",
+      "homepage": "https://offerup.com",
       "search_terms": [
         "offerup",
         "offerup-pp-cli",
@@ -20843,6 +21177,7 @@
       "category": "ai",
       "api": "Ollama Cloud",
       "description": "Routes every prompt to the right hosted Ollama model. Wraps chat, embeddings, catalog, and the OpenAI-compatible...",
+      "homepage": "https://ollama.com",
       "search_terms": [
         "ollama-cloud",
         "Ollama Cloud",
@@ -20900,6 +21235,7 @@
       "category": "travel",
       "api": "OMAKASE",
       "description": "Discover premium Japanese restaurants with source courses, release rules and honest availability states.",
+      "homepage": "https://omakase.in",
       "search_terms": [
         "omakase",
         "omakase-pp-cli",
@@ -20952,6 +21288,7 @@
       "category": "developer-tools",
       "api": "One Word Domains",
       "description": "Check a word across every TLD with registrar prices, watch the aftermarket, and generate names with DomainsGPT, all from the terminal with a local store the site itself does not offer.",
+      "homepage": "https://oneword.domains",
       "search_terms": [
         "oneword-domains",
         "One Word Domains",
@@ -21026,6 +21363,7 @@
       "category": "food-and-dining",
       "api": "Open Food Facts",
       "description": "Read-only Open Food Facts recipes for barcode product lookup, structured search, nutrition summaries, allergen and ingredient inspection, bounded comparison, category samples, and source posture checks.",
+      "homepage": "https://world.openfoodfacts.org",
       "search_terms": [
         "open-food-facts",
         "Open Food Facts",
@@ -21069,6 +21407,7 @@
       "category": "media-and-entertainment",
       "api": "Open Library",
       "description": "Read-only Open Library recipes for book search, ISBN edition lookup, author works, work metadata, bounded editions, and subject browsing with source/rate-limit caveats.",
+      "homepage": "https://openlibrary.org",
       "search_terms": [
         "open-library",
         "Open Library",
@@ -21112,6 +21451,7 @@
       "category": "other",
       "api": "Open-Meteo",
       "description": "Forecasts, historicals, marine, air quality, flood, climate, ensemble, and seasonal data from Open-Meteo's free tier.",
+      "homepage": "https://open-meteo.com",
       "search_terms": [
         "open-meteo",
         "open-meteo-pp-cli",
@@ -21168,6 +21508,7 @@
       "category": "marketing",
       "api": "OpenAI Ads",
       "description": "The first OpenAI Ads client that can write, and the only one that keeps local history.",
+      "homepage": "https://ads.openai.com",
       "search_terms": [
         "openai-ads",
         "OpenAI Ads",
@@ -21236,6 +21577,7 @@
       "category": "other",
       "api": "OpenAlex",
       "description": "The OpenAlex API provides access to a comprehensive catalog of scholarly works, authors, sources, institutions,...",
+      "homepage": "https://openalex.org",
       "search_terms": [
         "openalex",
         "openalex-pp-cli",
@@ -21288,6 +21630,7 @@
       "category": "ai",
       "api": "OpenArt",
       "description": "Generate videos and images on OpenArt from the terminal. Spend your existing OpenArt credits across Seedance, Kling,...",
+      "homepage": "https://openart.ai",
       "search_terms": [
         "openart",
         "openart-pp-cli",
@@ -21353,6 +21696,7 @@
       "category": "other",
       "api": "OpenBDAP",
       "description": "Il catalogo Open Data della Ragioneria Generale dello Stato da terminale: ricerca offline, righe filtrate per nome di colonna leggibile e opere pubbliche cercabili per CUP, CIG o codice fiscale.",
+      "homepage": "https://bdap-opendata.rgs.mef.gov.it",
       "search_terms": [
         "openbdap",
         "openbdap-pp-cli",
@@ -21411,6 +21755,7 @@
       "category": "developer-tools",
       "api": "OpenFDA",
       "description": "The FDA safety data terminal. Every drug adverse event, device recall, food contamination, and product label the FDA...",
+      "homepage": "https://open.fda.gov",
       "search_terms": [
         "openfda",
         "openfda-pp-cli",
@@ -21469,6 +21814,7 @@
       "category": "developer-tools",
       "api": "IndicePA",
       "description": "Search Italy's IndicePA for public administrations, PEC addresses, IPA codes, billing codes, and compliance details.",
+      "homepage": "https://www.indicepa.gov.it",
       "search_terms": [
         "openipa",
         "IndicePA",
@@ -21540,6 +21886,7 @@
       "category": "ai",
       "api": "OpenRouter",
       "description": "Inspect OpenRouter models, providers, credits, activity, and cost attribution with local caching and agent-friendly output.",
+      "homepage": "https://openrouter.ai",
       "search_terms": [
         "openrouter",
         "openrouter-pp-cli",
@@ -21624,6 +21971,7 @@
       "category": "ai",
       "api": "OpenRouter Images",
       "description": "Every image model on OpenRouter, one key: generate, rank, estimate, and batch with a local cost ledger.",
+      "homepage": "https://openrouter.ai",
       "search_terms": [
         "openrouter-image",
         "OpenRouter Images",
@@ -21688,6 +22036,7 @@
       "category": "travel",
       "api": "Opensky Network",
       "description": "Public OpenSky Network API (https://opensky-network.org/api).",
+      "homepage": "https://opensky-network.org",
       "search_terms": [
         "opensky",
         "Opensky Network",
@@ -21735,6 +22084,7 @@
       "category": "productivity",
       "api": "OpenSnow",
       "description": "Hyper-local weather forecasts and conditions for any mountain location and elevation, worldwide. Provides current conditions, hourly forecasts, 5-day day/night snow forecasts, resort snow reports, and expert-written Daily Snow posts. Authentication via api_key query parameter (partnership access only).",
+      "homepage": "https://opensnow.com",
       "search_terms": [
         "opensnow",
         "opensnow-pp-cli",
@@ -21796,6 +22146,7 @@
       "category": "food-and-dining",
       "api": "OrderToGo",
       "description": "Browse, cart, and place orders at any OrderToGo.com restaurant from the terminal — pure-Go agent-native client...",
+      "homepage": "https://www.ordertogo.com",
       "search_terms": [
         "ordertogo",
         "ordertogo-pp-cli",
@@ -21864,6 +22215,7 @@
       "category": "health",
       "api": "Oura",
       "description": "Personal health data from the Oura Ring - sleep, readiness, daily activity, heart rate, workouts, SpO2, stress, and resilience.",
+      "homepage": "https://ouraring.com",
       "search_terms": [
         "oura",
         "oura-pp-cli",
@@ -21915,6 +22267,7 @@
       "category": "productivity",
       "api": "Outlook Calendar",
       "description": "The first Outlook calendar CLI built for AI agents on personal Microsoft 365 accounts — with offline conflict...",
+      "homepage": "https://www.microsoft.com/microsoft-365/outlook",
       "search_terms": [
         "outlook-calendar",
         "Outlook Calendar",
@@ -21978,6 +22331,7 @@
       "category": "productivity",
       "api": "Outlook Email",
       "description": "Drive your personal Microsoft 365 inbox from agents — read, send, sync, and run offline triage analytics that...",
+      "homepage": "https://www.microsoft.com/microsoft-365/outlook",
       "search_terms": [
         "outlook-email",
         "Outlook Email",
@@ -22053,6 +22407,7 @@
       "category": "travel",
       "api": "Overpass",
       "description": "Find things worth photographing by name instead of by OpenStreetMap tag, with automatic failover across Overpass mirrors.",
+      "homepage": "https://overpass-api.de",
       "search_terms": [
         "overpass",
         "overpass-pp-cli",
@@ -22111,6 +22466,7 @@
       "category": "food-and-dining",
       "api": "Pagliacci Pizza",
       "description": "Order Seattle's Pagliacci Pizza from the terminal — half-and-half pies, small-party planner, slice rotation, and rewards stacking.",
+      "homepage": "https://pagliacci.com",
       "search_terms": [
         "pagliacci",
         "Pagliacci Pizza",
@@ -22173,6 +22529,7 @@
       "category": "developer-tools",
       "api": "pangolin",
       "description": "The first agent-native CLI for Pangolin — every endpoint, plus offline SQLite, cross-org audits",
+      "homepage": "https://pangolin.net",
       "search_terms": [
         "pangolin",
         "pangolin-pp-cli",
@@ -22213,6 +22570,7 @@
       "category": "project-management",
       "api": "Paperclip CLI",
       "description": "Mirror-read CLI for the self-hosted Paperclip board. Offline SQLite cache with FTS5 over issues/comments, agent-friendly compound queries, and a local MCP surface for the same endpoints.",
+      "homepage": "https://paperclip.ing",
       "search_terms": [
         "paperclip-self-hosted",
         "Paperclip CLI",
@@ -22269,6 +22627,7 @@
       "category": "ai",
       "api": "Parallel",
       "description": "Agent-native Parallel web research with a local SQLite memory no other Parallel CLI keeps.",
+      "homepage": "https://parallel.ai",
       "search_terms": [
         "parallel",
         "parallel-pp-cli",
@@ -22448,6 +22807,7 @@
       "category": "media-and-entertainment",
       "api": "Paul Graham Essays",
       "description": "Static public essay index for paulgraham.com.",
+      "homepage": "https://www.paulgraham.com",
       "search_terms": [
         "paul-graham",
         "Paul Graham Essays",
@@ -22500,6 +22860,7 @@
       "category": "other",
       "api": "Pakistan Bureau of Statistics",
       "description": "The only machine-readable Pakistani price panel — every urban centre and essential item the Bureau prices weekly, accrued locally because the Bureau itself does not keep the series.",
+      "homepage": "https://www.pbs.gov.pk",
       "search_terms": [
         "pbs",
         "Pakistan Bureau of Statistics",
@@ -22568,6 +22929,7 @@
       "category": "other",
       "api": "Pcgs",
       "description": "The first CLI for the PCGS Public API — cert lookup, full CoinFacts extraction, and the 1,000-call-per-day budget...",
+      "homepage": "https://www.pcgs.com",
       "search_terms": [
         "pcgs",
         "pcgs-pp-cli",
@@ -22625,6 +22987,7 @@
       "category": "developer-tools",
       "api": "PDOK Location",
       "description": "Geocode Dutch addresses, reverse-geocode coordinates, convert RD/WGS84, and query PDOK location data with offline helpers.",
+      "homepage": "https://www.pdok.nl",
       "search_terms": [
         "pdok-location",
         "PDOK Location",
@@ -22683,6 +23046,7 @@
       "category": "commerce",
       "api": "Peekaboo",
       "description": "Every Peekaboo deal, branch, and bank-card offer from the terminal — plus city-wide deal ranking, bank-card reverse lookup, and bulk branch map-link export the Peekaboo site has no button for.",
+      "homepage": "https://peekaboo.guru",
       "search_terms": [
         "peekaboo",
         "peekaboo-pp-cli",
@@ -22740,6 +23104,7 @@
       "category": "travel",
       "api": "peerspace",
       "description": "Tech-event venue scout for Peerspace: rank fit, gap-check shortlists, and export proposal packs for Luma/Eventbrite.",
+      "homepage": "https://www.peerspace.com",
       "search_terms": [
         "peerspace",
         "peerspace-pp-cli",
@@ -22811,6 +23176,7 @@
       "category": "health",
       "api": "Peloton",
       "description": "Read-only Peloton workout, class, and structural-provider facts in a private local store.",
+      "homepage": "https://www.onepeloton.com",
       "search_terms": [
         "peloton",
         "peloton-pp-cli",
@@ -22864,6 +23230,7 @@
       "category": "media-and-entertainment",
       "api": "Pexels",
       "description": "Every Pexels photo, video, and collection endpoint — plus a local store that adds quota forecasting, dedup-aware bulk download, and one-shot attribution exports no other Pexels tool has.",
+      "homepage": "https://www.pexels.com",
       "search_terms": [
         "pexels",
         "pexels-pp-cli",
@@ -22927,6 +23294,7 @@
       "category": "social-and-messaging",
       "api": "Philonet",
       "description": "Your Philonet reading life in the terminal: feed, threads, streaks and friends, plus a local history the web app does not keep.",
+      "homepage": "https://philonet.ai",
       "search_terms": [
         "philonet",
         "philonet-pp-cli",
@@ -22984,6 +23352,7 @@
       "category": "ai",
       "api": "Pinecone",
       "description": "Every Pinecone API feature, plus local sync, snapshot history, and text-first search no other Pinecone tool has.",
+      "homepage": "https://www.pinecone.io",
       "search_terms": [
         "pinecone",
         "pinecone-pp-cli",
@@ -23050,6 +23419,7 @@
       "category": "marketing",
       "api": "Pin Generator",
       "description": "Every Pin Generator MCP tool as a typed command, with credit-safe dry runs, preflight pricing and a local spend ledger.",
+      "homepage": "https://pingenerator.com",
       "search_terms": [
         "pingenerator",
         "Pin Generator",
@@ -23111,6 +23481,7 @@
       "category": "marketing",
       "api": "Pinterest",
       "description": "Every Pinterest v5 endpoint plus period-over-period analytics, Pin hygiene audits, and offline Pin search.",
+      "homepage": "https://www.pinterest.com",
       "search_terms": [
         "pinterest",
         "pinterest-pp-cli",
@@ -23169,6 +23540,7 @@
       "category": "sales-and-crm",
       "api": "Pipedrive",
       "description": "CRM for sales teams - deals, contacts, pipelines, activities, and organizations",
+      "homepage": "https://www.pipedrive.com",
       "search_terms": [
         "pipedrive",
         "pipedrive-pp-cli",
@@ -23218,6 +23590,7 @@
       "category": "media-and-entertainment",
       "api": "Pixabay",
       "description": "Every Pixabay search filter the API has — plus a 24-hour local cache, offline search, resumable downloads with built-in attribution, live rate-limit awareness, and agent-native JSON no other Pixabay tool ships.",
+      "homepage": "https://pixabay.com",
       "search_terms": [
         "pixabay",
         "pixabay-pp-cli",
@@ -23278,6 +23651,7 @@
       "category": "marketing",
       "api": "Placeit",
       "description": "Every one of Placeit's 164k mockup, logo, video, and design templates — searchable, sortable by real popularity, and cached offline from your terminal, with catalog analytics Placeit's own UI can't do.",
+      "homepage": "https://placeit.net",
       "search_terms": [
         "placeit",
         "placeit-pp-cli",
@@ -23336,6 +23710,7 @@
       "category": "project-management",
       "api": "Plane",
       "description": "The Plane REST API Visit our quick start guide and full API documentation at [developers.plane.so](https://developers.",
+      "homepage": "https://plane.so",
       "search_terms": [
         "plane",
         "plane-pp-cli",
@@ -23381,6 +23756,7 @@
       "category": "media-and-entertainment",
       "api": "Plex Media Server",
       "description": "## Content Types The API supports responses in both XML and JSON",
+      "homepage": "https://www.plex.tv",
       "search_terms": [
         "plexctl",
         "Plex Media Server",
@@ -23428,6 +23804,7 @@
       "category": "travel",
       "api": "Pocket Concierge",
       "description": "Discover fine dining with sourced courses, session identity and safe booking handoff.",
+      "homepage": "https://pocket-concierge.jp",
       "search_terms": [
         "pocket-concierge",
         "Pocket Concierge",
@@ -23546,6 +23923,7 @@
       "category": "media-and-entertainment",
       "api": "PodcastIndex",
       "description": "The only PodcastIndex tool that is agent-native and works offline: search, resolve, and analyse any podcast from one signed binary with a local mirror you can FTS and SQL.",
+      "homepage": "https://podcastindex.org",
       "search_terms": [
         "podcastindex",
         "podcastindex-pp-cli",
@@ -23592,6 +23970,7 @@
       "category": "media-and-entertainment",
       "api": "Podscan",
       "description": "Podscan REST API — search 51M+ podcast episodes and 4.4M+ podcasts. Full transcripts, AI-extracted entities,...",
+      "homepage": "https://podscan.fm",
       "search_terms": [
         "podscan",
         "podscan-pp-cli",
@@ -23648,6 +24027,7 @@
       "category": "travel",
       "api": "Pointhound",
       "description": "Every Pointhound flight search, plus a local SQLite of every deal you've ever seen, balance-aware reachability, and...",
+      "homepage": "https://www.pointhound.com",
       "search_terms": [
         "pointhound",
         "pointhound-pp-cli",
@@ -23716,6 +24096,7 @@
       "category": "media-and-entertainment",
       "api": "PokéAPI",
       "description": "Fully offline Pokédex with SQL, full-text search, type math, and a damage calculator no other Pokémon tool ships as a CLI.",
+      "homepage": "https://pokeapi.co",
       "search_terms": [
         "pokeapi",
         "pokeapi-pp-cli",
@@ -23831,6 +24212,7 @@
       "category": "payments",
       "api": "POP",
       "description": "POP API for European electronic invoicing workflows. This Printing Press blueprint intentionally exposes only the...",
+      "homepage": "https://popapi.io",
       "search_terms": [
         "pop",
         "pop-pp-cli",
@@ -23878,6 +24260,7 @@
       "category": "developer-tools",
       "api": "PostHog",
       "description": "Every PostHog resource in one CLI — with offline search, agent-native output, and cross-resource analytics no...",
+      "homepage": "https://posthog.com",
       "search_terms": [
         "posthog",
         "posthog-pp-cli",
@@ -23939,6 +24322,7 @@
       "category": "developer-tools",
       "api": "Postman Explore",
       "description": "Public API network directory for discovering community collections, workspaces, and APIs",
+      "homepage": "https://www.postman.com/explore",
       "search_terms": [
         "postman-explore",
         "Postman Explore",
@@ -24000,6 +24384,7 @@
       "category": "productivity",
       "api": "Postmark",
       "description": "One account token for every Postmark server, and a local archive that outlasts Postmark's 45-day retention.",
+      "homepage": "https://postmarkapp.com",
       "search_terms": [
         "postmark",
         "postmark-pp-cli",
@@ -24180,6 +24565,7 @@
       "category": "commerce",
       "api": "Printify",
       "description": "Create and audit Printify products with manifest-driven image uploads, personalization checks, and local proofing.",
+      "homepage": "https://printify.com",
       "search_terms": [
         "printify",
         "printify-pp-cli",
@@ -24239,6 +24625,7 @@
       "category": "marketing",
       "api": "Product Hunt",
       "description": "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
+      "homepage": "https://www.producthunt.com",
       "search_terms": [
         "producthunt",
         "producthunt-pp-cli",
@@ -24312,6 +24699,7 @@
       "category": "productivity",
       "api": "Productive",
       "description": "Full Productive.io v2 API client — list/get across ~48 resource types, generic create/update/delete, 11 report types, and a local sync/search/export/tail data layer, plus first-class revenue-recognition commands (recognized-revenue, invoiced, reconcile, aging).",
+      "homepage": "https://productive.io",
       "search_terms": [
         "productive",
         "productive-pp-cli",
@@ -24369,6 +24757,7 @@
       "category": "payments",
       "api": "Pakistan Stock Exchange",
       "description": "Every PSX data-portal surface in one Go binary, plus the local price history the exchange itself throws away.",
+      "homepage": "https://www.psx.com.pk",
       "search_terms": [
         "psx",
         "Pakistan Stock Exchange",
@@ -24433,6 +24822,7 @@
       "category": "social-and-messaging",
       "api": "Pushover",
       "description": "Pushover from the terminal: send alerts, watch emergency receipts, inspect quota, and keep a redacted local...",
+      "homepage": "https://pushover.net",
       "search_terms": [
         "pushover",
         "pushover-pp-cli",
@@ -24483,6 +24873,7 @@
       "category": "other",
       "api": "Pvgis",
       "description": "The free, single-binary PVGIS CLI — JRC solar-radiation and PV-yield estimates with offline cache, multi-site...",
+      "homepage": "https://re.jrc.ec.europa.eu/pvg_tools/en",
       "search_terms": [
         "pvgis",
         "pvgis-pp-cli",
@@ -24534,6 +24925,7 @@
       "category": "developer-tools",
       "api": "PyPI",
       "description": "PyPI JSON API. Look up Python package metadata, versions, release files, and vulnerability data. Browse recent updates and newest packages via RSS feeds. No authentication required — all endpoints are public.",
+      "homepage": "https://pypi.org",
       "search_terms": [
         "pypi",
         "pypi-pp-cli",
@@ -24579,6 +24971,7 @@
       "category": "payments",
       "api": "QuickBooks Online",
       "description": "Fixture-first, read-only QuickBooks Online CLI for agents.",
+      "homepage": "https://quickbooks.intuit.com",
       "search_terms": [
         "qbo",
         "QuickBooks Online",
@@ -24633,6 +25026,7 @@
       "category": "devices",
       "api": "Q-SYS",
       "description": "Q-SYS product specs, configuration procedures, and connection guides in one local index - with equipment-list compatibility checks neither QSC website can do.",
+      "homepage": "https://www.qsys.com",
       "search_terms": [
         "qsys",
         "Q-SYS",
@@ -24697,6 +25091,7 @@
       "category": "payments",
       "api": "Quentli",
       "description": "Every Quentli payments, invoicing, and SAT tax-billing endpoint, plus offline collection, reconciliation, and at-risk-subscription intelligence no other Quentli tool has.",
+      "homepage": "https://www.quentli.com",
       "search_terms": [
         "quentli",
         "quentli-pp-cli",
@@ -24754,6 +25149,7 @@
       "category": "commerce",
       "api": "QuickCommerce API",
       "description": "Compare live Indian product prices, stock, and delivery ETAs from the terminal, then keep the history locally.",
+      "homepage": "https://quickcommerceapi.com",
       "search_terms": [
         "quickcommerce",
         "QuickCommerce API",
@@ -24876,6 +25272,7 @@
       "category": "productivity",
       "api": "Raindrop Io",
       "description": "Complete Raindrop.io control plus offline search, safe cleanup, and durable knowledge workflows.",
+      "homepage": "https://raindrop.io",
       "search_terms": [
         "raindrop",
         "Raindrop Io",
@@ -24941,6 +25338,7 @@
       "category": "travel",
       "api": "Rakuten Travel",
       "description": "Inspect real Japan room offers with explicit dates, party and price units.",
+      "homepage": "https://travel.rakuten.co.jp",
       "search_terms": [
         "rakuten-travel",
         "Rakuten Travel",
@@ -24991,6 +25389,7 @@
       "category": "marketing",
       "api": "Rank Math",
       "description": "Rank Math SEO from the terminal: bulk meta edits, site-wide SEO audits, Search Console analytics, and IndexNow — with no bridge plugin.",
+      "homepage": "https://rankmath.com",
       "search_terms": [
         "rankmath",
         "Rank Math",
@@ -25047,6 +25446,7 @@
       "category": "developer-tools",
       "api": "Rapidapi",
       "description": "RapidAPI Hub marketplace CLI - search APIs, browse categories & collections, inspect providers",
+      "homepage": "https://rapidapi.com",
       "search_terms": [
         "rapidapi",
         "rapidapi-pp-cli",
@@ -25107,6 +25507,7 @@
       "category": "food-and-dining",
       "api": "Rappi",
       "description": "The first agent-native CLI for Rappi Mexico — read-only catalog browsing with offline SQLite snapshots, cross-city...",
+      "homepage": "https://www.rappi.com.mx",
       "search_terms": [
         "rappi",
         "rappi-pp-cli",
@@ -25238,6 +25639,7 @@
       "category": "other",
       "api": "rechtspraak",
       "description": "The first CLI for Dutch court decisions with rich local narrowing for long-tail legal keywords, an appeal-chain walker",
+      "homepage": "https://www.rechtspraak.nl",
       "search_terms": [
         "rechtspraak",
         "rechtspraak-pp-cli",
@@ -25356,6 +25758,7 @@
       "category": "other",
       "api": "Redfin",
       "description": "Search Redfin homes for sale via internal Stingray endpoints, sync to local SQLite, and run workflows the website doesn't expose — saved-search diff, $/sqft net-HOA ranking, sold comps, multi-region trends.",
+      "homepage": "https://www.redfin.com",
       "search_terms": [
         "redfin",
         "redfin-pp-cli",
@@ -25427,6 +25830,7 @@
       "category": "project-management",
       "api": "Redmine",
       "description": "Every Redmine feature, plus a local mirror that finally answers the cross-project questions the Roadmap page never could.",
+      "homepage": "https://www.redmine.org",
       "search_terms": [
         "redmine",
         "redmine-pp-cli",
@@ -25485,6 +25889,7 @@
       "category": "cloud",
       "api": "Render",
       "description": "Every Render endpoint, plus diff, drift, cost, audit, and orphan analytics no other Render tool ships.",
+      "homepage": "https://render.com",
       "search_terms": [
         "render",
         "render-pp-cli",
@@ -25673,6 +26078,7 @@
       "category": "travel",
       "api": "三井のリパーク (Repark)",
       "description": "Find Repark parking with live source vacancy, declared vehicle limits, and verified price estimates.",
+      "homepage": "https://www.repark.jp",
       "search_terms": [
         "repark",
         "三井のリパーク (Repark)",
@@ -25724,6 +26130,7 @@
       "category": "productivity",
       "api": "Resend",
       "description": "The full Resend API (100 endpoints across emails, broadcasts, audiences, contacts, domains, templates, webhooks)...",
+      "homepage": "https://resend.com",
       "search_terms": [
         "resend",
         "resend-pp-cli",
@@ -25785,6 +26192,7 @@
       "category": "social-and-messaging",
       "api": "Respond.io",
       "description": "Every Respond.io feature, plus an offline mirror and SQL that answers inbox questions no single API call can.",
+      "homepage": "https://respond.io",
       "search_terms": [
         "respondio",
         "Respond.io",
@@ -25846,6 +26254,7 @@
       "category": "commerce",
       "api": "Restaurant365 OData Connector",
       "description": "Read-only OpenAPI description for documented Restaurant365 OData v2 reporting views.",
+      "homepage": "https://www.restaurant365.com",
       "search_terms": [
         "restaurant365-odata",
         "Restaurant365 OData Connector",
@@ -25954,6 +26363,7 @@
       "category": "payments",
       "api": "RevenueCat",
       "description": "Every RevenueCat v2 endpoint, plus a local database, offline search",
+      "homepage": "https://www.revenuecat.com",
       "search_terms": [
         "revenuecat",
         "revenuecat-pp-cli",
@@ -26018,6 +26428,7 @@
       "category": "commerce",
       "api": "rewe",
       "description": "Order REWE groceries for pickup from the terminal or an agent - offers, basket, earliest slot and recipes, with a session that renews itself.",
+      "homepage": "https://www.rewe.de",
       "search_terms": [
         "rewe",
         "rewe-pp-cli",
@@ -26064,6 +26475,7 @@
       "category": "travel",
       "api": "Ride with GPS",
       "description": "Your whole Ride with GPS library, offline — bulk export, gear mileage, and ride analytics no other tool ships.",
+      "homepage": "https://ridewithgps.com",
       "search_terms": [
         "ridewithgps",
         "Ride with GPS",
@@ -26131,6 +26543,7 @@
       "category": "ai",
       "api": "rightbrain",
       "description": "The first Rightbrain CLI that reaches past tasks — agents, approvals, evals, triggers and audit, plus a local mirror that makes credit spend and latency regressions queryable.",
+      "homepage": "https://rightbrain.ai",
       "search_terms": [
         "rightbrain",
         "rightbrain-pp-cli",
@@ -26185,6 +26598,7 @@
       "category": "travel",
       "api": "Roadside America",
       "description": "Every offbeat roadside attraction on RoadsideAmerica.",
+      "homepage": "https://www.roadsideamerica.com",
       "search_terms": [
         "roadside-america",
         "Roadside America",
@@ -26238,6 +26652,7 @@
       "category": "productivity",
       "api": "Roam HQ",
       "description": "Every Roam HQ surface — chat, transcripts, On-Air events, SCIM, webhooks — in one local-first CLI with offline...",
+      "homepage": "https://ro.am",
       "search_terms": [
         "roam",
         "Roam HQ",
@@ -26307,6 +26722,7 @@
       "category": "payments",
       "api": "Robinhood",
       "description": "Welcome to Robinhood Crypto Trading API documentation for traders and developers!",
+      "homepage": "https://robinhood.com",
       "search_terms": [
         "robinhood",
         "robinhood-pp-cli",
@@ -26352,6 +26768,7 @@
       "category": "social-and-messaging",
       "api": "Roblox",
       "description": "Investigate Roblox's fragmented public web data from one agent-friendly CLI.",
+      "homepage": "https://www.roblox.com",
       "search_terms": [
         "roblox",
         "roblox-pp-cli",
@@ -26406,6 +26823,7 @@
       "category": "ai",
       "api": "The Rundown University",
       "description": "Search the community's AI workflows offline, and rank them by week - two things the site's own API cannot do.",
+      "homepage": "https://www.therundown.ai",
       "search_terms": [
         "rundown",
         "The Rundown University",
@@ -26501,6 +26919,7 @@
       "category": "productivity",
       "api": "Safari History",
       "description": "Reverse-engineered from the hand-built safari-history-pp-cli command/data shape",
+      "homepage": "https://www.apple.com/safari",
       "search_terms": [
         "safari-history",
         "Safari History",
@@ -26551,6 +26970,7 @@
       "category": "sales-and-crm",
       "api": "Salesloft Read",
       "description": "Read-first Salesloft API surface for agent workflows, based on the public Salesloft v2 developer documentation.",
+      "homepage": "https://www.salesloft.com",
       "search_terms": [
         "salesloft",
         "Salesloft Read",
@@ -26602,6 +27022,7 @@
       "category": "ai",
       "api": "Sarvam AI",
       "description": "Every Sarvam AI model on your terminal — translate, speak, transcribe, chat, and extract documents in 22 Indian languages, with a local history that compounds",
+      "homepage": "https://www.sarvam.ai",
       "search_terms": [
         "sarvam",
         "Sarvam AI",
@@ -26728,6 +27149,7 @@
       "category": "developer-tools",
       "api": "Scrape Creators",
       "description": "The easiest way to scrape public social media data at scale. Extract profiles, posts, videos, comments, and more from TikTok, Instagram, YouTube, Twitter, LinkedIn, Facebook, Reddit, and 27+ platforms.",
+      "homepage": "https://scrapecreators.com",
       "search_terms": [
         "scrape-creators",
         "Scrape Creators",
@@ -26820,6 +27242,7 @@
       "category": "developer-tools",
       "api": "Scrape.do",
       "description": "The first CLI for Scrape-do with Google SERP scraping plus a credit and concurrency governor",
+      "homepage": "https://scrape.do",
       "search_terms": [
         "scrape-do",
         "Scrape.do",
@@ -26875,6 +27298,7 @@
       "category": "other",
       "api": "Screener.in",
       "description": "Every Screener.in feature, plus offline search, screen intersections, and a local fundamentals mirror no other tool has.",
+      "homepage": "https://www.screener.in",
       "search_terms": [
         "screener",
         "Screener.in",
@@ -26930,6 +27354,7 @@
       "category": "media-and-entertainment",
       "api": "Scryfall",
       "description": "Magic: The Gathering card database CLI: search, prices, rulings, sets, and batch collection valuation against api.scryfall.com (keyless).",
+      "homepage": "https://scryfall.com",
       "search_terms": [
         "scryfall",
         "scryfall-pp-cli",
@@ -26981,6 +27406,7 @@
       "category": "ai",
       "api": "Sculptok",
       "description": "SculptOK AI depth-map, relief, STL and 3D generation CLI",
+      "homepage": "https://www.sculptok.com",
       "search_terms": [
         "sculptok",
         "sculptok-pp-cli",
@@ -27043,6 +27469,7 @@
       "category": "travel",
       "api": "SEA Airport Parking",
       "description": "Check, track, and get alerted on SEA's official on-airport Reserved garage — with a local price/availability history and sold-out watch that no site or aggregator has.",
+      "homepage": "https://reservesea.portseattle.org",
       "search_terms": [
         "sea-airport-parking",
         "SEA Airport Parking",
@@ -27096,6 +27523,7 @@
       "category": "travel",
       "api": "Seats Aero Partner",
       "description": "Search Seats.aero award-flight availability, route coverage, mileage-program feeds, and trip details from the terminal.",
+      "homepage": "https://seats.aero",
       "search_terms": [
         "seats-aero",
         "Seats.aero",
@@ -27157,6 +27585,7 @@
       "category": "developer-tools",
       "api": "SEC EDGAR",
       "description": "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search,...",
+      "homepage": "https://www.sec.gov/edgar",
       "search_terms": [
         "sec-edgar",
         "SEC EDGAR",
@@ -27234,6 +27663,7 @@
       "category": "productivity",
       "api": "SEEK",
       "description": "Every SEEK search and job-detail feature, plus a local job history, salary distributions, and hiring trends no other SEEK tool has.",
+      "homepage": "https://www.seek.com.au",
       "search_terms": [
         "seek",
         "seek-pp-cli",
@@ -27297,6 +27727,7 @@
       "category": "marketing",
       "api": "Semrush",
       "description": "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+      "homepage": "https://www.semrush.com",
       "search_terms": [
         "semrush",
         "semrush-pp-cli",
@@ -27369,6 +27800,7 @@
       "category": "marketing",
       "api": "SendFox",
       "description": "Agent-ready SendFox CLI and MCP server for contacts, lists, campaigns, automations, and forms, with local sync, growth and audience-health reporting, migration analysis, and guarded writes.",
+      "homepage": "https://sendfox.com",
       "search_terms": [
         "sendfox",
         "sendfox-pp-cli",
@@ -27433,6 +27865,7 @@
       "category": "productivity",
       "api": "Twilio Sendgrid",
       "description": "Every Twilio SendGrid endpoint, plus offline suppression diffs, stats time-series rollups, and a template-variable...",
+      "homepage": "https://sendgrid.com",
       "search_terms": [
         "sendgrid",
         "Twilio Sendgrid",
@@ -27493,6 +27926,7 @@
       "category": "marketing",
       "api": "Sensor Tower",
       "description": "Every free Sensor Tower ranking, plus the rank history the dashboard forgets the moment you close the tab.",
+      "homepage": "https://sensortower.com",
       "search_terms": [
         "sensortower",
         "Sensor Tower",
@@ -27546,6 +27980,7 @@
       "category": "monitoring",
       "api": "Sentry",
       "description": "Inspect Sentry organizations, projects, issues, events, releases, and Seer metadata for error tracking and performance monitoring.",
+      "homepage": "https://sentry.io",
       "search_terms": [
         "sentry",
         "sentry-pp-cli",
@@ -27590,6 +28025,7 @@
       "category": "ai",
       "api": "Serply",
       "description": "Live Google, News, Scholar, Maps and Bing results, plus rank checks, SERP diffs and cited research briefs.",
+      "homepage": "https://serply.io",
       "search_terms": [
         "serply",
         "serply-pp-cli",
@@ -27644,6 +28080,7 @@
       "category": "sales-and-crm",
       "api": "ServiceTitan Pricebook",
       "description": "Sync ServiceTitan Pricebook services, materials, equipment, vendors, markups, warranties, and cost-drift audits.",
+      "homepage": "https://www.servicetitan.com",
       "search_terms": [
         "servicetitan-pricebook",
         "ServiceTitan Pricebook",
@@ -27721,6 +28158,7 @@
       "category": "media-and-entertainment",
       "api": "setlist.fm",
       "description": "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API.",
+      "homepage": "https://www.setlist.fm",
       "search_terms": [
         "setlist-fm",
         "setlist.fm",
@@ -27868,6 +28306,7 @@
       "category": "commerce",
       "api": "ShipsGo",
       "description": "Every ShipsGo endpoint, plus an RFQ workspace, lane analytics, and an offline shipment book no other tool offers.",
+      "homepage": "https://shipsgo.com",
       "search_terms": [
         "shipsgo",
         "shipsgo-pp-cli",
@@ -27940,6 +28379,7 @@
       "category": "productivity",
       "api": "Shodhganga",
       "description": "Structured, scriptable, agent-native access to India's national reservoir of PhD theses — the machine API Shodhganga never shipped.",
+      "homepage": "https://shodhganga.inflibnet.ac.in",
       "search_terms": [
         "shodhganga",
         "shodhganga-pp-cli",
@@ -27992,6 +28432,7 @@
       "category": "commerce",
       "api": "Shopify",
       "description": "Operate a Shopify store with Admin GraphQL commands, local sync, analytics, bulk exports, and ShopifyQL reporting.",
+      "homepage": "https://www.shopify.com",
       "search_terms": [
         "shopify",
         "shopify-pp-cli",
@@ -28108,6 +28549,7 @@
       "category": "commerce",
       "api": "Shopper",
       "description": "The first CLI for Shopper — every catalog, cart",
+      "homepage": "https://shopper.com.br",
       "search_terms": [
         "shopper",
         "shopper-pp-cli",
@@ -28181,6 +28623,7 @@
       "category": "commerce",
       "api": "Shopping",
       "description": "Every LemmeBuyIt retail endpoint, plus a local store that compares one UPC across 70+ retailers",
+      "homepage": "https://www.lemmebuyit.com",
       "search_terms": [
         "shopping",
         "shopping-pp-cli",
@@ -28241,6 +28684,7 @@
       "category": "payments",
       "api": "SimpleFIN",
       "description": "Pull every bank, card, and brokerage account through SimpleFIN into a local SQLite ledger — with net worth, cash flow, recurring-charge detection, and holdings gain/loss no single bank app can show.",
+      "homepage": "https://www.simplefin.org",
       "search_terms": [
         "simplefin",
         "simplefin-pp-cli",
@@ -28304,6 +28748,7 @@
       "category": "media-and-entertainment",
       "api": "Skool",
       "description": "Every Skool community feature, plus a local SQLite mirror, FTS, and cross-community ops no other Skool tool ships.",
+      "homepage": "https://www.skool.com",
       "search_terms": [
         "skool",
         "skool-pp-cli",
@@ -28366,6 +28811,7 @@
       "category": "productivity",
       "api": "Slack",
       "description": "Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal",
+      "homepage": "https://slack.com",
       "search_terms": [
         "slack",
         "slack-pp-cli",
@@ -28435,6 +28881,7 @@
       "category": "commerce",
       "api": "Slickdeals",
       "description": "Slickdeals frontpage, coupons, and recommendations from your terminal — agent-native, MCP-compatible, locally...",
+      "homepage": "https://slickdeals.net",
       "search_terms": [
         "slickdeals",
         "slickdeals-pp-cli",
@@ -28500,6 +28947,7 @@
       "category": "travel",
       "api": "smartEX",
       "description": "Compare Shinkansen fares and constraints before booking",
+      "homepage": "https://smart-ex.jp",
       "search_terms": [
         "smartex",
         "smartex-pp-cli",
@@ -28557,6 +29005,7 @@
       "category": "sales-and-crm",
       "api": "Smartlead",
       "description": "Every SmartLead API feature, plus a local mirror that answers campaign-health, silent-lead, and cross-campaign...",
+      "homepage": "https://www.smartlead.ai",
       "search_terms": [
         "smartlead",
         "smartlead-pp-cli",
@@ -28613,6 +29062,7 @@
       "category": "travel",
       "api": "Navitia",
       "description": "navitia.io is the open API for building cool stuff with mobility data.",
+      "homepage": "https://www.navitia.io",
       "search_terms": [
         "sncf-connect",
         "Navitia",
@@ -28676,6 +29126,7 @@
       "category": "media-and-entertainment",
       "api": "Snipd",
       "description": "Turn your Snipd snips into a local, ranked, full-text-searchable corpus — search a concept across every note, quote, and transcript, pull the exact quote, and synthesize across shows from the command line, plus an MCP for agents.",
+      "homepage": "https://www.snipd.com",
       "search_terms": [
         "snipd",
         "snipd-pp-cli",
@@ -28736,6 +29187,7 @@
       "category": "travel",
       "api": "SnowJapan",
       "description": "Compare Japan ski areas with terrain facts, dated reports and explicit historical-season evidence.",
+      "homepage": "https://www.snowjapan.com",
       "search_terms": [
         "snowjapan",
         "snowjapan-pp-cli",
@@ -28834,6 +29286,7 @@
       "category": "payments",
       "api": "Splitwise",
       "description": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics",
+      "homepage": "https://www.splitwise.com",
       "search_terms": [
         "splitwise",
         "splitwise-pp-cli",
@@ -28990,6 +29443,7 @@
       "category": "media-and-entertainment",
       "api": "Spotify Web",
       "description": "An agent-native Spotify CLI with a SQLite-backed local library that lets you ask listening-drift questions no other...",
+      "homepage": "https://www.spotify.com",
       "search_terms": [
         "spotify",
         "Spotify Web",
@@ -29075,6 +29529,7 @@
       "category": "productivity",
       "api": "Sprocket Sports",
       "description": "Your youth-soccer club's schedule, teams, and dues from the terminal — with merged multi-kid agendas, conflict detection, and iCal export no dashboard gives you.",
+      "homepage": "https://sprocketsports.com",
       "search_terms": [
         "sprocket",
         "Sprocket Sports",
@@ -29148,6 +29603,7 @@
       "category": "commerce",
       "api": "Square",
       "description": "The current Square v2 API surface, plus local reconciliation and history the remote API cannot provide by itself.",
+      "homepage": "https://squareup.com",
       "search_terms": [
         "square",
         "square-pp-cli",
@@ -29187,6 +29643,7 @@
       "category": "commerce",
       "api": "Squarespace",
       "description": "Squarespace Commerce plus browser-backed account domains, DNS, email forwarding, and billing reads.",
+      "homepage": "https://www.squarespace.com",
       "search_terms": [
         "squarespace",
         "squarespace-pp-cli",
@@ -29232,6 +29689,7 @@
       "category": "maps",
       "api": "STAC API",
       "description": "The first Go single-binary STAC CLI: every search filter the Python tools have, plus an offline cache, scene ranking, coverage, and asset resolution no other STAC tool offers.",
+      "homepage": "https://stacspec.org",
       "search_terms": [
         "stac",
         "STAC API",
@@ -29297,6 +29755,7 @@
       "category": "marketing",
       "api": "StackAdapt",
       "description": "The first agent-native StackAdapt CLI: pacing, delivery drift",
+      "homepage": "https://www.stackadapt.com",
       "search_terms": [
         "stackadapt",
         "stackadapt-pp-cli",
@@ -29343,6 +29802,7 @@
       "category": "media-and-entertainment",
       "api": "Steam Web",
       "description": "Look up Steam players, games, achievements, friends, and stats from the command line",
+      "homepage": "https://store.steampowered.com",
       "search_terms": [
         "steam-web",
         "Steam Web",
@@ -29416,6 +29876,7 @@
       "category": "productivity",
       "api": "Strava",
       "description": "Every Strava feature, plus offline analytics — training load, power curves, zone time",
+      "homepage": "https://www.strava.com",
       "search_terms": [
         "strava",
         "strava-pp-cli",
@@ -29478,6 +29939,7 @@
       "category": "payments",
       "api": "Stripe",
       "description": "Every Stripe feature, plus a local SQLite mirror with FTS, cross-entity SQL, and analytics no other Stripe tool ships.",
+      "homepage": "https://stripe.com",
       "search_terms": [
         "stripe",
         "stripe-pp-cli",
@@ -29547,6 +30009,7 @@
       "category": "media-and-entertainment",
       "api": "Substack",
       "description": "Run your Substack growth loop from the command line — publish, schedule, engage",
+      "homepage": "https://substack.com",
       "search_terms": [
         "substack",
         "substack-pp-cli",
@@ -29648,6 +30111,7 @@
       "category": "media-and-entertainment",
       "api": "Substack Reader",
       "description": "Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to.",
+      "homepage": "https://substack.com",
       "search_terms": [
         "substack-reader",
         "Substack Reader",
@@ -29711,6 +30175,7 @@
       "category": "sales-and-crm",
       "api": "Sumble",
       "description": "Every Sumble v6 feature, plus the credit-awareness the API itself won't give you",
+      "homepage": "https://sumble.com",
       "search_terms": [
         "sumble",
         "sumble-pp-cli",
@@ -29767,6 +30232,7 @@
       "category": "travel",
       "api": "Sunflower Ferry",
       "description": "Plan dated Sunflower ferry sailings, cabin fares and port access from official sources.",
+      "homepage": "https://www.ferry-sunflower.co.jp",
       "search_terms": [
         "sunflower-ferry",
         "Sunflower Ferry",
@@ -29823,6 +30289,7 @@
       "category": "media-and-entertainment",
       "api": "Suno",
       "description": "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library",
+      "homepage": "https://suno.com",
       "search_terms": [
         "suno",
         "suno-pp-cli",
@@ -29887,6 +30354,7 @@
       "category": "developer-tools",
       "api": "Supabase",
       "description": "Every Supabase runtime endpoint — PostgREST CRUD, Auth Admin, Storage objects, Edge Function invoke — plus the...",
+      "homepage": "https://supabase.com",
       "search_terms": [
         "supabase",
         "supabase-pp-cli",
@@ -29959,6 +30427,7 @@
       "category": "productivity",
       "api": "Superhuman",
       "description": "The Superhuman CLI that doesn't log you out, with a local inbox, agent-native I/O, and triage rules the web app...",
+      "homepage": "https://superhuman.com",
       "search_terms": [
         "superhuman",
         "superhuman-pp-cli",
@@ -30008,6 +30477,7 @@
       "category": "productivity",
       "api": "Supermemory",
       "description": "The Memory API for the AI era",
+      "homepage": "https://supermemory.ai",
       "search_terms": [
         "supermemory-admin",
         "Supermemory",
@@ -30056,6 +30526,7 @@
       "category": "health",
       "api": "Suppco",
       "description": "Read-only SuppCo stack facts with a deterministic, provenance-bearing regimen snapshot export.",
+      "homepage": "https://supp.co",
       "search_terms": [
         "suppco",
         "suppco-pp-cli",
@@ -30097,6 +30568,7 @@
       "category": "other",
       "api": "Surfline",
       "description": "Every Surfline forecast, scriptable from your terminal — plus multi-spot ranking, a local forecast journal, and cron-able alerts no Surfline tool has.",
+      "homepage": "https://www.surfline.com",
       "search_terms": [
         "surfline",
         "surfline-pp-cli",
@@ -30160,6 +30632,7 @@
       "category": "ai",
       "api": "Surgegraph Facade",
       "description": "SurgeGraph is the Answer Engine Optimization (AEO) platform that tracks AI citations, scores pages for citation readiness, and one-click fixes the gaps — now every workflow runs from the terminal or any agent.",
+      "homepage": "https://surgegraph.io",
       "search_terms": [
         "surgegraph",
         "Surgegraph Facade",
@@ -30240,6 +30713,7 @@
       "category": "productivity",
       "api": "Sutra",
       "description": "Every Sutra (Arketa) Partner API resource, plus a local data mirror and the studio analytics the dashboard buries — no-show rates, capacity, churn, and revenue you can finally query.",
+      "homepage": "https://www.arketa.com",
       "search_terms": [
         "sutra-fitness",
         "Sutra",
@@ -30304,6 +30778,7 @@
       "category": "food-and-dining",
       "api": "Swiggy",
       "description": "Every Swiggy Builders Club tool, one persistent OAuth session, and a local order history no Swiggy surface shows you.",
+      "homepage": "https://www.swiggy.com",
       "search_terms": [
         "swiggy",
         "swiggy-pp-cli",
@@ -30361,6 +30836,7 @@
       "category": "devices",
       "api": "Synology",
       "description": "Query and operate Synology DSM NAS units - system health, storage, SMART, shares, users",
+      "homepage": "https://www.synology.com",
       "search_terms": [
         "synology",
         "synology-pp-cli",
@@ -30409,6 +30885,7 @@
       "category": "food-and-dining",
       "api": "Tabelog",
       "description": "Find Japan restaurants and bars, then keep a factual trip shortlist.",
+      "homepage": "https://tabelog.com",
       "search_terms": [
         "tabelog",
         "tabelog-pp-cli",
@@ -30460,6 +30937,7 @@
       "category": "travel",
       "api": "tabiwa by WESTER catalog",
       "description": "Compare regional tabiwa catalog products with payment units and original restriction evidence.",
+      "homepage": "https://app.tabi-wester.westjr.co.jp",
       "search_terms": [
         "tabiwa",
         "tabiwa by WESTER catalog",
@@ -30575,6 +31053,7 @@
       "category": "food-and-dining",
       "api": "TableCheck",
       "description": "Find Japan restaurants, inspect courses, and check a bounded shortlist before booking.",
+      "homepage": "https://www.tablecheck.com",
       "search_terms": [
         "tablecheck",
         "tablecheck-pp-cli",
@@ -30625,6 +31104,7 @@
       "category": "cloud",
       "api": "Tailscale",
       "description": "Tailscale admin from the terminal, with safe route and policy edits an agent can plan before it writes.",
+      "homepage": "https://tailscale.com",
       "search_terms": [
         "tailscale",
         "tailscale-pp-cli",
@@ -30695,6 +31175,7 @@
       "category": "productivity",
       "api": "Techmeme",
       "description": "Tech news aggregation and curation. No official API exists. This spec describes the RSS, OPML, search, and HTML surfaces available for programmatic access. No authentication required.",
+      "homepage": "https://www.techmeme.com",
       "search_terms": [
         "techmeme",
         "techmeme-pp-cli",
@@ -30924,6 +31405,7 @@
       "category": "social-and-messaging",
       "api": "Telnyx",
       "description": "Telnyx messaging, numbers, and voice endpoints, plus a synced message-history mirror, number setup audits, and spend rollups.",
+      "homepage": "https://telnyx.com",
       "search_terms": [
         "telnyx",
         "telnyx-pp-cli",
@@ -30982,6 +31464,7 @@
       "category": "sales-and-crm",
       "api": "TenderNed",
       "description": "Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe.",
+      "homepage": "https://www.tenderned.nl",
       "search_terms": [
         "tenderned",
         "tenderned-pp-cli",
@@ -31019,6 +31502,7 @@
       "category": "travel",
       "api": "tenki.jp",
       "description": "Choose Japan sightseeing dates with traceable weather and seasonal evidence.",
+      "homepage": "https://tenki.jp",
       "search_terms": [
         "tenki",
         "tenki.jp",
@@ -31066,6 +31550,7 @@
       "category": "devices",
       "api": "Tesla",
       "description": "Every Tesla mobile-app feature, plus a charging-cost ledger and supercharger queue watcher no other Tesla CLI ships.",
+      "homepage": "https://www.tesla.com",
       "search_terms": [
         "tesla",
         "tesla-pp-cli",
@@ -31134,6 +31619,7 @@
       "category": "commerce",
       "api": "TeslaTracker",
       "description": "Every used Tesla TeslaTracker lists, in a local store that answers questions the site cannot — price paths, cohort placement, warranty left, and what already left the lot.",
+      "homepage": "https://teslatracker.com",
       "search_terms": [
         "teslatracker",
         "teslatracker-pp-cli",
@@ -31213,6 +31699,7 @@
       "category": "devices",
       "api": "Tessie",
       "description": "Live Tesla vehicle data and commands from the terminal via the Tessie API",
+      "homepage": "https://www.tessie.com",
       "search_terms": [
         "tessie",
         "tessie-pp-cli",
@@ -31256,6 +31743,7 @@
       "category": "food-and-dining",
       "api": "Texas Roadhouse - call ahead seating",
       "description": "Waitlist CLI for Texas Roadhouse. Find a nearby store, read the quote, join and leave the list.",
+      "homepage": "https://www.texasroadhouse.com",
       "search_terms": [
         "texas-roadhouse",
         "Texas Roadhouse - call ahead seating",
@@ -31311,6 +31799,7 @@
       "category": "developer-tools",
       "api": "The Lancet",
       "description": "Search Lancet articles offline and analyze author impact, institutional networks, and editorial trends — powered by the free OpenAlex scholarly graph.",
+      "homepage": "https://www.thelancet.com",
       "search_terms": [
         "thelancet",
         "The Lancet",
@@ -31372,6 +31861,7 @@
       "category": "productivity",
       "api": "Thunderbird",
       "description": "Search, read and audit the mail Thunderbird already downloaded — offline, read-only, no credentials.",
+      "homepage": "https://www.thunderbird.net",
       "search_terms": [
         "thunderbird",
         "thunderbird-pp-cli",
@@ -31423,6 +31913,7 @@
       "category": "media-and-entertainment",
       "api": "TicketData",
       "description": "Every TicketData price signal for any event, performer, or venue, plus a local price-history store for trend math, drift alerts, and cross-event comparisons no ticket tool ships.",
+      "homepage": "https://www.ticketdata.com",
       "search_terms": [
         "ticketdata",
         "ticketdata-pp-cli",
@@ -31481,6 +31972,7 @@
       "category": "media-and-entertainment",
       "api": "Ticketmaster",
       "description": "Every Discovery v2 endpoint plus offline search, multi-venue watchlists, residency dedup, and on-sale tracking no...",
+      "homepage": "https://www.ticketmaster.com",
       "search_terms": [
         "ticketmaster",
         "ticketmaster-pp-cli",
@@ -31559,6 +32051,7 @@
       "category": "productivity",
       "api": "TickTick",
       "description": "Every TickTick surface — tasks, habits, focus, daily notes — with a corruption-proof daily-note contract and offline analytics no other TickTick tool has.",
+      "homepage": "https://ticktick.com",
       "search_terms": [
         "ticktick",
         "ticktick-pp-cli",
@@ -31611,6 +32104,7 @@
       "category": "productivity",
       "api": "TidyCal",
       "description": "Manage TidyCal scheduling data: bookings, contacts, booking types, team calendars, schedule briefs, triage, and availability shortlists.",
+      "homepage": "https://tidycal.com",
       "search_terms": [
         "tidycal",
         "tidycal-pp-cli",
@@ -31666,6 +32160,7 @@
       "category": "productivity",
       "api": "tiimo",
       "description": "Your Tiimo plan, finally exportable, queryable, and yours.",
+      "homepage": "https://www.tiimoapp.com",
       "search_terms": [
         "tiimo",
         "tiimo-pp-cli",
@@ -31714,6 +32209,7 @@
       "category": "commerce",
       "api": "TikTok Shop",
       "description": "Use TikTok Shop Seller API workflows for auth, shops, orders, products, inventory search, fulfillment, warehouses, and safe write preflights.",
+      "homepage": "https://shop.tiktok.com",
       "search_terms": [
         "tiktok-shop",
         "TikTok Shop",
@@ -31772,6 +32268,7 @@
       "category": "travel",
       "api": "Tokyo Art Beat",
       "description": "Discover Japanese exhibitions for trip dates with bilingual identities and explicit schedule uncertainty.",
+      "homepage": "https://www.tokyoartbeat.com",
       "search_terms": [
         "tokyo-art-beat",
         "Tokyo Art Beat",
@@ -31821,6 +32318,7 @@
       "category": "productivity",
       "api": "Toodledo",
       "description": "Every Toodledo feature from the terminal, plus an offline SQLite mirror, GTD reviews, and rate-budget-aware sync that no other Toodledo tool has.",
+      "homepage": "https://www.toodledo.com",
       "search_terms": [
         "toodledo",
         "toodledo-pp-cli",
@@ -31882,6 +32380,7 @@
       "category": "travel",
       "api": "Toretabi",
       "description": "Inspect Japan rail-ticket conditions and linked official operator rules with explicit uncertainty.",
+      "homepage": "https://www.toretabi.jp",
       "search_terms": [
         "toretabi",
         "toretabi-pp-cli",
@@ -31933,6 +32432,7 @@
       "category": "travel",
       "api": "TOYOTA Rent a Car",
       "description": "Live Japan rental class estimates, distinct shops, and a careful booking handoff.",
+      "homepage": "https://rent.toyota.co.jp",
       "search_terms": [
         "toyota-rentacar",
         "TOYOTA Rent a Car",
@@ -32023,6 +32523,7 @@
       "category": "travel",
       "api": "Traveloka",
       "description": "Research dated flights and hotel stays with source price bases, complete itineraries and comparable quote snapshots.",
+      "homepage": "https://www.traveloka.com",
       "search_terms": [
         "traveloka",
         "traveloka-pp-cli",
@@ -32077,6 +32578,7 @@
       "category": "marketing",
       "api": "Trend Hunter",
       "description": "Every Trend Hunter feature, plus a local SQLite corpus, FTS5 search, FAQ Q&A extraction, and agent-native JSON no...",
+      "homepage": "https://www.trendhunter.com",
       "search_terms": [
         "trendhunter",
         "Trend Hunter",
@@ -32141,6 +32643,7 @@
       "category": "developer-tools",
       "api": "Trigger.dev",
       "description": "Durable background jobs and AI agent orchestration — runs, schedules, deployments, batches, queues, waitpoints, env vars, and TRQL analytics",
+      "homepage": "https://trigger.dev",
       "search_terms": [
         "trigger-dev",
         "Trigger.dev",
@@ -32205,6 +32708,7 @@
       "category": "travel",
       "api": "Tripadvisor",
       "description": "Every Tripadvisor Content API endpoint",
+      "homepage": "https://www.tripadvisor.com",
       "search_terms": [
         "tripadvisor",
         "tripadvisor-pp-cli",
@@ -32262,6 +32766,7 @@
       "category": "marketing",
       "api": "Trustpilot",
       "description": "Every Trustpilot review surface, plus the local SQLite database and balanced good-and-bad agent bundle no other...",
+      "homepage": "https://www.trustpilot.com",
       "search_terms": [
         "trustpilot",
         "trustpilot-pp-cli",
@@ -32334,6 +32839,7 @@
       "category": "ai",
       "api": "Twelvelabs Video Understanding",
       "description": "Upload, index, search, summarize, embed, and analyze video with TwelveLabs, including editor-ready briefs and waitable workflows.",
+      "homepage": "https://www.twelvelabs.io",
       "search_terms": [
         "twelvelabs",
         "Twelvelabs Video Understanding",
@@ -32386,6 +32892,7 @@
       "category": "social-and-messaging",
       "api": "Twilio",
       "description": "Every Twilio Core feature, plus offline message and call history, FTS, and SQL-grade analytics no other Twilio tool...",
+      "homepage": "https://www.twilio.com",
       "search_terms": [
         "twilio",
         "twilio-pp-cli",
@@ -32461,6 +32968,7 @@
       "category": "media-and-entertainment",
       "api": "Twitch Helix",
       "description": "Twitch Helix API",
+      "homepage": "https://www.twitch.tv",
       "search_terms": [
         "twitch",
         "Twitch Helix",
@@ -32518,6 +33026,7 @@
       "category": "productivity",
       "api": "Uber Careers",
       "description": "Every public Uber job posting as one tracker-ready JSON feed with offline history, new-since diffs and a fallback when the careers site refuses",
+      "homepage": "https://jobs.uber.com",
       "search_terms": [
         "uber-jobs",
         "Uber Careers",
@@ -32583,6 +33092,7 @@
       "category": "commerce",
       "api": "UCP",
       "description": "A Go CLI for Google's Universal Commerce Protocol — talk to UCP merchants over REST or MCP",
+      "homepage": "https://ucp.dev",
       "search_terms": [
         "ucp",
         "ucp-pp-cli",
@@ -32681,6 +33191,7 @@
       "category": "travel",
       "api": "UK Train Goat",
       "description": "The only Go-native, agent-native, MCP-exposed UK rail CLI; live boards, journey planning",
+      "homepage": "https://www.nationalrail.co.uk",
       "search_terms": [
         "uk-train-goat",
         "UK Train Goat",
@@ -32829,6 +33340,7 @@
       "category": "social-and-messaging",
       "api": "Unipile",
       "description": "Every Unipile endpoint as a typed command, plus a local mirror that makes cross-provider search possible and an invitation ledger that shows how much LinkedIn headroom you have left.",
+      "homepage": "https://www.unipile.com",
       "search_terms": [
         "unipile",
         "unipile-pp-cli",
@@ -32938,6 +33450,7 @@
       "category": "other",
       "api": "USGS Earthquakes",
       "description": "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a...",
+      "homepage": "https://earthquake.usgs.gov",
       "search_terms": [
         "usgs-earthquakes",
         "USGS Earthquakes",
@@ -33000,6 +33513,7 @@
       "category": "developer-tools",
       "api": "Tsdr",
       "description": "Beginning on October 2, 2020, you will need an API key to access the TSDR REST API See...",
+      "homepage": "https://tsdr.uspto.gov",
       "search_terms": [
         "uspto-tsdr",
         "Tsdr",
@@ -33056,6 +33570,7 @@
       "category": "monitoring",
       "api": "Utah Public Notice Website",
       "description": "One command to sweep Utah public-meeting notices for land-use approvals — county-wide, agenda-scanned, and diffed against what you've already seen.",
+      "homepage": "https://www.utah.gov/pmn",
       "search_terms": [
         "utah-pmn",
         "Utah Public Notice Website",
@@ -33118,6 +33633,7 @@
       "category": "ai",
       "api": "v0",
       "description": "Generate and iterate on web apps with v0 from the terminal: create chats from prompts, stream agent output, sync history to a local SQLite mirror, and track credit spend across models.",
+      "homepage": "https://v0.app",
       "search_terms": [
         "v0",
         "v0-pp-cli",
@@ -33186,6 +33702,7 @@
       "category": "health",
       "api": "Vagaro",
       "description": "Every Vagaro discovery feature, plus the marketplace-wide availability search, price comparison, and local database no Vagaro tool has.",
+      "homepage": "https://www.vagaro.com",
       "search_terms": [
         "vagaro",
         "vagaro-pp-cli",
@@ -33244,6 +33761,7 @@
       "category": "other",
       "api": "Vehicle Safety",
       "description": "Build source-attributed vehicle safety dossiers, honest comparisons, and recall-change reports from NHTSA data.",
+      "homepage": "https://www.nhtsa.gov",
       "search_terms": [
         "vehicle-safety",
         "Vehicle Safety",
@@ -33300,6 +33818,7 @@
       "category": "cloud",
       "api": "Vercel",
       "description": "Agent-ready Vercel admin CLI for deployments, projects, domains, environment variables, teams, logs, and operator briefs.",
+      "homepage": "https://vercel.com",
       "search_terms": [
         "vercel-admin",
         "Vercel",
@@ -33345,6 +33864,7 @@
       "category": "devices",
       "api": "Vestaboard",
       "description": "Read, preview, render, and write Vestaboard messages from the terminal, including character-code lookup for precise board output.",
+      "homepage": "https://www.vestaboard.com",
       "search_terms": [
         "vestaboard",
         "vestaboard-pp-cli",
@@ -33390,6 +33910,7 @@
       "category": "travel",
       "api": "Visit Detroit Blog",
       "description": "Detroit's official \\\"Inside the D\\\" blog as a CLI — every article searchable offline",
+      "homepage": "https://visitdetroit.com/inside-the-d/",
       "search_terms": [
         "visit-detroit-blog",
         "Visit Detroit Blog",
@@ -33440,6 +33961,7 @@
       "category": "devices",
       "api": "Wahoo Cloud API",
       "description": "Every Wahoo Cloud API capability, plus the local training database and offline analysis Wahoo's app never gives you.",
+      "homepage": "https://www.wahoofitness.com",
       "search_terms": [
         "wahoo",
         "Wahoo Cloud API",
@@ -33498,6 +34020,7 @@
       "category": "travel",
       "api": "Walkerplus",
       "description": "Discover Japan events for a trip with source-backed dates and schedule confidence.",
+      "homepage": "https://www.walkerplus.com",
       "search_terms": [
         "walkerplus",
         "walkerplus-pp-cli",
@@ -33537,6 +34060,7 @@
       "category": "devices",
       "api": "walkingpad",
       "description": "WalkingPad device CLI",
+      "homepage": "https://www.walkingpad.com",
       "search_terms": [
         "walkingpad",
         "walkingpad-pp-cli",
@@ -33576,6 +34100,7 @@
       "category": "commerce",
       "api": "Walmart",
       "description": "Walmart Pickup & Delivery from the terminal — reads via orchestra, cart changes via affiliate link only.",
+      "homepage": "https://www.walmart.com",
       "search_terms": [
         "walmart",
         "walmart-pp-cli",
@@ -33634,6 +34159,7 @@
       "category": "travel",
       "api": "Wanderlog",
       "description": "Clone shared Wanderlog plans into editable trips, then mine guides and places for agent-ready planning.",
+      "homepage": "https://wanderlog.com",
       "search_terms": [
         "wanderlog",
         "wanderlog-pp-cli",
@@ -33868,6 +34394,7 @@
       "category": "ai",
       "api": "WaveSpeed",
       "description": "Run WaveSpeed AI models with schema-aware inputs, prompt shortcuts, price estimates, wait/download helpers, aliases, and media uploads.",
+      "homepage": "https://wavespeed.ai",
       "search_terms": [
         "wavespeed",
         "wavespeed-pp-cli",
@@ -34011,6 +34538,7 @@
       "category": "travel",
       "api": "Weathernews",
       "description": "Japan weather and seasonal travel evidence with explicit dates, freshness and coverage.",
+      "homepage": "https://weathernews.jp",
       "search_terms": [
         "weathernews",
         "weathernews-pp-cli",
@@ -34069,6 +34597,7 @@
       "category": "developer-tools",
       "api": "Weaviate Collections",
       "description": "Full collection-config control for Weaviate Cloud, plus schema history, drift diffing, and lint that no other Weaviate tool has.",
+      "homepage": "https://weaviate.io",
       "search_terms": [
         "weaviate-collections",
         "Weaviate Collections",
@@ -34124,6 +34653,7 @@
       "category": "developer-tools",
       "api": "Webflow",
       "description": "The whole Webflow Data API, plus a local database that lets you audit SEO, diff staging against live, and preview a publish before you trigger it.",
+      "homepage": "https://webflow.com",
       "search_terms": [
         "webflow",
         "webflow-pp-cli",
@@ -34183,6 +34713,7 @@
       "category": "social-and-messaging",
       "api": "WhatsApp Business Tools",
       "description": "Operate the official WhatsApp Business MCP with reviewable writes and captured evidence for integration checks.",
+      "homepage": "https://business.whatsapp.com",
       "search_terms": [
         "whatsapp-business",
         "WhatsApp Business Tools",
@@ -34237,6 +34768,7 @@
       "category": "travel",
       "api": "WheeLog",
       "description": "Find and compare recorded accessibility facts with gaps and conflicting reports visible.",
+      "homepage": "https://wheelog.com",
       "search_terms": [
         "wheelog",
         "wheelog-pp-cli",
@@ -34287,6 +34819,7 @@
       "category": "devices",
       "api": "WHOOP",
       "description": "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access.",
+      "homepage": "https://www.whoop.com",
       "search_terms": [
         "whoop",
         "whoop-pp-cli",
@@ -34362,6 +34895,7 @@
       "category": "media-and-entertainment",
       "api": "Wikipedia",
       "description": "Wikipedia REST API. Get article summaries, search, browse related topics, and access on-this-day events. No authentication required. Uses a polite User-Agent header.",
+      "homepage": "https://www.wikipedia.org",
       "search_terms": [
         "wikipedia",
         "wikipedia-pp-cli",
@@ -34404,6 +34938,7 @@
       "category": "devices",
       "api": "Withings",
       "description": "Every Withings metric in one offline-first, agent-native CLI — with a local SQLite mirror and recomposition, recovery, sleep-debt and clinician-report analytics no Withings tool has.",
+      "homepage": "https://www.withings.com",
       "search_terms": [
         "withings",
         "withings-pp-cli",
@@ -34461,6 +34996,7 @@
       "category": "food-and-dining",
       "api": "Wolt",
       "description": "Browse-only Wolt consumer CLI.",
+      "homepage": "https://wolt.com",
       "search_terms": [
         "wolt",
         "wolt-pp-cli",
@@ -34503,6 +35039,7 @@
       "category": "commerce",
       "api": "Woolworths",
       "description": "Every Woolworths catalogue, specials, store and trolley surface, plus a local price history that can tell a genuine half-price from an inflated was-price.",
+      "homepage": "https://www.woolworths.com.au",
       "search_terms": [
         "woolworths",
         "woolworths-pp-cli",
@@ -34560,6 +35097,7 @@
       "category": "commerce",
       "api": "Woot",
       "description": "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.",
+      "homepage": "https://www.woot.com",
       "search_terms": [
         "woot",
         "woot-pp-cli",
@@ -34603,6 +35141,7 @@
       "category": "developer-tools",
       "api": "WordPress",
       "description": "WP-CLI-grade control over any WordPress site through plain HTTPS — no SSH, no server-side plugin, one static binary.",
+      "homepage": "https://wordpress.org",
       "search_terms": [
         "wordpress",
         "wordpress-pp-cli",
@@ -34664,6 +35203,7 @@
       "category": "productivity",
       "api": "Google Workspace Admin",
       "description": "GAT-style Google Workspace auditing as an agent-native CLI: sync Directory, Drive, Gmail, Reports, and Alert Center into a local store, then run offline cross-API audits, offboarding, and OAuth-app risk checks that GAM and the official gws CLI cannot persist.",
+      "homepage": "https://workspace.google.com",
       "search_terms": [
         "workspace-admin",
         "Google Workspace Admin",
@@ -34734,6 +35274,7 @@
       "category": "other",
       "api": "World Bank",
       "description": "Every World Bank indicator, queryable offline, with cross-country SQL and rankings no wrapper has.",
+      "homepage": "https://www.worldbank.org",
       "search_terms": [
         "world-bank",
         "World Bank",
@@ -34796,6 +35337,7 @@
       "category": "commerce",
       "api": "Worten Reverse Engineered",
       "description": "Local OpenAPI seed extracted from the working housebuy Worten CLI.",
+      "homepage": "https://www.worten.pt",
       "search_terms": [
         "worten",
         "Worten Reverse Engineered",
@@ -34846,6 +35388,7 @@
       "category": "social-and-messaging",
       "api": "X (Twitter)",
       "description": "Use X/Twitter with local searchable archives, post and conversation resolvers, collections, analytics, MCP tools, and tier diagnostics.",
+      "homepage": "https://x.com",
       "search_terms": [
         "x-twitter",
         "X (Twitter)",
@@ -34933,6 +35476,7 @@
       "category": "ai",
       "api": "xAI",
       "description": "REST API for xAI compatible with other providers.",
+      "homepage": "https://x.ai",
       "search_terms": [
         "xai",
         "xai-pp-cli",
@@ -34989,6 +35533,7 @@
       "category": "accounting",
       "api": "xero",
       "description": "Fixture-first, read-only Xero CLI for agents.",
+      "homepage": "https://www.xero.com",
       "search_terms": [
         "xero",
         "xero-pp-cli",
@@ -35022,6 +35567,7 @@
       "category": "media-and-entertainment",
       "api": "Yahoo Fantasy Sports",
       "description": "Full Yahoo Fantasy Sports read/write CLI and MCP server — set lineups, execute add/drops and FAAB waiver claims, and run local SQLite league analytics.",
+      "homepage": "https://sports.yahoo.com/fantasy/",
       "search_terms": [
         "yahoo-fantasy",
         "Yahoo Fantasy Sports",
@@ -35084,6 +35630,7 @@
       "category": "commerce",
       "api": "Yahoo Finance",
       "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance — no API key, with Chrome-session fallback for rate-limited IPs",
+      "homepage": "https://finance.yahoo.com",
       "search_terms": [
         "yahoo-finance",
         "Yahoo Finance",
@@ -35152,6 +35699,7 @@
       "category": "travel",
       "api": "YAMAP",
       "description": "Discover Japan hikes with compact source facts and dated contributor evidence.",
+      "homepage": "https://yamap.com",
       "search_terms": [
         "yamap",
         "yamap-pp-cli",
@@ -35202,6 +35750,7 @@
       "category": "travel",
       "api": "Yamato Transport",
       "description": "Plan Japan luggage forwarding with source rates, calendar deadlines and acceptance evidence.",
+      "homepage": "https://www.kuronekoyamato.co.jp",
       "search_terms": [
         "yamato",
         "Yamato Transport",
@@ -35258,6 +35807,7 @@
       "category": "developer-tools",
       "api": "YesWeHack",
       "description": "Every YesWeHack researcher feature, plus an offline SQLite-backed cockpit for scope cartography, drift detection,...",
+      "homepage": "https://www.yeswehack.com",
       "search_terms": [
         "yeswehack",
         "yeswehack-pp-cli",
@@ -35325,6 +35875,7 @@
       "category": "other",
       "api": "YNAB",
       "description": "Every YNAB feature, plus a local mirror that makes reconciliation, payee trend analysis, and a ready-made ProjectionLab export instant instead of manual.",
+      "homepage": "https://www.ynab.com",
       "search_terms": [
         "ynab",
         "ynab-pp-cli",
@@ -35372,6 +35923,7 @@
       "category": "media-and-entertainment",
       "api": "Youtube Data",
       "description": "Search YouTube in bulk, grab transcripts, get embed snippets — for the photo-keywords-to-blog-post workflow.",
+      "homepage": "https://www.youtube.com",
       "search_terms": [
         "youtube",
         "youtube-pp-cli",
@@ -35447,6 +35999,7 @@
       "category": "commerce",
       "api": "Zameen",
       "description": "Search Zameen.com property listings from your terminal — real filters, an offline SQLite mirror, saved-search monitoring, and price-drop alerts no scraper offers.",
+      "homepage": "https://www.zameen.com",
       "search_terms": [
         "zameen",
         "zameen-pp-cli",
@@ -35499,6 +36052,7 @@
       "category": "other",
       "api": "Zillow",
       "description": "Official Zillow Research data, normalized for explainable housing-market decisions.",
+      "homepage": "https://www.zillow.com/research/data/",
       "search_terms": [
         "zillow",
         "zillow-pp-cli",
@@ -35578,6 +36132,7 @@
       "category": "other",
       "api": "Zimmo",
       "description": "Belgian real estate from Zimmo with exact addresses, sold comps, commune prices per m² and a local store for deal sourcing.",
+      "homepage": "https://www.zimmo.be",
       "search_terms": [
         "zimmo",
         "zimmo-pp-cli",
@@ -35636,6 +36191,7 @@
       "category": "productivity",
       "api": "Zoho Expense",
       "description": "Upload receipts, auto-tag expenses from learned merchant memory",
+      "homepage": "https://www.zoho.com/expense",
       "search_terms": [
         "zoho-expense",
         "Zoho Expense",
@@ -35700,6 +36256,7 @@
       "category": "productivity",
       "api": "Zoom",
       "description": "The first Zoom CLI that joins your local desktop app, your on-disk recordings, and your cloud account into one...",
+      "homepage": "https://www.zoom.com",
       "search_terms": [
         "zoom",
         "zoom-pp-cli",
@@ -35778,6 +36335,7 @@
       "category": "productivity",
       "api": "Zotero",
       "description": "Your entire Zotero research library, searchable offline — version-based incremental sync into SQLite with full-text search no other Zotero tool has.",
+      "homepage": "https://www.zotero.org",
       "search_terms": [
         "zotero-research-library",
         "Zotero",
