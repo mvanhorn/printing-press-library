@@ -152,6 +152,9 @@ func toCents(text string) (int64, error) {
 	if err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
 		return 0, fmt.Errorf("%q is not an amount", text)
 	}
+	if math.Abs(f) >= 1e12 {
+		return 0, fmt.Errorf("amount %q is too large", text)
+	}
 	cents := math.Round(f * 100)
 	if math.Abs(f*100-cents) > 1e-6 {
 		return 0, fmt.Errorf("amount %q has more than two decimal places", text)
@@ -197,6 +200,9 @@ func parseSplits(raw []byte, expectTotal int64) ([]map[string]any, error) {
 			return nil, fmt.Errorf("line %d: %s must not be zero and must have the same sign as the total, %s", i+1, centsString(c), centsString(expectTotal))
 		}
 		sum += c
+		if (expectTotal < 0 && sum < expectTotal) || (expectTotal > 0 && sum > expectTotal) {
+			return nil, fmt.Errorf("the lines add up to more than --expect-total %s by line %d", centsString(expectTotal), i+1)
+		}
 		out = append(out, map[string]any{"merchantName": l.MerchantName, "amount": float64(c) / 100, "categoryId": l.CategoryID})
 	}
 	if sum != expectTotal {
@@ -229,6 +235,8 @@ it would send.
 
 With --yes, the command checks the transaction again and stops if:
   - its amount is not --expect-total
+  - Monarch returns a different transaction, which happens when a pending
+    charge posts
   - it is one line of another split
   - it is already split (add --replace to overwrite)
 
@@ -272,6 +280,8 @@ with the old lines, or use --clear.`,
 				return fmt.Errorf("could not read the transaction's amount: %w", err)
 			}
 			switch {
+			case str(before["id"]) != args[0]:
+				return fmt.Errorf("stopped: Monarch returned transaction %s instead of %s, usually because a pending charge posted; use %s; nothing was changed", str(before["id"]), args[0], str(before["id"]))
 			case actual != expect:
 				return fmt.Errorf("stopped: the transaction's amount is %s, not %s; nothing was changed", centsString(actual), centsString(expect))
 			case before["isSplitTransaction"] == true:

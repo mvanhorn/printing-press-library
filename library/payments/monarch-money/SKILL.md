@@ -145,7 +145,7 @@ monarch-money-pp-cli transactions update TRANSACTION_ID --notes 'Reviewed' --yes
 
 - `monarch-money-pp-cli transactions split TRANSACTION_ID --file splits.json --expect-total -142.37` — Preview a split. The file is `[{"merchantName": "...", "amount": -82.17, "categoryId": "..."}, ...]`; amounts use the parent's sign and must sum to `--expect-total` exactly.
 - `monarch-money-pp-cli transactions split TRANSACTION_ID --clear --expect-total -142.37` — Preview removing all splits.
-- With `--yes`, the command re-reads the transaction and refuses if the amount differs, the target is itself a split line, or it already has splits (pass `--replace` to overwrite). Output includes `before` and `after` so the change can be reversed.
+- With `--yes`, the command re-reads the transaction and refuses if Monarch returns a different transaction (a pending charge that posted), the amount differs, the target is itself a split line, or it already has splits (pass `--replace` to overwrite). Output includes `before` and `after` so the change can be reversed.
 
 **transactions create** — Create a manual transaction. Dry-runs unless `--yes` is passed.
 
