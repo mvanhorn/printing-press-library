@@ -15,19 +15,25 @@ import (
 func newPostsCommentCmd(flags *rootFlags) *cobra.Command {
 	var bodyContent string
 	var stdinBody bool
+	var mdBody markdownBodyFlags
 
 	cmd := &cobra.Command{
 		Use:         "comment <post_id>",
-		Short:       "Add a comment to a post",
+		Short:       "Add a comment to a post (body = TipTap JSON; use --md / --from-md for markdown)",
 		Example:     "  skool-pp-cli posts comment 550e8400-e29b-41d4-a716-446655440000 --content example-value",
 		Annotations: map[string]string{"pp:endpoint": "posts.comment", "pp:method": "POST", "pp:path": "/posts/{post_id}/comments"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			// PATCH(amend-2026-11-23: accept a Markdown body, not just TipTap JSON)
+			mdContent, mdErr := mdBody.resolve(func() ([]byte, error) { return io.ReadAll(cmd.InOrStdin()) })
+			if mdErr != nil {
+				return mdErr
+			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("content") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "content")
+				if !cmd.Flags().Changed("content") && !mdBody.set() && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set (or pass --md / --from-md)", "content")
 				}
 			}
 			c, err := flags.newClient()
@@ -50,11 +56,14 @@ func newPostsCommentCmd(flags *rootFlags) *cobra.Command {
 				body = jsonBody
 			} else {
 				body = map[string]any{}
-				if bodyContent != "" {
+				if mdContent != "" {
+					body["content"] = mdContent
+				} else if bodyContent != "" {
 					body["content"] = bodyContent
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			// PATCH(amend-2026-11-23: send api2 endpoints to api2.skool.com)
+			data, statusCode, err := c.Post(c.APIv2URL(path), body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -123,6 +132,8 @@ func newPostsCommentCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyContent, "content", "", "Comment body (TipTap JSON; use --md to convert)")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().StringVar(&mdBody.md, "md", "", "Body as Markdown, converted to TipTap JSON (paragraphs, bold, ordered/bullet lists, links, H3 max)")
+	cmd.Flags().StringVar(&mdBody.fromMD, "from-md", "", "Read the Markdown body from a file ('-' for stdin)")
 
 	return cmd
 }

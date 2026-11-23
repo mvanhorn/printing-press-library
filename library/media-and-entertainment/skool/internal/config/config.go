@@ -13,8 +13,23 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+// DefaultBaseURL is Skool's read host: the Next.js app that serves
+// /_next/data/{buildId}/... JSON routes.
+const DefaultBaseURL = "https://www.skool.com"
+
+// DefaultAPIv2BaseURL is Skool's write host. Skool splits reads and writes
+// across two hosts: the Next.js data routes on www.skool.com answer reads, and
+// the REST surface on api2.skool.com answers every mutation plus a handful of
+// authenticated reads (notifications, pending members). The spec records this
+// per endpoint as a base_url override; the generator dropped it, so this
+// constant carries it instead.
+const DefaultAPIv2BaseURL = "https://api2.skool.com"
+
 type Config struct {
-	BaseURL       string    `toml:"base_url"`
+	BaseURL string `toml:"base_url"`
+	// APIv2BaseURL is the host for endpoints the spec marks with
+	// base_url: https://api2.skool.com. Resolved at Load() time.
+	APIv2BaseURL  string    `toml:"api2_base_url,omitempty"`
 	AuthHeaderVal string    `toml:"auth_header"`
 	AuthSource    string    `toml:"-"`
 	AccessToken   string    `toml:"access_token"`
@@ -32,7 +47,7 @@ type Config struct {
 
 func Load(configPath string) (*Config, error) {
 	cfg := &Config{
-		BaseURL: "https://www.skool.com",
+		BaseURL: DefaultBaseURL,
 	}
 
 	// Resolve config path
@@ -71,6 +86,21 @@ func Load(configPath string) (*Config, error) {
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("SKOOL_BASE_URL"); v != "" {
 		cfg.BaseURL = v
+	}
+
+	// PATCH(amend-2026-11-23: resolve Skool's separate write host)
+	// Resolution order: explicit env override, then the read host when it has
+	// been redirected (printing-press verify points SKOOL_BASE_URL at a mock
+	// server and expects writes to land there too), then the real api2 host.
+	if v := os.Getenv("SKOOL_API2_BASE_URL"); v != "" {
+		cfg.APIv2BaseURL = v
+	}
+	if cfg.APIv2BaseURL == "" {
+		if cfg.BaseURL != DefaultBaseURL {
+			cfg.APIv2BaseURL = cfg.BaseURL
+		} else {
+			cfg.APIv2BaseURL = DefaultAPIv2BaseURL
+		}
 	}
 
 	// Endpoint template vars: resolve each {placeholder} in BaseURL or the

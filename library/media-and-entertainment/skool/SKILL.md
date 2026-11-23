@@ -94,10 +94,41 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   skool-pp-cli classroom export <course-slug> --out ./course/
   ```
+- **`classroom courses` / `classroom course get`** — Read the classroom as a normalized tree: courses, their folders, and the pages inside each folder, with id, title, order, and access at every level.
+
+  _Pick this when an agent needs the classroom's structure rather than a lesson's text — it is the shape `classroom push` diffs against._
+
+  ```bash
+  skool-pp-cli classroom course get reading-the-signals --community <slug> --json
+  ```
+- **`classroom push`** — Diff a directory of markdown lessons against the live classroom and print the ordered create/update plan, matched by title so the same bundle pushed twice updates the same pages.
+
+  _Pick this when a course is authored as markdown in git and the classroom should follow it. Plan-only by default; `push` never deletes._
+
+  ```bash
+  skool-pp-cli classroom push ./lessons --community <slug> --json
+  ```
+- **`posts create --md` / `--from-md`** — Write a post, comment, or lesson body in markdown and let the CLI emit Skool's TipTap JSON (paragraphs, bold, ordered lists, bullet lists, links, H3 max).
+
+  _Pick this instead of hand-building TipTap nodes; a malformed document is rejected by Skool with no indication of which block was at fault._
+
+  ```bash
+  skool-pp-cli posts create --group-id <id> --from-md ./announcement.md
+  ```
 
 ## HTTP Transport
 
 This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
+
+Skool splits reads and writes across two hosts, and the CLI routes each request
+to the right one automatically:
+
+- **Reads** — `https://www.skool.com` Next.js data routes (`/_next/data/{buildId}/...`).
+- **Writes** — `https://api2.skool.com` REST (posts, comments, upvotes, member
+  moderation, notifications). Override with `SKOOL_API2_BASE_URL`; when
+  `SKOOL_BASE_URL` points at a mock server, writes follow it there.
+
+The same `auth_token` cookie covers both.
 
 ## Command Reference
 
@@ -109,6 +140,9 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 - `skool-pp-cli classroom get-course` — Get a single course with its modules and lessons
 - `skool-pp-cli classroom list` — List all courses in a community
+- `skool-pp-cli classroom courses list` — List courses normalized (id, slug, title, order, access)
+- `skool-pp-cli classroom course get <course-slug-or-id>` — Get a course as a normalized tree (course -> folders -> pages)
+- `skool-pp-cli classroom push <dir>` — Plan (and, with --apply, upload) a directory of markdown lessons
 
 **community** — Community feed, settings, and metadata
 
@@ -137,13 +171,13 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 **posts** — Posts (forum threads) inside a community
 
 - `skool-pp-cli posts list` — List posts in a community (newest first)
-- `skool-pp-cli posts comment` — Add a comment to a post
-- `skool-pp-cli posts create` — Create a new post (body = TipTap JSON; use --md to convert markdown)
+- `skool-pp-cli posts comment` — Add a comment to a post (use --md / --from-md for markdown)
+- `skool-pp-cli posts create` — Create a new post (body = TipTap JSON; use --md / --from-md for markdown)
 - `skool-pp-cli posts delete` — Delete a post
 - `skool-pp-cli posts get` — Get a post detail page including comment tree
 - `skool-pp-cli posts like` — Like (upvote) a post
 - `skool-pp-cli posts unlike` — Unlike a post
-- `skool-pp-cli posts update` — Update an existing post
+- `skool-pp-cli posts update` — Update an existing post (use --md / --from-md for markdown)
 
 
 ## Freshness Contract
@@ -170,6 +204,71 @@ skool-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
+
+### Author a course in markdown, then plan the push
+
+```bash
+skool-pp-cli classroom push ./lessons --community <community-slug> --json
+```
+
+One markdown file per lesson, with frontmatter naming the course and the order:
+
+```markdown
+---
+course: "2. Reading the Signals"
+course_order: 2
+lesson: "2.1 Why the trend beats the day"
+order: 1
+access: open
+---
+The **trend** is the signal, not the day.
+
+1. Load first
+2. Then intensity
+```
+
+`push` parses the whole bundle before it touches the network, reads the live
+classroom, and prints the ordered create/update plan. Courses and lessons are
+matched by title (case- and whitespace-insensitively), so pushing the same
+bundle twice updates the same pages instead of creating duplicates. It is
+plan-only unless `--apply` is passed, it rate-limits itself to ~1 request per
+second, it never deletes, and it refuses to send any request outside the
+classroom surface. A live page the bundle does not mention is reported as an
+orphan and left alone.
+
+`access` accepts `open`, `level:<n>`, or `private`.
+
+> **`--apply` is not live yet.** Skool's classroom write endpoints are not in
+> this CLI's spec: only `POST https://api2.skool.com/courses` is confirmed to
+> exist, and its request body plus the folder-create, page-create, page-update,
+> reorder, and delete calls are still undiscovered. `--apply` fails closed with
+> the capture recipe. Do live smoke tests against a throwaway course only.
+
+### Read the classroom as a tree
+
+```bash
+skool-pp-cli classroom courses list --community <community-slug> --json
+skool-pp-cli classroom course get reading-the-signals --community <community-slug> --json
+```
+
+`courses list` returns id, slug, title, order, and access per course. `course
+get` returns the three-level tree (course → folders → pages) — the same shape
+`push` diffs against. Add `--raw` to `course get` for the untouched Next.js
+payload.
+
+### Post markdown without hand-writing TipTap
+
+```bash
+skool-pp-cli posts create --group-id <group-id> --from-md ./announcement.md
+skool-pp-cli posts comment <post-id> --md 'Nice **work** — see [the thread](https://example.com/t).'
+```
+
+Skool stores post, comment, and lesson bodies as TipTap JSON. `--md` takes
+markdown inline, `--from-md` reads it from a file (`-` for stdin), and both
+convert to TipTap covering paragraphs, bold, ordered lists, bullet lists,
+links, and headings clamped to H3 — the subset Skool's own editor round-trips.
+Anything outside it is carried through as literal text rather than guessed at.
+Pair with `--dry-run` to inspect the exact payload before sending.
 
 ### Daily digest cron
 

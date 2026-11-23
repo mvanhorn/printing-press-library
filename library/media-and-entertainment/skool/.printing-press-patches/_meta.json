@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "feature": "Honor a per-endpoint base_url override from the spec when emitting the request path",
+      "reason": "The spec records a second host per endpoint and the generated client already knows how to send an absolute URL, but the command templates emit the path relative to the global BaseURL, so the override is silently dropped. This is generator-shaped: any spec that splits reads and writes across hosts prints the same defect. The local patch carries the host in a client helper until the templates do it."
+    },
+    {
+      "feature": "Skool classroom write endpoints (course create, folder create, page create/update, access, reorder, delete)",
+      "reason": "Not in the spec and not discoverable without an authenticated admin capture. Only POST https://api2.skool.com/courses is confirmed to exist (the host answers 'allow: OPTIONS, POST'); its request body and the remaining calls are unknown. classroom push plans correctly and refuses to apply until a HAR capture lands them in the spec."
+    }
+  ]
+}

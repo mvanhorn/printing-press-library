@@ -16,5 +16,8 @@ func newClassroomCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newClassroomGetCourseCmd(flags))
 	cmd.AddCommand(newClassroomListCmd(flags))
 	cmd.AddCommand(newClassroomExportCmd(flags))
+	cmd.AddCommand(newClassroomCoursesCmd(flags))
+	cmd.AddCommand(newClassroomCourseCmd(flags))
+	cmd.AddCommand(newClassroomPushCmd(flags))
 	return cmd
 }

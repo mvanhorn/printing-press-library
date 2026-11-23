@@ -34,7 +34,8 @@ func newNotificationsListCmd(flags *rootFlags) *cobra.Command {
 			if flagUnread != false {
 				params["unread"] = fmt.Sprintf("%v", flagUnread)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "notifications", false, path, params, nil)
+			// PATCH(amend-2026-11-23: send api2 endpoints to api2.skool.com)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "notifications", false, c.APIv2URL(path), params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

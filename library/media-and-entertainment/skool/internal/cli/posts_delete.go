@@ -29,7 +29,8 @@ func newPostsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/posts/{post_id}"
 			path = replacePathParam(path, "post_id", args[0])
-			data, statusCode, err := c.Delete(path)
+			// PATCH(amend-2026-11-23: send api2 endpoints to api2.skool.com)
+			data, statusCode, err := c.Delete(c.APIv2URL(path))
 			if err != nil {
 				return classifyDeleteError(err, flags)
 			}
