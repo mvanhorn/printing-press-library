@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"strconv"
@@ -176,7 +177,7 @@ func parseSplits(raw []byte, expectTotal int64) ([]map[string]any, error) {
 	if err := dec.Decode(&lines); err != nil {
 		return nil, fmt.Errorf("the split file is not valid (%w); it should be a list like [{\"merchantName\": ..., \"amount\": ..., \"categoryId\": ...}]", err)
 	}
-	if dec.More() {
+	if _, err := dec.Token(); err != io.EOF {
 		return nil, fmt.Errorf("the split file has extra text after the list")
 	}
 	if len(lines) < 2 {

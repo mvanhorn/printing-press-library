@@ -22,6 +22,9 @@ func TestParseSplits(t *testing.T) {
 		"three decimals": {`[{"merchantName":"C","amount":-1.005,"categoryId":"a"},{"merchantName":"C","amount":-1,"categoryId":"a"}]`, -200, "two decimal"},
 		"wrong sign":     {`[{"merchantName":"C","amount":3,"categoryId":"a"},{"merchantName":"C","amount":-5,"categoryId":"a"}]`, -200, "same sign"},
 		"no category":    {`[{"merchantName":"C","amount":-1},{"merchantName":"C","amount":-1,"categoryId":"a"}]`, -200, "categoryId"},
+		"trailing ]":     {ok + "]", -14237, "extra text"},
+		"trailing }":     {ok + "}", -14237, "extra text"},
+		"second list":    {ok + ok, -14237, "extra text"},
 	}
 	for name, tc := range bad {
 		if _, err := parseSplits([]byte(tc.json), tc.total); err == nil || !strings.Contains(err.Error(), tc.want) {
