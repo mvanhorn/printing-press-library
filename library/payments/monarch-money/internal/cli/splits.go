@@ -149,7 +149,7 @@ func newTransactionGetCmd() *cobra.Command {
 func toCents(text string) (int64, error) {
 	f, err := strconv.ParseFloat(strings.TrimSpace(text), 64)
 	if err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
-		return 0, fmt.Errorf("invalid amount %q", text)
+		return 0, fmt.Errorf("%q is not an amount", text)
 	}
 	cents := math.Round(f * 100)
 	if math.Abs(f*100-cents) > 1e-6 {
@@ -174,32 +174,32 @@ func parseSplits(raw []byte, expectTotal int64) ([]map[string]any, error) {
 	dec.UseNumber()
 	var lines []splitLine
 	if err := dec.Decode(&lines); err != nil {
-		return nil, fmt.Errorf("invalid splits JSON (expected [{merchantName, amount, categoryId}]): %w", err)
+		return nil, fmt.Errorf("the split file is not valid (%w); it should be a list like [{\"merchantName\": ..., \"amount\": ..., \"categoryId\": ...}]", err)
 	}
 	if dec.More() {
-		return nil, fmt.Errorf("invalid splits JSON: trailing data")
+		return nil, fmt.Errorf("the split file has extra text after the list")
 	}
 	if len(lines) < 2 {
-		return nil, fmt.Errorf("need at least two split lines; use --clear to remove splits")
+		return nil, fmt.Errorf("a split needs at least two lines; to undo a split, use --clear")
 	}
 	var sum int64
 	out := make([]map[string]any, 0, len(lines))
 	for i, l := range lines {
 		if strings.TrimSpace(l.MerchantName) == "" || strings.TrimSpace(l.CategoryID) == "" {
-			return nil, fmt.Errorf("split %d: merchantName and categoryId are required", i+1)
+			return nil, fmt.Errorf("line %d needs a merchantName and a categoryId", i+1)
 		}
 		c, err := toCents(l.Amount.String())
 		if err != nil {
-			return nil, fmt.Errorf("split %d: %w", i+1, err)
+			return nil, fmt.Errorf("line %d: %w", i+1, err)
 		}
 		if c == 0 || (c < 0) != (expectTotal < 0) {
-			return nil, fmt.Errorf("split %d: amount %s must be nonzero with the same sign as the total %s", i+1, centsString(c), centsString(expectTotal))
+			return nil, fmt.Errorf("line %d: %s must not be zero and must have the same sign as the total, %s", i+1, centsString(c), centsString(expectTotal))
 		}
 		sum += c
 		out = append(out, map[string]any{"merchantName": l.MerchantName, "amount": float64(c) / 100, "categoryId": l.CategoryID})
 	}
 	if sum != expectTotal {
-		return nil, fmt.Errorf("splits sum to %s but --expect-total is %s (off by %s)", centsString(sum), centsString(expectTotal), centsString(expectTotal-sum))
+		return nil, fmt.Errorf("the lines add up to %s, but --expect-total is %s (off by %s)", centsString(sum), centsString(expectTotal), centsString(expectTotal-sum))
 	}
 	return out, nil
 }
@@ -239,14 +239,14 @@ with the old lines, or use --clear.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if clear == (file != "") {
-				return fmt.Errorf("provide exactly one of --file or --clear")
+				return fmt.Errorf("choose one: --file to split, or --clear to undo a split")
 			}
 			if !cmd.Flags().Changed("expect-total") {
-				return fmt.Errorf("--expect-total is required (the parent transaction amount, e.g. -142.37)")
+				return fmt.Errorf("--expect-total is required: give the transaction's amount, for example -142.37")
 			}
 			expect, err := toCents(expectText)
 			if err != nil || expect == 0 {
-				return fmt.Errorf("--expect-total must be a nonzero amount with at most two decimals")
+				return fmt.Errorf("--expect-total must be an amount like -142.37, and not zero")
 			}
 			splits := []map[string]any{}
 			if !clear {
@@ -268,17 +268,17 @@ with the old lines, or use --clear.`,
 			}
 			actual, err := toCents(str(before["amount"]))
 			if err != nil {
-				return fmt.Errorf("reading current amount: %w", err)
+				return fmt.Errorf("could not read the transaction's amount: %w", err)
 			}
 			switch {
 			case actual != expect:
-				return fmt.Errorf("refusing: transaction amount is %s, not --expect-total %s", centsString(actual), centsString(expect))
+				return fmt.Errorf("stopped: the transaction's amount is %s, not %s; nothing was changed", centsString(actual), centsString(expect))
 			case before["isSplitTransaction"] == true:
-				return fmt.Errorf("refusing: %s is a split line; target the parent transaction", args[0])
+				return fmt.Errorf("stopped: %s is one line of a split; use the original transaction's ID (see originalTransaction in transactions get); nothing was changed", args[0])
 			case clear && before["hasSplitTransactions"] != true:
-				return fmt.Errorf("refusing: transaction has no splits to clear")
+				return fmt.Errorf("stopped: this transaction is not split, so there is nothing to undo")
 			case !clear && before["hasSplitTransactions"] == true && !replace:
-				return fmt.Errorf("refusing: transaction already has splits; inspect with `transactions get` and pass --replace to overwrite")
+				return fmt.Errorf("stopped: this transaction is already split; check it with transactions get, then add --replace to overwrite it; nothing was changed")
 			}
 			data, err := graphql("Common_SplitTransactionMutation", updateTransactionSplitMutation, vars)
 			if err != nil {
@@ -286,7 +286,7 @@ with the old lines, or use --clear.`,
 			}
 			root := asMap(data["updateTransactionSplit"])
 			if msg := payloadErrors(root["errors"]); msg != "" {
-				return fmt.Errorf("split transaction failed: %s", msg)
+				return fmt.Errorf("Monarch rejected the split: %s", msg)
 			}
 			return printJSON(map[string]any{"before": before, "after": root["transaction"]})
 		},
