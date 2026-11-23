@@ -3,6 +3,7 @@ package airbnb
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -88,17 +89,87 @@ func WishlistList(ctx context.Context) ([]Wishlist, error) {
 	if err := defaultClient.graphQLGet(ctx, "/api/v3/WishlistIndexPageQuery/"+wishlistIndexHash, nil, &root); err != nil {
 		return nil, err
 	}
-	items := findObjects(root, []string{"wishlists", "wishlist"})
-	out := make([]Wishlist, 0, len(items))
-	for _, m := range items {
-		id := str(m["id"])
-		name := firstStringByKeys(m, "name", "title")
-		if id == "" && name == "" {
-			continue
+	return parseWishlistIndex(root), nil
+}
+
+// parseWishlistIndex walks to every "wishlists" array and reads each
+// element as one wishlist. The earlier findObjects(root, "wishlists") call
+// matched the WishlistIndexPage container itself, so list returned a single
+// entry with no id or count and only the first list's name.
+func parseWishlistIndex(root any) []Wishlist {
+	out := make([]Wishlist, 0)
+	seen := map[string]bool{}
+	var walk func(any)
+	walk = func(v any) {
+		switch x := v.(type) {
+		case map[string]any:
+			for k, child := range x {
+				if k == "wishlists" {
+					for _, el := range asSlice(child) {
+						m, ok := el.(map[string]any)
+						if !ok {
+							continue
+						}
+						w := wishlistFromNode(m)
+						if w.ID == "" && w.Name == "" {
+							continue
+						}
+						if w.ID != "" && seen[w.ID] {
+							continue
+						}
+						seen[w.ID] = true
+						out = append(out, w)
+					}
+					continue
+				}
+				walk(child)
+			}
+		case []any:
+			for _, child := range x {
+				walk(child)
+			}
 		}
-		out = append(out, Wishlist{ID: id, Name: name, Count: int(num(firstByKey(m, "count"))), Raw: m})
 	}
-	return out, nil
+	walk(root)
+	return out
+}
+
+func wishlistFromNode(m map[string]any) Wishlist {
+	w := Wishlist{
+		ID:   decodeRelayID(str(m["id"])),
+		Name: str(m["name"]),
+		Raw:  m,
+	}
+	if w.Name == "" {
+		w.Name = str(m["title"])
+	}
+	products := asMap(m["productIds"])
+	for _, raw := range asSlice(products["stayIds"]) {
+		if id := decodeRelayID(str(raw)); id != "" {
+			w.ListingIDs = append(w.ListingIDs, id)
+		}
+	}
+	w.Count = len(w.ListingIDs) + len(asSlice(products["experienceIds"])) + len(asSlice(products["placeIds"]))
+	if w.Count == 0 {
+		w.Count = int(num(m["count"]))
+	}
+	return w
+}
+
+// decodeRelayID turns a Relay global id such as base64("Wishlist:123") or
+// base64("StayListing:456") into its numeric part. Plain ids pass through.
+func decodeRelayID(id string) string {
+	if id == "" {
+		return ""
+	}
+	b, err := base64.StdEncoding.DecodeString(id)
+	if err != nil {
+		return id
+	}
+	if _, after, ok := strings.Cut(string(b), ":"); ok && after != "" {
+		return after
+	}
+	return id
 }
 
 func WishlistItems(ctx context.Context, listingIDs []string) ([]WishlistItem, error) {

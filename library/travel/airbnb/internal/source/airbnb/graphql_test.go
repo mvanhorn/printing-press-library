@@ -1,6 +1,7 @@
 package airbnb
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
@@ -175,4 +176,57 @@ type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
+}
+
+func TestParseWishlistIndexReadsEachWishlist(t *testing.T) {
+	// Shape of a real WishlistIndexPageQuery response (Nov 2026), trimmed.
+	raw := `{"data":{"presentation":{"__typename":"RootPresentationContainer","wishlistIndexPage":{
+		"__typename":"WishlistIndexPagePresentationContainer","wishlists":[
+		{"__typename":"Wishlist","id":"V2lzaGxpc3Q6MTExMQ==","name":"Saved","productIds":{
+			"stayIds":["U3RheUxpc3Rpbmc6MTIzNDU=","U3RheUxpc3Rpbmc6Njc4OTA="],"experienceIds":[],"placeIds":[]}},
+		{"__typename":"Wishlist","id":"V2lzaGxpc3Q6MjIyMg==","name":"Empty","productIds":{
+			"stayIds":[],"experienceIds":[],"placeIds":[]}}]}}}}`
+	var root any
+	if err := json.Unmarshal([]byte(raw), &root); err != nil {
+		t.Fatal(err)
+	}
+	got := parseWishlistIndex(root)
+	if len(got) != 2 {
+		t.Fatalf("want 2 wishlists, got %d: %+v", len(got), got)
+	}
+	if got[0].ID != "1111" || got[0].Name != "Saved" || got[0].Count != 2 {
+		t.Errorf("first wishlist = %+v", got[0])
+	}
+	if strings.Join(got[0].ListingIDs, ",") != "12345,67890" {
+		t.Errorf("listing ids = %v", got[0].ListingIDs)
+	}
+	if got[1].ID != "2222" || got[1].Name != "Empty" || got[1].Count != 0 {
+		t.Errorf("second wishlist = %+v", got[1])
+	}
+}
+
+func TestParseWishlistIndexNullWishlists(t *testing.T) {
+	var root any
+	_ = json.Unmarshal([]byte(`{"data":{"presentation":{"wishlistIndexPage":{"wishlists":null}}}}`), &root)
+	got := parseWishlistIndex(root)
+	if len(got) != 0 {
+		t.Fatalf("want none, got %+v", got)
+	}
+	b, err := json.Marshal(got)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(b) != "[]" {
+		t.Fatalf("empty list should marshal as [], got %s", b)
+	}
+}
+
+func TestWishlistZeroCountIsMarshaled(t *testing.T) {
+	b, err := json.Marshal(Wishlist{ID: "1", Name: "Empty"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(b), `"count":0`) {
+		t.Fatalf("zero count should stay in JSON, got %s", b)
+	}
 }

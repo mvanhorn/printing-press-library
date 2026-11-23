@@ -92,8 +92,10 @@ type Pagination struct {
 type Wishlist struct {
 	ID    string `json:"id,omitempty"`
 	Name  string `json:"name,omitempty"`
-	Count int    `json:"count,omitempty"`
-	Raw   any    `json:"raw,omitempty"`
+	Count int    `json:"count"`
+	// ListingIDs are the numeric Airbnb listing ids saved in this wishlist.
+	ListingIDs []string `json:"listing_ids,omitempty"`
+	Raw        any      `json:"raw,omitempty"`
 }
 
 type WishlistItem struct {
