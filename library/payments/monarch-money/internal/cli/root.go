@@ -25,6 +25,7 @@ func Execute() error {
 	rootCmd.AddCommand(newStatusCmd())
 	rootCmd.AddCommand(newAccountsCmd())
 	rootCmd.AddCommand(newTagsCmd())
+	rootCmd.AddCommand(newCategoriesCmd())
 	rootCmd.AddCommand(newTransactionsCmd())
 	rootCmd.AddCommand(newCashflowCmd())
 	rootCmd.AddCommand(newQueryCmd())
