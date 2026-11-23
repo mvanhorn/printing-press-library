@@ -2,16 +2,16 @@
   "schema_version": 1,
   "slug": "airbnb",
   "cli_name": "airbnb-pp-cli",
-  "version": "2026.9.1",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
+  "version": "2026.11.1",
+  "released_at": "2026-11-23T09:55:15Z",
+  "source_commit": "5c592146ba85427aedc275ecfa0cf9d147a9cbc8",
   "printing_press_version": "3.6.1",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "fix(airbnb): list every wishlist with its id and item count",
+      "pr": 2486,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2486",
+      "commit": "5c592146ba85427aedc275ecfa0cf9d147a9cbc8"
     }
   ]
 }
