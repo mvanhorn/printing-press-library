@@ -5,6 +5,7 @@ Monarch Money CLI generated with CLI Printing Press.
 This CLI wraps Monarch's browser API/GraphQL interface for practical terminal and agent workflows: checking connectivity, listing accounts and tags, reviewing transactions, summarizing cashflow, creating and editing manual transactions, and running guarded read-only GraphQL queries.
 
 Created by [@count](https://github.com/count) (Count).
+Contributors: [@serabi](https://github.com/serabi) (Sarah Wolff).
 
 ## Install
 
