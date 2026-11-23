@@ -9,10 +9,12 @@
   "files": [
     "internal/cli/splits.go",
     "internal/cli/splits_test.go",
+    "internal/cli/splits_cmd_test.go",
+    "internal/cli/helpers.go",
     "internal/cli/transactions.go",
     "internal/cli/root.go",
     "README.md",
     "SKILL.md"
   ],
-  "validated_outcome": "Two live splits applied and read back on a real account; dry-run makes no request and rejects totals off by one cent."
+  "validated_outcome": "Two live splits applied and read back on a real account; dry-run makes no request, rejects totals off by one cent, and command tests confirm every refused write sends no mutation."
 }

@@ -18,8 +18,9 @@ import (
 const (
 	baseURL       = "https://api.monarch.com"
 	loginEndpoint = baseURL + "/auth/login/"
-	graphqlURL    = baseURL + "/graphql"
 )
+
+var graphqlURL = baseURL + "/graphql"
 
 type sessionFile struct {
 	Token string `json:"token"`
