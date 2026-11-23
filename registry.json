@@ -762,9 +762,9 @@
       "path": "library/travel/airbnb",
       "release": {
         "cli_name": "airbnb-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "b815f4cc4ec8054b6fec93c9f9a2e7f2220153ff"
+        "version": "2026.11.1",
+        "released_at": "2026-11-23T09:55:15Z",
+        "source_commit": "971c9175981ca2415c826b9daa37c7526e16aaf2"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
