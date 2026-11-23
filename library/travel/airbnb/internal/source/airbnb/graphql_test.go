@@ -208,7 +208,25 @@ func TestParseWishlistIndexReadsEachWishlist(t *testing.T) {
 func TestParseWishlistIndexNullWishlists(t *testing.T) {
 	var root any
 	_ = json.Unmarshal([]byte(`{"data":{"presentation":{"wishlistIndexPage":{"wishlists":null}}}}`), &root)
-	if got := parseWishlistIndex(root); len(got) != 0 {
+	got := parseWishlistIndex(root)
+	if len(got) != 0 {
 		t.Fatalf("want none, got %+v", got)
+	}
+	b, err := json.Marshal(got)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(b) != "[]" {
+		t.Fatalf("empty list should marshal as [], got %s", b)
+	}
+}
+
+func TestWishlistZeroCountIsMarshaled(t *testing.T) {
+	b, err := json.Marshal(Wishlist{ID: "1", Name: "Empty"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(b), `"count":0`) {
+		t.Fatalf("zero count should stay in JSON, got %s", b)
 	}
 }

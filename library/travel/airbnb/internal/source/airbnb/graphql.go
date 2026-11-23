@@ -97,7 +97,7 @@ func WishlistList(ctx context.Context) ([]Wishlist, error) {
 // matched the WishlistIndexPage container itself, so list returned a single
 // entry with no id or count and only the first list's name.
 func parseWishlistIndex(root any) []Wishlist {
-	var out []Wishlist
+	out := make([]Wishlist, 0)
 	seen := map[string]bool{}
 	var walk func(any)
 	walk = func(v any) {
