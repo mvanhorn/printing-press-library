@@ -44,6 +44,30 @@ test("parseRegistry validates and returns registry entries", () => {
   });
 });
 
+test("parseRegistry keeps a well-formed release.source_tree and drops a malformed one", () => {
+  const release = {
+    cli_name: "espn-pp-cli",
+    version: "2026.6.1",
+    released_at: "2026-06-01T00:00:00Z",
+    source_commit: "0123456789abcdef0123456789abcdef01234567",
+  };
+  const base = { category: "sports", api: "ESPN", description: "d", path: "library/sports/espn" };
+  const tree = "89abcdef0123456789abcdef0123456789abcdef";
+  const registry = parseRegistry({
+    schema_version: 2,
+    entries: [
+      { ...base, name: "good", release: { ...release, source_tree: tree.toUpperCase() } },
+      { ...base, name: "bad", release: { ...release, source_tree: "main" } },
+      { ...base, name: "absent", release },
+    ],
+  });
+
+  assert.equal(registry.entries.length, 3);
+  assert.equal(registry.entries[0]?.release?.source_tree, tree);
+  assert.equal(registry.entries[1]?.release?.source_tree, undefined);
+  assert.ok(!("source_tree" in (registry.entries[2]?.release ?? {})));
+});
+
 test("parseRegistry homepage handling matches the generator's shared corpus", async () => {
   const corpusPath = join(process.cwd(), "..", "tools", "generate-registry", "testdata", "homepage-cases.json");
   const corpus = JSON.parse(await readFile(corpusPath, "utf8")) as { valid: string[]; invalid: string[] };

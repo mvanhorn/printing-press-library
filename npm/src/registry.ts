@@ -28,6 +28,8 @@ export interface ReleaseMetadata {
   version: string;
   released_at: string;
   source_commit: string;
+  /** Git tree of the CLI directory at source_commit. A release's checksums.txt may record one; trust its binaries only when they are equal. */
+  source_tree?: string;
 }
 
 export interface Registry {
@@ -169,6 +171,7 @@ function parseRegistryEntry(value: unknown): RegistryEntry {
           version: requiredString(value.release, "version"),
           released_at: requiredString(value.release, "released_at"),
           source_commit: requiredCommit(value.release, "source_commit"),
+          ...optionalObjectID(value.release, "source_tree"),
         }
       : undefined,
   };
@@ -207,6 +210,15 @@ function requiredCommit(value: Record<string, unknown>, key: string): string {
     throw new Error(`registry entry field ${key} must be a full 40-character Git commit SHA`);
   }
   return commit.toLowerCase();
+}
+
+/** A malformed value is dropped, leaving the release unbound rather than skipped. */
+function optionalObjectID(value: Record<string, unknown>, key: string): Record<string, string> {
+  const raw = value[key];
+  if (typeof raw !== "string" || !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/i.test(raw)) {
+    return {};
+  }
+  return { [key]: raw.toLowerCase() };
 }
 
 function requiredNumber(value: Record<string, unknown>, key: string): number {

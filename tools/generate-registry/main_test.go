@@ -1348,3 +1348,104 @@ func TestBuildEntriesUsesLedgerCommitAsReleaseSourceCommit(t *testing.T) {
 		}
 	}
 }
+
+// release.source_tree is the git tree of the CLI directory at source_commit, so
+// an installer can match it against the tree a release's checksums.txt records.
+func TestSourceTreeReadsTheCLIDirectoryAtTheCommit(t *testing.T) {
+	repo := t.TempDir()
+	git := func(args ...string) string {
+		t.Helper()
+		cmd := exec.Command("git", append([]string{"-C", repo}, args...)...)
+		cmd.Env = append(os.Environ(), "GIT_AUTHOR_NAME=t", "GIT_AUTHOR_EMAIL=t@t", "GIT_COMMITTER_NAME=t", "GIT_COMMITTER_EMAIL=t@t")
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("git %v: %v\n%s", args, err, out)
+		}
+		return strings.TrimSpace(string(out))
+	}
+	write := func(rel, body string) {
+		t.Helper()
+		path := filepath.Join(repo, rel)
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	git("init", "-q", "-b", "main")
+	write("library/cat/alpha/main.go", "package main")
+	git("add", ".")
+	git("commit", "-q", "-m", "release")
+	released := git("rev-parse", "HEAD")
+	tree := git("rev-parse", "HEAD:library/cat/alpha")
+	write("library/cat/alpha/main.go", "package main // edited")
+	git("commit", "-q", "-am", "later edit")
+
+	dir := filepath.Join("library", "cat", "alpha")
+	if got := sourceTree(repo, released, dir); got != tree {
+		t.Errorf("sourceTree at release = %q, want %q", got, tree)
+	}
+	if got := sourceTree(repo, git("rev-parse", "HEAD"), dir); got == tree || got == "" {
+		t.Errorf("sourceTree after edit = %q, want a different tree", got)
+	}
+	if got := sourceTree(repo, released, filepath.Join("library", "cat", "missing")); got != "" {
+		t.Errorf("sourceTree for a missing directory = %q, want empty", got)
+	}
+	if got := sourceTree(repo, strings.Repeat("0", 40), dir); got != "" {
+		t.Errorf("sourceTree for an unknown commit = %q, want empty", got)
+	}
+}
+
+func TestValidateEntriesRejectsMalformedSourceTree(t *testing.T) {
+	base := RegistryEntry{Name: "x", Category: "other", API: "X", Description: "d", Path: "library/other/x",
+		Release: &Release{CLIName: "x-pp-cli", Version: "2026.6.23", ReleasedAt: "2026-06-23T00:00:00Z", SourceCommit: "abc123"}}
+	good := base
+	good.Release = &Release{CLIName: "x-pp-cli", Version: "2026.6.23", ReleasedAt: "2026-06-23T00:00:00Z", SourceCommit: "abc123", SourceTree: strings.Repeat("d", 40)}
+	if errs := validateEntries([]RegistryEntry{good}); len(errs) != 0 {
+		t.Fatalf("valid source_tree: errs = %v", errs)
+	}
+	bad := base
+	bad.Release = &Release{CLIName: "x-pp-cli", Version: "2026.6.23", ReleasedAt: "2026-06-23T00:00:00Z", SourceCommit: "abc123", SourceTree: "main"}
+	if errs := validateEntries([]RegistryEntry{bad}); len(errs) != 1 || !strings.Contains(errs[0], "source_tree") {
+		t.Fatalf("malformed source_tree: errs = %v", errs)
+	}
+}
+
+// release.source_tree is computed from git history, never decoded from an
+// input: not from a ledger file (a shallow clone would pass it through
+// unchecked) and not from the prior registry.json. A value of any JSON type is
+// dropped without failing the read or losing the rest of the entry.
+func TestDecodingReleaseDropsSourceTreeOfAnyType(t *testing.T) {
+	for _, v := range []string{`"main"`, `"` + strings.Repeat("a", 40) + `"`, `7`, `{}`, `[]`, `null`} {
+		path := filepath.Join(t.TempDir(), releaseManifestName)
+		body := `{"cli_name":"x-pp-cli","version":"2026.11.1","released_at":"2026-11-01T00:00:00Z","source_commit":"abc","source_tree":` + v + `}`
+		if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		release, err := readRelease(path)
+		if err != nil {
+			t.Errorf("source_tree %s: readRelease: %v", v, err)
+			continue
+		}
+		if release == nil || release.Version != "2026.11.1" || release.SourceCommit != "abc" {
+			t.Errorf("source_tree %s: readRelease = %+v, want the ledger's other fields", v, release)
+		}
+		if release != nil && release.SourceTree != "" {
+			t.Errorf("source_tree %s: SourceTree = %q, want empty", v, release.SourceTree)
+		}
+
+		reg := filepath.Join(t.TempDir(), "registry.json")
+		regBody := `{"schema_version":2,"entries":[{"name":"a","release":{"cli_name":"a-pp-cli","version":"1","released_at":"x","source_commit":"c","source_tree":` + v + `}},{"name":"b"}]}`
+		if err := os.WriteFile(reg, []byte(regBody), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		got := loadExistingEntries(reg)
+		if len(got) != 2 || got["a"].Release == nil || got["a"].Release.Version != "1" {
+			t.Errorf("source_tree %s: loadExistingEntries = %+v, want both entries with a's release", v, got)
+		} else if got["a"].Release.SourceTree != "" {
+			t.Errorf("source_tree %s: existing SourceTree = %q, want empty", v, got["a"].Release.SourceTree)
+		}
+	}
+}
