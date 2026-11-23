@@ -17,6 +17,7 @@
   "run_id": "20260721-133855-89f4eb09",
   "category": "media-and-entertainment",
   "description": "Agent-native control and careful personal-library rituals for a self-hosted Immich instance.",
+  "homepage": "https://immich.app",
   "mcp_binary": "immich-pp-mcp",
   "mcp_tool_count": 254,
   "mcp_ready": "full",

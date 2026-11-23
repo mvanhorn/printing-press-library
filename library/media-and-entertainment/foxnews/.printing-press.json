@@ -17,6 +17,7 @@
   "spec_source": "internal-yaml",
   "run_id": "20260603-120000",
   "description": "Fox News headlines from Google Publisher RSS feeds on moxie.foxnews.com — section-selectable, no API key.",
+  "homepage": "https://www.foxnews.com",
   "auth_type": "none",
   "novel_features": [
     {

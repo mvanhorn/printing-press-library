@@ -19,6 +19,7 @@
   "run_id": "20261001-020555-6d97b738",
   "category": "travel",
   "description": "Discover premium Japanese restaurants with source courses, release rules and honest availability states.",
+  "homepage": "https://omakase.in",
   "mcp_binary": "omakase-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

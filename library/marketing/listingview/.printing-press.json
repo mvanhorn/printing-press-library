@@ -24,6 +24,7 @@
   "run_id": "20260627-031657-1bc0ab62",
   "category": "marketing",
   "description": "Every ListingView research tool in your terminal, plus a local database that adds drift tracking, niche scoring, and offline analysis no ListingView tool keeps.",
+  "homepage": "https://listingview.io",
   "mcp_binary": "listingview-pp-mcp",
   "mcp_tool_count": 16,
   "mcp_ready": "partial",

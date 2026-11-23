@@ -18,6 +18,7 @@
   "run_id": "20261009-112517-8bc179ae",
   "category": "food-and-dining",
   "description": "Your Fooda office lunch history, subsidy and this week's popups in a terminal, with vendor and spend analytics the app does not offer.",
+  "homepage": "https://www.fooda.com",
   "mcp_binary": "fooda-pp-mcp",
   "mcp_tool_count": 6,
   "mcp_ready": "partial",

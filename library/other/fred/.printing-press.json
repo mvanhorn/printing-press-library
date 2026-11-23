@@ -17,6 +17,7 @@
   "run_id": "20260615-012908",
   "category": "other",
   "description": "Every FRED endpoint, plus a local SQLite store, offline search, and macro commands no other FRED tool has.",
+  "homepage": "https://fred.stlouisfed.org",
   "mcp_binary": "fred-pp-mcp",
   "mcp_tool_count": 25,
   "mcp_ready": "full",

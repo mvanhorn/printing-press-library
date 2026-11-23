@@ -33,6 +33,7 @@
   "run_id": "20260803-082038-a3b929d1",
   "category": "commerce",
   "description": "Every Shopper storefront in one CLI — catalog, cart, delivery schedule, charge calendar, and spend analytics no web UI surfaces.",
+  "homepage": "https://shopper.com.br",
   "mcp_binary": "shopper-pp-mcp",
   "mcp_tool_count": 22,
   "mcp_ready": "full",

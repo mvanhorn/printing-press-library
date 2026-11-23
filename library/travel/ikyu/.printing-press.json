@@ -19,6 +19,7 @@
   "run_id": "20260927-221505-c26573aa",
   "category": "travel",
   "description": "Search Ikyu hotels and ryokan with dated room prices and cancellation details.",
+  "homepage": "https://www.ikyu.com",
   "mcp_binary": "ikyu-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

@@ -17,6 +17,7 @@
   "run_id": "20260712-192812",
   "category": "travel",
   "description": "Look up any US aircraft by tail number from the terminal — live FAA registry inquiries plus a daily-synced offline copy of the full registry for fleet queries, Mode S hex decoding, and expiration alerts no other tool has.",
+  "homepage": "https://registry.faa.gov",
   "mcp_binary": "faa-registry-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_public_tool_count": 9,

@@ -26,6 +26,7 @@
     "run_id": "20260509-110700",
     "category": "media-and-entertainment",
     "description": "Search every public podcast conversation. Wraps the Podscan REST/Firehose/Exports APIs with mention monitoring, guest history, topic trend charts, idea sourcing, and sponsor intel \u2014 across 51M+ episodes, 4.4M+ podcasts.",
+    "homepage": "https://podscan.fm",
     "novel_features": [
         {
             "name": "Mention monitoring",

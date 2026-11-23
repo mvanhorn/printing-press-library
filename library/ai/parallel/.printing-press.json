@@ -20,6 +20,7 @@
   "run_id": "20260720-202045-1a2cb7d8",
   "category": "ai",
   "description": "Agent-native Parallel web research with a local SQLite memory no other Parallel CLI keeps.",
+  "homepage": "https://parallel.ai",
   "mcp_binary": "parallel-pp-mcp",
   "mcp_tool_count": 39,
   "mcp_ready": "full",

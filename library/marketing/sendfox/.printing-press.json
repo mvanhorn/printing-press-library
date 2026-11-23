@@ -19,6 +19,7 @@
   "run_id": "20260921-133106-1fbd7f53",
   "category": "marketing",
   "description": "Use SendFox from the terminal or an agent to manage audiences and campaigns, sync account data locally, and generate evidence-backed growth, health, performance, and migration reports.",
+  "homepage": "https://sendfox.com",
   "catalog_description": "Agent-ready SendFox CLI and MCP server for contacts, lists, campaigns, automations, and forms, with local sync, growth and audience-health reporting, migration analysis, and guarded writes.",
   "mcp_binary": "sendfox-pp-mcp",
   "mcp_tool_count": 60,

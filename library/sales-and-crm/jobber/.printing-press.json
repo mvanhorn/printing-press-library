@@ -16,6 +16,7 @@
   "spec_format": "internal-yaml",
   "spec_source": "internal-yaml",
   "run_id": "20260522-234028",
+  "homepage": "https://www.getjobber.com",
   "mcp_binary": "jobber-pp-mcp",
   "mcp_tool_count": 12,
   "mcp_ready": "full",

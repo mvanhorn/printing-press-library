@@ -17,6 +17,7 @@
   "catalog_entry": "trigger-dev",
   "category": "developer-tools",
   "description": "Durable background jobs and AI agent orchestration — runs, schedules, deployments, batches, queues, waitpoints, env vars, and TRQL analytics",
+  "homepage": "https://trigger.dev",
   "mcp_binary": "trigger-dev-pp-mcp",
   "mcp_tool_count": 47,
   "mcp_public_tool_count": 1,

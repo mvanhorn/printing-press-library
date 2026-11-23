@@ -31,6 +31,7 @@
   "spec_checksum": "sha256:a5ef1be6e4f9e595546bf92f8cf0bf54a25500396d23919488afe2bf18249a79",
   "run_id": "20260506-162403",
   "description": "Google Ads API for account discovery, GAQL reporting, campaigns, budgets, assets, conversions, audiences, planning, and billing operations.",
+  "homepage": "https://ads.google.com",
   "mcp_binary": "google-ads-pp-mcp",
   "mcp_tool_count": 162,
   "mcp_ready": "full",

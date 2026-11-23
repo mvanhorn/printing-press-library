@@ -17,6 +17,7 @@
   "catalog_entry": "pipedrive",
   "category": "sales-and-crm",
   "description": "CRM for sales teams - deals, contacts, pipelines, activities, and organizations",
+  "homepage": "https://www.pipedrive.com",
   "mcp_binary": "pipedrive-pp-mcp",
   "mcp_tool_count": 213,
   "mcp_ready": "full",

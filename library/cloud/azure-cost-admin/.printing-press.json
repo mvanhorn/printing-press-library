@@ -14,6 +14,7 @@
   "run_id": "20260608-azure-cost-admin",
   "category": "cloud",
   "description": "Read-only Azure FinOps CLI for actual spend summaries, service and resource-group cost breakdowns, tag hygiene, simple anomaly checks, and retail price lookup support.",
+  "homepage": "https://azure.microsoft.com/products/cost-management",
   "api_version": "1.0.0",
   "auth_type": "azure-cli",
   "auth_env_vars": [

@@ -28,6 +28,7 @@
   "run_id": "20260818-095450",
   "category": "productivity",
   "description": "Mailbox cleanup that can prove itself \u2014 preview, confirm, undo, verify \u2014 from a binary that structurally cannot send email.",
+  "homepage": "https://workspace.google.com/gmail/",
   "mcp_binary": "gmail-pp-mcp",
   "mcp_tool_count": 14,
   "mcp_ready": "full",

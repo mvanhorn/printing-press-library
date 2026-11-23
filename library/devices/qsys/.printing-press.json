@@ -18,6 +18,7 @@
   "run_id": "20260824-192635-14fb8c13",
   "category": "devices",
   "description": "Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input.",
+  "homepage": "https://www.qsys.com",
   "mcp_binary": "qsys-pp-mcp",
   "mcp_tool_count": 12,
   "mcp_public_tool_count": 12,

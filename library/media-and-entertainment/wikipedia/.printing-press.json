@@ -15,6 +15,7 @@
   "spec_path": "/Users/tmchow/Code/printing-press-library/library/media-and-entertainment/wikipedia/spec.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:2665a92c5652d080a55a02a059b2e1beb5f52a0d3b012802cc6aeb095691db75",
+  "homepage": "https://www.wikipedia.org",
   "mcp_binary": "wikipedia-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,

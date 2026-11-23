@@ -5,6 +5,7 @@
   "api_name": "alaska-airlines",
   "display_name": "Alaska Airlines",
   "description": "Search Alaska Airlines flights, manage Atmos Rewards data, and build checkout-ready cart links from the terminal.",
+  "homepage": "https://www.alaskaair.com",
   "cli_name": "alaska-airlines-pp-cli",
   "creator": {
     "handle": "mvanhorn",

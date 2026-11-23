@@ -19,6 +19,7 @@
   "run_id": "20261002-002131-9ff082f4",
   "category": "travel",
   "description": "Research dated flights and hotel stays with source price bases, complete itineraries and comparable quote snapshots.",
+  "homepage": "https://www.traveloka.com",
   "mcp_binary": "traveloka-pp-mcp",
   "mcp_tool_count": 8,
   "mcp_ready": "partial",

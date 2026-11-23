@@ -18,6 +18,7 @@
   "run_id": "20261001-020155-5c0bf62e",
   "category": "travel",
   "description": "Find Japanese day-use baths with source evidence and explicit unknowns.",
+  "homepage": "https://onsen.nifty.com",
   "mcp_binary": "nifty-onsen-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_public_tool_count": 7,

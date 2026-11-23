@@ -45,6 +45,7 @@
     "name": "Hunter Veltri"
   },
   "description": "Mirror-read CLI for the self-hosted Paperclip board. Offline SQLite cache with FTS5 over issues/comments, agent-friendly compound queries, and a local MCP surface for the same endpoints.",
+  "homepage": "https://paperclip.ing",
   "display_name": "Paperclip CLI",
   "generated_at": "2026-07-11T16:46:42Z",
   "mcp_binary": "paperclip-pp-mcp",

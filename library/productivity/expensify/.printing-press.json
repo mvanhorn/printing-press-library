@@ -19,6 +19,7 @@
   "run_id": "20260622-180206",
   "category": "productivity",
   "description": "File expenses and submit reports to Expensify from the command line",
+  "homepage": "https://www.expensify.com",
   "mcp_binary": "expensify-pp-mcp",
   "mcp_tool_count": 39,
   "mcp_ready": "full",

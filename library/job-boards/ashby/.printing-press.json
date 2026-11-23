@@ -25,6 +25,7 @@
   "run_id": "20260824-211633-3511b2d3",
   "category": "job-boards",
   "description": "Unauthenticated, read-only access to currently published postings on a named Ashby job board.",
+  "homepage": "https://www.ashbyhq.com",
   "mcp_binary": "ashby-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

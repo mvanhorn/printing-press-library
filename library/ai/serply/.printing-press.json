@@ -25,6 +25,7 @@
   "run_id": "20260927-204544-983131a6",
   "category": "ai",
   "description": "Live Google, News, Scholar, Maps and Bing results, plus rank checks, SERP diffs and cited research briefs.",
+  "homepage": "https://serply.io",
   "mcp_binary": "serply-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_ready": "full",

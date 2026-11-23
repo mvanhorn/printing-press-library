@@ -24,6 +24,7 @@
   "run_id": "20260804-232309-9bd8d5ce",
   "category": "ai",
   "description": "Generate and iterate on web apps with v0 from the terminal: create chats from prompts, stream agent output, sync history to a local SQLite mirror, and track credit spend across models.",
+  "homepage": "https://v0.app",
   "mcp_binary": "v0-pp-mcp",
   "mcp_tool_count": 41,
   "mcp_ready": "full",

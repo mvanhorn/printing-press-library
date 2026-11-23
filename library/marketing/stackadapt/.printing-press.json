@@ -14,6 +14,7 @@
   "run_id": "20260530-185509",
   "category": "marketing",
   "description": "The first agent-native StackAdapt CLI: pacing, delivery drift, and spend reconciliation the dashboard and warehouse connectors can't answer in one call.",
+  "homepage": "https://www.stackadapt.com",
   "mcp_binary": "stackadapt-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_ready": "full",

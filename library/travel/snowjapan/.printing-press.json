@@ -19,6 +19,7 @@
   "run_id": "20261003-135031-dd94d6fd",
   "category": "travel",
   "description": "Compare Japan ski areas with terrain facts, dated reports and explicit historical-season evidence.",
+  "homepage": "https://www.snowjapan.com",
   "mcp_binary": "snowjapan-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,

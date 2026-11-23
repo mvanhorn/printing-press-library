@@ -29,6 +29,7 @@
   "run_id": "20260813-144423-eaf11561",
   "category": "commerce",
   "description": "Every used Tesla TeslaTracker lists, in a local store that answers questions the site cannot — price paths, cohort placement, warranty left, and what already left the lot.",
+  "homepage": "https://teslatracker.com",
   "mcp_binary": "teslatracker-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_public_tool_count": 3,

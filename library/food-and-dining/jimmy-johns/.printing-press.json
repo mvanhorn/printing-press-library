@@ -23,6 +23,7 @@
   "run_id": "20260712-190027-jj-reprint428",
   "category": "food-and-dining",
   "description": "Order Jimmy John's from the terminal \u2014 Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.",
+  "homepage": "https://www.jimmyjohns.com",
   "mcp_binary": "jimmy-johns-pp-mcp",
   "mcp_tool_count": 16,
   "mcp_public_tool_count": 8,

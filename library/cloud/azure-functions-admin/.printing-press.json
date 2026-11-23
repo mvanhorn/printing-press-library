@@ -14,6 +14,7 @@
   "run_id": "20260530-083324",
   "category": "cloud",
   "description": "Inspect, audit, and right-size your Azure Functions from the terminal — cold-start trends, config drift, and plan-fit answers the portal and az don't give you.",
+  "homepage": "https://azure.microsoft.com/products/functions",
   "mcp_binary": "azure-functions-admin-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_ready": "full",

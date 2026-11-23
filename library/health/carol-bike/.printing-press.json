@@ -19,6 +19,7 @@
   "run_id": "20260828-185953",
   "category": "health",
   "description": "Read and locally mirror personal CAROL Bike workout data.",
+  "homepage": "https://carolbike.com",
   "mcp_binary": "carol-bike-pp-mcp",
   "mcp_tool_count": 10,
   "mcp_ready": "full",

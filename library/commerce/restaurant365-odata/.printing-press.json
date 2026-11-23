@@ -14,6 +14,7 @@
   "run_id": "20260530-231734",
   "category": "commerce",
   "description": "Read-only Restaurant365 OData CLI for schema discovery, safe sampling, backfill planning, export, sync, and deleted-record checks.",
+  "homepage": "https://www.restaurant365.com",
   "mcp_binary": "restaurant365-odata-pp-mcp",
   "mcp_tool_count": 17,
   "mcp_ready": "full",

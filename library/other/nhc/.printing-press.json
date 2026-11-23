@@ -9,6 +9,7 @@
     "name": "Abe Diaz (@abe238)"
   },
   "description": "Credible, real-time National Hurricane Center data for AI agents: active storms, parsed advisories, and tropical outlooks, text-first with link-outs for everything else.",
+  "homepage": "https://www.nhc.noaa.gov",
   "display_name": "National Hurricane Center",
   "generated_at": "2026-06-16T06:12:37.092031Z",
   "mcp_binary": "nhc-pp-mcp",

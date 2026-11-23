@@ -26,6 +26,7 @@
   "run_id": "20260724-145901",
   "category": "media-and-entertainment",
   "description": "Browser-captured docs-derived contract for AMC Theatres Showtime API v2.",
+  "homepage": "https://www.amctheatres.com",
   "mcp_binary": "amc-theatres-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_ready": "full",

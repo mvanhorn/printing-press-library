@@ -24,6 +24,7 @@
   "run_id": "20260623-105449-202981ca",
   "category": "sales-and-crm",
   "description": "The Copper CRM command line no one else built: full CRUD plus a local database, weighted pipeline forecasting, stale-deal detection, and the bulk operations Copper's own API refuses to provide.",
+  "homepage": "https://www.copper.com",
   "mcp_binary": "copper-pp-mcp",
   "mcp_tool_count": 65,
   "mcp_ready": "full",

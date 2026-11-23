@@ -19,6 +19,7 @@
   "run_id": "20260619-180224",
   "category": "devices",
   "description": "View and manage health and fitness metrics and measurement data from Fitbit, Pixel Watch",
+  "homepage": "https://healthapp.google/",
   "mcp_binary": "googlehealth-pp-mcp",
   "mcp_tool_count": 25,
   "mcp_ready": "full",

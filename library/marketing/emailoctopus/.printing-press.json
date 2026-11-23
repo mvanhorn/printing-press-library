@@ -5,6 +5,7 @@
   "api_name": "emailoctopus",
   "display_name": "EmailOctopus",
   "description": "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal.",
+  "homepage": "https://emailoctopus.com",
   "cli_name": "emailoctopus-pp-cli",
   "creator": {
     "handle": "tmchow",

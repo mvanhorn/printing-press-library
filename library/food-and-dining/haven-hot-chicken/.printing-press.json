@@ -19,6 +19,7 @@
   "run_id": "20260918-225303-ee280e48",
   "category": "food-and-dining",
   "description": "Browse Haven menus, compare locations, and plan a meal from saved prices.",
+  "homepage": "https://www.havenhotchicken.com",
   "mcp_binary": "haven-hot-chicken-pp-mcp",
   "mcp_tool_count": 6,
   "mcp_public_tool_count": 6,

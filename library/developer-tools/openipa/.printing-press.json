@@ -5,6 +5,7 @@
   "api_name": "openipa",
   "display_name": "IndicePA",
   "description": "Search Italy's IndicePA for public administrations, PEC addresses, IPA codes, billing codes, and compliance details.",
+  "homepage": "https://www.indicepa.gov.it",
   "cli_name": "openipa-pp-cli",
   "creator": {
     "handle": "aborruso",

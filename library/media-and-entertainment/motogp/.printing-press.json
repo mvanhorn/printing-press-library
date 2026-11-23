@@ -24,6 +24,7 @@
   "run_id": "20260717-183806",
   "category": "media-and-entertainment",
   "description": "The first CLI and MCP server for MotoGP — human-friendly commands, offline SQLite history, and analyses no single endpoint provides.",
+  "homepage": "https://www.motogp.com",
   "mcp_binary": "motogp-pp-mcp",
   "mcp_tool_count": 18,
   "mcp_public_tool_count": 18,

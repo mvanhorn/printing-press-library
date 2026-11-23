@@ -19,6 +19,7 @@
   "run_id": "20260713-105453-29114a9d",
   "category": "marketing",
   "description": "Every Google Trends workflow pytrends offered, plus the local history and rate-limit resilience that archived, frozen wrapper never had.",
+  "homepage": "https://trends.google.com",
   "mcp_binary": "google-trends-pp-mcp",
   "mcp_tool_count": 6,
   "mcp_public_tool_count": 2,

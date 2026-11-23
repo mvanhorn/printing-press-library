@@ -17,6 +17,7 @@
   "run_id": "20260518-135804",
   "category": "commerce",
   "description": "Search, draft, publish, mirror, and monitor Facebook Marketplace listings with seller helpers and explicit write checkpoints.",
+  "homepage": "https://www.facebook.com/marketplace",
   "mcp_binary": "facebook-marketplace-pp-mcp",
   "mcp_tool_count": 16,
   "mcp_ready": "partial",

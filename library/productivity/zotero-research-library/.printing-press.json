@@ -19,6 +19,7 @@
   "run_id": "20260806-100315-0ed5c3e3",
   "category": "productivity",
   "description": "Your entire Zotero research library, searchable offline \u2014 version-based incremental sync into SQLite with full-text search no other Zotero tool has.",
+  "homepage": "https://www.zotero.org",
   "mcp_binary": "zotero-research-library-pp-mcp",
   "mcp_tool_count": 17,
   "mcp_ready": "full",

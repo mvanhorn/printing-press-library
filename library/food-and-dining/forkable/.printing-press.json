@@ -22,6 +22,7 @@
   "run_id": "20260717-100008-2c197495",
   "category": "food-and-dining",
   "description": "A CLI and MCP server for your Forkable office-lunch program, with a local database and history, spend, and preference queries the web app cannot answer, plus commands to set, confirm, and skip meal orders (dry-run by default; --confirm to apply).",
+  "homepage": "https://forkable.com",
   "mcp_binary": "forkable-pp-mcp",
   "mcp_tool_count": 10,
   "mcp_public_tool_count": 1,

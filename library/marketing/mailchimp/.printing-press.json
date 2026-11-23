@@ -15,6 +15,7 @@
   "spec_format": "openapi3",
   "spec_checksum": "sha256:77a85347d99135ade13fd2ee351d8320d33711215bc512e53af4adaf2178f2b3",
   "run_id": "20260517-014518",
+  "homepage": "https://mailchimp.com",
   "mcp_binary": "mailchimp-pp-mcp",
   "mcp_tool_count": 291,
   "mcp_ready": "full",

@@ -24,6 +24,7 @@
   "run_id": "20260624-120327-512a630c",
   "category": "commerce",
   "description": "Your complete Costco receipt history as data — past the website's 2-year wall, in a local database the site never gives you.",
+  "homepage": "https://www.costco.com",
   "mcp_binary": "costco-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_ready": "full",

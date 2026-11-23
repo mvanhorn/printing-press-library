@@ -24,6 +24,7 @@
   "run_id": "20260813-214420-550eb813",
   "category": "ai",
   "description": "Every Pinecone API feature, plus local sync, snapshot history, and text-first search no other Pinecone tool has.",
+  "homepage": "https://www.pinecone.io",
   "mcp_binary": "pinecone-pp-mcp",
   "mcp_tool_count": 95,
   "mcp_public_tool_count": 1,

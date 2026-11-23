@@ -19,6 +19,7 @@
   "run_id": "20260929-130152-8c6bfe27",
   "category": "ai",
   "description": "Send a task-driven call and follow it through to the result.",
+  "homepage": "https://www.bland.ai",
   "mcp_binary": "bland-pp-mcp",
   "mcp_tool_count": 6,
   "mcp_ready": "full",

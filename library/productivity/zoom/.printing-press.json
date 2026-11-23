@@ -16,6 +16,7 @@
   "spec_format": "openapi3",
   "spec_checksum": "sha256:7633bdbafa7183c789d40634ce1543759ffae2c81d3e950424703df5d7c2f8c4",
   "run_id": "20260519-094503",
+  "homepage": "https://www.zoom.com",
   "mcp_binary": "zoom-pp-mcp",
   "mcp_tool_count": 155,
   "mcp_public_tool_count": 155,

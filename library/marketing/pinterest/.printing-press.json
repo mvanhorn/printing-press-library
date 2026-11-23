@@ -19,6 +19,7 @@
   "run_id": "20261021-092559-b7e82418",
   "category": "marketing",
   "description": "Every Pinterest v5 endpoint plus period-over-period analytics, Pin hygiene audits, and offline Pin search.",
+  "homepage": "https://www.pinterest.com",
   "mcp_binary": "pinterest-pp-mcp",
   "mcp_tool_count": 266,
   "mcp_ready": "full",

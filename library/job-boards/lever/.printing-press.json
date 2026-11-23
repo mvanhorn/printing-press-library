@@ -25,6 +25,7 @@
   "run_id": "20260807-044310",
   "category": "job-boards",
   "description": "Public Lever postings API (https://api.lever.co/v0/postings). Every Lever customer exposes an open job board at api.",
+  "homepage": "https://www.lever.co",
   "mcp_binary": "lever-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

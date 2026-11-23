@@ -19,6 +19,7 @@
   "run_id": "20260930-225845-bd628bfa",
   "category": "ai",
   "description": "Run any WaveSpeed model from the terminal, with price checks, safe uploads, and recovery-safe downloads.",
+  "homepage": "https://wavespeed.ai",
   "mcp_binary": "wavespeed-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_ready": "full",

@@ -13,6 +13,7 @@
   "printer_name": "Matt Van Horn",
   "spec_format": "internal",
   "spec_checksum": "sha256:007a051ab0034a82890f11831ab713349e0335fb31526abcf82dcb6df5805fce",
+  "homepage": "https://www.ebay.com",
   "mcp_binary": "ebay-pp-mcp",
   "mcp_tool_count": 8,
   "mcp_public_tool_count": 1,

@@ -26,6 +26,7 @@
   "run_id": "20260810-204427",
   "category": "productivity",
   "description": "Preview of the Discord v10 HTTP API specification. See https://discord.com/developers/docs for more details.",
+  "homepage": "https://discord.com",
   "mcp_binary": "discord-pp-mcp",
   "mcp_tool_count": 242,
   "mcp_public_tool_count": 22,

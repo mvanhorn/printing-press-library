@@ -5,6 +5,7 @@
   "api_name": "tiktok-shop",
   "display_name": "TikTok Shop",
   "description": "Safe v1 TikTok Shop Seller API CLI/MCP for auth readiness, token exchange and refresh, read-only shops, orders, products, inventory search, fulfillment packages, and warehouses.",
+  "homepage": "https://shop.tiktok.com",
   "cli_name": "tiktok-shop-pp-cli",
   "creator": {
     "handle": "cathrynlavery",

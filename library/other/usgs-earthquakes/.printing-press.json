@@ -17,6 +17,7 @@
   "run_id": "20260519-002226",
   "category": "other",
   "description": "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a live watch mode.",
+  "homepage": "https://earthquake.usgs.gov",
   "mcp_binary": "usgs-earthquakes-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_public_tool_count": 7,

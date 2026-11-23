@@ -23,6 +23,7 @@
   "run_id": "20260514-120439",
   "category": "food-and-dining",
   "description": "AnyList shopping, recipes, meal planning, and local grocery automation CLI.",
+  "homepage": "https://www.anylist.com",
   "mcp_binary": "anylist-pp-mcp",
   "mcp_tool_count": 47,
   "mcp_ready": "full",

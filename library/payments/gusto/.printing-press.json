@@ -19,6 +19,7 @@
   "run_id": "20261024-084709-6d9f8432",
   "category": "payments",
   "description": "Prep a Gusto payroll from the terminal, including mileage reimbursements that Gusto's hosted connector cannot enter, and stop at review so a human submits.",
+  "homepage": "https://gusto.com",
   "mcp_binary": "gusto-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_ready": "partial",

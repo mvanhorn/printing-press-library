@@ -20,6 +20,7 @@
   "run_id": "20261001-020437-2f48366c",
   "category": "travel",
   "description": "Resolve JMA areas and inspect official forecasts, warnings and uncertain typhoon tracks.",
+  "homepage": "https://www.jma.go.jp",
   "mcp_binary": "jma-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_public_tool_count": 9,

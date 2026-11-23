@@ -19,6 +19,7 @@
   "catalog_entry": "linq",
   "category": "social-and-messaging",
   "description": "Agent-native messaging API for chats, messages, attachments, phone numbers, contact cards, capability checks, and webhooks",
+  "homepage": "https://linqapp.com",
   "mcp_binary": "linq-pp-mcp",
   "mcp_tool_count": 43,
   "mcp_ready": "full",

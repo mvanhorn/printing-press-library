@@ -17,6 +17,7 @@
   "run_id": "20260513-134344",
   "category": "marketing",
   "description": "Search, sync, and explore TrendHunter trends from the terminal - offline FTS, agent-native JSON, FAQ Q&A extraction, no API key.",
+  "homepage": "https://www.trendhunter.com",
   "mcp_binary": "trendhunter-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_public_tool_count": 9,

@@ -20,6 +20,7 @@
   "run_id": "20261002-173515",
   "category": "marketing",
   "description": "Agent-ready Loops CLI for contacts, audiences, campaigns, workflows, events, and transactional email, with team checks and explicit send approval.",
+  "homepage": "https://loops.so",
   "mcp_binary": "loops-pp-mcp",
   "mcp_tool_count": 68,
   "mcp_ready": "partial",

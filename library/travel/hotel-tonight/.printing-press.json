@@ -17,6 +17,7 @@
   "run_id": "20260519-235715",
   "category": "travel",
   "description": "Last-minute hotel deals with a local price-history database no HotelTonight client has: snapshot deals over time, watch a city for drops, and rank by real % off.",
+  "homepage": "https://www.hoteltonight.com",
   "mcp_binary": "hotel-tonight-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 4,

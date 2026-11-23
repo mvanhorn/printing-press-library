@@ -13,6 +13,7 @@
   "spec_path": "ars-sicilia-spec.yaml",
   "run_id": "20260528-181840",
   "category": "other",
+  "homepage": "https://www.ars.sicilia.it",
   "novel_features": [
     {
       "name": "Iter completo di un DDL",

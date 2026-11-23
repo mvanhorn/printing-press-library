@@ -20,6 +20,7 @@
   "catalog_entry": "obsidian",
   "category": "productivity",
   "description": "Note-taking knowledge base reached through the official Obsidian CLI shipped in the desktop app (v1.12+). Vault is local; no public network API.",
+  "homepage": "https://obsidian.md",
   "mcp_binary": "obsidian-pp-mcp",
   "mcp_tool_count": 13,
   "mcp_public_tool_count": 13,

@@ -19,6 +19,7 @@
   "run_id": "20261108-014809-96d727c4",
   "category": "productivity",
   "description": "Treat a Milanote board like an addressable canvas: native headings, lists and checkboxes, laid out on an even grid, and read back as Markdown.",
+  "homepage": "https://milanote.com",
   "mcp_binary": "milanote-pp-mcp",
   "mcp_tool_count": 10,
   "mcp_ready": "partial",

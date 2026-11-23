@@ -18,6 +18,7 @@
   "run_id": "20260826-203128-ff75f5ec",
   "category": "commerce",
   "description": "Compare live Indian product prices, stock, and delivery ETAs from the terminal, then keep the history locally.",
+  "homepage": "https://quickcommerceapi.com",
   "mcp_binary": "quickcommerce-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_public_tool_count": 1,

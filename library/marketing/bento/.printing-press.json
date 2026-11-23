@@ -17,6 +17,7 @@
   "spec_checksum": "sha256:87a4b00018e4ae1b37d9a77f8081385c5f374cfe582c62f621850679c1de5646",
   "run_id": "20260526-094831",
   "description": "Every Bento feature, plus the ones their own CLI does not have, plus a local SQLite store that turns 'who are my top spenders by tag' into a one-liner.",
+  "homepage": "https://bentonow.com",
   "mcp_binary": "bento-pp-mcp",
   "mcp_tool_count": 20,
   "mcp_ready": "full",

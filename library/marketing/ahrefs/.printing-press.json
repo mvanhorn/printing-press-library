@@ -18,6 +18,7 @@
   "catalog_entry": "ahrefs",
   "category": "marketing",
   "description": "Explore Ahrefs SEO data from the terminal: backlinks, keywords, rank tracking, site audits, SERPs, usage limits, and crawler IP ranges.",
+  "homepage": "https://ahrefs.com",
   "mcp_binary": "ahrefs-pp-mcp",
   "mcp_tool_count": 29,
   "mcp_public_tool_count": 2,

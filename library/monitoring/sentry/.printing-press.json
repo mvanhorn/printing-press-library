@@ -19,6 +19,7 @@
   "catalog_entry": "sentry",
   "category": "monitoring",
   "description": "Inspect Sentry organizations, projects, issues, events, releases, and Seer metadata for error tracking and performance monitoring.",
+  "homepage": "https://sentry.io",
   "mcp_binary": "sentry-pp-mcp",
   "mcp_tool_count": 219,
   "mcp_ready": "full",

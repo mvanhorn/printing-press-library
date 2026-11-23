@@ -16,6 +16,7 @@
   "run_id": "20260524-004358",
   "category": "commerce",
   "description": "A Go CLI for Google's Universal Commerce Protocol — talk to UCP merchants over REST or MCP, search across them in parallel, build carts, and prep checkout drafts that an AP2 CLI can authorize.",
+  "homepage": "https://ucp.dev",
   "mcp_binary": "ucp-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_ready": "full",

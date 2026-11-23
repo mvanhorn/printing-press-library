@@ -17,6 +17,7 @@
   "run_id": "20260616-093926-b732f35f",
   "category": "social-and-messaging",
   "description": "Browse, search, and export public Luma events from one Go binary — no account, no API key, plus offline full-text search the public API doesn't have.",
+  "homepage": "https://luma.com",
   "mcp_binary": "luma-pp-mcp",
   "mcp_tool_count": 8,
   "mcp_public_tool_count": 8,

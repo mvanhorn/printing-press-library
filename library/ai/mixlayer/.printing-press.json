@@ -18,6 +18,7 @@
   "category": "ai",
   "catalog_description": "Privacy-first Mixlayer CLI for OpenAI-compatible chat, local PII redaction and vaulting, reasoning-aware model ladders, live model catalog refresh, and ledger-backed cost proofs.",
   "description": "Privacy-first Mixlayer CLI for OpenAI-compatible chat, local PII redaction and vaulting, reasoning-aware model ladders, live model catalog refresh, and ledger-backed cost proofs.",
+  "homepage": "https://www.mixlayer.com",
   "novel_features": [
     {
       "name": "Large-data privacy ingest",

@@ -19,6 +19,7 @@
   "run_id": "20261002-003442-smartex",
   "category": "travel",
   "description": "Compare Shinkansen fares and constraints before booking",
+  "homepage": "https://smart-ex.jp",
   "mcp_binary": "smartex-pp-mcp",
   "mcp_tool_count": 14,
   "mcp_public_tool_count": 14,

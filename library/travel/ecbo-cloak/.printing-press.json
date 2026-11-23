@@ -19,6 +19,7 @@
   "run_id": "20261001-020503-2f2898a6",
   "category": "travel",
   "description": "Discover Japan luggage storage and inspect read-only source offers.",
+  "homepage": "https://cloak.ecbo.io",
   "mcp_binary": "ecbo-cloak-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 4,

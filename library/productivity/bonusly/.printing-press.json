@@ -24,6 +24,7 @@
   "run_id": "20260810-153232-4e95f81e",
   "category": "productivity",
   "description": "The recognition analytics Bonusly reserves for admins -- rebuilt from data any employee can already read.",
+  "homepage": "https://bonusly.com",
   "mcp_binary": "bonusly-pp-mcp",
   "mcp_tool_count": 26,
   "mcp_ready": "full",

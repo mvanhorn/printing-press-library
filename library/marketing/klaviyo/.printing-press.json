@@ -19,6 +19,7 @@
   "catalog_entry": "klaviyo",
   "category": "marketing",
   "description": "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation.",
+  "homepage": "https://www.klaviyo.com",
   "mcp_binary": "klaviyo-pp-mcp",
   "mcp_tool_count": 94,
   "mcp_public_tool_count": 94,

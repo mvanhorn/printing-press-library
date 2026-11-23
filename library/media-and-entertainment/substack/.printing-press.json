@@ -17,6 +17,7 @@
   "run_id": "20260531-014452",
   "category": "media-and-entertainment",
   "description": "Run your Substack growth loop from the command line — publish, schedule, engage, and measure with cross-table joins no single Substack API call can.",
+  "homepage": "https://substack.com",
   "mcp_binary": "substack-pp-mcp",
   "mcp_tool_count": 39,
   "mcp_ready": "partial",

@@ -8,6 +8,7 @@
     "name": "Trevin Chow"
   },
   "description": "Control a WalkingPad treadmill over Bluetooth LE: start and stop the belt, set speed, stream live telemetry, and record walks to a local history store.",
+  "homepage": "https://www.walkingpad.com",
   "generated_at": "2026-06-03T07:44:35.615906Z",
   "min_binary_version": "4.0.0",
   "novel_features": [

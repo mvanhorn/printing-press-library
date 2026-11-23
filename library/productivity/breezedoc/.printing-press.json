@@ -20,6 +20,7 @@
   "catalog_entry": "breezedoc",
   "category": "productivity",
   "description": "Manage BreezeDoc e-signature and invoicing workflows across documents, templates, recipients, teams, invoices, and follow-ups.",
+  "homepage": "https://breezedoc.com",
   "mcp_binary": "breezedoc-pp-mcp",
   "mcp_tool_count": 19,
   "mcp_ready": "full",

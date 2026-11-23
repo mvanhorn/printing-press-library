@@ -19,6 +19,7 @@
   "run_id": "20260711-063302-c519dd7c",
   "category": "devices",
   "description": "Agent-ready Bambu print monitoring with exact plate previews and start/finish payloads.",
+  "homepage": "https://bambulab.com",
   "mcp_binary": "bambu-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_ready": "full",

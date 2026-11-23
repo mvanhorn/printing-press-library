@@ -16,6 +16,7 @@
   "run_id": "20260616-192652",
   "category": "cloud",
   "description": "Agent-ready Vercel admin CLI for deployments, projects, domains, environment variables, teams, logs, and operator briefs.",
+  "homepage": "https://vercel.com",
   "mcp_binary": "vercel-admin-pp-mcp",
   "mcp_tool_count": 316,
   "mcp_public_tool_count": 3,

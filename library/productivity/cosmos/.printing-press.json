@@ -19,6 +19,7 @@
   "run_id": "20260801-232017-c67b1670",
   "category": "productivity",
   "description": "Search, organize, export, and audit your Cosmos inspiration library from the terminal.",
+  "homepage": "https://www.cosmos.so",
   "mcp_binary": "cosmos-pp-mcp",
   "mcp_tool_count": 53,
   "mcp_ready": "full",

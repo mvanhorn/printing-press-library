@@ -20,6 +20,7 @@
   "run_id": "20260524-172642",
   "category": "developer-tools",
   "description": "The `gh` for Forgejo — works with any instance, stores your data locally, and speaks Forgejo natively.",
+  "homepage": "https://forgejo.org",
   "mcp_binary": "forgejo-pp-mcp",
   "mcp_tool_count": 491,
   "mcp_ready": "full",

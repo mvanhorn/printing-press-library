@@ -16,6 +16,7 @@
   "spec_checksum": "sha256:2d3a43ebfa6afdc89324897cb4b52f14aa9cc5e866fa21a1b117c9fb4627ac99",
   "run_id": "20260521-164944",
   "description": "Every Strava feature, plus offline analytics — training load, power curves, zone time, and segment progression — that the website can't show you.",
+  "homepage": "https://www.strava.com",
   "mcp_binary": "strava-pp-mcp",
   "mcp_tool_count": 34,
   "mcp_ready": "full",

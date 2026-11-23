@@ -19,6 +19,7 @@
   "catalog_entry": "adguard-home",
   "category": "monitoring",
   "description": "DNS-level ad/tracker/malware blocking via AdGuard Home REST API for self-hosted network DNS management",
+  "homepage": "https://adguard.com/en/adguard-home/overview.html",
   "mcp_binary": "adguard-home-pp-mcp",
   "mcp_tool_count": 81,
   "mcp_ready": "full",

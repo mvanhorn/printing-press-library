@@ -20,6 +20,7 @@
   "run_id": "20260824-212156-433d72f1",
   "category": "social-and-messaging",
   "description": "Every Unipile endpoint as a typed command, plus a local mirror that makes cross-provider search possible and an invitation ledger that shows how much LinkedIn headroom you have left.",
+  "homepage": "https://www.unipile.com",
   "mcp_binary": "unipile-pp-mcp",
   "mcp_tool_count": 94,
   "mcp_ready": "full",

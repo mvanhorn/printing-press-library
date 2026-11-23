@@ -17,6 +17,7 @@
   "run_id": "20260711-092456-c0435d15",
   "category": "media-and-entertainment",
   "description": "Every Discogs feature — plus a local price-history mirror the API doesn't keep, so you can watch your wantlist like a limit-order book, spot underpriced records, and track your collection's value over time.",
+  "homepage": "https://www.discogs.com",
   "mcp_binary": "discogs-pp-mcp",
   "mcp_tool_count": 54,
   "mcp_ready": "full",

@@ -19,6 +19,7 @@
   "run_id": "20261020-194142-3c7b326d",
   "category": "developer-tools",
   "description": "Operate Crocoblock data and review changes across your WordPress workflows.",
+  "homepage": "https://crocoblock.com",
   "mcp_binary": "crocoblock-pp-mcp",
   "mcp_tool_count": 75,
   "mcp_ready": "full",

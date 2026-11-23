@@ -16,6 +16,7 @@
   "spec_checksum": "sha256:9e870850c8de1042795ca0171d441a6127be667ed78f9f45cff2f1549cf6da47",
   "run_id": "20260516-193948",
   "description": "PCGS Public API CLI — verify PCGS-graded coin certs, extract full CoinFacts metadata, and stay under the 1,000-call-per-day budget.",
+  "homepage": "https://www.pcgs.com",
   "mcp_binary": "pcgs-pp-mcp",
   "mcp_tool_count": 12,
   "mcp_ready": "full",

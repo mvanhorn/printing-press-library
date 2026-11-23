@@ -19,6 +19,7 @@
   "run_id": "20260622-071510",
   "category": "sales-and-crm",
   "description": "Read-first Gladly API surface for customer timelines, conversations, agents, topics, answers, and support operations.",
+  "homepage": "https://www.gladly.ai",
   "mcp_binary": "gladly-pp-mcp",
   "mcp_tool_count": 11,
   "mcp_ready": "full",

@@ -24,6 +24,7 @@
   "catalog_entry": "kie",
   "category": "ai",
   "description": "Unified CLI for Kie.ai's AI generation platform: 120+ Market models (image, video, audio) via one create/query task pair, plus dedicated Suno, Veo3.1, Runway, Flux Kontext, 4o Image, and per-model chat completion endpoints.",
+  "homepage": "https://kie.ai",
   "mcp_binary": "kie-pp-mcp",
   "mcp_ready": "full",
   "api_version": "1.0",

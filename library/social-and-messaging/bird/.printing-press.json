@@ -17,6 +17,7 @@
   "run_id": "20260513-091340",
   "category": "social-and-messaging",
   "description": "A terminal-native CLI for Bird's Conversations and SMS APIs, with offline search, batch reconcile, and a local SQLite mirror nobody else ships.",
+  "homepage": "https://bird.com",
   "mcp_binary": "bird-pp-mcp",
   "mcp_tool_count": 42,
   "mcp_ready": "full",

@@ -17,6 +17,7 @@
   "run_id": "20260611-160111-078a8ef4",
   "category": "marketing",
   "description": "Every public Google Play surface in one Go binary, plus a local SQLite mirror for rank history and listing change detection that no other Play tool keeps.",
+  "homepage": "https://play.google.com",
   "mcp_binary": "google-play-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

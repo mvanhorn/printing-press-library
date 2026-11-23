@@ -19,6 +19,7 @@
   "api_version": "0.1.0",
   "auth_type": "none",
   "description": "Control a Fellow Stagg EKG kettle over its local HTTP command interface from the terminal.",
+  "homepage": "https://fellowproducts.com",
   "novel_features": [
     {
       "name": "Status snapshot",

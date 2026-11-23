@@ -16,6 +16,7 @@
   "catalog_entry": "cloudflare",
   "category": "cloud",
   "description": "Cloudflare API for accounts, zones, DNS, Workers, Pages, R2, Email Routing, tunnels, and Zero Trust operations",
+  "homepage": "https://www.cloudflare.com",
   "mcp_binary": "cloudflare-pp-mcp",
   "mcp_tool_count": 3106,
   "mcp_public_tool_count": 4,

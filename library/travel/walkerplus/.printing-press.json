@@ -23,6 +23,7 @@
   ],
   "api_language": "ja",
   "description": "Discover Japan events for a trip with source-backed dates and schedule confidence.",
+  "homepage": "https://www.walkerplus.com",
   "mcp_binary": "walkerplus-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

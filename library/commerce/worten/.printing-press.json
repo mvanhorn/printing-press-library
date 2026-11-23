@@ -9,6 +9,7 @@
     "name": "Alexandre Santos"
   },
   "description": "Local OpenAPI seed extracted from the working housebuy Worten CLI.",
+  "homepage": "https://www.worten.pt",
   "display_name": "Worten Reverse Engineered",
   "generated_at": "2026-06-04T22:42:05.087765Z",
   "mcp_binary": "worten-pp-mcp",

@@ -19,6 +19,7 @@
   "run_id": "20261029-191727-e418f9d0",
   "category": "social-and-messaging",
   "description": "Operate the official WhatsApp Business MCP with reviewable writes and captured evidence for integration checks.",
+  "homepage": "https://business.whatsapp.com",
   "mcp_binary": "whatsapp-business-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_ready": "full",

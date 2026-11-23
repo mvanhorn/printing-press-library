@@ -16,6 +16,7 @@
     }
   ],
   "description": "Local-first LSAT practice analytics from authenticated LawHub score metadata, with SQLite, weakness reports, question notes, and safe review links back to LawHub.",
+  "homepage": "https://www.lawhub.org",
   "category": "education",
   "spec_format": "internal",
   "approach": "authenticated-browser-session-plus-score-report-metadata",

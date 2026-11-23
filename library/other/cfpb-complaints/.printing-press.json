@@ -24,6 +24,7 @@
   "run_id": "20260717-002908-c6f34c82",
   "category": "other",
   "description": "Search published CFPB consumer complaint records and aggregations.",
+  "homepage": "https://www.consumerfinance.gov/data-research/consumer-complaints",
   "mcp_binary": "cfpb-complaints-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

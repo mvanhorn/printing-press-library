@@ -21,6 +21,7 @@
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
   "description": "Natural-language Instacart CLI that talks directly to the web GraphQL API. Add items to your cart, search products, and manage carts across retailers without browser automation.",
+  "homepage": "https://www.instacart.com",
   "category": "commerce",
   "spec_format": "internal",
   "approach": "apollo-graphql-persisted-query-replay",

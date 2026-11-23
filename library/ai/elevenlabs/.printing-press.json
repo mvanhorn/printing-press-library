@@ -18,6 +18,7 @@
   "catalog_entry": "elevenlabs",
   "category": "ai",
   "description": "Create and manage ElevenLabs audio workflows: text-to-speech, voice conversion, transcription, dubbing, music, voices, and agents.",
+  "homepage": "https://elevenlabs.io",
   "mcp_binary": "elevenlabs-pp-mcp",
   "mcp_tool_count": 302,
   "mcp_ready": "full",

@@ -17,6 +17,7 @@
   "catalog_entry": "stac",
   "category": "maps",
   "description": "The first Go single-binary STAC CLI: every search filter the Python tools have, plus an offline cache, scene ranking, coverage, and asset resolution no other STAC tool offers.",
+  "homepage": "https://stacspec.org",
   "mcp_binary": "stac-pp-mcp",
   "mcp_tool_count": 12,
   "mcp_public_tool_count": 12,

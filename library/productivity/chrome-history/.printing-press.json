@@ -16,6 +16,7 @@
   "category": "productivity",
   "run_id": "20260524-023512",
   "description": "Query local Chrome browsing history from a snapshot index; no remote API spec.",
+  "homepage": "https://www.google.com/chrome",
   "mcp_binary": "chrome-history-pp-mcp",
   "mcp_tool_count": 22,
   "mcp_public_tool_count": 22,

@@ -17,6 +17,7 @@
   "run_id": "20260610-145059-888b2895",
   "category": "commerce",
   "description": "Every AutoTempest car-search source in your terminal, with a local store, cross-source VIN dedupe, and price-drop tracking no AutoTempest tool has.",
+  "homepage": "https://www.autotempest.com",
   "mcp_binary": "autotempest-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

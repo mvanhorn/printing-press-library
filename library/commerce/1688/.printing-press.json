@@ -18,6 +18,7 @@
   "run_id": "20260612-083000-8f246b76",
   "category": "commerce",
   "description": "The free, offline, agent-native 1688 wholesale sourcing CLI — keyword search with the signals the web UI buries (回头率 reorder rate, factory-verified status, supplier trade scores, price drift), persisted to a local store no scraper tracks over time.",
+  "homepage": "https://www.1688.com",
   "mcp_binary": "1688-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

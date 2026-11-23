@@ -17,6 +17,7 @@
   "run_id": "20260609-111047-f0fd648a",
   "category": "commerce",
   "description": "Every Daraz product search, plus a local price database, real-deal ranking, and drop alerts no Daraz scraper has.",
+  "homepage": "https://www.daraz.pk",
   "mcp_binary": "daraz-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

@@ -19,6 +19,7 @@
   "run_id": "20261009-032035",
   "category": "commerce",
   "description": "Walmart Pickup & Delivery from the terminal \u2014 reads via orchestra, cart changes via affiliate link only.",
+  "homepage": "https://www.walmart.com",
   "mcp_binary": "walmart-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_ready": "partial",

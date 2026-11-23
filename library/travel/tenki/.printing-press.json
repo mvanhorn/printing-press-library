@@ -19,6 +19,7 @@
   "run_id": "20260927-221457-5751f054",
   "category": "travel",
   "description": "Choose Japan sightseeing dates with traceable weather and seasonal evidence.",
+  "homepage": "https://tenki.jp",
   "mcp_binary": "tenki-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

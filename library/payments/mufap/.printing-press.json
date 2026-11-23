@@ -19,6 +19,7 @@
   "run_id": "20260906-153304-50daea87",
   "category": "payments",
   "description": "Pakistan's mutual fund industry as a dated local panel: two decades of daily NAVs, monthly PKR asset allocation, and a market-implied short rate no other tool derives.",
+  "homepage": "https://www.mufap.com.pk",
   "mcp_binary": "mufap-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_public_tool_count": 9,

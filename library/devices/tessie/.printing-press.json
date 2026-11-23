@@ -18,6 +18,7 @@
   "run_id": "20260819-193744",
   "category": "devices",
   "description": "Live Tesla vehicle data and commands from the terminal via the Tessie API",
+  "homepage": "https://www.tessie.com",
   "mcp_binary": "tessie-pp-mcp",
   "mcp_tool_count": 6,
   "mcp_ready": "full",

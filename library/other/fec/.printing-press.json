@@ -20,6 +20,7 @@
   "run_id": "20260821-194418",
   "category": "other",
   "description": "This application programming interface (API)",
+  "homepage": "https://www.fec.gov",
   "mcp_binary": "fec-pp-mcp",
   "mcp_tool_count": 100,
   "mcp_ready": "full",

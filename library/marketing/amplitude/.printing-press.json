@@ -19,6 +19,7 @@
   "run_id": "20260622-071511",
   "category": "marketing",
   "description": "Read-first Amplitude Analytics API surface for exports, cohorts, events, users, and chart-style analytics queries.",
+  "homepage": "https://amplitude.com",
   "mcp_binary": "amplitude-pp-mcp",
   "mcp_tool_count": 11,
   "mcp_ready": "full",

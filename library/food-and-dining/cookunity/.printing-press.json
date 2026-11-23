@@ -17,6 +17,7 @@
   "run_id": "20260729-213315-cab6f4f7",
   "category": "food-and-dining",
   "description": "Mirror CookUnity's full weekly menu into a local database so you can plan meals offline — filter by macros, diet, and budget, and diff the menu week over week, none of which the web app can do.",
+  "homepage": "https://www.cookunity.com",
   "mcp_binary": "cookunity-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_ready": "full",

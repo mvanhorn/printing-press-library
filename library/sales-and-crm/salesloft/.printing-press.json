@@ -19,6 +19,7 @@
   "run_id": "20260614-205700",
   "category": "sales-and-crm",
   "description": "Read-first Salesloft API surface for agent workflows, based on the public Salesloft v2 developer documentation.",
+  "homepage": "https://www.salesloft.com",
   "mcp_binary": "salesloft-pp-mcp",
   "mcp_tool_count": 20,
   "mcp_ready": "full",

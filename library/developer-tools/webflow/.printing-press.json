@@ -17,6 +17,7 @@
   "run_id": "20260728-073020-15799c7c",
   "category": "developer-tools",
   "description": "The whole Webflow Data API, plus a local database that lets you audit SEO, diff staging against live, and preview a publish before you trigger it.",
+  "homepage": "https://webflow.com",
   "mcp_binary": "webflow-pp-mcp",
   "mcp_tool_count": 117,
   "mcp_ready": "full",

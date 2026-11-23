@@ -29,6 +29,7 @@
   "run_id": "cf-domain-registrar-20260511-local-hardening",
   "category": "cloud",
   "description": "Agent-native CLI for Cloudflare Registrar domain search, check, and registration.",
+  "homepage": "https://www.cloudflare.com/domains",
   "mcp_public_tool_count": 5,
   "novel_features": [
     {

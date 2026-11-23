@@ -17,6 +17,7 @@
   "run_id": "20260606-104318-ao87811-27595",
   "category": "travel",
   "description": "Every Atlas Obscura search, plus a local database, road-trip corridor routing, and saved trips no other Atlas Obscura tool has.",
+  "homepage": "https://www.atlasobscura.com",
   "mcp_binary": "atlas-obscura-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_public_tool_count": 3,

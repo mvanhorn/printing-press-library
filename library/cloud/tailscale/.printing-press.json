@@ -19,6 +19,7 @@
   "run_id": "20260930-211646-7f8c7bd3",
   "category": "cloud",
   "description": "Tailscale admin from the terminal, with safe route and policy edits an agent can plan before it writes.",
+  "homepage": "https://tailscale.com",
   "mcp_binary": "tailscale-pp-mcp",
   "mcp_tool_count": 92,
   "mcp_ready": "full",

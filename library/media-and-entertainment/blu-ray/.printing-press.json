@@ -9,6 +9,7 @@
     "name": "Vinny Pasceri"
   },
   "description": "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero account required.",
+  "homepage": "https://www.blu-ray.com",
   "display_name": "Blu-ray.com",
   "generated_at": "2026-06-11T07:33:50.145062Z",
   "mcp_binary": "blu-ray-pp-mcp",

@@ -19,6 +19,7 @@
   "run_id": "20261005-140047-4f1dd7ae",
   "category": "productivity",
   "description": "Every public Uber job posting as one tracker-ready JSON feed with offline history, new-since diffs and a fallback when the careers site refuses",
+  "homepage": "https://jobs.uber.com",
   "mcp_binary": "uber-jobs-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

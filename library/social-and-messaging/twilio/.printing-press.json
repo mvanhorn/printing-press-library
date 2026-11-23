@@ -17,6 +17,7 @@
   "catalog_entry": "twilio",
   "category": "social-and-messaging",
   "description": "Communication APIs for SMS, voice, and messaging",
+  "homepage": "https://www.twilio.com",
   "mcp_binary": "twilio-pp-mcp",
   "mcp_tool_count": 197,
   "mcp_ready": "full",

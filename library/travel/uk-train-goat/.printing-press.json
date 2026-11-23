@@ -24,6 +24,7 @@
   "run_id": "20260603-220423",
   "category": "travel",
   "description": "The only Go-native, agent-native, MCP-exposed UK rail CLI; live boards, journey planning, and a local SQLite store that remembers your commute.",
+  "homepage": "https://www.nationalrail.co.uk",
   "mcp_binary": "uk-train-goat-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_ready": "full",

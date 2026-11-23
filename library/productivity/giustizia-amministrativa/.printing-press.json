@@ -17,6 +17,7 @@
   "run_id": "20260621-094103",
   "category": "productivity",
   "description": "La giurisprudenza amministrativa italiana (TAR, Consiglio di Stato) da terminale: ricerca, testo integrale in Markdown, store locale e ricerca offline.",
+  "homepage": "https://www.giustizia-amministrativa.it",
   "mcp_binary": "giustizia-amministrativa-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

@@ -18,6 +18,7 @@
   "catalog_entry": "postman-explore",
   "category": "developer-tools",
   "description": "Public API network directory for discovering community collections, workspaces, and APIs",
+  "homepage": "https://www.postman.com/explore",
   "mcp_binary": "postman-explore-pp-mcp",
   "mcp_tool_count": 8,
   "mcp_public_tool_count": 8,

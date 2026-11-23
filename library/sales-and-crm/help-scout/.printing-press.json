@@ -19,6 +19,7 @@
   "run_id": "20260614-205725",
   "category": "sales-and-crm",
   "description": "Read-first Help Scout Inbox API surface for support operations and agent workflows.",
+  "homepage": "https://www.helpscout.com",
   "mcp_binary": "help-scout-pp-mcp",
   "mcp_tool_count": 22,
   "mcp_ready": "full",

@@ -14,6 +14,7 @@
   "run_id": "20260528-183943",
   "category": "marketing",
   "description": "The first agent-native Meta Ads CLI with local SQLite history and compound queries the live API cannot answer.",
+  "homepage": "https://www.facebook.com/business/ads",
   "mcp_binary": "meta-ads-pp-mcp",
   "mcp_tool_count": 11,
   "mcp_ready": "full",

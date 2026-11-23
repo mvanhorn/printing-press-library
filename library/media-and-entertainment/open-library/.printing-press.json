@@ -18,6 +18,7 @@
   "run_id": "20260626-061033",
   "category": "media-and-entertainment",
   "description": "Read-only Open Library recipes for book search, ISBN edition lookup, author works, work metadata, bounded editions, and subject browsing with source/rate-limit caveats.",
+  "homepage": "https://openlibrary.org",
   "api_version": "0.1.0",
   "auth_type": "none",
   "auth_env_vars": [

@@ -25,6 +25,7 @@
   "run_id": "20261003-001046-81800c96",
   "category": "travel",
   "description": "Find and compare Japan roadside-station service stops with source evidence and explicit unknowns.",
+  "homepage": "https://www.michi-no-eki.jp",
   "mcp_binary": "michi-no-eki-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 4,

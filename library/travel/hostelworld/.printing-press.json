@@ -19,6 +19,7 @@
   "run_id": "20261003-140023-98175357",
   "category": "travel",
   "description": "Compare dated dorm beds and private rooms with explicit quantities, prices and terms.",
+  "homepage": "https://www.hostelworld.com",
   "mcp_binary": "hostelworld-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 4,

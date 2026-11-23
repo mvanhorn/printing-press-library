@@ -17,6 +17,7 @@
   "run_id": "20260719-202653-490adff0",
   "category": "media-and-entertainment",
   "description": "Your Lightroom Classic catalog, queryable from the terminal — streaks, daily picks, and shot lists with zero exports and zero writes.",
+  "homepage": "https://www.adobe.com/products/photoshop-lightroom-classic.html",
   "mcp_binary": "lightroom-classic-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,

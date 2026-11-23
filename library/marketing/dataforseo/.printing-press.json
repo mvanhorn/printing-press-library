@@ -4,6 +4,7 @@
   "printing_press_version": "4.11.0",
   "api_name": "dataforseo",
   "cli_name": "dataforseo-pp-cli",
+  "homepage": "https://dataforseo.com",
   "mcp_binary": "dataforseo-pp-mcp",
   "mcp_ready": "full",
   "auth_type": "basic",

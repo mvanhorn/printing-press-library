@@ -15,6 +15,7 @@
   "spec_checksum": "sha256:e9447a3baa35778dc36adced2ed7c71d982d1501db1720f582b0ad6452a3bcea",
   "run_id": "20260510-114931",
   "description": "Every Skool community feature, plus a local SQLite mirror, FTS, and cross-community ops no other Skool tool ships.",
+  "homepage": "https://www.skool.com",
   "mcp_binary": "skool-pp-mcp",
   "mcp_tool_count": 21,
   "mcp_ready": "partial",

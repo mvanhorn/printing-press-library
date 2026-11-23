@@ -24,6 +24,7 @@
   "spec_checksum": "sha256:3354e591a442dc0e575396fcb4b6e2e72bdb9c51fcd3543125acee207e054677",
   "run_id": "20260510-202319",
   "category": "project-management",
+  "homepage": "https://clickup.com",
   "mcp_binary": "clickup-pp-mcp",
   "mcp_tool_count": 172,
   "mcp_ready": "full",

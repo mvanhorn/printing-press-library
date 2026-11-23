@@ -23,6 +23,7 @@
   "run_id": "20260818-170717-f70dff69",
   "category": "commerce",
   "description": "Book a haircut in Poland from the terminal — search barbers, compare prices and reviews, check open slots, and book, with a dry-run-by-default booking guard.",
+  "homepage": "https://booksy.com/pl-pl",
   "mcp_binary": "booksy-pp-mcp",
   "mcp_tool_count": 8,
   "mcp_ready": "full",

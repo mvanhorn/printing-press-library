@@ -17,6 +17,7 @@
   "run_id": "20260724-180912-b60f21c2",
   "category": "commerce",
   "description": "Search Zameen.com property listings from your terminal — real filters, an offline SQLite mirror, saved-search monitoring, and price-drop alerts no scraper offers.",
+  "homepage": "https://www.zameen.com",
   "mcp_binary": "zameen-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

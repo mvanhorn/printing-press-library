@@ -17,6 +17,7 @@
   "run_id": "20260531-200239",
   "category": "commerce",
   "description": "Search local OfferUp listings from your terminal, keep them in a local database, and spot underpriced deals before anyone else — no login and no paid key for the things that matter most.",
+  "homepage": "https://offerup.com",
   "mcp_binary": "offerup-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

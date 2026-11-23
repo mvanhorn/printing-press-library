@@ -24,6 +24,7 @@
   "run_id": "20260614-225531-a02ed005",
   "category": "travel",
   "description": "Ikon Pass CLI for reservation availability, pass and voucher lookup, multi-season usage history, and offline change tracking.",
+  "homepage": "https://www.ikonpass.com",
   "mcp_binary": "ikon-pp-mcp",
   "mcp_tool_count": 8,
   "mcp_public_tool_count": 1,

@@ -24,6 +24,7 @@
   "run_id": "20260623-093040-ed91772a",
   "category": "other",
   "description": "Cerca bandi, esiti e avvisi di gara della piattaforma ANAC dalla riga di comando, con dettaglio JSON, cronologia, store locale e ricerca offline.",
+  "homepage": "https://pubblicitalegale.anticorruzione.it",
   "mcp_binary": "anac-pl-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,

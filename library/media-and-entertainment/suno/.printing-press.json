@@ -23,6 +23,7 @@
   "run_id": "20260528-222057",
   "category": "media-and-entertainment",
   "description": "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library, full-text search, and agent-native output none of them ship.",
+  "homepage": "https://suno.com",
   "mcp_binary": "suno-pp-mcp",
   "mcp_tool_count": 37,
   "mcp_ready": "full",

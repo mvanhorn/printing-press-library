@@ -25,6 +25,7 @@
   "run_id": "20260908-120459-bfe084c8",
   "category": "other",
   "description": "The only machine-readable Pakistani price panel — every urban centre and essential item the Bureau prices weekly, accrued locally because the Bureau itself does not keep the series.",
+  "homepage": "https://www.pbs.gov.pk",
   "mcp_binary": "pbs-pp-mcp",
   "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,

@@ -28,6 +28,7 @@
   "run_id": "20260714-231159",
   "category": "health",
   "description": "Read-only Peloton workout, class, and structural-provider facts in a private local store.",
+  "homepage": "https://www.onepeloton.com",
   "mcp_binary": "peloton-pp-mcp",
   "mcp_tool_count": 10,
   "mcp_ready": "full",

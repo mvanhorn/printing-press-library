@@ -17,6 +17,7 @@
   "run_id": "20260623-122808-afd957b7",
   "category": "media-and-entertainment",
   "description": "Every Pixabay search filter the API has — plus a 24-hour local cache, offline search, resumable downloads with built-in attribution, live rate-limit awareness, and agent-native JSON no other Pixabay tool ships.",
+  "homepage": "https://pixabay.com",
   "mcp_binary": "pixabay-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_ready": "full",

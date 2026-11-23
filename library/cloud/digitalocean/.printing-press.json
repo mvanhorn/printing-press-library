@@ -17,6 +17,7 @@
   "catalog_entry": "digitalocean",
   "category": "cloud",
   "description": "Printing Press CLI for Digitalocean.",
+  "homepage": "https://www.digitalocean.com",
   "mcp_binary": "digitalocean-pp-mcp",
   "mcp_tool_count": 628,
   "mcp_ready": "full",

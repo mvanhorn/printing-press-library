@@ -22,6 +22,7 @@
   "spec_format": "internal",
   "spec_checksum": "sha256:df4b73576bf54b74c371f79ae94b222135dc3c853185286e1f260589dbbc73c9",
   "run_id": "20260512-165241",
+  "homepage": "https://superhuman.com",
   "mcp_binary": "superhuman-pp-mcp",
   "mcp_tool_count": 11,
   "mcp_ready": "full",

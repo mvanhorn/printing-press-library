@@ -19,6 +19,7 @@
   "run_id": "20260622-164426-352dd01a",
   "category": "ai",
   "description": "SculptOK AI depth-map, relief, STL and 3D generation CLI",
+  "homepage": "https://www.sculptok.com",
   "mcp_binary": "sculptok-pp-mcp",
   "mcp_tool_count": 8,
   "mcp_ready": "full",
