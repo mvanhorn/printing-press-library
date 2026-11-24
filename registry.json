@@ -19249,9 +19249,9 @@
       "path": "library/payments/monarch-money",
       "release": {
         "cli_name": "monarch-money-pp-cli",
-        "version": "2026.8.1",
-        "released_at": "2026-08-17T07:57:07Z",
-        "source_commit": "c77428f67014093b620fc79b4e03fa9aac727902"
+        "version": "2026.11.1",
+        "released_at": "2026-11-24T09:48:15Z",
+        "source_commit": "68ff07b912c903d419015833b730913dfb7ad807"
       },
       "printer": "count",
       "printer_name": "Count",
