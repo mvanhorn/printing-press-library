@@ -144,21 +144,24 @@ func writeRedFlagMemo(rep *redFlagReport, dir string) (string, error) {
 		return "", err
 	}
 	rep.Memo = path
-	_ = saveRedFlagCache(rep)
+	if err := saveRedFlagCache(rep); err != nil {
+		// The memo is written; only the saved report that `case redflag-memo` rebuilds from is missing.
+		fmt.Fprintf(os.Stderr, "warning: wrote %s, but could not save its red-flag report (%v); `case redflag-memo` will need a fresh `case redflags` run\n", path, err)
+	}
 	return path, nil
 }
 
+func redFlagCacheDir() string { return filepath.Join(lexisDataDir(), "redflags") }
+
 func redFlagCachePath(cite string) string {
-	d, err := os.UserConfigDir()
-	if err != nil {
-		d = "."
-	}
-	return filepath.Join(d, "lexis-plus-pp-cli", "redflags", citeKey(cite)+".json")
+	p := filepath.Join(redFlagCacheDir(), citeKey(cite)+".json")
+	migrateLegacy(p, filepath.Join("redflags", citeKey(cite)+".json"))
+	return p
 }
 
 func saveRedFlagCache(rep *redFlagReport) error {
 	p := redFlagCachePath(rep.Cite)
-	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(p), 0o700); err != nil {
 		return err
 	}
 	b, err := json.MarshalIndent(rep, "", "  ")
@@ -191,7 +194,7 @@ func newCaseRedflagMemoCmd(flags *rootFlags) *cobra.Command {
 		Example: "  lexis-plus-pp-cli case redflag-memo \"23 Cal.3d 880\" --overall \"Overruled; do not cite for a private right of action under Ins. Code 790.03(h).\" " +
 			"--reason \"Moradi-Shalal held the Royal Globe court misread the Legislature's intent and overruled it.\"",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"pp:happy-args": "cite=23 Cal.3d 880"},
+		Annotations: map[string]string{"pp:data-source": "local", "pp:happy-args": "cite=23 Cal.3d 880"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flags.dryRun {
 				return dryRunNote(cmd, flags, args)

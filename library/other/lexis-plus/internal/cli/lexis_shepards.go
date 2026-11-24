@@ -276,22 +276,26 @@ func (s *lexisSession) redFlags(ctx context.Context, a *authority, noExcerpts bo
 	}
 
 	// 3. Negative appellate history of the case itself (reversed, vacated, etc.).
+	// Lexis says the case has negative history, so a report without it could leave out a reversal
+	// or vacatur: a failed history request fails the whole report rather than returning a partial one.
 	if rep.HistoryFlag {
 		b, err := s.postJSON(ctx, "/f/ShepardsRep/shephistory", shepBody(si.ShepID, 3, 1, nil))
-		if err == nil {
-			var r shepReport
-			if json.Unmarshal(b, &r) == nil {
-				if rep.Signal == "" {
-					rep.Signal = r.Signal
-				}
-				if r.Topline.CaseName != "" && (rep.Case == "" || rep.Case == a.Cite) {
-					rep.Case = r.Topline.CaseName
-				}
-				for _, it := range r.Items {
-					if f, ok := itemToFlag(it, "appellate history"); ok {
-						rep.Flags = append(rep.Flags, f)
-					}
-				}
+		if err != nil {
+			return nil, fmt.Errorf("Lexis+ reports negative appellate history for %q, but the history could not be loaded: %w", a.Cite, err)
+		}
+		var r shepReport
+		if err := json.Unmarshal(b, &r); err != nil {
+			return nil, fmt.Errorf("Lexis+ reports negative appellate history for %q, but its history response could not be read: %v", a.Cite, err)
+		}
+		if rep.Signal == "" {
+			rep.Signal = r.Signal
+		}
+		if r.Topline.CaseName != "" && (rep.Case == "" || rep.Case == a.Cite) {
+			rep.Case = r.Topline.CaseName
+		}
+		for _, it := range r.Items {
+			if f, ok := itemToFlag(it, "appellate history"); ok {
+				rep.Flags = append(rep.Flags, f)
 			}
 		}
 	}
@@ -390,7 +394,7 @@ func newCaseRedflagsCmd(flags *rootFlags) *cobra.Command {
 			"Yellow Caution and orange Questioned flags are left out on purpose. Use --download to also save each red-flag decision as Word.",
 		Example:     "  lexis-plus-pp-cli case redflags \"23 Cal.3d 880\"\n  lexis-plus-pp-cli case redflags \"27 Cal.3d 167\" \"17 Cal.5th 46\" --json",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "cite=23 Cal.3d 880"},
+		Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true", "pp:happy-args": "cite=23 Cal.3d 880"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flags.dryRun {
 				return dryRunNote(cmd, flags, args)
@@ -440,7 +444,7 @@ func newCaseRedflagsCmd(flags *rootFlags) *cobra.Command {
 				reports = append(reports, &redFlagReport{Cite: c, Flags: []redFlag{}, Note: "FAILED: " + err.Error()})
 			}
 			if flags.asJSON {
-				if err := printJSONFiltered(cmd.OutOrStdout(), reports, flags); err != nil {
+				if err := printJSONFilteredKeep(cmd.OutOrStdout(), reports, flags, "cite", "case", "signal", "red_flag", "negative_appellate_history", "red_flags", "note", "memo"); err != nil {
 					return err
 				}
 			} else {

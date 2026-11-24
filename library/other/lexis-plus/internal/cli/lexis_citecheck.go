@@ -168,9 +168,9 @@ func newCitecheckTextCmd(flags *rootFlags) *cobra.Command {
 		Example: "  lexis-plus-pp-cli citecheck text \"27 Cal.3d 167\" --json\n" +
 			"  lexis-plus-pp-cli citecheck text \"27 Cal.3d 167\" --pages 175-176",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"pp:happy-args": "cite=27 Cal.3d 167", "pp:live-happy-path": "true"},
+		Annotations: map[string]string{"pp:data-source": "auto", "pp:happy-args": "cite=27 Cal.3d 167", "pp:live-happy-path": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// pp:data-source live
+			// pp:data-source auto (reuses a copy already on disk; fetches from Lexis+ only when none is)
 			if flags.dryRun {
 				return dryRunNote(cmd, flags, args)
 			}
@@ -247,9 +247,9 @@ func newCitecheckQuoteCmd(flags *rootFlags) *cobra.Command {
 		Example: "  lexis-plus-pp-cli citecheck quote \"27 Cal.3d 167\" --quote \"an employer's authority over its employee does not include the right to demand that the employee commit a criminal act\" --pin 178\n" +
 			"  lexis-plus-pp-cli citecheck quote \"27 Cal.3d 167\" --input quotes.json --json",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "cite=27 Cal.3d 167"},
+		Annotations: map[string]string{"pp:data-source": "auto", "mcp:read-only": "true", "pp:happy-args": "cite=27 Cal.3d 167"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// pp:data-source live
+			// pp:data-source auto (reuses a copy already on disk; fetches from Lexis+ only when none is)
 			if flags.dryRun {
 				return dryRunNote(cmd, flags, args)
 			}
@@ -306,7 +306,9 @@ func newCitecheckQuoteCmd(flags *rootFlags) *cobra.Command {
 				o.Results = append(o.Results, d.checkQuote(q.ID, q.Quote, q.Pin))
 			}
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), o, flags)
+				// --agent/--compact must never drop a failed pin, a speaker warning, or an
+				// un-signaled difference just because only one quotation in the batch has one.
+				return printJSONFilteredKeep(cmd.OutOrStdout(), o, flags, "id", "quote", "status", "fragments", "signals_in_brief", "pin", "flags")
 			}
 			w := cmd.OutOrStdout()
 			fmt.Fprintf(w, "%s, %s\n", d.Title, args[0])
@@ -498,6 +500,7 @@ type ccPacket struct {
 	Manifest    string         `json:"manifest"`
 	Authorities []*ccAuthority `json:"authorities"`
 	NotChecked  []string       `json:"cites_this_tool_cannot_resolve,omitempty"`
+	Incomplete  []string       `json:"incomplete,omitempty"` // authorities not fetched, or whose requested Shepard's check did not run
 	Note        string         `json:"note"`
 }
 
@@ -513,7 +516,7 @@ func newCitecheckPacketCmd(flags *rootFlags) *cobra.Command {
 			"Authorities already pulled are reused. Requests are paced about 1.5 seconds apart; a run stops at --max authorities.",
 		Example:     "  lexis-plus-pp-cli citecheck packet motion.docx --out ./citecheck/motion-sources --json",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"pp:happy-args": "file=example-value", "pp:verified-by-proof": "brief-citecheck-lifecycle.md"},
+		Annotations: map[string]string{"pp:data-source": "live", "pp:happy-args": "file=example-value", "pp:verified-by-proof": "brief-citecheck-lifecycle.md"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source live
 			if flags.dryRun {
@@ -535,7 +538,12 @@ func newCitecheckPacketCmd(flags *rootFlags) *cobra.Command {
 				sec := st.Cite[strings.LastIndex(st.Cite, " ")+1:]
 				re := regexp.MustCompile(`(?:§§?|[Ss]ections?)\s*` + regexp.QuoteMeta(sec) + `\b`)
 				collapsed := strings.Join(strings.Fields(text), " ")
-				for _, m := range re.FindAllStringIndex(collapsed, 6) {
+				ms := re.FindAllStringIndex(collapsed, 6)
+				if len(ms) == 0 {
+					// a later section of a "§§ 1102.5, 1194" list has no § of its own
+					ms = regexp.MustCompile(`\b`+regexp.QuoteMeta(sec)+`\b`).FindAllStringIndex(collapsed, 6)
+				}
+				for _, m := range ms {
 					a.Seen = append(a.Seen, ccOccur{Context: ccContext(collapsed, m[0], m[1])})
 				}
 				auths = append(auths, a)
@@ -613,12 +621,33 @@ func newCitecheckPacketCmd(flags *rootFlags) *cobra.Command {
 			p := ccPacket{Brief: mustAbs(args[0]), Generated: time.Now().Format(time.RFC3339), Folder: abs, Manifest: filepath.Join(abs, "manifest.json"),
 				Authorities: kept, NotChecked: other,
 				Note: "Shepard's entries list red (Warning) treatment in full; citing_decision_counts gives the number of citing decisions at every level, including Caution and Questioned."}
+			// An authority that could not be fetched, or whose requested Shepard's check did not
+			// run, leaves the packet incomplete. The manifest keeps the partial results.
+			var incomplete []string
+			for _, a := range kept {
+				switch {
+				case a.Error != "":
+					incomplete = append(incomplete, a.Cite+": not fetched")
+				case a.Kind == "case" && !noShep && a.Shepards == nil:
+					incomplete = append(incomplete, a.Cite+": Shepard's not run")
+				}
+			}
+			p.Incomplete = incomplete
 			b, _ := json.MarshalIndent(p, "", "  ")
 			if err := os.WriteFile(p.Manifest, b, 0o644); err != nil {
 				return err
 			}
+			incompleteErr := func() error {
+				if len(incomplete) == 0 || flags.allowPartialFailure {
+					return nil
+				}
+				return partialFailureErr(fmt.Errorf("packet incomplete: %d of %d authorities failed (%s); the manifest keeps the partial results. Pass --allow-partial-failure to exit 0 anyway", len(incomplete), len(kept), strings.Join(incomplete, "; ")))
+			}
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), p, flags)
+				if err := printJSONFilteredKeep(cmd.OutOrStdout(), p, flags, "cite", "title", "kind", "error", "docx", "text_file", "occurrences", "shepards", "shepards_note"); err != nil {
+					return err
+				}
+				return incompleteErr()
 			}
 			w := cmd.OutOrStdout()
 			for _, a := range kept {
@@ -633,13 +662,23 @@ func newCitecheckPacketCmd(flags *rootFlags) *cobra.Command {
 						sig += " (" + strconv.Itoa(len(a.Shepards.Flags)) + " red flag(s))"
 					}
 				}
-				fmt.Fprintf(w, "READY   %s  %s  cited %d time(s)%s\n", a.Cite, a.Title, len(a.Seen), sig)
+				status := "READY  "
+				if a.Kind == "case" && !noShep && a.Shepards == nil {
+					status = "PARTIAL"
+				}
+				fmt.Fprintf(w, "%s %s  %s  cited %d time(s)%s\n", status, a.Cite, a.Title, len(a.Seen), sig)
+				if a.ShepardsNote != "" {
+					fmt.Fprintf(w, "        %s\n", a.ShepardsNote)
+				}
 			}
 			for _, o := range other {
 				fmt.Fprintf(w, "SKIPPED %s (not a reporter citation this tool can look up)\n", o)
 			}
 			fmt.Fprintf(w, "manifest -> %s\n", p.Manifest)
-			return nil
+			if len(incomplete) > 0 {
+				fmt.Fprintf(w, "INCOMPLETE: %d of %d authorities failed; see FAILED/PARTIAL lines above\n", len(incomplete), len(kept))
+			}
+			return incompleteErr()
 		},
 	}
 	cmd.Flags().StringVar(&out, "out", defaultDownloadDir(), "Folder for the Word copies, text files, and manifest.json")

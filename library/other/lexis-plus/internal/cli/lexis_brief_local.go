@@ -22,7 +22,7 @@ func newBriefGapsCmd(flags *rootFlags) *cobra.Command {
 		Long:        "Use this command to see which of a document's authorities are missing from your pulled set. Do NOT use it to fetch them; run 'batch --file' on the output.",
 		Example:     "  lexis-plus-pp-cli brief gaps motion.docx --matter Acme",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "file=example-value", "pp:verified-by-proof": "brief-citecheck-lifecycle.md"},
+		Annotations: map[string]string{"pp:data-source": "local", "mcp:read-only": "true", "pp:happy-args": "file=example-value", "pp:verified-by-proof": "brief-citecheck-lifecycle.md"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source local
 			if flags.dryRun {
@@ -88,7 +88,7 @@ func newMatterCmd(flags *rootFlags) *cobra.Command {
 		Long:        "Use this command to browse your retrieval log by matter. Do NOT use it for full-text lookup in the log; use 'search'.",
 		Example:     "  lexis-plus-pp-cli matter list --json",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:data-source": "local", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source local
 			if flags.dryRun {
@@ -123,7 +123,7 @@ func newMatterCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Show everything pulled for a matter: cite, title, format, annotations, date, path",
 		Example:     "  lexis-plus-pp-cli matter show Acme --older-than 30",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "matter=example"},
+		Annotations: map[string]string{"pp:data-source": "local", "mcp:read-only": "true", "pp:happy-args": "matter=example"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source local
 			if flags.dryRun {
@@ -169,7 +169,7 @@ func newMatterCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Copy a matter's files into one folder (cases, then statutes) with an index.csv",
 		Example:     "  lexis-plus-pp-cli matter binder Acme --out ./binder",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"pp:happy-args": "matter=example;--out=example-value", "pp:verified-by-proof": "statute-matter-lifecycle.md"},
+		Annotations: map[string]string{"pp:data-source": "local", "pp:happy-args": "matter=example;--out=example-value", "pp:verified-by-proof": "statute-matter-lifecycle.md"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source local
 			if flags.dryRun {

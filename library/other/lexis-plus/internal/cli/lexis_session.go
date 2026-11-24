@@ -20,8 +20,22 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/other/lexis-plus/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/lexis-plus/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/lexis-plus/internal/config"
 )
+
+// citeNotFoundError means Lexis+ answered but the citation does not point to one document.
+// It is distinct from a request failure (expired session, timeout, server error), which must
+// never be reported as an unrecognized citation.
+type citeNotFoundError struct{ msg string }
+
+func (e *citeNotFoundError) Error() string { return e.msg }
+
+func isCiteNotFound(err error) bool {
+	var nf *citeNotFoundError
+	return As(err, &nf)
+}
 
 const (
 	lexisBase       = "https://plus.lexis.com"
@@ -33,11 +47,18 @@ const (
 )
 
 type lexisSession struct {
-	cookie string
-	http   *http.Client
+	cookie  string
+	http    *http.Client
+	limiter *cliutil.AdaptiveLimiter // nil unless --rate-limit sets an explicit ceiling
 }
 
+// errLocalOnly is returned when a command would have to contact Lexis+ under --data-source local.
+var errLocalOnly = fmt.Errorf("--data-source local: this needs a request to Lexis+, which local mode does not make; use a copy already on disk or drop --data-source local")
+
 func newLexisSession(flags *rootFlags) (*lexisSession, error) {
+	if flags.dataSource == "local" {
+		return nil, usageErr(errLocalOnly)
+	}
 	cfg, err := config.Load(flags.configPath)
 	if err != nil {
 		return nil, configErr(err)
@@ -55,7 +76,24 @@ func newLexisSession(flags *rootFlags) (*lexisSession, error) {
 	if timeout <= 0 {
 		timeout = 60 * time.Second
 	}
-	return &lexisSession{cookie: cookie, http: &http.Client{Timeout: timeout}}, nil
+	// Reuse the generated client's transport so --ca-cert, --tls-server-name, and proxy
+	// settings apply to Lexis+ requests too. The session sends its own Cookie header, so
+	// the shared cookie jar is dropped to avoid sending the session twice.
+	flags.applyTLSFlags(cfg)
+	shared := client.New(cfg, timeout, flags.rateLimit)
+	if tlsErr := shared.TLSConfigError(); tlsErr != nil {
+		return nil, configErr(tlsErr)
+	}
+	hc := *shared.HTTPClient
+	hc.Jar = nil
+	hc.Timeout = timeout
+	s := &lexisSession{cookie: cookie, http: &hc}
+	// The commands already pace Lexis+ requests 1-1.5 seconds apart. An explicit --rate-limit
+	// adds a hard ceiling on top of that; --rate-limit 0 or the auto default leave pacing as is.
+	if flags.rateLimit > 0 {
+		s.limiter = cliutil.NewAdaptiveLimiter(flags.rateLimit)
+	}
+	return s, nil
 }
 
 func (s *lexisSession) do(ctx context.Context, method, path string, q url.Values, body []byte, ctype string) ([]byte, *http.Response, error) {
@@ -78,6 +116,11 @@ func (s *lexisSession) do(ctx context.Context, method, path string, q url.Values
 	req.Header.Set("X-Requested-With", "XMLHttpRequest")
 	if ctype != "" {
 		req.Header.Set("Content-Type", ctype)
+	}
+	if s.limiter != nil {
+		if err := s.limiter.Wait(ctx); err != nil {
+			return nil, nil, err
+		}
 	}
 	resp, err := s.http.Do(req)
 	if err != nil {
@@ -209,7 +252,7 @@ func (s *lexisSession) resolveCite(ctx context.Context, cite string) (*authority
 		}
 	}
 	if !qr.IsSdr {
-		return nil, fmt.Errorf("%q did not resolve to a single document (Lexis+ returned a general search result; check the citation form)", cite)
+		return nil, &citeNotFoundError{fmt.Sprintf("%q did not resolve to a single document (Lexis+ returned a general search result; check the citation form)", cite)}
 	}
 	for _, ref := range qr.Sdr.Refs {
 		for _, l := range ref.Links {
@@ -218,7 +261,7 @@ func (s *lexisSession) resolveCite(ctx context.Context, cite string) (*authority
 			}
 		}
 	}
-	return nil, fmt.Errorf("%q was not recognized as a document citation", cite)
+	return nil, &citeNotFoundError{fmt.Sprintf("%q was not recognized as a document citation", cite)}
 }
 
 func parseDocHref(cite, href, linkText string) *authority {
@@ -499,8 +542,11 @@ func (s *lexisSession) deliver(ctx context.Context, a *authority, o deliverOpts)
 	}
 	sum := sha256.Sum256(data)
 	if !o.NoLog {
-		_ = appendLog(logEntry{Cite: a.Cite, Title: a.Title, Kind: a.Kind, DocID: a.DocID, Path: mustAbs(path), Format: o.Format,
-			Annotations: o.Annotations && a.Kind == "statute", Matter: o.Matter, At: time.Now().UTC().Format(time.RFC3339), SHA256: hex.EncodeToString(sum[:])})
+		if err := appendLog(logEntry{Cite: a.Cite, Title: a.Title, Kind: a.Kind, DocID: a.DocID, Path: mustAbs(path), Format: o.Format,
+			Annotations: o.Annotations && a.Kind == "statute", Matter: o.Matter, At: time.Now().UTC().Format(time.RFC3339), SHA256: hex.EncodeToString(sum[:])}); err != nil {
+			// The download itself succeeded; say plainly that matter commands will not see it.
+			fmt.Fprintf(os.Stderr, "warning: saved %s, but could not record it in the retrieval log (%v); `matter list`, `brief gaps`, and reuse will not know about this file\n", path, err)
+		}
 	}
 	return path, nil
 }
@@ -527,20 +573,62 @@ type logEntry struct {
 	SHA256      string `json:"sha256"`
 }
 
+// lexisDataDir is where the retrieval log and saved red-flag reports live. It resolves through
+// the shared path ladder, so --home, LEXIS_PLUS_HOME, and LEXIS_PLUS_DATA_DIR keep separate
+// homes' matter history and reports apart.
+func lexisDataDir() string {
+	if d, err := cliutil.DataDir(); err == nil {
+		return d
+	}
+	return "."
+}
+
+// legacyLexisDir is where releases before the shared path ladder kept these records. It is
+// read (and migrated) only when no home override is active, so one home never sees another's.
+func legacyLexisDir() string {
+	if cliutil.HomeOverrideActive() || os.Getenv("LEXIS_PLUS_HOME") != "" || os.Getenv("LEXIS_PLUS_DATA_DIR") != "" {
+		return ""
+	}
+	d, err := os.UserConfigDir()
+	if err != nil {
+		return ""
+	}
+	return filepath.Join(d, "lexis-plus-pp-cli")
+}
+
 func logPath() string {
 	if p := os.Getenv("LEXIS_PLUS_LOG"); p != "" {
 		return p
 	}
-	d, err := os.UserConfigDir()
-	if err != nil {
-		d = "."
+	return filepath.Join(lexisDataDir(), "retrievals.jsonl")
+}
+
+// migrateLegacy copies a record from the pre-ladder location to its new path once.
+func migrateLegacy(newPath, rel string) {
+	old := legacyLexisDir()
+	if old == "" || os.Getenv("LEXIS_PLUS_LOG") != "" {
+		return
 	}
-	return filepath.Join(d, "lexis-plus-pp-cli", "retrievals.jsonl")
+	oldPath := filepath.Join(old, rel)
+	if oldPath == newPath {
+		return
+	}
+	if _, err := os.Stat(newPath); err == nil {
+		return
+	}
+	b, err := os.ReadFile(oldPath)
+	if err != nil {
+		return
+	}
+	if os.MkdirAll(filepath.Dir(newPath), 0o700) == nil {
+		_ = os.WriteFile(newPath, b, 0o600)
+	}
 }
 
 func appendLog(e logEntry) error {
 	p := logPath()
-	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+	migrateLegacy(p, "retrievals.jsonl")
+	if err := os.MkdirAll(filepath.Dir(p), 0o700); err != nil {
 		return err
 	}
 	f, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
@@ -554,6 +642,7 @@ func appendLog(e logEntry) error {
 }
 
 func readLog() []logEntry {
+	migrateLegacy(logPath(), "retrievals.jsonl")
 	b, err := os.ReadFile(logPath())
 	if err != nil {
 		return nil

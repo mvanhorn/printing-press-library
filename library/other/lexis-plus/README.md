@@ -158,7 +158,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   lexis-plus-pp-cli brief cites motion.docx
   ```
-- **`brief check`** — Check every citation in a draft against Lexis+ and flag the ones it does not recognize.
+- **`brief check`** — Check every citation in a draft (footnotes included) against Lexis+ and flag the ones it does not recognize. A lookup that fails (expired session, timeout, server error) is reported as `ERROR`, never as `NOT RECOGNIZED`; the command exits `5` when any lookup failed and `3` when any citation was not recognized.
 
   _Catches mistyped volumes and pages before filing._
 
@@ -181,7 +181,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   lexis-plus-pp-cli matter show Acme
   ```
-- **`statute whatsnew`** — Re-pull an annotated statute and see which annotations were added or removed since your last pull.
+- **`statute whatsnew`** — Re-pull an annotated statute and see which annotations were added or removed since your last pull. Each run saves a new, separately named copy, so the previous copy is kept.
 
   _Finds new case notes without rereading 40 pages._
 
@@ -202,13 +202,13 @@ These capabilities aren't available in any other tool for this API.
 lexis-plus-pp-cli citecheck packet motion.docx --out ./citecheck/motion-sources --json
 ```
 
-Lists every case and California statute the brief cites with each pin and the surrounding text, saves the Lexis+ Word copy and a page-marked text file for each, and runs Shepard's on the cases. Writes `manifest.json` in the folder.
+Lists every case and California statute the brief cites (footnotes and every section of a `§§` list included) with each pin and the surrounding text, saves the Lexis+ Word copy and a page-marked text file for each, and runs Shepard's on the cases. Writes `manifest.json` in the folder. If any authority could not be fetched, or a requested Shepard's check did not run, the manifest lists it under `incomplete`, the text output marks it `FAILED` or `PARTIAL`, and the command exits `6`; pass `--allow-partial-failure` to exit `0` with the partial packet.
 
 ```bash
 lexis-plus-pp-cli citecheck quote "27 Cal.3d 167" --quote "an employer's authority over its employee does not include the right to demand that the employee commit a criminal act" --pin 178
 ```
 
-Says whether the quotation is verbatim, lists every un-signaled difference, gives the official reporter page it sits on, and says whether the words are the majority's, a concurrence's, a dissent's, a footnote's, or Lexis editorial material. Works offline once the authority is pulled.
+Says whether the quotation is verbatim, lists every un-signaled difference, gives the official reporter page it sits on, and says whether the words are the majority's, a concurrence's, a dissent's, a footnote's, or Lexis editorial material. A pin matches only when it covers every page the quoted words sit on, so a quotation that runs from page 101 onto 102 needs `--pin 101-102`. Works offline once the authority is pulled; under `--data-source local` it never contacts Lexis+ and fails if the authority is not already on disk.
 
 ```bash
 lexis-plus-pp-cli citecheck text "27 Cal.3d 167" --pages 175-176
@@ -310,7 +310,8 @@ Reads are saved locally by default: in `--data-source auto` mode every successfu
 
 None of it is encrypted. New files are created owner-only; beyond that the data relies on OS account permissions and full-disk encryption (FileVault, BitLocker, LUKS).
 
-- **Erase it:** `lexis-plus-pp-cli local-data purge` lists the store files, response cache, and learn journal it would delete; add `--yes` to delete them, or `--only store|cache|journal` to narrow it. Config and credentials are kept.
+- **Erase it:** `lexis-plus-pp-cli local-data purge` lists the store files, response cache, learn journal, and Lexis+ research history (the retrieval log of matter names and file paths, and saved red-flag reports) it would delete; add `--yes` to delete them, or `--only store|cache|journal|history` to narrow it. Downloaded Word/PDF files, config, and credentials are kept.
+- **Research history follows `--home`:** the retrieval log (`retrievals.jsonl`) and red-flag reports (`redflags/`) live in the data directory, so `--home`, `LEXIS_PLUS_HOME`, and `LEXIS_PLUS_DATA_DIR` keep separate homes' matters apart. Records from earlier releases are moved there on first use when no home override is set.
 - **Run without a local copy:** set `LEXIS_PLUS_NO_LOCAL_DATA=1`. Reads go to the API (`--data-source live`; `--data-source local` still reads an existing store), the response cache is off (`--no-cache`), nothing new is written to the store, and `sync` and `workflow archive` refuse to run. Set it in an MCP host's `env` block and every command the server runs inherits it.
 - **Choose the read source without flags:** `LEXIS_PLUS_DATA_SOURCE=auto|live|local` sets the `--data-source` default; an explicit flag wins.
 

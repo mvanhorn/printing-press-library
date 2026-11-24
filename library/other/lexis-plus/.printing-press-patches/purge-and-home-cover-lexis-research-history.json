@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "purge-and-home-cover-lexis-research-history",
+  "applied_at": "2026-11-24",
+  "base_run_id": "20261109-112847-01f2138d",
+  "base_printing_press_version": "4.35.4",
+  "summary": "The Lexis+ retrieval log and saved red-flag reports are app-owned records under the shared data directory: they follow --home and the per-kind env vars, and local-data purge lists and deletes them as the history kind without touching downloaded documents.",
+  "reason": "They hold matter names, file paths, court excerpts, and user-written reasons; keeping them outside the path ladder let separate homes share matter history and let purge report nothing to delete while that data stayed on disk.",
+  "files": [
+    "internal/cli/local_data.go",
+    "internal/cli/lexis_session.go",
+    "internal/cli/lexis_memo.go"
+  ]
+}

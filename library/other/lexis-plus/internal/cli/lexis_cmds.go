@@ -125,7 +125,8 @@ func titleCase(s string) string {
 
 func printFetch(cmd *cobra.Command, flags *rootFlags, r []fetchResult) error {
 	if flags.asJSON {
-		return printJSONFiltered(cmd.OutOrStdout(), r, flags)
+		// Keep the sparse fields: one failed cite or one red flag in a batch must survive --agent.
+		return printJSONFilteredKeep(cmd.OutOrStdout(), r, flags, "cite", "title", "kind", "path", "error", "note", "annotations", "shepards_signal", "red_flag_report", "red_flag_memo", "red_flag_note")
 	}
 	w := cmd.OutOrStdout()
 	for _, x := range r {
@@ -171,7 +172,7 @@ func newCaseCmd(flags *rootFlags) *cobra.Command {
 		Example: "  lexis-plus-pp-cli case get \"27 Cal.3d 167\" --out ./authorities\n" +
 			"  lexis-plus-pp-cli case get \"172 Cal.App.4th 1\" --format pdf",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"pp:happy-args": "cite=27 Cal.3d 167"},
+		Annotations: map[string]string{"pp:data-source": "live", "pp:happy-args": "cite=27 Cal.3d 167"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source live
 			if flags.dryRun {
@@ -221,7 +222,7 @@ func newStatuteCmd(flags *rootFlags) *cobra.Command {
 		Example: "  lexis-plus-pp-cli statute get \"Cal Lab Code 1102.5\" --out ./authorities\n" +
 			"  lexis-plus-pp-cli statute get \"Cal Gov Code 12940\" --no-annotations",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"pp:happy-args": "cite=Cal Lab Code 1102.5"},
+		Annotations: map[string]string{"pp:data-source": "live", "pp:happy-args": "cite=Cal Lab Code 1102.5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source live
 			if flags.dryRun {
@@ -269,7 +270,7 @@ func newCiteCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Say whether Lexis+ recognizes each citation, and what document it points to",
 		Example:     "  lexis-plus-pp-cli cite check \"27 Cal.3d 167\" \"Cal Lab Code 1102.5\"",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "cite=27 Cal.3d 167"},
+		Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true", "pp:happy-args": "cite=27 Cal.3d 167"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source live
 			if flags.dryRun {
@@ -283,13 +284,24 @@ func newCiteCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			var out []authority
+			unknown, failedN := 0, 0
 			for i, c := range args {
 				if i > 0 {
 					time.Sleep(1 * time.Second)
 				}
 				a, err := s.resolveCite(cmd.Context(), c)
 				if err != nil {
-					out = append(out, authority{Cite: c, Status: "not recognized: " + err.Error()})
+					switch {
+					case ExitCode(err) == 4:
+						return err // expired session: every remaining cite would fail the same way
+					case isCiteNotFound(err):
+						unknown++
+						out = append(out, authority{Cite: c, Status: "not recognized: " + err.Error()})
+					default:
+						// A timeout or server error says nothing about the citation itself.
+						failedN++
+						out = append(out, authority{Cite: c, Status: "error (not checked): " + err.Error()})
+					}
 					continue
 				}
 				a.Title = titleCase(s.suggestTitle(cmd.Context(), c))
@@ -298,20 +310,17 @@ func newCiteCmd(flags *rootFlags) *cobra.Command {
 				}
 				out = append(out, *a)
 			}
-			unknown := 0
-			for _, a := range out {
-				if a.DocID == "" {
-					unknown++
-				}
-			}
 			unknownErr := func() error {
-				if unknown == 0 {
-					return nil
+				switch {
+				case failedN > 0:
+					return apiErr(fmt.Errorf("%d of %d lookups failed before Lexis+ could answer; those citations were not checked", failedN, len(out)))
+				case unknown > 0:
+					return notFoundErr(fmt.Errorf("%d of %d citations were not recognized by Lexis+", unknown, len(out)))
 				}
-				return notFoundErr(fmt.Errorf("%d of %d citations were not recognized by Lexis+", unknown, len(out)))
+				return nil
 			}
 			if flags.asJSON {
-				if err := printJSONFiltered(cmd.OutOrStdout(), out, flags); err != nil {
+				if err := printJSONFilteredKeep(cmd.OutOrStdout(), out, flags, "cite", "title", "kind", "doc_id", "status"); err != nil {
 					return err
 				}
 				return unknownErr()
@@ -344,7 +353,7 @@ func newBatchCmd(flags *rootFlags) *cobra.Command {
 			"Statutes are downloaded with annotations. Citations already pulled (same format, file still present) are skipped unless --force.\n" +
 			"Requests are paced about 1.5 seconds apart. Keep lists to the authorities you actually need.",
 		Example:     "  lexis-plus-pp-cli batch --file cites.txt --out ./authorities --matter Acme",
-		Annotations: map[string]string{"pp:happy-args": "--file=example-value"},
+		Annotations: map[string]string{"pp:data-source": "live", "pp:happy-args": "--file=example-value"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source live
 			if flags.dryRun {
@@ -364,12 +373,22 @@ func newBatchCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("%d citations is more than this CLI will fetch in one run (limit 60); split the list", len(cites)))
 			}
 			have := map[string]logEntry{}
+			inMatter := map[string]bool{} // cites already filed under --matter
 			if !f.force {
 				for _, e := range readLog() {
-					if e.Format == f.format || (f.format == "" && e.Format == "docx") {
-						if _, err := os.Stat(e.Path); err == nil {
-							have[citeKey(e.Cite)] = e
-						}
+					if f.matter != "" && e.Matter == f.matter {
+						inMatter[citeKey(e.Cite)] = true
+					}
+					if e.Format != f.format && !(f.format == "" && e.Format == "docx") {
+						continue
+					}
+					// batch promises annotated statutes unless --no-annotations: a bare copy pulled
+					// with --no-annotations cannot stand in for an annotated one (or vice versa).
+					if e.Kind == "statute" && e.Annotations != !f.noAnnot {
+						continue
+					}
+					if _, err := os.Stat(e.Path); err == nil {
+						have[citeKey(e.Cite)] = e
 					}
 				}
 			}
@@ -381,7 +400,17 @@ func newBatchCmd(flags *rootFlags) *cobra.Command {
 			failed := false
 			for i, c := range cites {
 				if e, ok := have[citeKey(c)]; ok {
-					r := fetchResult{Cite: c, Path: e.Path, Kind: e.Kind, Title: "(already pulled, skipped)"}
+					r := fetchResult{Cite: c, Path: e.Path, Kind: e.Kind, Title: "(already pulled, skipped)", Annotations: e.Annotations}
+					// Reusing a file pulled for another matter still files it under this one, so
+					// `matter list` and `matter binder` for --matter see every authority the batch covered.
+					if f.matter != "" && !inMatter[citeKey(c)] && !inMatter[citeKey(e.Cite)] && !flags.dryRun {
+						tagged := e
+						tagged.Matter = f.matter
+						tagged.At = time.Now().UTC().Format(time.RFC3339)
+						if err := appendLog(tagged); err != nil {
+							r.Note = "reused, but could not record it under matter " + f.matter + ": " + err.Error()
+						}
+					}
 					if e.Kind == "case" && !f.noRedflags {
 						// Shepard's status can change after a pull, so re-check skipped cases too.
 						if i > 0 {

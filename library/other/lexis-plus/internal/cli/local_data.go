@@ -22,6 +22,9 @@ const (
 	localDataKindStore   = "store"
 	localDataKindCache   = "cache"
 	localDataKindJournal = "journal"
+	// localDataKindHistory is the Lexis+ retrieval log (matter names, file paths) and the saved
+	// red-flag reports (court excerpts, user-written reasons). Downloaded documents are not touched.
+	localDataKindHistory = "history"
 )
 
 // localStoreFilePattern matches the unscoped and per-credential SQLite stores
@@ -55,8 +58,10 @@ func newLocalDataPurgeCmd(flags *rootFlags) *cobra.Command {
 	var only []string
 	cmd := &cobra.Command{
 		Use:   "purge",
-		Short: "Delete the local store, response cache, and learn journal (dry run unless --yes)",
+		Short: "Delete the local store, response cache, learn journal, and Lexis+ research history (dry run unless --yes)",
 		Long: `Lists what would be deleted and changes nothing unless --yes is passed.
+Research history means the Lexis+ retrieval log (matter names and file paths)
+and saved red-flag reports. Downloaded Word/PDF files are not deleted.
 Config and credentials are kept. Stores written to a custom --db path are
 not touched. Stop other processes using the store first, such as an MCP server.`,
 		Example: "  lexis-plus-pp-cli local-data purge\n  lexis-plus-pp-cli local-data purge --yes\n  lexis-plus-pp-cli local-data purge --only cache --yes",
@@ -65,10 +70,10 @@ not touched. Stop other processes using the store first, such as an MCP server.`
 			kinds := map[string]bool{}
 			for _, kind := range only {
 				switch kind = strings.TrimSpace(kind); kind {
-				case localDataKindStore, localDataKindCache, localDataKindJournal:
+				case localDataKindStore, localDataKindCache, localDataKindJournal, localDataKindHistory:
 					kinds[kind] = true
 				default:
-					return usageErr(fmt.Errorf("invalid --only value %q: must be store, cache, or journal", kind))
+					return usageErr(fmt.Errorf("invalid --only value %q: must be store, cache, journal, or history", kind))
 				}
 			}
 			targets, err := collectLocalDataTargets(kinds)
@@ -116,7 +121,7 @@ not touched. Stop other processes using the store first, such as an MCP server.`
 			return nil
 		},
 	}
-	cmd.Flags().StringSliceVar(&only, "only", nil, "Limit the purge to store, cache, or journal (repeatable)")
+	cmd.Flags().StringSliceVar(&only, "only", nil, "Limit the purge to store, cache, journal, or history (repeatable)")
 	return cmd
 }
 
@@ -160,6 +165,63 @@ func collectLocalDataTargets(kinds map[string]bool) ([]localDataTarget, error) {
 			return nil, err
 		}
 		targets = append(targets, found...)
+	}
+	if want(localDataKindHistory) {
+		found, err := lexisHistoryTargets()
+		if err != nil {
+			return nil, err
+		}
+		targets = append(targets, found...)
+	}
+	return targets, nil
+}
+
+// lexisHistoryTargets lists the retrieval log and red-flag report folder for the active home,
+// plus their pre-ladder copies when no home override is active (legacyLexisDir is "" then).
+func lexisHistoryTargets() ([]localDataTarget, error) {
+	var targets []localDataTarget
+	seen := map[string]bool{}
+	addFile := func(p string) error {
+		if p == "" || seen[p] {
+			return nil
+		}
+		seen[p] = true
+		info, err := os.Lstat(p)
+		switch {
+		case err == nil && info.Mode().IsRegular():
+			targets = append(targets, localDataTarget{Kind: localDataKindHistory, Path: p, Bytes: info.Size()})
+		case err != nil && !errors.Is(err, fs.ErrNotExist):
+			return fmt.Errorf("inspect %s: %w", p, err)
+		}
+		return nil
+	}
+	addDir := func(p string) error {
+		if p == "" || seen[p] {
+			return nil
+		}
+		seen[p] = true
+		info, err := os.Lstat(p)
+		switch {
+		case err == nil && info.IsDir():
+			targets = append(targets, localDataTarget{Kind: localDataKindHistory, Path: p, Bytes: localTreeBytes(p), dir: true})
+		case err != nil && !errors.Is(err, fs.ErrNotExist):
+			return fmt.Errorf("inspect %s: %w", p, err)
+		}
+		return nil
+	}
+	if err := addFile(logPath()); err != nil {
+		return nil, err
+	}
+	if err := addDir(redFlagCacheDir()); err != nil {
+		return nil, err
+	}
+	if old := legacyLexisDir(); old != "" {
+		if err := addFile(filepath.Join(old, "retrievals.jsonl")); err != nil {
+			return nil, err
+		}
+		if err := addDir(filepath.Join(old, "redflags")); err != nil {
+			return nil, err
+		}
 	}
 	return targets, nil
 }

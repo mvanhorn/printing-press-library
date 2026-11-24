@@ -15,7 +15,7 @@ func newBriefCitesCmd(flags *rootFlags) *cobra.Command {
 		Long:        "Use this command to list the authorities cited in a document. Do NOT use it to download anything; use 'batch --file' for that.",
 		Example:     "  lexis-plus-pp-cli brief cites motion.docx > cites.txt",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "file=example-value", "pp:verified-by-proof": "brief-citecheck-lifecycle.md"},
+		Annotations: map[string]string{"pp:data-source": "computed", "mcp:read-only": "true", "pp:happy-args": "file=example-value", "pp:verified-by-proof": "brief-citecheck-lifecycle.md"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source computed
 			if flags.dryRun {

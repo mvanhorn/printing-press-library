@@ -22,7 +22,7 @@ func newBriefCheckCmd(flags *rootFlags) *cobra.Command {
 		Long:        "Use this command to validate every cite in a document. Do NOT use it for a single cite; use 'cite check' instead.",
 		Example:     "  lexis-plus-pp-cli brief check motion.docx",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "file=example-value", "pp:verified-by-proof": "brief-citecheck-lifecycle.md"},
+		Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true", "pp:happy-args": "file=example-value", "pp:verified-by-proof": "brief-citecheck-lifecycle.md"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source live
 			if flags.dryRun {
@@ -44,33 +44,72 @@ func newBriefCheckCmd(flags *rootFlags) *cobra.Command {
 			}
 			type row struct {
 				Cite   string `json:"cite"`
-				Status string `json:"status"`
+				Status string `json:"status"` // recognized | NOT RECOGNIZED | ERROR
 				Title  string `json:"title,omitempty"`
+				Error  string `json:"error,omitempty"` // why the lookup failed (ERROR rows only)
 			}
 			var rows []row
+			unknown, failedN := 0, 0
 			for i, c := range cs {
 				if i > 0 {
 					time.Sleep(1 * time.Second)
 				}
 				_, err := s.resolveCite(cmd.Context(), c.Cite)
-				if err != nil {
+				switch {
+				case err == nil:
+					rows = append(rows, row{Cite: c.Cite, Status: "recognized", Title: titleCase(s.suggestTitle(cmd.Context(), c.Cite))})
+				case isCiteNotFound(err):
+					unknown++
 					rows = append(rows, row{Cite: c.Cite, Status: "NOT RECOGNIZED"})
-					continue
+				case ExitCode(err) == 4:
+					// An expired session would fail every remaining cite the same way.
+					return err
+				default:
+					// A timeout or server error says nothing about the citation itself.
+					failedN++
+					rows = append(rows, row{Cite: c.Cite, Status: "ERROR", Error: err.Error()})
 				}
-				rows = append(rows, row{Cite: c.Cite, Status: "recognized", Title: titleCase(s.suggestTitle(cmd.Context(), c.Cite))})
+			}
+			result := func() error {
+				switch {
+				case failedN > 0:
+					return apiErr(fmt.Errorf("%d of %d lookups failed before Lexis+ could answer (see ERROR rows); those citations were not checked", failedN, len(rows)))
+				case unknown > 0:
+					return notFoundErr(fmt.Errorf("%d of %d citations were not recognized by Lexis+", unknown, len(rows)))
+				}
+				return nil
 			}
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
+				if err := printJSONFilteredKeep(cmd.OutOrStdout(), rows, flags, "cite", "status", "title", "error"); err != nil {
+					return err
+				}
+				return result()
 			}
 			for _, r := range rows {
-				fmt.Fprintf(cmd.OutOrStdout(), "%-15s %-28s %s\n", r.Status, r.Cite, r.Title)
+				detail := r.Title
+				if r.Error != "" {
+					detail = r.Error
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "%-15s %-28s %s\n", r.Status, r.Cite, detail)
 			}
-			return nil
+			return result()
 		},
 	}
 	check.Flags().IntVar(&max, "max", 40, "Refuse to check more than this many citations in one run")
 
 	return check
+}
+
+// uniquePullName returns base, or base with " (2)", " (3)", ... appended, so that dir/name+ext
+// does not already exist.
+func uniquePullName(dir, base, ext string) string {
+	name := base
+	for n := 2; ; n++ {
+		if _, err := os.Stat(filepath.Join(dir, name+ext)); os.IsNotExist(err) {
+			return name
+		}
+		name = fmt.Sprintf("%s (%d)", base, n)
+	}
 }
 
 // ---- statute annotation diff ----
@@ -81,7 +120,7 @@ func newStatuteWhatsNewCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Re-pull an annotated statute and show what changed in the annotations since your last pull",
 		Example:     "  lexis-plus-pp-cli statute whatsnew \"Cal Lab Code 1102.5\"",
 		Args:        cobra.ArbitraryArgs,
-		Annotations: map[string]string{"pp:happy-args": "cite=Cal Lab Code 1102.5", "pp:verified-by-proof": "statute-matter-lifecycle.md"},
+		Annotations: map[string]string{"pp:data-source": "live", "pp:happy-args": "cite=Cal Lab Code 1102.5", "pp:verified-by-proof": "statute-matter-lifecycle.md"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// pp:data-source live
 			if flags.dryRun {
@@ -111,13 +150,16 @@ func newStatuteWhatsNewCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			a.Title = prev.Title
-			dir := filepath.Dir(prev.Path)
-			name := safeFileName(a.Cite) + " " + time.Now().Format("2006-01-02")
-			newPath, err := s.deliver(cmd.Context(), a, deliverOpts{Format: "docx", Annotations: true, OutDir: dir, Name: name, Matter: prev.Matter})
+			// Read the previous copy before downloading, and give the new pull a name no earlier
+			// pull can have, so a second run on the same day compares against the earlier copy
+			// instead of overwriting it.
+			oldT, err := readDocText(prev.Path)
 			if err != nil {
 				return err
 			}
-			oldT, err := readDocText(prev.Path)
+			dir := filepath.Dir(prev.Path)
+			name := uniquePullName(dir, safeFileName(a.Cite)+" "+time.Now().Format("2006-01-02 150405"), ".docx")
+			newPath, err := s.deliver(cmd.Context(), a, deliverOpts{Format: "docx", Annotations: true, OutDir: dir, Name: name, Matter: prev.Matter})
 			if err != nil {
 				return err
 			}

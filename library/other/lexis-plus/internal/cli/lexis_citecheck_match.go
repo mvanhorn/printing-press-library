@@ -210,7 +210,7 @@ func (d *ccDoc) nearHits(items []qItem) []ccHit {
 		if hi > len(d.toks) {
 			hi = len(d.toks)
 		}
-		h, ok := d.align(items, lo, hi)
+		h, ok := d.alignWithinSections(items, lo, hi)
 		if !ok || seen[h.start] {
 			continue
 		}
@@ -221,7 +221,30 @@ func (d *ccDoc) nearHits(items []qItem) []ccHit {
 	return out
 }
 
+// alignWithinSections aligns the quotation separately inside each run of tokens between section
+// sentinels in toks[lo:hi] and returns the best hit. A near match therefore never spans two
+// sections (an opinion and a dissent, or a footnote and the body), so its source text and speaker
+// always come from one section.
+func (d *ccDoc) alignWithinSections(items []qItem, lo, hi int) (ccHit, bool) {
+	var best ccHit
+	found := false
+	start := lo
+	for i := lo; i <= hi; i++ {
+		if i < hi && d.toks[i].n != ccSentinel {
+			continue
+		}
+		if i > start {
+			if h, ok := d.align(items, start, i); ok && (!found || h.sim > best.sim) {
+				best, found = h, true
+			}
+		}
+		start = i + 1
+	}
+	return best, found
+}
+
 // align runs a word-level alignment of the quotation against toks[lo:hi] (free ends on the source side).
+// Callers pass a window with no section sentinel inside it (see alignWithinSections).
 func (d *ccDoc) align(items []qItem, lo, hi int) (ccHit, bool) {
 	w := d.toks[lo:hi]
 	m, n := len(items), len(w)
@@ -423,8 +446,13 @@ func (d *ccDoc) locate(h ccHit) ccLocation {
 
 // sourceText returns the matched passage widened to whole sentences, with page markers kept.
 func (d *ccDoc) sourceText(h ccHit) string {
-	seg := d.Segs[d.toks[h.start].seg]
-	s, e := d.toks[h.start].s, d.toks[h.end-1].e
+	si := d.toks[h.start].seg
+	seg := d.Segs[si]
+	last := h.end - 1
+	for last > h.start && (d.toks[last].seg != si || d.toks[last].n == ccSentinel) {
+		last-- // never take an end offset from another section's text
+	}
+	s, e := d.toks[h.start].s, d.toks[last].e
 	t := seg.Text
 	for n := 0; s > 0 && n < 400; n++ {
 		if (t[s-1] == '.' || t[s-1] == '\n' || t[s-1] == '?') && n > 0 {
@@ -632,22 +660,27 @@ func (d *ccDoc) checkPin(pin string, hits []ccHit) *ccPinResult {
 		r.Note = "could not read a page number from the pin"
 		return r
 	}
-	within := func(lvl int) (bool, []string) {
-		var all []string
-		hit := false
+	// within reports whether every page the matched passages sit on is inside the pin's range
+	// (all), whether at least one is (any), and the pages themselves. A pin must cover the whole
+	// quotation: a passage joined by an ellipsis from text on another page does not pass on a
+	// pin to only one of those pages.
+	within := func(lvl int) (all, any bool, pages []string) {
+		all = true
 		for _, h := range hits {
 			for _, p := range d.pagesOf(h.start, h.end, lvl) {
-				if len(all) == 0 || all[len(all)-1] != p {
-					all = append(all, p)
+				if len(pages) == 0 || pages[len(pages)-1] != p {
+					pages = append(pages, p)
 				}
 				if n, err := strconv.Atoi(p); err == nil && n >= lo && n <= hi {
-					hit = true
+					any = true
+				} else {
+					all = false
 				}
 			}
 		}
-		return hit, all
+		return all && len(pages) > 0, any, pages
 	}
-	okOff, pages := within(0)
+	okOff, partOff, pages := within(0)
 	r.FoundOn = pageSpan(pages)
 	if len(pages) == 0 {
 		r.Note = "this document has no reporter page markers, so the pin cannot be checked here"
@@ -657,9 +690,12 @@ func (d *ccDoc) checkPin(pin string, hits []ccHit) *ccPinResult {
 	r.Matches = &match
 	if !okOff {
 		for lvl := 1; lvl < 4 && lvl < len(d.Reporters); lvl++ {
-			if hit, _ := within(lvl); hit && d.Reporters[lvl] != "" {
+			if all, _, _ := within(lvl); all && d.Reporters[lvl] != "" {
 				r.Note = "the pin matches the pagination of " + d.Reporters[lvl] + ", not the cited reporter"
 			}
+		}
+		if r.Note == "" && partOff {
+			r.Note = "the pin covers only part of the quotation: the quoted words run across page(s) " + strings.Join(pages, ", ") + " of " + d.Reporters[0] + ", not just page " + strings.TrimSpace(pin)
 		}
 		if r.Note == "" {
 			r.Note = "the passage is on page " + r.FoundOn + " of " + d.Reporters[0] + ", not page " + strings.TrimSpace(pin)
