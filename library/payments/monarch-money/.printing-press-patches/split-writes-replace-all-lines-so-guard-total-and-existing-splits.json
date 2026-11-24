@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "split-writes-replace-all-lines-so-guard-total-and-existing-splits",
+  "applied_at": "2026-11-23",
+  "base_run_id": "manual-plan-20260509",
+  "base_printing_press_version": "4.2.1",
+  "summary": "Monarch's split mutation replaces every split line at once, so split writes stay dry-run by default, require the lines to equal an expected parent total, and re-read the transaction before writing.",
+  "reason": "An off-by-a-cent file or a stale view of the transaction would overwrite real category data; the re-read refuses split lines, amount changes and existing splits unless --replace is passed. categories and transactions get exist to supply category IDs and a before snapshot for rollback.",
+  "files": [
+    "internal/cli/splits.go",
+    "internal/cli/splits_test.go",
+    "internal/cli/splits_cmd_test.go",
+    "internal/cli/helpers.go",
+    "internal/cli/transactions.go",
+    "internal/cli/root.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Two live splits applied and read back on a real account; dry-run makes no request, rejects totals off by one cent, and command tests confirm every refused write sends no mutation."
+}
