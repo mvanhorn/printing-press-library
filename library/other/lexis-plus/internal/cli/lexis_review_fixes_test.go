@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/other/lexis-plus/internal/cliutil"
 )
 
 // A pin to one page must not pass a quotation whose words also sit on another page.
@@ -195,12 +197,24 @@ func TestLegacyMigrationDoesNotLoseConcurrentWrites(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, "cfg"))
 	t.Setenv("XDG_DATA_HOME", filepath.Join(home, "data"))
+	// Every variable os.UserConfigDir and the path helpers read on any platform points into the
+	// test directory, so this test can never touch a real history file (Windows reads APPDATA).
+	t.Setenv("APPDATA", filepath.Join(home, "AppData", "Roaming"))
+	t.Setenv("LOCALAPPDATA", filepath.Join(home, "AppData", "Local"))
+	t.Setenv("USERPROFILE", home)
 	for _, k := range []string{"LEXIS_PLUS_HOME", "LEXIS_PLUS_DATA_DIR", "LEXIS_PLUS_LOG"} {
 		t.Setenv(k, "")
 	}
 	old := legacyLexisDir()
 	if old == "" {
 		t.Skip("no legacy location on this platform")
+	}
+	// Refuse to write anywhere outside the test directory, whatever the platform resolved.
+	if rel, err := filepath.Rel(home, old); err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		t.Fatalf("legacy location %q is outside the test directory %q; refusing to write", old, home)
+	}
+	if dd, err := cliutil.DataDir(); err != nil || !strings.HasPrefix(dd, home) {
+		t.Fatalf("data directory %q is outside the test directory %q; refusing to write", dd, home)
 	}
 	if err := os.MkdirAll(old, 0o700); err != nil {
 		t.Fatal(err)
