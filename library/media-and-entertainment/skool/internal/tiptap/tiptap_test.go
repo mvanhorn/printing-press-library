@@ -205,15 +205,88 @@ func TestSevenHashesIsNotAHeading(t *testing.T) {
 // Constructs outside the declared subset must not silently become the wrong
 // node type — they pass through as paragraph text so the failure is visible in
 // the output rather than rejected by the API with no indication of the cause.
+// plainParagraph is the document for one paragraph holding one unmarked text
+// node — what "carried through as literal text" has to mean exactly.
+func plainParagraph(t *testing.T, text string) string {
+	t.Helper()
+	b, err := json.Marshal(Node{Type: "doc", Content: []Node{{
+		Type:    "paragraph",
+		Content: []Node{{Type: "text", Text: text}},
+	}}})
+	if err != nil {
+		t.Fatalf("marshaling expectation: %v", err)
+	}
+	return compactJSON(t, string(b))
+}
+
 func TestUnsupportedConstructsPassThroughAsText(t *testing.T) {
-	for _, md := range []string{"> quote", "    indented code", "![img](https://e.com/i.png)", "---"} {
-		doc := FromMarkdown(md)
-		if len(doc.Content) == 0 {
-			t.Fatalf("FromMarkdown(%q) dropped the block entirely", md)
+	// Each of these must come out as a single paragraph whose only content is
+	// the source text, unmarked: no link made from an image, and nothing
+	// inside backticks read as bold or as a link.
+	for _, md := range []string{
+		"> quote",
+		"---",
+		"![img](https://e.com/i.png)",
+		"![diagram](https://e.com/a_(b).png)",
+		"`**not bold**`",
+		"`[not a link](https://e.com)`",
+		"``a ` b **c**``",
+		"run `go test **./...**` then read [x] carefully",
+		"an unclosed ` backtick stays put",
+	} {
+		if got, want := gotJSON(t, md), plainParagraph(t, md); got != want {
+			t.Errorf("FromMarkdown(%q)\n got: %s\nwant: %s", md, got, want)
 		}
-		if got := doc.Content[0].Type; got != "paragraph" && got != "bulletList" {
-			t.Errorf("FromMarkdown(%q) first node = %q, want paragraph", md, got)
-		}
+	}
+
+	// Indented code keeps its text; block-level trimming drops the indent.
+	if got, want := gotJSON(t, "    indented code"), plainParagraph(t, "indented code"); got != want {
+		t.Errorf("indented code\n got: %s\nwant: %s", got, want)
+	}
+}
+
+func TestMarksStillApplyAroundACodeSpan(t *testing.T) {
+	got := gotJSON(t, "**bold** then `**code**` then [link](https://e.com)")
+	want := compactJSON(t, `{"type":"doc","content":[{"type":"paragraph","content":[
+		{"type":"text","text":"bold","marks":[{"type":"bold"}]},
+		{"type":"text","text":" then `+"`**code**`"+` then "},
+		{"type":"text","text":"link","marks":[{"type":"link","attrs":{"href":"https://e.com"}}]}]}]}`)
+	if got != want {
+		t.Errorf("\n got: %s\nwant: %s", got, want)
+	}
+}
+
+func TestLinkDestinationsKeepBalancedParentheses(t *testing.T) {
+	link := func(text, href string) string {
+		return `{"type":"text","text":"` + text + `","marks":[{"type":"link","attrs":{"href":"` + href + `"}}]}`
+	}
+	para := func(nodes ...string) string {
+		return `{"type":"doc","content":[{"type":"paragraph","content":[` + strings.Join(nodes, ",") + `]}]}`
+	}
+	tests := []struct {
+		name, md, want string
+	}{
+		{"balanced", "[guide](https://example.com/a_(b))",
+			para(link("guide", "https://example.com/a_(b)"))},
+		{"balanced with trailing text", "see [guide](https://example.com/a_(b)) now",
+			para(`{"type":"text","text":"see "}`, link("guide", "https://example.com/a_(b)"), `{"type":"text","text":" now"}`)},
+		{"nested", "[x](https://e.com/(a(b))c)",
+			para(link("x", "https://e.com/(a(b))c"))},
+		{"escaped close", `[x](https://e.com/a\)b)`,
+			para(link("x", "https://e.com/a)b"))},
+		{"escaped open", `[x](https://e.com/a\(b)`,
+			para(link("x", "https://e.com/a(b"))},
+		{"link inside prose parentheses", "(see [x](https://e.com))",
+			para(`{"type":"text","text":"(see "}`, link("x", "https://e.com"), `{"type":"text","text":")"}`)},
+		{"unbalanced stays literal", "[x](https://e.com/a_(b",
+			para(`{"type":"text","text":"[x](https://e.com/a_(b"}`)},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got, want := gotJSON(t, tc.md), compactJSON(t, tc.want); got != want {
+				t.Errorf("FromMarkdown(%q)\n got: %s\nwant: %s", tc.md, got, want)
+			}
+		})
 	}
 }
 

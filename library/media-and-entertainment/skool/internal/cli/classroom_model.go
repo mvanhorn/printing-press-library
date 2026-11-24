@@ -82,6 +82,7 @@ func courseTreeFromPayload(raw json.RawMessage) (classroomNode, error) {
 		Title:  src.Name,
 		Kind:   classroomKindCourse,
 		Slug:   metaString(src.Metadata, "slug"),
+		Order:  metaOrder(src.Metadata, 0),
 		Access: accessFromMetadata(src.Metadata),
 	}
 	if root.Slug == "" {
@@ -124,6 +125,13 @@ func courseSummariesFromPayload(raw json.RawMessage) ([]classroomNode, error) {
 	}
 	found := findCourseArray(root, "")
 	if found == nil {
+		// No populated course array anywhere. A community whose admin has not
+		// created a course yet answers with an empty list, and that is a valid
+		// classroom — exactly the state someone reaches for `push` in — so it
+		// is accepted, but only at the one place a course list can sit.
+		if hasEmptyCourseList(root) {
+			return []classroomNode{}, nil
+		}
 		return nil, fmt.Errorf("could not locate the course list in the classroom payload — Skool's page shape may have changed (re-run with --json to inspect the raw payload)")
 	}
 	out := make([]classroomNode, 0, len(found))
@@ -194,10 +202,38 @@ func findCourseArray(v any, key string) []any {
 	return nil
 }
 
+// emptyCourseListKeys are the keys under pageProps whose empty array is read as
+// "this community has no courses yet". The populated list is found by shape
+// under any course-named key; an empty array has no shape to check, so it is
+// trusted only under these exact names.
+var emptyCourseListKeys = []string{"courses", "allCourses"}
+
+// hasEmptyCourseList reports whether the payload carries an empty course list
+// directly under pageProps. It is deliberately narrower than findCourseArray:
+// an empty array under some other course-flavoured key (courseTags,
+// courseProgress), or anywhere outside pageProps, says nothing about whether
+// the community has courses, and neither does the client's dry-run placeholder.
+func hasEmptyCourseList(root any) bool {
+	top, ok := root.(map[string]any)
+	if !ok {
+		return false
+	}
+	props, ok := top["pageProps"].(map[string]any)
+	if !ok {
+		return false
+	}
+	for _, key := range emptyCourseListKeys {
+		if arr, ok := props[key].([]any); ok && len(arr) == 0 {
+			return true
+		}
+	}
+	return false
+}
+
 // allCourseShaped reports whether every element is an object with a non-empty
-// string id and name. An empty array is not course-shaped: accepting one would
-// let `push` conclude the community has no courses when it simply read the
-// wrong key.
+// string id and name. An empty array is not course-shaped: accepting one here
+// would let `push` conclude the community has no courses when it simply read
+// the wrong key. The legitimately empty list is handled by hasEmptyCourseList.
 func allCourseShaped(arr []any) bool {
 	if len(arr) == 0 {
 		return false
@@ -287,20 +323,44 @@ func objectOrder(obj map[string]any, fallback int) int {
 // can decide create-vs-update without caring which folder holds the page.
 // Skool lets an author move a lesson between folders without renaming it, and
 // treating a moved lesson as a new one is how duplicates get created.
-func flattenPages(root classroomNode) map[string]classroomNode {
-	out := map[string]classroomNode{}
+//
+// A key maps to every live page carrying that title, in tree order. Skool does
+// not stop two pages in one course sharing a title, and keeping only the first
+// would let the plan pick an update target by accident and drop the other page
+// from the orphan report.
+func flattenPages(root classroomNode) map[string][]classroomNode {
+	out := map[string][]classroomNode{}
 	for _, folder := range root.Children {
 		for _, page := range folder.Children {
 			if page.Title == "" {
 				continue
 			}
 			key := titleKey(page.Title)
-			if _, exists := out[key]; !exists {
-				out[key] = page
-			}
+			out[key] = append(out[key], page)
 		}
 	}
 	return out
+}
+
+// indexCoursesByTitle groups the live courses by titleKey, keeping every course
+// that shares a title for the same reason flattenPages does.
+func indexCoursesByTitle(courses []classroomNode) map[string][]classroomNode {
+	out := map[string][]classroomNode{}
+	for _, course := range courses {
+		key := titleKey(course.Title)
+		out[key] = append(out[key], course)
+	}
+	return out
+}
+
+// nodeIDs lists node ids for an error message, so the user can tell the
+// same-titled items apart in the classroom.
+func nodeIDs(nodes []classroomNode) string {
+	ids := make([]string, 0, len(nodes))
+	for _, n := range nodes {
+		ids = append(ids, n.ID)
+	}
+	return strings.Join(ids, ", ")
 }
 
 // assertClassroomScope fails closed on any request path outside the classroom

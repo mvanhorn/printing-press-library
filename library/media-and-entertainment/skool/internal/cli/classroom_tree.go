@@ -58,6 +58,10 @@ func newClassroomCoursesCmd(flags *rootFlags) *cobra.Command {
 				"courses":   courses,
 			}, flags)
 		}
+		if len(courses) == 0 {
+			fmt.Fprintf(cmd.OutOrStdout(), "no courses in %s yet\n", community)
+			return nil
+		}
 		for _, course := range courses {
 			access := course.Access
 			if access == "" {

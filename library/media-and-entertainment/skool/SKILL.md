@@ -234,7 +234,11 @@ bundle twice updates the same pages instead of creating duplicates. It is
 plan-only unless `--apply` is passed, it rate-limits itself to ~1 request per
 second, it never deletes, and it refuses to send any request outside the
 classroom surface. A live page the bundle does not mention is reported as an
-orphan and left alone.
+orphan and left alone, as is a whole live course that no lesson in the bundle
+names (listed once at course level, not page by page). If two live courses, or
+two pages in one course, share a title the bundle targets, `push` stops and
+asks you to rename one rather than guess which to update. `--dry-run` validates
+the bundle and stops before reading the live classroom, so it prints no plan.
 
 `access` accepts `open`, `level:<n>`, or `private`.
 

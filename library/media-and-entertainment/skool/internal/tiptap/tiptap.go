@@ -240,6 +240,26 @@ func inline(s string, marks []Mark) []Node {
 			continue
 		}
 
+		// Code span: outside the subset, so the whole span — backticks
+		// included — stays literal, and nothing inside it is read as bold
+		// or as a link.
+		if s[i] == '`' {
+			end := codeSpanEnd(s, i)
+			lit.WriteString(s[i:end])
+			i = end
+			continue
+		}
+
+		// Image: also outside the subset. Without this the "[alt](src)" tail
+		// would be picked up as a link and the image would turn into one.
+		if s[i] == '!' && i+1 < len(s) && s[i+1] == '[' {
+			if _, _, next, ok := scanLink(s, i+1); ok {
+				lit.WriteString(s[i:next])
+				i = next
+				continue
+			}
+		}
+
 		if delim := boldDelim(s, i); delim != "" {
 			if inner, next, ok := scanDelimited(s, i, delim); ok {
 				flush()
@@ -306,8 +326,39 @@ func scanDelimited(s string, i int, delim string) (inner string, next int, ok bo
 	return rest[:end], i + len(delim) + end + len(delim), true
 }
 
+// codeSpanEnd returns the index just past the code span opening at i. A span
+// opened by a run of n backticks closes at the next run of exactly n. With no
+// closing run, only the opening backticks are consumed, so they stay literal
+// and the rest of the line is parsed normally.
+func codeSpanEnd(s string, i int) int {
+	n := 0
+	for i+n < len(s) && s[i+n] == '`' {
+		n++
+	}
+	for j := i + n; j < len(s); {
+		if s[j] != '`' {
+			j++
+			continue
+		}
+		run := 0
+		for j+run < len(s) && s[j+run] == '`' {
+			run++
+		}
+		if run == n {
+			return j + run
+		}
+		j += run
+	}
+	return i + n
+}
+
 // scanLink parses [label](href) starting at i. The label may itself contain
 // bold spans; it may not contain a nested link, which Markdown also forbids.
+//
+// The destination ends at the ")" that balances the opening one, so a URL with
+// its own parentheses — https://example.com/a_(b) — survives whole. A
+// backslash-escaped parenthesis is part of the URL and does not count toward
+// the balance.
 func scanLink(s string, i int) (label, href string, next int, ok bool) {
 	closeIdx := strings.Index(s[i:], "]")
 	if closeIdx < 0 {
@@ -317,13 +368,33 @@ func scanLink(s string, i int) (label, href string, next int, ok bool) {
 	if closeIdx+1 >= len(s) || s[closeIdx+1] != '(' {
 		return "", "", 0, false
 	}
-	end := strings.Index(s[closeIdx+2:], ")")
+	var dest strings.Builder
+	depth := 0
+	end := -1
+scan:
+	for j := closeIdx + 2; j < len(s); j++ {
+		switch c := s[j]; {
+		case c == '\\' && j+1 < len(s) && (s[j+1] == '(' || s[j+1] == ')'):
+			dest.WriteByte(s[j+1])
+			j++
+		case c == '(':
+			depth++
+			dest.WriteByte(c)
+		case c == ')' && depth == 0:
+			end = j
+			break scan
+		case c == ')':
+			depth--
+			dest.WriteByte(c)
+		default:
+			dest.WriteByte(c)
+		}
+	}
 	if end < 0 {
 		return "", "", 0, false
 	}
-	end += closeIdx + 2
 	label = s[i+1 : closeIdx]
-	href = strings.TrimSpace(s[closeIdx+2 : end])
+	href = strings.TrimSpace(dest.String())
 	if label == "" || href == "" {
 		return "", "", 0, false
 	}

@@ -71,11 +71,20 @@ title, case- and whitespace-insensitively, so pushing the same bundle twice
 updates the same pages instead of creating duplicates.
 
 push never deletes. A page that exists live but is absent from the bundle is
-reported as an orphan and left alone.`,
+reported as an orphan and left alone, and so is a whole live course that no
+lesson in the bundle names. If two live courses, or two pages in one course,
+share a title the bundle targets, push stops and asks you to rename one rather
+than guess.
+
+--dry-run validates the bundle and stops before reading the live classroom,
+so it prints no plan. Run without --dry-run (and without --apply) for the plan.`,
 		Example: "  skool-pp-cli classroom push ./lessons --community <community-slug>\n" +
 			"  skool-pp-cli classroom push ./lessons --community <community-slug> --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
+				if dryRunOK(flags) {
+					return nil
+				}
 				return cmd.Help()
 			}
 			dir := args[0]
@@ -86,6 +95,16 @@ reported as an orphan and left alone.`,
 			}
 			if len(lessons) == 0 {
 				return usageErr(fmt.Errorf("no .md lesson files found under %s", dir))
+			}
+
+			// --dry-run sends nothing, and the plan is a diff against the live
+			// classroom, so there is no plan to show: the client would hand
+			// back its {"dry_run": true} placeholder and the planner would try
+			// to read that as a classroom. Stop here, after the bundle itself
+			// has been validated, the way the sibling classroom commands do.
+			if dryRunOK(flags) {
+				fmt.Fprintf(cmd.ErrOrStderr(), "%d lesson file(s) under %s parsed cleanly.\n(dry run - the live classroom was not read, so no plan was built; re-run without --dry-run to see the plan. push only writes with --apply.)\n", len(lessons), dir)
+				return nil
 			}
 
 			// A bulk upload is the one flow here that fires many writes in a
@@ -173,7 +192,8 @@ see it on its own`))
 }
 
 // buildPushPlan diffs the bundle against the live classroom. It returns the
-// ordered plan plus the live pages that the bundle does not mention.
+// ordered plan plus the live pages and courses that the bundle does not
+// mention.
 func buildPushPlan(c *client.Client, community string, lessons []lessonFile) ([]pushOp, []string, error) {
 	listRaw, err := fetchCourseList(c, community)
 	if err != nil {
@@ -183,30 +203,46 @@ func buildPushPlan(c *client.Client, community string, lessons []lessonFile) ([]
 	if err != nil {
 		return nil, nil, err
 	}
-	liveByTitle := map[string]classroomNode{}
-	for _, course := range liveCourses {
-		liveByTitle[titleKey(course.Title)] = course
-	}
+	return planBundle(lessons, liveCourses, func(course classroomNode) (classroomNode, error) {
+		courseRaw, err := fetchCourse(c, community, course.Slug)
+		if err != nil {
+			return classroomNode{}, err
+		}
+		return courseTreeFromPayload(courseRaw)
+	})
+}
+
+// planBundle is the diff itself, with the per-course read injected so the
+// matching rules can be tested without a live classroom. fetchTree is called
+// once for each live course the bundle targets and never for the others.
+func planBundle(lessons []lessonFile, liveCourses []classroomNode, fetchTree func(classroomNode) (classroomNode, error)) ([]pushOp, []string, error) {
+	liveByTitle := indexCoursesByTitle(liveCourses)
 
 	var plan []pushOp
 	var orphans []string
+	inBundle := map[string]bool{}
 	// Course order is already settled by parseLessonDir; walk it in that order
 	// and keep one group per course.
 	for _, group := range groupByCourse(lessons) {
-		live, exists := liveByTitle[titleKey(group.title)]
-		var livePages map[string]classroomNode
+		key := titleKey(group.title)
+		inBundle[key] = true
+		matches := liveByTitle[key]
+		// Two live courses with this title: either could be the target, and
+		// updating the wrong one is not recoverable by re-running. Refuse
+		// rather than pick.
+		if len(matches) > 1 {
+			return nil, nil, usageErr(fmt.Errorf("%d live courses are titled %q (ids: %s) — push matches by title and cannot tell which one this bundle means; rename one in Skool and re-run",
+				len(matches), group.title, nodeIDs(matches)))
+		}
+		exists := len(matches) == 1
+		livePages := map[string][]classroomNode{}
 		if exists {
-			courseRaw, err := fetchCourse(c, community, live.Slug)
-			if err != nil {
-				return nil, nil, fmt.Errorf("reading live course %q: %w", group.title, err)
-			}
-			tree, err := courseTreeFromPayload(courseRaw)
+			tree, err := fetchTree(matches[0])
 			if err != nil {
 				return nil, nil, fmt.Errorf("reading live course %q: %w", group.title, err)
 			}
 			livePages = flattenPages(tree)
 		} else {
-			livePages = map[string]classroomNode{}
 			plan = append(plan, pushOp{
 				Op:     opCreateCourse,
 				Course: group.title,
@@ -216,9 +252,22 @@ func buildPushPlan(c *client.Client, community string, lessons []lessonFile) ([]
 			})
 		}
 
-		pageOps, groupOrphans := planPagesForCourse(group, livePages, exists)
+		pageOps, groupOrphans, err := planPagesForCourse(group, livePages, exists)
+		if err != nil {
+			return nil, nil, err
+		}
 		plan = append(plan, pageOps...)
 		orphans = append(orphans, groupOrphans...)
+	}
+
+	// A live course the bundle never mentions is an orphan too. It is reported
+	// at course level: reading every such course just to list its pages would
+	// spend one request per unrelated course on a plan that does not touch
+	// them.
+	for _, course := range liveCourses {
+		if !inBundle[titleKey(course.Title)] {
+			orphans = append(orphans, course.Title+" (whole course; no lesson in the bundle names it)")
+		}
 	}
 	sort.Strings(orphans)
 	return plan, orphans, nil
@@ -226,14 +275,23 @@ func buildPushPlan(c *client.Client, community string, lessons []lessonFile) ([]
 
 // planPagesForCourse is the pure diff for one course: which of its lessons map
 // onto an existing live page and which are new, plus the live pages the bundle
-// never mentions. Split out from buildPushPlan so the matching rules can be
-// tested without a live classroom.
-func planPagesForCourse(group courseGroup, livePages map[string]classroomNode, courseExists bool) ([]pushOp, []string) {
+// never mentions. Split out from planBundle so the matching rules can be
+// tested on their own.
+//
+// A lesson whose title matches more than one live page is an error rather than
+// a guess. Same-titled live pages the bundle does not target are all reported
+// as orphans.
+func planPagesForCourse(group courseGroup, livePages map[string][]classroomNode, courseExists bool) ([]pushOp, []string, error) {
 	ops := make([]pushOp, 0, len(group.lessons))
 	matched := map[string]bool{}
 	for _, l := range group.lessons {
 		key := titleKey(l.Lesson)
-		if page, found := livePages[key]; found {
+		pages := livePages[key]
+		if len(pages) > 1 {
+			return nil, nil, usageErr(fmt.Errorf("%d live pages in course %q are titled %q (ids: %s) — push matches by title and cannot tell which one %s should update; rename one in Skool and re-run",
+				len(pages), group.title, l.Lesson, nodeIDs(pages), l.Path))
+		}
+		if len(pages) == 1 {
 			matched[key] = true
 			ops = append(ops, pushOp{
 				Op:       opUpdatePage,
@@ -241,7 +299,7 @@ func planPagesForCourse(group courseGroup, livePages map[string]classroomNode, c
 				Lesson:   l.Lesson,
 				Order:    l.Order,
 				Access:   l.Access,
-				TargetID: page.ID,
+				TargetID: pages[0].ID,
 				File:     l.Path,
 				Reason:   "live page with the same title",
 			})
@@ -262,13 +320,16 @@ func planPagesForCourse(group courseGroup, livePages map[string]classroomNode, c
 		})
 	}
 	var orphans []string
-	for key, page := range livePages {
-		if !matched[key] {
+	for key, pages := range livePages {
+		if matched[key] {
+			continue
+		}
+		for _, page := range pages {
 			orphans = append(orphans, group.title+" / "+page.Title)
 		}
 	}
 	sort.Strings(orphans)
-	return ops, orphans
+	return ops, orphans, nil
 }
 
 type courseGroup struct {
@@ -311,7 +372,7 @@ func printPushPlan(w io.Writer, community, dir string, plan []pushOp, orphans []
 		fmt.Fprintf(w, "  %-14s %-60s %s\n", op.Op, truncate(target, 60), op.Reason)
 	}
 	if len(orphans) > 0 {
-		fmt.Fprintf(w, "\n%d live page(s) not in the bundle (left alone; push never deletes):\n", len(orphans))
+		fmt.Fprintf(w, "\n%d live page(s) or course(s) not in the bundle (left alone; push never deletes):\n", len(orphans))
 		for _, o := range orphans {
 			fmt.Fprintf(w, "  %s\n", o)
 		}

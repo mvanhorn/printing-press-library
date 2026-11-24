@@ -5,6 +5,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -170,13 +171,16 @@ func TestPlanPagesForCourseIsIdempotentOnTitleMatch(t *testing.T) {
 			{Path: "b.md", Course: "2. Reading the Signals", Lesson: "2.2 Brand new lesson", Order: 2},
 		},
 	}
-	live := map[string]classroomNode{
+	live := map[string][]classroomNode{
 		// Casing and inner whitespace differ from the bundle on purpose.
-		titleKey("2.1   why the TREND beats the day"): {ID: "page-1", Title: "2.1 Why the trend beats the day", Kind: classroomKindPage},
-		titleKey("2.9 Retired lesson"):                {ID: "page-9", Title: "2.9 Retired lesson", Kind: classroomKindPage},
+		titleKey("2.1   why the TREND beats the day"): {{ID: "page-1", Title: "2.1 Why the trend beats the day", Kind: classroomKindPage}},
+		titleKey("2.9 Retired lesson"):                {{ID: "page-9", Title: "2.9 Retired lesson", Kind: classroomKindPage}},
 	}
 
-	ops, orphans := planPagesForCourse(group, live, true)
+	ops, orphans, err := planPagesForCourse(group, live, true)
+	if err != nil {
+		t.Fatalf("planPagesForCourse: %v", err)
+	}
 	if len(ops) != 2 {
 		t.Fatalf("got %d ops, want 2: %+v", len(ops), ops)
 	}
@@ -196,7 +200,10 @@ func TestPlanPagesForCourseMarksEverythingNewWhenTheCourseIsNew(t *testing.T) {
 		title:   "4. Brand New",
 		lessons: []lessonFile{{Path: "a.md", Lesson: "4.1 One", Order: 1}},
 	}
-	ops, orphans := planPagesForCourse(group, map[string]classroomNode{}, false)
+	ops, orphans, err := planPagesForCourse(group, map[string][]classroomNode{}, false)
+	if err != nil {
+		t.Fatalf("planPagesForCourse: %v", err)
+	}
 	if len(ops) != 1 || ops[0].Op != opCreatePage {
 		t.Fatalf("ops = %+v, want one create-page", ops)
 	}
@@ -257,6 +264,28 @@ func TestCourseTreeFromPayload(t *testing.T) {
 
 // An unreadable payload must error rather than return an empty tree: an empty
 // tree would make push plan a create for every lesson that already exists.
+func TestCourseTreeFromPayloadKeepsTheCourseOrder(t *testing.T) {
+	raw := json.RawMessage(`{"pageProps":{"course":{"id":"c3","name":"Third",
+		"metadata":{"slug":"third","order":3},"modules":[]}}}`)
+	tree, err := courseTreeFromPayload(raw)
+	if err != nil {
+		t.Fatalf("courseTreeFromPayload: %v", err)
+	}
+	if tree.Order != 3 {
+		t.Errorf("course Order = %d, want 3 from metadata.order", tree.Order)
+	}
+
+	// No order in the payload: the root stays at zero rather than inventing one.
+	raw = json.RawMessage(`{"pageProps":{"course":{"id":"c3","name":"Third","modules":[]}}}`)
+	tree, err = courseTreeFromPayload(raw)
+	if err != nil {
+		t.Fatalf("courseTreeFromPayload: %v", err)
+	}
+	if tree.Order != 0 {
+		t.Errorf("course Order = %d, want 0 when the payload carries none", tree.Order)
+	}
+}
+
 func TestCourseTreeFromPayloadErrorsOnMissingCourse(t *testing.T) {
 	for _, raw := range []string{`{}`, `{"pageProps":{}}`, `{"pageProps":{"course":{}}}`, `{"notFound":true}`} {
 		if _, err := courseTreeFromPayload(json.RawMessage(raw)); err == nil {
@@ -300,12 +329,185 @@ func TestCourseSummariesFallBackToASlugifiedTitle(t *testing.T) {
 func TestCourseSummariesErrorWhenTheListIsNotFound(t *testing.T) {
 	for _, raw := range []string{
 		`{}`,
-		`{"pageProps":{"courses":[]}}`,
+		`{"pageProps":{}}`,
 		`{"pageProps":{"members":[{"id":"m1","name":"Someone"}]}}`,
+		// Empty arrays that are not the course list say nothing about courses.
+		`{"pageProps":{"courseTags":[]}}`,
+		`{"pageProps":{"members":[]}}`,
+		`{"courses":[]}`,
+		`{"pageProps":{"sidebar":{"courses":[]}}}`,
+		// The client's --dry-run placeholder must never read as "no courses".
+		`{"dry_run": true}`,
 	} {
 		if _, err := courseSummariesFromPayload(json.RawMessage(raw)); err == nil {
 			t.Errorf("courseSummariesFromPayload(%s) = nil error, want one", raw)
 		}
+	}
+}
+
+func TestCourseSummariesAcceptAnEmptyClassroom(t *testing.T) {
+	// An admin who has not created a course yet: a valid, empty classroom.
+	for _, raw := range []string{
+		`{"pageProps":{"courses":[]}}`,
+		`{"pageProps":{"allCourses":[],"members":[{"id":"m1","name":"Someone"}]}}`,
+	} {
+		got, err := courseSummariesFromPayload(json.RawMessage(raw))
+		if err != nil {
+			t.Errorf("courseSummariesFromPayload(%s): %v", raw, err)
+			continue
+		}
+		if got == nil || len(got) != 0 {
+			t.Errorf("courseSummariesFromPayload(%s) = %#v, want an empty non-nil list", raw, got)
+		}
+	}
+}
+
+func TestCourseSummariesPreferAPopulatedListOverAnEmptyOne(t *testing.T) {
+	raw := json.RawMessage(`{"pageProps":{"courses":[],"self":{"enrolledCourses":[{"id":"c1","name":"First"}]}}}`)
+	got, err := courseSummariesFromPayload(raw)
+	if err != nil {
+		t.Fatalf("courseSummariesFromPayload: %v", err)
+	}
+	if len(got) != 1 || got[0].ID != "c1" {
+		t.Errorf("got %+v, want the populated list", got)
+	}
+}
+
+func noFetch(t *testing.T) func(classroomNode) (classroomNode, error) {
+	return func(c classroomNode) (classroomNode, error) {
+		t.Errorf("fetched course %q; the plan should not have needed it", c.Title)
+		return classroomNode{}, errors.New("unexpected fetch")
+	}
+}
+
+func TestPlanBundleAgainstAnEmptyClassroomCreatesEverything(t *testing.T) {
+	lessons := []lessonFile{
+		{Path: "a.md", Course: "1. Start", CourseOrder: 1, Lesson: "1.1 One", Order: 1},
+		{Path: "b.md", Course: "1. Start", CourseOrder: 1, Lesson: "1.2 Two", Order: 2},
+	}
+	plan, orphans, err := planBundle(lessons, []classroomNode{}, noFetch(t))
+	if err != nil {
+		t.Fatalf("planBundle: %v", err)
+	}
+	if len(plan) != 3 || plan[0].Op != opCreateCourse || plan[1].Op != opCreatePage || plan[2].Op != opCreatePage {
+		t.Errorf("plan = %+v, want create-course then two create-page", plan)
+	}
+	if len(orphans) != 0 {
+		t.Errorf("orphans = %v, want none", orphans)
+	}
+}
+
+func TestPlanBundleReportsLiveCoursesTheBundleNeverMentions(t *testing.T) {
+	lessons := []lessonFile{{Path: "a.md", Course: "1. Start", Lesson: "1.1 One", Order: 1}}
+	live := []classroomNode{
+		{ID: "c1", Slug: "start", Title: "1. start", Kind: classroomKindCourse},
+		{ID: "c2", Slug: "archive", Title: "Old Archive", Kind: classroomKindCourse},
+	}
+	fetched := 0
+	plan, orphans, err := planBundle(lessons, live, func(c classroomNode) (classroomNode, error) {
+		fetched++
+		if c.ID != "c1" {
+			t.Errorf("fetched %q; only the course the bundle targets should be read", c.Title)
+		}
+		return classroomNode{ID: "c1", Title: "1. Start", Kind: classroomKindCourse, Children: []classroomNode{
+			{Kind: classroomKindFolder, Children: []classroomNode{
+				{Kind: classroomKindPage, ID: "p1", Title: "1.1 One"},
+				{Kind: classroomKindPage, ID: "p2", Title: "1.9 Retired"},
+			}},
+		}}, nil
+	})
+	if err != nil {
+		t.Fatalf("planBundle: %v", err)
+	}
+	if fetched != 1 {
+		t.Errorf("fetched %d courses, want 1", fetched)
+	}
+	if len(plan) != 1 || plan[0].Op != opUpdatePage || plan[0].TargetID != "p1" {
+		t.Errorf("plan = %+v, want one update of p1", plan)
+	}
+	if len(orphans) != 2 {
+		t.Fatalf("orphans = %v, want the retired page and the unmentioned course", orphans)
+	}
+	joined := strings.Join(orphans, "\n")
+	if !strings.Contains(joined, "1. Start / 1.9 Retired") {
+		t.Errorf("orphans = %v, want the retired page", orphans)
+	}
+	if !strings.Contains(joined, "Old Archive (whole course") {
+		t.Errorf("orphans = %v, want the unmentioned course at course level", orphans)
+	}
+}
+
+func TestPlanBundleRefusesAnAmbiguousCourseTitle(t *testing.T) {
+	lessons := []lessonFile{{Path: "a.md", Course: "1. Start", Lesson: "1.1 One", Order: 1}}
+	live := []classroomNode{
+		{ID: "c1", Slug: "start", Title: "1. Start"},
+		{ID: "c2", Slug: "start-2", Title: "1.  START"},
+	}
+	_, _, err := planBundle(lessons, live, noFetch(t))
+	if err == nil {
+		t.Fatal("planBundle = nil error, want it to refuse two live courses with one title")
+	}
+	for _, want := range []string{"c1", "c2", "1. Start"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("error %q does not mention %q", err, want)
+		}
+	}
+}
+
+func TestPlanBundleIgnoresDuplicateCourseTitlesItDoesNotTarget(t *testing.T) {
+	lessons := []lessonFile{{Path: "a.md", Course: "New Course", Lesson: "One", Order: 1}}
+	live := []classroomNode{
+		{ID: "c1", Slug: "old", Title: "Old"},
+		{ID: "c2", Slug: "old-2", Title: "Old"},
+	}
+	plan, orphans, err := planBundle(lessons, live, noFetch(t))
+	if err != nil {
+		t.Fatalf("planBundle: %v", err)
+	}
+	if len(plan) != 2 || plan[0].Op != opCreateCourse {
+		t.Errorf("plan = %+v, want create-course + create-page", plan)
+	}
+	if len(orphans) != 2 {
+		t.Errorf("orphans = %v, want both same-titled courses listed", orphans)
+	}
+}
+
+func TestPlanPagesForCourseRefusesAnAmbiguousPageTitle(t *testing.T) {
+	group := courseGroup{
+		title:   "1. Start",
+		lessons: []lessonFile{{Path: "lessons/a.md", Lesson: "Intro", Order: 1}},
+	}
+	live := map[string][]classroomNode{
+		titleKey("Intro"): {{ID: "p1", Title: "Intro"}, {ID: "p7", Title: "intro"}},
+	}
+	_, _, err := planPagesForCourse(group, live, true)
+	if err == nil {
+		t.Fatal("planPagesForCourse = nil error, want it to refuse two live pages with one title")
+	}
+	for _, want := range []string{"p1", "p7", "Intro", "lessons/a.md"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("error %q does not mention %q", err, want)
+		}
+	}
+}
+
+func TestPlanPagesForCourseReportsEverySameTitledOrphan(t *testing.T) {
+	group := courseGroup{
+		title:   "1. Start",
+		lessons: []lessonFile{{Path: "a.md", Lesson: "Something else", Order: 1}},
+	}
+	live := map[string][]classroomNode{
+		titleKey("Intro"): {{ID: "p1", Title: "Intro"}, {ID: "p7", Title: "Intro"}},
+	}
+	ops, orphans, err := planPagesForCourse(group, live, true)
+	if err != nil {
+		t.Fatalf("planPagesForCourse: %v", err)
+	}
+	if len(ops) != 1 || ops[0].Op != opCreatePage {
+		t.Errorf("ops = %+v, want one create", ops)
+	}
+	if len(orphans) != 2 {
+		t.Errorf("orphans = %v, want both same-titled pages", orphans)
 	}
 }
 
@@ -325,8 +527,26 @@ func TestFlattenPagesFindsAMovedLesson(t *testing.T) {
 	if len(pages) != 2 {
 		t.Fatalf("got %d pages, want 2", len(pages))
 	}
-	if pages[titleKey("  why   THE trend ")].ID != "p1" {
+	if got := pages[titleKey("  why   THE trend ")]; len(got) != 1 || got[0].ID != "p1" {
 		t.Errorf("lookup by normalized title failed: %+v", pages)
+	}
+}
+
+func TestFlattenPagesKeepsEveryPageSharingATitle(t *testing.T) {
+	tree := classroomNode{
+		Kind: classroomKindCourse,
+		Children: []classroomNode{
+			{Kind: classroomKindFolder, Title: "Week 1", Children: []classroomNode{
+				{Kind: classroomKindPage, ID: "p1", Title: "Intro"},
+			}},
+			{Kind: classroomKindFolder, Title: "Week 2", Children: []classroomNode{
+				{Kind: classroomKindPage, ID: "p2", Title: "INTRO"},
+			}},
+		},
+	}
+	got := flattenPages(tree)[titleKey("intro")]
+	if len(got) != 2 || got[0].ID != "p1" || got[1].ID != "p2" {
+		t.Errorf("pages titled intro = %+v, want p1 then p2", got)
 	}
 }
 
