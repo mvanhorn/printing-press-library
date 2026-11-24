@@ -157,3 +157,70 @@ func TestLocalModeNeverContactsLexis(t *testing.T) {
 		t.Fatalf("want a local-mode refusal, got %v", err)
 	}
 }
+
+// A number after a list that has ended ("30 days") is prose, not another section.
+func TestStatuteListStopsAtProse(t *testing.T) {
+	var got []string
+	for _, c := range extractCites("Under Lab. Code sections 201 and 202, 30 days of penalties are available, and 50 percent more.") {
+		got = append(got, c.Cite)
+	}
+	if fmt.Sprint(got) != "[Cal Lab Code 201 Cal Lab Code 202]" {
+		t.Errorf("got %v", got)
+	}
+	got = nil
+	for _, c := range extractCites("Lab. Code §§ 1102.5(a), 1194, and 1198.5(b).") {
+		got = append(got, c.Cite)
+	}
+	if fmt.Sprint(got) != "[Cal Lab Code 1102.5 Cal Lab Code 1194 Cal Lab Code 1198.5]" {
+		t.Errorf("subdivisions: got %v", got)
+	}
+}
+
+// Context for a later section of a list comes from the list itself, not from other uses of the number.
+func TestStatuteSpansIgnoreUnrelatedNumbers(t *testing.T) {
+	text := strings.Join(strings.Fields("The fee was $1194 and the case is at page 1194. Lab. Code §§ 1102.5, 1194 applies."), " ")
+	spans := statuteSpans(text)["Cal Lab Code 1194"]
+	if len(spans) != 1 {
+		t.Fatalf("want one span, got %v", spans)
+	}
+	sp := spans[0]
+	if text[sp[0]:sp[1]] != "1194" || !strings.Contains(text[sp[0]-12:sp[0]], "1102.5, ") {
+		t.Errorf("span points at %q in %q", text[sp[0]:sp[1]], text[sp[0]-12:sp[1]])
+	}
+}
+
+// Commands that first touch the new history location together must not lose each other's records.
+func TestLegacyMigrationDoesNotLoseConcurrentWrites(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, "cfg"))
+	t.Setenv("XDG_DATA_HOME", filepath.Join(home, "data"))
+	for _, k := range []string{"LEXIS_PLUS_HOME", "LEXIS_PLUS_DATA_DIR", "LEXIS_PLUS_LOG"} {
+		t.Setenv(k, "")
+	}
+	old := legacyLexisDir()
+	if old == "" {
+		t.Skip("no legacy location on this platform")
+	}
+	if err := os.MkdirAll(old, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(old, "retrievals.jsonl"), []byte(`{"cite":"old 1 X 1","kind":"case","path":"/x","format":"docx"}`+"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	const n = 24
+	done := make(chan error, n)
+	for i := 0; i < n; i++ {
+		go func(i int) {
+			done <- appendLog(logEntry{Cite: fmt.Sprintf("%d Test 1", i), Kind: "case", Path: "/x", Format: "docx"})
+		}(i)
+	}
+	for i := 0; i < n; i++ {
+		if err := <-done; err != nil {
+			t.Fatal(err)
+		}
+	}
+	if got := len(readLog()); got != n+1 {
+		t.Fatalf("history has %d records, want %d (old record plus every concurrent write)", got, n+1)
+	}
+}

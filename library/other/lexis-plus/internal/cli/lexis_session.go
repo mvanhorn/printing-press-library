@@ -603,7 +603,10 @@ func logPath() string {
 	return filepath.Join(lexisDataDir(), "retrievals.jsonl")
 }
 
-// migrateLegacy copies a record from the pre-ladder location to its new path once.
+// migrateLegacy copies a record from the pre-ladder location to its new path once. The copy is
+// written to a private temp file and published with a hard link, which fails if the destination
+// already exists, so a command that already appended to the new file is never overwritten by
+// another command's copy of the old one.
 func migrateLegacy(newPath, rel string) {
 	old := legacyLexisDir()
 	if old == "" || os.Getenv("LEXIS_PLUS_LOG") != "" {
@@ -620,8 +623,27 @@ func migrateLegacy(newPath, rel string) {
 	if err != nil {
 		return
 	}
-	if os.MkdirAll(filepath.Dir(newPath), 0o700) == nil {
-		_ = os.WriteFile(newPath, b, 0o600)
+	if os.MkdirAll(filepath.Dir(newPath), 0o700) != nil {
+		return
+	}
+	tmp, err := os.CreateTemp(filepath.Dir(newPath), ".migrate-*.tmp")
+	if err != nil {
+		return
+	}
+	defer os.Remove(tmp.Name())
+	if _, err := tmp.Write(b); err != nil {
+		tmp.Close()
+		return
+	}
+	if tmp.Chmod(0o600) != nil || tmp.Close() != nil {
+		return
+	}
+	if err := os.Link(tmp.Name(), newPath); err != nil && !os.IsExist(err) {
+		// No hard links on this filesystem: create the destination exclusively instead.
+		if f, ferr := os.OpenFile(newPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600); ferr == nil {
+			_, _ = f.Write(b)
+			_ = f.Close()
+		}
 	}
 }
 

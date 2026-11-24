@@ -530,21 +530,18 @@ func newCitecheckPacketCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			auths, other := briefAuthorities(text)
+			collapsed := strings.Join(strings.Fields(text), " ")
+			spans := statuteSpans(collapsed)
 			for _, st := range extractCites(text) {
 				if st.Kind != "statute" {
 					continue
 				}
 				a := &ccAuthority{Cite: st.Cite}
-				sec := st.Cite[strings.LastIndex(st.Cite, " ")+1:]
-				re := regexp.MustCompile(`(?:§§?|[Ss]ections?)\s*` + regexp.QuoteMeta(sec) + `\b`)
-				collapsed := strings.Join(strings.Fields(text), " ")
-				ms := re.FindAllStringIndex(collapsed, 6)
-				if len(ms) == 0 {
-					// a later section of a "§§ 1102.5, 1194" list has no § of its own
-					ms = regexp.MustCompile(`\b`+regexp.QuoteMeta(sec)+`\b`).FindAllStringIndex(collapsed, 6)
-				}
-				for _, m := range ms {
-					a.Seen = append(a.Seen, ccOccur{Context: ccContext(collapsed, m[0], m[1])})
+				for i, sp := range spans[st.Cite] {
+					if i >= 6 {
+						break
+					}
+					a.Seen = append(a.Seen, ccOccur{Context: ccContext(collapsed, sp[0], sp[1])})
 				}
 				auths = append(auths, a)
 			}

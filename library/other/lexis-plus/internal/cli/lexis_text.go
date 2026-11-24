@@ -19,9 +19,14 @@ var caseCiteRe = regexp.MustCompile(`\b(\d{1,3})\s+(Cal\.\s?(?:App\.\s?)?(?:Supp
 // statuteSectionsRe then reads in full so no section of the list is dropped.
 var statuteCiteRe = regexp.MustCompile(`(?i)\b(?:Cal\.\s*)?(?:(Code\s+Civ\.\s*Proc\.|Civ\.\s*Proc\.\s*Code)|(Lab\.|Labor|Gov\.|Government|Civ\.|Civil|Evid\.|Evidence|Pen\.|Penal|Prob\.|Probate|Fam\.|Family|Bus\.\s*(?:&|and)\s*Prof\.|Health\s*(?:&|and)\s*Saf\.|Ins\.|Insurance|Veh\.|Vehicle|Corp\.|Corporations)\s*Code),?\s*(§§|§|sections|section)\s*(\d+(?:\.\d+)?[a-z]?)`)
 
-// statuteListTailRe reads the rest of a plural section list after its first section:
-// ", 1194", ", and 1198.5", " & 1199", "-1102.6", "–1102.6".
-var statuteListTailRe = regexp.MustCompile(`^(?:\s*(?:,\s*(?:and\s+|&\s*)?|\s+and\s+|\s*&\s*|\s*[-\x{2013}]\s*)(\d+(?:\.\d+)?[a-z]?)\b)`)
+// statuteListTailRe reads the rest of a plural section list after its first section: an optional
+// subdivision "(a)", then ", 1194", ", and 1198.5", " & 1199", "-1102.6", or "–1102.6".
+var statuteListTailRe = regexp.MustCompile(`^(?:\([A-Za-z0-9]+\))*(?:\s*,\s*(?:and\s+|or\s+|&\s*)?|\s+and\s+|\s+or\s+|\s*&\s*|\s*[-\x{2013}]\s*)(\d+(?:\.\d+)?[a-z]?)`)
+
+// statuteProseRe spots a quantity right after a number ("30 days", "50 percent", "$5"), which
+// means the number is prose and the section list has ended. Anything else after a number
+// ("1194 applies", "1194.") leaves it counted as a section.
+var statuteProseRe = regexp.MustCompile(`(?i)^\s*(?:%|(?:calendar\s+|business\s+|working\s+)?(?:days?|weeks?|months?|years?|hours?|minutes?|percent|dollars?|cents?|times|employees?|workers?|people|persons?|per)\b)`)
 
 // reporterAheadRe spots a case reporter right after a number, so "§§ 1102.5, 98 Cal.App.4th 1"
 // is not read as sections 1102.5 and 98.
@@ -68,8 +73,8 @@ func extractCites(text string) []briefCite {
 		if !ok {
 			continue
 		}
-		for _, sec := range statuteSections(text, m) {
-			add(fmt.Sprintf("Cal %s Code %s", name, sec), "statute")
+		for _, sp := range statuteSections(text, m) {
+			add(fmt.Sprintf("Cal %s Code %s", name, sp.Sec), "statute")
 		}
 	}
 	out := make([]briefCite, 0, len(order))
@@ -86,28 +91,59 @@ func group(text string, m []int, g int) string {
 	return text[m[2*g]:m[2*g+1]]
 }
 
+// secSpan is one section a citation names and where its number sits in the text.
+type secSpan struct {
+	Sec        string
+	Start, End int
+}
+
 // statuteSections returns the sections one statuteCiteRe match names: one for "§ 1102.5", and
 // every listed section for a plural marker ("§§ 1102.5, 1194" gives 1102.5 and 1194). A range
-// ("§§ 1102.5-1102.6") gives both ends, which is what a brief cites as authority.
-func statuteSections(text string, m []int) []string {
-	secs := []string{group(text, m, 4)}
+// ("§§ 1102.5-1102.6") gives both ends, which is what a brief cites as authority. Each section
+// carries the offsets of its number in text, so callers never search the text for it again.
+func statuteSections(text string, m []int) []secSpan {
+	out := []secSpan{{Sec: group(text, m, 4), Start: m[0], End: m[1]}}
 	marker := strings.ToLower(group(text, m, 3))
 	if marker != "§§" && marker != "sections" {
-		return secs
+		return out
 	}
-	rest := text[m[1]:]
+	base := m[1]
 	for {
+		rest := text[base:]
 		t := statuteListTailRe.FindStringSubmatchIndex(rest)
 		if t == nil {
 			break
 		}
-		if reporterAheadRe.MatchString(rest[t[1]:]) {
-			break // the number starts a case citation, not another section
+		after := rest[t[1]:]
+		if reporterAheadRe.MatchString(after) || statuteProseRe.MatchString(after) {
+			break // the number starts a case citation, or is prose ("30 days"), not another section
 		}
-		secs = append(secs, rest[t[2]:t[3]])
-		rest = rest[t[1]:]
+		out = append(out, secSpan{Sec: rest[t[2]:t[3]], Start: base + t[2], End: base + t[3]})
+		base += t[1]
 	}
-	return secs
+	return out
+}
+
+// statuteSpans maps each statute citation in text (as extractCites names it) to where it is cited.
+// text must already be whitespace-collapsed, as extractCites collapses it.
+func statuteSpans(text string) map[string][][2]int {
+	out := map[string][][2]int{}
+	for _, m := range statuteCiteRe.FindAllStringSubmatchIndex(text, -1) {
+		raw := group(text, m, 1)
+		if raw == "" {
+			raw = group(text, m, 2)
+		}
+		key := strings.TrimSuffix(nonAlnum.ReplaceAllString(strings.ToLower(raw), ""), "code")
+		name, ok := codeNames[key]
+		if !ok {
+			continue
+		}
+		for _, sp := range statuteSections(text, m) {
+			cite := fmt.Sprintf("Cal %s Code %s", name, sp.Sec)
+			out[cite] = append(out[cite], [2]int{sp.Start, sp.End})
+		}
+	}
+	return out
 }
 
 func readDocText(path string) (string, error) {
