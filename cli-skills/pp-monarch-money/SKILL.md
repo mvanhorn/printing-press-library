@@ -1,6 +1,6 @@
 ---
 name: pp-monarch-money
-description: "Use Monarch Money CLI for personal finance account balances, tags, transactions, cashflow summaries, explicit transaction CRUD workflows, and guarded read-only GraphQL queries. Use when the user asks about Monarch Money data, recent spending, tagged transactions, account balances, cashflow, or transaction cleanup from a terminal or agent workflow."
+description: "Use Monarch Money CLI for personal finance account balances, tags, categories, transactions, cashflow summaries, explicit transaction CRUD and split workflows, and guarded read-only GraphQL queries. Use when the user asks about Monarch Money data, recent spending, tagged transactions, account balances, cashflow, or transaction cleanup from a terminal or agent workflow."
 author: "Count"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli"
@@ -111,6 +111,9 @@ monarch-money-pp-cli transactions update TRANSACTION_ID --notes 'Reviewed' --yes
 - "Cashflow this month" → `monarch-money-pp-cli cashflow`
 - "Cashflow in January" → `monarch-money-pp-cli cashflow --start 2026-01-01 --end 2026-01-31`
 - "Update this transaction note" → `monarch-money-pp-cli transactions update TRANSACTION_ID --notes 'NOTE'`, then rerun with `--yes` after review
+- "What category IDs exist?" → `monarch-money-pp-cli categories`
+- "Show this transaction in full" → `monarch-money-pp-cli transactions get TRANSACTION_ID`
+- "Split this transaction" → `monarch-money-pp-cli transactions split TRANSACTION_ID --file splits.json --expect-total AMOUNT`, then rerun with `--yes` after review
 - "Put these tags on this transaction" → `monarch-money-pp-cli transactions set-tags TRANSACTION_ID --tag-id TAG_ID`, then rerun with `--yes` after review
 - "Need raw output for analysis" → add `--json`
 
@@ -133,6 +136,21 @@ monarch-money-pp-cli transactions update TRANSACTION_ID --notes 'Reviewed' --yes
 - `monarch-money-pp-cli transactions --days 7 --limit 25` — List recent transactions for a shorter window.
 - `monarch-money-pp-cli transactions --start 2026-01-01 --end 2026-01-31 --json` — Return a custom date range as JSON.
 - `monarch-money-pp-cli transactions --tag-id TAG_ID` — Filter by Monarch tag ID.
+
+**categories** — List transaction categories with group and ID.
+
+- `monarch-money-pp-cli categories` — List enabled categories by group.
+- `monarch-money-pp-cli categories --json` — Return the raw payload, including disabled categories.
+
+**transactions get** — Show one transaction as JSON, including splits, tags, notes, goal, and attachment metadata.
+
+- `monarch-money-pp-cli transactions get TRANSACTION_ID` — Capture a before snapshot.
+
+**transactions split** — Split a transaction into category lines, or remove its splits. Dry-runs offline unless `--yes` is passed.
+
+- `monarch-money-pp-cli transactions split TRANSACTION_ID --file splits.json --expect-total -142.37` — Preview a split. The file is `[{"merchantName": "...", "amount": -82.17, "categoryId": "..."}, ...]`; amounts use the parent's sign and must sum to `--expect-total` exactly.
+- `monarch-money-pp-cli transactions split TRANSACTION_ID --clear --expect-total -142.37` — Preview removing all splits.
+- With `--yes`, the command re-reads the transaction and refuses if Monarch returns a different transaction (a pending charge that posted), the amount differs, the target is itself a split line, or it already has splits (pass `--replace` to overwrite). Output includes `before` and `after` so the change can be reversed.
 
 **transactions create** — Create a manual transaction. Dry-runs unless `--yes` is passed.
 
