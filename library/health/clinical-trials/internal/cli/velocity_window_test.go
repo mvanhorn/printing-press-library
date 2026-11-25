@@ -234,7 +234,7 @@ var velocitySampleYears = []string{"2021-01", "2022-01", "2023-01", "2024-01", "
 // the headline counts and growth must be the registry's, not the sample's.
 func TestBuildVelocityViewUsesRegistryCounts(t *testing.T) {
 	f := velocityFakeWith(745, velocitySampleYears...)
-	f.ranges = map[string]int{rngRecent3: 346, rngPrior3: 343, rngLater: 49, rngOlder3: 2}
+	f.ranges = map[string]int{rngRecent3: 346, rngPrior3: 343, rngLater: 49, rngOlder3: 5}
 	v, err := buildVelocityView(context.Background(), f, "long covid", 400, 3, 3, velocityNow)
 	if err != nil {
 		t.Fatal(err)
@@ -242,8 +242,8 @@ func TestBuildVelocityViewUsesRegistryCounts(t *testing.T) {
 	if v.TrialCountsSource != "registry" || v.SampleSize != 7 || v.RegistryTotal != 745 {
 		t.Errorf("source/sample/registry = %q/%d/%d", v.TrialCountsSource, v.SampleSize, v.RegistryTotal)
 	}
-	if v.RecentTrials != 346 || v.PriorTrials != 343 || v.TrialGrowthPct != 1 || v.LaterTrials != 49 || v.OlderTrials != 2 {
-		t.Errorf("counts recent/prior/growth/later/older = %d/%d/%+d%%/%d/%d, want 346/343/+1%%/49/2",
+	if v.RecentTrials != 346 || v.PriorTrials != 343 || v.TrialGrowthPct != 1 || v.LaterTrials != 49 || v.OlderTrials != 5 {
+		t.Errorf("counts recent/prior/growth/later/older = %d/%d/%+d%%/%d/%d, want 346/343/+1%%/49/5",
 			v.RecentTrials, v.PriorTrials, v.TrialGrowthPct, v.LaterTrials, v.OlderTrials)
 	}
 	if v.RecentEnroll != 400 || v.PriorEnroll != 200 || v.EnrollGrowthPct != 100 {
