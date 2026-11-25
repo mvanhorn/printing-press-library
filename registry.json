@@ -17682,6 +17682,65 @@
       }
     },
     {
+      "name": "lexis-plus",
+      "category": "other",
+      "api": "Lexis+",
+      "description": "Pull California cases and annotated statutes from your own Lexis+ subscription straight into Word, by citation.",
+      "homepage": "https://www.lexisnexis.com/en-us/products/lexis-plus.page",
+      "search_terms": [
+        "lexis-plus",
+        "Lexis+",
+        "lexis-plus-pp-cli",
+        "Pull California cases and annotated statutes from your own Lexis+ subscription straight into Word, by citation.",
+        "Brief cite extractor",
+        "brief cites",
+        "List every California case and statute cited in your draft brief (.docx or .txt), de-duplicated.",
+        "Brief cite verifier",
+        "brief check",
+        "Check every citation in a draft against Lexis+ and flag the ones it does not recognize.",
+        "Brief gaps",
+        "See which cited authorities you have not pulled yet, and which pulled ones the draft no longer cites.",
+        "Matter ledger",
+        "matter list",
+        "Browse everything you pulled for each matter, with date, format, and file path.",
+        "Statute annotation diff",
+        "statute whatsnew",
+        "Re-pull an annotated statute and see which annotations were added or removed since your last pull.",
+        "Authority binder",
+        "matter binder",
+        "Copy a matter's files into one ordered folder (cases, then statutes) with an index.csv.",
+        "Brief source packet",
+        "citecheck packet",
+        "Pull the Lexis+ text and Shepard's status for every authority a brief cites, with each pin cite and the text around it, into one folder with a manifest.",
+        "Quote and pin checker",
+        "citecheck quote",
+        "Check a brief's quotation against the Lexis+ copy: verbatim or not, every un-signaled difference, the official reporter page, and whether the words are the majority's, a concurrence's, a dissent's, or a footnote's.",
+        "Page-marked source text",
+        "citecheck text",
+        "Plain text of a case or statute with official reporter page markers and speaker labels; --pages prints only the opinion text on those pages."
+      ],
+      "path": "library/other/lexis-plus",
+      "printer": "bbenjyesq",
+      "printer_name": "Bob Benjy",
+      "creator": {
+        "handle": "bbenjyesq",
+        "name": "Bob Benjy"
+      },
+      "mcp": {
+        "binary": "lexis-plus-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "lightroom-classic",
       "category": "media-and-entertainment",
       "api": "Lightroom Classic",
