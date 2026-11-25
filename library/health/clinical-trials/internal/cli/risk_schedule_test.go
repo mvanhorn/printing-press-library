@@ -186,6 +186,21 @@ func TestPartialDateEnd(t *testing.T) {
 	}
 }
 
+// TestMonthsBetweenIgnoresMachineZone pins the displayed delay to UTC: the
+// deadline is parsed as UTC while scoreRisk passes the local clock, so the same
+// instant must give the same month count in every zone. 2025-12-14 00:30 UTC is
+// still 2025-12-13 in a UTC-5 zone, where a local calendar read would borrow a
+// month and report 0.
+func TestMonthsBetweenIgnoresMachineZone(t *testing.T) {
+	start := time.Date(2025, time.November, 14, 0, 0, 0, 0, time.UTC)
+	instant := time.Date(2025, time.December, 14, 0, 30, 0, 0, time.UTC)
+	for _, zone := range []*time.Location{time.UTC, time.FixedZone("UTC-5", -5*3600), time.FixedZone("UTC+9", 9*3600)} {
+		if got := monthsBetween(start, instant.In(zone)); got != 1 {
+			t.Errorf("monthsBetween in %s = %d, want 1", zone, got)
+		}
+	}
+}
+
 // TestMonthsBetween covers the day-of-month borrow and the clamp at zero.
 func TestMonthsBetween(t *testing.T) {
 	d := func(s string) time.Time { v, _ := time.Parse("2006-01-02", s); return v }

@@ -284,9 +284,12 @@ func partialDateEnd(date string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
-// monthsBetween counts whole calendar months from start to end (0 when end is
-// less than a month after start).
+// monthsBetween counts whole UTC calendar months from start to end (0 when end
+// is less than a month after start).
 func monthsBetween(start, end time.Time) int {
+	// Read both calendars in UTC: the deadline is parsed as UTC while the caller's
+	// clock is local, and the month count must not depend on the machine's zone.
+	start, end = start.UTC(), end.UTC()
 	m := (end.Year()-start.Year())*12 + int(end.Month()) - int(start.Month())
 	if end.Day() < start.Day() {
 		m--
