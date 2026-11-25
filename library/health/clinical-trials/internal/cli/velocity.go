@@ -9,7 +9,6 @@ package cli
 import (
 	"fmt"
 	"math"
-	"sort"
 	"strings"
 	"time"
 
@@ -25,13 +24,20 @@ type yearBucket struct {
 type velocityView struct {
 	Query           string       `json:"query"`
 	SampleSize      int          `json:"sample_size"`
+	RegistryTotal   int          `json:"registry_total,omitempty"`
 	WindowYears     int          `json:"window_years"`
+	RecentFrom      int          `json:"recent_from"`
+	RecentTo        int          `json:"recent_to"`
+	PriorFrom       int          `json:"prior_from"`
+	PriorTo         int          `json:"prior_to"`
 	RecentTrials    int          `json:"recent_trials"`
 	PriorTrials     int          `json:"prior_trials"`
 	TrialGrowthPct  int          `json:"trial_growth_pct"`
 	RecentEnroll    int          `json:"recent_enrollment"`
 	PriorEnroll     int          `json:"prior_enrollment"`
 	EnrollGrowthPct int          `json:"enrollment_growth_pct"`
+	LaterTrials     int          `json:"later_trials"`
+	OlderTrials     int          `json:"older_trials"`
 	ByYear          []yearBucket `json:"by_year,omitempty"`
 	Note            string       `json:"note,omitempty"`
 }
@@ -43,8 +49,10 @@ func newNovelVelocityCmd(flags *rootFlags) *cobra.Command {
 		Use:   "velocity <area>",
 		Short: "Measure how fast a disease area's trials and enrollment are growing over time.",
 		Long: "Sample trials for a disease area, bucket them by start year, and report the\n" +
-			"per-year trial and enrollment series plus a recent-vs-prior growth rate over\n" +
-			"the chosen window, so you can see whether research is accelerating or slowing.",
+			"per-year trial and enrollment series plus a recent-vs-prior growth rate, so you\n" +
+			"can see whether research is accelerating or slowing. Both windows are runs of\n" +
+			"complete calendar years of the same length: the recent one ends last year and\n" +
+			"the prior one sits just before it. The current year is incomplete and is left out.",
 		Example: "  clinical-trials-pp-cli velocity alzheimer --json\n" +
 			"  clinical-trials-pp-cli velocity \"long covid\" --window-years 5",
 		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live"},
@@ -61,68 +69,18 @@ func newNovelVelocityCmd(flags *rootFlags) *cobra.Command {
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("an area argument is required"))
 			}
+			if windowYears < 1 {
+				return usageErr(fmt.Errorf("--window-years must be at least 1"))
+			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			trials, err := ctgovFetch(ctx, c, ctgovParams("cond", term), sample, maxScanPages)
+			view, err := buildVelocityView(ctx, c, term, sample, maxScanPages, windowYears, time.Now())
 			if err != nil {
 				return classifyAPIError(err, flags)
-			}
-
-			byYear := map[int]*yearBucket{}
-			cutoff := time.Now().Year() - windowYears
-			var recentT, priorT, recentE, priorE int
-			for _, t := range trials {
-				yr := startYear(t.StartDate)
-				if yr == 0 {
-					continue // unknown start date can't be placed on the timeline
-				}
-				b, ok := byYear[yr]
-				if !ok {
-					b = &yearBucket{Year: yr}
-					byYear[yr] = b
-				}
-				b.Trials++
-				if t.Enrollment > 0 {
-					b.Enrollment += t.Enrollment
-				}
-				if yr >= cutoff {
-					recentT++
-					recentE += t.Enrollment
-				} else {
-					priorT++
-					priorE += t.Enrollment
-				}
-			}
-
-			series := make([]yearBucket, 0, len(byYear))
-			for _, b := range byYear {
-				series = append(series, *b)
-			}
-			sort.Slice(series, func(i, j int) bool { return series[i].Year < series[j].Year })
-
-			view := velocityView{
-				Query:           term,
-				SampleSize:      len(trials),
-				WindowYears:     windowYears,
-				RecentTrials:    recentT,
-				PriorTrials:     priorT,
-				TrialGrowthPct:  growthPct(recentT, priorT),
-				RecentEnroll:    recentE,
-				PriorEnroll:     priorE,
-				EnrollGrowthPct: growthPct(recentE, priorE),
-				ByYear:          series,
-			}
-			switch {
-			case len(trials) == 0:
-				view.Note = "no trials matched; try a broader area term"
-			case len(series) == 0:
-				view.Note = "matched trials have no parseable start dates; cannot place them on a timeline"
-			case priorT == 0:
-				view.Note = "no trials in the prior window; growth reflects newly-appearing activity. Widen --window-years or --sample for a baseline."
 			}
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
@@ -132,7 +90,7 @@ func newNovelVelocityCmd(flags *rootFlags) *cobra.Command {
 			} else if err := renderVelocityHuman(cmd, view); err != nil {
 				return err
 			}
-			if len(trials) == 0 {
+			if view.SampleSize == 0 {
 				return noResultsErr(term)
 			}
 			return nil
@@ -140,7 +98,7 @@ func newNovelVelocityCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&sample, "sample", 400, "Max trials to analyze")
 	cmd.Flags().IntVar(&maxScanPages, "max-scan-pages", 3, "Max ClinicalTrials.gov pages to scan")
-	cmd.Flags().IntVar(&windowYears, "window-years", 3, "Trials started within this many years count as the recent window")
+	cmd.Flags().IntVar(&windowYears, "window-years", 3, "Length in complete calendar years of each window; the recent window ends last year and the prior window is the same length just before it")
 	return cmd
 }
 
@@ -157,18 +115,5 @@ func growthPct(recent, prior int) int {
 }
 
 func renderVelocityHuman(cmd *cobra.Command, v velocityView) error {
-	w := cmd.OutOrStdout()
-	fmt.Fprintf(w, "Trial velocity — %s (sample %d)\n", v.Query, v.SampleSize)
-	fmt.Fprintf(w, "  Recent %dy: %d trials (%+d%%), %d enrolled (%+d%%)  vs prior: %d trials, %d enrolled\n\n",
-		v.WindowYears, v.RecentTrials, v.TrialGrowthPct, v.RecentEnroll, v.EnrollGrowthPct, v.PriorTrials, v.PriorEnroll)
-	if len(v.ByYear) > 0 {
-		fmt.Fprintln(w, "By start year:")
-		for _, b := range v.ByYear {
-			fmt.Fprintf(w, "  %d  %4d trials  %7d enrolled\n", b.Year, b.Trials, b.Enrollment)
-		}
-	}
-	if v.Note != "" {
-		fmt.Fprintf(w, "\nnote: %s\n", v.Note)
-	}
-	return nil
+	return writeVelocityHuman(cmd.OutOrStdout(), v)
 }

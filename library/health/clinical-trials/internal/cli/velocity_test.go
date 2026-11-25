@@ -5,6 +5,7 @@ package cli
 
 import (
 	"io"
+	"strings"
 	"testing"
 )
 
@@ -64,5 +65,25 @@ func TestNovelVelocityBehavior(t *testing.T) {
 				t.Fatalf("growthPct(%d, %d) = %d, want %d", tc.recent, tc.prior, got, tc.want)
 			}
 		})
+	}
+}
+
+// TestVelocityRejectsNonPositiveWindow: a window of zero or fewer complete years
+// has no years in it, so the command refuses it as a usage error (exit code 2)
+// before any network call instead of reporting a meaningless growth rate.
+func TestVelocityRejectsNonPositiveWindow(t *testing.T) {
+	for _, w := range []string{"0", "-2"} {
+		cmd := RootCmd()
+		cmd.SetArgs([]string{"velocity", "long covid", "--window-years", w})
+		cmd.SetOut(io.Discard)
+		cmd.SetErr(io.Discard)
+		err := cmd.Execute()
+		if err == nil || !strings.Contains(err.Error(), "--window-years must be at least 1") {
+			t.Errorf("--window-years %s: err = %v, want the usage error", w, err)
+			continue
+		}
+		if got := ExitCode(err); got != 2 {
+			t.Errorf("--window-years %s: exit code = %d, want 2", w, got)
+		}
 	}
 }
