@@ -1,0 +1,202 @@
+{
+  "api_name": "lexis-plus",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-09T20:00:00Z",
+  "novel_features": [
+    {
+      "name": "Brief cite extractor",
+      "command": "brief cites",
+      "description": "List every California case and statute cited in your draft brief (.docx or .txt), de-duplicated.",
+      "rationale": "Reads your own file locally; Lexis+ cannot tell you what a draft cites.",
+      "example": "lexis-plus-pp-cli brief cites motion.docx",
+      "why_it_matters": "Turns a draft into a pull list for batch.",
+      "group": "From your brief to your binder"
+    },
+    {
+      "name": "Brief cite verifier",
+      "command": "brief check",
+      "description": "Check every citation in a draft against Lexis+ and flag the ones it does not recognize.",
+      "rationale": "Combines local parsing with Lexis citation recognition.",
+      "example": "lexis-plus-pp-cli brief check motion.docx",
+      "why_it_matters": "Catches mistyped volumes and pages before filing.",
+      "group": "From your brief to your binder"
+    },
+    {
+      "name": "Brief gaps",
+      "command": "brief gaps",
+      "description": "See which cited authorities you have not pulled yet, and which pulled ones the draft no longer cites.",
+      "rationale": "Joins the draft's citations with your local retrieval log.",
+      "example": "lexis-plus-pp-cli brief gaps motion.docx --matter Acme",
+      "why_it_matters": "Shows exactly what is left to download.",
+      "group": "From your brief to your binder"
+    },
+    {
+      "name": "Matter ledger",
+      "command": "matter list",
+      "description": "Browse everything you pulled for each matter, with date, format, and file path.",
+      "rationale": "Needs the local retrieval log tagged with --matter.",
+      "example": "lexis-plus-pp-cli matter show Acme",
+      "why_it_matters": "Answers 'did we pull the annotated version, and when?'",
+      "group": "Keep a ledger"
+    },
+    {
+      "name": "Statute annotation diff",
+      "command": "statute whatsnew",
+      "description": "Re-pull an annotated statute and see which annotations were added or removed since your last pull.",
+      "rationale": "Diffs the new Deering's annotations against your saved copy.",
+      "example": "lexis-plus-pp-cli statute whatsnew \"Cal Lab Code 1102.5\"",
+      "why_it_matters": "Finds new case notes without rereading 40 pages.",
+      "group": "Keep a ledger"
+    },
+    {
+      "name": "Authority binder",
+      "command": "matter binder",
+      "description": "Copy a matter's files into one ordered folder (cases, then statutes) with an index.csv.",
+      "rationale": "Built from your local retrieval log and saved files.",
+      "example": "lexis-plus-pp-cli matter binder Acme --out ./binder",
+      "why_it_matters": "Binder and index in one command.",
+      "group": "Keep a ledger"
+    },
+    {
+      "name": "Brief source packet",
+      "command": "citecheck packet",
+      "description": "Pull the Lexis+ text and Shepard's status for every authority a brief cites, with each pin cite and the text around it, into one folder with a manifest."
+    },
+    {
+      "name": "Quote and pin checker",
+      "command": "citecheck quote",
+      "description": "Check a brief's quotation against the Lexis+ copy: verbatim or not, every un-signaled difference, the official reporter page, and whether the words are the majority's, a concurrence's, a dissent's, or a footnote's."
+    },
+    {
+      "name": "Page-marked source text",
+      "command": "citecheck text",
+      "description": "Plain text of a case or statute with official reporter page markers and speaker labels; --pages prints only the opinion text on those pages."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Brief cite extractor",
+      "command": "brief cites",
+      "description": "List every California case and statute cited in your draft brief (.docx or .txt), de-duplicated.",
+      "rationale": "Reads your own file locally; Lexis+ cannot tell you what a draft cites.",
+      "example": "lexis-plus-pp-cli brief cites motion.docx",
+      "why_it_matters": "Turns a draft into a pull list for batch.",
+      "group": "From your brief to your binder"
+    },
+    {
+      "name": "Brief cite verifier",
+      "command": "brief check",
+      "description": "Check every citation in a draft against Lexis+ and flag the ones it does not recognize.",
+      "rationale": "Combines local parsing with Lexis citation recognition.",
+      "example": "lexis-plus-pp-cli brief check motion.docx",
+      "why_it_matters": "Catches mistyped volumes and pages before filing.",
+      "group": "From your brief to your binder"
+    },
+    {
+      "name": "Brief gaps",
+      "command": "brief gaps",
+      "description": "See which cited authorities you have not pulled yet, and which pulled ones the draft no longer cites.",
+      "rationale": "Joins the draft's citations with your local retrieval log.",
+      "example": "lexis-plus-pp-cli brief gaps motion.docx --matter Acme",
+      "why_it_matters": "Shows exactly what is left to download.",
+      "group": "From your brief to your binder"
+    },
+    {
+      "name": "Matter ledger",
+      "command": "matter list",
+      "description": "Browse everything you pulled for each matter, with date, format, and file path.",
+      "rationale": "Needs the local retrieval log tagged with --matter.",
+      "example": "lexis-plus-pp-cli matter show Acme",
+      "why_it_matters": "Answers 'did we pull the annotated version, and when?'",
+      "group": "Keep a ledger"
+    },
+    {
+      "name": "Statute annotation diff",
+      "command": "statute whatsnew",
+      "description": "Re-pull an annotated statute and see which annotations were added or removed since your last pull.",
+      "rationale": "Diffs the new Deering's annotations against your saved copy.",
+      "example": "lexis-plus-pp-cli statute whatsnew \"Cal Lab Code 1102.5\"",
+      "why_it_matters": "Finds new case notes without rereading 40 pages.",
+      "group": "Keep a ledger"
+    },
+    {
+      "name": "Authority binder",
+      "command": "matter binder",
+      "description": "Copy a matter's files into one ordered folder (cases, then statutes) with an index.csv.",
+      "rationale": "Built from your local retrieval log and saved files.",
+      "example": "lexis-plus-pp-cli matter binder Acme --out ./binder",
+      "why_it_matters": "Binder and index in one command.",
+      "group": "Keep a ledger"
+    },
+    {
+      "name": "Brief source packet",
+      "command": "citecheck packet",
+      "description": "Pull the Lexis+ text and Shepard's status for every authority a brief cites, with each pin cite and the text around it, into one folder with a manifest."
+    },
+    {
+      "name": "Quote and pin checker",
+      "command": "citecheck quote",
+      "description": "Check a brief's quotation against the Lexis+ copy: verbatim or not, every un-signaled difference, the official reporter page, and whether the words are the majority's, a concurrence's, a dissent's, or a footnote's."
+    },
+    {
+      "name": "Page-marked source text",
+      "command": "citecheck text",
+      "description": "Plain text of a case or statute with official reporter page markers and speaker labels; --pages prints only the opinion text on those pages."
+    }
+  ],
+  "narrative": {
+    "display_name": "Lexis+",
+    "headline": "Pull California cases and annotated statutes from your own Lexis+ subscription straight into Word, by citation.",
+    "value_prop": "Resolve a citation, download the opinion or the Deering's annotated section as a Word file, and keep a local log of what you pulled. Uses your own logged-in Lexis+ session; no bulk crawling.",
+    "auth_narrative": "Lexis+ has no API key. Sign in once with the press-auth companion (press-auth login plus.lexis.com); the CLI reuses that session's cookies and tells you when it expires.",
+    "quickstart": [
+      {
+        "command": "lexis-plus-pp-cli doctor --dry-run",
+        "comment": "Check setup without touching Lexis"
+      },
+      {
+        "command": "lexis-plus-pp-cli cite check \"27 Cal.3d 167\" --dry-run",
+        "comment": "Confirm the citation lookup command works"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Redirected to sign-in or HTTP 302",
+        "fix": "Session expired: run press-auth login plus.lexis.com --login-url https://signin.lexisnexis.com/lnaccess/app/signin"
+      }
+    ],
+    "when_to_use": "Use to retrieve known California authorities by citation and save them as Word files. Not for open-ended research or bulk downloading.",
+    "anti_triggers": [
+      "Open-ended legal research or Shepard's analysis",
+      "Bulk or automated harvesting of Lexis content"
+    ],
+    "recipes": [
+      {
+        "title": "Pull a case",
+        "command": "lexis-plus-pp-cli case get \"27 Cal.3d 167\" --out ./authorities",
+        "explanation": "Resolves the citation and saves the opinion as a Word file."
+      },
+      {
+        "title": "Pull an annotated statute",
+        "command": "lexis-plus-pp-cli statute get \"Cal Lab Code 1102.5\" --out ./authorities",
+        "explanation": "Saves Deering's with annotations as a Word file."
+      },
+      {
+        "title": "Narrow output",
+        "command": "lexis-plus-pp-cli cite check \"27 Cal.3d 167\" --agent --select cite,doc_id",
+        "explanation": "Agent-friendly JSON with only the fields you need."
+      }
+    ],
+    "trigger_phrases": [
+      "pull 27 Cal.3d 167 from Lexis",
+      "download Cal Lab Code 1102.5 with annotations",
+      "use lexis-plus",
+      "run lexis-plus"
+    ]
+  },
+  "homepage": "https://www.lexisnexis.com/en-us/products/lexis-plus.page"
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261109-112847-01f2138d",
+  "base_printing_press_version": "4.35.4",
+  "id": "dry-run-and-exit-codes-for-hand-written-commands",
+  "summary": "Hand-written commands answer --dry-run with the press envelope (meta.source, results, top-level action) and exit non-zero for an unknown matter or an unrecognized citation.",
+  "reason": "The press live gate reads the dry-run action and expects a non-zero exit for invalid arguments; scripts also need cite check to report failure by exit code.",
+  "files": [
+    "internal/cli/lexis_cmds.go",
+    "internal/cli/lexis_brief_local.go",
+    "internal/cli/jobs.go"
+  ]
+}

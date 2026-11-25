@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "standalone-page-markers-count-as-page-breaks",
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261109-112847-01f2138d",
+  "base_printing_press_version": "4.35.4",
+  "summary": "A Lexis+ Word download often puts a reporter page marker in a paragraph by itself; the reader must count that marker as a page break even though the paragraph has no words.",
+  "reason": "Dropping word-less paragraphs lost those markers, so citecheck reported passages one page early and flagged correct pin cites as wrong.",
+  "files": ["internal/cli/lexis_citecheck_doc.go", "internal/cli/lexis_citecheck_test.go"],
+  "validated_outcome": "On a 27-case brief, three pins first reported as wrong (Elmi, Payne, Machado) matched once the markers were kept."
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-11-16",
+  "base_run_id": "20261109-112847-01f2138d",
+  "base_printing_press_version": "4.35.4",
+  "id": "lexis-session-layer-is-hand-written",
+  "summary": "Lexis+ has no API: every command goes through a hand-written session that reuses the user's own signed-in browser cookies, a search-box citation lookup, and the Download dialog's delivery job. A regen must keep it and re-discover the request shapes if Lexis changes them.",
+  "reason": "The press spec only describes the lookup and delivery endpoints; citation resolution, Word download, Shepard's red-flag reports and the pull ledger are not generatable.",
+  "files": [
+    "internal/cli/lexis_session.go",
+    "internal/cli/lexis_cmds.go",
+    "internal/cli/lexis_shepards.go",
+    "internal/cli/lexis_memo.go",
+    "internal/cli/lexis_brief.go",
+    "internal/cli/lexis_brief_cites.go",
+    "internal/cli/lexis_brief_live.go",
+    "internal/cli/lexis_brief_local.go",
+    "internal/cli/lexis_text.go",
+    "internal/docx/docx.go"
+  ]
+}

@@ -1,0 +1,248 @@
+name: lexis-plus
+category: other
+description: "Lexis+ CLI: resolve California case and statute citations and download them as Microsoft Word files using your own Lexis+ subscription session"
+version: "0.1.0"
+base_url: "https://plus.lexis.com"
+http_transport: standard
+health_check_path: "/f/Configuration/regionoptions"
+required_headers:
+  - name: Accept-Language
+    value: "en-US,en;q=0.9"
+
+cli_description: "Look up California cases and statutes by citation and download them as Word files from your own Lexis+ subscription"
+auth:
+  type: cookie
+  in: cookie
+  cookie_domain: "plus.lexis.com"
+  cookies:
+    - ".AspNet.Wam"
+    - "ASP.NET_SessionId"
+    - "LexisMachineId"
+    - "X-LN-InitialSignOn"
+    - "X-LN-Session-TTL"
+    - "lna2"
+  login_url: "https://signin.lexisnexis.com/lnaccess/app/signin?aci=lp&back=https%3A%2F%2Fplus.lexis.com%2Fzhome"
+  login_complete_selector: 'input[placeholder*="citation"]'
+
+resources:
+  lookup:
+    description: "Citation lookup: run a Lexis+ search-box search and read its queued result"
+    endpoints:
+      start:
+        method: GET
+        path: "/search/"
+        description: "Start a Lexis+ search-box search (returns the search page HTML, which embeds the searchId used by `lookup result`)"
+        response_format: html
+        params:
+          - name: pdsearchterms
+            flag_name: terms
+            type: string
+            required: true
+            description: "Citation or search terms, e.g. \"27 Cal.3d 167\" or \"Cal Lab Code 1102.5\""
+          - name: pdmfid
+            flag_name: product-id
+            type: string
+            default: "1530671"
+            description: "Lexis+ master feature (product) id"
+          - name: pdtypeofsearch
+            type: string
+            default: "searchboxclick"
+            description: "Search entry type"
+          - name: pdsearchtype
+            type: string
+            default: "SearchBox"
+            description: "Search type"
+          - name: pdpsf
+            flag_name: jurisdiction-filter
+            type: string
+            default: "jur:1:62,26"
+            description: "Pre-search jurisdiction filter (default: California)"
+          - name: pdqttype
+            type: string
+            default: "and"
+            description: "Query term connector"
+          - name: ecomp
+            type: string
+            default: "1phtk"
+            description: "Search box component id"
+          - name: earg
+            type: string
+            default: "pdpsf"
+            description: "Search box component argument"
+      result:
+        method: GET
+        path: "/f/Search/queue/response/{searchId}"
+        description: "Read the result of a queued search; single-document (citation) hits come back as sdrResult with the document path"
+        happy_args: "--searchId=example-value"
+        params:
+          - name: searchId
+            type: string
+            required: true
+            positional: true
+            description: "searchId embedded in the search page (GUID with -N suffix)"
+        response:
+          type: object
+          item: SearchQueueResponse
+      suggest:
+        method: POST
+        path: "/r/searchbox/1phtk/wordwheel"
+        mutation: false
+        description: "Search-box type-ahead suggestions (recognizes citations and names the document they point to)"
+        body:
+          - name: searchTerm
+            flag_name: terms
+            type: string
+            required: true
+            description: "Partial citation or terms"
+          - name: pctPrefilter
+            type: string
+            default: ""
+            description: "Product content type prefilter"
+          - name: pdpsf
+            flag_name: jurisdiction-filter
+            type: string
+            default: "jur:1:62,26"
+            description: "Jurisdiction filter (default: California)"
+        response:
+          type: object
+          item: Wordwheel
+
+  delivery:
+    description: "Lexis+ document delivery (download) jobs"
+    endpoints:
+      create:
+        method: POST
+        path: "/f/DeliveryToolbar/CreateMultiDocJobAsync"
+        description: "Queue a download job that renders one or more documents to Word (docx), PDF, or RTF"
+        body:
+          properties:
+            deliveryItemType:
+              type: string
+              default: "DocumentsOnly"
+            destinationType:
+              type: int
+              default: 1
+            fileName:
+              type: string
+              required: true
+            kwicWindowValue:
+              type: string
+              default: "25"
+            masterFeatureId:
+              type: string
+              default: "1530671"
+            selectedRange:
+              type: string
+              default: "1-1"
+            multipleDocuments:
+              type: array
+              description: "Documents to deliver (docFullPath, itemId, contentType, productContentTypeId, title)"
+              items:
+                type: object
+            retrieveoptions:
+              type: object
+              description: "Rendering options: format (docx|pdf|rtf), includeAnnotations, showHeadnotes, caseSummary, fontType, fontSize, ..."
+        response:
+          type: object
+          item: DeliveryJob
+      status:
+        method: GET
+        path: "/f/delivery/{jobId}/status"
+        description: "Poll a delivery job (status 6 = success)"
+        happy_args: "--jobId=example-value"
+        params:
+          - name: jobId
+            type: string
+            required: true
+            positional: true
+            description: "Delivery job id"
+        response:
+          type: object
+          item: DeliveryStatus
+      get:
+        method: GET
+        path: "/f/delivery/{jobId}"
+        description: "Get a delivery job, including its downloadUri once rendered"
+        happy_args: "--jobId=example-value"
+        params:
+          - name: jobId
+            type: string
+            required: true
+            positional: true
+            description: "Delivery job id"
+        response:
+          type: object
+          item: DeliveryJobDetail
+      file:
+        method: GET
+        path: "/f/SharedStorage/sharedStorageDelivery"
+        description: "Fetch the rendered file bytes for a finished delivery job"
+        response_format: binary
+        happy_args: "--ssaId=example-value"
+        params:
+          - name: ssaId
+            flag_name: storage-id
+            type: string
+            required: true
+            description: "Shared-storage id (last segment of the job downloadUri)"
+          - name: mediaType
+            type: string
+            default: "application/octet-stream"
+            description: "Requested media type"
+          - name: fileName
+            flag_name: file-name
+            type: string
+            required: true
+            description: "File name to request, e.g. \"Tameny.docx\""
+
+types:
+  SearchQueueResponse:
+    fields:
+      - name: isSdrResult
+        type: bool
+      - name: isMultipleSdrResult
+        type: bool
+      - name: title
+        type: string
+      - name: totalResults
+        type: int
+      - name: sdrResult
+        type: object
+      - name: items
+        type: array
+  Wordwheel:
+    fields:
+      - name: id
+        type: string
+      - name: props
+        type: object
+      - name: collections
+        type: object
+  DeliveryJob:
+    fields:
+      - name: jobId
+        type: string
+      - name: courierJobStatus
+        type: int
+      - name: outputFormat
+        type: string
+      - name: downloadUri
+        type: string
+  DeliveryStatus:
+    fields:
+      - name: id
+        type: string
+      - name: status
+        type: int
+      - name: statusText
+        type: string
+  DeliveryJobDetail:
+    fields:
+      - name: jobId
+        type: string
+      - name: courierJobStatus
+        type: int
+      - name: downloadUri
+        type: string
+      - name: creationTime
+        type: string
