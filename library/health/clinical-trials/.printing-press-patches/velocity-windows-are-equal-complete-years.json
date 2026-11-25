@@ -12,5 +12,5 @@
     "internal/cli/velocity_window_test.go",
     "internal/cli/velocity_test.go"
   ],
-  "validated_outcome": "Sixteen mutations of velocity_window.go each fail the new tests: the old open-ended recent and unbounded prior rules, the current year counted, a prior window one year longer, the machine time zone instead of UTC, a failed count probe failing the command, and the sample note, render and notes regressions. An unchanged copy passes."
+  "validated_outcome": "Sixteen mutations of velocity_window.go each fail the new tests: the old open-ended recent and unbounded prior rules, the current year counted, a prior window one year longer, the machine time zone instead of UTC, a failed count probe failing the command, and the sample note, render and notes regressions. An unchanged copy passes. Guarded by TestVelocityWindowsFor, TestTallyByWindow and TestBuildVelocityView."
 }
