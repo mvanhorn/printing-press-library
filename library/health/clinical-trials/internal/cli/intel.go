@@ -20,7 +20,7 @@ import (
 // normalizedFields is the CT.gov field list every intelligence command requests.
 // Keeping it narrow bounds response size (the full protocolSection is tens of KB
 // per study) while covering every field the unified Trial model needs.
-const normalizedFields = "NCTId,BriefTitle,OverallStatus,Phase,LeadSponsorName,LeadSponsorClass,LocationCountry,Condition,InterventionName,InterventionType,EnrollmentCount,StartDate,PrimaryCompletionDate,CompletionDate,LastUpdatePostDate,StudyFirstPostDate,WhyStopped,HasResults,SecondaryId"
+const normalizedFields = "NCTId,BriefTitle,OverallStatus,Phase,LeadSponsorName,LeadSponsorClass,LocationCountry,Condition,InterventionName,InterventionType,EnrollmentCount,StartDate,PrimaryCompletionDate,PrimaryCompletionDateType,CompletionDate,LastUpdatePostDate,StudyFirstPostDate,WhyStopped,HasResults,SecondaryId"
 
 // Trial is the single normalized model every source maps into. It is the
 // "Layer 2" unified structure: one shape regardless of which registry the row

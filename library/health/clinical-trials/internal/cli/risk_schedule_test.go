@@ -117,6 +117,17 @@ func TestScoreRiskCarriesScheduleFactor(t *testing.T) {
 	}
 }
 
+// TestNormalizedFieldsRequestsPrimaryCompletionType guards the live defect: CT.gov
+// returns primaryCompletionDateStruct.type only when PrimaryCompletionDateType is
+// named in the fields list, so without it every overdue estimate reads as "date
+// type not posted" and never scores. A fixture-based test cannot see this, because
+// a fixture carries the type whether or not it was requested.
+func TestNormalizedFieldsRequestsPrimaryCompletionType(t *testing.T) {
+	if !strings.Contains(","+normalizedFields+",", ",PrimaryCompletionDateType,") {
+		t.Errorf("normalizedFields must request PrimaryCompletionDateType, got %q", normalizedFields)
+	}
+}
+
 // TestNormalizeStudyReadsPrimaryCompletionType checks that the ACTUAL /
 // ESTIMATED marker reaches the Trial — without it every overdue estimate would
 // fall into the "date type not posted" branch and never score — and that the
