@@ -274,6 +274,24 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 	return c.do("PATCH", path, nil, body, headers)
 }
 
+// PATCH(amend-2026-11-23: route api2.skool.com endpoints at their own host)
+// APIv2URL maps a spec-relative path onto Skool's write host. The spec marks
+// every mutation (and notifications / pending-members reads) with
+// base_url: https://api2.skool.com, but the generated commands emitted the
+// path relative to BaseURL, so each one was sent to www.skool.com instead.
+// Callers for those endpoints must wrap their path in this helper; do() already
+// knows how to send an absolute URL.
+func (c *Client) APIv2URL(path string) string {
+	base := config.DefaultAPIv2BaseURL
+	if c.Config != nil && c.Config.APIv2BaseURL != "" {
+		base = c.Config.APIv2BaseURL
+	}
+	if isAbsoluteURL(path) {
+		return path
+	}
+	return strings.TrimRight(base, "/") + path
+}
+
 // isAbsoluteURL reports whether path is already a full URL (resource or
 // endpoint BaseURL override emits the full URL into path; the relative-path
 // concat with c.BaseURL must be skipped for those calls).

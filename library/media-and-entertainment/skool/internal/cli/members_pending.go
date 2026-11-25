@@ -31,7 +31,8 @@ func newMembersPendingCmd(flags *rootFlags) *cobra.Command {
 			path := "/groups/{group_id}/members/pending"
 			path = replacePathParam(path, "group_id", fmt.Sprintf("%v", flagGroupId))
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "members", false, path, params, nil)
+			// PATCH(amend-2026-11-23: send api2 endpoints to api2.skool.com)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "members", false, c.APIv2URL(path), params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

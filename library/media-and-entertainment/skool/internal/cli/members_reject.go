@@ -51,7 +51,8 @@ func newMembersRejectCmd(flags *rootFlags) *cobra.Command {
 					body["status"] = bodyStatus
 				}
 			}
-			data, statusCode, err := c.Put(path, body)
+			// PATCH(amend-2026-11-23: send api2 endpoints to api2.skool.com)
+			data, statusCode, err := c.Put(c.APIv2URL(path), body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

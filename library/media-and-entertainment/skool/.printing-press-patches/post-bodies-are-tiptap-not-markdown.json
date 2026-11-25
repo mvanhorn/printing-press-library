@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "post-bodies-are-tiptap-not-markdown",
+  "applied_at": "2026-11-23",
+  "base_run_id": "20260510-114931",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Skool stores post, comment and lesson bodies as a TipTap document serialized into a JSON string, so any command that writes a body needs a markdown converter rather than a free-text field.",
+  "reason": "The spec and the generated help both advertised a --md flag for converting markdown, but no such flag and no converter existed; the only way to post was to hand-write TipTap nodes, which Skool rejects without saying which block was wrong. The converter covers exactly the subset Skool's own editor round-trips, headings included only to level 3.",
+  "files": [
+    "internal/tiptap/tiptap.go",
+    "internal/tiptap/tiptap_test.go",
+    "internal/cli/markdown_body.go",
+    "internal/cli/posts_create.go",
+    "internal/cli/posts_update.go",
+    "internal/cli/posts_comment.go"
+  ],
+  "call_sites": ["tiptap.JSONFromMarkdown("],
+  "validated_outcome": "go test ./internal/tiptap covers every node and mark in the subset plus the H1/H2 clamp, unclosed delimiters and escapes; posts create --md --dry-run emits the expected document.",
+  "findings_addressed": ["F2", "F3", "F4"]
+}

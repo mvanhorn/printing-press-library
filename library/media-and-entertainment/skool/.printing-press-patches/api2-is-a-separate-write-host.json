@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "api2-is-a-separate-write-host",
+  "applied_at": "2026-11-23",
+  "base_run_id": "20260510-114931",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Skool answers reads on the Next.js host and every mutation on a second REST host; a regen must send each endpoint to the host its spec entry names, not to the global base URL.",
+  "reason": "The spec marks twelve endpoints with a per-endpoint base_url override, but the generated commands emitted the path relative to BaseURL, so every post, comment, upvote, member-moderation and notification call was sent to the read host. They do not exist there, so the whole write surface of the published CLI was unreachable.",
+  "files": [
+    "internal/config/config.go",
+    "internal/client/client.go",
+    "internal/cli/posts_create.go",
+    "internal/cli/posts_update.go",
+    "internal/cli/posts_delete.go",
+    "internal/cli/posts_comment.go",
+    "internal/cli/posts_like.go",
+    "internal/cli/posts_unlike.go",
+    "internal/cli/members_approve.go",
+    "internal/cli/members_reject.go",
+    "internal/cli/members_ban.go",
+    "internal/cli/members_pending.go",
+    "internal/cli/notifications_list.go",
+    "internal/cli/notifications_mark-read.go"
+  ],
+  "call_sites": ["c.APIv2URL("],
+  "validated_outcome": "posts create --dry-run reported POST https://www.skool.com/posts before the fix and POST https://api2.skool.com/posts after it; a redirected SKOOL_BASE_URL still carries writes to the mock server.",
+  "findings_addressed": ["F1"]
+}
