@@ -28837,9 +28837,9 @@
       "path": "library/media-and-entertainment/skool",
       "release": {
         "cli_name": "skool-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-01T21:56:03Z",
-        "source_commit": "933e36ab6f35ad63b34f7a57005628d7aa5f47dc"
+        "version": "2026.11.1",
+        "released_at": "2026-11-25T10:07:35Z",
+        "source_commit": "cc6082fd32d4eb3fc27ef26733ad709ad72e1a08"
       },
       "printer": "quoxientzero",
       "printer_name": "Zain Haseeb",
