@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "skool",
   "cli_name": "skool-pp-cli",
-  "version": "2026.10.1",
-  "released_at": "2026-10-01T21:56:03Z",
-  "source_commit": "42929c8eb99b103a83acfb74078c53ad71316e35",
+  "version": "2026.11.1",
+  "released_at": "2026-11-25T10:07:35Z",
+  "source_commit": "76d39005ef80e2a3f3d0e7bd186fbda047780772",
   "printing_press_version": "4.0.6",
   "run_id": "20260510-114931",
   "changes": [
     {
-      "title": "fix(skool): honor community sync page limits",
-      "pr": 2144,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2144",
-      "commit": "42929c8eb99b103a83acfb74078c53ad71316e35"
+      "title": "fix(skool): route api2 writes to the right host; add markdown-\u003eTipTap and classroom tree + push planner",
+      "pr": 2488,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2488",
+      "commit": "76d39005ef80e2a3f3d0e7bd186fbda047780772"
     }
   ]
 }

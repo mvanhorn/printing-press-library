@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-25
+
+- fix(skool): route api2 writes to the right host; add markdown->TipTap and classroom tree + push planner (#2488).
+
 ## 2026.10.1 - 2026-10-01
 
 - fix(skool): honor community sync page limits (#2144).
