@@ -22,24 +22,25 @@ type yearBucket struct {
 }
 
 type velocityView struct {
-	Query           string       `json:"query"`
-	SampleSize      int          `json:"sample_size"`
-	RegistryTotal   int          `json:"registry_total,omitempty"`
-	WindowYears     int          `json:"window_years"`
-	RecentFrom      int          `json:"recent_from"`
-	RecentTo        int          `json:"recent_to"`
-	PriorFrom       int          `json:"prior_from"`
-	PriorTo         int          `json:"prior_to"`
-	RecentTrials    int          `json:"recent_trials"`
-	PriorTrials     int          `json:"prior_trials"`
-	TrialGrowthPct  int          `json:"trial_growth_pct"`
-	RecentEnroll    int          `json:"recent_enrollment"`
-	PriorEnroll     int          `json:"prior_enrollment"`
-	EnrollGrowthPct int          `json:"enrollment_growth_pct"`
-	LaterTrials     int          `json:"later_trials"`
-	OlderTrials     int          `json:"older_trials"`
-	ByYear          []yearBucket `json:"by_year,omitempty"`
-	Note            string       `json:"note,omitempty"`
+	Query             string       `json:"query"`
+	SampleSize        int          `json:"sample_size"`
+	RegistryTotal     int          `json:"registry_total,omitempty"`
+	WindowYears       int          `json:"window_years"`
+	RecentFrom        int          `json:"recent_from"`
+	RecentTo          int          `json:"recent_to"`
+	PriorFrom         int          `json:"prior_from"`
+	PriorTo           int          `json:"prior_to"`
+	TrialCountsSource string       `json:"trial_counts_source"`
+	RecentTrials      int          `json:"recent_trials"`
+	PriorTrials       int          `json:"prior_trials"`
+	TrialGrowthPct    int          `json:"trial_growth_pct"`
+	RecentEnroll      int          `json:"recent_enrollment"`
+	PriorEnroll       int          `json:"prior_enrollment"`
+	EnrollGrowthPct   int          `json:"enrollment_growth_pct"`
+	LaterTrials       int          `json:"later_trials"`
+	OlderTrials       int          `json:"older_trials"`
+	ByYear            []yearBucket `json:"by_year,omitempty"`
+	Note              string       `json:"note,omitempty"`
 }
 
 // pp:data-source live
