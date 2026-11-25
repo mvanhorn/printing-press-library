@@ -219,3 +219,37 @@ func TestMonthsBetween(t *testing.T) {
 		}
 	}
 }
+
+// TestScheduleFactorReachesDownstreamReads pins what the new 5 points change in
+// the commands built on scoreRisk. The trial mirrors the live case that prompted
+// this test: three recruiting depression trials past their estimate scored 26,
+// that is 21 from the other factors plus 5, which moves risk from low to moderate
+// and the forecast outlook from favorable to moderate. enrollment-check reads only
+// the enrollment factor, so its verdict must not move.
+func TestScheduleFactorReachesDownstreamReads(t *testing.T) {
+	base := Trial{
+		NCTID: "NCT0", Status: "RECRUITING", Enrollment: 60,
+		Countries: []string{"Japan"}, Phases: []string{"PHASE2"}, Sponsor: "Acme",
+		PrimaryCompletionType: "ESTIMATED",
+	}
+	onTime, overdue := base, base
+	onTime.PrimaryCompletionDate = "2999-12"
+	overdue.PrimaryCompletionDate = "2000-01"
+
+	a, b := scoreRisk(onTime, 100), scoreRisk(overdue, 100)
+	if a.Score != 21 || a.Level != "low" {
+		t.Errorf("on-time trial = %d/%s, want 21/low", a.Score, a.Level)
+	}
+	if b.Score != 26 || b.Level != "moderate" {
+		t.Errorf("overdue trial = %d/%s, want 26/moderate", b.Score, b.Level)
+	}
+	if got, want := outlookFromScore(a.Score).Band, "favorable"; got != want {
+		t.Errorf("on-time forecast band = %q, want %q", got, want)
+	}
+	if got, want := outlookFromScore(b.Score).Band, "moderate"; got != want {
+		t.Errorf("overdue forecast band = %q, want %q", got, want)
+	}
+	if va, vb := enrollmentVerdictFromRisk(a, "PHASE2").Verdict, enrollmentVerdictFromRisk(b, "PHASE2").Verdict; va != vb {
+		t.Errorf("enrollment verdict moved with the schedule factor: %q vs %q", va, vb)
+	}
+}
