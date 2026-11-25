@@ -2,15 +2,17 @@
 
 // risk.go implements the `risk` command: an explainable, deterministic risk
 // read on a single trial. It fetches one study by NCT id, then scores it across
-// five observable signals — overall status / termination history, posted
-// enrollment, geographic breadth, the lead sponsor's track record, and trial
-// phase — and returns each factor's contribution so the score is auditable,
-// never a black box.
+// six observable signals — overall status / termination history, posted
+// enrollment, geographic breadth, the lead sponsor's track record, trial
+// phase, and whether an ongoing trial has passed its own estimated primary
+// completion date — and returns each factor's contribution so the score is
+// auditable, never a black box.
 package cli
 
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -40,9 +42,10 @@ func newNovelRiskCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "risk <nct-id>",
 		Short: "Get an explainable risk read on a single trial from termination, enrollment, site count, sponsor track record, and phase factor (earlier phases = higher risk).",
-		Long: "Score one trial's risk of failure across five observable signals — overall\n" +
+		Long: "Score one trial's risk of failure across six observable signals — overall\n" +
 			"status / termination history, posted enrollment, geographic breadth, the\n" +
-			"lead sponsor's track record, and trial phase. Each factor's point\n" +
+			"lead sponsor's track record, trial phase, and an ongoing trial that has\n" +
+			"passed its own estimated primary completion date. Each factor's point\n" +
 			"contribution is returned so the 0-100 score is fully explainable rather\n" +
 			"than a black box.",
 		Example: "  clinical-trials-pp-cli risk NCT07011732 --json\n" +
@@ -180,6 +183,9 @@ func scoreRisk(t Trial, sponsorTrials int) riskView {
 		v.Factors = append(v.Factors, riskFactor{Name: "phase", Detail: "trial phase not posted or not applicable", Points: 5})
 	}
 
+	// 6. Schedule: an ongoing trial past its own estimated primary completion.
+	v.Factors = append(v.Factors, scheduleFactor(t, time.Now()))
+
 	score := 0
 	for _, f := range v.Factors {
 		score += f.Points
@@ -197,6 +203,98 @@ func scoreRisk(t Trial, sponsorTrials int) riskView {
 		v.Level = "high"
 	}
 	return v
+}
+
+// ongoingStatuses are the overall statuses under which a trial is still
+// expected to reach its primary completion. Terminal statuses (COMPLETED,
+// TERMINATED, WITHDRAWN), SUSPENDED and UNKNOWN are scored by the status factor
+// already; checking their dates here would count the same staleness twice.
+var ongoingStatuses = map[string]bool{
+	"NOT_YET_RECRUITING":      true,
+	"RECRUITING":              true,
+	"ENROLLING_BY_INVITATION": true,
+	"ACTIVE_NOT_RECRUITING":   true,
+}
+
+// scheduleOverduePoints is what an ongoing trial scores once its ESTIMATED
+// primary completion date has passed. It stays below the 10 points the status
+// factor gives UNKNOWN: the registry assigns UNKNOWN only after a trial is more
+// than two years past its completion date with no update, so a trial that is
+// still listed as ongoing is at most that stale. A figure at or above 10 would
+// rank a shorter delay as riskier than a longer one.
+const scheduleOverduePoints = 5
+
+// scheduleFactor reports whether an ongoing trial has passed its own estimated
+// primary completion date. Only an ESTIMATED date that has passed scores: an
+// ACTUAL date means the primary outcome data are in (ACTIVE_NOT_RECRUITING is
+// then the normal state while follow-up continues), and a date with no type
+// posted cannot be told apart from an actual one. Every branch returns a factor
+// so the schedule signal is always visible in the output. now is a parameter so
+// the date rule is testable without a clock.
+func scheduleFactor(t Trial, now time.Time) riskFactor {
+	f := riskFactor{Name: "schedule"}
+	status := strings.ToUpper(t.Status)
+	date := strings.TrimSpace(t.PrimaryCompletionDate)
+	dateType := strings.ToUpper(strings.TrimSpace(t.PrimaryCompletionType))
+	if !ongoingStatuses[status] {
+		f.Detail = "schedule check applies only to ongoing trials"
+		return f
+	}
+	if date == "" {
+		f.Detail = "primary completion date not posted"
+		return f
+	}
+	if dateType == "ACTUAL" {
+		f.Detail = "primary completion reached on " + date
+		return f
+	}
+	deadline, ok := partialDateEnd(date)
+	if !ok {
+		f.Detail = fmt.Sprintf("primary completion date %q not parseable", truncate(date, 20))
+		return f
+	}
+	if now.Before(deadline) {
+		f.Detail = "primary completion expected " + date
+		return f
+	}
+	if dateType != "ESTIMATED" {
+		f.Detail = "primary completion date " + date + " has passed; date type not posted"
+		return f
+	}
+	months := monthsBetween(deadline, now)
+	f.Detail = fmt.Sprintf("estimated primary completion %s passed %d month(s) ago; trial still listed as %s", date, months, strings.ToLower(strings.ReplaceAll(status, "_", " ")))
+	f.Points = scheduleOverduePoints
+	return f
+}
+
+// partialDateEnd returns the first instant after the period a CT.gov partial
+// date names: the next day for YYYY-MM-DD, the first of the next month for
+// YYYY-MM, and January 1 of the next year for YYYY. A date is overdue only
+// once its whole period has ended, so "2025-11" is not late during November.
+func partialDateEnd(date string) (time.Time, bool) {
+	if d, err := time.Parse("2006-01-02", date); err == nil {
+		return d.AddDate(0, 0, 1), true
+	}
+	if d, err := time.Parse("2006-01", date); err == nil {
+		return d.AddDate(0, 1, 0), true
+	}
+	if d, err := time.Parse("2006", date); err == nil {
+		return d.AddDate(1, 0, 0), true
+	}
+	return time.Time{}, false
+}
+
+// monthsBetween counts whole calendar months from start to end (0 when end is
+// less than a month after start).
+func monthsBetween(start, end time.Time) int {
+	m := (end.Year()-start.Year())*12 + int(end.Month()) - int(start.Month())
+	if end.Day() < start.Day() {
+		m--
+	}
+	if m < 0 {
+		return 0
+	}
+	return m
 }
 
 // hasAnyPhase reports whether phases contains any of the given phase enums.

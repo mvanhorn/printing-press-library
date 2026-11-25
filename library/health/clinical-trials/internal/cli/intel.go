@@ -39,7 +39,10 @@ type Trial struct {
 	StartDate     string   `json:"start_date,omitempty"`
 	// PrimaryCompletionDate and CompletionDate stay omitempty so a trial with no
 	// date posted yields an absent field, distinguishable from "not requested".
+	// PrimaryCompletionType (CT.gov's ACTUAL / ESTIMATED marker) is kept off the
+	// shared JSON shape; only the risk schedule factor reads it.
 	PrimaryCompletionDate string        `json:"primary_completion_date,omitempty"`
+	PrimaryCompletionType string        `json:"-"`
 	CompletionDate        string        `json:"completion_date,omitempty"`
 	LastUpdate            string        `json:"last_update,omitempty"`
 	FirstPosted           string        `json:"first_posted,omitempty"`
@@ -93,6 +96,7 @@ type rawStudy struct {
 			} `json:"startDateStruct"`
 			PrimaryCompletionDateStruct struct {
 				Date string `json:"date"`
+				Type string `json:"type"`
 			} `json:"primaryCompletionDateStruct"`
 			CompletionDateStruct struct {
 				Date string `json:"date"`
@@ -158,6 +162,7 @@ func normalizeStudy(raw json.RawMessage) (Trial, bool) {
 		StartDate:    s.ProtocolSection.StatusModule.StartDateStruct.Date,
 
 		PrimaryCompletionDate: s.ProtocolSection.StatusModule.PrimaryCompletionDateStruct.Date,
+		PrimaryCompletionType: s.ProtocolSection.StatusModule.PrimaryCompletionDateStruct.Type,
 		CompletionDate:        s.ProtocolSection.StatusModule.CompletionDateStruct.Date,
 
 		LastUpdate:  s.ProtocolSection.StatusModule.LastUpdatePostDateStruct.Date,
