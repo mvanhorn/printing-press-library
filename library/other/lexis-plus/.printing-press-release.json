@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "lexis-plus",
+  "cli_name": "lexis-plus-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-25T10:08:31Z",
+  "source_commit": "1f86e89e83c74c9c475426b3467cc5aa41da7b45",
+  "printing_press_version": "4.35.4",
+  "run_id": "20261109-112847-01f2138d",
+  "changes": [
+    {
+      "title": "feat(lexis-plus): add lexis-plus",
+      "pr": 2472,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2472",
+      "commit": "1f86e89e83c74c9c475426b3467cc5aa41da7b45"
+    }
+  ]
+}
