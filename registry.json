@@ -17720,6 +17720,12 @@
         "Plain text of a case or statute with official reporter page markers and speaker labels; --pages prints only the opinion text on those pages."
       ],
       "path": "library/other/lexis-plus",
+      "release": {
+        "cli_name": "lexis-plus-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-25T10:08:31Z",
+        "source_commit": "e94e33edb9d98976a4b7fbfef2bc5ac05f745a86"
+      },
       "printer": "bbenjyesq",
       "printer_name": "Bob Benjy",
       "creator": {
