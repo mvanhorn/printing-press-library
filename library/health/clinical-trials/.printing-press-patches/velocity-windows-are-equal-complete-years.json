@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "velocity-windows-are-equal-complete-years",
+  "applied_at": "2026-11-25",
+  "base_run_id": "20260623-164233-df565e8d",
+  "base_printing_press_version": "4.25.0",
+  "summary": "velocity compares two equal-length runs of complete calendar years (recent ends last year, prior sits just before it), keeps the current year and later out of the growth rate, prints the window years, and says when the sample is smaller than the registry's own count.",
+  "reason": "The generated split counted every year from now minus --window-years onward as recent, including the unfinished current year and future start dates, against an unbounded prior, so the windows had different lengths. For Long COVID it read +24% from a 400-of-745 sample, while the registry's exact per-year counts give 346 vs 343 trials over 2023-2025 and 2020-2022, flat after a 2023 peak.",
+  "files": [
+    "internal/cli/velocity.go",
+    "internal/cli/velocity_window.go",
+    "internal/cli/velocity_window_test.go",
+    "internal/cli/velocity_test.go"
+  ],
+  "validated_outcome": "Sixteen mutations of velocity_window.go each fail the new tests: the old open-ended recent and unbounded prior rules, the current year counted, a prior window one year longer, the machine time zone instead of UTC, a failed count probe failing the command, and the sample note, render and notes regressions. An unchanged copy passes. Guarded by TestVelocityWindowsFor, TestTallyByWindow and TestBuildVelocityView."
+}
