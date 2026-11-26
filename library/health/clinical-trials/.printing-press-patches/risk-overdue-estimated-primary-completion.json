@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "risk-overdue-estimated-primary-completion",
+  "applied_at": "2026-11-25",
+  "base_run_id": "20260623-164233-df565e8d",
+  "base_printing_press_version": "4.25.0",
+  "summary": "scoreRisk must always list a schedule factor, and an ongoing trial whose ESTIMATED primary completion period has fully ended scores 5 points; ACTUAL or untyped dates, and terminal, suspended or UNKNOWN trials, score 0 here.",
+  "reason": "Without it an ongoing trial years past its own estimate read as zero risk, because the status factor only reacts after the registry marks it UNKNOWN. ACTUAL dates, UNKNOWN and other non-ongoing statuses are exempt so follow-up and stale status are not counted twice.",
+  "files": [
+    "internal/cli/risk.go",
+    "internal/cli/intel.go",
+    "internal/cli/risk_schedule_test.go"
+  ],
+  "validated_outcome": "Ten mutations pass the existing risk tests and fail the new file: ACTUAL scoring, month end at its first day, UNKNOWN as ongoing, untyped dates scoring, the call site dropped, the type not copied, points raised to 10, no day-of-month borrow, the local-zone calendar read, and PrimaryCompletionDateType dropped from the shared field list (CT.gov omits the date type unless it is requested). Guarded by TestScheduleFactorBranches and TestNormalizedFieldsRequestsPrimaryCompletionType."
+}
