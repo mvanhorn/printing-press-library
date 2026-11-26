@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-26
+
+- feat(clinical-trials): risk scores an ongoing trial past its estimated primary completion (#2493).
+
 ## 2026.10.4 - 2026-10-14
 
 - fix(clinical-trials): keep digest and watch list keys present as [] (#2313).
