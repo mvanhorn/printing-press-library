@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.2 - 2026-11-26
+
+- fix(clinical-trials): velocity compares equal windows of complete years (#2494).
+
 ## 2026.11.1 - 2026-11-26
 
 - feat(clinical-trials): risk scores an ongoing trial past its estimated primary completion (#2493).

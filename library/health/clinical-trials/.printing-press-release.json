@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "clinical-trials",
   "cli_name": "clinical-trials-pp-cli",
-  "version": "2026.11.1",
-  "released_at": "2026-11-26T09:51:22Z",
-  "source_commit": "beae686bf8505b15abe59c689e65ac34e5b40c84",
+  "version": "2026.11.2",
+  "released_at": "2026-11-26T09:52:16Z",
+  "source_commit": "bbac2e5e8fa19af993950def12966e27c1d2a765",
   "printing_press_version": "4.25.0",
   "run_id": "20260623-164233-df565e8d",
   "changes": [
     {
-      "title": "feat(clinical-trials): risk scores an ongoing trial past its estimated primary completion",
-      "pr": 2493,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2493",
-      "commit": "beae686bf8505b15abe59c689e65ac34e5b40c84"
+      "title": "fix(clinical-trials): velocity compares equal windows of complete years",
+      "pr": 2494,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2494",
+      "commit": "bbac2e5e8fa19af993950def12966e27c1d2a765"
     }
   ]
 }
