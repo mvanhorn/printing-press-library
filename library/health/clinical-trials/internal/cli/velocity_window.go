@@ -155,15 +155,24 @@ func registryWindowCounts(ctx context.Context, c ctgovClient, params map[string]
 
 // velocityNotes explains what the numbers rest on. registryTotal is 0 when the
 // registry's own count is unknown, in which case no sample note is made.
+//
+// When the window counts are exact registry counts from a partial sample, the
+// "no parseable start dates" warning is about the sampled trials only: the
+// registry counts are valid, and only by_year and the enrollment figures lack
+// dated sample data.
 func velocityNotes(sampled, registryTotal int, w velocityWindows, years int, c trialCounts) string {
 	var notes []string
+	exact := c.Source == countsFromRegistry && registryTotal > sampled
 	switch {
 	case sampled == 0:
 		notes = append(notes, "no trials matched; try a broader area term")
-	case years == 0:
+	case years == 0 && !exact:
 		notes = append(notes, "matched trials have no parseable start dates; cannot place them on a timeline")
 	case c.Prior == 0:
 		notes = append(notes, fmt.Sprintf("no trials in the prior window (%s); growth reflects newly-appearing activity. Widen --window-years or --sample for a baseline.", yearSpan(w.PriorFrom, w.PriorTo)))
+	}
+	if sampled > 0 && years == 0 && exact {
+		notes = append(notes, "none of the sampled trials has a parseable start date, so by_year and the enrollment figures are empty.")
 	}
 	if sampled > 0 && registryTotal > sampled {
 		if c.Source == countsFromRegistry {

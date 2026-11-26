@@ -151,6 +151,18 @@ func TestVelocityNotes(t *testing.T) {
 			[]string{"no trials in the prior window (2020–2022)"}, nil},
 		{"nothing sampled", 0, 745, 0, trialCounts{}, []string{"no trials matched"}, []string{"sample covers"}},
 		{"no parseable dates", 10, 10, 0, trialCounts{}, []string{"no parseable start dates"}, nil},
+		// The registry counts are valid even when no sampled trial has a start date:
+		// the warning must be about the sample only, not about the matched trials.
+		{"exact counts, undated sample: warning is about the sample", 400, 745, 0, registry,
+			[]string{"none of the sampled trials has a parseable start date", "by_year and the enrollment figures are empty", "exact registry counts"},
+			[]string{"matched trials have no parseable start dates", "cannot place them on a timeline"}},
+		{"exact counts, undated sample, empty prior window: both notes", 400, 745, 0, trialCounts{Recent: 5, Source: countsFromRegistry},
+			[]string{"no trials in the prior window (2020–2022)", "none of the sampled trials has a parseable start date"},
+			[]string{"cannot place them on a timeline"}},
+		// A complete sample really does hold every matching trial, so the old
+		// wording is still true there.
+		{"complete undated sample keeps the old warning", 10, 10, 0, trialCounts{Source: countsFromRegistry},
+			[]string{"matched trials have no parseable start dates"}, []string{"none of the sampled trials"}},
 	}
 	for _, tc := range cases {
 		got := velocityNotes(tc.sampled, tc.total, w, tc.years, tc.counts)
@@ -264,6 +276,30 @@ func TestBuildVelocityViewUsesRegistryCounts(t *testing.T) {
 	}
 	if len(f.calls) != 6 || len(seen) != 4 || !seen[rngRecent3] || !seen[rngPrior3] || !seen[rngLater] || !seen[rngOlder3] {
 		t.Errorf("want one fetch, one total and four range requests, got %d calls, ranges %v", len(f.calls), seen)
+	}
+}
+
+// A partial sample whose trials all lack a start date still gets valid registry
+// window counts, so the note must not say the matched trials cannot be placed on
+// a timeline: only by_year and the enrollment figures lack dated sample data.
+func TestBuildVelocityViewUndatedSampleKeepsRegistryCounts(t *testing.T) {
+	f := velocityFakeWith(745, "", "", "")
+	f.ranges = map[string]int{rngRecent3: 346, rngPrior3: 343, rngLater: 49, rngOlder3: 5}
+	v, err := buildVelocityView(context.Background(), f, "long covid", 400, 3, 3, velocityNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v.TrialCountsSource != "registry" || v.SampleSize != 3 || v.RecentTrials != 346 || v.PriorTrials != 343 || v.TrialGrowthPct != 1 {
+		t.Errorf("view = %+v: the registry counts must survive an undated sample", v)
+	}
+	if len(v.ByYear) != 0 || v.RecentEnroll != 0 || v.PriorEnroll != 0 {
+		t.Errorf("by_year and enrollment come from the sample, which has no dates: %+v", v)
+	}
+	if !strings.Contains(v.Note, "none of the sampled trials has a parseable start date") || !strings.Contains(v.Note, "exact registry counts") {
+		t.Errorf("note = %q", v.Note)
+	}
+	if strings.Contains(v.Note, "cannot place them on a timeline") || strings.Contains(v.Note, "matched trials have no parseable") {
+		t.Errorf("note contradicts the valid registry counts: %q", v.Note)
 	}
 }
 
