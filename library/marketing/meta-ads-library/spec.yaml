@@ -1,0 +1,270 @@
+name: meta-ads-library
+description: "Query public Meta ads worldwide with zero browser or API key, plus local SQLite intelligence"
+cli_description: "Every public Meta ad worldwide from one static binary — zero browser, zero API key, plus SQLite intelligence."
+version: "0.1.0"
+category: marketing
+base_url: "https://graph.facebook.com/v27.0"
+health_check_path: "/ads_archive"
+
+auth:
+  type: api_key
+  in: query
+  header: access_token
+  env_vars:
+    - META_ACCESS_TOKEN
+
+learn:
+  entity_lookup_seeds:
+    publisher_platform:
+      - canonical: FACEBOOK
+        aliases: [fb, facebook, meta]
+      - canonical: INSTAGRAM
+        aliases: [ig, insta, instagram]
+      - canonical: MESSENGER
+        aliases: [fb messenger, messenger]
+      - canonical: AUDIENCE_NETWORK
+        aliases: [audience network, an]
+      - canonical: THREADS
+        aliases: [threads]
+      - canonical: WHATSAPP
+        aliases: [wa, whatsapp]
+    ad_type:
+      - canonical: ALL
+        aliases: [all, commercial, regular, standard]
+      - canonical: POLITICAL_AND_ISSUE_ADS
+        aliases: [political, politics, issue, election, siep]
+      - canonical: HOUSING_ADS
+        aliases: [housing, real estate]
+      - canonical: EMPLOYMENT_ADS
+        aliases: [employment, jobs, recruiting]
+      - canonical: FINANCIAL_PRODUCTS_AND_SERVICES_ADS
+        aliases: [financial, credit, finance, loans]
+    media_type:
+      - canonical: ALL
+        aliases: [all, any]
+      - canonical: IMAGE
+        aliases: [image, static, photo]
+      - canonical: VIDEO
+        aliases: [video, reels]
+      - canonical: MEME
+        aliases: [meme]
+      - canonical: NONE
+        aliases: [none, text]
+  ticker_patterns:
+    - "^[0-9]{10,20}$"
+  synonyms:
+    "ad library": "ads library"
+    "facebook ads": "meta ads"
+    "running": "active"
+    "stopped": "inactive"
+    "advertiser": "page"
+    "brand": "page"
+    "creatives": "ads"
+  stopwords:
+    - meta
+    - facebook
+    - ads
+    - library
+
+resources:
+  ads:
+    description: "Zero-auth public Meta Ad Library GraphQL surface (all commercial and political ads worldwide)"
+    base_url: "https://www.facebook.com"
+    endpoints:
+      search:
+        method: POST
+        path: "/api/graphql/"
+        mutation: false
+        no_auth: true
+        description: "Search public Meta ads globally by keyword, page ID, brand name, or Ad Library URL"
+        happy_args: "--query=nike;--country=US;--limit=5"
+        params:
+          - name: query
+            type: string
+            description: "Keyword search string"
+          - name: country
+            type: string
+            default: "US"
+            description: "ISO 3166-1 alpha-2 country code"
+          - name: limit
+            type: int
+            default: 20
+            description: "Maximum ads to return"
+      details:
+        method: POST
+        path: "/api/graphql/"
+        mutation: false
+        no_auth: true
+        description: "Fetch full ad details and EU/UK/BR transparency disclosures for a single ad"
+        happy_args: "ad=1550534860016399;--page-id=115939511520844;--country=US"
+        params:
+          - name: ad_id
+            type: string
+            description: "Numeric Meta Ad Library archive ID"
+          - name: page_id
+            type: string
+            description: "Numeric Facebook Page ID"
+  advertisers:
+    description: "Zero-auth public Meta Ad Library advertiser typeahead lookup"
+    base_url: "https://www.facebook.com"
+    endpoints:
+      search:
+        method: POST
+        path: "/api/graphql/"
+        mutation: false
+        no_auth: true
+        description: "Resolve a brand or advertiser name to its Facebook Page ID, likes, IG handle, and verification"
+        happy_args: "brand=Nike;--country=US;--limit=5"
+        params:
+          - name: query
+            type: string
+            description: "Brand or Facebook Page name"
+          - name: country
+            type: string
+            default: "US"
+            description: "ISO 3166-1 alpha-2 country code"
+  archive:
+    description: "Official Meta Ad Library Graph API v27.0 (ads_archive — political/issue ads globally and all EU/UK/BR ads; requires META_ACCESS_TOKEN)"
+    endpoints:
+      list:
+        method: GET
+        path: "/ads_archive"
+        description: "Query official Meta Ad Library Graph API v27.0 ads_archive for political/issue ads globally and all EU/UK/BR ads"
+        example: "  meta-ads-library-pp-cli archive list --ad-reached-countries '[\"DE\"]' --search-terms 'nike' --limit 10"
+        happy_args: "--ad-reached-countries=[\"DE\"];--search-terms=nike;--limit=5"
+        params:
+          - name: ad_reached_countries
+            type: string
+            required: true
+            description: "JSON array of ISO country codes or ALL (e.g. '[\"US\"]', '[\"DE\",\"FR\"]', '[\"ALL\"]'). Non-EU commercial ads only return if POLITICAL_AND_ISSUE_ADS."
+            example: "[\"DE\"]"
+          - name: search_terms
+            type: string
+            description: "Keywords to search in ad text, image text, video audio, and CTA (max 100 chars; space is logical AND)"
+            example: "nike"
+          - name: search_page_ids
+            type: string
+            description: "JSON array or comma-separated list of up to 10 Facebook Page IDs (e.g. '[\"15087023444\"]')"
+          - name: ad_type
+            type: string
+            default: "ALL"
+            enum: ["ALL", "POLITICAL_AND_ISSUE_ADS", "HOUSING_ADS", "EMPLOYMENT_ADS", "FINANCIAL_PRODUCTS_AND_SERVICES_ADS"]
+            description: "Ad category filter (ALL, POLITICAL_AND_ISSUE_ADS, HOUSING_ADS, EMPLOYMENT_ADS, FINANCIAL_PRODUCTS_AND_SERVICES_ADS)"
+          - name: ad_active_status
+            type: string
+            default: "ACTIVE"
+            enum: ["ACTIVE", "INACTIVE", "ALL"]
+            description: "Delivery eligibility status filter (ACTIVE, INACTIVE, ALL)"
+          - name: search_type
+            type: string
+            default: "KEYWORD_UNORDERED"
+            enum: ["KEYWORD_UNORDERED", "KEYWORD_EXACT_PHRASE"]
+            description: "Keyword matching mode (KEYWORD_UNORDERED or KEYWORD_EXACT_PHRASE)"
+          - name: media_type
+            type: string
+            enum: ["ALL", "IMAGE", "MEME", "VIDEO", "NONE"]
+            description: "Creative media type filter (ALL, IMAGE, MEME, VIDEO, NONE)"
+          - name: publisher_platforms
+            type: string
+            description: "JSON array or comma-separated Meta platforms (FACEBOOK, INSTAGRAM, AUDIENCE_NETWORK, MESSENGER, WHATSAPP, OCULUS, THREADS, STREAMING_SERVICES)"
+          - name: languages
+            type: string
+            description: "JSON array of ISO 639-1 language codes (e.g. '[\"en\",\"es\"]')"
+          - name: ad_delivery_date_min
+            type: string
+            description: "Return ads delivered on or after this UTC date (YYYY-MM-DD)"
+          - name: ad_delivery_date_max
+            type: string
+            description: "Return ads delivered on or before this UTC date (YYYY-MM-DD)"
+          - name: bylines
+            type: string
+            description: "JSON array of exact 'paid for by' disclaimer bylines (POLITICAL_AND_ISSUE_ADS only)"
+          - name: delivery_by_region
+            type: string
+            description: "JSON array of sub-country regions such as states or provinces (POLITICAL_AND_ISSUE_ADS only)"
+          - name: estimated_audience_size_min
+            type: int
+            description: "Minimum estimated audience boundary (100, 1000, 5000, 10000, 50000, 100000, 500000, 1000000; POLITICAL_AND_ISSUE_ADS only)"
+          - name: estimated_audience_size_max
+            type: int
+            description: "Maximum estimated audience boundary (1000, 5000, 10000, 50000, 100000, 500000, 1000000; POLITICAL_AND_ISSUE_ADS only)"
+          - name: unmask_removed_content
+            type: bool
+            description: "Reveal ad content removed for violating Meta standards"
+          - name: fields
+            type: string
+            default: "id,page_id,page_name,ad_creation_time,ad_delivery_start_time,ad_delivery_stop_time,ad_snapshot_url,ad_creative_bodies,ad_creative_link_titles,ad_creative_link_captions,ad_creative_link_descriptions,publisher_platforms,languages,bylines,currency,spend,impressions,eu_total_reach,target_ages,target_gender,target_locations,beneficiary_payers"
+            description: "Comma-separated ArchivedAd fields to request from Graph API"
+          - name: limit
+            type: int
+            default: 25
+            description: "Maximum archived ads per page (1-100)"
+          - name: after
+            type: string
+            description: "Graph API pagination cursor from previous response paging.cursors.after"
+        response:
+          type: array
+          item: ArchivedAd
+        response_path: data
+        pagination:
+          type: cursor
+          cursor_field: paging.cursors.after
+          cursor_param: after
+
+types:
+  ArchivedAd:
+    fields:
+      - name: id
+        type: string
+        description: "Meta Ad Library archive ID"
+      - name: page_id
+        type: string
+        description: "Facebook Page ID of the advertiser"
+      - name: page_name
+        type: string
+        description: "Display name of the advertiser page"
+      - name: ad_creation_time
+        type: string
+        description: "UTC ISO-8601 creation timestamp"
+      - name: ad_delivery_start_time
+        type: string
+        description: "UTC ISO-8601 delivery start timestamp"
+      - name: ad_delivery_stop_time
+        type: string
+        description: "UTC ISO-8601 delivery stop timestamp (empty if still active)"
+      - name: ad_snapshot_url
+        type: string
+        description: "Official Meta Ad Library snapshot render URL"
+      - name: ad_creative_bodies
+        type: array
+        description: "Primary ad copy texts across creative cards"
+      - name: ad_creative_link_titles
+        type: array
+        description: "Link headline titles across creative cards"
+      - name: ad_creative_link_captions
+        type: array
+        description: "Link captions in call-to-action sections"
+      - name: ad_creative_link_descriptions
+        type: array
+        description: "Link descriptions accompanying outbound links"
+      - name: publisher_platforms
+        type: array
+        description: "Meta platforms where the ad ran"
+      - name: languages
+        type: array
+        description: "ISO 639-1 language codes detected in the ad"
+      - name: bylines
+        type: string
+        description: "Paid-for-by disclaimer byline (political/issue ads)"
+      - name: currency
+        type: string
+        description: "ISO currency code for spend ranges"
+      - name: eu_total_reach
+        type: int
+        description: "Estimated combined reach across the European Union"
+      - name: br_total_reach
+        type: int
+        description: "Estimated reach in Brazil (political/issue ads)"
+      - name: target_gender
+        type: string
+        description: "Targeted gender in EU/UK/BR (Women, Men, All)"

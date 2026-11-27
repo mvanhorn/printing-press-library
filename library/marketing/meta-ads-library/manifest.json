@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "meta-ads-library-pp-mcp",
+  "display_name": "Meta Ads Library",
+  "version": "0.1.0",
+  "description": "Every public Meta ad worldwide from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/meta-ads-library-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/meta-ads-library-pp-mcp",
+      "args": [],
+      "env": {
+        "FACEBOOK_ACCESS_TOKEN": "${user_config.facebook_access_token}",
+        "META_ACCESS_TOKEN": "${user_config.meta_access_token}",
+        "META_ADS_ARCHIVE_TOKEN": "${user_config.meta_ads_archive_token}"
+      }
+    }
+  },
+  "user_config": {
+    "facebook_access_token": {
+      "type": "string",
+      "title": "FACEBOOK_ACCESS_TOKEN",
+      "description": "Sets FACEBOOK_ACCESS_TOKEN for the Meta Ads Library MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "meta_access_token": {
+      "type": "string",
+      "title": "META_ACCESS_TOKEN",
+      "description": "Sets META_ACCESS_TOKEN for the Meta Ads Library MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "meta_ads_archive_token": {
+      "type": "string",
+      "title": "META_ADS_ARCHIVE_TOKEN",
+      "description": "Sets META_ADS_ARCHIVE_TOKEN for the Meta Ads Library MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

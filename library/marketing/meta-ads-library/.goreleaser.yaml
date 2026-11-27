@@ -1,0 +1,55 @@
+version: 2
+project_name: meta-ads-library-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: meta-ads-library-pp-cli
+    main: ./cmd/meta-ads-library-pp-cli
+    binary: meta-ads-library-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/meta-ads-library/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: meta-ads-library-pp-mcp
+    main: ./cmd/meta-ads-library-pp-mcp
+    binary: meta-ads-library-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: meta-ads-library-pp-cli
+    repository:
+      owner: bobeglz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every public Meta ad worldwide from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence."
+    install: |
+      bin.install "meta-ads-library-pp-cli"
+      bin.install "meta-ads-library-pp-mcp"

@@ -1,0 +1,259 @@
+{
+  "api_name": "meta-ads-library",
+  "base_url": "https://graph.facebook.com/v27.0",
+  "description": "Active public Meta ads worldwide (plus EU/UK/BR and political archives) from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "access_token",
+    "in": "query",
+    "env_vars": [
+      "META_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "META_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "ads_details",
+      "description": "Fetch full ad details and EU/UK/BR transparency disclosures for a single ad. Optional: ad_id, page_id.",
+      "method": "POST",
+      "path": "/api/graphql/",
+      "base_url": "https://www.facebook.com",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ad_id",
+          "type": "string",
+          "location": "body",
+          "description": "Numeric Meta Ad Library archive ID"
+        },
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "body",
+          "description": "Numeric Facebook Page ID"
+        }
+      ]
+    },
+    {
+      "name": "ads_search",
+      "description": "Search public Meta ads globally by keyword, page ID, brand name, or Ad Library URL. Optional: query, country (default: US), limit (default: 20).",
+      "method": "POST",
+      "path": "/api/graphql/",
+      "base_url": "https://www.facebook.com",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Keyword search string"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 3166-1 alpha-2 country code"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum ads to return"
+        }
+      ]
+    },
+    {
+      "name": "advertisers_search",
+      "description": "Resolve a brand or advertiser name to its Facebook Page ID, likes, IG handle, and verification. Optional: query, country (default: US).",
+      "method": "POST",
+      "path": "/api/graphql/",
+      "base_url": "https://www.facebook.com",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Brand or Facebook Page name"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 3166-1 alpha-2 country code"
+        }
+      ]
+    },
+    {
+      "name": "archive_list",
+      "description": "Query official Meta Ad Library Graph API v27.0 ads_archive for political/issue ads globally and all EU/UK/BR ads. Required: ad_reached_countries. Optional: search_terms, search_page_ids, ad_type (default: ALL) (plus 15 more). Returns array of ArchivedAd. (requires API key)",
+      "method": "GET",
+      "path": "/ads_archive",
+      "params": [
+        {
+          "name": "ad_reached_countries",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of ISO country codes or ALL (e.g. '['US']', '['DE','FR']', '['ALL']'). Non-EU commercial ads only return if POLITICAL_AND_ISSUE_ADS.",
+          "required": true
+        },
+        {
+          "name": "search_terms",
+          "type": "string",
+          "location": "query",
+          "description": "Keywords to search in ad text, image text, video audio, and CTA (max 100 chars; space is logical AND)"
+        },
+        {
+          "name": "search_page_ids",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array or comma-separated list of up to 10 Facebook Page IDs (e.g. '['15087023444']')"
+        },
+        {
+          "name": "ad_type",
+          "type": "string",
+          "location": "query",
+          "description": "Ad category filter (ALL, POLITICAL_AND_ISSUE_ADS, HOUSING_ADS, EMPLOYMENT_ADS, FINANCIAL_PRODUCTS_AND_SERVICES_ADS)"
+        },
+        {
+          "name": "ad_active_status",
+          "type": "string",
+          "location": "query",
+          "description": "Delivery eligibility status filter (ACTIVE, INACTIVE, ALL)"
+        },
+        {
+          "name": "search_type",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword matching mode (KEYWORD_UNORDERED or KEYWORD_EXACT_PHRASE)"
+        },
+        {
+          "name": "media_type",
+          "type": "string",
+          "location": "query",
+          "description": "Creative media type filter (ALL, IMAGE, MEME, VIDEO, NONE)"
+        },
+        {
+          "name": "publisher_platforms",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array or comma-separated Meta platforms (FACEBOOK, INSTAGRAM, AUDIENCE_NETWORK, MESSENGER, WHATSAPP, OCULUS, THREADS, STREAMING_SERVICES)"
+        },
+        {
+          "name": "languages",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of ISO 639-1 language codes (e.g. '['en','es']')"
+        },
+        {
+          "name": "ad_delivery_date_min",
+          "type": "string",
+          "location": "query",
+          "description": "Return ads delivered on or after this UTC date (YYYY-MM-DD)"
+        },
+        {
+          "name": "ad_delivery_date_max",
+          "type": "string",
+          "location": "query",
+          "description": "Return ads delivered on or before this UTC date (YYYY-MM-DD)"
+        },
+        {
+          "name": "bylines",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of exact 'paid for by' disclaimer bylines (POLITICAL_AND_ISSUE_ADS only)"
+        },
+        {
+          "name": "delivery_by_region",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of sub-country regions such as states or provinces (POLITICAL_AND_ISSUE_ADS only)"
+        },
+        {
+          "name": "estimated_audience_size_min",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum estimated audience boundary (100, 1000, 5000, 10000, 50000, 100000, 500000, 1000000; POLITICAL_AND_ISSUE_ADS only)"
+        },
+        {
+          "name": "estimated_audience_size_max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum estimated audience boundary (1000, 5000, 10000, 50000, 100000, 500000, 1000000; POLITICAL_AND_ISSUE_ADS only)"
+        },
+        {
+          "name": "unmask_removed_content",
+          "type": "bool",
+          "location": "query",
+          "description": "Reveal ad content removed for violating Meta standards"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated ArchivedAd fields to request from Graph API"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum archived ads per page (1-100)"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Graph API pagination cursor from previous response paging.cursors.after"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Winner \u0026 longevity leaderboard",
+      "command": "winners",
+      "description": "Rank active ads by proven longevity (days running), collation scale, and platform breadth."
+    },
+    {
+      "name": "Advertiser snapshot diff",
+      "command": "diff",
+      "description": "See exactly which ads an advertiser launched, stopped, or scaled between timestamped snapshots."
+    },
+    {
+      "name": "Side-by-side competitor benchmark",
+      "command": "compare",
+      "description": "Benchmark multiple advertisers side by side on active volume, median age, format mix, platforms, CTAs, and refresh velocity."
+    },
+    {
+      "name": "Landing page \u0026 funnel mapper",
+      "command": "funnels",
+      "description": "Group active ads by unwrapped destination domain, URL path, and UTM parameters including carousel cards."
+    },
+    {
+      "name": "EU/UK/Political transparency \u0026 beneficiary audit",
+      "command": "transparency",
+      "description": "Roll up EU/UK/BR reach, age-gender breakdowns, beneficiary/payer pairs, spend brackets, and violation flags per advertiser or byline."
+    },
+    {
+      "name": "Keyword share-of-voice leaderboard",
+      "command": "sov",
+      "description": "Rank which advertisers dominate a category keyword by active ad count, collation-weighted volume, dominant format, and median longevity."
+    },
+    {
+      "name": "Creative hook \u0026 copy pattern teardown",
+      "command": "hooks",
+      "description": "Extract, deduplicate, and rank opening copy hooks, headlines, and CTAs weighted by collation count and longevity."
+    }
+  ]
+}

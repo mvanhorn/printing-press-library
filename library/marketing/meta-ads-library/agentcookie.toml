@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "meta-ads-library-pp-cli"
+display_name = "Meta Ads Library"
+description = "Every public Meta ad worldwide from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/meta-ads-library-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+META_ACCESS_TOKEN = true

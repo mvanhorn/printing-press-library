@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/meta-ads-library-pp-cli
+/meta-ads-library-pp-cli.exe
+/meta-ads-library-pp-mcp
+/meta-ads-library-pp-mcp.exe
+/bin/
+/build/
+/dist/

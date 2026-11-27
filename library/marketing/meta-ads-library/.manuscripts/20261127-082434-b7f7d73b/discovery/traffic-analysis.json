@@ -1,0 +1,32 @@
+{
+  "api_name": "meta-ads-library",
+  "captured_at": "2026-11-27T14:32:07Z",
+  "hosts": [
+    "www.facebook.com",
+    "graph.facebook.com"
+  ],
+  "reachability": {
+    "mode": "standard_http",
+    "rationale": "Anonymous homepage bootstrap on https://www.facebook.com/ returns HTTP 200 with lsd/cookies, unlocking POST https://www.facebook.com/api/graphql/ (HTTP 200) for all 3 public Ad Library queries; https://graph.facebook.com/v27.0/ads_archive is directly reachable over standard HTTP."
+  },
+  "endpoint_clusters": [
+    {
+      "method": "GET",
+      "url": "https://www.facebook.com/",
+      "status": 200,
+      "observed_auth": []
+    },
+    {
+      "method": "POST",
+      "url": "https://www.facebook.com/api/graphql/",
+      "status": 200,
+      "observed_auth": []
+    },
+    {
+      "method": "GET",
+      "url": "https://graph.facebook.com/v27.0/ads_archive",
+      "status": 400,
+      "observed_auth": ["access_token"]
+    }
+  ]
+}
