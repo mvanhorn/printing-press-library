@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "granola",
   "cli_name": "granola-pp-cli",
-  "version": "2026.10.1",
-  "released_at": "2026-10-01T21:59:12Z",
-  "source_commit": "ca3ca3412fe6c03df3513dc66adacf20e8f8f4c6",
+  "version": "2026.11.1",
+  "released_at": "2026-11-27T09:54:18Z",
+  "source_commit": "b033d1686fae243cdad774f9a088c42ae0031672",
   "printing_press_version": "4.4.0",
   "run_id": "20260511-211333",
   "changes": [
     {
-      "title": "Harden Granola pacing and API note reconciliation",
-      "pr": 2155,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2155",
-      "commit": "ca3ca3412fe6c03df3513dc66adacf20e8f8f4c6"
+      "title": "feat(granola): bump client version to 7.867.0, add backend shard routing, and expose 10 internal endpoints",
+      "pr": 2496,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2496",
+      "commit": "b033d1686fae243cdad774f9a088c42ae0031672"
     }
   ]
 }

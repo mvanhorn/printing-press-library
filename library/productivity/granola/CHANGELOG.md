@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-27
+
+- feat(granola): bump client version to 7.867.0, add backend shard routing, and expose 10 internal endpoints (#2496).
+
 ## 2026.10.1 - 2026-10-01
 
 - Harden Granola pacing and API note reconciliation (#2155).

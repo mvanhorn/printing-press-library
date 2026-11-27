@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "slack",
   "cli_name": "slack-pp-cli",
-  "version": "2026.10.4",
-  "released_at": "2026-10-23T14:24:31Z",
-  "source_commit": "ec9c86e0eb3a3cba12a001972231bbefa5d8ada3",
+  "version": "2026.11.1",
+  "released_at": "2026-11-27T09:54:18Z",
+  "source_commit": "5792bae4363be34dddc5071e6892c77d48d031c9",
   "printing_press_version": "4.29.0",
   "run_id": "20260801-150754-271fdf29",
   "changes": [
     {
-      "title": "fix(library): refresh CLIs to printing-press v4.33.10 (MCP upload input handling and share command hardening)",
-      "pr": 2370,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2370",
-      "commit": "ec9c86e0eb3a3cba12a001972231bbefa5d8ada3"
+      "title": "feat(slack): add bookmarks, search files/all, team/auth endpoints, and opt-in web-client RPC commands",
+      "pr": 2497,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2497",
+      "commit": "5792bae4363be34dddc5071e6892c77d48d031c9"
     }
   ]
 }

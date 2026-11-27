@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.11.1 - 2026-11-27
+
+- feat(slack): add bookmarks, search files/all, team/auth endpoints, and opt-in web-client RPC commands (#2497).
+
 ## 2026.10.4 - 2026-10-23
 
 - fix(library): refresh CLIs to printing-press v4.33.10 (MCP upload input handling and share command hardening) (#2370).
