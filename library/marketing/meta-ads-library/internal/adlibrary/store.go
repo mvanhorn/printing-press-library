@@ -166,6 +166,22 @@ type mirrorRow struct {
 	raw json.RawMessage
 }
 
+const utcTimestampLayout = "2006-01-02T15:04:05.000000Z"
+
+func parseStoredTimestamp(raw string) (time.Time, bool) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return time.Time{}, false
+	}
+	if ts, err := time.Parse(time.RFC3339Nano, raw); err == nil {
+		return ts.UTC(), true
+	}
+	if ts, err := time.Parse(time.RFC3339, raw); err == nil {
+		return ts.UTC(), true
+	}
+	return time.Time{}, false
+}
+
 // SaveAdsBatch persists normalized Ad rows into meta_ads (in one transaction)
 // and then mirrors them into the framework resources/FTS5 store outside the
 // transaction to avoid nested SQLite WAL write locks.
@@ -177,7 +193,7 @@ func SaveAdsBatch(ctx context.Context, s *store.Store, ads []Ad) error {
 		return err
 	}
 
-	nowStr := time.Now().UTC().Format(time.RFC3339)
+	nowStr := time.Now().UTC().Format(utcTimestampLayout)
 	tx, err := s.DB().BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("begin meta_ads tx: %w", err)
@@ -453,9 +469,15 @@ func RecordSnapshot(ctx context.Context, s *store.Store, pageID, pageName, count
 
 // ReconcilePageActiveAds marks previously active ads for (pageID, country) that
 // are absent from a complete fresh active page scan as inactive in both
-// meta_ads columns and raw_json, then mirrors the updated rows into the
-// framework store so local rankings stop counting stopped ads.
-func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country string, activeAds []Ad, capturedAt time.Time) (int, error) {
+// meta_ads columns and raw_json, then mirrors only the rows still inactive into
+// the framework store.
+//
+// Concurrency safety: the candidate read and conditional updates execute inside
+// a single BEGIN IMMEDIATE write transaction, rows refreshed after scanTime are
+// skipped, every UPDATE verifies is_active=1 and matching collected_at/raw_json,
+// and post-commit framework mirroring re-verifies that no newer write replaced
+// the row before calling Upsert.
+func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country string, activeAds []Ad, scanTime time.Time) (int, error) {
 	pageID = strings.TrimSpace(pageID)
 	if pageID == "" {
 		return 0, nil
@@ -463,8 +485,10 @@ func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country
 	if err := EnsureSchema(ctx, s); err != nil {
 		return 0, err
 	}
-	if capturedAt.IsZero() {
-		capturedAt = time.Now().UTC()
+	if scanTime.IsZero() {
+		scanTime = time.Now().UTC()
+	} else {
+		scanTime = scanTime.UTC()
 	}
 	normCountry := normalizeCountry(country)
 	activeSet := make(map[string]bool, len(activeAds))
@@ -474,17 +498,32 @@ func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country
 		}
 	}
 
+	conn, err := s.DB().Conn(ctx)
+	if err != nil {
+		return 0, err
+	}
+	defer func() { _ = conn.Close() }()
+
+	if _, err := conn.ExecContext(ctx, "BEGIN IMMEDIATE"); err != nil {
+		return 0, err
+	}
+	committed := false
+	defer func() {
+		if !committed {
+			_, _ = conn.ExecContext(context.Background(), "ROLLBACK")
+		}
+	}()
+
 	var rows *sql.Rows
-	var err error
 	if normCountry == "ALL" {
-		rows, err = s.DB().QueryContext(ctx, `
-			SELECT ad_archive_id, raw_json
+		rows, err = conn.QueryContext(ctx, `
+			SELECT ad_archive_id, raw_json, COALESCE(collected_at, '')
 			FROM meta_ads
 			WHERE page_id = ? AND is_active = 1
 		`, pageID)
 	} else {
-		rows, err = s.DB().QueryContext(ctx, `
-			SELECT ad_archive_id, raw_json
+		rows, err = conn.QueryContext(ctx, `
+			SELECT ad_archive_id, raw_json, COALESCE(collected_at, '')
 			FROM meta_ads
 			WHERE page_id = ? AND is_active = 1 AND UPPER(COALESCE(country, '')) = UPPER(?)
 		`, pageID, normCountry)
@@ -493,19 +532,25 @@ func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country
 		return 0, err
 	}
 	type staleRow struct {
-		id  string
-		raw string
+		id          string
+		raw         string
+		collectedAt string
 	}
 	var stale []staleRow
 	for rows.Next() {
 		var sr staleRow
-		if err := rows.Scan(&sr.id, &sr.raw); err != nil {
+		if err := rows.Scan(&sr.id, &sr.raw, &sr.collectedAt); err != nil {
 			_ = rows.Close()
 			return 0, err
 		}
-		if !activeSet[sr.id] {
-			stale = append(stale, sr)
+		if activeSet[sr.id] {
+			continue
 		}
+		if rowTime, ok := parseStoredTimestamp(sr.collectedAt); ok && rowTime.After(scanTime) {
+			// Observed active by another command after this scan started; do not overwrite.
+			continue
+		}
+		stale = append(stale, sr)
 	}
 	if err := rows.Err(); err != nil {
 		_ = rows.Close()
@@ -514,25 +559,45 @@ func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country
 	_ = rows.Close()
 
 	if len(stale) == 0 {
+		if _, err := conn.ExecContext(ctx, "COMMIT"); err != nil {
+			return 0, err
+		}
+		committed = true
 		return 0, nil
 	}
 
-	nowStr := capturedAt.UTC().Format(time.RFC3339)
+	scanStr := scanTime.Format(utcTimestampLayout)
 	toMirror := make([]mirrorRow, 0, len(stale))
-	tx, err := s.DB().BeginTx(ctx, nil)
-	if err != nil {
-		return 0, err
+	var stmt *sql.Stmt
+	if normCountry == "ALL" {
+		stmt, err = conn.PrepareContext(ctx, `
+			UPDATE meta_ads
+			SET is_active = 0,
+			    end_date = COALESCE(NULLIF(end_date, ''), ?),
+			    raw_json = ?,
+			    collected_at = ?
+			WHERE ad_archive_id = ?
+			  AND page_id = ?
+			  AND is_active = 1
+			  AND COALESCE(collected_at, '') = ?
+			  AND raw_json = ?
+		`)
+	} else {
+		stmt, err = conn.PrepareContext(ctx, `
+			UPDATE meta_ads
+			SET is_active = 0,
+			    end_date = COALESCE(NULLIF(end_date, ''), ?),
+			    raw_json = ?,
+			    collected_at = ?
+			WHERE ad_archive_id = ?
+			  AND page_id = ?
+			  AND is_active = 1
+			  AND UPPER(COALESCE(country, '')) = UPPER(?)
+			  AND COALESCE(collected_at, '') = ?
+			  AND raw_json = ?
+		`)
 	}
-	stmt, err := tx.PrepareContext(ctx, `
-		UPDATE meta_ads
-		SET is_active = 0,
-		    end_date = COALESCE(NULLIF(end_date, ''), ?),
-		    raw_json = ?,
-		    collected_at = ?
-		WHERE ad_archive_id = ?
-	`)
 	if err != nil {
-		_ = tx.Rollback()
 		return 0, err
 	}
 	for _, sr := range stale {
@@ -541,32 +606,54 @@ func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country
 		if err := json.Unmarshal([]byte(sr.raw), &ad); err == nil {
 			ad.IsActive = false
 			if ad.EndDate == "" {
-				ad.EndDate = nowStr
+				ad.EndDate = scanStr
 			}
-			ad.DaysRunning = ComputeDaysRunning(ad.StartDate, ad.EndDate, false, capturedAt)
-			ad.CollectedAt = nowStr
+			ad.DaysRunning = ComputeDaysRunning(ad.StartDate, ad.EndDate, false, scanTime)
+			ad.CollectedAt = scanStr
 			if marshaled, mErr := json.Marshal(ad); mErr == nil {
 				updatedRaw = marshaled
 			}
 		}
-		if _, err := stmt.ExecContext(ctx, nowStr, string(updatedRaw), nowStr, sr.id); err != nil {
+		var res sql.Result
+		if normCountry == "ALL" {
+			res, err = stmt.ExecContext(ctx, scanStr, string(updatedRaw), scanStr, sr.id, pageID, sr.collectedAt, sr.raw)
+		} else {
+			res, err = stmt.ExecContext(ctx, scanStr, string(updatedRaw), scanStr, sr.id, pageID, normCountry, sr.collectedAt, sr.raw)
+		}
+		if err != nil {
 			_ = stmt.Close()
-			_ = tx.Rollback()
 			return 0, err
 		}
-		toMirror = append(toMirror, mirrorRow{id: sr.id, raw: updatedRaw})
-	}
-	_ = stmt.Close()
-	if err := tx.Commit(); err != nil {
-		return 0, err
-	}
-
-	for _, item := range toMirror {
-		if err := s.Upsert("ads", item.id, item.raw); err != nil {
-			return len(toMirror), fmt.Errorf("mirror inactive ad %s into framework store: %w", item.id, err)
+		affected, affErr := res.RowsAffected()
+		if affErr == nil && affected > 0 {
+			toMirror = append(toMirror, mirrorRow{id: sr.id, raw: updatedRaw})
 		}
 	}
-	return len(toMirror), nil
+	_ = stmt.Close()
+	if _, err := conn.ExecContext(ctx, "COMMIT"); err != nil {
+		return 0, err
+	}
+	committed = true
+
+	mirrored := 0
+	for _, item := range toMirror {
+		var curActive int
+		var curCollected string
+		checkErr := s.DB().QueryRowContext(ctx, `
+			SELECT is_active, COALESCE(collected_at, '')
+			FROM meta_ads
+			WHERE ad_archive_id = ?
+		`, item.id).Scan(&curActive, &curCollected)
+		if checkErr != nil || curActive != 0 || curCollected != scanStr {
+			// A newer write updated this ad after commit; skip mirroring stale inactive copy.
+			continue
+		}
+		if err := s.Upsert("ads", item.id, item.raw); err != nil {
+			return mirrored, fmt.Errorf("mirror inactive ad %s into framework store: %w", item.id, err)
+		}
+		mirrored++
+	}
+	return mirrored, nil
 }
 
 // ResolvePageID maps either a numeric Facebook Page ID or a case-insensitive

@@ -531,6 +531,8 @@ func (c *Client) SearchAds(ctx context.Context, params SearchParams) (SearchResu
 	var totalCount int
 	pagesRead := 0
 	truncatedByLimit := false
+	hadGraphQLErrors := false
+	lastPageExplicitEnd := false
 
 	if err := c.ensureSession(ctx); err != nil {
 		return SearchResult{}, err
@@ -601,13 +603,35 @@ func (c *Client) SearchAds(ctx context.Context, params SearchParams) (SearchResu
 			return SearchResult{}, err
 		}
 
+		gqlCode, gqlMsg, _, _ := inspectGraphQLErrors(raw)
+		if gqlCode != 0 || gqlMsg != "" {
+			hadGraphQLErrors = true
+		}
+
+		pageAds, pageNext, pageHasNext, explicitEnd, pageTotal, validConn := parseSearchResponseValidated(raw, country, adType, time.Now().UTC())
+		if !validConn {
+			if gqlCode != 0 {
+				return SearchResult{}, fmt.Errorf("Meta GraphQL AdLibrarySearchPaginationQuery missing search_results_connection (error %d: %s)", gqlCode, gqlMsg)
+			}
+			if gqlMsg != "" {
+				return SearchResult{}, fmt.Errorf("Meta GraphQL AdLibrarySearchPaginationQuery missing search_results_connection (%s)", gqlMsg)
+			}
+			return SearchResult{}, fmt.Errorf("Meta GraphQL AdLibrarySearchPaginationQuery returned missing or malformed search_results_connection")
+		}
+		if (gqlCode != 0 || gqlMsg != "") && len(pageAds) == 0 {
+			if gqlCode != 0 {
+				return SearchResult{}, fmt.Errorf("Meta GraphQL AdLibrarySearchPaginationQuery error %d: %s", gqlCode, gqlMsg)
+			}
+			return SearchResult{}, fmt.Errorf("Meta GraphQL AdLibrarySearchPaginationQuery error: %s", gqlMsg)
+		}
+
 		pagesRead++
-		pageAds, pageNext, pageHasNext, pageTotal := ParseSearchResponse(raw, country, adType, time.Now().UTC())
 		if pageTotal > 0 && totalCount == 0 {
 			totalCount = pageTotal
 		}
 		nextCursor = pageNext
 		hasNext = pageHasNext
+		lastPageExplicitEnd = explicitEnd
 
 		for idx, ad := range pageAds {
 			if params.MinCollation > 0 && ad.CollationCount < params.MinCollation {
@@ -641,11 +665,12 @@ func (c *Client) SearchAds(ctx context.Context, params SearchParams) (SearchResu
 	if allAds == nil {
 		allAds = make([]Ad, 0)
 	}
+	isComplete := pagesRead > 0 && lastPageExplicitEnd && !hasNext && !truncatedByLimit && !hadGraphQLErrors
 	return SearchResult{
 		Ads:         allAds,
 		NextCursor:  nextCursor,
 		HasNextPage: hasNext,
-		IsComplete:  !hasNext && !truncatedByLimit,
+		IsComplete:  isComplete,
 		TotalCount:  totalCount,
 		PagesRead:   pagesRead,
 	}, nil
@@ -913,16 +938,33 @@ func ParseTypeaheadResponse(raw map[string]any, country string) []Advertiser {
 // ParseSearchResponse extracts normalized Ad rows and pagination metadata from
 // an AdLibrarySearchPaginationQuery response.
 func ParseSearchResponse(raw map[string]any, country, adType string, now time.Time) (ads []Ad, nextCursor string, hasNext bool, totalCount int) {
+	ads, nextCursor, hasNext, _, totalCount, _ = parseSearchResponseValidated(raw, country, adType, now)
+	return ads, nextCursor, hasNext, totalCount
+}
+
+func parseSearchResponseValidated(raw map[string]any, country, adType string, now time.Time) (ads []Ad, nextCursor string, hasNext bool, hasExplicitEnd bool, totalCount int, validConn bool) {
 	ads = make([]Ad, 0)
 	main := asMap(asMap(raw["data"])["ad_library_main"])
 	conn := asMap(main["search_results_connection"])
+	if len(conn) == 0 {
+		return ads, "", false, false, 0, false
+	}
+	edges, edgesOK := conn["edges"].([]any)
+	if !edgesOK {
+		return ads, "", false, false, 0, false
+	}
+	validConn = true
 	totalCount = int(asInt64(conn["count"]))
 	pageInfo := asMap(conn["page_info"])
 	nextCursor = asString(pageInfo["end_cursor"])
-	hasNext = asBool(pageInfo["has_next_page"])
+	if hn, ok := pageInfo["has_next_page"].(bool); ok {
+		hasNext = hn
+		hasExplicitEnd = !hn
+	} else {
+		hasNext = asBool(pageInfo["has_next_page"])
+	}
 
-	edges, _ := conn["edges"].([]any)
-	collectedAt := now.UTC().Format(time.RFC3339)
+	collectedAt := now.UTC().Format(utcTimestampLayout)
 	for _, e := range edges {
 		node := asMap(asMap(e)["node"])
 		collated, _ := node["collated_results"].([]any)
@@ -934,7 +976,7 @@ func ParseSearchResponse(raw map[string]any, country, adType string, now time.Ti
 			}
 		}
 	}
-	return ads, nextCursor, hasNext, totalCount
+	return ads, nextCursor, hasNext, hasExplicitEnd, totalCount, validConn
 }
 
 func normalizeGraphQLAd(row map[string]any, country, adType string, now time.Time, collectedAt string) Ad {

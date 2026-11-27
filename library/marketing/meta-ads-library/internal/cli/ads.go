@@ -234,6 +234,7 @@ Automatically unwraps l.facebook.com redirect links into clean landing URLs and 
 				}
 			}
 
+			scanStartedAt := time.Now().UTC()
 			result, err := client.SearchAds(ctx, params)
 			if err != nil {
 				return classifyAdLibraryErr(cmd, flags, err)
@@ -274,7 +275,7 @@ Automatically unwraps l.facebook.com redirect links into clean landing URLs and 
 							fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to record snapshot: %v\n", snapErr)
 						}
 						if result.IsComplete {
-							if _, reconErr := adlibrary.ReconcilePageActiveAds(ctx, db, params.PageIDs[0], params.Country, result.Ads, capturedAt); reconErr != nil {
+							if _, reconErr := adlibrary.ReconcilePageActiveAds(ctx, db, params.PageIDs[0], params.Country, result.Ads, scanStartedAt); reconErr != nil {
 								fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to reconcile active ads: %v\n", reconErr)
 							}
 						}

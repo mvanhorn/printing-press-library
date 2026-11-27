@@ -110,6 +110,7 @@ Do NOT use this command to rank longest-running evergreen ads (use 'winners') or
 					pageID = top.PageID
 					pageName = top.PageName
 				}
+				scanStartedAt := time.Now().UTC()
 				sr, err := client.SearchAds(ctx, adlibrary.SearchParams{
 					PageIDs:      []string{pageID},
 					Country:      country,
@@ -143,7 +144,7 @@ Do NOT use this command to rank longest-running evergreen ads (use 'winners') or
 					return err
 				}
 				if sr.IsComplete {
-					if _, err := adlibrary.ReconcilePageActiveAds(ctx, db, pageID, country, sr.Ads, capturedAt); err != nil {
+					if _, err := adlibrary.ReconcilePageActiveAds(ctx, db, pageID, country, sr.Ads, scanStartedAt); err != nil {
 						_ = db.Close()
 						return err
 					}

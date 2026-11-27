@@ -429,12 +429,13 @@ func TestGreptileFixesSnapshotsReconcileAndAtomicDownload(t *testing.T) {
 	}
 	defer s.Close()
 
+	earlier := now.Add(-3 * time.Hour).Format(utcTimestampLayout)
 	usAds := []Ad{
-		{AdArchiveID: "us_1", PageID: "100", PageName: "Acme", Country: "US", IsActive: true, CollationCount: 4, StartDate: now.Add(-40 * 24 * time.Hour).Format(time.RFC3339)},
-		{AdArchiveID: "us_2", PageID: "100", PageName: "Acme", Country: "US", IsActive: true, CollationCount: 2, StartDate: now.Add(-20 * 24 * time.Hour).Format(time.RFC3339)},
+		{AdArchiveID: "us_1", PageID: "100", PageName: "Acme", Country: "US", IsActive: true, CollationCount: 4, StartDate: now.Add(-40 * 24 * time.Hour).Format(time.RFC3339), CollectedAt: earlier},
+		{AdArchiveID: "us_2", PageID: "100", PageName: "Acme", Country: "US", IsActive: true, CollationCount: 2, StartDate: now.Add(-20 * 24 * time.Hour).Format(time.RFC3339), CollectedAt: earlier},
 	}
 	deAds := []Ad{
-		{AdArchiveID: "de_1", PageID: "100", PageName: "Acme", Country: "DE", IsActive: true, CollationCount: 3, StartDate: now.Add(-10 * 24 * time.Hour).Format(time.RFC3339)},
+		{AdArchiveID: "de_1", PageID: "100", PageName: "Acme", Country: "DE", IsActive: true, CollationCount: 3, StartDate: now.Add(-10 * 24 * time.Hour).Format(time.RFC3339), CollectedAt: earlier},
 	}
 	if err := SaveAdsBatch(ctx, s, append(append([]Ad(nil), usAds...), deAds...)); err != nil {
 		t.Fatalf("SaveAdsBatch: %v", err)
@@ -556,5 +557,94 @@ func TestGreptileFixesSnapshotsReconcileAndAtomicDownload(t *testing.T) {
 	gotBytes, err := os.ReadFile(rep2.Files[0].LocalPath)
 	if err != nil || string(gotBytes) != "complete-image-bytes" {
 		t.Fatalf("unexpected final file content at %s: %q (err=%v)", rep2.Files[0].LocalPath, string(gotBytes), err)
+	}
+}
+
+func TestSearchConnectionValidationAndConcurrentReconciliation(t *testing.T) {
+	ctx := context.Background()
+
+	// 1. Non-empty data with null search_results_connection + errors must fail (never report complete empty scan).
+	var mode atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			_, _ = w.Write([]byte(`["LSD",[],{"token":"tok"}]`))
+			return
+		}
+		switch mode.Load() {
+		case 0:
+			// GraphQL error with non-empty data object and null search_results_connection.
+			_, _ = w.Write([]byte(`for (;;);{"data":{"ad_library_main":{"search_results_connection":null}},"errors":[{"message":"partial backend failure"}]}`))
+		case 1:
+			// Valid empty edges, but page_info omits has_next_page -> must NOT mark IsComplete=true.
+			_, _ = w.Write([]byte(`for (;;);{"data":{"ad_library_main":{"search_results_connection":{"count":0,"page_info":{},"edges":[]}}}}`))
+		case 2:
+			// Non-empty connection with GraphQL errors -> partial result, IsComplete=false.
+			_, _ = w.Write([]byte(`for (;;);{"data":{"ad_library_main":{"search_results_connection":{"count":1,"page_info":{"has_next_page":false,"end_cursor":""},"edges":[{"node":{"collated_results":[{"ad_archive_id":"err_ad_1","collation_count":1,"page_id":"900","page_name":"ErrCo","is_active":true,"start_date":1735689600,"snapshot":{"display_format":"IMAGE","body":{"text":"hi"}}}]}}]}}},"errors":[{"message":"downstream warning"}]}`))
+		}
+	}))
+	defer srv.Close()
+
+	c := NewClient(WithBaseURL(srv.URL), WithHTTPClient(srv.Client()), WithRateLimit(100))
+	c.maxRetries = 0
+
+	mode.Store(0)
+	if _, err := c.SearchAds(ctx, SearchParams{PageIDs: []string{"900"}, Country: "US", MaxPages: 1}); err == nil {
+		t.Fatalf("expected error when search_results_connection is null with GraphQL errors")
+	}
+
+	mode.Store(1)
+	sr1, err := c.SearchAds(ctx, SearchParams{PageIDs: []string{"900"}, Country: "US", MaxPages: 1})
+	if err != nil {
+		t.Fatalf("unexpected error for missing has_next_page: %v", err)
+	}
+	if sr1.IsComplete {
+		t.Fatalf("expected IsComplete=false when page_info.has_next_page is absent, got %+v", sr1)
+	}
+
+	mode.Store(2)
+	sr2, err := c.SearchAds(ctx, SearchParams{PageIDs: []string{"900"}, Country: "US", MaxPages: 1})
+	if err != nil {
+		t.Fatalf("unexpected error for partial data with errors: %v", err)
+	}
+	if sr2.IsComplete || len(sr2.Ads) != 1 {
+		t.Fatalf("expected partial result with IsComplete=false when GraphQL errors are present, got %+v", sr2)
+	}
+
+	// 2. ReconcilePageActiveAds must NEVER deactivate or overwrite ads refreshed after scanTime.
+	dbPath := filepath.Join(t.TempDir(), "reconcile_race.db")
+	s, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("store.Open: %v", err)
+	}
+	defer s.Close()
+
+	now := time.Now().UTC()
+	scanStarted := now.Add(-10 * time.Second)
+	olderTime := now.Add(-1 * time.Hour).Format(utcTimestampLayout)
+	newerTime := now.Add(-2 * time.Second).Format(utcTimestampLayout) // after scanStarted!
+
+	if err := SaveAdsBatch(ctx, s, []Ad{
+		{AdArchiveID: "old_stopped", PageID: "900", PageName: "RaceCo", Country: "US", IsActive: true, CollationCount: 2, CollectedAt: olderTime},
+		{AdArchiveID: "fresh_active", PageID: "900", PageName: "RaceCo", Country: "US", IsActive: true, CollationCount: 5, BodyText: "Newer copy", CollectedAt: newerTime},
+	}); err != nil {
+		t.Fatalf("SaveAdsBatch: %v", err)
+	}
+
+	// Reconcile an empty scan that started at scanStarted -> should deactivate old_stopped,
+	// but MUST preserve fresh_active (both in meta_ads and in framework store!).
+	updated, err := ReconcilePageActiveAds(ctx, s, "900", "US", nil, scanStarted)
+	if err != nil {
+		t.Fatalf("ReconcilePageActiveAds: %v", err)
+	}
+	if updated != 1 {
+		t.Fatalf("expected exactly 1 row deactivated (old_stopped), got %d", updated)
+	}
+
+	activeAds, err := LoadAds(ctx, s, "900", true)
+	if err != nil {
+		t.Fatalf("LoadAds active: %v", err)
+	}
+	if len(activeAds) != 1 || activeAds[0].AdArchiveID != "fresh_active" || activeAds[0].BodyText != "Newer copy" {
+		t.Fatalf("expected fresh_active to remain active with newer copy, got %+v", activeAds)
 	}
 }

@@ -2329,6 +2329,7 @@ func syncPublicAds(ctx context.Context, c interface{ RateLimit() float64 }, db *
 		opts = append(opts, adlibrary.WithRateLimit(c.RateLimit()))
 	}
 	adClient := adlibrary.NewClient(opts...)
+	scanStartedAt := time.Now().UTC()
 	sr, err := adClient.SearchAds(ctx, params)
 	if err != nil {
 		return syncResult{Resource: "ads", Err: err, Duration: time.Since(started)}
@@ -2354,7 +2355,7 @@ func syncPublicAds(ctx context.Context, c interface{ RateLimit() float64 }, db *
 			fmt.Fprintf(os.Stderr, "warning: failed to record snapshot for %s: %v\n", params.PageIDs[0], snapErr)
 		}
 		if sr.IsComplete {
-			if _, reconErr := adlibrary.ReconcilePageActiveAds(ctx, db, params.PageIDs[0], params.Country, sr.Ads, capturedAt); reconErr != nil {
+			if _, reconErr := adlibrary.ReconcilePageActiveAds(ctx, db, params.PageIDs[0], params.Country, sr.Ads, scanStartedAt); reconErr != nil {
 				fmt.Fprintf(os.Stderr, "warning: failed to reconcile active ads for %s: %v\n", params.PageIDs[0], reconErr)
 			}
 		}
