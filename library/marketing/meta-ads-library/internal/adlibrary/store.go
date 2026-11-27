@@ -70,9 +70,10 @@ CREATE TABLE IF NOT EXISTS meta_snapshots (
 	country TEXT,
 	query_string TEXT,
 	captured_at TEXT NOT NULL,
-	ad_count INTEGER NOT NULL DEFAULT 0
+	ad_count INTEGER NOT NULL DEFAULT 0,
+	is_complete INTEGER NOT NULL DEFAULT 1
 );
-CREATE INDEX IF NOT EXISTS idx_meta_snapshots_page ON meta_snapshots(page_id, captured_at DESC);
+CREATE INDEX IF NOT EXISTS idx_meta_snapshots_page ON meta_snapshots(page_id, country, captured_at DESC);
 
 CREATE TABLE IF NOT EXISTS meta_snapshot_ads (
 	snapshot_id INTEGER NOT NULL,
@@ -100,13 +101,49 @@ CREATE TABLE IF NOT EXISTS meta_ad_details (
 CREATE INDEX IF NOT EXISTS idx_meta_ad_details_page ON meta_ad_details(page_id);
 `
 
-// EnsureSchema creates the Meta Ads Library tables and indexes if absent.
+// EnsureSchema creates the Meta Ads Library tables and indexes if absent,
+// and applies idempotent additive migrations on existing local databases.
 func EnsureSchema(ctx context.Context, s *store.Store) error {
 	if s == nil {
 		return fmt.Errorf("store is nil")
 	}
-	_, err := s.DB().ExecContext(ctx, adLibrarySchemaSQL)
-	return err
+	if _, err := s.DB().ExecContext(ctx, adLibrarySchemaSQL); err != nil {
+		return err
+	}
+	hasCol, err := columnExists(ctx, s, "meta_snapshots", "is_complete")
+	if err != nil {
+		return err
+	}
+	if !hasCol {
+		if _, err := s.DB().ExecContext(ctx, `ALTER TABLE meta_snapshots ADD COLUMN is_complete INTEGER NOT NULL DEFAULT 1`); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func columnExists(ctx context.Context, s *store.Store, table, col string) (bool, error) {
+	rows, err := s.DB().QueryContext(ctx, `SELECT name FROM pragma_table_info(?)`, table)
+	if err != nil {
+		return false, err
+	}
+	found := false
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			_ = rows.Close()
+			return false, err
+		}
+		if strings.EqualFold(name, col) {
+			found = true
+		}
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return false, err
+	}
+	_ = rows.Close()
+	return found, nil
 }
 
 func tableExists(ctx context.Context, s *store.Store, table string) (bool, error) {
@@ -351,8 +388,9 @@ func SaveAdDetails(ctx context.Context, s *store.Store, det AdDetails) error {
 }
 
 // RecordSnapshot writes a point-in-time snapshot of an advertiser's ad set for
-// temporal diffing.
-func RecordSnapshot(ctx context.Context, s *store.Store, pageID, pageName, country, queryStr string, ads []Ad, capturedAt time.Time) (int64, error) {
+// temporal diffing. Pass isComplete=true only when the upstream scan fetched
+// every available active ad without hitting --limit or --max-pages truncation.
+func RecordSnapshot(ctx context.Context, s *store.Store, pageID, pageName, country, queryStr string, ads []Ad, isComplete bool, capturedAt time.Time) (int64, error) {
 	if strings.TrimSpace(pageID) == "" {
 		return 0, nil
 	}
@@ -362,14 +400,19 @@ func RecordSnapshot(ctx context.Context, s *store.Store, pageID, pageName, count
 	if capturedAt.IsZero() {
 		capturedAt = time.Now().UTC()
 	}
+	normCountry := normalizeCountry(country)
+	completeInt := 0
+	if isComplete {
+		completeInt = 1
+	}
 	tx, err := s.DB().BeginTx(ctx, nil)
 	if err != nil {
 		return 0, err
 	}
 	res, err := tx.ExecContext(ctx, `
-		INSERT INTO meta_snapshots (page_id, page_name, country, query_string, captured_at, ad_count)
-		VALUES (?, ?, ?, ?, ?, ?)
-	`, pageID, pageName, country, queryStr, capturedAt.UTC().Format(time.RFC3339Nano), len(ads))
+		INSERT INTO meta_snapshots (page_id, page_name, country, query_string, captured_at, ad_count, is_complete)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+	`, pageID, pageName, normCountry, queryStr, capturedAt.UTC().Format(time.RFC3339Nano), len(ads), completeInt)
 	if err != nil {
 		_ = tx.Rollback()
 		return 0, err
@@ -406,6 +449,124 @@ func RecordSnapshot(ctx context.Context, s *store.Store, pageID, pageName, count
 		return 0, err
 	}
 	return snapID, nil
+}
+
+// ReconcilePageActiveAds marks previously active ads for (pageID, country) that
+// are absent from a complete fresh active page scan as inactive in both
+// meta_ads columns and raw_json, then mirrors the updated rows into the
+// framework store so local rankings stop counting stopped ads.
+func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country string, activeAds []Ad, capturedAt time.Time) (int, error) {
+	pageID = strings.TrimSpace(pageID)
+	if pageID == "" {
+		return 0, nil
+	}
+	if err := EnsureSchema(ctx, s); err != nil {
+		return 0, err
+	}
+	if capturedAt.IsZero() {
+		capturedAt = time.Now().UTC()
+	}
+	normCountry := normalizeCountry(country)
+	activeSet := make(map[string]bool, len(activeAds))
+	for _, ad := range activeAds {
+		if ad.AdArchiveID != "" {
+			activeSet[ad.AdArchiveID] = true
+		}
+	}
+
+	var rows *sql.Rows
+	var err error
+	if normCountry == "ALL" {
+		rows, err = s.DB().QueryContext(ctx, `
+			SELECT ad_archive_id, raw_json
+			FROM meta_ads
+			WHERE page_id = ? AND is_active = 1
+		`, pageID)
+	} else {
+		rows, err = s.DB().QueryContext(ctx, `
+			SELECT ad_archive_id, raw_json
+			FROM meta_ads
+			WHERE page_id = ? AND is_active = 1 AND UPPER(COALESCE(country, '')) = UPPER(?)
+		`, pageID, normCountry)
+	}
+	if err != nil {
+		return 0, err
+	}
+	type staleRow struct {
+		id  string
+		raw string
+	}
+	var stale []staleRow
+	for rows.Next() {
+		var sr staleRow
+		if err := rows.Scan(&sr.id, &sr.raw); err != nil {
+			_ = rows.Close()
+			return 0, err
+		}
+		if !activeSet[sr.id] {
+			stale = append(stale, sr)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return 0, err
+	}
+	_ = rows.Close()
+
+	if len(stale) == 0 {
+		return 0, nil
+	}
+
+	nowStr := capturedAt.UTC().Format(time.RFC3339)
+	toMirror := make([]mirrorRow, 0, len(stale))
+	tx, err := s.DB().BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	stmt, err := tx.PrepareContext(ctx, `
+		UPDATE meta_ads
+		SET is_active = 0,
+		    end_date = COALESCE(NULLIF(end_date, ''), ?),
+		    raw_json = ?,
+		    collected_at = ?
+		WHERE ad_archive_id = ?
+	`)
+	if err != nil {
+		_ = tx.Rollback()
+		return 0, err
+	}
+	for _, sr := range stale {
+		var ad Ad
+		updatedRaw := []byte(sr.raw)
+		if err := json.Unmarshal([]byte(sr.raw), &ad); err == nil {
+			ad.IsActive = false
+			if ad.EndDate == "" {
+				ad.EndDate = nowStr
+			}
+			ad.DaysRunning = ComputeDaysRunning(ad.StartDate, ad.EndDate, false, capturedAt)
+			ad.CollectedAt = nowStr
+			if marshaled, mErr := json.Marshal(ad); mErr == nil {
+				updatedRaw = marshaled
+			}
+		}
+		if _, err := stmt.ExecContext(ctx, nowStr, string(updatedRaw), nowStr, sr.id); err != nil {
+			_ = stmt.Close()
+			_ = tx.Rollback()
+			return 0, err
+		}
+		toMirror = append(toMirror, mirrorRow{id: sr.id, raw: updatedRaw})
+	}
+	_ = stmt.Close()
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+
+	for _, item := range toMirror {
+		if err := s.Upsert("ads", item.id, item.raw); err != nil {
+			return len(toMirror), fmt.Errorf("mirror inactive ad %s into framework store: %w", item.id, err)
+		}
+	}
+	return len(toMirror), nil
 }
 
 // ResolvePageID maps either a numeric Facebook Page ID or a case-insensitive
@@ -627,12 +788,16 @@ type DiffAdBrief struct {
 	AdLibraryURL   string `json:"ad_library_url,omitempty"`
 }
 
-// DiffReport compares the two most recent snapshots for a Facebook Page.
+// DiffReport compares the two most recent same-country snapshots for a Facebook Page.
 type DiffReport struct {
 	PageID           string         `json:"page_id"`
 	PageName         string         `json:"page_name,omitempty"`
+	Country          string         `json:"country,omitempty"`
 	PreviousSnapshot string         `json:"previous_snapshot_at,omitempty"`
 	CurrentSnapshot  string         `json:"current_snapshot_at,omitempty"`
+	PreviousComplete bool           `json:"previous_complete"`
+	CurrentComplete  bool           `json:"current_complete"`
+	PartialCapture   bool           `json:"partial_capture,omitempty"`
 	SnapshotCount    int            `json:"snapshot_count"`
 	PreviousActive   int            `json:"previous_active_count"`
 	CurrentActive    int            `json:"current_active_count"`
@@ -643,16 +808,21 @@ type DiffReport struct {
 	Note             string         `json:"note,omitempty"`
 }
 
-// ComputeDiff compares the two latest snapshots for a page in local SQLite.
-// Returns honest empty slices (no fabricated drift) when fewer than 2 snapshots exist.
-func ComputeDiff(ctx context.Context, s *store.Store, pageFilter string) (DiffReport, error) {
+// ComputeDiff compares the two latest same-country snapshots for a page in
+// local SQLite. When country is empty, it scopes to the country of the page's
+// most recent snapshot so captures from different countries are never mixed.
+// Returns honest empty slices (no fabricated drift) when fewer than 2 matching
+// snapshots exist or when either compared snapshot was a partial capture.
+func ComputeDiff(ctx context.Context, s *store.Store, pageFilter, country string) (DiffReport, error) {
 	pid, pname, _, err := ResolvePageID(ctx, s, pageFilter)
 	if err != nil {
 		return DiffReport{}, err
 	}
+	targetCountry := strings.ToUpper(strings.TrimSpace(country))
 	report := DiffReport{
 		PageID:   pid,
 		PageName: pname,
+		Country:  targetCountry,
 		Launched: make([]DiffAdBrief, 0),
 		Stopped:  make([]DiffAdBrief, 0),
 		Scaled:   make([]DiffScaledAd, 0),
@@ -667,28 +837,65 @@ func ComputeDiff(ctx context.Context, s *store.Store, pageFilter string) (DiffRe
 		return report, nil
 	}
 
+	if targetCountry == "" {
+		var latestCountry string
+		err := s.DB().QueryRowContext(ctx, `
+			SELECT COALESCE(country, '')
+			FROM meta_snapshots
+			WHERE page_id = ?
+			ORDER BY captured_at DESC, id DESC
+			LIMIT 1
+		`, pid).Scan(&latestCountry)
+		if err != nil && err != sql.ErrNoRows {
+			return report, err
+		}
+		targetCountry = strings.ToUpper(strings.TrimSpace(latestCountry))
+		report.Country = targetCountry
+	}
+
+	hasIsComplete, err := columnExists(ctx, s, "meta_snapshots", "is_complete")
+	if err != nil {
+		return report, err
+	}
+
 	type snapMeta struct {
 		id         int64
 		pageName   string
+		country    string
 		capturedAt string
+		isComplete bool
 	}
-	rows, err := s.DB().QueryContext(ctx, `
-		SELECT id, COALESCE(page_name, ''), captured_at
-		FROM meta_snapshots
-		WHERE page_id = ?
-		ORDER BY captured_at DESC, id DESC
-		LIMIT 2
-	`, pid)
+
+	var rows *sql.Rows
+	if hasIsComplete {
+		rows, err = s.DB().QueryContext(ctx, `
+			SELECT id, COALESCE(page_name, ''), COALESCE(country, ''), captured_at, COALESCE(is_complete, 1)
+			FROM meta_snapshots
+			WHERE page_id = ? AND UPPER(COALESCE(country, '')) = ?
+			ORDER BY captured_at DESC, id DESC
+			LIMIT 2
+		`, pid, targetCountry)
+	} else {
+		rows, err = s.DB().QueryContext(ctx, `
+			SELECT id, COALESCE(page_name, ''), COALESCE(country, ''), captured_at, 1
+			FROM meta_snapshots
+			WHERE page_id = ? AND UPPER(COALESCE(country, '')) = ?
+			ORDER BY captured_at DESC, id DESC
+			LIMIT 2
+		`, pid, targetCountry)
+	}
 	if err != nil {
 		return report, err
 	}
 	var snaps []snapMeta
 	for rows.Next() {
 		var sm snapMeta
-		if err := rows.Scan(&sm.id, &sm.pageName, &sm.capturedAt); err != nil {
+		var completeInt int
+		if err := rows.Scan(&sm.id, &sm.pageName, &sm.country, &sm.capturedAt, &completeInt); err != nil {
 			_ = rows.Close()
 			return report, err
 		}
+		sm.isComplete = completeInt != 0
 		snaps = append(snaps, sm)
 	}
 	if err := rows.Err(); err != nil {
@@ -699,15 +906,28 @@ func ComputeDiff(ctx context.Context, s *store.Store, pageFilter string) (DiffRe
 
 	report.SnapshotCount = len(snaps)
 	if len(snaps) == 0 {
-		report.Note = "no snapshots recorded yet for this page; run 'meta-ads-library-pp-cli ads search --page-id " + pid + "' or pass --refresh"
+		if targetCountry != "" {
+			report.Note = "no snapshots recorded yet for this page in country " + targetCountry + "; run 'meta-ads-library-pp-cli ads search --page-id " + pid + " --country " + targetCountry + "' or pass --refresh --country " + targetCountry
+		} else {
+			report.Note = "no snapshots recorded yet for this page; run 'meta-ads-library-pp-cli ads search --page-id " + pid + "' or pass --refresh"
+		}
 		return report, nil
 	}
 	if report.PageName == "" {
 		report.PageName = snaps[0].pageName
 	}
+	if report.Country == "" {
+		report.Country = strings.ToUpper(strings.TrimSpace(snaps[0].country))
+	}
 	report.CurrentSnapshot = snaps[0].capturedAt
+	report.CurrentComplete = snaps[0].isComplete
 	if len(snaps) < 2 {
-		report.Note = "only 1 snapshot recorded so far; run again later with --refresh to detect launched, stopped, and scaled ads"
+		report.PartialCapture = !report.CurrentComplete
+		if report.PartialCapture {
+			report.Note = "only 1 partial snapshot recorded so far (truncated by --limit or --max-pages); re-run with higher --limit/--max-pages to establish a complete baseline"
+		} else {
+			report.Note = "only 1 snapshot recorded so far; run again later with --refresh to detect launched, stopped, and scaled ads"
+		}
 		curAds, err := loadSnapshotAdMap(ctx, s, snaps[0].id)
 		if err != nil {
 			return report, err
@@ -717,6 +937,9 @@ func ComputeDiff(ctx context.Context, s *store.Store, pageFilter string) (DiffRe
 	}
 
 	report.PreviousSnapshot = snaps[1].capturedAt
+	report.PreviousComplete = snaps[1].isComplete
+	report.PartialCapture = !report.CurrentComplete || !report.PreviousComplete
+
 	curMap, err := loadSnapshotAdMap(ctx, s, snaps[0].id)
 	if err != nil {
 		return report, err
@@ -728,7 +951,9 @@ func ComputeDiff(ctx context.Context, s *store.Store, pageFilter string) (DiffRe
 
 	report.PreviousActive = len(prevMap)
 	report.CurrentActive = len(curMap)
-	report.NetChange = len(curMap) - len(prevMap)
+	if !report.PartialCapture {
+		report.NetChange = len(curMap) - len(prevMap)
+	}
 
 	// Load ad details map for enrichment (drain-first).
 	adsList, err := LoadAds(ctx, s, pid, false)
@@ -761,7 +986,9 @@ func ComputeDiff(ctx context.Context, s *store.Store, pageFilter string) (DiffRe
 	for id, curColl := range curMap {
 		prevColl, existed := prevMap[id]
 		if !existed {
-			report.Launched = append(report.Launched, toBrief(id, curColl))
+			if !report.PartialCapture {
+				report.Launched = append(report.Launched, toBrief(id, curColl))
+			}
 		} else if curColl != prevColl {
 			hook := ""
 			urlStr := ""
@@ -782,10 +1009,14 @@ func ComputeDiff(ctx context.Context, s *store.Store, pageFilter string) (DiffRe
 			})
 		}
 	}
-	for id, prevColl := range prevMap {
-		if _, still := curMap[id]; !still {
-			report.Stopped = append(report.Stopped, toBrief(id, prevColl))
+	if !report.PartialCapture {
+		for id, prevColl := range prevMap {
+			if _, still := curMap[id]; !still {
+				report.Stopped = append(report.Stopped, toBrief(id, prevColl))
+			}
 		}
+	} else {
+		report.Note = "at least one compared snapshot was truncated by --limit or --max-pages (partial capture); launched and stopped lists are omitted to avoid false positives. Re-run with higher --limit/--max-pages to capture complete snapshots."
 	}
 
 	sort.Slice(report.Launched, func(i, j int) bool { return report.Launched[i].AdArchiveID < report.Launched[j].AdArchiveID })

@@ -2336,7 +2336,8 @@ func syncPublicAds(ctx context.Context, c interface{ RateLimit() float64 }, db *
 	if err := adlibrary.SaveAdsBatch(ctx, db, sr.Ads); err != nil {
 		return syncResult{Resource: "ads", Err: err, Duration: time.Since(started)}
 	}
-	if isSnapshotEligiblePageScan(params) && len(sr.Ads) > 0 {
+	if isSnapshotEligiblePageScan(params) {
+		capturedAt := time.Now().UTC()
 		pageTitle := ""
 		for _, a := range sr.Ads {
 			if a.PageName != "" {
@@ -2344,8 +2345,18 @@ func syncPublicAds(ctx context.Context, c interface{ RateLimit() float64 }, db *
 				break
 			}
 		}
-		if _, snapErr := adlibrary.RecordSnapshot(ctx, db, params.PageIDs[0], pageTitle, params.Country, params.Query, sr.Ads, time.Now().UTC()); snapErr != nil {
+		if pageTitle == "" {
+			if _, existingName, _, resErr := adlibrary.ResolvePageID(ctx, db, params.PageIDs[0]); resErr == nil && existingName != "" {
+				pageTitle = existingName
+			}
+		}
+		if _, snapErr := adlibrary.RecordSnapshot(ctx, db, params.PageIDs[0], pageTitle, params.Country, params.Query, sr.Ads, sr.IsComplete, capturedAt); snapErr != nil {
 			fmt.Fprintf(os.Stderr, "warning: failed to record snapshot for %s: %v\n", params.PageIDs[0], snapErr)
+		}
+		if sr.IsComplete {
+			if _, reconErr := adlibrary.ReconcilePageActiveAds(ctx, db, params.PageIDs[0], params.Country, sr.Ads, capturedAt); reconErr != nil {
+				fmt.Fprintf(os.Stderr, "warning: failed to reconcile active ads for %s: %v\n", params.PageIDs[0], reconErr)
+			}
 		}
 	}
 	if !humanFriendly {

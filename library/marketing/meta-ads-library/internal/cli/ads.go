@@ -5,6 +5,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -196,7 +197,10 @@ Automatically unwraps l.facebook.com redirect links into clean landing URLs and 
 			}
 
 			if cliutil.IsVerifyEnv() {
-				return printJSONFiltered(cmd.OutOrStdout(), make([]adlibrary.Ad, 0), flags)
+				return writeAdsSearchResult(cmd, adlibrary.SearchResult{
+					Ads:        make([]adlibrary.Ad, 0),
+					IsComplete: true,
+				}, flags)
 			}
 			if cliutil.IsDogfoodEnv() {
 				if params.MaxPages <= 0 || params.MaxPages > 1 {
@@ -213,6 +217,7 @@ Automatically unwraps l.facebook.com redirect links into clean landing URLs and 
 			client := newAdLibraryClient(flags)
 
 			// Resolve --page-name via typeahead if supplied.
+			resolvedPageName := ""
 			if strings.TrimSpace(pageName) != "" && len(params.PageIDs) == 0 {
 				advs, err := client.SearchAdvertisers(ctx, pageName, params.Country)
 				if err != nil {
@@ -223,6 +228,7 @@ Automatically unwraps l.facebook.com redirect links into clean landing URLs and 
 					return notFoundErr(fmt.Errorf("no advertiser page found matching %q in country %s", pageName, params.Country))
 				}
 				params.PageIDs = []string{top.PageID}
+				resolvedPageName = top.PageName
 				if params.SearchType == "" {
 					params.SearchType = "PAGE"
 				}
@@ -233,7 +239,8 @@ Automatically unwraps l.facebook.com redirect links into clean landing URLs and 
 				return classifyAdLibraryErr(cmd, flags, err)
 			}
 
-			if !noSave && !localDataDisabled() && len(result.Ads) > 0 {
+			eligibleSnapshot := isSnapshotEligiblePageScan(params)
+			if !noSave && !localDataDisabled() && (len(result.Ads) > 0 || eligibleSnapshot) {
 				resolvedDB := dbPath
 				if resolvedDB == "" {
 					resolvedDB = defaultDBPath("meta-ads-library-pp-cli")
@@ -242,46 +249,41 @@ Automatically unwraps l.facebook.com redirect links into clean landing URLs and 
 				if openErr != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to open local database %s: %v\n", resolvedDB, openErr)
 				} else {
-					if saveErr := adlibrary.SaveAdsBatch(ctx, db, result.Ads); saveErr != nil {
-						fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to persist ads locally: %v\n", saveErr)
-					} else if isSnapshotEligiblePageScan(params) {
-						pageTitle := ""
+					capturedAt := time.Now().UTC()
+					saveFailed := false
+					if len(result.Ads) > 0 {
+						if saveErr := adlibrary.SaveAdsBatch(ctx, db, result.Ads); saveErr != nil {
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to persist ads locally: %v\n", saveErr)
+							saveFailed = true
+						}
+					}
+					if !saveFailed && eligibleSnapshot {
+						pageTitle := resolvedPageName
 						for _, a := range result.Ads {
 							if a.PageName != "" {
 								pageTitle = a.PageName
 								break
 							}
 						}
-						if _, snapErr := adlibrary.RecordSnapshot(ctx, db, params.PageIDs[0], pageTitle, params.Country, params.Query, result.Ads, time.Now().UTC()); snapErr != nil {
+						if pageTitle == "" {
+							if _, existingName, _, resErr := adlibrary.ResolvePageID(ctx, db, params.PageIDs[0]); resErr == nil && existingName != "" {
+								pageTitle = existingName
+							}
+						}
+						if _, snapErr := adlibrary.RecordSnapshot(ctx, db, params.PageIDs[0], pageTitle, params.Country, params.Query, result.Ads, result.IsComplete, capturedAt); snapErr != nil {
 							fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to record snapshot: %v\n", snapErr)
+						}
+						if result.IsComplete {
+							if _, reconErr := adlibrary.ReconcilePageActiveAds(ctx, db, params.PageIDs[0], params.Country, result.Ads, capturedAt); reconErr != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to reconcile active ads: %v\n", reconErr)
+							}
 						}
 					}
 					_ = db.Close()
 				}
 			}
 
-			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), result.Ads, flags)
-			}
-			if len(result.Ads) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No matching ads found.")
-				return nil
-			}
-			rows := make([][]string, 0, len(result.Ads))
-			for _, ad := range result.Ads {
-				hook, _ := adlibrary.ExtractOpeningHook(ad.BodyText)
-				hook = truncate(hook, 55)
-				rows = append(rows, []string{
-					ad.AdArchiveID,
-					ad.PageName,
-					ad.DisplayFormat,
-					fmt.Sprintf("%dx", ad.CollationCount),
-					fmt.Sprintf("%dd", ad.DaysRunning),
-					ad.LandingDomain,
-					hook,
-				})
-			}
-			return flags.printTable(cmd, []string{"AD ID", "PAGE", "FORMAT", "COLL", "AGE", "DOMAIN", "HOOK"}, rows)
+			return writeAdsSearchResult(cmd, result, flags)
 		},
 	}
 
@@ -304,6 +306,96 @@ Automatically unwraps l.facebook.com redirect links into clean landing URLs and 
 	cmd.Flags().BoolVar(&noSave, "no-save", false, "Do not persist fetched ads to local SQLite")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Path to local SQLite database (defaults to standard mirror path)")
 	return cmd
+}
+
+func writeAdsSearchResult(cmd *cobra.Command, result adlibrary.SearchResult, flags *rootFlags) error {
+	ads := result.Ads
+	if ads == nil {
+		ads = make([]adlibrary.Ad, 0)
+	}
+	if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+		if flags != nil && (flags.csv || flags.plain || flags.quiet) {
+			if err := printJSONFiltered(cmd.OutOrStdout(), ads, flags); err != nil {
+				return err
+			}
+			printAdsSearchContinuationHint(cmd, result)
+			return nil
+		}
+		if err := validatePlatformAnalytics(flags); err != nil {
+			return err
+		}
+		itemsRaw, err := json.Marshal(ads)
+		if err != nil {
+			return err
+		}
+		var selectErr error
+		if flags != nil && flags.selectFields != "" {
+			itemsRaw, selectErr = filterFieldsChecked(json.RawMessage(itemsRaw), flags.selectFields)
+			selectErr = selectErrorForDryRun(selectErr, flags, json.RawMessage(itemsRaw))
+		} else if flags != nil && flags.compact {
+			itemsRaw = compactFieldsKeep(json.RawMessage(itemsRaw), nil)
+		}
+		meta := map[string]any{
+			"source":        "live",
+			"count":         len(ads),
+			"total_count":   result.TotalCount,
+			"pages_read":    result.PagesRead,
+			"has_next_page": result.HasNextPage,
+			"is_complete":   result.IsComplete,
+		}
+		if result.NextCursor != "" {
+			meta["next_cursor"] = result.NextCursor
+		}
+		envelope, err := json.Marshal(map[string]any{
+			"meta":    meta,
+			"results": json.RawMessage(itemsRaw),
+		})
+		if err != nil {
+			return err
+		}
+		wrapped, err := wrapPlatformStructuredOutput(json.RawMessage(envelope), flags, "results", true)
+		if err != nil {
+			return err
+		}
+		if err := printOutput(cmd.OutOrStdout(), wrapped, true); err != nil {
+			return err
+		}
+		return selectErr
+	}
+	if len(ads) == 0 {
+		fmt.Fprintln(cmd.OutOrStdout(), "No matching ads found.")
+		return nil
+	}
+	rows := make([][]string, 0, len(ads))
+	for _, ad := range ads {
+		hook, _ := adlibrary.ExtractOpeningHook(ad.BodyText)
+		hook = truncate(hook, 55)
+		rows = append(rows, []string{
+			ad.AdArchiveID,
+			ad.PageName,
+			ad.DisplayFormat,
+			fmt.Sprintf("%dx", ad.CollationCount),
+			fmt.Sprintf("%dd", ad.DaysRunning),
+			ad.LandingDomain,
+			hook,
+		})
+	}
+	if err := flags.printTable(cmd, []string{"AD ID", "PAGE", "FORMAT", "COLL", "AGE", "DOMAIN", "HOOK"}, rows); err != nil {
+		return err
+	}
+	printAdsSearchContinuationHint(cmd, result)
+	return nil
+}
+
+func printAdsSearchContinuationHint(cmd *cobra.Command, result adlibrary.SearchResult) {
+	if result.IsComplete {
+		return
+	}
+	if result.HasNextPage && result.NextCursor != "" {
+		fmt.Fprintf(cmd.ErrOrStderr(), "More results available (has_next_page=true). Continue with: --cursor %q\n", result.NextCursor)
+		return
+	}
+	fmt.Fprintln(cmd.ErrOrStderr(), "Results capped by --limit before page exhaustion. Increase --limit or --max-pages for a complete scan.")
 }
 
 func newAdsDetailsCmd(flags *rootFlags) *cobra.Command {

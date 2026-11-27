@@ -291,10 +291,10 @@ func TestStoreAndAllAnalytics(t *testing.T) {
 	}
 
 	// Single snapshot diff must NOT fabricate drift.
-	if _, err := RecordSnapshot(ctx, s, "100", "AlphaShoes", "US", "", ads[:1], now.Add(-24*time.Hour)); err != nil {
+	if _, err := RecordSnapshot(ctx, s, "100", "AlphaShoes", "US", "", ads[:1], true, now.Add(-24*time.Hour)); err != nil {
 		t.Fatalf("RecordSnapshot 1: %v", err)
 	}
-	diff1, err := ComputeDiff(ctx, s, "100")
+	diff1, err := ComputeDiff(ctx, s, "100", "US")
 	if err != nil {
 		t.Fatalf("ComputeDiff(1): %v", err)
 	}
@@ -307,10 +307,10 @@ func TestStoreAndAllAnalytics(t *testing.T) {
 		{AdArchiveID: "ad_1", CollationCount: 9, IsActive: true},
 		{AdArchiveID: "ad_2", CollationCount: 3, IsActive: true},
 	}
-	if _, err := RecordSnapshot(ctx, s, "100", "AlphaShoes", "US", "", adsSnap2, now); err != nil {
+	if _, err := RecordSnapshot(ctx, s, "100", "AlphaShoes", "US", "", adsSnap2, true, now); err != nil {
 		t.Fatalf("RecordSnapshot 2: %v", err)
 	}
-	diff2, err := ComputeDiff(ctx, s, "AlphaShoes")
+	diff2, err := ComputeDiff(ctx, s, "AlphaShoes", "")
 	if err != nil {
 		t.Fatalf("ComputeDiff(2): %v", err)
 	}
@@ -409,10 +409,152 @@ func TestRegressionsReadOnlyGraphQLNullAndRedirectPlus(t *testing.T) {
 	if ads, err := LoadAds(ctx, ro, "15087023444", true); err != nil || len(ads) != 0 {
 		t.Fatalf("LoadAds on read-only DB without meta_ads failed: ads=%v err=%v", ads, err)
 	}
-	if diff, err := ComputeDiff(ctx, ro, "15087023444"); err != nil || diff.SnapshotCount != 0 {
+	if diff, err := ComputeDiff(ctx, ro, "15087023444", ""); err != nil || diff.SnapshotCount != 0 {
 		t.Fatalf("ComputeDiff on read-only DB without meta_snapshots failed: %+v err=%v", diff, err)
 	}
 	if tr, err := ComputeTransparency(ctx, ro, "15087023444", ""); err != nil || tr.DetailsAnalyzed != 0 {
 		t.Fatalf("ComputeTransparency on read-only DB without meta_ad_details failed: %+v err=%v", tr, err)
+	}
+}
+
+func TestGreptileFixesSnapshotsReconcileAndAtomicDownload(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now().UTC()
+
+	// 1. Country scoping + partial capture guard + empty capture final stops + active reconciliation.
+	dbPath := filepath.Join(t.TempDir(), "greptile.db")
+	s, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("store.Open: %v", err)
+	}
+	defer s.Close()
+
+	usAds := []Ad{
+		{AdArchiveID: "us_1", PageID: "100", PageName: "Acme", Country: "US", IsActive: true, CollationCount: 4, StartDate: now.Add(-40 * 24 * time.Hour).Format(time.RFC3339)},
+		{AdArchiveID: "us_2", PageID: "100", PageName: "Acme", Country: "US", IsActive: true, CollationCount: 2, StartDate: now.Add(-20 * 24 * time.Hour).Format(time.RFC3339)},
+	}
+	deAds := []Ad{
+		{AdArchiveID: "de_1", PageID: "100", PageName: "Acme", Country: "DE", IsActive: true, CollationCount: 3, StartDate: now.Add(-10 * 24 * time.Hour).Format(time.RFC3339)},
+	}
+	if err := SaveAdsBatch(ctx, s, append(append([]Ad(nil), usAds...), deAds...)); err != nil {
+		t.Fatalf("SaveAdsBatch: %v", err)
+	}
+
+	// Record US complete snapshot, then DE complete snapshot -> ComputeDiff("100", "") must NOT mix US and DE!
+	if _, err := RecordSnapshot(ctx, s, "100", "Acme", "US", "", usAds, true, now.Add(-3*time.Hour)); err != nil {
+		t.Fatalf("RecordSnapshot US 1: %v", err)
+	}
+	if _, err := RecordSnapshot(ctx, s, "100", "Acme", "DE", "", deAds, true, now.Add(-2*time.Hour)); err != nil {
+		t.Fatalf("RecordSnapshot DE 1: %v", err)
+	}
+	diffMixed, err := ComputeDiff(ctx, s, "100", "")
+	if err != nil {
+		t.Fatalf("ComputeDiff default country: %v", err)
+	}
+	if diffMixed.Country != "DE" || diffMixed.SnapshotCount != 1 || len(diffMixed.Launched) != 0 || len(diffMixed.Stopped) != 0 {
+		t.Fatalf("expected DE-only single snapshot (no US/DE mix), got %+v", diffMixed)
+	}
+
+	// Partial US snapshot (capped to us_1 with scaled collation 4->7) must NOT invent us_2 as stopped!
+	usPartial := []Ad{{AdArchiveID: "us_1", PageID: "100", PageName: "Acme", Country: "US", IsActive: true, CollationCount: 7}}
+	if _, err := RecordSnapshot(ctx, s, "100", "Acme", "US", "", usPartial, false, now.Add(-1*time.Hour)); err != nil {
+		t.Fatalf("RecordSnapshot US partial: %v", err)
+	}
+	diffPartial, err := ComputeDiff(ctx, s, "100", "US")
+	if err != nil {
+		t.Fatalf("ComputeDiff US partial: %v", err)
+	}
+	if !diffPartial.PartialCapture || diffPartial.CurrentComplete || len(diffPartial.Launched) != 0 || len(diffPartial.Stopped) != 0 {
+		t.Fatalf("partial capture must suppress launched/stopped, got %+v", diffPartial)
+	}
+	if len(diffPartial.Scaled) != 1 || diffPartial.Scaled[0].Delta != 3 {
+		t.Fatalf("partial capture should still report mutually observed collation delta, got %+v", diffPartial.Scaled)
+	}
+
+	// Complete US scan with us_1 only, then complete empty US scan -> us_1 & us_2 stop, DE stays active!
+	if _, err := RecordSnapshot(ctx, s, "100", "Acme", "US", "", usAds[:1], true, now.Add(-30*time.Minute)); err != nil {
+		t.Fatalf("RecordSnapshot US complete 2: %v", err)
+	}
+	updated, err := ReconcilePageActiveAds(ctx, s, "100", "US", usAds[:1], now.Add(-30*time.Minute))
+	if err != nil || updated != 1 {
+		t.Fatalf("ReconcilePageActiveAds expected 1 deactivated (us_2), got updated=%d err=%v", updated, err)
+	}
+	activeNow, err := LoadAds(ctx, s, "100", true)
+	if err != nil {
+		t.Fatalf("LoadAds active: %v", err)
+	}
+	for _, a := range activeNow {
+		if a.AdArchiveID == "us_2" {
+			t.Fatalf("us_2 should have been marked inactive after complete US scan")
+		}
+	}
+	if len(activeNow) != 2 { // us_1 + de_1
+		t.Fatalf("expected 2 remaining active ads (us_1 and de_1), got %d", len(activeNow))
+	}
+
+	// Advertiser stops final US ad -> complete empty US snapshot records final stop!
+	if _, err := RecordSnapshot(ctx, s, "100", "Acme", "US", "", nil, true, now); err != nil {
+		t.Fatalf("RecordSnapshot US empty: %v", err)
+	}
+	if _, err := ReconcilePageActiveAds(ctx, s, "100", "US", nil, now); err != nil {
+		t.Fatalf("ReconcilePageActiveAds empty: %v", err)
+	}
+	diffEmpty, err := ComputeDiff(ctx, s, "100", "US")
+	if err != nil {
+		t.Fatalf("ComputeDiff US empty: %v", err)
+	}
+	if diffEmpty.PartialCapture || diffEmpty.CurrentActive != 0 || len(diffEmpty.Stopped) != 1 || diffEmpty.Stopped[0].AdArchiveID != "us_1" {
+		t.Fatalf("expected us_1 reported as stopped on empty complete capture, got %+v", diffEmpty)
+	}
+
+	// 2. Atomic DownloadMedia: truncated/failed download must NOT leave final file behind.
+	var imgAttempt atomic.Int32
+	dlSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		attempt := imgAttempt.Add(1)
+		if attempt == 1 {
+			// Declare Content-Length larger than written bytes and hijack/close to simulate interrupted download.
+			w.Header().Set("Content-Length", "1000")
+			w.Header().Set("Content-Type", "image/jpeg")
+			_, _ = w.Write([]byte("partial"))
+			if hj, ok := w.(http.Hijacker); ok {
+				if conn, _, err := hj.Hijack(); err == nil {
+					_ = conn.Close()
+				}
+			}
+			return
+		}
+		w.Header().Set("Content-Type", "image/jpeg")
+		_, _ = w.Write([]byte("complete-image-bytes"))
+	}))
+	defer dlSrv.Close()
+
+	dlClient := NewClient(WithBaseURL(dlSrv.URL), WithHTTPClient(dlSrv.Client()), WithRateLimit(100))
+	dlDir := t.TempDir()
+	dlAds := []Ad{{AdArchiveID: "555", ImageURLs: []string{dlSrv.URL + "/creative.jpg"}}}
+
+	rep1, err := dlClient.DownloadMedia(ctx, dlAds, dlDir, false, false)
+	if err != nil {
+		t.Fatalf("DownloadMedia attempt 1 error: %v", err)
+	}
+	if rep1.Failed != 1 || rep1.Downloaded != 0 {
+		t.Fatalf("expected interrupted download to fail cleanly, got %+v", rep1)
+	}
+	// Interrupted download must leave no final file and no leftover .part files.
+	entries, _ := os.ReadDir(dlDir)
+	if len(entries) != 0 {
+		t.Fatalf("expected clean output dir after failed download, found %d entries", len(entries))
+	}
+
+	// Retry must now succeed instead of skipping a broken file!
+	rep2, err := dlClient.DownloadMedia(ctx, dlAds, dlDir, false, false)
+	if err != nil {
+		t.Fatalf("DownloadMedia attempt 2 error: %v", err)
+	}
+	if rep2.Downloaded != 1 || rep2.Skipped != 0 || rep2.Failed != 0 || len(rep2.Files) != 1 {
+		t.Fatalf("expected retry to download cleanly, got %+v", rep2)
+	}
+	gotBytes, err := os.ReadFile(rep2.Files[0].LocalPath)
+	if err != nil || string(gotBytes) != "complete-image-bytes" {
+		t.Fatalf("unexpected final file content at %s: %q (err=%v)", rep2.Files[0].LocalPath, string(gotBytes), err)
 	}
 }

@@ -125,6 +125,7 @@ Do NOT use this command to rank longest-running evergreen ads (use 'winners') or
 				if err != nil {
 					return err
 				}
+				capturedAt := time.Now().UTC()
 				if err := adlibrary.SaveAdsBatch(ctx, db, sr.Ads); err != nil {
 					_ = db.Close()
 					return err
@@ -132,9 +133,20 @@ Do NOT use this command to rank longest-running evergreen ads (use 'winners') or
 				if pageName == "" && len(sr.Ads) > 0 {
 					pageName = sr.Ads[0].PageName
 				}
-				if _, err := adlibrary.RecordSnapshot(ctx, db, pageID, pageName, country, "", sr.Ads, time.Now().UTC()); err != nil {
+				if pageName == "" {
+					if _, existingName, _, resErr := adlibrary.ResolvePageID(ctx, db, pageID); resErr == nil && existingName != "" {
+						pageName = existingName
+					}
+				}
+				if _, err := adlibrary.RecordSnapshot(ctx, db, pageID, pageName, country, "", sr.Ads, sr.IsComplete, capturedAt); err != nil {
 					_ = db.Close()
 					return err
+				}
+				if sr.IsComplete {
+					if _, err := adlibrary.ReconcilePageActiveAds(ctx, db, pageID, country, sr.Ads, capturedAt); err != nil {
+						_ = db.Close()
+						return err
+					}
 				}
 				pageArg = pageID
 				_ = db.Close()
@@ -167,7 +179,11 @@ Do NOT use this command to rank longest-running evergreen ads (use 'winners') or
 				}
 			}
 
-			report, err := adlibrary.ComputeDiff(ctx, db, pageArg)
+			diffCountry := ""
+			if refresh || cmd.Flags().Changed("country") {
+				diffCountry = country
+			}
+			report, err := adlibrary.ComputeDiff(ctx, db, pageArg, diffCountry)
 			if err != nil {
 				return err
 			}
@@ -182,9 +198,11 @@ Do NOT use this command to rank longest-running evergreen ads (use 'winners') or
 			}
 			rows := [][]string{
 				{"Page", fmt.Sprintf("%s (%s)", report.PageName, report.PageID)},
+				{"Country", report.Country},
 				{"Snapshots", fmt.Sprintf("%d", report.SnapshotCount)},
 				{"Previous Snapshot", report.PreviousSnapshot},
 				{"Current Snapshot", report.CurrentSnapshot},
+				{"Capture Complete", fmt.Sprintf("prev=%t cur=%t", report.PreviousComplete, report.CurrentComplete)},
 				{"Active Volume", fmt.Sprintf("%d -> %d (%+d)", report.PreviousActive, report.CurrentActive, report.NetChange)},
 				{"Launched", fmt.Sprintf("%d", len(report.Launched))},
 				{"Stopped", fmt.Sprintf("%d", len(report.Stopped))},
@@ -198,7 +216,7 @@ Do NOT use this command to rank longest-running evergreen ads (use 'winners') or
 	}
 
 	cmd.Flags().BoolVar(&refresh, "refresh", false, "Fetch a fresh live snapshot from Meta Ad Library before computing the diff")
-	cmd.Flags().StringVarP(&country, "country", "c", "US", "ISO country code used when --refresh fetches a live snapshot")
+	cmd.Flags().StringVarP(&country, "country", "c", "US", "ISO country code to compare (and fetch when --refresh is set); defaults to latest snapshot's country in local mode")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum active ads to fetch when --refresh is set")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 3, "Maximum GraphQL pages to fetch when --refresh is set")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Path to local SQLite database")

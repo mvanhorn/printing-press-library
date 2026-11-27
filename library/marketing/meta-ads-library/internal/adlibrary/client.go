@@ -530,6 +530,7 @@ func (c *Client) SearchAds(ctx context.Context, params SearchParams) (SearchResu
 	var hasNext bool
 	var totalCount int
 	pagesRead := 0
+	truncatedByLimit := false
 
 	if err := c.ensureSession(ctx); err != nil {
 		return SearchResult{}, err
@@ -608,7 +609,7 @@ func (c *Client) SearchAds(ctx context.Context, params SearchParams) (SearchResu
 		nextCursor = pageNext
 		hasNext = pageHasNext
 
-		for _, ad := range pageAds {
+		for idx, ad := range pageAds {
 			if params.MinCollation > 0 && ad.CollationCount < params.MinCollation {
 				continue
 			}
@@ -618,6 +619,15 @@ func (c *Client) SearchAds(ctx context.Context, params SearchParams) (SearchResu
 			seenIDs[ad.AdArchiveID] = true
 			allAds = append(allAds, ad)
 			if len(allAds) >= limit {
+				for _, rem := range pageAds[idx+1:] {
+					if params.MinCollation > 0 && rem.CollationCount < params.MinCollation {
+						continue
+					}
+					if !seenIDs[rem.AdArchiveID] {
+						truncatedByLimit = true
+						break
+					}
+				}
 				break
 			}
 		}
@@ -635,6 +645,7 @@ func (c *Client) SearchAds(ctx context.Context, params SearchParams) (SearchResu
 		Ads:         allAds,
 		NextCursor:  nextCursor,
 		HasNextPage: hasNext,
+		IsComplete:  !hasNext && !truncatedByLimit,
 		TotalCount:  totalCount,
 		PagesRead:   pagesRead,
 	}, nil
@@ -776,7 +787,8 @@ func (c *Client) DownloadMedia(ctx context.Context, ads []Ad, outDir string, ima
 			}
 			c.limiter.OnSuccess()
 
-			f, err := dirRoot.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+			tmpName := fmt.Sprintf(".%s.%s.part", filename, randomToken(8))
+			f, err := dirRoot.OpenFile(tmpName, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0o600)
 			if err != nil {
 				_ = resp.Body.Close()
 				report.Failed++
@@ -796,7 +808,7 @@ func (c *Client) DownloadMedia(ctx context.Context, ads []Ad, outDir string, ima
 				copyErr = fmt.Errorf("media file exceeded maximum allowed size (%d bytes)", maxMediaBytes)
 			}
 			if copyErr != nil || closeErr != nil {
-				_ = dirRoot.Remove(filename)
+				_ = dirRoot.Remove(tmpName)
 				if ctx.Err() != nil {
 					return report, ctx.Err()
 				}
@@ -813,6 +825,18 @@ func (c *Client) DownloadMedia(ctx context.Context, ads []Ad, outDir string, ima
 					URL:         t.url,
 					Status:      "failed",
 					Error:       errMsg,
+				})
+				continue
+			}
+			if renameErr := dirRoot.Rename(tmpName, filename); renameErr != nil {
+				_ = dirRoot.Remove(tmpName)
+				report.Failed++
+				report.Files = append(report.Files, MediaFile{
+					AdArchiveID: ad.AdArchiveID,
+					Kind:        t.kind,
+					URL:         t.url,
+					Status:      "failed",
+					Error:       renameErr.Error(),
 				})
 				continue
 			}

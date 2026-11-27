@@ -170,6 +170,7 @@ type SearchResult struct {
 	Ads         []Ad   `json:"ads"`
 	NextCursor  string `json:"next_cursor,omitempty"`
 	HasNextPage bool   `json:"has_next_page"`
+	IsComplete  bool   `json:"is_complete"`
 	TotalCount  int    `json:"total_count,omitempty"`
 	PagesRead   int    `json:"pages_read"`
 }

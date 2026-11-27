@@ -3,7 +3,7 @@
   "name": "meta-ads-library-pp-mcp",
   "display_name": "Meta Ads Library",
   "version": "0.1.0",
-  "description": "Every public Meta ad worldwide from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence.",
+  "description": "Active public Meta ads worldwide (plus EU/UK/BR and political archives) from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -22,26 +22,26 @@
     }
   },
   "user_config": {
-    "facebook_access_token": {
-      "type": "string",
-      "title": "FACEBOOK_ACCESS_TOKEN",
-      "description": "Sets FACEBOOK_ACCESS_TOKEN for the Meta Ads Library MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
-      "sensitive": true,
-      "required": true
-    },
     "meta_access_token": {
       "type": "string",
-      "title": "META_ACCESS_TOKEN",
-      "description": "Sets META_ACCESS_TOKEN for the Meta Ads Library MCP server.",
+      "title": "META_ACCESS_TOKEN (optional — official archive only)",
+      "description": "Optional Meta Graph API access token needed only for the official v27.0 ads_archive (`archive`) tool. Leave blank for zero-auth public commercial ad search, advertiser lookup, ad details, and local intelligence tools.",
       "sensitive": true,
-      "required": true
+      "required": false
     },
     "meta_ads_archive_token": {
       "type": "string",
-      "title": "META_ADS_ARCHIVE_TOKEN",
-      "description": "Sets META_ADS_ARCHIVE_TOKEN for the Meta Ads Library MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "title": "META_ADS_ARCHIVE_TOKEN (optional alias)",
+      "description": "Optional fallback alias for META_ACCESS_TOKEN used only by the official `archive` tool when META_ACCESS_TOKEN is unset. Public tools require no token.",
       "sensitive": true,
-      "required": true
+      "required": false
+    },
+    "facebook_access_token": {
+      "type": "string",
+      "title": "FACEBOOK_ACCESS_TOKEN (optional alias)",
+      "description": "Optional fallback alias for META_ACCESS_TOKEN used only by the official `archive` tool when META_ACCESS_TOKEN and META_ADS_ARCHIVE_TOKEN are unset. Public tools require no token.",
+      "sensitive": true,
+      "required": false
     }
   },
   "compatibility": {

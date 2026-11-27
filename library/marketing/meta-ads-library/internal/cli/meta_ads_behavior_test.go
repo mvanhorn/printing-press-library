@@ -75,13 +75,13 @@ func TestAbsorbedCommandsEndToEndMock(t *testing.T) {
 		t.Fatalf("advertisers search missing page_id: %s", out)
 	}
 
-	// 3. ads search -> persists into SQLite
+	// 3. ads search -> persists into SQLite and emits pagination envelope
 	out, _, err = runCLI(t, "ads", "search", "--page-id", "15087023444", "--country", "US", "--db", dbPath, "--json")
 	if err != nil {
 		t.Fatalf("ads search error: %v", err)
 	}
-	if !strings.Contains(out, `"nike.com"`) {
-		t.Fatalf("ads search missing unwrapped landing_domain: %s", out)
+	if !strings.Contains(out, `"nike.com"`) || !strings.Contains(out, `"is_complete"`) || !strings.Contains(out, `"results"`) {
+		t.Fatalf("ads search missing expected envelope/fields: %s", out)
 	}
 
 	// 4. ads details -> auto-resolves page_id from SQLite!
@@ -192,9 +192,9 @@ func TestAllSevenNovelCommandsEmptyAndPopulated(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("SaveAdDetails: %v", err)
 	}
-	_, _ = adlibrary.RecordSnapshot(ctx, db, "15087023444", "Nike", "US", "", ads[:1], now.Add(-48*time.Hour))
+	_, _ = adlibrary.RecordSnapshot(ctx, db, "15087023444", "Nike", "US", "", ads[:1], true, now.Add(-48*time.Hour))
 	adsScaled := []adlibrary.Ad{{AdArchiveID: "w1", CollationCount: 12, IsActive: true}}
-	_, _ = adlibrary.RecordSnapshot(ctx, db, "15087023444", "Nike", "US", "", adsScaled, now)
+	_, _ = adlibrary.RecordSnapshot(ctx, db, "15087023444", "Nike", "US", "", adsScaled, true, now)
 	_ = db.Close()
 
 	// winners with --select
@@ -298,5 +298,94 @@ func TestSyncDryRunAndSOVLiveNoLocalData(t *testing.T) {
 	}
 	if !strings.Contains(out, `"Nike"`) {
 		t.Fatalf("sov --live with NO_LOCAL_DATA missing live brand result: %s", out)
+	}
+}
+
+func TestAdsSearchPaginationAndEmptySnapshotReconciliationCLI(t *testing.T) {
+	testenv.Isolate(t)
+
+	phase := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			_, _ = w.Write([]byte(`["LSD",[],{"token":"mockLSD"}]`))
+			return
+		}
+		_ = r.ParseForm()
+		switch phase {
+		case 0:
+			// Paginated response with cursor and has_next_page=true.
+			_, _ = w.Write([]byte(`for (;;);{"data":{"ad_library_main":{"search_results_connection":{"count":2,"page_info":{"has_next_page":true,"end_cursor":"CUR_NEXT_42"},"edges":[{"node":{"collated_results":[{"ad_archive_id":"a1","collation_count":2,"page_id":"555","page_name":"BrandX","is_active":true,"start_date":1735689600,"publisher_platform":["FACEBOOK"],"snapshot":{"display_format":"IMAGE","body":{"text":"First ad"},"title":"Ad 1","cta_text":"Shop Now","link_url":"https://brandx.com/1"}}]}}]}}}}`))
+		case 1:
+			// Complete scan with 1 active ad.
+			_, _ = w.Write([]byte(`for (;;);{"data":{"ad_library_main":{"search_results_connection":{"count":1,"page_info":{"has_next_page":false,"end_cursor":""},"edges":[{"node":{"collated_results":[{"ad_archive_id":"a1","collation_count":2,"page_id":"555","page_name":"BrandX","is_active":true,"start_date":1735689600,"publisher_platform":["FACEBOOK"],"snapshot":{"display_format":"IMAGE","body":{"text":"First ad"},"title":"Ad 1","cta_text":"Shop Now","link_url":"https://brandx.com/1"}}]}}]}}}}`))
+		default:
+			// Advertiser stopped all ads -> empty complete response.
+			_, _ = w.Write([]byte(`for (;;);{"data":{"ad_library_main":{"search_results_connection":{"count":0,"page_info":{"has_next_page":false,"end_cursor":""},"edges":[]}}}}`))
+		}
+	}))
+	defer srv.Close()
+
+	t.Setenv("META_AD_LIBRARY_GRAPHQL_BASE_URL", srv.URL)
+	dbPath := filepath.Join(t.TempDir(), "cli_greptile.db")
+
+	// 1. ads search --json --select preserves meta.next_cursor, meta.has_next_page, meta.is_complete.
+	out, _, err := runCLI(t, "ads", "search", "--page-id", "555", "--country", "US", "--max-pages", "1", "--db", dbPath, "--json", "--select", "ad_archive_id")
+	if err != nil {
+		t.Fatalf("ads search paginated error: %v", err)
+	}
+	var env struct {
+		Meta struct {
+			HasNextPage bool   `json:"has_next_page"`
+			NextCursor  string `json:"next_cursor"`
+			IsComplete  bool   `json:"is_complete"`
+		} `json:"meta"`
+		Results []map[string]any `json:"results"`
+	}
+	if err := json.Unmarshal([]byte(out), &env); err != nil {
+		t.Fatalf("unmarshal ads search envelope: %v\n%s", err, out)
+	}
+	if !env.Meta.HasNextPage || env.Meta.NextCursor != "CUR_NEXT_42" || env.Meta.IsComplete {
+		t.Fatalf("unexpected pagination meta: %+v", env.Meta)
+	}
+	if len(env.Results) != 1 || env.Results[0]["ad_archive_id"] != "a1" {
+		t.Fatalf("unexpected selected results: %+v", env.Results)
+	}
+
+	// 2. Complete scan with a1, then complete empty scan -> diff reports a1 stopped and winners returns empty.
+	phase = 1
+	if _, _, err := runCLI(t, "ads", "search", "--page-id", "555", "--country", "US", "--db", dbPath, "--json"); err != nil {
+		t.Fatalf("ads search complete error: %v", err)
+	}
+	phase = 2
+	if _, _, err := runCLI(t, "ads", "search", "--page-id", "555", "--country", "US", "--db", dbPath, "--json"); err != nil {
+		t.Fatalf("ads search empty error: %v", err)
+	}
+
+	diffOut, _, err := runCLI(t, "diff", "555", "--country", "US", "--db", dbPath, "--json")
+	if err != nil {
+		t.Fatalf("diff after empty scan error: %v", err)
+	}
+	var diffRep adlibrary.DiffReport
+	if err := json.Unmarshal([]byte(diffOut), &diffRep); err != nil {
+		t.Fatalf("unmarshal diff report: %v\n%s", err, diffOut)
+	}
+	if diffRep.PartialCapture || diffRep.CurrentActive != 0 || len(diffRep.Stopped) != 1 || diffRep.Stopped[0].AdArchiveID != "a1" {
+		t.Fatalf("expected a1 reported stopped after empty capture, got %+v", diffRep)
+	}
+
+	winOut, _, err := runCLI(t, "winners", "--db", dbPath, "--json")
+	if err != nil {
+		t.Fatalf("winners after empty scan error: %v", err)
+	}
+	var winners []adlibrary.WinnerRow
+	if err := json.Unmarshal([]byte(winOut), &winners); err != nil {
+		t.Fatalf("unmarshal winners: %v\n%s", err, winOut)
+	}
+	if len(winners) != 0 {
+		t.Fatalf("expected 0 active winners after complete empty reconciliation, got %+v", winners)
+	}
+	// Targeted winners lookup for page 555 should report no active ads remaining.
+	if _, _, pageErr := runCLI(t, "winners", "555", "--db", dbPath, "--json"); pageErr == nil {
+		t.Fatalf("expected winners 555 to report no active ads after complete empty reconciliation")
 	}
 }
