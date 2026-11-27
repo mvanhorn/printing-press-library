@@ -5547,9 +5547,9 @@
       "path": "library/health/clinical-trials",
       "release": {
         "cli_name": "clinical-trials-pp-cli",
-        "version": "2026.11.2",
-        "released_at": "2026-11-26T09:52:16Z",
-        "source_commit": "3bb63eb8aea5f3fc6b7d8779f06befa5f6dbb20d"
+        "version": "2026.11.3",
+        "released_at": "2026-11-27T09:53:23Z",
+        "source_commit": "96d5743031bfb1be7dd4f30afc13df5fcbfdd793"
       },
       "printer": "laci141",
       "printer_name": "laci141",
