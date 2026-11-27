@@ -123,29 +123,49 @@ func TestVelocityLongCovidRegistryShape(t *testing.T) {
 
 func TestVelocityNotes(t *testing.T) {
 	w := velocityWindowsFor(velocityNow, 3)
-	year := []yearBucket{{Year: 2024, Trials: 1}}
-	full := windowTally{RecentTrials: 5, PriorTrials: 5, ByYear: year}
+	sample := trialCounts{Recent: 5, Prior: 5, Source: countsFromSample}
+	registry := trialCounts{Recent: 346, Prior: 343, Source: countsFromRegistry}
 	cases := []struct {
 		name           string
 		sampled, total int
-		tally          windowTally
+		years          int
+		counts         trialCounts
 		want           []string
 		notWant        []string
 	}{
-		{"sample smaller than registry", 400, 745, full, []string{"sample covers 400 of 745 trials"}, nil},
-		{"sample equals registry", 400, 400, full, nil, []string{"sample covers"}},
-		{"registry total unknown", 400, 0, full, nil, []string{"sample covers"}},
-		{"registry total below sample", 400, 399, full, nil, []string{"sample covers"}},
-		{"current-year trials are explained", 400, 400, windowTally{RecentTrials: 5, PriorTrials: 5, LaterTrials: 49, ByYear: year},
+		{"sample smaller than registry", 400, 745, 5, sample, []string{"sample covers 400 of 745 trials"}, []string{"exact registry counts", "could not be fetched"}},
+		{"sample equals registry", 400, 400, 5, sample, nil, []string{"sample covers", "exact registry counts"}},
+		{"registry total unknown", 400, 0, 5, sample, nil, []string{"sample covers"}},
+		{"registry total below sample", 400, 399, 5, sample, nil, []string{"sample covers"}},
+		{"exact counts say what is exact and what is sampled", 400, 745, 5, registry,
+			[]string{"exact registry counts", "enrollment growth come from a sample of 400 of 745"}, []string{"sample covers", "could not be fetched"}},
+		{"exact counts, complete sample: nothing to explain", 745, 745, 5, registry, nil, []string{"exact registry counts", "sample covers"}},
+		{"failed exact counts are admitted", 400, 745, 5, trialCounts{Recent: 5, Prior: 5, Source: countsFromSample, ExactFailed: true},
+			[]string{"sample covers 400 of 745", "Exact registry counts for the windows could not be fetched."}, nil},
+		{"current-year trials are explained", 400, 400, 5, trialCounts{Recent: 5, Prior: 5, Later: 49, Source: countsFromSample},
 			[]string{"49 trial(s) started in 2026 or later"}, nil},
-		{"no later trials, no later note", 400, 400, full, nil, []string{"started in"}},
-		{"empty prior window names its years", 400, 400, windowTally{RecentTrials: 5, ByYear: year},
+		{"no later trials, no later note", 400, 400, 5, sample, nil, []string{"started in"}},
+		{"empty prior window names its years", 400, 400, 5, trialCounts{Recent: 5, Source: countsFromSample},
 			[]string{"no trials in the prior window (2020–2022)"}, nil},
-		{"nothing sampled", 0, 745, windowTally{}, []string{"no trials matched"}, []string{"sample covers"}},
-		{"no parseable dates", 10, 10, windowTally{}, []string{"no parseable start dates"}, nil},
+		{"empty exact prior window is explained too", 400, 745, 5, trialCounts{Recent: 5, Source: countsFromRegistry},
+			[]string{"no trials in the prior window (2020–2022)"}, nil},
+		{"nothing sampled", 0, 745, 0, trialCounts{}, []string{"no trials matched"}, []string{"sample covers"}},
+		{"no parseable dates", 10, 10, 0, trialCounts{}, []string{"no parseable start dates"}, nil},
+		// The registry counts are valid even when no sampled trial has a start date:
+		// the warning must be about the sample only, not about the matched trials.
+		{"exact counts, undated sample: warning is about the sample", 400, 745, 0, registry,
+			[]string{"none of the sampled trials has a parseable start date", "by_year and the enrollment figures are empty", "exact registry counts"},
+			[]string{"matched trials have no parseable start dates", "cannot place them on a timeline"}},
+		{"exact counts, undated sample, empty prior window: both notes", 400, 745, 0, trialCounts{Recent: 5, Source: countsFromRegistry},
+			[]string{"no trials in the prior window (2020–2022)", "none of the sampled trials has a parseable start date"},
+			[]string{"cannot place them on a timeline"}},
+		// A complete sample really does hold every matching trial, so the old
+		// wording is still true there.
+		{"complete undated sample keeps the old warning", 10, 10, 0, trialCounts{Source: countsFromRegistry},
+			[]string{"matched trials have no parseable start dates"}, []string{"none of the sampled trials"}},
 	}
 	for _, tc := range cases {
-		got := velocityNotes(tc.sampled, tc.total, w, tc.tally)
+		got := velocityNotes(tc.sampled, tc.total, w, tc.years, tc.counts)
 		for _, s := range tc.want {
 			if !strings.Contains(got, s) {
 				t.Errorf("%s: note %q lacks %q", tc.name, got, s)
@@ -157,7 +177,7 @@ func TestVelocityNotes(t *testing.T) {
 			}
 		}
 	}
-	both := velocityNotes(400, 745, w, windowTally{RecentTrials: 5, PriorTrials: 5, LaterTrials: 2, ByYear: year})
+	both := velocityNotes(400, 745, w, 5, trialCounts{Recent: 5, Prior: 5, Later: 2, Source: countsFromSample})
 	if !strings.Contains(both, "closer match. 2 trial(s)") {
 		t.Errorf("two notes must be joined by one space, got %q", both)
 	}
@@ -170,7 +190,10 @@ type velocityFake struct {
 	total    int
 	countErr error
 	fetchErr error
-	calls    []map[string]string
+	// ranges answers countTotal requests that carry a filter.advanced start-date
+	// range, keyed by the exact expression; an unlisted range fails.
+	ranges map[string]int
+	calls  []map[string]string
 }
 
 func (f *velocityFake) Get(_ context.Context, _ string, params map[string]string) (json.RawMessage, error) {
@@ -182,6 +205,13 @@ func (f *velocityFake) Get(_ context.Context, _ string, params map[string]string
 	if params["countTotal"] == "true" {
 		if f.countErr != nil {
 			return nil, f.countErr
+		}
+		if adv := params["filter.advanced"]; adv != "" {
+			n, ok := f.ranges[adv]
+			if !ok {
+				return nil, fmt.Errorf("unexpected range %q", adv)
+			}
+			return json.RawMessage(fmt.Sprintf(`{"totalCount":%d}`, n)), nil
 		}
 		return json.RawMessage(fmt.Sprintf(`{"totalCount":%d}`, f.total)), nil
 	}
@@ -203,41 +233,127 @@ func velocityFakeWith(total int, years ...string) *velocityFake {
 	return f
 }
 
-func TestBuildVelocityView(t *testing.T) {
-	ctx := context.Background()
-	f := velocityFakeWith(745, "2021-01", "2022-01", "2023-01", "2024-01", "2024-02", "2025-01", "2026-01")
-	v, err := buildVelocityView(ctx, f, "long covid", 400, 3, 3, velocityNow)
+const (
+	rngRecent3 = "AREA[StartDate]RANGE[2023-01-01,2025-12-31]"
+	rngPrior3  = "AREA[StartDate]RANGE[2020-01-01,2022-12-31]"
+	rngLater   = "AREA[StartDate]RANGE[2026-01-01,MAX]"
+	rngOlder3  = "AREA[StartDate]RANGE[MIN,2019-12-31]"
+)
+
+var velocitySampleYears = []string{"2021-01", "2022-01", "2023-01", "2024-01", "2024-02", "2025-01", "2026-01"}
+
+// The registry's exact Long COVID counts (2026-11-25) against a 7-trial sample:
+// the headline counts and growth must be the registry's, not the sample's.
+func TestBuildVelocityViewUsesRegistryCounts(t *testing.T) {
+	f := velocityFakeWith(745, velocitySampleYears...)
+	f.ranges = map[string]int{rngRecent3: 346, rngPrior3: 343, rngLater: 49, rngOlder3: 5}
+	v, err := buildVelocityView(context.Background(), f, "long covid", 400, 3, 3, velocityNow)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if v.SampleSize != 7 || v.RegistryTotal != 745 {
-		t.Errorf("sample/registry = %d/%d, want 7/745", v.SampleSize, v.RegistryTotal)
+	if v.TrialCountsSource != "registry" || v.SampleSize != 7 || v.RegistryTotal != 745 {
+		t.Errorf("source/sample/registry = %q/%d/%d", v.TrialCountsSource, v.SampleSize, v.RegistryTotal)
 	}
-	if v.RecentFrom != 2023 || v.RecentTo != 2025 || v.PriorFrom != 2020 || v.PriorTo != 2022 {
-		t.Errorf("windows = %d–%d / %d–%d", v.RecentFrom, v.RecentTo, v.PriorFrom, v.PriorTo)
-	}
-	if v.RecentTrials != 4 || v.PriorTrials != 2 || v.TrialGrowthPct != 100 || v.LaterTrials != 1 || v.OlderTrials != 0 {
-		t.Errorf("view = %+v", v)
+	if v.RecentTrials != 346 || v.PriorTrials != 343 || v.TrialGrowthPct != 1 || v.LaterTrials != 49 || v.OlderTrials != 5 {
+		t.Errorf("counts recent/prior/growth/later/older = %d/%d/%+d%%/%d/%d, want 346/343/+1%%/49/5",
+			v.RecentTrials, v.PriorTrials, v.TrialGrowthPct, v.LaterTrials, v.OlderTrials)
 	}
 	if v.RecentEnroll != 400 || v.PriorEnroll != 200 || v.EnrollGrowthPct != 100 {
-		t.Errorf("enrollment = %d/%d (%+d%%)", v.RecentEnroll, v.PriorEnroll, v.EnrollGrowthPct)
+		t.Errorf("enrollment stays the sample's: %d/%d (%+d%%)", v.RecentEnroll, v.PriorEnroll, v.EnrollGrowthPct)
 	}
-	if !strings.Contains(v.Note, "sample covers 7 of 745") || !strings.Contains(v.Note, "started in 2026 or later") {
+	if len(v.ByYear) != 6 || v.ByYear[0].Year != 2021 {
+		t.Errorf("by_year stays the sample's: %+v", v.ByYear)
+	}
+	if !strings.Contains(v.Note, "exact registry counts") || !strings.Contains(v.Note, "sample of 7 of 745") {
 		t.Errorf("note = %q", v.Note)
 	}
-	if len(f.calls) != 2 || f.calls[1]["countTotal"] != "true" || f.calls[1]["query.cond"] != "long covid" {
-		t.Errorf("expected one fetch and one count probe for the same condition, got %v", f.calls)
+	seen := map[string]bool{}
+	for _, c := range f.calls[2:] {
+		if c["query.cond"] != "long covid" || c["countTotal"] != "true" {
+			t.Errorf("range request lacks the condition or countTotal: %v", c)
+		}
+		seen[c["filter.advanced"]] = true
 	}
+	if len(f.calls) != 6 || len(seen) != 4 || !seen[rngRecent3] || !seen[rngPrior3] || !seen[rngLater] || !seen[rngOlder3] {
+		t.Errorf("want one fetch, one total and four range requests, got %d calls, ranges %v", len(f.calls), seen)
+	}
+}
 
-	one, err := buildVelocityView(ctx, velocityFakeWith(2, "2025-01", "2024-01"), "x", 400, 3, 1, velocityNow)
+// A partial sample whose trials all lack a start date still gets valid registry
+// window counts, so the note must not say the matched trials cannot be placed on
+// a timeline: only by_year and the enrollment figures lack dated sample data.
+func TestBuildVelocityViewUndatedSampleKeepsRegistryCounts(t *testing.T) {
+	f := velocityFakeWith(745, "", "", "")
+	f.ranges = map[string]int{rngRecent3: 346, rngPrior3: 343, rngLater: 49, rngOlder3: 5}
+	v, err := buildVelocityView(context.Background(), f, "long covid", 400, 3, 3, velocityNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v.TrialCountsSource != "registry" || v.SampleSize != 3 || v.RecentTrials != 346 || v.PriorTrials != 343 || v.TrialGrowthPct != 1 {
+		t.Errorf("view = %+v: the registry counts must survive an undated sample", v)
+	}
+	if len(v.ByYear) != 0 || v.RecentEnroll != 0 || v.PriorEnroll != 0 {
+		t.Errorf("by_year and enrollment come from the sample, which has no dates: %+v", v)
+	}
+	if !strings.Contains(v.Note, "none of the sampled trials has a parseable start date") || !strings.Contains(v.Note, "exact registry counts") {
+		t.Errorf("note = %q", v.Note)
+	}
+	if strings.Contains(v.Note, "cannot place them on a timeline") || strings.Contains(v.Note, "matched trials have no parseable") {
+		t.Errorf("note contradicts the valid registry counts: %q", v.Note)
+	}
+}
+
+func TestBuildVelocityViewRangesFollowTheWindow(t *testing.T) {
+	f := velocityFakeWith(745, velocitySampleYears...)
+	f.ranges = map[string]int{
+		"AREA[StartDate]RANGE[2025-01-01,2025-12-31]": 82,
+		"AREA[StartDate]RANGE[2024-01-01,2024-12-31]": 85,
+		rngLater:                               49,
+		"AREA[StartDate]RANGE[MIN,2023-12-31]": 600,
+	}
+	v, err := buildVelocityView(context.Background(), f, "long covid", 400, 3, 1, velocityNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v.TrialCountsSource != "registry" || v.RecentTrials != 82 || v.PriorTrials != 85 || v.TrialGrowthPct != -4 || v.OlderTrials != 600 {
+		t.Errorf("one-year view = %+v", v)
+	}
+}
+
+// All or nothing: one failed range means the sample's counts, never a mixture.
+func TestBuildVelocityViewFallsBackToSampleWhenARangeFails(t *testing.T) {
+	f := velocityFakeWith(745, velocitySampleYears...)
+	f.ranges = map[string]int{rngRecent3: 346, rngPrior3: 343, rngLater: 49} // the older range is missing
+	v, err := buildVelocityView(context.Background(), f, "long covid", 400, 3, 3, velocityNow)
+	if err != nil {
+		t.Fatalf("a failed range must not fail the command: %v", err)
+	}
+	if v.TrialCountsSource != "sample" || v.RecentTrials != 4 || v.PriorTrials != 2 || v.LaterTrials != 1 || v.OlderTrials != 0 {
+		t.Errorf("view = %+v: every count must come from the sample", v)
+	}
+	if !strings.Contains(v.Note, "sample covers 7 of 745") || !strings.Contains(v.Note, "could not be fetched") || strings.Contains(v.Note, "exact registry counts for") {
+		t.Errorf("note = %q", v.Note)
+	}
+}
+
+func TestBuildVelocityViewCompleteSampleNeedsNoRanges(t *testing.T) {
+	f := velocityFakeWith(7, velocitySampleYears...) // the sample IS every matching trial
+	v, err := buildVelocityView(context.Background(), f, "x", 400, 3, 3, velocityNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v.TrialCountsSource != "registry" || v.RecentTrials != 4 || v.PriorTrials != 2 || len(f.calls) != 2 {
+		t.Errorf("view = %+v after %d requests, want sample counts labelled registry after 2", v, len(f.calls))
+	}
+	if strings.Contains(v.Note, "sample") {
+		t.Errorf("a complete sample needs no sample note: %q", v.Note)
+	}
+	one, err := buildVelocityView(context.Background(), velocityFakeWith(2, "2025-01", "2024-01"), "x", 400, 3, 1, velocityNow)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if one.RecentFrom != 2025 || one.PriorTo != 2024 || one.RecentTrials != 1 || one.PriorTrials != 1 {
 		t.Errorf("one-year windows = %+v", one)
-	}
-	if strings.Contains(one.Note, "sample covers") {
-		t.Errorf("sample equals registry total, got note %q", one.Note)
 	}
 }
 
@@ -250,6 +366,9 @@ func TestBuildVelocityViewSurvivesFailedCount(t *testing.T) {
 	}
 	if v.RegistryTotal != 0 || strings.Contains(v.Note, "sample covers") || v.SampleSize != 2 {
 		t.Errorf("view = %+v", v)
+	}
+	if v.TrialCountsSource != "sample" || strings.Contains(v.Note, "could not be fetched") || len(f.calls) != 2 {
+		t.Errorf("without a registry total no range is asked for: source %q, %d requests, note %q", v.TrialCountsSource, len(f.calls), v.Note)
 	}
 }
 
@@ -276,7 +395,7 @@ func TestVelocityViewJSONShape(t *testing.T) {
 	raw, _ := json.Marshal(v)
 	var m map[string]any
 	_ = json.Unmarshal(raw, &m)
-	for _, k := range []string{"recent_from", "recent_to", "prior_from", "prior_to", "later_trials", "older_trials", "window_years"} {
+	for _, k := range []string{"recent_from", "recent_to", "prior_from", "prior_to", "later_trials", "older_trials", "window_years", "trial_counts_source"} {
 		if _, ok := m[k]; !ok {
 			t.Errorf("JSON lacks %q: %s", k, raw)
 		}
@@ -289,7 +408,7 @@ func TestVelocityViewJSONShape(t *testing.T) {
 func TestWriteVelocityHuman(t *testing.T) {
 	v := velocityView{Query: "long covid", SampleSize: 400, RegistryTotal: 745, WindowYears: 3,
 		RecentFrom: 2023, RecentTo: 2025, PriorFrom: 2020, PriorTo: 2022,
-		RecentTrials: 346, PriorTrials: 343, TrialGrowthPct: 1, RecentEnroll: 10, PriorEnroll: 5, EnrollGrowthPct: 100,
+		TrialCountsSource: "registry", RecentTrials: 346, PriorTrials: 343, TrialGrowthPct: 1, RecentEnroll: 10, PriorEnroll: 5, EnrollGrowthPct: 100,
 		ByYear: []yearBucket{{Year: 2024, Trials: 85, Enrollment: 10}}, Note: "a note"}
 	var buf bytes.Buffer
 	if err := writeVelocityHuman(&buf, v); err != nil {
@@ -297,7 +416,7 @@ func TestWriteVelocityHuman(t *testing.T) {
 	}
 	out := buf.String()
 	for _, want := range []string{
-		"(sample 400 of 745)",
+		"(sample 400 of 745, trial counts from the registry)",
 		"Recent 2023–2025: 346 trials (+1%)",
 		"vs prior 2020–2022: 343 trials",
 		"  2024    85 trials",
@@ -306,6 +425,12 @@ func TestWriteVelocityHuman(t *testing.T) {
 		if !strings.Contains(out, want) {
 			t.Errorf("output lacks %q:\n%s", want, out)
 		}
+	}
+	v.TrialCountsSource = "sample"
+	buf.Reset()
+	_ = writeVelocityHuman(&buf, v)
+	if !strings.Contains(buf.String(), "(sample 400 of 745)\n") {
+		t.Errorf("sample counts print without the registry remark:\n%s", buf.String())
 	}
 	v.RegistryTotal = 400
 	v.RecentFrom, v.PriorFrom, v.PriorTo = 2025, 2024, 2024
