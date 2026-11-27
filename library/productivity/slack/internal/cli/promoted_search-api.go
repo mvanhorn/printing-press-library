@@ -152,7 +152,9 @@ func runSearchApiSubcmd(cmd *cobra.Command, flags *rootFlags, path, flagQuery st
 	if flagSortDir != "" {
 		params["sort_dir"] = formatCLIParamValue(flagSortDir)
 	}
-	return runSlackGetEndpoint(cmd, flags, path, params)
+	// Slack's search.* endpoints require a user token (xoxp-); bot tokens are
+	// rejected with not_allowed_token_type even when SLACK_USER_TOKEN is also set.
+	return runSlackUserTokenGetEndpoint(cmd, flags, path, params)
 }
 
 func newSearchApiFilesCmd(flags *rootFlags) *cobra.Command {

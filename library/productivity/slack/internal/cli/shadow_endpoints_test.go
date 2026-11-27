@@ -215,3 +215,84 @@ func TestSlackWebClient_AuthAndEndpoints(t *testing.T) {
 		}
 	}
 }
+
+func TestSlackSearchSubcommands_PreferUserTokenOverBotToken(t *testing.T) {
+	var seenAuth []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seenAuth = append(seenAuth, r.URL.Path+"="+r.Header.Get("Authorization"))
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"query":"roadmap","files":{"total":0,"matches":[]},"messages":{"total":0,"matches":[]}}`))
+	}))
+	defer srv.Close()
+	setupSlackShadowTestEnv(t, srv.URL)
+	// Set BOTH bot and user tokens; search.files and search.all must send xoxp-.
+	t.Setenv("SLACK_BOT_TOKEN", "xoxb-bot-should-not-be-used")
+	t.Setenv("SLACK_USER_TOKEN", "xoxp-user-token-expected")
+
+	for _, args := range [][]string{
+		{"search-api", "files", "--query", "roadmap", "--json", "--no-learn", "--no-cache"},
+		{"search-api", "all", "--query", "roadmap", "--json", "--no-learn", "--no-cache"},
+	} {
+		var stdout, stderr bytes.Buffer
+		cmd := newRootCmd(&rootFlags{})
+		cmd.SetOut(&stdout)
+		cmd.SetErr(&stderr)
+		cmd.SetArgs(args)
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("%v failed: %v (stderr=%s)", args, err, stderr.String())
+		}
+	}
+
+	want := []string{
+		"/search.files=Bearer xoxp-user-token-expected",
+		"/search.all=Bearer xoxp-user-token-expected",
+	}
+	if len(seenAuth) != len(want) {
+		t.Fatalf("seenAuth = %v, want %v", seenAuth, want)
+	}
+	for i := range want {
+		if seenAuth[i] != want[i] {
+			t.Errorf("seenAuth[%d] = %q, want %q", i, seenAuth[i], want[i])
+		}
+	}
+}
+
+func TestSlackWebClient_BodyErrorExitCodes(t *testing.T) {
+	cases := []struct {
+		name     string
+		body     string
+		wantCode int
+	}{
+		{name: "invalid_auth", body: `{"ok":false,"error":"invalid_auth"}`, wantCode: 4},
+		{name: "not_authed", body: `{"ok":false,"error":"not_authed"}`, wantCode: 4},
+		{name: "token_expired", body: `{"ok":false,"error":"token_expired"}`, wantCode: 4},
+		{name: "not_allowed_token_type", body: `{"ok":false,"error":"not_allowed_token_type"}`, wantCode: 4},
+		{name: "ratelimited", body: `{"ok":false,"error":"ratelimited"}`, wantCode: 7},
+		{name: "internal_error", body: `{"ok":false,"error":"internal_error"}`, wantCode: 5},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(tc.body))
+			}))
+			defer srv.Close()
+			setupSlackShadowTestEnv(t, srv.URL)
+			t.Setenv("SLACK_SESSION_TOKEN", "xoxc-test-session")
+			t.Setenv("SLACK_COOKIE_D", "xoxd-test-cookie")
+
+			cmd := newRootCmd(&rootFlags{})
+			cmd.SetOut(&bytes.Buffer{})
+			cmd.SetErr(&bytes.Buffer{})
+			cmd.SetArgs([]string{"web-client", "unreads", "--json", "--no-learn"})
+			err := cmd.Execute()
+			if err == nil {
+				t.Fatalf("expected error for %s", tc.body)
+			}
+			if got := ExitCode(err); got != tc.wantCode {
+				t.Fatalf("ExitCode(%v) = %d, want %d", err, got, tc.wantCode)
+			}
+		})
+	}
+}

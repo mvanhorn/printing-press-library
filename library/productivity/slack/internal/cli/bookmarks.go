@@ -32,6 +32,14 @@ func emitSlackReadJSON(cmd *cobra.Command, flags *rootFlags, data json.RawMessag
 }
 
 func runSlackGetEndpoint(cmd *cobra.Command, flags *rootFlags, path string, params map[string]string) error {
+	return runSlackGetEndpointWithOptions(cmd, flags, path, params, false)
+}
+
+func runSlackUserTokenGetEndpoint(cmd *cobra.Command, flags *rootFlags, path string, params map[string]string) error {
+	return runSlackGetEndpointWithOptions(cmd, flags, path, params, true)
+}
+
+func runSlackGetEndpointWithOptions(cmd *cobra.Command, flags *rootFlags, path string, params map[string]string, preferUserToken bool) error {
 	if flags.dataSource == "local" {
 		return notFoundErr(fmt.Errorf("%s requires live Slack API access", path))
 	}
@@ -41,6 +49,9 @@ func runSlackGetEndpoint(cmd *cobra.Command, flags *rootFlags, path string, para
 	c, err := flags.newClient()
 	if err != nil {
 		return err
+	}
+	if preferUserToken {
+		c = c.PreferUserToken()
 	}
 	data, err := c.Get(cmd.Context(), path, params)
 	if err != nil {

@@ -3,62 +3,14 @@
 package cli
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
-	"net/http"
-	"os"
-	"os/exec"
 	"strings"
-	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/client"
 	"github.com/spf13/cobra"
 )
-
-// slackWebCookieHeader resolves the Slack `d` session cookie without ever
-// printing or persisting cookie values. Order:
-//  1. SLACK_COOKIE_D env var (either bare xoxd-... value or "d=..." pair)
-//  2. `agentcookie cookies --domain .slack.com` CLI if installed on PATH
-func slackWebCookieHeader(ctx context.Context) (string, error) {
-	if raw := strings.TrimSpace(os.Getenv("SLACK_COOKIE_D")); raw != "" {
-		if strings.HasPrefix(raw, "d=") {
-			return raw, nil
-		}
-		return "d=" + raw, nil
-	}
-	bin, err := exec.LookPath("agentcookie")
-	if err != nil {
-		return "", authErr(fmt.Errorf("missing Slack session cookie: set SLACK_COOKIE_D or install agentcookie with a logged-in .slack.com session"))
-	}
-	cctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-	out, err := exec.CommandContext(cctx, bin, "cookies", "--domain", ".slack.com").Output()
-	if err != nil {
-		return "", authErr(fmt.Errorf("failed to resolve .slack.com cookies via agentcookie: %w", err))
-	}
-	header := strings.TrimSpace(string(out))
-	if header == "" {
-		return "", authErr(fmt.Errorf("agentcookie returned no active .slack.com cookies; sign into Slack in Chrome or set SLACK_COOKIE_D"))
-	}
-	return header, nil
-}
-
-func slackWebSessionToken() (string, error) {
-	tok := strings.TrimSpace(os.Getenv("SLACK_SESSION_TOKEN"))
-	if tok == "" {
-		return "", authErr(fmt.Errorf("SLACK_SESSION_TOKEN (xoxc-...) is required for web-client internal endpoints"))
-	}
-	return tok, nil
-}
-
-func slackWebBaseURL() string {
-	if v := strings.TrimSpace(os.Getenv("SLACK_BASE_URL")); v != "" {
-		return strings.TrimRight(v, "/")
-	}
-	return "https://slack.com/api"
-}
 
 // runSlackWebClientPost calls an internal Slack desktop/web RPC method using
 // xoxc session token + d cookie authentication. These endpoints reject OAuth
@@ -71,62 +23,22 @@ func runSlackWebClientPost(cmd *cobra.Command, flags *rootFlags, path string, bo
 		return emitSlackReadJSON(cmd, flags, json.RawMessage(fmt.Sprintf(`{"dry_run":true,"method":"POST","path":%q,"auth":"xoxc+cookie"}`, path)))
 	}
 
-	token, err := slackWebSessionToken()
+	raw, err := client.PostWebSession(cmd.Context(), path, body, flags.timeout)
 	if err != nil {
-		return err
+		var wsErr *client.WebSessionError
+		if errors.As(err, &wsErr) {
+			switch wsErr.Kind {
+			case client.WebSessionErrAuth:
+				return authErr(wsErr)
+			case client.WebSessionErrRateLimit:
+				return rateLimitErr(wsErr)
+			default:
+				return apiErr(wsErr)
+			}
+		}
+		return apiErr(err)
 	}
-	cookieHeader, err := slackWebCookieHeader(cmd.Context())
-	if err != nil {
-		return err
-	}
-
-	if body == nil {
-		body = map[string]any{}
-	}
-	payload, err := json.Marshal(body)
-	if err != nil {
-		return fmt.Errorf("marshal request body: %w", err)
-	}
-
-	timeout := flags.timeout
-	if timeout <= 0 {
-		timeout = 30 * time.Second
-	}
-	reqCtx, cancel := context.WithTimeout(cmd.Context(), timeout)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(reqCtx, http.MethodPost, slackWebBaseURL()+path, bytes.NewReader(payload))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-	req.Header.Set("Cookie", cookieHeader)
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("Accept", "application/json")
-
-	resp, err := (&http.Client{Timeout: timeout}).Do(req)
-	if err != nil {
-		return apiErr(fmt.Errorf("slack web-client %s: %w", path, err))
-	}
-	defer resp.Body.Close()
-
-	raw, err := io.ReadAll(io.LimitReader(resp.Body, 16*1024*1024))
-	if err != nil {
-		return apiErr(fmt.Errorf("reading slack web-client %s response: %w", path, err))
-	}
-	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
-		return authErr(fmt.Errorf("slack web-client %s returned HTTP %d", path, resp.StatusCode))
-	}
-	if resp.StatusCode == http.StatusTooManyRequests {
-		return rateLimitErr(fmt.Errorf("slack web-client %s rate limited (HTTP 429)", path))
-	}
-	if resp.StatusCode >= 400 {
-		return apiErr(fmt.Errorf("slack web-client %s returned HTTP %d", path, resp.StatusCode))
-	}
-	if slackErr := checkSlackAPIError(json.RawMessage(raw)); slackErr != nil {
-		return slackErr
-	}
-	return emitSlackReadJSON(cmd, flags, json.RawMessage(raw))
+	return emitSlackReadJSON(cmd, flags, raw)
 }
 
 func newWebClientCmd(flags *rootFlags) *cobra.Command {
