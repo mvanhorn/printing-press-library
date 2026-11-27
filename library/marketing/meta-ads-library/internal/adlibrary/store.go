@@ -3,6 +3,7 @@
 package adlibrary
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -191,21 +192,51 @@ func ftsRowIDForResource(resourceType, id string) int64 {
 	return int64(h.Sum64() & 0x7FFFFFFFFFFFFFFF)
 }
 
-func adSearchableText(ad Ad, raw []byte) string {
-	parts := make([]string, 0, 14)
-	for _, s := range []string{
-		ad.AdArchiveID, ad.PageID, ad.PageName, ad.Country, ad.AdType,
-		ad.DisplayFormat, ad.BodyText, ad.LinkTitle, ad.LinkCaption,
-		ad.LinkDescription, ad.CTAText, ad.LandingDomain, ad.LandingURL, ad.Byline,
-	} {
-		if t := strings.TrimSpace(s); t != "" {
-			parts = append(parts, t)
-		}
+// adSearchableText mirrors store.searchableResourceContent by recursively
+// extracting all searchable string values from the serialized Ad JSON
+// (including publisher_platform, page_categories, and all carousel cards) so
+// local FTS5 search results remain identical to s.Upsert.
+func adSearchableText(_ Ad, raw []byte) string {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	var value any
+	if err := dec.Decode(&value); err != nil {
+		return string(raw)
 	}
+	var parts []string
+	collectAdSearchableStrings(&parts, "", value)
 	if len(parts) == 0 {
 		return string(raw)
 	}
 	return strings.Join(parts, " ")
+}
+
+func collectAdSearchableStrings(parts *[]string, key string, value any) {
+	switch v := value.(type) {
+	case map[string]any:
+		keys := make([]string, 0, len(v))
+		for k := range v {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, childKey := range keys {
+			collectAdSearchableStrings(parts, childKey, v[childKey])
+		}
+	case []any:
+		for _, child := range v {
+			collectAdSearchableStrings(parts, key, child)
+		}
+	case string:
+		s := strings.TrimSpace(v)
+		if len(s) < 2 {
+			return
+		}
+		lower := strings.ToLower(s)
+		if strings.HasPrefix(lower, "http://") || strings.HasPrefix(lower, "https://") {
+			return
+		}
+		*parts = append(*parts, s)
+	}
 }
 
 func upsertFrameworkResourceTx(ctx context.Context, conn *sql.Conn, resourceType, id string, raw []byte, searchable, ts string) error {

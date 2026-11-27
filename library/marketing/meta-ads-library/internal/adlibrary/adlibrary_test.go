@@ -624,10 +624,29 @@ func TestSearchConnectionValidationAndConcurrentReconciliation(t *testing.T) {
 	newerTime := now.Add(-2 * time.Second).Format(utcTimestampLayout) // after scanStarted!
 
 	if err := SaveAdsBatch(ctx, s, []Ad{
-		{AdArchiveID: "old_stopped", PageID: "900", PageName: "RaceCo", Country: "US", IsActive: true, CollationCount: 2, CollectedAt: olderTime},
+		{
+			AdArchiveID:       "old_stopped",
+			PageID:            "900",
+			PageName:          "RaceCo",
+			Country:           "US",
+			IsActive:          true,
+			CollationCount:    2,
+			PublisherPlatform: []string{"INSTAGRAM", "FACEBOOK"},
+			PageCategories:    []string{"Sportswear"},
+			Cards:             []CreativeCard{{Body: "CarouselOnlyToken copy", Title: "CardHeadline"}},
+			CollectedAt:       olderTime,
+		},
 		{AdArchiveID: "fresh_active", PageID: "900", PageName: "RaceCo", Country: "US", IsActive: true, CollationCount: 5, BodyText: "Newer copy", CollectedAt: newerTime},
 	}); err != nil {
 		t.Fatalf("SaveAdsBatch: %v", err)
+	}
+
+	// Verify FTS5 search indexes publisher_platform, page_categories, and carousel card text before reconciliation.
+	for _, term := range []string{"INSTAGRAM", "Sportswear", "CarouselOnlyToken"} {
+		hits, searchErr := s.Search(term, 10, "ads")
+		if searchErr != nil || len(hits) == 0 {
+			t.Fatalf("expected FTS search for %q before reconciliation to match old_stopped, got hits=%d err=%v", term, len(hits), searchErr)
+		}
 	}
 
 	// Reconcile an empty scan that started at scanStarted -> should deactivate old_stopped,
@@ -654,6 +673,13 @@ func TestSearchConnectionValidationAndConcurrentReconciliation(t *testing.T) {
 	}
 	if rawStopped, err := s.Get("ads", "old_stopped"); err != nil || !strings.Contains(string(rawStopped), `"is_active":false`) {
 		t.Fatalf("framework store old_stopped should be inactive: raw=%s err=%v", string(rawStopped), err)
+	}
+	// Verify FTS5 search still matches publisher_platform, page_categories, and carousel card text after deactivation.
+	for _, term := range []string{"INSTAGRAM", "Sportswear", "CarouselOnlyToken"} {
+		hits, searchErr := s.Search(term, 10, "ads")
+		if searchErr != nil || len(hits) == 0 {
+			t.Fatalf("expected FTS search for %q after reconciliation to match old_stopped, got hits=%d err=%v", term, len(hits), searchErr)
+		}
 	}
 	// Older SaveAdsBatch must also never clobber fresh_active in meta_ads or resources.
 	if err := SaveAdsBatch(ctx, s, []Ad{

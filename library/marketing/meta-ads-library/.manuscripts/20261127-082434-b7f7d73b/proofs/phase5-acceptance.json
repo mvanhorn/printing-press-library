@@ -11,17 +11,17 @@
   "auth_context": {
     "type": "api_key"
   },
-  "source_fingerprint": "78690a77b4cea764e068f7440cf4c01fc97b190346a0abf36055c0bf464d251a",
+  "source_fingerprint": "993910200be8c7ca4c0801c4b031c103727bf20588d832fac49c26e691c84e19",
   "source_files": {
     "cmd/meta-ads-library-pp-cli/main.go": "f5725258b314ab90f8c9dc24b5cd6940e8ff59aad0e709c716408aa612bab1b7",
     "cmd/meta-ads-library-pp-mcp/http_auth_test.go": "13eb6d28ee809fa771bafe6b62b8168ac42155cf8d3e48a5a1b5590a2296bc90",
     "cmd/meta-ads-library-pp-mcp/main.go": "44b259508fb54551f37c2dc0c0fbf0274f30c6fbdbf3382ae720bfdbee0418fe",
     "go.mod": "1c1ce04b9683a837a455ca53a7e85b4d5b2a2e9c9c83fd2c8beda6993f57d6ae",
     "go.sum": "4e2b1824f95050ac5c2b74231946a88fd105971c4685f40557c8719779f88213",
-    "internal/adlibrary/adlibrary_test.go": "76eeb76b60bdda2f7a46bbb49b9d33e7ac98b978fb0384c652733f2124592f1e",
+    "internal/adlibrary/adlibrary_test.go": "0449074819370bf12d6f6722d8aa4c52776b844a4470684c6b4aa193477515e8",
     "internal/adlibrary/client.go": "d1452aff9f09c63b2b81d752ed7bb31ed6442b742a5326380165e59efa0d5d5d",
     "internal/adlibrary/models.go": "d1624c6c2596ad9f2b42a1a9d51c32d25d055c3c98e121b062619f4db5b7bf98",
-    "internal/adlibrary/store.go": "a984f35b234d409e30c6cc186bd1608eb9a50f7976a0494c103256ed5ec19334",
+    "internal/adlibrary/store.go": "6e51105f3ab6a9666adbd64d0b972db9d351b9c69ef1a54bab3db80998a83933",
     "internal/cache/cache.go": "17050df3394758e7640d23d4185d2068dd5d92cbce2cebc92fc7307fb74d9ede",
     "internal/cli/ads.go": "ca73f65b383b42031e86187532820ee0f8496965fd6091e3d3751add85c2ec9a",
     "internal/cli/advertisers.go": "e3f2bd6c795d3048371165666b97d97da077a02cbab1c0fdd8e99ca19225ea2b",
