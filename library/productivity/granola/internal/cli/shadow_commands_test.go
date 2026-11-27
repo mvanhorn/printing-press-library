@@ -4,7 +4,11 @@ package cli
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola"
 )
 
 func TestShadowDiscoveredCommands_DryRunAndLocalGuard(t *testing.T) {
@@ -62,5 +66,40 @@ func TestShadowDiscoveredCommands_DryRunAndLocalGuard(t *testing.T) {
 		if err := rc.Execute(); err == nil {
 			t.Errorf("%v: expected error with --data-source local", args)
 		}
+	}
+}
+
+func TestClassifyInternalAPIErrAndMissingAuthExitCode(t *testing.T) {
+	if got := ExitCode(classifyInternalAPIErr(&cliutil.RateLimitError{URL: "https://api.granola.ai/v1/get-user-info"})); got != 7 {
+		t.Fatalf("RateLimitError exit code = %d, want 7", got)
+	}
+	if got := ExitCode(classifyInternalAPIErr(fmt.Errorf("granola /v1/get-user-info: status 401: unauthorized"))); got != 4 {
+		t.Fatalf("401 exit code = %d, want 4", got)
+	}
+	if got := ExitCode(classifyInternalAPIErr(fmt.Errorf("granola /v1/get-user-info: status 500: boom"))); got != 5 {
+		t.Fatalf("500 exit code = %d, want 5", got)
+	}
+
+	// End-to-end command check: missing credentials must return exit code 4, not 5.
+	tmp := t.TempDir()
+	t.Setenv("HOME", tmp)
+	t.Setenv("XDG_DATA_HOME", tmp)
+	t.Setenv("XDG_CONFIG_HOME", tmp)
+	t.Setenv("GRANOLA_SUPPORT_DIR", tmp)
+	t.Setenv("GRANOLA_WORKOS_TOKEN", "")
+	granola.ResetTokenCache()
+	t.Cleanup(granola.ResetTokenCache)
+
+	var out bytes.Buffer
+	rc := RootCmd()
+	rc.SetOut(&out)
+	rc.SetErr(&out)
+	rc.SetArgs([]string{"account", "info", "--json"})
+	err := rc.Execute()
+	if err == nil {
+		t.Fatal("expected error when credentials are missing")
+	}
+	if got := ExitCode(err); got != 4 {
+		t.Fatalf("missing-credentials exit code = %d, want 4 (err=%v)", got, err)
 	}
 }

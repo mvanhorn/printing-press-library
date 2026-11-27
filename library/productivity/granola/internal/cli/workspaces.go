@@ -88,7 +88,7 @@ func newWorkspacesMembersCmd(flags *rootFlags) *cobra.Command {
 			}
 			raw, err := ic.GetWorkspaceMembers(args[0])
 			if err != nil {
-				return apiErr(err)
+				return classifyInternalAPIErr(err)
 			}
 			return emitJSON(cmd, flags, raw)
 		},
@@ -116,7 +116,7 @@ func newWorkspacesNotesCountCmd(flags *rootFlags) *cobra.Command {
 			}
 			raw, err := ic.GetWorkspacesNotesCount()
 			if err != nil {
-				return apiErr(err)
+				return classifyInternalAPIErr(err)
 			}
 			return emitJSON(cmd, flags, raw)
 		},
@@ -145,7 +145,7 @@ func newWorkspacesIntegrationsCmd(flags *rootFlags) *cobra.Command {
 			}
 			raw, err := ic.ListAvailableIntegrations(workspaceID)
 			if err != nil {
-				return apiErr(err)
+				return classifyInternalAPIErr(err)
 			}
 			return emitJSON(cmd, flags, raw)
 		},
@@ -175,7 +175,7 @@ func newWorkspacesMCPAgentsCmd(flags *rootFlags) *cobra.Command {
 			}
 			raw, err := ic.GetMCPAgents(workspaceID)
 			if err != nil {
-				return apiErr(err)
+				return classifyInternalAPIErr(err)
 			}
 			return emitJSON(cmd, flags, raw)
 		},

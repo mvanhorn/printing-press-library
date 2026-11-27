@@ -38,7 +38,7 @@ func newPeopleListCmd(flags *rootFlags) *cobra.Command {
 			}
 			raw, err := ic.GetPeople()
 			if err != nil {
-				return apiErr(err)
+				return classifyInternalAPIErr(err)
 			}
 			return emitJSON(cmd, flags, raw)
 		},

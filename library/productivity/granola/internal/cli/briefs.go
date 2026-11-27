@@ -39,7 +39,7 @@ func newBriefsListCmd(flags *rootFlags) *cobra.Command {
 			}
 			raw, err := ic.GetPreMeetingBriefs()
 			if err != nil {
-				return apiErr(err)
+				return classifyInternalAPIErr(err)
 			}
 			return emitJSON(cmd, flags, raw)
 		},
@@ -66,7 +66,7 @@ func newBriefsFollowUpsCmd(flags *rootFlags) *cobra.Command {
 			}
 			raw, err := ic.GetFollowUpEmails()
 			if err != nil {
-				return apiErr(err)
+				return classifyInternalAPIErr(err)
 			}
 			return emitJSON(cmd, flags, raw)
 		},

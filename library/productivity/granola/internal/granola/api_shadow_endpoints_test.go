@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -138,5 +139,61 @@ func TestShadowEndpointInvalidJSONRejected(t *testing.T) {
 
 	if _, err := ic.GetPeople(); err == nil {
 		t.Fatal("expected shapeError for non-JSON payload")
+	}
+}
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
+
+func TestShadowEndpointShardRouting(t *testing.T) {
+	t.Setenv("GRANOLA_WORKOS_TOKEN", "test-access-token")
+	ResetTokenCache()
+	t.Cleanup(ResetTokenCache)
+
+	var gotURLs []string
+	ic, err := NewInternalClient()
+	if err != nil {
+		t.Fatalf("NewInternalClient: %v", err)
+	}
+	// Intentionally keep default baseURL so postTo selects the real shard hosts,
+	// intercepting at the HTTP transport layer with zero network IO.
+	ic.SetHTTPClient(&http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			gotURLs = append(gotURLs, req.URL.Scheme+"://"+req.URL.Host+req.URL.Path)
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Header:     make(http.Header),
+				Body:       io.NopCloser(strings.NewReader(`{}`)),
+			}, nil
+		}),
+	})
+
+	cases := []struct {
+		name    string
+		wantURL string
+		fn      func() (json.RawMessage, error)
+	}{
+		{"GetUserInfo", "https://api.granola.ai/v1/get-user-info", ic.GetUserInfo},
+		{"GetSubscriptions", "https://api.granola.ai/v1/get-subscriptions", ic.GetSubscriptions},
+		{"ListUserSessions", "https://api.granola.ai/v1/list-user-sessions", ic.ListUserSessions},
+		{"GetWorkspaceMembers", "https://api.granola.ai/v1/get-workspace-members", func() (json.RawMessage, error) { return ic.GetWorkspaceMembers("ws-123") }},
+		{"GetWorkspacesNotesCount", "https://api.granola.ai/v1/get-workspaces-notes-count", ic.GetWorkspacesNotesCount},
+		{"GetPeople", "https://pecan.api.granola.ai/v1/get-people", ic.GetPeople},
+		{"GetPreMeetingBriefs", "https://maple.api.granola.ai/v1/get-pre-meeting-briefs", ic.GetPreMeetingBriefs},
+		{"GetFollowUpEmails", "https://berry.api.granola.ai/v1/get-follow-up-emails", ic.GetFollowUpEmails},
+		{"GetMCPAgents", "https://cinnamon.api.granola.ai/v1/get-mcp-agents", func() (json.RawMessage, error) { return ic.GetMCPAgents("ws-123") }},
+		{"ListAvailableIntegrations", "https://chia.api.granola.ai/v1/list-available-integrations", func() (json.RawMessage, error) { return ic.ListAvailableIntegrations("ws-123") }},
+	}
+
+	for i, tc := range cases {
+		if _, err := tc.fn(); err != nil {
+			t.Fatalf("%s failed: %v", tc.name, err)
+		}
+		if gotURLs[i] != tc.wantURL {
+			t.Errorf("%s routed to %q, want %q", tc.name, gotURLs[i], tc.wantURL)
+		}
 	}
 }
