@@ -13245,9 +13245,9 @@
       "path": "library/productivity/granola",
       "release": {
         "cli_name": "granola-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-01T21:59:12Z",
-        "source_commit": "510cfc6e161939ca1d864a35037bd342efd511d2"
+        "version": "2026.11.1",
+        "released_at": "2026-11-27T09:54:18Z",
+        "source_commit": "128627b909ac72242b938d86d3076439f109a8e8"
       },
       "printer": "dstevens",
       "printer_name": "Damien Stevens",
@@ -28910,9 +28910,9 @@
       "path": "library/productivity/slack",
       "release": {
         "cli_name": "slack-pp-cli",
-        "version": "2026.10.4",
-        "released_at": "2026-10-23T14:24:31Z",
-        "source_commit": "986b1df61eb325952a0a9fe0fed98c8bdd64e740"
+        "version": "2026.11.1",
+        "released_at": "2026-11-27T09:54:18Z",
+        "source_commit": "128627b909ac72242b938d86d3076439f109a8e8"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
