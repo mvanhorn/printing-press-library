@@ -190,3 +190,62 @@ func TestCodeOrchExecute_WebClientUsesSessionCredentials(t *testing.T) {
 		t.Fatalf("expected MCP error mentioning invalid_auth, got %#v", res)
 	}
 }
+
+func TestCodeOrchExecute_SlackOkFalseReturnsMCPError(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/bookmarks.add":
+			_, _ = w.Write([]byte(`{"ok":false,"error":"missing_scope","needed":"bookmarks:write"}`))
+		case "/bookmarks.list":
+			_, _ = w.Write([]byte(`{"ok":false,"error":"channel_not_found"}`))
+		default:
+			_, _ = w.Write([]byte(`{"ok":true}`))
+		}
+	}))
+	defer srv.Close()
+
+	tmp := t.TempDir()
+	t.Setenv("HOME", tmp)
+	t.Setenv("XDG_CONFIG_HOME", tmp)
+	t.Setenv("SLACK_BASE_URL", srv.URL)
+	t.Setenv("SLACK_USER_TOKEN", "xoxp-test-token")
+	t.Setenv("SLACK_BOT_TOKEN", "")
+
+	addRes, err := handleCodeOrchExecute(context.Background(), mcplib.CallToolRequest{
+		Params: mcplib.CallToolParams{
+			Name: "slack_execute",
+			Arguments: map[string]any{
+				"endpoint_id": "bookmarks.add",
+				"params": map[string]any{
+					"channel_id": "C123",
+					"title":      "Runbook",
+					"type":       "link",
+					"link":       "https://example.com",
+				},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("bookmarks.add handler error: %v", err)
+	}
+	if addRes == nil || !addRes.IsError || !strings.Contains(mcpTextContent(t, addRes), "bookmarks:write") {
+		t.Fatalf("expected MCP error mentioning bookmarks:write, got %#v", addRes)
+	}
+
+	listRes, err := handleCodeOrchExecute(context.Background(), mcplib.CallToolRequest{
+		Params: mcplib.CallToolParams{
+			Name: "slack_execute",
+			Arguments: map[string]any{
+				"endpoint_id": "bookmarks.list",
+				"params":      map[string]any{"channel_id": "C999"},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("bookmarks.list handler error: %v", err)
+	}
+	if listRes == nil || !listRes.IsError || !strings.Contains(mcpTextContent(t, listRes), "channel_not_found") {
+		t.Fatalf("expected MCP error mentioning channel_not_found, got %#v", listRes)
+	}
+}

@@ -1242,6 +1242,9 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
+	if slackErr := checkSlackMCPBodyError(data); slackErr != nil {
+		return mcplib.NewToolResultError(slackErr.Error()), nil
+	}
 	return mcplib.NewToolResultText(bound.EndpointResponse(ep.Method, data)), nil
 }
 

@@ -4,6 +4,8 @@ package mcp
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -222,4 +224,25 @@ func executeShadowWebClientMCP(ctx context.Context, ep *codeOrchEndpoint, params
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 	return mcplib.NewToolResultText(bound.EndpointResponse(ep.Method, raw)), nil
+}
+
+// checkSlackMCPBodyError detects Slack's HTTP 200 {"ok":false,"error":"..."}
+// error envelope so rejected OAuth API calls (e.g. missing_scope on
+// bookmarks.add) surface as MCP tool errors instead of looking successful.
+func checkSlackMCPBodyError(data json.RawMessage) error {
+	var resp struct {
+		OK     bool   `json:"ok"`
+		Error  string `json:"error"`
+		Needed string `json:"needed"`
+	}
+	if json.Unmarshal(data, &resp) != nil {
+		return nil
+	}
+	if resp.OK || resp.Error == "" {
+		return nil
+	}
+	if resp.Error == "missing_scope" && resp.Needed != "" {
+		return fmt.Errorf("missing Slack scope: %s (add it in your Slack app OAuth & Permissions settings and reinstall)", resp.Needed)
+	}
+	return fmt.Errorf("Slack API error: %s", resp.Error)
 }
