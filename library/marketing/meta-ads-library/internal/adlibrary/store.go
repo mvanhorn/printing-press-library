@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"sort"
 	"strings"
 	"time"
@@ -182,9 +183,55 @@ func parseStoredTimestamp(raw string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
-// SaveAdsBatch persists normalized Ad rows into meta_ads (in one transaction)
-// and then mirrors them into the framework resources/FTS5 store outside the
-// transaction to avoid nested SQLite WAL write locks.
+func ftsRowIDForResource(resourceType, id string) int64 {
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(resourceType))
+	_, _ = h.Write([]byte{0})
+	_, _ = h.Write([]byte(id))
+	return int64(h.Sum64() & 0x7FFFFFFFFFFFFFFF)
+}
+
+func adSearchableText(ad Ad, raw []byte) string {
+	parts := make([]string, 0, 14)
+	for _, s := range []string{
+		ad.AdArchiveID, ad.PageID, ad.PageName, ad.Country, ad.AdType,
+		ad.DisplayFormat, ad.BodyText, ad.LinkTitle, ad.LinkCaption,
+		ad.LinkDescription, ad.CTAText, ad.LandingDomain, ad.LandingURL, ad.Byline,
+	} {
+		if t := strings.TrimSpace(s); t != "" {
+			parts = append(parts, t)
+		}
+	}
+	if len(parts) == 0 {
+		return string(raw)
+	}
+	return strings.Join(parts, " ")
+}
+
+func upsertFrameworkResourceTx(ctx context.Context, conn *sql.Conn, resourceType, id string, raw []byte, searchable, ts string) error {
+	if _, err := conn.ExecContext(ctx, `
+		INSERT INTO resources (id, resource_type, data, synced_at, updated_at)
+		VALUES (?, ?, ?, ?, ?)
+		ON CONFLICT(resource_type, id) DO UPDATE SET
+			data = excluded.data,
+			synced_at = excluded.synced_at,
+			updated_at = excluded.updated_at
+	`, id, resourceType, string(raw), ts, ts); err != nil {
+		return err
+	}
+	ftsID := ftsRowIDForResource(resourceType, id)
+	_, _ = conn.ExecContext(ctx, `DELETE FROM resources_fts WHERE rowid = ?`, ftsID)
+	_, _ = conn.ExecContext(ctx, `
+		INSERT INTO resources_fts (rowid, id, resource_type, content)
+		VALUES (?, ?, ?, ?)
+	`, ftsID, id, resourceType, searchable)
+	return nil
+}
+
+// SaveAdsBatch persists normalized Ad rows into meta_ads AND mirrors them into
+// the framework resources/FTS5 store inside a single BEGIN IMMEDIATE write
+// transaction so overlapping searches and reconciliations can never diverge
+// between meta_ads and resources.
 func SaveAdsBatch(ctx context.Context, s *store.Store, ads []Ad) error {
 	if len(ads) == 0 {
 		return nil
@@ -194,11 +241,23 @@ func SaveAdsBatch(ctx context.Context, s *store.Store, ads []Ad) error {
 	}
 
 	nowStr := time.Now().UTC().Format(utcTimestampLayout)
-	tx, err := s.DB().BeginTx(ctx, nil)
+	conn, err := s.DB().Conn(ctx)
 	if err != nil {
+		return fmt.Errorf("acquire meta_ads conn: %w", err)
+	}
+	defer func() { _ = conn.Close() }()
+
+	if _, err := conn.ExecContext(ctx, "BEGIN IMMEDIATE"); err != nil {
 		return fmt.Errorf("begin meta_ads tx: %w", err)
 	}
-	stmt, err := tx.PrepareContext(ctx, `
+	committed := false
+	defer func() {
+		if !committed {
+			_, _ = conn.ExecContext(context.Background(), "ROLLBACK")
+		}
+	}()
+
+	stmt, err := conn.PrepareContext(ctx, `
 		INSERT INTO meta_ads (
 			ad_archive_id, collation_id, collation_count, page_id, page_name,
 			is_active, start_date, end_date, country, ad_type,
@@ -238,11 +297,10 @@ func SaveAdsBatch(ctx context.Context, s *store.Store, ads []Ad) error {
 			collected_at=excluded.collected_at
 	`)
 	if err != nil {
-		_ = tx.Rollback()
 		return err
 	}
 
-	toMirror := make([]mirrorRow, 0, len(ads))
+	written := 0
 	for _, ad := range ads {
 		if ad.AdArchiveID == "" {
 			continue
@@ -250,9 +308,18 @@ func SaveAdsBatch(ctx context.Context, s *store.Store, ads []Ad) error {
 		if ad.CollectedAt == "" {
 			ad.CollectedAt = nowStr
 		}
+		// Never let an older observation overwrite a strictly newer one.
+		var existingCollected string
+		if err := conn.QueryRowContext(ctx, `SELECT COALESCE(collected_at, '') FROM meta_ads WHERE ad_archive_id = ?`, ad.AdArchiveID).Scan(&existingCollected); err == nil {
+			if existingTime, ok := parseStoredTimestamp(existingCollected); ok {
+				if incomingTime, ok2 := parseStoredTimestamp(ad.CollectedAt); ok2 && existingTime.After(incomingTime) {
+					continue
+				}
+			}
+		}
+
 		platJSON, _ := json.Marshal(ad.PublisherPlatform)
 		rawJSON, _ := json.Marshal(ad)
-		toMirror = append(toMirror, mirrorRow{id: ad.AdArchiveID, raw: rawJSON})
 
 		activeInt := 0
 		if ad.IsActive {
@@ -269,24 +336,23 @@ func SaveAdsBatch(ctx context.Context, s *store.Store, ads []Ad) error {
 			string(rawJSON), ad.CollectedAt,
 		); err != nil {
 			_ = stmt.Close()
-			_ = tx.Rollback()
 			return fmt.Errorf("upsert meta_ad %s: %w", ad.AdArchiveID, err)
 		}
+		if err := upsertFrameworkResourceTx(ctx, conn, "ads", ad.AdArchiveID, rawJSON, adSearchableText(ad, rawJSON), ad.CollectedAt); err != nil {
+			_ = stmt.Close()
+			return fmt.Errorf("mirror ad %s into framework store: %w", ad.AdArchiveID, err)
+		}
+		written++
 	}
 	_ = stmt.Close()
-	if err := tx.Commit(); err != nil {
+	if _, err := conn.ExecContext(ctx, "COMMIT"); err != nil {
 		return fmt.Errorf("commit meta_ads tx: %w", err)
 	}
+	committed = true
 
-	// Mirror into framework resources/FTS5 store OUTSIDE the custom tx.
-	for _, item := range toMirror {
-		if err := s.Upsert("ads", item.id, item.raw); err != nil {
-			return fmt.Errorf("mirror ad %s into framework store: %w", item.id, err)
-		}
-	}
 	totalCount, countErr := s.Count("ads")
 	if countErr != nil {
-		totalCount = len(toMirror)
+		totalCount = written
 	}
 	if err := s.SaveSyncState("ads", "", totalCount); err != nil {
 		return fmt.Errorf("save sync state for ads: %w", err)
@@ -468,15 +534,14 @@ func RecordSnapshot(ctx context.Context, s *store.Store, pageID, pageName, count
 }
 
 // ReconcilePageActiveAds marks previously active ads for (pageID, country) that
-// are absent from a complete fresh active page scan as inactive in both
-// meta_ads columns and raw_json, then mirrors only the rows still inactive into
-// the framework store.
+// are absent from a complete fresh active page scan as inactive across both
+// meta_ads and the framework resources/FTS5 store atomically inside a single
+// BEGIN IMMEDIATE write transaction.
 //
-// Concurrency safety: the candidate read and conditional updates execute inside
-// a single BEGIN IMMEDIATE write transaction, rows refreshed after scanTime are
-// skipped, every UPDATE verifies is_active=1 and matching collected_at/raw_json,
-// and post-commit framework mirroring re-verifies that no newer write replaced
-// the row before calling Upsert.
+// Concurrency safety: the candidate read, conditional meta_ads UPDATE, and
+// framework resources/FTS5 mirror all execute inside one BEGIN IMMEDIATE write
+// transaction so no concurrent SaveAdsBatch can interleave between meta_ads and
+// resources, and rows refreshed after scanTime are skipped.
 func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country string, activeAds []Ad, scanTime time.Time) (int, error) {
 	pageID = strings.TrimSpace(pageID)
 	if pageID == "" {
@@ -567,7 +632,6 @@ func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country
 	}
 
 	scanStr := scanTime.Format(utcTimestampLayout)
-	toMirror := make([]mirrorRow, 0, len(stale))
 	var stmt *sql.Stmt
 	if normCountry == "ALL" {
 		stmt, err = conn.PrepareContext(ctx, `
@@ -600,6 +664,8 @@ func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country
 	if err != nil {
 		return 0, err
 	}
+
+	updated := 0
 	for _, sr := range stale {
 		var ad Ad
 		updatedRaw := []byte(sr.raw)
@@ -626,7 +692,11 @@ func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country
 		}
 		affected, affErr := res.RowsAffected()
 		if affErr == nil && affected > 0 {
-			toMirror = append(toMirror, mirrorRow{id: sr.id, raw: updatedRaw})
+			if err := upsertFrameworkResourceTx(ctx, conn, "ads", sr.id, updatedRaw, adSearchableText(ad, updatedRaw), scanStr); err != nil {
+				_ = stmt.Close()
+				return 0, fmt.Errorf("mirror inactive ad %s into framework store: %w", sr.id, err)
+			}
+			updated++
 		}
 	}
 	_ = stmt.Close()
@@ -634,26 +704,7 @@ func ReconcilePageActiveAds(ctx context.Context, s *store.Store, pageID, country
 		return 0, err
 	}
 	committed = true
-
-	mirrored := 0
-	for _, item := range toMirror {
-		var curActive int
-		var curCollected string
-		checkErr := s.DB().QueryRowContext(ctx, `
-			SELECT is_active, COALESCE(collected_at, '')
-			FROM meta_ads
-			WHERE ad_archive_id = ?
-		`, item.id).Scan(&curActive, &curCollected)
-		if checkErr != nil || curActive != 0 || curCollected != scanStr {
-			// A newer write updated this ad after commit; skip mirroring stale inactive copy.
-			continue
-		}
-		if err := s.Upsert("ads", item.id, item.raw); err != nil {
-			return mirrored, fmt.Errorf("mirror inactive ad %s into framework store: %w", item.id, err)
-		}
-		mirrored++
-	}
-	return mirrored, nil
+	return updated, nil
 }
 
 // ResolvePageID maps either a numeric Facebook Page ID or a case-insensitive

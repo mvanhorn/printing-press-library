@@ -647,4 +647,21 @@ func TestSearchConnectionValidationAndConcurrentReconciliation(t *testing.T) {
 	if len(activeAds) != 1 || activeAds[0].AdArchiveID != "fresh_active" || activeAds[0].BodyText != "Newer copy" {
 		t.Fatalf("expected fresh_active to remain active with newer copy, got %+v", activeAds)
 	}
+
+	// Verify framework resources store matches meta_ads atomically for both rows.
+	if rawFresh, err := s.Get("ads", "fresh_active"); err != nil || !strings.Contains(string(rawFresh), `"is_active":true`) || !strings.Contains(string(rawFresh), "Newer copy") {
+		t.Fatalf("framework store fresh_active corrupted: raw=%s err=%v", string(rawFresh), err)
+	}
+	if rawStopped, err := s.Get("ads", "old_stopped"); err != nil || !strings.Contains(string(rawStopped), `"is_active":false`) {
+		t.Fatalf("framework store old_stopped should be inactive: raw=%s err=%v", string(rawStopped), err)
+	}
+	// Older SaveAdsBatch must also never clobber fresh_active in meta_ads or resources.
+	if err := SaveAdsBatch(ctx, s, []Ad{
+		{AdArchiveID: "fresh_active", PageID: "900", PageName: "RaceCo", Country: "US", IsActive: false, BodyText: "Stale copy", CollectedAt: olderTime},
+	}); err != nil {
+		t.Fatalf("stale SaveAdsBatch: %v", err)
+	}
+	if rawFresh2, err := s.Get("ads", "fresh_active"); err != nil || !strings.Contains(string(rawFresh2), "Newer copy") || !strings.Contains(string(rawFresh2), `"is_active":true`) {
+		t.Fatalf("stale SaveAdsBatch overwrote newer framework row: raw=%s err=%v", string(rawFresh2), err)
+	}
 }
