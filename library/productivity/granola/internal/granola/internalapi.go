@@ -17,17 +17,25 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/cliutil"
 )
 
-// InternalBaseURL is Granola's internal API root. The API has both /v1
-// and /v2 surfaces; the typed methods below pin to whichever surface the
-// community clients use successfully today.
-const InternalBaseURL = "https://api.granola.ai"
+// InternalBaseURL is Granola's primary internal API root. Current Granola
+// desktop builds (7.867.0) also route specialized internal endpoints to
+// per-service shard hostnames under *.api.granola.ai.
+const (
+	InternalBaseURL      = "https://api.granola.ai"
+	ShardBaseURLPecan    = "https://pecan.api.granola.ai"
+	ShardBaseURLMaple    = "https://maple.api.granola.ai"
+	ShardBaseURLBerry    = "https://berry.api.granola.ai"
+	ShardBaseURLCinnamon = "https://cinnamon.api.granola.ai"
+	ShardBaseURLChia     = "https://chia.api.granola.ai"
+)
 
 // granolaUserAgent identifies the CLI to the internal API. Granola returns
 // "Unsupported client" without a recognizable User-Agent; the form
-// "Granola/<ver> (<os>; <client-name>)" passes the gate as of 2026-05.
-const granolaClientVersion = "7.299.0"
+// "Granola/<ver> (<os>; <client-name>)" passes the gate (bumped to 7.867.0
+// from live Granola desktop bundle inspection).
+const granolaClientVersion = "7.867.0"
 const granolaPlatform = "darwin"
-const granolaUserAgent = "Granola/7.299.0 (macOS; granola-pp-cli)"
+const granolaUserAgent = "Granola/7.867.0 (macOS; granola-pp-cli)"
 
 // InternalClient is the typed wrapper for Granola's internal API. It is
 // auto-discovering: NewInternalClient reads the token from the Granola
@@ -68,13 +76,26 @@ func (c *InternalClient) SetBaseURL(u string) {
 	c.baseURL = u
 }
 
-// post sends a JSON POST to path, handling gzip, refresh-on-401, and the
-// canonical Granola headers. Returns the raw decompressed body bytes.
+// post sends a JSON POST to path on the primary host, handling gzip,
+// refresh-on-401, and the canonical Granola headers. Returns the raw
+// decompressed body bytes.
 func (c *InternalClient) post(path string, body any) ([]byte, error) {
-	return c.postAttempt(path, body, false)
+	return c.postTo(InternalBaseURL, path, body, nil)
 }
 
-func (c *InternalClient) postAttempt(path string, body any, isRetry bool) ([]byte, error) {
+// postTo sends a JSON POST to a specific Granola backend shard host with
+// optional extra headers (e.g. X-Granola-Workspace-Id). When SetBaseURL has
+// overridden the client base URL (such as in tests), all shard calls route to
+// that override instead of the live host.
+func (c *InternalClient) postTo(shardBaseURL, path string, body any, extraHeaders map[string]string) ([]byte, error) {
+	base := shardBaseURL
+	if c.baseURL != "" && c.baseURL != InternalBaseURL {
+		base = c.baseURL
+	}
+	return c.postAttempt(base, path, body, extraHeaders, false)
+}
+
+func (c *InternalClient) postAttempt(baseURL, path string, body any, extraHeaders map[string]string, isRetry bool) ([]byte, error) {
 	access, _, err := LoadAccessToken()
 	if err != nil {
 		return nil, err
@@ -84,7 +105,7 @@ func (c *InternalClient) postAttempt(path string, body any, isRetry bool) ([]byt
 	if err != nil {
 		return nil, fmt.Errorf("marshal request body: %w", err)
 	}
-	req, err := http.NewRequest("POST", c.baseURL+path, bytes.NewReader(payload))
+	req, err := http.NewRequest("POST", baseURL+path, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +116,11 @@ func (c *InternalClient) postAttempt(path string, body any, isRetry bool) ([]byt
 	req.Header.Set("User-Agent", granolaUserAgent)
 	req.Header.Set("X-Client-Version", granolaClientVersion)
 	req.Header.Set("X-Granola-Platform", granolaPlatform)
+	for k, v := range extraHeaders {
+		if v != "" {
+			req.Header.Set(k, v)
+		}
+	}
 
 	// Pace requests via the AdaptiveLimiter. Granola's internal API has no
 	// published rate limit; the limiter starts at defaultInternalAPIRateLimit
@@ -117,7 +143,7 @@ func (c *InternalClient) postAttempt(path string, body any, isRetry bool) ([]byt
 		fmt.Fprintf(os.Stderr, "granola %s: rate limited, AdaptiveLimiter at %.1f req/s, Retry-After=%s\n", path, c.limiter.Rate(), wait)
 		drained, _ := io.ReadAll(resp.Body)
 		return nil, &cliutil.RateLimitError{
-			URL:        c.baseURL + path,
+			URL:        baseURL + path,
 			RetryAfter: wait,
 			Body:       truncate(string(drained), 500),
 		}
@@ -154,7 +180,7 @@ func (c *InternalClient) postAttempt(path string, body any, isRetry bool) ([]byt
 			}
 		}
 		c.refreshMu.Unlock()
-		return c.postAttempt(path, body, true)
+		return c.postAttempt(baseURL, path, body, extraHeaders, true)
 	}
 
 	if resp.StatusCode >= 400 {
