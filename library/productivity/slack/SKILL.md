@@ -126,6 +126,14 @@ These capabilities aren't available in any other tool for this API.
 
 - `slack-pp-cli auth-api revoke` — Revoke the current authentication token
 - `slack-pp-cli auth-api test` — Test the authentication token and get identity info
+- `slack-pp-cli auth-api teams` — List workspaces accessible to the authenticated token
+
+**bookmarks** — List, add, edit, and remove channel bookmarks
+
+- `slack-pp-cli bookmarks list` — List bookmarks in a channel (`--channel`)
+- `slack-pp-cli bookmarks add` — Add a bookmark to a channel (`--channel`, `--title`, `--link`)
+- `slack-pp-cli bookmarks edit` — Edit an existing channel bookmark (`--channel`, `--bookmark-id`)
+- `slack-pp-cli bookmarks remove` — Remove a bookmark from a channel (`--channel`, `--bookmark-id`)
 
 **bots** — Get information about bot users
 
@@ -292,6 +300,8 @@ content they cover.
 **search_api** — Search messages and files across the workspace
 
 - `slack-pp-cli search-api` — Search for messages matching a query
+- `slack-pp-cli search-api files` — Search for files matching a query
+- `slack-pp-cli search-api all` — Search both messages and files matching a query
 
 **stars** — Star and unstar messages and files
 
@@ -303,7 +313,9 @@ content they cover.
 
 - `slack-pp-cli team access-logs` — Get workspace access logs (requires admin)
 - `slack-pp-cli team billable-info` — Get billable information for workspace users
+- `slack-pp-cli team billing` — Get workspace billing plan information
 - `slack-pp-cli team get` — Get information about the workspace
+- `slack-pp-cli team preferences` — List workspace preferences
 
 **team-integration-logs** — Manage team integration logs
 
@@ -358,6 +370,14 @@ content they cover.
 **users-set-photo** — Manage users set photo
 
 - `slack-pp-cli users-set-photo` — Set the user profile photo
+
+**web-client** — Read-only Slack desktop/web internal endpoints (requires `SLACK_SESSION_TOKEN` `xoxc-` plus `SLACK_COOKIE_D` or `agentcookie`)
+
+- `slack-pp-cli web-client unreads` — Fetch live channel, DM, and thread unread counts (`client.counts`)
+- `slack-pp-cli web-client later` — List Slack Later / saved items (`saved.list`)
+- `slack-pp-cli web-client drafts` — List unsent message drafts (`drafts.list`)
+- `slack-pp-cli web-client activity` — Read the Slack Activity feed (`activity.feed`)
+- `slack-pp-cli web-client threads` — Read subscribed threads view (`subscriptions.thread.getView`)
 
 
 ### Finding the right command

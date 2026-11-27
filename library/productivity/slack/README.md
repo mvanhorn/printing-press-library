@@ -320,6 +320,26 @@ Test and manage authentication
 
 - **`slack-pp-cli auth-api revoke`** - Revoke the current authentication token
 - **`slack-pp-cli auth-api test`** - Test the authentication token and get identity info
+- **`slack-pp-cli auth-api teams`** - List workspaces accessible to the authenticated token
+
+### bookmarks
+
+List, add, edit, and remove Slack channel bookmarks (`bookmarks.list`, `bookmarks.add`, `bookmarks.edit`, `bookmarks.remove`):
+
+- **`slack-pp-cli bookmarks list`** - List bookmarks in a channel (`--channel`)
+- **`slack-pp-cli bookmarks add`** - Add a bookmark (`--channel`, `--title`, `--link`)
+- **`slack-pp-cli bookmarks edit`** - Edit a bookmark (`--channel`, `--bookmark-id`)
+- **`slack-pp-cli bookmarks remove`** - Remove a bookmark (`--channel`, `--bookmark-id`)
+
+### web-client
+
+Read-only Slack desktop/web internal RPC endpoints (`client.counts`, `saved.list`, `drafts.list`, `activity.feed`, `subscriptions.thread.getView`). Requires `SLACK_SESSION_TOKEN` (`xoxc-...`) plus `SLACK_COOKIE_D` (or `agentcookie` on PATH with an active `.slack.com` session):
+
+- **`slack-pp-cli web-client unreads`** - Fetch live channel, DM, and thread unread counts
+- **`slack-pp-cli web-client later`** - List Slack Later / saved items
+- **`slack-pp-cli web-client drafts`** - List unsent message drafts
+- **`slack-pp-cli web-client activity`** - Read the Slack Activity feed
+- **`slack-pp-cli web-client threads`** - Read subscribed threads view
 
 ### bots
 
