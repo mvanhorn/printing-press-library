@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "shadow-press-internal-endpoints-and-shards",
+  "applied_at": "2026-11-26",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "summary": "Granola's internal API splits newer surfaces across per-service *.api.granola.ai shard hostnames and gates requests on a current desktop X-Client-Version; regens must preserve shard-aware routing and re-verify the desktop client version.",
+  "reason": "Static discovery against Granola desktop 7.867.0 (app.asar) and live read-only probes confirmed that endpoints such as get-people (pecan), get-pre-meeting-briefs (maple), get-follow-up-emails (berry), get-mcp-agents (cinnamon), and list-available-integrations (chia) live on dedicated subdomains and accept X-Granola-Workspace-Id scoping. Hardcoding a single api.granola.ai host or an older client version drops these live surfaces.",
+  "files": [
+    "internal/granola/internalapi.go",
+    "internal/granola/api_shadow_endpoints.go",
+    "internal/granola/api_shadow_endpoints_test.go",
+    "internal/cli/workspaces.go",
+    "internal/cli/account.go",
+    "internal/cli/briefs.go",
+    "internal/cli/people.go",
+    "internal/cli/autorefresh.go",
+    "internal/cli/root.go",
+    "internal/cli/shadow_commands_test.go"
+  ],
+  "validated_outcome": "Live read-only verification against Granola desktop 7.867.0 returned HTTP 200 across all 10 added endpoints on api, pecan, maple, berry, cinnamon, and chia shards; unit tests cover shard routing, X-Client-Version, X-Granola-Workspace-Id, dry-run, and local-mode guards."
+}

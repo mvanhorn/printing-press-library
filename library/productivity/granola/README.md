@@ -223,6 +223,23 @@ granola-pp-cli webhooks verify --body-file payload.json \
 
 Granola retries failed deliveries with exponential backoff for four days and reuses `event_id`; receivers should deduplicate on that value. Events produced while an endpoint is paused are not replayed after it is re-enabled.
 
+### Internal account, workspace, people, and briefs commands
+
+When authenticated with a CLI WorkOS session (`granola-pp-cli auth login`), these read-only internal-API commands query Granola's primary and per-service shard hosts (`api`, `pecan`, `maple`, `berry`, `cinnamon`, `chia`):
+
+```bash
+granola-pp-cli account info --json
+granola-pp-cli account subscriptions --json
+granola-pp-cli account sessions --json
+granola-pp-cli people list --json
+granola-pp-cli briefs list --json
+granola-pp-cli briefs follow-ups --json
+granola-pp-cli workspaces notes-count --json
+granola-pp-cli workspaces members <workspace-id> --json
+granola-pp-cli workspaces integrations --workspace <workspace-id> --json
+granola-pp-cli workspaces mcp-agents --workspace <workspace-id> --json
+```
+
 ## Unique Features
 
 These capabilities aren't available in any other tool for this API.

@@ -245,6 +245,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newDuplicatesCmd(flags))
 	rootCmd.AddCommand(newTiptapCmd(flags))
 	rootCmd.AddCommand(newCalendarCmd(flags))
+	rootCmd.AddCommand(newAccountCmd(flags))
+	rootCmd.AddCommand(newBriefsCmd(flags))
+	rootCmd.AddCommand(newPeopleCmd(flags))
 
 	return rootCmd
 }
