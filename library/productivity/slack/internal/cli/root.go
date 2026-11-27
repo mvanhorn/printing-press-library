@@ -368,6 +368,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	// PATCH(amend-2026-08-07: add canvas support) — hand-added resource. The spec
 	// carries no canvas endpoints, so the generator emits nothing for it.
 	rootCmd.AddCommand(newCanvasesCmd(flags))
+	rootCmd.AddCommand(newBookmarksCmd(flags))
+	rootCmd.AddCommand(newWebClientCmd(flags))
 	rootCmd.AddCommand(newVersionCmd())
 	// Self-learning loop commands. newLearnConfig (defined in
 	// learn_init.go) reads spec.Learn.TickerPatterns + Stopwords and

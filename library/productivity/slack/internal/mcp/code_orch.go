@@ -1133,9 +1133,21 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		params = map[string]any{}
 	}
 
+	// Route web_client.* RPCs through the xoxc+cookie session transport so MCP
+	// preserves Slack browser/desktop session credentials without requiring OAuth.
+	if isShadowWebClientEndpoint(ep.ID) {
+		return executeShadowWebClientMCP(ctx, ep, params)
+	}
+
 	c, err := newMCPClient()
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
+	}
+
+	// Slack's search.* endpoints require a user token (xoxp-); prefer it over
+	// SLACK_BOT_TOKEN when both are configured.
+	if isShadowUserTokenEndpoint(ep.ID) {
+		c = c.PreferUserToken()
 	}
 
 	// PATCH(amend-2026-08-07: migrate to external upload flow) — files.upload is
@@ -1229,6 +1241,9 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	}
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	if slackErr := checkSlackMCPBodyError(data); slackErr != nil {
+		return mcplib.NewToolResultError(slackErr.Error()), nil
 	}
 	return mcplib.NewToolResultText(bound.EndpointResponse(ep.Method, data)), nil
 }

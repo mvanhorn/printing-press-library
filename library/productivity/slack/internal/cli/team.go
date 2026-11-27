@@ -19,5 +19,31 @@ func newTeamCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newTeamAccessLogsCmd(flags))
 	cmd.AddCommand(newTeamBillableInfoCmd(flags))
 	cmd.AddCommand(newTeamGetCmd(flags))
+	cmd.AddCommand(newTeamPreferencesCmd(flags))
+	cmd.AddCommand(newTeamBillingCmd(flags))
 	return cmd
+}
+
+func newTeamPreferencesCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:         "preferences",
+		Short:       "List workspace preferences (GET /team.preferences.list)",
+		Example:     "  slack-pp-cli team preferences --json",
+		Annotations: map[string]string{"pp:endpoint": "team.preferences", "pp:method": "GET", "pp:path": "/team.preferences.list", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runSlackGetEndpoint(cmd, flags, "/team.preferences.list", map[string]string{})
+		},
+	}
+}
+
+func newTeamBillingCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:         "billing",
+		Short:       "Get workspace billing plan information (GET /team.billing.info)",
+		Example:     "  slack-pp-cli team billing --json",
+		Annotations: map[string]string{"pp:endpoint": "team.billing", "pp:method": "GET", "pp:path": "/team.billing.info", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runSlackGetEndpoint(cmd, flags, "/team.billing.info", map[string]string{})
+		},
+	}
 }

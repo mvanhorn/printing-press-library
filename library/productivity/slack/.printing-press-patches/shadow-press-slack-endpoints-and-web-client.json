@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "shadow-press-slack-endpoints-and-web-client",
+  "applied_at": "2026-11-26",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve hand-added Slack endpoints missing from the archived OpenAPI spec (search.files, search.all, auth.teams.list, team.preferences.list, team.billing.info, bookmarks CRUD) and the opt-in xoxc+cookie web-client surface (client.counts, saved.list, drafts.list, activity.feed, subscriptions.thread.getView).",
+  "reason": "The archived slackapi spec omits channel bookmarks, file/combined search, workspace team/preference/billing endpoints, and Slack's desktop/web client RPC endpoints (which require xoxc + d session cookie rather than OAuth xoxb-/xoxp- tokens). Without this customization a regen drops both the standard missing endpoints and the agentcookie-backed internal web-client commands.",
+  "files": [
+    "internal/client/web_session.go",
+    "internal/cli/bookmarks.go",
+    "internal/cli/web_session.go",
+    "internal/cli/promoted_search-api.go",
+    "internal/cli/auth_api.go",
+    "internal/cli/team.go",
+    "internal/cli/root.go",
+    "internal/cli/shadow_endpoints_test.go",
+    "internal/mcp/code_orch.go",
+    "internal/mcp/shadow_endpoints.go",
+    "internal/mcp/shadow_endpoints_test.go"
+  ],
+  "validated_outcome": "Live read-only verification confirmed ok:true on auth.teams.list, search.files, and search.all against SLACK_USER_TOKEN; offline httptest tests verify all OAuth, bookmarks CRUD, user-token preference on search.files/search.all, MCP code-orchestration discovery/execution, and xoxc+cookie web-client endpoints including HTTP-200 session auth error mapping to exit code 4."
+}

@@ -126,6 +126,81 @@ func newSearchApiPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagSortDir, "sort-dir", "", "Sort direction: asc or desc")
 
 	// Wire sibling endpoints and sub-resources as subcommands
+	cmd.AddCommand(newSearchApiFilesCmd(flags))
+	cmd.AddCommand(newSearchApiAllCmd(flags))
 
+	return cmd
+}
+
+func runSearchApiSubcmd(cmd *cobra.Command, flags *rootFlags, path, flagQuery string, flagCount int, flagPage, flagSort, flagSortDir string) error {
+	if flagQuery == "" && !flags.dryRun {
+		return usageErr(fmt.Errorf("--query is required"))
+	}
+	params := map[string]string{}
+	if flagQuery != "" {
+		params["query"] = formatCLIParamValue(flagQuery)
+	}
+	if flagCount != 0 {
+		params["count"] = formatCLIParamValue(flagCount)
+	}
+	if flagPage != "" {
+		params["page"] = formatCLIParamValue(flagPage)
+	}
+	if flagSort != "" {
+		params["sort"] = formatCLIParamValue(flagSort)
+	}
+	if flagSortDir != "" {
+		params["sort_dir"] = formatCLIParamValue(flagSortDir)
+	}
+	// Slack's search.* endpoints require a user token (xoxp-); bot tokens are
+	// rejected with not_allowed_token_type even when SLACK_USER_TOKEN is also set.
+	return runSlackUserTokenGetEndpoint(cmd, flags, path, params)
+}
+
+func newSearchApiFilesCmd(flags *rootFlags) *cobra.Command {
+	var flagQuery string
+	var flagCount int
+	var flagPage string
+	var flagSort string
+	var flagSortDir string
+
+	cmd := &cobra.Command{
+		Use:         "files",
+		Short:       "Search files matching a query",
+		Example:     "  slack-pp-cli search-api files --query \"release\" --json",
+		Annotations: map[string]string{"pp:endpoint": "search_api.files", "pp:method": "GET", "pp:path": "/search.files", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runSearchApiSubcmd(cmd, flags, "/search.files", flagQuery, flagCount, flagPage, flagSort, flagSortDir)
+		},
+	}
+	cmd.Flags().StringVar(&flagQuery, "query", "", "Search query")
+	cmd.Flags().IntVar(&flagCount, "count", 0, "Number of results per page")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number of results")
+	cmd.Flags().StringVar(&flagSort, "sort", "", "Sort order: score or timestamp")
+	cmd.Flags().StringVar(&flagSortDir, "sort-dir", "", "Sort direction: asc or desc")
+	return cmd
+}
+
+func newSearchApiAllCmd(flags *rootFlags) *cobra.Command {
+	var flagQuery string
+	var flagCount int
+	var flagPage string
+	var flagSort string
+	var flagSortDir string
+
+	cmd := &cobra.Command{
+		Use:         "all",
+		Short:       "Search both messages and files matching a query",
+		Example:     "  slack-pp-cli search-api all --query \"release\" --json",
+		Annotations: map[string]string{"pp:endpoint": "search_api.all", "pp:method": "GET", "pp:path": "/search.all", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runSearchApiSubcmd(cmd, flags, "/search.all", flagQuery, flagCount, flagPage, flagSort, flagSortDir)
+		},
+	}
+	cmd.Flags().StringVar(&flagQuery, "query", "", "Search query")
+	cmd.Flags().IntVar(&flagCount, "count", 0, "Number of results per page")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number of results")
+	cmd.Flags().StringVar(&flagSort, "sort", "", "Sort order: score or timestamp")
+	cmd.Flags().StringVar(&flagSortDir, "sort-dir", "", "Sort direction: asc or desc")
 	return cmd
 }

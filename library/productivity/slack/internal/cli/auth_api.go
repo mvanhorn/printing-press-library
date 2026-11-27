@@ -18,5 +18,35 @@ func newAuthApiCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newAuthApiRevokeCmd(flags))
 	cmd.AddCommand(newAuthApiTestCmd(flags))
+	cmd.AddCommand(newAuthApiTeamsCmd(flags))
+	return cmd
+}
+
+func newAuthApiTeamsCmd(flags *rootFlags) *cobra.Command {
+	var cursor string
+	var limit int
+	var includeIcon bool
+	cmd := &cobra.Command{
+		Use:         "teams",
+		Short:       "List workspaces accessible to the authenticated token (GET /auth.teams.list)",
+		Example:     "  slack-pp-cli auth-api teams --json",
+		Annotations: map[string]string{"pp:endpoint": "auth_api.teams", "pp:method": "GET", "pp:path": "/auth.teams.list", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			params := map[string]string{}
+			if cursor != "" {
+				params["cursor"] = cursor
+			}
+			if limit > 0 {
+				params["limit"] = formatCLIParamValue(limit)
+			}
+			if includeIcon {
+				params["include_icon"] = "true"
+			}
+			return runSlackGetEndpoint(cmd, flags, "/auth.teams.list", params)
+		},
+	}
+	cmd.Flags().StringVar(&cursor, "cursor", "", "Pagination cursor")
+	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum teams to return")
+	cmd.Flags().BoolVar(&includeIcon, "include-icon", false, "Include team icon metadata")
 	return cmd
 }
