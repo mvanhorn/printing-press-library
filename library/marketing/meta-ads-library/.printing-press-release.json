@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "meta-ads-library",
+  "cli_name": "meta-ads-library-pp-cli",
+  "version": "2026.11.1",
+  "released_at": "2026-11-28T09:48:23Z",
+  "source_commit": "2bbc35b579d5068c44b0c59727d4992750f1048d",
+  "printing_press_version": "4.35.4",
+  "run_id": "20261127-082434-b7f7d73b",
+  "changes": [
+    {
+      "title": "feat(meta-ads-library): add meta-ads-library",
+      "pr": 2498,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2498",
+      "commit": "2bbc35b579d5068c44b0c59727d4992750f1048d"
+    }
+  ]
+}
