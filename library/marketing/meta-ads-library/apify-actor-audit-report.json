@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/meta-ads-library",
+  "research_dir": "\u003ccli-dir\u003e/20261127-082434-b7f7d73b",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

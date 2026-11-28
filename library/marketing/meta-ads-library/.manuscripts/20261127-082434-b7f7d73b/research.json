@@ -1,0 +1,287 @@
+{
+  "api_name": "meta-ads-library",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "MetaAdsCollector",
+      "url": "https://github.com/promisingcoder/MetaAdsCollector",
+      "language": "Python",
+      "install_method": "",
+      "stars": 118,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "facebook-ad-library-mcp-cli",
+      "url": "https://github.com/thenavidm/facebook-ad-library-mcp-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "facebook-ads-library-mcp",
+      "url": "https://github.com/RamsesAguirre777/facebook-ads-library-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 308,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AdDownloader",
+      "url": "https://github.com/Paularossi/AdDownloader",
+      "language": "Python",
+      "install_method": "",
+      "stars": 37,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Ad-Library-API-Script-Repository",
+      "url": "https://github.com/facebookresearch/Ad-Library-API-Script-Repository",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-27T14:43:00Z",
+  "novel_features": [
+    {
+      "name": "Winner \u0026 longevity leaderboard",
+      "command": "winners",
+      "description": "Rank active ads by proven longevity (days running), collation scale, and platform breadth.",
+      "rationale": "Meta Ad Library exposes no longevity sort or collation-weighted winner ranking endpoint; computing runtime rankings across an advertiser or local corpus requires local SQLite persistence.",
+      "example": "meta-ads-library-pp-cli winners 15087023444 --min-days 30 --agent",
+      "why_it_matters": "Reach for this when an operator asks which competitor creatives have been running longest or scaling hardest.",
+      "group": "Creative \u0026 funnel intelligence"
+    },
+    {
+      "name": "Advertiser snapshot diff",
+      "command": "diff",
+      "description": "See exactly which ads an advertiser launched, stopped, or scaled between timestamped snapshots.",
+      "rationale": "Meta Ad Library only serves current live state; tracking newly launched creatives, paused ads, and collation deltas requires temporal joins over local SQLite snapshots.",
+      "example": "meta-ads-library-pp-cli diff 15087023444 --refresh --agent",
+      "why_it_matters": "Reach for this when monitoring what changed for a competitor since the last check.",
+      "group": "Temporal tracking \u0026 benchmarking"
+    },
+    {
+      "name": "Side-by-side competitor benchmark",
+      "command": "compare",
+      "description": "Benchmark multiple advertisers side by side on active volume, median age, format mix, platforms, CTAs, and refresh velocity.",
+      "rationale": "No Meta endpoint compares multiple advertisers; aggregating cross-brand volume, creative format ratios, and 7d/30d launch velocity requires local multi-table SQLite joins.",
+      "example": "meta-ads-library-pp-cli compare 15087023444 182162001806727 --agent",
+      "why_it_matters": "Reach for this when building a multi-competitor paid social benchmark or client audit.",
+      "group": "Temporal tracking \u0026 benchmarking"
+    },
+    {
+      "name": "Landing page \u0026 funnel mapper",
+      "command": "funnels",
+      "description": "Group active ads by unwrapped destination domain, URL path, and UTM parameters including carousel cards.",
+      "rationale": "Meta wraps outbound links behind Facebook link redirects and splits carousel destinations across card arrays; unwrapping and aggregating funnel destinations requires local URL parsing and SQLite rollups.",
+      "example": "meta-ads-library-pp-cli funnels 15087023444 --agent",
+      "why_it_matters": "Reach for this to map where a competitor sends paid traffic and which landing pages carry the most ad volume.",
+      "group": "Creative \u0026 funnel intelligence"
+    },
+    {
+      "name": "EU/UK/Political transparency \u0026 beneficiary audit",
+      "command": "transparency",
+      "description": "Roll up EU/UK/BR reach, age-gender breakdowns, beneficiary/payer pairs, spend brackets, and violation flags per advertiser or byline.",
+      "rationale": "Transparency disclosures are split across per-ad GraphQL detail panels and permission-sensitive official ads_archive records; reconciling and aggregating them per advertiser requires local SQLite joins.",
+      "example": "meta-ads-library-pp-cli transparency 15087023444 --agent",
+      "why_it_matters": "Reach for this when auditing regulated EU/UK commercial spenders or political advertisers across all stored disclosures.",
+      "group": "Transparency \u0026 market share"
+    },
+    {
+      "name": "Keyword share-of-voice leaderboard",
+      "command": "sov",
+      "description": "Rank which advertisers dominate a category keyword by active ad count, collation-weighted volume, dominant format, and median longevity.",
+      "rationale": "Raw Ad Library search returns flat ad cards; ranking category leaders by collation-weighted share of voice requires local SQLite FTS5 matching and advertiser aggregation.",
+      "example": "meta-ads-library-pp-cli sov \"running shoes\" --country US --live --agent",
+      "why_it_matters": "Reach for this to discover who owns paid share of voice in a niche before naming specific competitors.",
+      "group": "Transparency \u0026 market share"
+    },
+    {
+      "name": "Creative hook \u0026 copy pattern teardown",
+      "command": "hooks",
+      "description": "Extract, deduplicate, and rank opening copy hooks, headlines, and CTAs weighted by collation count and longevity.",
+      "rationale": "Dynamic creatives and collated variants repeat identical opening lines across dozens of cards; mechanically normalizing, deduplicating, and weighting hooks requires local SQLite aggregation.",
+      "example": "meta-ads-library-pp-cli hooks 15087023444 --agent",
+      "why_it_matters": "Reach for this when preparing creative briefs or extracting the highest-volume opening hooks from synced ads.",
+      "group": "Creative \u0026 funnel intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Winner \u0026 longevity leaderboard",
+      "command": "winners",
+      "description": "Rank active ads by proven longevity (days running), collation scale, and platform breadth.",
+      "rationale": "Meta Ad Library exposes no longevity sort or collation-weighted winner ranking endpoint; computing runtime rankings across an advertiser or local corpus requires local SQLite persistence.",
+      "example": "meta-ads-library-pp-cli winners 15087023444 --min-days 30 --agent",
+      "why_it_matters": "Reach for this when an operator asks which competitor creatives have been running longest or scaling hardest.",
+      "group": "Creative \u0026 funnel intelligence"
+    },
+    {
+      "name": "Advertiser snapshot diff",
+      "command": "diff",
+      "description": "See exactly which ads an advertiser launched, stopped, or scaled between timestamped snapshots.",
+      "rationale": "Meta Ad Library only serves current live state; tracking newly launched creatives, paused ads, and collation deltas requires temporal joins over local SQLite snapshots.",
+      "example": "meta-ads-library-pp-cli diff 15087023444 --refresh --agent",
+      "why_it_matters": "Reach for this when monitoring what changed for a competitor since the last check.",
+      "group": "Temporal tracking \u0026 benchmarking"
+    },
+    {
+      "name": "Side-by-side competitor benchmark",
+      "command": "compare",
+      "description": "Benchmark multiple advertisers side by side on active volume, median age, format mix, platforms, CTAs, and refresh velocity.",
+      "rationale": "No Meta endpoint compares multiple advertisers; aggregating cross-brand volume, creative format ratios, and 7d/30d launch velocity requires local multi-table SQLite joins.",
+      "example": "meta-ads-library-pp-cli compare 15087023444 182162001806727 --agent",
+      "why_it_matters": "Reach for this when building a multi-competitor paid social benchmark or client audit.",
+      "group": "Temporal tracking \u0026 benchmarking"
+    },
+    {
+      "name": "Landing page \u0026 funnel mapper",
+      "command": "funnels",
+      "description": "Group active ads by unwrapped destination domain, URL path, and UTM parameters including carousel cards.",
+      "rationale": "Meta wraps outbound links behind Facebook link redirects and splits carousel destinations across card arrays; unwrapping and aggregating funnel destinations requires local URL parsing and SQLite rollups.",
+      "example": "meta-ads-library-pp-cli funnels 15087023444 --agent",
+      "why_it_matters": "Reach for this to map where a competitor sends paid traffic and which landing pages carry the most ad volume.",
+      "group": "Creative \u0026 funnel intelligence"
+    },
+    {
+      "name": "EU/UK/Political transparency \u0026 beneficiary audit",
+      "command": "transparency",
+      "description": "Roll up EU/UK/BR reach, age-gender breakdowns, beneficiary/payer pairs, spend brackets, and violation flags per advertiser or byline.",
+      "rationale": "Transparency disclosures are split across per-ad GraphQL detail panels and permission-sensitive official ads_archive records; reconciling and aggregating them per advertiser requires local SQLite joins.",
+      "example": "meta-ads-library-pp-cli transparency 15087023444 --agent",
+      "why_it_matters": "Reach for this when auditing regulated EU/UK commercial spenders or political advertisers across all stored disclosures.",
+      "group": "Transparency \u0026 market share"
+    },
+    {
+      "name": "Keyword share-of-voice leaderboard",
+      "command": "sov",
+      "description": "Rank which advertisers dominate a category keyword by active ad count, collation-weighted volume, dominant format, and median longevity.",
+      "rationale": "Raw Ad Library search returns flat ad cards; ranking category leaders by collation-weighted share of voice requires local SQLite FTS5 matching and advertiser aggregation.",
+      "example": "meta-ads-library-pp-cli sov \"running shoes\" --country US --live --agent",
+      "why_it_matters": "Reach for this to discover who owns paid share of voice in a niche before naming specific competitors.",
+      "group": "Transparency \u0026 market share"
+    },
+    {
+      "name": "Creative hook \u0026 copy pattern teardown",
+      "command": "hooks",
+      "description": "Extract, deduplicate, and rank opening copy hooks, headlines, and CTAs weighted by collation count and longevity.",
+      "rationale": "Dynamic creatives and collated variants repeat identical opening lines across dozens of cards; mechanically normalizing, deduplicating, and weighting hooks requires local SQLite aggregation.",
+      "example": "meta-ads-library-pp-cli hooks 15087023444 --agent",
+      "why_it_matters": "Reach for this when preparing creative briefs or extracting the highest-volume opening hooks from synced ads.",
+      "group": "Creative \u0026 funnel intelligence"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "META_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Meta Ads Library",
+    "headline": "Active public Meta ads worldwide (plus EU/UK/BR and political archives) from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence.",
+    "value_prop": "Search active and inactive commercial ads across Facebook, Instagram, Threads, Messenger, and Audience Network in any country via pure HTTP, with optional official Graph API v27.0 ads_archive lookups when META_ACCESS_TOKEN is set. Captures from ads search, ads details, diff --refresh, sov --live, and sync compound into local SQLite FTS5 tables powering winners, diff, compare, hooks, funnels, transparency, and sov (official archive queries Graph API independently).",
+    "auth_narrative": "No API key or browser is required for public commercial ad search (`ads search`), advertiser lookup (`advertisers search`), ad details (`ads details`), media downloads (`media download`), or local intelligence commands — the CLI bootstraps an anonymous GraphQL session automatically. To query Meta's official Graph API v27.0 `ads_archive` endpoint (`archive`) for political/issue spend ranges and EU/UK/BR reach datasets, export `META_ACCESS_TOKEN` (also accepts `META_ADS_ARCHIVE_TOKEN` or `FACEBOOK_ACCESS_TOKEN`) or persist it with `meta-ads-library-pp-cli auth set-token` (`auth status` and `auth logout` manage stored tokens). Note: `doctor` reports `META_ACCESS_TOKEN` as missing in zero-auth mode unless configured for `archive`.",
+    "quickstart": [
+      {
+        "command": "meta-ads-library-pp-cli doctor --dry-run",
+        "comment": "Preview CLI doctor health check and local database paths without network calls"
+      },
+      {
+        "command": "meta-ads-library-pp-cli advertisers search \"Nike\" --country US --agent",
+        "comment": "Resolve a brand name to its official Facebook Page ID with zero API key"
+      },
+      {
+        "command": "meta-ads-library-pp-cli ads search --page-id 15087023444 --country US --limit 25 --agent",
+        "comment": "Fetch active ads via pure HTTP and persist them into the local SQLite mirror"
+      },
+      {
+        "command": "meta-ads-library-pp-cli winners 15087023444 --min-days 30 --agent",
+        "comment": "Rank longest-running evergreen ads and highest-collation creatives from local SQLite"
+      },
+      {
+        "command": "meta-ads-library-pp-cli funnels 15087023444 --agent",
+        "comment": "Group unwrapped landing domains, URL paths, and UTM funnels across active creatives"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "GraphQL error 1675004 (rate limit exceeded) during large paginated searches",
+        "fix": "Lower --limit or reduce --max-pages; the client applies adaptive backoff automatically and retries cleanly."
+      },
+      {
+        "symptom": "archive returns an empty array for US commercial brands",
+        "fix": "Meta's official v27.0 ads_archive only returns political/issue ads globally and all ads in EU/UK/BR; use `meta-ads-library-pp-cli ads search` for non-EU commercial ads."
+      },
+      {
+        "symptom": "archive fails with OAuth error 190 or missing META_ACCESS_TOKEN",
+        "fix": "Export a valid Meta Graph API user access token via `export META_ACCESS_TOKEN=\u003ctoken\u003e` or run `meta-ads-library-pp-cli ads search` for zero-auth public queries."
+      },
+      {
+        "symptom": "winners, diff, hooks, funnels, or compare reports no local rows",
+        "fix": "Run `meta-ads-library-pp-cli ads search --page-id \u003cpage_id\u003e --country US` first to populate the local SQLite archive."
+      }
+    ],
+    "when_to_use": "Use Meta Ads Library CLI whenever you need competitive ad intelligence, creative teardowns, advertiser monitoring, landing-page funnel mapping, or EU/UK/political transparency audits across Facebook, Instagram, Threads, Messenger, and Audience Network. It runs zero-auth over pure HTTP without Chromium or Playwright and stores every search in local SQLite for instant offline FTS5 search, diffs, and cross-competitor comparisons.",
+    "anti_triggers": [
+      "Managing, creating, pausing, or pulling private ROAS/CPA performance metrics from your own Meta Ads Manager account (use a Meta Marketing API CLI instead).",
+      "Crawling or rendering third-party advertiser landing pages outside Meta Ad Library metadata.",
+      "Querying US or LATAM commercial (non-political) ads via `archive`; Meta's official `ads_archive` excludes non-EU commercial ads (use `ads search` instead)."
+    ],
+    "recipes": [
+      {
+        "title": "Compact competitor creative scan with --agent and --select",
+        "command": "meta-ads-library-pp-cli ads search --query \"running shoes\" --country US --limit 10 --agent --select ad_archive_id,page_name,cta_text,landing_domain,collation_count,start_date",
+        "explanation": "Fetch active US commercial ads and project only the high-signal creative and funnel fields to keep agent context compact."
+      },
+      {
+        "title": "Weekly competitor change diff",
+        "command": "meta-ads-library-pp-cli diff 15087023444 --refresh --country US --agent",
+        "explanation": "Pull a fresh snapshot for a Facebook Page and diff it against the previous SQLite capture to see launched, stopped, and scaled ads."
+      },
+      {
+        "title": "Side-by-side brand benchmark",
+        "command": "meta-ads-library-pp-cli compare 15087023444 182162001806727 --agent",
+        "explanation": "Compare multiple synced competitors on active volume, median ad age, format mix, placements, CTAs, and 7d/30d launch velocity."
+      },
+      {
+        "title": "Category share-of-voice discovery",
+        "command": "meta-ads-library-pp-cli sov \"cold plunge\" --country US --live --agent",
+        "explanation": "Rank advertisers dominating a keyword by active ad share, collation-weighted creative volume, and median longevity."
+      },
+      {
+        "title": "Official Graph API EU/political archive lookup",
+        "command": "meta-ads-library-pp-cli archive --ad-reached-countries '[\"DE\"]' --search-terms \"nike\" --limit 10 --agent --select id,page_name,eu_total_reach,spend,impressions,currency",
+        "explanation": "Query Meta's official v27.0 ads_archive endpoint for regulated EU/UK/BR reach and political spend brackets when META_ACCESS_TOKEN is set."
+      }
+    ],
+    "trigger_phrases": [
+      "spy on competitor Meta ads",
+      "check Facebook Ad Library for a brand",
+      "find longest running Instagram ads",
+      "diff competitor ads since last week",
+      "map competitor ad landing pages and hooks",
+      "use meta-ads-library",
+      "run meta-ads-library"
+    ]
+  },
+  "homepage": "https://www.facebook.com/ads/library/"
+}

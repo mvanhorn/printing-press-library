@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-11-27T15:51:26.12796Z",
+  "cli_dir": "\u003ccli-dir\u003e/meta-ads-library-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-11-27T15:50:15.899412Z"
+  }
+}

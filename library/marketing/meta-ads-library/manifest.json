@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "meta-ads-library-pp-mcp",
+  "display_name": "Meta Ads Library",
+  "version": "0.1.0",
+  "description": "Active public Meta ads worldwide (plus EU/UK/BR and political archives) from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/meta-ads-library-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/meta-ads-library-pp-mcp",
+      "args": [],
+      "env": {
+        "FACEBOOK_ACCESS_TOKEN": "${user_config.facebook_access_token}",
+        "META_ACCESS_TOKEN": "${user_config.meta_access_token}",
+        "META_ADS_ARCHIVE_TOKEN": "${user_config.meta_ads_archive_token}"
+      }
+    }
+  },
+  "user_config": {
+    "meta_access_token": {
+      "type": "string",
+      "title": "META_ACCESS_TOKEN (optional — official archive only)",
+      "description": "Optional Meta Graph API access token needed only for the official v27.0 ads_archive (`archive`) tool. Leave blank for zero-auth public commercial ad search, advertiser lookup, ad details, and local intelligence tools.",
+      "sensitive": true,
+      "required": false
+    },
+    "meta_ads_archive_token": {
+      "type": "string",
+      "title": "META_ADS_ARCHIVE_TOKEN (optional alias)",
+      "description": "Optional fallback alias for META_ACCESS_TOKEN used only by the official `archive` tool when META_ACCESS_TOKEN is unset. Public tools require no token.",
+      "sensitive": true,
+      "required": false
+    },
+    "facebook_access_token": {
+      "type": "string",
+      "title": "FACEBOOK_ACCESS_TOKEN (optional alias)",
+      "description": "Optional fallback alias for META_ACCESS_TOKEN used only by the official `archive` tool when META_ACCESS_TOKEN and META_ADS_ARCHIVE_TOKEN are unset. Public tools require no token.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

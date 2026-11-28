@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-27T15:52:37.414664Z",
+  "printing_press_version": "4.35.4",
+  "api_name": "meta-ads-library",
+  "display_name": "Meta Ads Library",
+  "cli_name": "meta-ads-library-pp-cli",
+  "creator": {
+    "handle": "bobeglz",
+    "name": "bobe"
+  },
+  "owner": "bobeglz",
+  "printer": "bobeglz",
+  "printer_name": "bobe",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:549048eb11c99a5ace1ac692a46eaa5cbf541fc058c0404d7c52e2978494119d",
+  "run_id": "20261127-082434-b7f7d73b",
+  "category": "marketing",
+  "description": "Active public Meta ads worldwide (plus EU/UK/BR and political archives) from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence.",
+  "homepage": "https://www.facebook.com/ads/library/",
+  "mcp_binary": "meta-ads-library-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "META_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Winner \u0026 longevity leaderboard",
+      "command": "winners",
+      "description": "Rank active ads by proven longevity (days running), collation scale, and platform breadth."
+    },
+    {
+      "name": "Advertiser snapshot diff",
+      "command": "diff",
+      "description": "See exactly which ads an advertiser launched, stopped, or scaled between timestamped snapshots."
+    },
+    {
+      "name": "Side-by-side competitor benchmark",
+      "command": "compare",
+      "description": "Benchmark multiple advertisers side by side on active volume, median age, format mix, platforms, CTAs, and refresh velocity."
+    },
+    {
+      "name": "Landing page \u0026 funnel mapper",
+      "command": "funnels",
+      "description": "Group active ads by unwrapped destination domain, URL path, and UTM parameters including carousel cards."
+    },
+    {
+      "name": "EU/UK/Political transparency \u0026 beneficiary audit",
+      "command": "transparency",
+      "description": "Roll up EU/UK/BR reach, age-gender breakdowns, beneficiary/payer pairs, spend brackets, and violation flags per advertiser or byline."
+    },
+    {
+      "name": "Keyword share-of-voice leaderboard",
+      "command": "sov",
+      "description": "Rank which advertisers dominate a category keyword by active ad count, collation-weighted volume, dominant format, and median longevity."
+    },
+    {
+      "name": "Creative hook \u0026 copy pattern teardown",
+      "command": "hooks",
+      "description": "Extract, deduplicate, and rank opening copy hooks, headlines, and CTAs weighted by collation count and longevity."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Winner \u0026 longevity leaderboard",
+      "command": "winners",
+      "description": "Rank active ads by proven longevity (days running), collation scale, and platform breadth."
+    },
+    {
+      "name": "Advertiser snapshot diff",
+      "command": "diff",
+      "description": "See exactly which ads an advertiser launched, stopped, or scaled between timestamped snapshots."
+    },
+    {
+      "name": "Side-by-side competitor benchmark",
+      "command": "compare",
+      "description": "Benchmark multiple advertisers side by side on active volume, median age, format mix, platforms, CTAs, and refresh velocity."
+    },
+    {
+      "name": "Landing page \u0026 funnel mapper",
+      "command": "funnels",
+      "description": "Group active ads by unwrapped destination domain, URL path, and UTM parameters including carousel cards."
+    },
+    {
+      "name": "EU/UK/Political transparency \u0026 beneficiary audit",
+      "command": "transparency",
+      "description": "Roll up EU/UK/BR reach, age-gender breakdowns, beneficiary/payer pairs, spend brackets, and violation flags per advertiser or byline."
+    },
+    {
+      "name": "Keyword share-of-voice leaderboard",
+      "command": "sov",
+      "description": "Rank which advertisers dominate a category keyword by active ad count, collation-weighted volume, dominant format, and median longevity."
+    },
+    {
+      "name": "Creative hook \u0026 copy pattern teardown",
+      "command": "hooks",
+      "description": "Extract, deduplicate, and rank opening copy hooks, headlines, and CTAs weighted by collation count and longevity."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 42,
+    "total": 42,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 97,
+      "grade": "A",
+      "total": 97
+    }
+  }
+}
