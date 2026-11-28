@@ -18890,6 +18890,12 @@
         "Extract, deduplicate, and rank opening copy hooks, headlines, and CTAs weighted by collation count and longevity."
       ],
       "path": "library/marketing/meta-ads-library",
+      "release": {
+        "cli_name": "meta-ads-library-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-28T09:48:23Z",
+        "source_commit": "5064d3b6e353b1e7d9b8a67aaadf75369e13295c"
+      },
       "printer": "bobeglz",
       "printer_name": "bobe",
       "creator": {
