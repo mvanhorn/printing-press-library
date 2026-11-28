@@ -18857,6 +18857,62 @@
       }
     },
     {
+      "name": "meta-ads-library",
+      "category": "marketing",
+      "api": "Meta Ads Library",
+      "description": "Active public Meta ads worldwide (plus EU/UK/BR and political archives) from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence.",
+      "homepage": "https://www.facebook.com/ads/library/",
+      "search_terms": [
+        "meta-ads-library",
+        "Meta Ads Library",
+        "meta-ads-library-pp-cli",
+        "Active public Meta ads worldwide (plus EU/UK/BR and political archives) from one static binary — zero browser, zero API key required, plus local SQLite competitive intelligence.",
+        "Winner & longevity leaderboard",
+        "winners",
+        "Rank active ads by proven longevity (days running), collation scale, and platform breadth.",
+        "Advertiser snapshot diff",
+        "diff",
+        "See exactly which ads an advertiser launched, stopped, or scaled between timestamped snapshots.",
+        "Side-by-side competitor benchmark",
+        "compare",
+        "Benchmark multiple advertisers side by side on active volume, median age, format mix, platforms, CTAs, and refresh velocity.",
+        "Landing page & funnel mapper",
+        "funnels",
+        "Group active ads by unwrapped destination domain, URL path, and UTM parameters including carousel cards.",
+        "EU/UK/Political transparency & beneficiary audit",
+        "transparency",
+        "Roll up EU/UK/BR reach, age-gender breakdowns, beneficiary/payer pairs, spend brackets, and violation flags per advertiser or byline.",
+        "Keyword share-of-voice leaderboard",
+        "sov",
+        "Rank which advertisers dominate a category keyword by active ad count, collation-weighted volume, dominant format, and median longevity.",
+        "Creative hook & copy pattern teardown",
+        "hooks",
+        "Extract, deduplicate, and rank opening copy hooks, headlines, and CTAs weighted by collation count and longevity."
+      ],
+      "path": "library/marketing/meta-ads-library",
+      "printer": "bobeglz",
+      "printer_name": "bobe",
+      "creator": {
+        "handle": "bobeglz",
+        "name": "bobe"
+      },
+      "mcp": {
+        "binary": "meta-ads-library-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 3,
+        "auth_type": "api_key",
+        "env_vars": [
+          "META_ACCESS_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "metacritic",
       "category": "media-and-entertainment",
       "api": "Metacritic",
