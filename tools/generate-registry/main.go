@@ -149,6 +149,27 @@ type Release struct {
 	Version      string `json:"version"`
 	ReleasedAt   string `json:"released_at"`
 	SourceCommit string `json:"source_commit"`
+	// SourceTree is the git tree of the CLI directory at SourceCommit. A
+	// release's checksums.txt records the tree it was built from, so an
+	// installer can tell whether the binaries match this source.
+	SourceTree string `json:"source_tree,omitempty"`
+}
+
+// UnmarshalJSON drops source_tree, whatever its JSON type. buildEntry computes
+// it from history; a value read from a ledger file or the prior registry.json
+// could otherwise pass through unchecked in a shallow clone, or fail the read.
+func (r *Release) UnmarshalJSON(data []byte) error {
+	type plain Release
+	var in struct {
+		plain
+		SourceTree json.RawMessage `json:"source_tree"`
+	}
+	if err := json.Unmarshal(data, &in); err != nil {
+		return err
+	}
+	*r = Release(in.plain)
+	r.SourceTree = ""
+	return nil
 }
 
 // printingPressManifest captures the subset of .printing-press.json fields
@@ -459,6 +480,9 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry, r
 		// release block is present only once the CLI is actually released.
 		if commit := releaseCommits[filepath.Join(dir, releaseManifestName)]; commit != "" {
 			release.SourceCommit = commit
+			// Only the commit that last wrote the ledger is a build commit; the
+			// merge commit a shallow clone falls back to is not (issue #1908).
+			release.SourceTree = sourceTree(".", commit, dir)
 		}
 		entry.Release = release
 	}
@@ -552,6 +576,16 @@ func releaseManifestCommits(repoRoot, library string) (map[string]string, error)
 		}
 	}
 	return commits, nil
+}
+
+// sourceTree returns the git tree of dir at commit, or "" when either is absent.
+func sourceTree(repoRoot, commit, dir string) string {
+	out, err := exec.Command("git", "-C", repoRoot, "rev-parse", "--verify", "--quiet",
+		commit+":"+filepath.ToSlash(dir)).Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
 }
 
 func readRelease(path string) (*Release, error) {
@@ -701,6 +735,8 @@ func isWebURL(s string) bool {
 	return true
 }
 
+var objectIDRE = regexp.MustCompile(`^(?:[0-9a-f]{40}|[0-9a-f]{64})$`)
+
 func validateEntries(entries []RegistryEntry) []string {
 	// isBlank matches the npm installer's requiredString semantics
 	// (`.trim() === ""`). Using == "" here would let an all-whitespace
@@ -760,6 +796,9 @@ func validateEntries(entries []RegistryEntry) []string {
 			}
 			if isBlank(e.Release.SourceCommit) {
 				errs = append(errs, fmt.Sprintf("%s: release.source_commit is empty", slug))
+			}
+			if e.Release.SourceTree != "" && !objectIDRE.MatchString(e.Release.SourceTree) {
+				errs = append(errs, fmt.Sprintf("%s: release.source_tree %q is not a full git object id", slug, e.Release.SourceTree))
 			}
 		}
 	}

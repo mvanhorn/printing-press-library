@@ -7,6 +7,10 @@ on:
         description: 'List what would be published without uploading'
         type: boolean
         default: true
+      source:
+        description: 'Add source-commit and source-tree lines to existing checksums.txt files instead. Run only while no build-mcpb.yml run is queued or in progress. It infers that one build produced every asset from upload times, which release metadata cannot prove.'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -16,14 +20,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Publish missing checksums.txt
+        with:
+          # The source backfill reads each release's tree from history.
+          fetch-depth: 0
+      - name: Publish missing checksums.txt or source lines
         env:
           # GITHUB_TOKEN cannot write releases in this repo; see build-mcpb.yml.
           GH_TOKEN: ${{ secrets.RELEASE_WRITE_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run }}
+          SOURCE: ${{ inputs.source }}
         run: |
           set -euo pipefail
           args=(--repo "${GITHUB_REPOSITORY}" --all-missing)
+          if [ "${SOURCE}" = "true" ]; then
+            args=(--repo "${GITHUB_REPOSITORY}" --all-missing-source)
+          fi
           if [ "${DRY_RUN}" = "true" ]; then
             args+=(--dry-run)
           fi

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.28
+
+- Pass the optional `release.source_tree` through `parseRegistry`: the git tree of the CLI directory at `source_commit`. A release built from that source records the same tree in its `checksums.txt` when all its assets came from one build. A malformed value is dropped instead of skipping the entry.
+
 ## 0.1.27
 
 - Pass the optional catalog `homepage` URL through to `search --json` and `list --json`. A malformed value is dropped instead of skipping the entry.

@@ -583,8 +583,16 @@ jobs:
           if [ "$foreign" -ne 0 ]; then
             exit 1
           fi
+          # The checksum script comes from this checkout, so a BUILD_REF older
+          # than the source flags publishes checksums without source lines.
+          script=.github/scripts/release-checksums/release_checksums.py
+          source_note=""
+          if grep -q -- '--built-dir' "${script}"; then
+            # shellcheck disable=SC2016
+            source_note=' When every asset here came from this build, its `# source-tree` line names the git tree of the CLI directory it compiled, matching `release.source_tree` in `registry.json` when the build came from the catalog'"'"'s source.'
+          fi
           # shellcheck disable=SC2016
-          notes=$(printf 'Auto-built artifacts for **%s** at commit %s.\n\n**Claude Desktop:** download the matching `.mcpb` file and double-click to install.\n\n**Terminal CLI:** download the binary matching your platform. On macOS you may need to clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, `chmod +x <binary>`.\n\n**Verify:** `checksums.txt` lists the SHA-256 of every asset on this release. Check the file you downloaded with `grep '"'"' <file>$'"'"' checksums.txt | sha256sum -c` (macOS: `shasum -a 256 -c`).\n\n_This is a moving tag — it always points at the latest build._' "${CLI_TARGET}" "${BUILD_REF}")
+          notes=$(printf 'Auto-built artifacts for **%s** at commit %s.\n\n**Claude Desktop:** download the matching `.mcpb` file and double-click to install.\n\n**Terminal CLI:** download the binary matching your platform. On macOS you may need to clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, `chmod +x <binary>`.\n\n**Verify:** `checksums.txt` lists the SHA-256 of every asset on this release. Check the file you downloaded with `grep '"'"' <file>$'"'"' checksums.txt | sha256sum -c` (macOS: `shasum -a 256 -c`).%s\n\n_This is a moving tag — it always points at the latest build._' "${CLI_TARGET}" "${BUILD_REF}" "${source_note}")
           if gh release view "${tag}" >/dev/null 2>&1; then
             echo "Updating existing release ${tag}"
             gh release upload "${tag}" "${RUNNER_TEMP}"/dl/* --clobber
@@ -597,5 +605,12 @@ jobs:
               --target "${BUILD_REF}" \
               --latest=false
           fi
-          python3 .github/scripts/release-checksums/release_checksums.py \
-            --repo "${GITHUB_REPOSITORY}" --tag "${tag}"
+          # Record the git tree of the CLI directory this build compiled, so an
+          # installer can match the binaries to registry.json's release.source_tree.
+          checksum_args=(--repo "${GITHUB_REPOSITORY}" --tag "${tag}")
+          if [ -n "${source_note}" ]; then
+            source_dir="library/${CLI_TARGET}"
+            source_tree=$(git rev-parse --verify "${BUILD_REF}:${source_dir}")
+            checksum_args+=(--source-dir "${source_dir}" --source-commit "${BUILD_REF}" --source-tree "${source_tree}" --built-dir "${RUNNER_TEMP}/dl")
+          fi
+          python3 "${script}" "${checksum_args[@]}"
